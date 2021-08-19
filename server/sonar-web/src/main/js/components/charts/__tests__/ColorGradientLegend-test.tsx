@@ -20,10 +20,9 @@
 import { scaleLinear } from 'd3-scale';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../../../../config/jest/testTheme';
+import { colors } from '../../../app/theme';
 import ColorGradientLegend from '../ColorGradientLegend';
 
-const { colors } = testTheme;
 const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
 
 it('should render properly', () => {
@@ -39,5 +38,5 @@ it('should render properly', () => {
       width={200}
     />
   );
-  expect(wrapper.dive()).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });

@@ -8,18 +8,12 @@ exports[`should render dark helptooltip properly: dark 1`] = `
     />
   }
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <HelpIcon
+    fill="rgba(0, 0, 0, 0.25)"
+    fillInner="#ffffff"
+    size={14}
+  />
 </HelpTooltip>
-`;
-
-exports[`should render dark helptooltip properly: dark icon 1`] = `
-<HelpIcon
-  fill="rgba(0, 0, 0, 0.25)"
-  fillInner="#ffffff"
-  size={14}
-/>
 `;
 
 exports[`should render properly: default 1`] = `
@@ -37,17 +31,11 @@ exports[`should render properly: default 1`] = `
     <span
       className="display-inline-flex-center"
     >
-      <ContextConsumer>
-        <Component />
-      </ContextConsumer>
+      <HelpIcon
+        fill="#b4b4b4"
+        size={12}
+      />
     </span>
   </Tooltip>
 </div>
-`;
-
-exports[`should render properly: default icon 1`] = `
-<HelpIcon
-  fill="#b4b4b4"
-  size={12}
-/>
 `;

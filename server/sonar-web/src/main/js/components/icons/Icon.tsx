@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Theme, ThemeConsumer } from '../theme';
 
 export interface IconProps extends React.AriaAttributes {
   className?: string;
@@ -67,15 +66,5 @@ export default function Icon({
       {...iconProps}>
       {children}
     </svg>
-  );
-}
-
-interface ThemedProps extends Props {
-  children: (themeContext: { theme: Theme }) => React.ReactNode;
-}
-
-export function ThemedIcon({ children, ...iconProps }: ThemedProps) {
-  return (
-    <ThemeConsumer>{theme => <Icon {...iconProps}>{children({ theme })}</Icon>}</ThemeConsumer>
   );
 }

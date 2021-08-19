@@ -38,13 +38,6 @@ import {
 
 jest.mock('../handleRequiredAuthentication', () => ({ default: jest.fn() }));
 
-jest.mock('../init', () => {
-  const module = jest.requireActual('../init');
-  return {
-    ...module,
-    getRequestOptions: jest.fn().mockReturnValue({})
-  };
-});
 const url = '/my-url';
 
 beforeEach(() => {

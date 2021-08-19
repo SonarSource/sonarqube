@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { ThemeConsumer } from '../theme';
+import { colors } from '../../app/theme';
 import Icon, { IconProps } from './Icon';
 
 interface Props extends IconProps {
@@ -28,17 +28,13 @@ interface Props extends IconProps {
 
 export default function HomeIcon({ className, fill, filled = false, ...iconProps }: Props) {
   return (
-    <ThemeConsumer>
-      {theme => (
-        <Icon
-          className={classNames(className, 'icon-outline', { 'is-filled': filled })}
-          style={{ color: fill || theme.colors.orange }}
-          {...iconProps}>
-          <g transform="matrix(0.870918,0,0,0.870918,0.978227,0.978227)">
-            <path d="M15.9,7.8L8.2,0.1C8.1,0 7.9,0 7.8,0.1L0.1,7.8C0,7.9 0,8.1 0.1,8.2C0.2,8.3 0.2,8.3 0.3,8.3L2.2,8.3L2.2,15.8C2.2,15.9 2.2,15.9 2.3,16C2.3,16 2.4,16.1 2.5,16.1L6.2,16.1C6.3,16.1 6.5,16 6.5,15.8L6.5,10.5L9.7,10.5L9.7,15.8C9.7,15.9 9.8,16.1 10,16.1L13.7,16.1C13.8,16.1 14,16 14,15.8L14,8.2L15.9,8.2C16,8.2 16,8.2 16.1,8.1C16,8 16.1,7.9 15.9,7.8Z" />
-          </g>
-        </Icon>
-      )}
-    </ThemeConsumer>
+    <Icon
+      className={classNames(className, 'icon-outline', { 'is-filled': filled })}
+      style={{ color: fill || colors.orange }}
+      {...iconProps}>
+      <g transform="matrix(0.870918,0,0,0.870918,0.978227,0.978227)">
+        <path d="M15.9,7.8L8.2,0.1C8.1,0 7.9,0 7.8,0.1L0.1,7.8C0,7.9 0,8.1 0.1,8.2C0.2,8.3 0.2,8.3 0.3,8.3L2.2,8.3L2.2,15.8C2.2,15.9 2.2,15.9 2.3,16C2.3,16 2.4,16.1 2.5,16.1L6.2,16.1C6.3,16.1 6.5,16 6.5,15.8L6.5,10.5L9.7,10.5L9.7,15.8C9.7,15.9 9.8,16.1 10,16.1L13.7,16.1C13.8,16.1 14,16 14,15.8L14,8.2L15.9,8.2C16,8.2 16,8.2 16.1,8.1C16,8 16.1,7.9 15.9,7.8Z" />
+      </g>
+    </Icon>
   );
 }

@@ -19,9 +19,9 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { colors } from '../../app/theme';
 import HelpIcon from '../icons/HelpIcon';
 import { IconProps } from '../icons/Icon';
-import { ThemeConsumer } from '../theme';
 import './HelpTooltip.css';
 import Tooltip, { Placement } from './Tooltip';
 
@@ -42,11 +42,7 @@ export default function HelpTooltip({ size = 12, ...props }: Props) {
         overlay={props.overlay}
         placement={props.placement}>
         <span className="display-inline-flex-center">
-          {props.children || (
-            <ThemeConsumer>
-              {theme => <HelpIcon fill={theme.colors.gray71} size={size} />}
-            </ThemeConsumer>
-          )}
+          {props.children || <HelpIcon fill={colors.gray71} size={size} />}
         </span>
       </Tooltip>
     </div>
@@ -56,11 +52,7 @@ export default function HelpTooltip({ size = 12, ...props }: Props) {
 export function DarkHelpTooltip({ size = 12, ...props }: Omit<Props, 'children'>) {
   return (
     <HelpTooltip {...props}>
-      <ThemeConsumer>
-        {({ colors }) => (
-          <HelpIcon fill={colors.transparentBlack} fillInner={colors.white} size={size} />
-        )}
-      </ThemeConsumer>
+      <HelpIcon fill={colors.transparentBlack} fillInner={colors.white} size={size} />
     </HelpTooltip>
   );
 }

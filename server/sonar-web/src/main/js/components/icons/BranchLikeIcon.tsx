@@ -31,7 +31,6 @@ export interface BranchLikeIconProps extends IconProps {
 export default function BranchLikeIcon({ branchLike, ...props }: BranchLikeIconProps) {
   if (isPullRequest(branchLike)) {
     return <PullRequestIcon {...props} />;
-  } else {
-    return <BranchIcon {...props} />;
   }
+  return <BranchIcon {...props} />;
 }

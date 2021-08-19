@@ -17,17 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as theme from '../../src/main/js/app/theme';
-import ThemeContext from '../../src/main/js/components/theme';
-
 const content = document.createElement('div');
 content.id = 'content';
 document.documentElement.appendChild(content);
 
 const baseUrl = '';
 (window as any).baseUrl = baseUrl;
-
-// Hack : override the default value of the context used for theme by emotion
-// This allows tests to get the theme value without specifiying a theme provider
-ThemeContext['_currentValue'] = theme;
-ThemeContext['_currentValue2'] = theme;

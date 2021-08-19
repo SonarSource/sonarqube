@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ThemedIcon } from './Icon';
+import { colors } from '../../app/theme';
+import Icon from './Icon';
 
 interface Props {
   className?: string;
@@ -27,17 +28,13 @@ interface Props {
 }
 
 export default function ChartLegendIcon({ index, ...iconProps }: Props) {
+  const COLORS = [colors.blue, colors.darkBlue, '#24c6e0'];
   return (
-    <ThemedIcon {...iconProps}>
-      {({ theme }) => {
-        const COLORS = [theme.colors.blue, theme.colors.darkBlue, '#24c6e0'];
-        return (
-          <path
-            d="M14.325 7.143v1.714q0 0.357-0.25 0.607t-0.607 0.25h-10.857q-0.357 0-0.607-0.25t-0.25-0.607v-1.714q0-0.357 0.25-0.607t0.607-0.25h10.857q0.357 0 0.607 0.25t0.25 0.607z"
-            style={{ fill: COLORS[index] || COLORS[0] }}
-          />
-        );
-      }}
-    </ThemedIcon>
+    <Icon {...iconProps}>
+      <path
+        d="M14.325 7.143v1.714q0 0.357-0.25 0.607t-0.607 0.25h-10.857q-0.357 0-0.607-0.25t-0.25-0.607v-1.714q0-0.357 0.25-0.607t0.607-0.25h10.857q0.357 0 0.607 0.25t0.25 0.607z"
+        style={{ fill: COLORS[index] || COLORS[0] }}
+      />
+    </Icon>
   );
 }

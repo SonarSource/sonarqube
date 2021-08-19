@@ -23,8 +23,8 @@ import { scaleLinear, scalePoint, scaleTime, ScaleTime } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
 import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
+import { colors, rawSizes } from '../../app/theme';
 import { isDefined } from '../../helpers/types';
-import { Theme, ThemeConsumer } from '../theme';
 import './AdvancedTimeline.css';
 import './LineChart.css';
 
@@ -366,14 +366,14 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     );
   };
 
-  renderNewCodeLegend = (params: { leakStart: number; leakWidth: number; theme: Theme }) => {
-    const { leakStart, leakWidth, theme } = params;
+  renderNewCodeLegend = (params: { leakStart: number; leakWidth: number }) => {
+    const { leakStart, leakWidth } = params;
     const { leakLegendTextWidth, xScale, yScale } = this.state;
     const yRange = yScale.range();
     const xRange = xScale.range();
 
-    const legendMinWidth = (leakLegendTextWidth || 0) + theme.rawSizes.grid;
-    const legendPadding = theme.rawSizes.grid / 2;
+    const legendMinWidth = (leakLegendTextWidth || 0) + rawSizes.grid;
+    const legendPadding = rawSizes.grid / 2;
 
     let legendBackgroundPosition;
     let legendBackgroundWidth;
@@ -390,7 +390,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     } else {
       legendBackgroundWidth = legendMinWidth;
       legendBackgroundPosition = xRange[xRange.length - 1] - legendBackgroundWidth;
-      legendMargin = theme.rawSizes.grid / 2;
+      legendMargin = rawSizes.grid / 2;
       legendPosition = xRange[xRange.length - 1] - legendPadding;
       legendTextAnchor = 'end';
     }
@@ -398,7 +398,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     return (
       <>
         <rect
-          fill={theme.colors.leakPrimaryColor}
+          fill={colors.leakPrimaryColor}
           height={LEGEND_LINE_HEIGHT}
           width={legendBackgroundWidth}
           x={legendBackgroundPosition}
@@ -435,21 +435,17 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
     }
 
     return (
-      <ThemeConsumer>
-        {theme => (
-          <>
-            {displayNewCodeLegend && this.renderNewCodeLegend({ leakStart, leakWidth, theme })}
-            <rect
-              className="leak-chart-rect"
-              fill={theme.colors.leakPrimaryColor}
-              height={yRange[0] - yRange[yRange.length - 1]}
-              width={leakWidth}
-              x={leakStart}
-              y={yRange[yRange.length - 1]}
-            />
-          </>
-        )}
-      </ThemeConsumer>
+      <>
+        {displayNewCodeLegend && this.renderNewCodeLegend({ leakStart, leakWidth })}
+        <rect
+          className="leak-chart-rect"
+          fill={colors.leakPrimaryColor}
+          height={yRange[0] - yRange[yRange.length - 1]}
+          width={leakWidth}
+          x={leakStart}
+          y={yRange[yRange.length - 1]}
+        />
+      </>
     );
   };
 

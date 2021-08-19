@@ -100,13 +100,7 @@ describe('DropdownOverlay', () => {
     );
 
     expect(wrapper.is(ScreenPositionFixer)).toBe(true);
-    expect(
-      wrapper
-        .dive()
-        .dive()
-        .dive()
-        .is(Popup)
-    ).toBe(true);
+    expect(wrapper.dive().is(Popup)).toBe(true);
   });
 
   it('should render overlay without screen fixer', () => {

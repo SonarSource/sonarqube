@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ThemeConsumer } from '../../theme';
 import AdvancedTimeline from '../AdvancedTimeline';
 
 const newCodeLegendClass = '.new-code-legend';
@@ -53,10 +52,7 @@ it('should render correctly', () => {
 it('should render leak correctly', () => {
   const wrapper = shallowRender({ leakPeriodDate: new Date('2019-10-02') });
 
-  const leakNode = wrapper
-    .find(ThemeConsumer)
-    .dive()
-    .find('.leak-chart-rect');
+  const leakNode = wrapper.find('.leak-chart-rect');
   expect(leakNode.exists()).toBe(true);
   expect(leakNode.getElement().props.width).toBe(15);
 });
@@ -67,7 +63,7 @@ it('should render leak legend correctly', () => {
     leakPeriodDate: new Date('2019-10-02')
   });
 
-  const leakNode = wrapper.find(ThemeConsumer).dive();
+  const leakNode = wrapper;
   expect(leakNode.find(newCodeLegendClass).exists()).toBe(true);
   expect(leakNode.find(newCodeLegendClass).props().textAnchor).toBe('start');
   expect(leakNode).toMatchSnapshot();
@@ -88,7 +84,7 @@ it('should render leak legend correctly for small leak', () => {
     ]
   });
 
-  const leakNode = wrapper.find(ThemeConsumer).dive();
+  const leakNode = wrapper;
   expect(leakNode.find(newCodeLegendClass).exists()).toBe(true);
   expect(leakNode.find(newCodeLegendClass).props().textAnchor).toBe('end');
 });
@@ -110,10 +106,7 @@ it('should set leakLegendTextWidth correctly', () => {
 it('should render old leak correctly', () => {
   const wrapper = shallowRender({ leakPeriodDate: new Date('2014-10-02') });
 
-  const leakNode = wrapper
-    .find(ThemeConsumer)
-    .dive()
-    .find('.leak-chart-rect');
+  const leakNode = wrapper.find('.leak-chart-rect');
   expect(leakNode.exists()).toBe(true);
   expect(leakNode.getElement().props.width).toBe(30);
 });

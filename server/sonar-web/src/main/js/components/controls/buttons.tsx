@@ -19,12 +19,12 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { colors } from '../../app/theme';
 import ChevronRightIcon from '../icons/ChevronRightIcon';
 import ClearIcon, { ClearIconProps } from '../icons/ClearIcon';
 import DeleteIcon from '../icons/DeleteIcon';
 import EditIcon from '../icons/EditIcon';
 import { IconProps } from '../icons/Icon';
-import { ThemeConsumer } from '../theme';
 import './buttons.css';
 import Tooltip, { TooltipProps } from './Tooltip';
 
@@ -113,18 +113,14 @@ export interface ButtonIconProps extends ButtonProps {
 export function ButtonIcon(props: ButtonIconProps) {
   const { className, color, tooltip, tooltipProps, ...other } = props;
   return (
-    <ThemeConsumer>
-      {theme => (
-        <Tooltip mouseEnterDelay={0.4} overlay={tooltip} {...tooltipProps}>
-          <Button
-            className={classNames(className, 'button-icon')}
-            stopPropagation={true}
-            style={{ color: color || theme.colors.darkBlue }}
-            {...other}
-          />
-        </Tooltip>
-      )}
-    </ThemeConsumer>
+    <Tooltip mouseEnterDelay={0.4} overlay={tooltip} {...tooltipProps}>
+      <Button
+        className={classNames(className, 'button-icon')}
+        stopPropagation={true}
+        style={{ color: color || colors.darkBlue }}
+        {...other}
+      />
+    </Tooltip>
   );
 }
 
@@ -136,13 +132,9 @@ interface ClearButtonProps extends ButtonIconProps {
 
 export function ClearButton({ color, iconProps = {}, ...props }: ClearButtonProps) {
   return (
-    <ThemeConsumer>
-      {theme => (
-        <ButtonIcon color={color || theme.colors.gray60} {...props}>
-          <ClearIcon {...iconProps} />
-        </ButtonIcon>
-      )}
-    </ThemeConsumer>
+    <ButtonIcon color={color || colors.gray60} {...props}>
+      <ClearIcon {...iconProps} />
+    </ButtonIcon>
   );
 }
 
@@ -154,13 +146,9 @@ interface ActionButtonProps extends ButtonIconProps {
 
 export function DeleteButton({ iconProps = {}, ...props }: ActionButtonProps) {
   return (
-    <ThemeConsumer>
-      {theme => (
-        <ButtonIcon color={theme.colors.red} {...props}>
-          <DeleteIcon {...iconProps} />
-        </ButtonIcon>
-      )}
-    </ThemeConsumer>
+    <ButtonIcon color={colors.red} {...props}>
+      <DeleteIcon {...iconProps} />
+    </ButtonIcon>
   );
 }
 

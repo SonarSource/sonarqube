@@ -20,7 +20,7 @@
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import { Theme, withTheme } from '../theme';
+import { rawSizes } from '../../app/theme';
 
 interface Props {
   /**
@@ -36,7 +36,6 @@ interface Props {
    *   - when you load content asynchronously
    */
   ready?: boolean;
-  theme: Theme;
 }
 
 interface Fixes {
@@ -44,7 +43,7 @@ interface Fixes {
   topFix?: number;
 }
 
-export class ScreenPositionFixer extends React.Component<Props, Fixes> {
+export default class ScreenPositionFixer extends React.Component<Props, Fixes> {
   throttledPosition: () => void;
 
   constructor(props: Props) {
@@ -83,7 +82,7 @@ export class ScreenPositionFixer extends React.Component<Props, Fixes> {
   };
 
   position = () => {
-    const edgeMargin = 0.5 * this.props.theme.rawSizes.grid;
+    const edgeMargin = 0.5 * rawSizes.grid;
 
     // eslint-disable-next-line react/no-find-dom-node
     const node = findDOMNode(this);
@@ -113,5 +112,3 @@ export class ScreenPositionFixer extends React.Component<Props, Fixes> {
     return this.props.children(this.state);
   }
 }
-
-export default withTheme(ScreenPositionFixer);

@@ -56,13 +56,7 @@ describe('PortalPopup', () => {
     const wrapper = shallowRender();
     wrapper.setState({ left: 0, top: 0, width: 10, height: 10 });
     expect(wrapper).toMatchSnapshot();
-    expect(
-      wrapper
-        .find(ScreenPositionFixer)
-        .dive()
-        .dive()
-        .dive()
-    ).toMatchSnapshot();
+    expect(wrapper.find(ScreenPositionFixer).dive()).toMatchSnapshot();
   });
 
   it('should correctly compute the popup positioning', () => {

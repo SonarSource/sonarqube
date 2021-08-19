@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { css } from '@emotion/core';
+import styled from '@emotion/styled';
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { colors, sizes } from '../../app/theme';
 import { translate } from '../../helpers/l10n';
 import AlertErrorIcon from '../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../icons/AlertSuccessIcon';
 import AlertWarnIcon from '../icons/AlertWarnIcon';
 import InfoIcon from '../icons/InfoIcon';
-import { css, styled, Theme, themeColor, ThemedProps, themeSize, useTheme } from '../theme';
 import DeferredSpinner from './DeferredSpinner';
 
 type AlertDisplay = 'banner' | 'inline' | 'block';
@@ -47,7 +49,7 @@ const StyledAlertIcon = styled.div<{ isBanner: boolean; variantInfo: AlertVarian
   display: flex;
   justify-content: center;
   align-items: center;
-  width: calc(${({ isBanner }) => (isBanner ? 2 : 4)} * ${themeSize('gridSize')});
+  width: calc(${({ isBanner }) => (isBanner ? 2 : 4)} * ${sizes.gridSize});
   border-right: ${({ isBanner }) => (!isBanner ? '1px solid' : 'none')};
   border-color: ${({ variantInfo }) => variantInfo.borderColor};
 `;
@@ -56,16 +58,16 @@ const StyledAlertContent = styled.div`
   flex: 1 1 auto;
   overflow: auto;
   text-align: left;
-  padding: ${themeSize('gridSize')} calc(2 * ${themeSize('gridSize')});
+  padding: ${sizes.gridSize} calc(2 * ${sizes.gridSize});
 `;
 
-const alertInnerIsBannerMixin = ({ theme }: ThemedProps) => css`
-  min-width: ${theme.sizes.minPageWidth};
-  max-width: ${theme.sizes.maxPageWidth};
+const alertInnerIsBannerMixin = () => css`
+  min-width: ${sizes.minPageWidth};
+  max-width: ${sizes.maxPageWidth};
   margin-left: auto;
   margin-right: auto;
-  padding-left: ${theme.sizes.pagePadding};
-  padding-right: ${theme.sizes.pagePadding};
+  padding-left: ${sizes.pagePadding};
+  padding-right: ${sizes.pagePadding};
   box-sizing: border-box;
 `;
 
@@ -78,7 +80,7 @@ const StyledAlertInner = styled.div<{ isBanner: boolean }>`
 const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInformation }>`
   border: 1px solid;
   border-radius: 2px;
-  margin-bottom: ${themeSize('gridSize')};
+  margin-bottom: ${sizes.gridSize};
   border-color: ${({ variantInfo }) => variantInfo.borderColor};
   background-color: ${({ variantInfo }) => variantInfo.backGroundColor};
   color: ${({ variantInfo }) => variantInfo.color};
@@ -90,11 +92,11 @@ const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInf
 
   a,
   .button-link {
-    border-color: ${themeColor('darkBlue')};
+    border-color: ${colors.darkBlue};
   }
 `;
 
-function getAlertVariantInfo({ colors }: Theme, variant: AlertVariant): AlertVariantInformation {
+function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
   const variantList: T.Dict<AlertVariantInformation> = {
     error: {
       icon: <AlertErrorIcon fill={colors.alertIconError} />,
@@ -132,11 +134,10 @@ function getAlertVariantInfo({ colors }: Theme, variant: AlertVariant): AlertVar
 }
 
 export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) {
-  const theme = useTheme();
   const { className, display, variant, ...domProps } = props;
   const isInline = display === 'inline';
   const isBanner = display === 'banner';
-  const variantInfo = getAlertVariantInfo(theme, variant);
+  const variantInfo = getAlertVariantInfo(variant);
 
   return (
     <StyledAlert

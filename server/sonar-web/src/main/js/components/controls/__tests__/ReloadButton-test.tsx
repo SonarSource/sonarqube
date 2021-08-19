@@ -19,15 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../../../../config/jest/testTheme';
 import { click } from '../../../helpers/testUtils';
-import { ThemeProvider } from '../../theme';
 import ReloadButton from '../ReloadButton';
 
 it('should render properly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('ContextConsumer').dive()).toMatchSnapshot();
 });
 
 it('should handle click', () => {
@@ -39,10 +36,5 @@ it('should handle click', () => {
 });
 
 function shallowRender(props: Partial<ReloadButton['props']> = {}) {
-  return shallow<ReloadButton>(<ReloadButton onClick={jest.fn()} {...props} />, {
-    wrappingComponent: ThemeProvider,
-    wrappingComponentProps: {
-      theme: testTheme
-    }
-  });
+  return shallow<ReloadButton>(<ReloadButton onClick={jest.fn()} {...props} />);
 }

@@ -19,9 +19,8 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../../../../config/jest/testTheme';
 import { resizeWindowTo, setNodeRect } from '../../../helpers/testUtils';
-import { ScreenPositionFixer } from '../ScreenPositionFixer';
+import ScreenPositionFixer from '../ScreenPositionFixer';
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
@@ -91,5 +90,5 @@ it('should re-position when window is resized', () => {
 
 function mountRender(props: Partial<ScreenPositionFixer['props']>) {
   // eslint-disable-next-line react/no-children-prop
-  return mount(<ScreenPositionFixer theme={testTheme} children={() => <div />} {...props} />);
+  return mount(<ScreenPositionFixer children={() => <div />} {...props} />);
 }

@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import * as React from 'react';
-import { styled, themeColor, ThemedProps, themeSize } from '../theme';
+import { colors, sizes } from '../../app/theme';
 
 export interface BoxedTabsProps<K> {
   className?: string;
@@ -32,17 +33,17 @@ const TabContainer = styled.div`
   flex-direction: row;
 `;
 
-const baseBorder = ({ theme }: ThemedProps) => `1px solid ${theme.colors.barBorderColor}`;
+const baseBorder = () => `1px solid ${colors.barBorderColor}`;
 
-const highlightHoverMixin = ({ theme }: ThemedProps) => `
+const highlightHoverMixin = () => `
   &:hover {
-    background-color: ${theme.colors.barBackgroundColorHighlight};
+    background-color: ${colors.barBackgroundColorHighlight};
   }
 `;
 
 const StyledTab = styled.button<{ active: boolean }>`
   position: relative;
-  background-color: ${props => (props.active ? 'white' : props.theme.colors.barBackgroundColor)};
+  background-color: ${props => (props.active ? 'white' : colors.barBackgroundColor)};
   border-top: ${baseBorder};
   border-left: ${baseBorder};
   border-right: none;
@@ -52,7 +53,7 @@ const StyledTab = styled.button<{ active: boolean }>`
   min-height: 56px;
   ${props => !props.active && 'cursor: pointer;'}
   outline: 0;
-  padding: calc(2 * ${themeSize('gridSize')});
+  padding: calc(2 * ${sizes.gridSize});
 
   ${props => (!props.active ? highlightHoverMixin : null)}
 
@@ -63,7 +64,7 @@ const StyledTab = styled.button<{ active: boolean }>`
 
 const ActiveBorder = styled.div<{ active: boolean }>`
   display: ${props => (props.active ? 'block' : 'none')};
-  background-color: ${themeColor('blue')};
+  background-color: ${colors.blue};
   height: 3px;
   width: 100%;
   position: absolute;

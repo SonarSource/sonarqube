@@ -20,7 +20,6 @@
 import { InjectedIntl } from 'react-intl';
 import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
-import { Theme } from '../components/theme';
 import { Store } from '../store/rootReducer';
 import { L10nBundle } from './l10n';
 
@@ -39,7 +38,14 @@ export interface ExtensionStartMethodParameter {
   intl: InjectedIntl;
   location: Location;
   router: Router;
-  theme: Theme;
+  theme: {
+    colors: T.Dict<string>;
+    sizes: T.Dict<string>;
+    rawSizes: T.Dict<number>;
+    fonts: T.Dict<string>;
+    zIndexes: T.Dict<string>;
+    others: T.Dict<string>;
+  };
   baseUrl: string;
   l10nBundle: L10nBundle;
 }

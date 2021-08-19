@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { keyframes } from '@emotion/core';
+import styled from '@emotion/styled';
 import * as React from 'react';
+import { colors, sizes, zIndexes } from '../../app/theme';
 import { cutLongWords } from '../../helpers/path';
-import { styled, themeGet, themeSize } from '../theme';
 import { ClearButton } from './buttons';
 
 interface Message {
@@ -50,7 +51,7 @@ export default function GlobalMessages({ closeGlobalMessage, messages }: GlobalM
 
 const MessagesContainer = styled.div`
   position: fixed;
-  z-index: ${themeGet('zIndexes', 'processContainerZIndex')};
+  z-index: ${zIndexes.processContainerZIndex};
   top: 0;
   left: 50%;
   width: 350px;
@@ -96,29 +97,28 @@ const appearAnim = keyframes`
 const Message = styled.div<Pick<Message, 'level'>>`
   position: relative;
   padding: 0 30px 0 10px;
-  line-height: ${themeSize('controlHeight')};
+  line-height: ${sizes.controlHeight};
   border-radius: 0 0 3px 3px;
   box-sizing: border-box;
   color: #ffffff;
-  background-color: ${({ level, theme }) =>
-    level === 'SUCCESS' ? theme.colors.green : theme.colors.red};
+  background-color: ${({ level }) => (level === 'SUCCESS' ? colors.green : colors.red)};
   text-align: center;
   opacity: 0;
   animation: ${appearAnim} 0.2s ease forwards;
 
   & + & {
-    margin-top: calc(${themeSize('gridSize')} / 2);
+    margin-top: calc(${sizes.gridSize} / 2);
     border-radius: 3px;
   }
 `;
 
 const CloseButton = styled(ClearButton)<Pick<Message, 'level'>>`
   position: absolute;
-  top: calc(${themeSize('gridSize')} / 4);
-  right: calc(${themeSize('gridSize')} / 4);
+  top: calc(${sizes.gridSize} / 4);
+  right: calc(${sizes.gridSize} / 4);
 
   &:hover svg,
   &:focus svg {
-    color: ${({ level, theme }) => (level === 'SUCCESS' ? theme.colors.green : theme.colors.red)};
+    color: ${({ level }) => (level === 'SUCCESS' ? colors.green : colors.red)};
   }
 `;

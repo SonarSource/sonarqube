@@ -20,7 +20,7 @@
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
-import ThemeContext from '../theme';
+import { rawSizes } from '../../app/theme';
 import ScreenPositionFixer from './ScreenPositionFixer';
 import './Tooltip.css';
 
@@ -140,8 +140,6 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     this.removeEventListeners();
     this.clearTimeouts();
   }
-
-  static contextType = ThemeContext;
 
   addEventListeners = () => {
     window.addEventListener('resize', this.throttledPositionTooltip);
@@ -292,7 +290,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     // We can live with a tooltip that's slightly positioned over the toggle
     // node. Only trigger if it really starts overlapping, as the re-positioning
     // is quite expensive, needing 2 re-renders.
-    const threshold = this.context.rawSizes.grid;
+    const threshold = rawSizes.grid;
     switch (this.getPlacement()) {
       case 'left':
       case 'right':

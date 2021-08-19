@@ -72,6 +72,6 @@ describe('ButtonIcon', () => {
       <ButtonIcon tooltip="my tooltip" tooltipProps={{ visible: true }} {...props}>
         <i />
       </ButtonIcon>
-    ).dive();
+    );
   }
 });

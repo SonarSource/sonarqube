@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import { matchers } from 'jest-emotion';
 import * as React from 'react';
-import testTheme from '../../../../../../config/jest/testTheme';
+import { colors } from '../../../app/theme';
 import GlobalMessages, { GlobalMessagesProps } from '../GlobalMessages';
 
 expect.extend(matchers);
@@ -54,14 +54,14 @@ it('should render with correct css', () => {
       .find('GlobalMessage')
       .first()
       .render()
-  ).toHaveStyleRule('background-color', testTheme.colors.red);
+  ).toHaveStyleRule('background-color', colors.red);
 
   expect(
     wrapper
       .find('GlobalMessage')
       .last()
       .render()
-  ).toHaveStyleRule('background-color', testTheme.colors.green);
+  ).toHaveStyleRule('background-color', colors.green);
 });
 
 function shallowRender(props: Partial<GlobalMessagesProps> = {}) {

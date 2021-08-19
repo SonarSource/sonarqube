@@ -24,7 +24,7 @@ import { area, curveBasis, line as d3Line } from 'd3-shape';
 import { flatten, sortBy, throttle } from 'lodash';
 import * as React from 'react';
 import Draggable, { DraggableBounds, DraggableCore, DraggableData } from 'react-draggable';
-import { ThemeConsumer } from '../theme';
+import { colors } from '../../app/theme';
 import './LineChart.css';
 import './ZoomTimeLine.css';
 
@@ -219,17 +219,13 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
     }
     const yRange = yScale.range();
     return (
-      <ThemeConsumer>
-        {theme => (
-          <rect
-            fill={theme.colors.leakPrimaryColor}
-            height={yRange[0] - yRange[yRange.length - 1]}
-            width={xScale.range()[1] - xScale(leakPeriodDate)}
-            x={xScale(leakPeriodDate)}
-            y={yRange[yRange.length - 1]}
-          />
-        )}
-      </ThemeConsumer>
+      <rect
+        fill={colors.leakPrimaryColor}
+        height={yRange[0] - yRange[yRange.length - 1]}
+        width={xScale.range()[1] - xScale(leakPeriodDate)}
+        x={xScale(leakPeriodDate)}
+        y={yRange[yRange.length - 1]}
+      />
     );
   };
 

@@ -20,7 +20,7 @@
 import { scaleTime } from 'd3-scale';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../../../../config/jest/testTheme';
+import { colors } from '../../../app/theme';
 import ZoomTimeLine from '../ZoomTimeLine';
 
 const series = [
@@ -65,9 +65,7 @@ it('should be zoomable', () => {
 it('should render a leak period', () => {
   expect(
     shallowRender({ leakPeriodDate: new Date('2020-01-01') })
-      .find('ContextConsumer')
-      .dive()
-      .find(`rect[fill="${testTheme.colors.leakPrimaryColor}"]`)
+      .find(`rect[fill="${colors.leakPrimaryColor}"]`)
       .exists()
   ).toBe(true);
 });

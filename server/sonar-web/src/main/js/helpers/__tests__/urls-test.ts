@@ -222,16 +222,20 @@ describe('#getHostUrl', () => {
     jest.resetModules();
   });
   it('should return host url on client side', () => {
-    jest.mock('../init', () => ({
-      getUrlContext: () => '',
+    jest.mock('../system', () => ({
+      getBaseUrl: () => ''
+    }));
+    jest.mock('../browser', () => ({
       IS_SSR: false
     }));
     const mockedUrls = require('../urls');
     expect(mockedUrls.getHostUrl()).toBe('http://localhost');
   });
   it('should throw on server-side', () => {
-    jest.mock('../init', () => ({
-      getUrlContext: () => '',
+    jest.mock('../system', () => ({
+      getBaseUrl: () => ''
+    }));
+    jest.mock('../browser', () => ({
       IS_SSR: true
     }));
     const mockedUrls = require('../urls');

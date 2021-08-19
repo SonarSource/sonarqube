@@ -38,11 +38,11 @@ exports[`PortalPopup should render correctly with overlay 1`] = `
     id="popup-trigger"
   />
   <PortalWrapper>
-    <WithTheme(ScreenPositionFixer)
+    <ScreenPositionFixer
       ready={true}
     >
       <Component />
-    </WithTheme(ScreenPositionFixer)>
+    </ScreenPositionFixer>
   </PortalWrapper>
 </Fragment>
 `;

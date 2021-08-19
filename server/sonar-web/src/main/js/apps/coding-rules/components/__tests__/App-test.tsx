@@ -49,6 +49,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
 }));
 
 jest.mock('../../../../helpers/system', () => ({
+  getReactDomContainerSelector: () => '#content',
   isSonarCloud: jest.fn().mockResolvedValue(false)
 }));
 

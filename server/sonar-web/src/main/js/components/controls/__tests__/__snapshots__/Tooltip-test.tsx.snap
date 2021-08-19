@@ -30,11 +30,11 @@ exports[`should render 2`] = `
     onMouseLeave={[Function]}
   />
   <TooltipPortal>
-    <WithTheme(ScreenPositionFixer)
+    <ScreenPositionFixer
       ready={false}
     >
       <Component />
-    </WithTheme(ScreenPositionFixer)>
+    </ScreenPositionFixer>
   </TooltipPortal>
 </Fragment>
 `;
