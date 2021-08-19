@@ -58,12 +58,15 @@ import Dropdown from '../../../sonar-ui-common/components/controls/Dropdown';
 import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
 import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
 import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import Radio from '../../../sonar-ui-common/components/controls/Radio';
 import RadioToggle from '../../../sonar-ui-common/components/controls/RadioToggle';
 import ReloadButton from '../../../sonar-ui-common/components/controls/ReloadButton';
 import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
 import SearchSelect from '../../../sonar-ui-common/components/controls/SearchSelect';
 import Select from '../../../sonar-ui-common/components/controls/Select';
-import SelectList from '../../../sonar-ui-common/components/controls/SelectList';
+import SelectList, {
+  SelectListFilter
+} from '../../../sonar-ui-common/components/controls/SelectList';
 import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
 import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
 import AlertErrorIcon from '../../../sonar-ui-common/components/icons/AlertErrorIcon';
@@ -211,6 +214,7 @@ const exposeLibraries = () => {
         PlusCircleIcon,
         PullRequestIcon,
         QualifierIcon,
+        Radio,
         RadioToggle,
         Rating,
         ReloadButton,
@@ -220,6 +224,7 @@ const exposeLibraries = () => {
         SecurityHotspotIcon,
         Select,
         SelectList,
+        SelectListFilter,
         SimpleModal,
         SubmitButton,
         Suggestions,
