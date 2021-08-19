@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { SubmitButton } from '../../../../components/controls/buttons';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import { SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
-import { change, submit } from '../../../../sonar-ui-common/helpers/testUtils';
+import { change, submit } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AzurePersonalAccessTokenForm, {
   AzurePersonalAccessTokenFormProps

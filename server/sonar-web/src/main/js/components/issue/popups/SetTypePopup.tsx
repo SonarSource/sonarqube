@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
+import { translate } from '../../../helpers/l10n';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 

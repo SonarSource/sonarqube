@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import DocumentationTooltip from '../../../../../components/common/DocumentationTooltip';
+import HelpTooltip from '../../../../../components/controls/HelpTooltip';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
+import DropdownIcon from '../../../../../components/icons/DropdownIcon';
+import PlusCircleIcon from '../../../../../components/icons/PlusCircleIcon';
 import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
+import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
-import HelpTooltip from '../../../../../sonar-ui-common/components/controls/HelpTooltip';
-import DropdownIcon from '../../../../../sonar-ui-common/components/icons/DropdownIcon';
-import PlusCircleIcon from '../../../../../sonar-ui-common/components/icons/PlusCircleIcon';
-import { translate, translateWithParameters } from '../../../../../sonar-ui-common/helpers/l10n';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';

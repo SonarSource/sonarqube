@@ -20,10 +20,10 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
-import HelpTooltip from '../../../../sonar-ui-common/components/controls/HelpTooltip';
-import Tooltip from '../../../../sonar-ui-common/components/controls/Tooltip';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
+import HelpTooltip from '../../../../components/controls/HelpTooltip';
+import Tooltip from '../../../../components/controls/Tooltip';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {

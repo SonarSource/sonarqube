@@ -21,8 +21,8 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { getComponentNavigation } from '../../../../api/nav';
 import CreateApplicationForm from '../../../../app/components/extensions/CreateApplicationForm';
+import { Button } from '../../../../components/controls/buttons';
 import { mockAppState, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
-import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
 import { ComponentQualifier } from '../../../../types/component';
 import { ApplicationCreation, ApplicationCreationProps } from '../ApplicationCreation';
 

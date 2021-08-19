@@ -23,11 +23,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Profile } from '../../../api/quality-profiles';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
+import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Select from '../../../components/controls/Select';
+import SimpleModal from '../../../components/controls/SimpleModal';
+import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
-import { ButtonLink, SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Store } from '../../../store/rootReducer';
 
 export interface AddLanguageModalProps {

@@ -19,19 +19,15 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { Button, DeleteButton, EditButton } from '../../../components/controls/buttons';
+import Dropdown, { DropdownOverlay } from '../../../components/controls/Dropdown';
+import Toggler from '../../../components/controls/Toggler';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';
+import { PopupPlacement } from '../../../components/ui/popups';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import {
-  Button,
-  DeleteButton,
-  EditButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Dropdown, { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
 import HotspotCommentPopup from './HotspotCommentPopup';

@@ -19,13 +19,10 @@
  */
 import * as React from 'react';
 import { deleteBranch, deletePullRequest } from '../../../api/branches';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
 import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 
 interface Props {

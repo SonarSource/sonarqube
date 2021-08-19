@@ -20,14 +20,10 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { deleteCondition } from '../../../api/quality-gates';
-import { DeleteButton, EditButton } from '../../../sonar-ui-common/components/controls/buttons';
-import ConfirmModal from '../../../sonar-ui-common/components/controls/ConfirmModal';
-import {
-  getLocalizedMetricName,
-  translate,
-  translateWithParameters
-} from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import { DeleteButton, EditButton } from '../../../components/controls/buttons';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
+import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 import ConditionModal from './ConditionModal';
 

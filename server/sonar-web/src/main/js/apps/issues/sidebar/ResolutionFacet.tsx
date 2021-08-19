@@ -24,7 +24,7 @@ import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {

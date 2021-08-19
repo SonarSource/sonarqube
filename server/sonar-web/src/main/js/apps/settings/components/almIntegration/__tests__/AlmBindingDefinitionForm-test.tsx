@@ -40,7 +40,7 @@ import {
   mockGithubBindingDefinition,
   mockGitlabBindingDefinition
 } from '../../../../../helpers/mocks/alm-settings';
-import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmBindingDefinition, AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionForm from '../AlmBindingDefinitionForm';
 import AlmBindingDefinitionFormRenderer from '../AlmBindingDefinitionFormRenderer';

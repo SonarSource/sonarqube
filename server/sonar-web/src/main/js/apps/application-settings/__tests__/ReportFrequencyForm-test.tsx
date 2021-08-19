@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Button, ResetButtonLink } from '../../../components/controls/buttons';
+import Select from '../../../components/controls/Select';
 import { mockDefinition } from '../../../helpers/mocks/settings';
-import { Button, ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import Select from '../../../sonar-ui-common/components/controls/Select';
 import ReportFrequencyForm, { ReportFrequencyFormProps } from '../ReportFrequencyForm';
 
 it('should render correctly', () => {

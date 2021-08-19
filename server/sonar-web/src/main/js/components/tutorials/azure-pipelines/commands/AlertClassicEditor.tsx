@@ -21,9 +21,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 
 export default function AlertClassicEditor() {

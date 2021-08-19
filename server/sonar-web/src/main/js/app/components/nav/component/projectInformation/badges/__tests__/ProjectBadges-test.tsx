@@ -21,16 +21,13 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../../../../helpers/mocks/branch-like';
 import { mockMetric } from '../../../../../../../helpers/testMocks';
-import { Location } from '../../../../../../../sonar-ui-common/helpers/urls';
+import { Location } from '../../../../../../../helpers/urls';
 import { MetricKey } from '../../../../../../../types/metrics';
 import ProjectBadges from '../ProjectBadges';
 
-jest.mock('../../../../../../../sonar-ui-common/helpers/urls', () => ({
-  getHostUrl: () => 'host',
-  getPathUrlAsString: (l: Location) => l.pathname
-}));
-
 jest.mock('../../../../../../../helpers/urls', () => ({
+  getHostUrl: () => 'host',
+  getPathUrlAsString: (l: Location) => l.pathname,
   getProjectUrl: () => ({ pathname: '/dashboard' } as Location)
 }));
 

@@ -24,12 +24,10 @@ import {
   setDefaultPermissionTemplate,
   updatePermissionTemplate
 } from '../../../api/permissions';
+import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { translate } from '../../../helpers/l10n';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';
 import Form from './Form';

@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
+import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Exporter, Profile } from '../types';
 
 interface Props {

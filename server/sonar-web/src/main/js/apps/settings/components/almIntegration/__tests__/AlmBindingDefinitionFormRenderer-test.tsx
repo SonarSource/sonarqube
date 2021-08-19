@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ResetButtonLink } from '../../../../../components/controls/buttons';
 import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import { mockEvent } from '../../../../../helpers/testMocks';
-import { ResetButtonLink } from '../../../../../sonar-ui-common/components/controls/buttons';
-import { click } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionFormRenderer, {
   AlmBindingDefinitionFormProps

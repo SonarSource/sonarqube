@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import { keyBy } from 'lodash';
 import * as React from 'react';
+import OriginalBubbleChart from '../../../../components/charts/BubbleChart';
 import { mockComponentMeasure, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
-import OriginalBubbleChart from '../../../../sonar-ui-common/components/charts/BubbleChart';
 import { MetricKey } from '../../../../types/metrics';
 import { enhanceComponent } from '../../utils';
 import BubbleChart from '../BubbleChart';

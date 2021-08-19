@@ -25,12 +25,12 @@ import {
   getProfileProjects,
   ProfileProject
 } from '../../../api/quality-profiles';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
-} from '../../../sonar-ui-common/components/controls/SelectList';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../components/controls/SelectList';
+import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
 interface Props {

@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { colors } from '../../../app/theme';
-import { ClearButton } from '../../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ClearButton } from '../../../components/controls/buttons';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 import { getAppState, Store } from '../../../store/rootReducer';
 
 export interface Props {

@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Actions } from '../../../api/quality-profiles';
+import { Button } from '../../../components/controls/buttons';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Alert } from '../../../components/ui/Alert';
+import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import { getProfilePath } from '../utils';
 import CreateProfileForm from './CreateProfileForm';

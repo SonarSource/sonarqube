@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
-import NavBarTabs from '../../../sonar-ui-common/components/ui/NavBarTabs';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import NavBarTabs from '../../../components/ui/NavBarTabs';
+import { translate } from '../../../helpers/l10n';
 
 export default function Nav() {
   return (

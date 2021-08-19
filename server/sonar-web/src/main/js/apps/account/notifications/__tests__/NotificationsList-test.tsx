@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Checkbox from '../../../../sonar-ui-common/components/controls/Checkbox';
-import { hasMessage } from '../../../../sonar-ui-common/helpers/l10n';
+import Checkbox from '../../../../components/controls/Checkbox';
+import { hasMessage } from '../../../../helpers/l10n';
 import NotificationsList from '../NotificationsList';
 
-jest.mock('../../../../sonar-ui-common/helpers/l10n', () => ({
-  ...jest.requireActual('../../../../sonar-ui-common/helpers/l10n'),
+jest.mock('../../../../helpers/l10n', () => ({
+  ...jest.requireActual('../../../../helpers/l10n'),
   hasMessage: jest.fn()
 }));
 

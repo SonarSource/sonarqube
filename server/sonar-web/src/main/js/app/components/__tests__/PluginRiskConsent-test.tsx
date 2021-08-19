@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { setSimpleSettingValue } from '../../../api/settings';
+import { Button } from '../../../components/controls/buttons';
 import { mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
 import { PluginRiskConsent, PluginRiskConsentProps } from '../PluginRiskConsent';
 
 jest.mock('../../../api/settings', () => ({

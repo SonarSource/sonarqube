@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getHistory from '../../sonar-ui-common/helpers/getHistory';
+import getHistory from '../../helpers/getHistory';
 import { requireAuthorization } from '../../store/appState';
 import getStore from './getStore';
 

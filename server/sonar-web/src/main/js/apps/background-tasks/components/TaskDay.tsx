@@ -19,8 +19,8 @@
  */
 import * as isSameDay from 'date-fns/is_same_day';
 import * as React from 'react';
-import DateFormatter from '../../../sonar-ui-common/components/intl/DateFormatter';
-import { parseDate } from '../../../sonar-ui-common/helpers/dates';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import { parseDate } from '../../../helpers/dates';
 
 interface Props {
   submittedAt: string;

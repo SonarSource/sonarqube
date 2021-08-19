@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getStandards } from '../../../../helpers/security-standard';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import { Query } from '../../utils';
 import StandardFacet from '../StandardFacet';
 

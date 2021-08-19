@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import FormattingTips from '../../../../components/common/FormattingTips';
-import { SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
-import Radio from '../../../../sonar-ui-common/components/controls/Radio';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { SubmitButton } from '../../../../components/controls/buttons';
+import Radio from '../../../../components/controls/Radio';
+import { translate } from '../../../../helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import StatusDescription from './StatusDescription';
 

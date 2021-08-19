@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { changePassword } from '../../api/users';
-import { SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
-import { Alert } from '../../sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { SubmitButton } from '../../components/controls/buttons';
+import { Alert } from '../../components/ui/Alert';
+import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   className?: string;

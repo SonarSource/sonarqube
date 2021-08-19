@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { mockEvent } from '../../../helpers/testMocks';
-import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 
 const CONTENT = `
@@ -50,7 +50,7 @@ jest.mock('rehype-raw', () => ({ default: jest.requireActual('rehype-raw') }));
 jest.mock('rehype-react', () => ({ default: jest.requireActual('rehype-react') }));
 jest.mock('rehype-slug', () => ({ default: jest.requireActual('rehype-slug') }));
 
-jest.mock('../../../sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

@@ -21,10 +21,10 @@ import * as differenceInDays from 'date-fns/difference_in_days';
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { showLicense } from '../../../api/marketplace';
-import { toShortNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
-import { hasMessage } from '../../../sonar-ui-common/helpers/l10n';
-import { get, save } from '../../../sonar-ui-common/helpers/storage';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { toShortNotSoISOString } from '../../../helpers/dates';
+import { hasMessage } from '../../../helpers/l10n';
+import { get, save } from '../../../helpers/storage';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { EditionKey } from '../../../types/editions';
 import { StartupModal } from '../StartupModal';
 
@@ -32,16 +32,16 @@ jest.mock('../../../api/marketplace', () => ({
   showLicense: jest.fn().mockResolvedValue(undefined)
 }));
 
-jest.mock('../../../sonar-ui-common/helpers/storage', () => ({
+jest.mock('../../../helpers/storage', () => ({
   get: jest.fn(),
   save: jest.fn()
 }));
 
-jest.mock('../../../sonar-ui-common/helpers/l10n', () => ({
+jest.mock('../../../helpers/l10n', () => ({
   hasMessage: jest.fn().mockReturnValue(true)
 }));
 
-jest.mock('../../../sonar-ui-common/helpers/dates', () => ({
+jest.mock('../../../helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('parsed-date'),
   toShortNotSoISOString: jest.fn().mockReturnValue('short-not-iso-date')
 }));

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import InstanceMessage from '../../components/common/InstanceMessage';
+import { Alert } from '../../components/ui/Alert';
 import { getEdition } from '../../helpers/editions';
-import { Alert } from '../../sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
 

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import CodeSnippet from '../../../../../../components/common/CodeSnippet';
 import { getBranchLikeQuery } from '../../../../../../helpers/branch-like';
-import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../../types/branch-like';
 import { MetricKey } from '../../../../../../types/metrics';
 import BadgeButton from './BadgeButton';

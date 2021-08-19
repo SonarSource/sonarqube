@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../api/issues';
-import Checkbox from '../../sonar-ui-common/components/controls/Checkbox';
+import Checkbox from '../../components/controls/Checkbox';
 import { BranchLike } from '../../types/branch-like';
 import { updateIssue } from './actions';
 import IssueActionsBar from './components/IssueActionsBar';

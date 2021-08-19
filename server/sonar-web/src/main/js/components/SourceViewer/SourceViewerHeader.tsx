@@ -20,21 +20,26 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
+import { ButtonIcon } from '../../components/controls/buttons';
+import { ClipboardIconButton } from '../../components/controls/clipboard';
+import Dropdown from '../../components/controls/Dropdown';
+import ListIcon from '../../components/icons/ListIcon';
+import QualifierIcon from '../../components/icons/QualifierIcon';
+import { PopupPlacement } from '../../components/ui/popups';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { ISSUE_TYPES } from '../../helpers/constants';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
-import { getBranchLikeUrl, getCodeUrl, getComponentIssuesUrl } from '../../helpers/urls';
-import { ButtonIcon } from '../../sonar-ui-common/components/controls/buttons';
-import { ClipboardIconButton } from '../../sonar-ui-common/components/controls/clipboard';
-import Dropdown from '../../sonar-ui-common/components/controls/Dropdown';
-import ListIcon from '../../sonar-ui-common/components/icons/ListIcon';
-import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
-import { PopupPlacement } from '../../sonar-ui-common/components/ui/popups';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
-import { collapsedDirFromPath, fileFromPath } from '../../sonar-ui-common/helpers/path';
-import { omitNil } from '../../sonar-ui-common/helpers/request';
-import { getBaseUrl, getPathUrlAsString } from '../../sonar-ui-common/helpers/urls';
+import { translate } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
+import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
+import { omitNil } from '../../helpers/request';
+import {
+  getBaseUrl,
+  getBranchLikeUrl,
+  getCodeUrl,
+  getComponentIssuesUrl,
+  getPathUrlAsString
+} from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { WorkspaceContextShape } from '../workspace/context';

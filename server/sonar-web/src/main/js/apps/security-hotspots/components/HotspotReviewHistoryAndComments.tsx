@@ -25,9 +25,9 @@ import {
   editSecurityHotspotComment
 } from '../../../api/security-hotspots';
 import FormattingTips from '../../../components/common/FormattingTips';
+import { Button, ResetButtonLink } from '../../../components/controls/buttons';
+import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
-import { Button, ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 import HotspotReviewHistory from './HotspotReviewHistory';
 

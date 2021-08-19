@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { addFavorite, removeFavorite } from '../../api/favorites';
-import FavoriteButton from '../../sonar-ui-common/components/controls/FavoriteButton';
+import FavoriteButton from '../../components/controls/FavoriteButton';
 
 interface Props {
   className?: string;

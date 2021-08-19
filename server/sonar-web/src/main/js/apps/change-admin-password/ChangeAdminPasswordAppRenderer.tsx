@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import GlobalMessagesContainer from '../../app/components/GlobalMessagesContainer';
+import { SubmitButton } from '../../components/controls/buttons';
 import { Location } from '../../components/hoc/withRouter';
-import { SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
-import { Alert } from '../../sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
-import { getReturnUrl } from '../../sonar-ui-common/helpers/urls';
+import { Alert } from '../../components/ui/Alert';
+import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../helpers/l10n';
+import { getReturnUrl } from '../../helpers/urls';
 import Unauthorized from '../sessions/components/Unauthorized';
 import { DEFAULT_ADMIN_PASSWORD } from './constants';
 

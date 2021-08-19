@@ -20,8 +20,8 @@
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
+import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import IssuesCounter from './IssuesCounter';
 import TotalEffort from './TotalEffort';
 

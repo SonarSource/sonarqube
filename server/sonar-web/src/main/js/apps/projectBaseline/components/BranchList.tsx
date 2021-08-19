@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 import BranchListRow from './BranchListRow';

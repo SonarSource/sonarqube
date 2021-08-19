@@ -20,11 +20,11 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Radio from '../../../../components/controls/Radio';
 import {
   mockBitbucketProject,
   mockBitbucketRepository
 } from '../../../../helpers/mocks/alm-integrations';
-import Radio from '../../../../sonar-ui-common/components/controls/Radio';
 import BitbucketProjectAccordion, {
   BitbucketProjectAccordionProps
 } from '../BitbucketProjectAccordion';

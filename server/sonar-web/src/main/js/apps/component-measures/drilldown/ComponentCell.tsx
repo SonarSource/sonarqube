@@ -19,18 +19,18 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import BranchIcon from '../../../components/icons/BranchIcon';
+import LinkIcon from '../../../components/icons/LinkIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { translate } from '../../../helpers/l10n';
+import { isDiffMetric } from '../../../helpers/measures';
+import { splitPath } from '../../../helpers/path';
 import {
   getBranchLikeUrl,
   getComponentDrilldownUrlWithSelection,
   getComponentSecurityHotspotsUrl,
   getProjectUrl
 } from '../../../helpers/urls';
-import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
-import LinkIcon from '../../../sonar-ui-common/components/icons/LinkIcon';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
-import { splitPath } from '../../../sonar-ui-common/helpers/path';
 import { BranchLike } from '../../../types/branch-like';
 import { isFileType, isSecurityReviewMetric, View } from '../utils';
 

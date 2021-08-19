@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { getJSON, post, postJSON } from '../sonar-ui-common/helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 
 /** List tokens for given user login */
 export function getTokens(login: string): Promise<T.UserToken[]> {

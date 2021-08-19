@@ -19,8 +19,8 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import Event from './Event';
 

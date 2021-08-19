@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import HoldersList from '../../permissions/shared/components/HoldersList';
 import SearchForm from '../../permissions/shared/components/SearchForm';
 import {

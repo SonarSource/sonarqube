@@ -24,12 +24,12 @@ import {
   getApplicationDetails,
   updateApplicationBranch
 } from '../../api/application';
-import { ResetButtonLink, SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
-import SimpleModal from '../../sonar-ui-common/components/controls/SimpleModal';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
-import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
+import SimpleModal from '../../components/controls/SimpleModal';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../helpers/l10n';
 import { Application, ApplicationProject } from '../../types/application';
 import ProjectBranchRow from './ProjectBranchRow';
 import { ApplicationBranch, SelectBranchOption } from './utils';

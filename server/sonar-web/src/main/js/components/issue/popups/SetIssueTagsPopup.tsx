@@ -20,8 +20,8 @@
 import { difference, without } from 'lodash';
 import * as React from 'react';
 import { searchIssueTags } from '../../../api/issues';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import { PopupPlacement } from '../../../components/ui/popups';
 import TagsSelector from '../../tags/TagsSelector';
 
 interface Props {

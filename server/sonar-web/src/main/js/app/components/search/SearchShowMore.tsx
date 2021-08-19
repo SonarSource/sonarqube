@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   allowMore: boolean;

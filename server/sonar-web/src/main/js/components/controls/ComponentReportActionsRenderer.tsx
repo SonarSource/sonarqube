@@ -20,10 +20,10 @@
 
 import * as React from 'react';
 import { getReportUrl } from '../../api/component-report';
-import { Button } from '../../sonar-ui-common/components/controls/buttons';
-import Dropdown from '../../sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from '../../sonar-ui-common/components/icons/DropdownIcon';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../components/controls/buttons';
+import Dropdown from '../../components/controls/Dropdown';
+import DropdownIcon from '../../components/icons/DropdownIcon';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Branch } from '../../types/branch-like';
 
 export interface ComponentReportActionsRendererProps {

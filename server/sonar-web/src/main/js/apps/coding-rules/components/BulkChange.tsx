@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import Dropdown from '../../../sonar-ui-common/components/controls/Dropdown';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import Dropdown from '../../../components/controls/Dropdown';
+import Tooltip from '../../../components/controls/Tooltip';
+import { PopupPlacement } from '../../../components/ui/popups';
+import { translate } from '../../../helpers/l10n';
 import { Query } from '../query';
 import BulkChangeModal from './BulkChangeModal';
 

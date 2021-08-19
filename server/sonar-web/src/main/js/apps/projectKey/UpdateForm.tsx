@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import ProjectKeyInput from '../../components/common/ProjectKeyInput';
+import { Button, SubmitButton } from '../../components/controls/buttons';
+import ConfirmButton from '../../components/controls/ConfirmButton';
+import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { validateProjectKey } from '../../helpers/projects';
-import { Button, SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../sonar-ui-common/components/controls/ConfirmButton';
-import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 import { ProjectKeyValidationResult } from '../../types/component';
 
 export interface UpdateFormProps {

@@ -24,7 +24,7 @@ import {
   mockBitbucketProject,
   mockBitbucketRepository
 } from '../../../../helpers/mocks/alm-integrations';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import BitbucketProjectAccordion from '../BitbucketProjectAccordion';
 import BitbucketRepositories, { BitbucketRepositoriesProps } from '../BitbucketRepositories';
 

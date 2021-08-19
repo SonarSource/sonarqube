@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { colors } from '../../../app/theme';
-import { getTextColor } from '../../../sonar-ui-common/helpers/colors';
-import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
+import { getTextColor } from '../../../helpers/colors';
+import { getBaseUrl } from '../../../helpers/urls';
 
 export interface Props {
   identityProvider?: T.IdentityProvider;

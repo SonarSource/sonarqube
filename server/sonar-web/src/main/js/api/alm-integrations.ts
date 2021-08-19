@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { get, getJSON, parseError, post, postJSON } from '../sonar-ui-common/helpers/request';
+import { get, getJSON, parseError, post, postJSON } from '../helpers/request';
 import {
   AzureProject,
   AzureRepository,

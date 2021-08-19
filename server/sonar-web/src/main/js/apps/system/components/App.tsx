@@ -22,7 +22,7 @@ import { Helmet } from 'react-helmet-async';
 import { withRouter, WithRouterProps } from 'react-router';
 import { getSystemInfo } from '../../../api/system';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 import {
   getClusterVersion,

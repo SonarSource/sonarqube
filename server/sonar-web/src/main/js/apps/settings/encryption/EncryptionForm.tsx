@@ -21,10 +21,10 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { encryptValue } from '../../../api/settings';
-import { SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
-import { ClipboardButton } from '../../../sonar-ui-common/components/controls/clipboard';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { SubmitButton } from '../../../components/controls/buttons';
+import { ClipboardButton } from '../../../components/controls/clipboard';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   generateSecretKey: () => Promise<void>;

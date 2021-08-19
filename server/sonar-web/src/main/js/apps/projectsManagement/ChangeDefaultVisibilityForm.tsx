@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button, ResetButtonLink } from '../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../sonar-ui-common/components/controls/Modal';
-import Radio from '../../sonar-ui-common/components/controls/Radio';
-import { Alert } from '../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { Button, ResetButtonLink } from '../../components/controls/buttons';
+import Modal from '../../components/controls/Modal';
+import Radio from '../../components/controls/Radio';
+import { Alert } from '../../components/ui/Alert';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   defaultVisibility: T.Visibility;

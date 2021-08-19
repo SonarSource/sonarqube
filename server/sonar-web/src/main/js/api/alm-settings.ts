@@ -18,14 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
-import {
-  get,
-  getJSON,
-  HttpStatus,
-  parseError,
-  parseJSON,
-  post
-} from '../sonar-ui-common/helpers/request';
+import { get, getJSON, HttpStatus, parseError, parseJSON, post } from '../helpers/request';
 import {
   AlmSettingsBindingDefinitions,
   AlmSettingsInstance,

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { getDelivery } from '../../../api/webhooks';
-import BoxedGroupAccordion from '../../../sonar-ui-common/components/controls/BoxedGroupAccordion';
-import AlertErrorIcon from '../../../sonar-ui-common/components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
-import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
+import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
+import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
+import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import DeliveryItem from './DeliveryItem';
 
 interface Props {

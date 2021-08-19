@@ -21,11 +21,9 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getUserGroups } from '../../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../../api/user_groups';
+import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
 import { mockUser } from '../../../../helpers/testMocks';
-import SelectList, {
-  SelectListFilter
-} from '../../../../sonar-ui-common/components/controls/SelectList';
-import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import GroupsForm from '../GroupsForm';
 
 const user = mockUser();

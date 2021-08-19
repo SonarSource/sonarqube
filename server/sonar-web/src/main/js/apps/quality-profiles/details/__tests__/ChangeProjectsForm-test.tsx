@@ -24,10 +24,8 @@ import {
   dissociateProject,
   getProfileProjects
 } from '../../../../api/quality-profiles';
-import SelectList, {
-  SelectListFilter
-} from '../../../../sonar-ui-common/components/controls/SelectList';
-import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import ChangeProjectsForm from '../ChangeProjectsForm';
 
 const profile: any = { key: 'profFile_key' };

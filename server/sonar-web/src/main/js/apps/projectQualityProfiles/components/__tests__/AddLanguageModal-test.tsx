@@ -19,9 +19,9 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
+import Select from '../../../../components/controls/Select';
+import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
-import Select from '../../../../sonar-ui-common/components/controls/Select';
-import SimpleModal from '../../../../sonar-ui-common/components/controls/SimpleModal';
 import { AddLanguageModal, AddLanguageModalProps } from '../AddLanguageModal';
 
 it('should render correctly', () => {

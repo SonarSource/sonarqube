@@ -21,11 +21,11 @@ import { mount, shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { scrollHorizontally } from '../../../../helpers/scrolling';
 import { mockIssue, mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
-import { scrollHorizontally } from '../../../../sonar-ui-common/helpers/scrolling';
 import SnippetViewer from '../SnippetViewer';
 
-jest.mock('../../../../sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../../helpers/scrolling', () => ({
   scrollHorizontally: jest.fn()
 }));
 

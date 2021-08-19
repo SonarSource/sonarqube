@@ -20,22 +20,19 @@
 import * as React from 'react';
 import { createRule, updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TypeHelper from '../../../components/shared/TypeHelper';
+import { Alert } from '../../../components/ui/Alert';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { RULE_STATUSES, RULE_TYPES, SEVERITIES } from '../../../helpers/constants';
+import { csvEscape } from '../../../helpers/csv';
+import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { csvEscape } from '../../../sonar-ui-common/helpers/csv';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { latinize } from '../../../sonar-ui-common/helpers/strings';
+import { latinize } from '../../../helpers/strings';
 
 interface Props {
   customRule?: T.RuleDetails;

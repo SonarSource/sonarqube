@@ -20,9 +20,9 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { restart } from '../../api/system';
-import { Button } from '../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../sonar-ui-common/components/controls/ConfirmButton';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../components/controls/buttons';
+import ConfirmButton from '../../components/controls/ConfirmButton';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   className?: string;

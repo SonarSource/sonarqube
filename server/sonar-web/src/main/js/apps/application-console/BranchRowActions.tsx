@@ -20,11 +20,9 @@
 import { without } from 'lodash';
 import * as React from 'react';
 import { deleteApplicationBranch } from '../../api/application';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from '../../sonar-ui-common/components/controls/ActionsDropdown';
-import ConfirmButton from '../../sonar-ui-common/components/controls/ConfirmButton';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
+import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
+import ConfirmButton from '../../components/controls/ConfirmButton';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Application } from '../../types/application';
 import CreateBranchForm from './CreateBranchForm';
 import { ApplicationBranch } from './utils';

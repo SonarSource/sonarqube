@@ -25,9 +25,9 @@ import { fetchWebApi } from '../../../api/web-api';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../sonar-ui-common/helpers/pages';
-import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
+import { translate } from '../../../helpers/l10n';
+import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
+import { scrollToElement } from '../../../helpers/scrolling';
 import '../styles/web-api.css';
 import {
   getActionKey,

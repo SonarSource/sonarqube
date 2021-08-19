@@ -20,13 +20,13 @@
 import { find, without } from 'lodash';
 import * as React from 'react';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
-import { ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import { ResetButtonLink } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
-} from '../../../sonar-ui-common/components/controls/SelectList';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../components/controls/SelectList';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   group: T.Group;

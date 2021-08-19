@@ -20,7 +20,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { searchGroups, searchUsers } from '../../../../api/quality-profiles';
-import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import ProfilePermissions from '../ProfilePermissions';
 
 jest.mock('../../../../api/quality-profiles', () => ({

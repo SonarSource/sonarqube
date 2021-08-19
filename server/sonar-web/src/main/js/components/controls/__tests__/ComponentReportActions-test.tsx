@@ -29,7 +29,7 @@ import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage'
 import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockComponentReportStatus } from '../../../helpers/mocks/component-report';
 import { mockComponent, mockCurrentUser } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../types/component';
 import { ComponentReportActions } from '../ComponentReportActions';
 

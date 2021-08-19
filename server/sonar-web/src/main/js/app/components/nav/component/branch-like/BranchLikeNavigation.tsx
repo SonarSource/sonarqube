@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import Toggler from '../../../../../components/controls/Toggler';
 import { withAppState } from '../../../../../components/hoc/withAppState';
-import Toggler from '../../../../../sonar-ui-common/components/controls/Toggler';
 import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import './BranchLikeNavigation.css';

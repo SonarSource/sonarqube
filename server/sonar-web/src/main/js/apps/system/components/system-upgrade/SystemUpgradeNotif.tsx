@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../../api/system';
-import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
 import { SystemUpgrade } from '../../../../types/system';
 import { groupUpgrades, sortUpgrades } from '../../utils';
 import SystemUpgradeForm from './SystemUpgradeForm';

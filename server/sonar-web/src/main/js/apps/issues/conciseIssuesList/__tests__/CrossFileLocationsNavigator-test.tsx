@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockFlowLocation } from '../../../../helpers/testMocks';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import CrossFileLocationsNavigator from '../CrossFileLocationsNavigator';
 
 const location1: T.FlowLocation = {

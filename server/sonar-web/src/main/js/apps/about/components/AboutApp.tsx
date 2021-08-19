@@ -28,9 +28,9 @@ import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
+import { translate } from '../../../helpers/l10n';
+import { addWhitePageClass, removeWhitePageClass } from '../../../helpers/pages';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from '../../../sonar-ui-common/helpers/pages';
 import {
   getAppState,
   getCurrentUser,

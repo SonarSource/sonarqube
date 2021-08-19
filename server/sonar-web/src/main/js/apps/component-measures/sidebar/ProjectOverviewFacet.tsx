@@ -21,7 +21,7 @@ import * as React from 'react';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onChange: (metric: string) => void;

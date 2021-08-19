@@ -21,12 +21,12 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { deleteRule, searchRules } from '../../../api/rules';
+import { Button } from '../../../components/controls/buttons';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import CustomRuleButton from './CustomRuleButton';
 
 interface Props {

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
-import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import HotspotViewerRenderer from './HotspotViewerRenderer';

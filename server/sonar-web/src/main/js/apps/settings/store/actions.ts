@@ -24,8 +24,8 @@ import {
   resetSettingValue,
   setSettingValue
 } from '../../../api/settings';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { parseError } from '../../../sonar-ui-common/helpers/request';
+import { translate } from '../../../helpers/l10n';
+import { parseError } from '../../../helpers/request';
 import { closeAllGlobalMessages } from '../../../store/globalMessages';
 import {
   getSettingsAppChangedValue,

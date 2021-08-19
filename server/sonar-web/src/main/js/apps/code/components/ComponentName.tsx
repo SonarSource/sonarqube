@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { colors } from '../../../app/theme';
+import BranchIcon from '../../../components/icons/BranchIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
-import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 
 export function getTooltip(component: T.ComponentMeasure) {

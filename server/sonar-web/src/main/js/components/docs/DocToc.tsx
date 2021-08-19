@@ -23,7 +23,7 @@ import * as React from 'react';
 import { findDOMNode } from 'react-dom';
 import remark from 'remark';
 import reactRenderer from 'remark-react';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import onlyToc from './plugins/remark-only-toc';
 
 interface Props {

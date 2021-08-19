@@ -19,15 +19,12 @@
  */
 import * as React from 'react';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import { Alert } from '../../../components/ui/Alert';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;

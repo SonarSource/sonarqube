@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Activation, Query } from '../query';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';

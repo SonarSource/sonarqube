@@ -20,12 +20,12 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import SearchBox from '../../../../components/controls/SearchBox';
 import {
   mockBitbucketProject,
   mockBitbucketRepository
 } from '../../../../helpers/mocks/alm-integrations';
-import SearchBox from '../../../../sonar-ui-common/components/controls/SearchBox';
-import { change } from '../../../../sonar-ui-common/helpers/testUtils';
+import { change } from '../../../../helpers/testUtils';
 import BitbucketImportRepositoryForm, {
   BitbucketImportRepositoryFormProps
 } from '../BitbucketImportRepositoryForm';

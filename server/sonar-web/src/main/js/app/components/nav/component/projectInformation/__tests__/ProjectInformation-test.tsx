@@ -25,7 +25,7 @@ import {
   mockLoggedInUser,
   mockMetric
 } from '../../../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../../../helpers/testUtils';
 import { ProjectInformation } from '../ProjectInformation';
 import { ProjectInformationPages } from '../ProjectInformationPages';
 

@@ -19,15 +19,12 @@
  */
 import * as React from 'react';
 import { bulkActivateRules, bulkDeactivateRules, Profile } from '../../../api/quality-profiles';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
+import { Alert } from '../../../components/ui/Alert';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 import { Query, serializeQuery } from '../query';
 
 interface Props {

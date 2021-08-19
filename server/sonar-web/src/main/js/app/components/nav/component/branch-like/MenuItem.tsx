@@ -22,7 +22,7 @@ import * as React from 'react';
 import BranchStatus from '../../../../../components/common/BranchStatus';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../../../helpers/branch-like';
-import { translate } from '../../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';
 
 export interface MenuItemProps {

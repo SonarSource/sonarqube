@@ -19,13 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import {
   mockMainBranch,
   mockPullRequest,
   mockSetOfBranchAndPullRequest
 } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
-import BoxedTabs from '../../../../sonar-ui-common/components/controls/BoxedTabs';
 import { BranchLikeTable } from '../BranchLikeTable';
 import BranchLikeTabs, { Tabs } from '../BranchLikeTabs';
 import DeleteBranchModal from '../DeleteBranchModal';

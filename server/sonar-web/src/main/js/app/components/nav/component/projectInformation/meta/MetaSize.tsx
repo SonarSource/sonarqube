@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import DrilldownLink from '../../../../../../components/shared/DrilldownLink';
-import SizeRating from '../../../../../../sonar-ui-common/components/ui/SizeRating';
-import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure, localizeMetric } from '../../../../../../sonar-ui-common/helpers/measures';
+import SizeRating from '../../../../../../components/ui/SizeRating';
+import { translate } from '../../../../../../helpers/l10n';
+import { formatMeasure, localizeMetric } from '../../../../../../helpers/measures';
 import { ComponentQualifier } from '../../../../../../types/component';
 import { MetricKey } from '../../../../../../types/metrics';
 

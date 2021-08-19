@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
-import Tooltip from '../../../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
 

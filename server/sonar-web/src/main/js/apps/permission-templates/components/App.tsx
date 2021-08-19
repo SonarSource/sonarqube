@@ -23,7 +23,7 @@ import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { getPermissionTemplates } from '../../../api/permissions';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { getAppState, Store } from '../../../store/rootReducer';
 import '../../permissions/styles.css';
 import { mergeDefaultsToTemplates, mergePermissionsToTemplates, sortPermissions } from '../utils';

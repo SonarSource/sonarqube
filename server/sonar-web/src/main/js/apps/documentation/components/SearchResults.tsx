@@ -21,7 +21,7 @@ import { DocNavigationItem } from 'Docs/@types/types';
 import { sortBy } from 'lodash';
 import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
 import * as React from 'react';
-import { isDefined } from '../../../sonar-ui-common/helpers/types';
+import { isDefined } from '../../../helpers/types';
 import { getUrlsList } from '../navTreeUtils';
 import { DocumentationEntry } from '../utils';
 import SearchResultEntry from './SearchResultEntry';

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ChartLegendIcon from '../../sonar-ui-common/components/icons/ChartLegendIcon';
-import Rating from '../../sonar-ui-common/components/ui/Rating';
+import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
+import Rating from '../../components/ui/Rating';
 import { MeasureHistory } from '../../types/project-activity';
 
 export interface GraphsTooltipsContentIssuesProps {

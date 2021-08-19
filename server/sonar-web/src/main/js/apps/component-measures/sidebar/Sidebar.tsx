@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
 import DomainFacet from './DomainFacet';
 import ProjectOverviewFacet from './ProjectOverviewFacet';

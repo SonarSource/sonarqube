@@ -18,13 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { each, groupBy, memoize, omit, omitBy, pickBy, sortBy } from 'lodash';
-import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
-import {
-  cleanQuery,
-  parseAsArray,
-  parseAsString,
-  serializeStringArray
-} from '../../sonar-ui-common/helpers/query';
+import { formatMeasure } from '../../helpers/measures';
+import { cleanQuery, parseAsArray, parseAsString, serializeStringArray } from '../../helpers/query';
 import { SystemUpgrade } from '../../types/system';
 
 export interface Query {

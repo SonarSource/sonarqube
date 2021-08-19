@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RadioCard from '../../../sonar-ui-common/components/controls/RadioCard';
-import SearchSelect from '../../../sonar-ui-common/components/controls/SearchSelect';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import AlertErrorIcon from '../../../sonar-ui-common/components/icons/AlertErrorIcon';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import RadioCard from '../../../components/controls/RadioCard';
+import SearchSelect from '../../../components/controls/SearchSelect';
+import Tooltip from '../../../components/controls/Tooltip';
+import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface BaselineSettingReferenceBranchProps {
   branchList: BranchOption[];

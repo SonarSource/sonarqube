@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import Dropdown from '../../../../components/controls/Dropdown';
 import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import Avatar from '../../../../components/ui/Avatar';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/urls';
 import { isLoggedIn } from '../../../../helpers/users';
-import Dropdown from '../../../../sonar-ui-common/components/controls/Dropdown';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../../sonar-ui-common/helpers/urls';
 import { rawSizes } from '../../../theme';
 
 interface Props {

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchUsers } from '../../../../api/users';
 import { mockLoggedInUser, mockUser } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { SetAssigneePopup } from '../SetAssigneePopup';
 
 jest.mock('../../../../api/users', () => {

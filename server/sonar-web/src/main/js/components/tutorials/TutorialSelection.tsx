@@ -21,7 +21,7 @@ import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import { getAlmSettingsNoCatch } from '../../api/alm-settings';
 import { getValues } from '../../api/settings';
-import { getHostUrl } from '../../sonar-ui-common/helpers/urls';
+import { getHostUrl } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { SettingsKey } from '../../types/settings';
 import { withRouter } from '../hoc/withRouter';

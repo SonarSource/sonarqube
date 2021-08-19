@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ValidationInput from '../../../sonar-ui-common/components/controls/ValidationInput';
+import ValidationInput from '../../../components/controls/ValidationInput';
 import ProjectKeyInput, { ProjectKeyInputProps } from '../ProjectKeyInput';
 
 it('should render correctly', () => {

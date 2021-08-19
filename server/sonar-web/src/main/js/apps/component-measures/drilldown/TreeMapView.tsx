@@ -22,17 +22,12 @@ import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { colors } from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
-import { isDiffMetric } from '../../../helpers/measures';
-import ColorGradientLegend from '../../../sonar-ui-common/components/charts/ColorGradientLegend';
-import TreeMap, { TreeMapItem } from '../../../sonar-ui-common/components/charts/TreeMap';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import {
-  getLocalizedMetricName,
-  translate,
-  translateWithParameters
-} from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
-import { isDefined } from '../../../sonar-ui-common/helpers/types';
+import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
+import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { isDefined } from '../../../helpers/types';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import EmptyResult from './EmptyResult';

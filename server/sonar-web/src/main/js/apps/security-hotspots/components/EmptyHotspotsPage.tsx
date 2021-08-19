@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
+import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 
 export interface EmptyHotspotsPageProps {
   filtered: boolean;

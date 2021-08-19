@@ -20,11 +20,11 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { ButtonLink } from '../../components/controls/buttons';
+import Tooltip from '../../components/controls/Tooltip';
+import HomeIcon from '../../components/icons/HomeIcon';
+import { translate } from '../../helpers/l10n';
 import { isLoggedIn } from '../../helpers/users';
-import { ButtonLink } from '../../sonar-ui-common/components/controls/buttons';
-import Tooltip from '../../sonar-ui-common/components/controls/Tooltip';
-import HomeIcon from '../../sonar-ui-common/components/icons/HomeIcon';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { setHomePage } from '../../store/users';
 

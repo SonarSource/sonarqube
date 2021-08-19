@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import MetaLink from '../../../app/components/nav/component/projectInformation/meta/MetaLink';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import Level from '../../../components/ui/Level';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { orderLinks } from '../../../helpers/projectLinks';
 import { getProjectUrl } from '../../../helpers/urls';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import Level from '../../../sonar-ui-common/components/ui/Level';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   project: T.MyProject;

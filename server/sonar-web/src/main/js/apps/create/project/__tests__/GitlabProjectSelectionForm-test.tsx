@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Button } from '../../../../components/controls/buttons';
+import ListFooter from '../../../../components/controls/ListFooter';
+import SearchBox from '../../../../components/controls/SearchBox';
 import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
-import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
-import ListFooter from '../../../../sonar-ui-common/components/controls/ListFooter';
-import SearchBox from '../../../../sonar-ui-common/components/controls/SearchBox';
 import GitlabProjectSelectionForm, {
   GitlabProjectSelectionFormProps
 } from '../GitlabProjectSelectionForm';

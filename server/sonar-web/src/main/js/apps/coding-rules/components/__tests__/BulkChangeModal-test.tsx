@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { bulkActivateRules, bulkDeactivateRules } from '../../../../api/quality-profiles';
 import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
-import { submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { Query } from '../../query';
 import BulkChangeModal from '../BulkChangeModal';
 

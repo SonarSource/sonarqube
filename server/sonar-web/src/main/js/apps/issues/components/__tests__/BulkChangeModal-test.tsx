@@ -20,10 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchIssueTags } from '../../../../api/issues';
+import { SubmitButton } from '../../../../components/controls/buttons';
+import Select from '../../../../components/controls/Select';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { SubmitButton } from '../../../../sonar-ui-common/components/controls/buttons';
-import Select from '../../../../sonar-ui-common/components/controls/Select';
-import { change, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { change, waitAndUpdate } from '../../../../helpers/testUtils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({

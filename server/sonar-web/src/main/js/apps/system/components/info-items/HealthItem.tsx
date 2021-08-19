@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import StatusIndicator from '../../../../components/common/StatusIndicator';
-import Tooltip from '../../../../sonar-ui-common/components/controls/Tooltip';
-import { translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
+import Tooltip from '../../../../components/controls/Tooltip';
+import { translateWithParameters } from '../../../../helpers/l10n';
 import HealthCauseItem from './HealthCauseItem';
 
 interface Props {

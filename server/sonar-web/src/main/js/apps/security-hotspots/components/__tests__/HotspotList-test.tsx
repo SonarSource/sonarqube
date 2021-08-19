@@ -20,12 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { addSideBarClass, removeSideBarClass } from '../../../../sonar-ui-common/helpers/pages';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { HotspotStatusFilter, RiskExposure } from '../../../../types/security-hotspots';
 import HotspotList from '../HotspotList';
 
-jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   removeSideBarClass: jest.fn()
 }));

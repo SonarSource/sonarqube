@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { fetchWebApi } from '../../../../api/web-api';
+import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { addSideBarClass, removeSideBarClass } from '../../../../sonar-ui-common/helpers/pages';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { WebApiApp } from '../WebApiApp';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');
@@ -39,7 +39,7 @@ jest.mock('../../../../api/web-api', () => ({
   ])
 }));
 
-jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   removeSideBarClass: jest.fn()
 }));

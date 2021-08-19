@@ -22,12 +22,12 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { colors } from '../../../app/theme';
+import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
+import Radio from '../../../components/controls/Radio';
+import CheckIcon from '../../../components/icons/CheckIcon';
+import { Alert } from '../../../components/ui/Alert';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
-import BoxedGroupAccordion from '../../../sonar-ui-common/components/controls/BoxedGroupAccordion';
-import Radio from '../../../sonar-ui-common/components/controls/Radio';
-import CheckIcon from '../../../sonar-ui-common/components/icons/CheckIcon';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
 import { CreateProjectModes } from './types';
 

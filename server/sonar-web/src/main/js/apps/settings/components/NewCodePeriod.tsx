@@ -21,13 +21,10 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { getNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 import BaselineSettingDays from '../../projectBaseline/components/BaselineSettingDays';
 import BaselineSettingPreviousVersion from '../../projectBaseline/components/BaselineSettingPreviousVersion';
 import { validateDays } from '../../projectBaseline/utils';

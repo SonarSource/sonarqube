@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import SonarUiCommonInitializer from '../../../helpers/init';
 import { isSonarCloud } from '../../../helpers/system';
-import SonarUiCommonInitializer from '../../../sonar-ui-common/helpers/init';
 import { convertToPermissionDefinitions } from '../utils';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));

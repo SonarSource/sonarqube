@@ -21,12 +21,12 @@ import { find, without } from 'lodash';
 import * as React from 'react';
 import { getUserGroups, UserGroup } from '../../../api/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
+import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
-} from '../../../sonar-ui-common/components/controls/SelectList';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../components/controls/SelectList';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;

@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DateFormatter from '../../../../components/intl/DateFormatter';
 import {
   getEdition,
   getEditionDownloadFilename,
   getEditionDownloadUrl
 } from '../../../../helpers/editions';
-import DateFormatter from '../../../../sonar-ui-common/components/intl/DateFormatter';
-import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { EditionKey } from '../../../../types/editions';
 import { SystemUpgrade } from '../../../../types/system';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';

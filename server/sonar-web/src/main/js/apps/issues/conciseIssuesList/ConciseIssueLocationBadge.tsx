@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import LocationIndex from '../../../components/common/LocationIndex';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 
 interface Props {
   count: number;

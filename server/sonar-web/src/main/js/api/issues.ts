@@ -19,7 +19,7 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
-import { getJSON, post, postJSON, RequestData } from '../sonar-ui-common/helpers/request';
+import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { IssueResponse, RawIssuesResponse } from '../types/issues';
 
 type FacetName =

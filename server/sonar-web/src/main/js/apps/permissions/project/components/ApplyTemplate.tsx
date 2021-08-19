@@ -19,17 +19,14 @@
  */
 import * as React from 'react';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../../sonar-ui-common/components/controls/buttons';
-import Select from '../../../../sonar-ui-common/components/controls/Select';
-import SimpleModal from '../../../../sonar-ui-common/components/controls/SimpleModal';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from '../../../../sonar-ui-common/components/ui/DeferredSpinner';
-import MandatoryFieldMarker from '../../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
+import Select from '../../../../components/controls/Select';
+import SimpleModal from '../../../../components/controls/SimpleModal';
+import { Alert } from '../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
   onApply?: () => void;

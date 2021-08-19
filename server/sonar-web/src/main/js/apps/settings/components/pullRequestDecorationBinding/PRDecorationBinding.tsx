@@ -32,8 +32,8 @@ import {
 } from '../../../../api/alm-settings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
+import { HttpStatus } from '../../../../helpers/request';
 import { hasGlobalPermission } from '../../../../helpers/users';
-import { HttpStatus } from '../../../../sonar-ui-common/helpers/request';
 import { getAppState, Store } from '../../../../store/rootReducer';
 import {
   AlmKeys,

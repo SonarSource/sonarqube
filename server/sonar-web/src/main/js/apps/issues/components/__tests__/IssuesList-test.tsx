@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import IssuesList from '../IssuesList';
 
 it('should render correctly', async () => {

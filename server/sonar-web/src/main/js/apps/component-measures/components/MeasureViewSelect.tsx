@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import ListIcon from '../../../sonar-ui-common/components/icons/ListIcon';
-import TreeIcon from '../../../sonar-ui-common/components/icons/TreeIcon';
-import TreemapIcon from '../../../sonar-ui-common/components/icons/TreemapIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import Select from '../../../components/controls/Select';
+import ListIcon from '../../../components/icons/ListIcon';
+import TreeIcon from '../../../components/icons/TreeIcon';
+import TreemapIcon from '../../../components/icons/TreemapIcon';
+import { translate } from '../../../helpers/l10n';
 import { hasList, hasTree, hasTreemap, View } from '../utils';
 
 interface Props {

@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
 import * as React from 'react';
-import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
+import { formatMeasure } from '../../helpers/measures';
 import './ColorBoxLegend.css';
 
 interface Props {

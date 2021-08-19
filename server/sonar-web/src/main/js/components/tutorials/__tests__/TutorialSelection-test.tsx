@@ -31,13 +31,13 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
-import { getHostUrl } from '../../../sonar-ui-common/helpers/urls';
+import { waitAndUpdate } from '../../../helpers/testUtils';
+import { getHostUrl } from '../../../helpers/urls';
 import { SettingsKey } from '../../../types/settings';
 import { TutorialSelection } from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
-jest.mock('../../../sonar-ui-common/helpers/urls', () => ({
+jest.mock('../../../helpers/urls', () => ({
   getHostUrl: jest.fn().mockReturnValue('http://host.url')
 }));
 

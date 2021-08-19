@@ -19,14 +19,11 @@
  */
 import * as React from 'react';
 import { renameBranch } from '../../../api/branches';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../helpers/l10n';
 import { MainBranch } from '../../../types/branch-like';
 
 interface Props {

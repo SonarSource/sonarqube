@@ -19,11 +19,11 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import Toggler from '../../../components/controls/Toggler';
+import Tooltip from '../../../components/controls/Tooltip';
+import { PopupPlacement } from '../../../components/ui/popups';
+import { translate } from '../../../helpers/l10n';
 
 export interface LineDuplicationBlockProps {
   blocksLoaded: boolean;

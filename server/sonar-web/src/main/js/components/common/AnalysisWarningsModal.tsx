@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../api/ce';
+import { ButtonLink } from '../../components/controls/buttons';
+import Modal from '../../components/controls/Modal';
+import WarningIcon from '../../components/icons/WarningIcon';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../helpers/sanitize';
-import { ButtonLink } from '../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../sonar-ui-common/components/controls/Modal';
-import WarningIcon from '../../sonar-ui-common/components/icons/WarningIcon';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { TaskWarning } from '../../types/tasks';
 import { withCurrentUser } from '../hoc/withCurrentUser';
 

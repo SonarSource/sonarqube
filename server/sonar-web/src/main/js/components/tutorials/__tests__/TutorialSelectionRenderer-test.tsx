@@ -28,7 +28,7 @@ import {
   mockProjectGitLabBindingResponse
 } from '../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../helpers/testMocks';
-import { click } from '../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../helpers/testUtils';
 import TutorialSelectionRenderer, {
   TutorialSelectionRendererProps
 } from '../TutorialSelectionRenderer';

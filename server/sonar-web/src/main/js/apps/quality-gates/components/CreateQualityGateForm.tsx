@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { createQualityGate } from '../../../api/quality-gates';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import ConfirmModal from '../../../sonar-ui-common/components/controls/ConfirmModal';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   onClose: () => void;

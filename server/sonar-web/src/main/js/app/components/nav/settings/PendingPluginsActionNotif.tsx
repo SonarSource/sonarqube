@@ -22,9 +22,9 @@ import { FormattedMessage } from 'react-intl';
 import { cancelPendingPlugins } from '../../../../api/plugins';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import RestartButton from '../../../../components/common/RestartButton';
-import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
 import { PendingPluginResult } from '../../../../types/plugins';
 
 interface Props {

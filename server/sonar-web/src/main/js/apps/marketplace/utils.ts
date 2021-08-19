@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
-import { cleanQuery, parseAsString, serializeString } from '../../sonar-ui-common/helpers/query';
+import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { Plugin } from '../../types/plugins';
 
 export interface Query {

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockPermissionUser } from '../../../../../helpers/mocks/permissions';
-import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import UserHolder from '../UserHolder';
 
 it('should render correctly', () => {

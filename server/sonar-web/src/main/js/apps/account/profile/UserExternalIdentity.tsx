@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
-import { getTextColor } from '../../../sonar-ui-common/helpers/colors';
-import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
+import { getTextColor } from '../../../helpers/colors';
+import { getBaseUrl } from '../../../helpers/urls';
 
 export interface UserExternalIdentityProps {
   user: T.LoggedInUser;

@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { revokeToken } from '../../../api/user-tokens';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../../sonar-ui-common/components/controls/ConfirmButton';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import DateFormatter from '../../../sonar-ui-common/components/intl/DateFormatter';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { limitComponentName } from '../../../sonar-ui-common/helpers/path';
+import { Button } from '../../../components/controls/buttons';
+import ConfirmButton from '../../../components/controls/ConfirmButton';
+import Tooltip from '../../../components/controls/Tooltip';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
+import { limitComponentName } from '../../../helpers/path';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
 

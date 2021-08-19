@@ -20,9 +20,9 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
+import MeasuresIcon from '../../components/icons/MeasuresIcon';
+import { translate } from '../../helpers/l10n';
 import { getComponentDrilldownUrl } from '../../helpers/urls';
-import MeasuresIcon from '../../sonar-ui-common/components/icons/MeasuresIcon';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import './MeasuresLink.css';
 

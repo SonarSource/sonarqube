@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { parseDate } from '../../../../sonar-ui-common/helpers/dates';
+import { parseDate } from '../../../../helpers/dates';
 import ProjectActivityDateInput from '../ProjectActivityDateInput';
 
 it('should render correctly the date inputs', () => {

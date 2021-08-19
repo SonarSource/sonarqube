@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { sendTestEmail } from '../../../api/settings';
+import { SubmitButton } from '../../../components/controls/buttons';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { parseError } from '../../../sonar-ui-common/helpers/request';
+import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { parseError } from '../../../helpers/request';
 
 interface Props {
   currentUser: T.LoggedInUser;

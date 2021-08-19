@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
-import LinkIcon from '../../../sonar-ui-common/components/icons/LinkIcon';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import LinkIcon from '../../../components/icons/LinkIcon';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getActionKey, serializeQuery } from '../utils';
 import ActionChangelog from './ActionChangelog';
 import DeprecatedBadge from './DeprecatedBadge';

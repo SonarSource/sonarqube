@@ -28,7 +28,7 @@ import {
 } from '../../api/quality-gates';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import { USE_SYSTEM_DEFAULT } from './constants';
 import ProjectQualityGateAppRenderer from './ProjectQualityGateAppRenderer';
 

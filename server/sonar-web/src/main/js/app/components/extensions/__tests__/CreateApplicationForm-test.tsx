@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { createApplication } from '../../../../api/application';
+import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockEvent } from '../../../../helpers/testMocks';
-import SimpleModal from '../../../../sonar-ui-common/components/controls/SimpleModal';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier, Visibility } from '../../../../types/component';
 import CreateApplicationForm from '../CreateApplicationForm';
 

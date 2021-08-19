@@ -19,8 +19,8 @@
  */
 
 import * as React from 'react';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
-import { getHostUrl } from '../../../../sonar-ui-common/helpers/urls';
+import { translate } from '../../../../helpers/l10n';
+import { getHostUrl } from '../../../../helpers/urls';
 import CodeSnippet from '../../../common/CodeSnippet';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import RenderOptions from '../../components/RenderOptions';

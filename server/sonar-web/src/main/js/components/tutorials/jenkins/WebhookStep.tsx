@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { rawSizes } from '../../../app/theme';
-import { Button, ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import ChevronRightIcon from '../../../sonar-ui-common/components/icons/ChevronRightIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button, ButtonLink } from '../../../components/controls/buttons';
+import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
+import { translate } from '../../../helpers/l10n';
 import {
   AlmKeys,
   AlmSettingsInstance,

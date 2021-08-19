@@ -19,10 +19,10 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
+import Radio from '../../../../components/controls/Radio';
+import Select from '../../../../components/controls/Select';
+import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockComponent, mockQualityProfile } from '../../../../helpers/testMocks';
-import Radio from '../../../../sonar-ui-common/components/controls/Radio';
-import Select from '../../../../sonar-ui-common/components/controls/Select';
-import SimpleModal from '../../../../sonar-ui-common/components/controls/SimpleModal';
 import SetQualityProfileModal, { SetQualityProfileModalProps } from '../SetQualityProfileModal';
 
 it('should render correctly', () => {

@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { DropdownOverlay } from '../../../../../components/controls/Dropdown';
+import SearchBox from '../../../../../components/controls/SearchBox';
 import { Router, withRouter } from '../../../../../components/hoc/withRouter';
 import {
   getBrancheLikesAsTree,
@@ -26,11 +28,9 @@ import {
   isPullRequest,
   isSameBranchLike
 } from '../../../../../helpers/branch-like';
+import { KeyCodes } from '../../../../../helpers/keycodes';
+import { translate } from '../../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../../helpers/urls';
-import { DropdownOverlay } from '../../../../../sonar-ui-common/components/controls/Dropdown';
-import SearchBox from '../../../../../sonar-ui-common/components/controls/SearchBox';
-import { KeyCodes } from '../../../../../sonar-ui-common/helpers/keycodes';
-import { translate } from '../../../../../sonar-ui-common/helpers/l10n';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import MenuItemList from './MenuItemList';

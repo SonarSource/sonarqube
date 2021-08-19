@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
 import {
   scrollToIssue,
@@ -26,7 +26,7 @@ import {
   shouldOpenStandardsFacet
 } from '../utils';
 
-jest.mock('../../../sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

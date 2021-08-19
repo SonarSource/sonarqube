@@ -20,7 +20,7 @@
 import { omitBy } from 'lodash';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { isCategoryDefinition } from '../apps/settings/utils';
-import { getJSON, post, postJSON, RequestData } from '../sonar-ui-common/helpers/request';
+import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import { SettingCategoryDefinition, SettingDefinition, SettingValue } from '../types/settings';
 

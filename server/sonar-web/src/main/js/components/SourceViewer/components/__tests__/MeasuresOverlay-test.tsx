@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { MetricKey } from '../../../../types/metrics';
 import MeasuresOverlay from '../MeasuresOverlay';
 

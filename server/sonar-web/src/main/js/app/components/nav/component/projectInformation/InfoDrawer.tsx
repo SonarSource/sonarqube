@@ -19,9 +19,9 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { ClearButton } from '../../../../../sonar-ui-common/components/controls/buttons';
-import EscKeydownHandler from '../../../../../sonar-ui-common/components/controls/EscKeydownHandler';
-import OutsideClickHandler from '../../../../../sonar-ui-common/components/controls/OutsideClickHandler';
+import { ClearButton } from '../../../../../components/controls/buttons';
+import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
+import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import './InfoDrawer.css';
 
 export interface InfoDrawerProps {

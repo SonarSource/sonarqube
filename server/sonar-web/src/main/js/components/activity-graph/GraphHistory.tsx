@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
-import { getShortType } from '../../helpers/measures';
-import AdvancedTimeline from '../../sonar-ui-common/components/charts/AdvancedTimeline';
-import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
+import AdvancedTimeline from '../../components/charts/AdvancedTimeline';
+import { formatMeasure, getShortType } from '../../helpers/measures';
 import { MeasureHistory, Serie } from '../../types/project-activity';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';

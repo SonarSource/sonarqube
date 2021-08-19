@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { DeleteButton, EditButton } from '../../../../components/controls/buttons';
 import { mockAnalysisEvent } from '../../../../helpers/testMocks';
-import { DeleteButton, EditButton } from '../../../../sonar-ui-common/components/controls/buttons';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import { Event, EventProps } from '../Event';
 import ChangeEventForm from '../forms/ChangeEventForm';
 import RemoveEventForm from '../forms/RemoveEventForm';

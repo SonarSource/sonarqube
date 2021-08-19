@@ -23,23 +23,20 @@ import { FormattedMessage } from 'react-intl';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import FormattingTips from '../../../components/common/FormattingTips';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import Modal from '../../../components/controls/Modal';
+import Radio from '../../../components/controls/Radio';
+import SearchSelect from '../../../components/controls/SearchSelect';
+import Select from '../../../components/controls/Select';
+import Tooltip from '../../../components/controls/Tooltip';
+import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Alert } from '../../../components/ui/Alert';
 import Avatar from '../../../components/ui/Avatar';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import Radio from '../../../sonar-ui-common/components/controls/Radio';
-import SearchSelect from '../../../sonar-ui-common/components/controls/SearchSelect';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import { searchAssignees } from '../utils';
 
 interface AssigneeOption {

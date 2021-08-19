@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../../sonar-ui-common/helpers/urls';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/urls';
 import { getGlobalSettingValue, Store } from '../../../../store/rootReducer';
 
 interface StateProps {

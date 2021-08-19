@@ -35,13 +35,13 @@ import {
   isMainBranch,
   isSameBranchLike
 } from '../../../helpers/branch-like';
+import { parseDate, toNotSoISOString } from '../../../helpers/dates';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import {
   extractStatusConditionsFromApplicationStatusChildProject,
   extractStatusConditionsFromProjectStatus
 } from '../../../helpers/qualityGates';
-import { parseDate, toNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
-import { isDefined } from '../../../sonar-ui-common/helpers/types';
+import { isDefined } from '../../../helpers/types';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';

@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as theme from '../../src/main/js/app/theme';
-import ThemeContext from '../../src/main/js/sonar-ui-common/components/theme';
-import SonarUiCommonInitializer, {
-  DEFAULT_LOCALE
-} from '../../src/main/js/sonar-ui-common/helpers/init';
+import ThemeContext from '../../src/main/js/components/theme';
+import SonarUiCommonInitializer, { DEFAULT_LOCALE } from '../../src/main/js/helpers/init';
 
 const content = document.createElement('div');
 content.id = 'content';

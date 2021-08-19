@@ -24,12 +24,12 @@ import {
   checkPersonalAccessTokenIsValid,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
-import { SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
-import ValidationInput from '../../../sonar-ui-common/components/controls/ValidationInput';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
+import { SubmitButton } from '../../../components/controls/buttons';
+import ValidationInput from '../../../components/controls/ValidationInput';
+import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 
 interface Props {

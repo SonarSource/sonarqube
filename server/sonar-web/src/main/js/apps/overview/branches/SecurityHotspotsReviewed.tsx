@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { getLeakValue } from '../../../components/measure/utils';
 import CoverageRating from '../../../components/ui/CoverageRating';
-import { findMeasure } from '../../../helpers/measures';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import { translate } from '../../../helpers/l10n';
+import { findMeasure, formatMeasure } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 
 export interface SecurityHotspotsReviewedProps {

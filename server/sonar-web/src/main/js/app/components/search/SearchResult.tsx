@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { ComponentQualifier } from '../../../../js/types/component';
+import Tooltip from '../../../components/controls/Tooltip';
+import ClockIcon from '../../../components/icons/ClockIcon';
+import FavoriteIcon from '../../../components/icons/FavoriteIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import ClockIcon from '../../../sonar-ui-common/components/icons/ClockIcon';
-import FavoriteIcon from '../../../sonar-ui-common/components/icons/FavoriteIcon';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
 import { ComponentResult } from './utils';
 
 interface Props {

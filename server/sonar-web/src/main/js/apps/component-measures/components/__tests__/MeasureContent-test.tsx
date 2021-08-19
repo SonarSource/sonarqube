@@ -20,12 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getComponentTree } from '../../../../api/components';
+import { scrollToElement } from '../../../../helpers/scrolling';
 import { mockComponentMeasure, mockRouter } from '../../../../helpers/testMocks';
-import { scrollToElement } from '../../../../sonar-ui-common/helpers/scrolling';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MeasureContent from '../MeasureContent';
 
-jest.mock('../../../../sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

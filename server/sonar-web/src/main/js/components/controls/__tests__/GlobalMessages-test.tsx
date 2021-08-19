@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import { matchers } from 'jest-emotion';
 import * as React from 'react';
-import testTheme from '../../../config/jest/testTheme';
+import testTheme from '../../../../../../config/jest/testTheme';
 import GlobalMessages, { GlobalMessagesProps } from '../GlobalMessages';
 
 expect.extend(matchers);

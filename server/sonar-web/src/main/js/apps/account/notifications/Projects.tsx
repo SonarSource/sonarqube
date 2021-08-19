@@ -19,9 +19,9 @@
  */
 import { groupBy, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import SearchBox from '../../../components/controls/SearchBox';
+import { translate } from '../../../helpers/l10n';
 import ProjectModal from './ProjectModal';
 import ProjectNotifications from './ProjectNotifications';
 

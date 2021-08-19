@@ -20,6 +20,7 @@
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
+import SonarUICommonInitializer from '../init';
 import {
   convertGithubApiUrlToLink,
   getComponentDrilldownUrl,
@@ -28,15 +29,19 @@ import {
   getComponentSecurityHotspotsUrl,
   getGlobalSettingsUrl,
   getIssuesUrl,
+  getPathUrlAsString,
   getProjectSettingsUrl,
   getQualityGatesUrl,
   getQualityGateUrl,
+  getReturnUrl,
+  isRelativeUrl,
   stripTrailingSlash
 } from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
 const COMPLEX_COMPONENT_KEY = 'org.sonarsource.sonarqube:sonarqube';
 const METRIC = 'coverage';
+const COMPLEX_COMPONENT_KEY_ENCODED = encodeURIComponent(COMPLEX_COMPONENT_KEY);
 
 describe('#convertGithubApiUrlToLink', () => {
   it('should correctly convert a GitHub API URL to a Web URL', () => {
@@ -178,5 +183,72 @@ describe('#getProjectSettingsUrl', () => {
       pathname: '/project/settings',
       query: { id: 'foo', category: 'bar' }
     });
+  });
+});
+
+afterEach(() => {
+  SonarUICommonInitializer.setUrlContext('');
+});
+
+describe('#getPathUrlAsString', () => {
+  it('should return component url', () => {
+    expect(
+      getPathUrlAsString({ pathname: '/dashboard', query: { id: SIMPLE_COMPONENT_KEY } })
+    ).toBe('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
+  });
+
+  it('should encode component key', () => {
+    expect(
+      getPathUrlAsString({ pathname: '/dashboard', query: { id: COMPLEX_COMPONENT_KEY } })
+    ).toBe('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
+  });
+
+  it('should take baseUrl into account', () => {
+    SonarUICommonInitializer.setUrlContext('/context');
+    expect(
+      getPathUrlAsString({ pathname: '/dashboard', query: { id: COMPLEX_COMPONENT_KEY } })
+    ).toBe('/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
+  });
+});
+
+describe('#getReturnUrl', () => {
+  it('should get the return url', () => {
+    expect(getReturnUrl({ query: { return_to: '/test' } })).toBe('/test');
+    expect(getReturnUrl({ query: { return_to: 'http://www.google.com' } })).toBe('/');
+    expect(getReturnUrl({})).toBe('/');
+  });
+});
+
+describe('#isRelativeUrl', () => {
+  it('should check a relative url', () => {
+    expect(isRelativeUrl('/test')).toBe(true);
+    expect(isRelativeUrl('http://www.google.com')).toBe(false);
+    expect(isRelativeUrl('javascript:alert("test")')).toBe(false);
+    expect(isRelativeUrl('\\test')).toBe(false);
+    expect(isRelativeUrl('//test')).toBe(false);
+  });
+});
+
+describe('#getHostUrl', () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
+  it('should return host url on client side', () => {
+    jest.mock('../init', () => ({
+      getUrlContext: () => '',
+      IS_SSR: false
+    }));
+    const mockedUrls = require('../urls');
+    expect(mockedUrls.getHostUrl()).toBe('http://localhost');
+  });
+  it('should throw on server-side', () => {
+    jest.mock('../init', () => ({
+      getUrlContext: () => '',
+      IS_SSR: true
+    }));
+    const mockedUrls = require('../urls');
+    expect(mockedUrls.getHostUrl).toThrowErrorMatchingInlineSnapshot(
+      `"No host url available on server side."`
+    );
   });
 });

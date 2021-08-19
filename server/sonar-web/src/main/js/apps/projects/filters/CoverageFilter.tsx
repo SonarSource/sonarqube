@@ -19,11 +19,8 @@
  */
 import * as React from 'react';
 import CoverageRating from '../../../components/ui/CoverageRating';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import {
-  getCoverageRatingAverageValue,
-  getCoverageRatingLabel
-} from '../../../sonar-ui-common/helpers/ratings';
+import { translate } from '../../../helpers/l10n';
+import { getCoverageRatingAverageValue, getCoverageRatingLabel } from '../../../helpers/ratings';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';

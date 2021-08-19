@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
-import { parseDate } from '../../../sonar-ui-common/helpers/dates';
+import { parseDate } from '../../../helpers/dates';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';

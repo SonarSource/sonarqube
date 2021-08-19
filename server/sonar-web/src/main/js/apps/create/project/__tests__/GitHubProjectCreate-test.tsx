@@ -28,7 +28,7 @@ import {
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import GitHubProjectCreate from '../GitHubProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => ({

@@ -28,7 +28,7 @@ import {
   mockSourceLine,
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 
 jest.mock('../../../../api/issues', () => {

@@ -20,7 +20,7 @@
 import { mount } from 'enzyme';
 import * as React from 'react';
 import { getBreadcrumbs } from '../../../../api/components';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import Breadcrumbs from '../Breadcrumbs';
 
 jest.mock('../../../../api/components', () => ({

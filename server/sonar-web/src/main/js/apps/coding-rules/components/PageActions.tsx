@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import PageCounter from '../../../components/common/PageCounter';
+import ReloadButton from '../../../components/controls/ReloadButton';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
-import ReloadButton from '../../../sonar-ui-common/components/controls/ReloadButton';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
 export interface PageActionsProps {
   loading: boolean;

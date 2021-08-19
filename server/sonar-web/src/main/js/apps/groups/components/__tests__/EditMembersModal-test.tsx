@@ -20,10 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../../api/user_groups';
-import SelectList, {
-  SelectListFilter
-} from '../../../../sonar-ui-common/components/controls/SelectList';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import EditMembersModal from '../EditMembersModal';
 
 const group = { id: 1, name: 'foo', membersCount: 1 };

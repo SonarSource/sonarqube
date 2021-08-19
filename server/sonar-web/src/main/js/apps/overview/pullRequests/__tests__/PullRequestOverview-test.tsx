@@ -23,7 +23,7 @@ import { getMeasuresWithMetrics } from '../../../../api/measures';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
 import { mockComponent } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { PR_METRICS } from '../../utils';
 import { PullRequestOverview } from '../PullRequestOverview';
 

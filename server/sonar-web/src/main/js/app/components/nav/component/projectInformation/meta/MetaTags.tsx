@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { setApplicationTags, setProjectTags } from '../../../../../../api/components';
+import { ButtonLink } from '../../../../../../components/controls/buttons';
+import Dropdown from '../../../../../../components/controls/Dropdown';
 import TagsList from '../../../../../../components/tags/TagsList';
-import { ButtonLink } from '../../../../../../sonar-ui-common/components/controls/buttons';
-import Dropdown from '../../../../../../sonar-ui-common/components/controls/Dropdown';
-import { PopupPlacement } from '../../../../../../sonar-ui-common/components/ui/popups';
-import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
+import { PopupPlacement } from '../../../../../../components/ui/popups';
+import { translate } from '../../../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../../../types/component';
 import MetaTagsSelector from './MetaTagsSelector';
 

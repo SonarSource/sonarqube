@@ -22,7 +22,7 @@ import * as React from 'react';
 import { getComponentData, getComponentForSourceViewer, getSources } from '../../../api/components';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockIssue, mockSourceLine, mockSourceViewerFile } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import defaultLoadIssues from '../helpers/loadIssues';
 import SourceViewerBase from '../SourceViewerBase';
 

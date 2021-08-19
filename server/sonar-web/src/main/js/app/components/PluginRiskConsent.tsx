@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { setSimpleSettingValue } from '../../api/settings';
+import { Button } from '../../components/controls/buttons';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { Router, withRouter } from '../../components/hoc/withRouter';
+import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
-import { Button } from '../../sonar-ui-common/components/controls/buttons';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 import { Permissions } from '../../types/permissions';
 import { RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';

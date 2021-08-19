@@ -21,8 +21,8 @@ import * as React from 'react';
 import { searchProjects } from '../../../api/components';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { get } from '../../../helpers/storage';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
-import { get } from '../../../sonar-ui-common/helpers/storage';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 import AllProjectsContainer from './AllProjectsContainer';
 

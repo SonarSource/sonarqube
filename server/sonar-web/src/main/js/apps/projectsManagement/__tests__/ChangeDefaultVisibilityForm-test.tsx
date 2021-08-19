@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Radio from '../../../sonar-ui-common/components/controls/Radio';
-import { click } from '../../../sonar-ui-common/helpers/testUtils';
+import Radio from '../../../components/controls/Radio';
+import { click } from '../../../helpers/testUtils';
 import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
 
 it('closes', () => {

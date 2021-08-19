@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { Alert } from '../../../components/ui/Alert';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   permissions: T.Permission[];

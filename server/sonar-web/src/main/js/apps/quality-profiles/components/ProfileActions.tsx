@@ -27,15 +27,15 @@ import {
   renameProfile,
   setDefaultProfile
 } from '../../../api/quality-profiles';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
-import { getBaseUrl } from '../../../helpers/system';
-import { getRulesUrl } from '../../../helpers/urls';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
-} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../components/controls/ActionsDropdown';
+import Tooltip from '../../../components/controls/Tooltip';
+import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/system';
+import { getRulesUrl } from '../../../helpers/urls';
 import { Profile, ProfileActionModals } from '../types';
 import { getProfileComparePath, getProfilePath, PROFILE_PATH } from '../utils';
 import DeleteProfileForm from './DeleteProfileForm';

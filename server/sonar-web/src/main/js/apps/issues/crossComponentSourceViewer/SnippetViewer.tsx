@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import ExpandSnippetIcon from '../../../components/icons/ExpandSnippetIcon';
 import Line from '../../../components/SourceViewer/components/Line';
 import { symbolsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getSecondaryIssueLocationsForLine } from '../../../components/SourceViewer/helpers/issueLocations';
@@ -27,9 +28,8 @@ import {
   optimizeLocationMessage,
   optimizeSelectedIssue
 } from '../../../components/SourceViewer/helpers/lines';
-import ExpandSnippetIcon from '../../../sonar-ui-common/components/icons/ExpandSnippetIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { scrollHorizontally } from '../../../sonar-ui-common/helpers/scrolling';
+import { translate } from '../../../helpers/l10n';
+import { scrollHorizontally } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import './SnippetViewer.css';
 import { inSnippet, LINES_BELOW_ISSUE } from './utils';

@@ -29,17 +29,17 @@ import {
 } from '../../../../api/quality-gates';
 import { getAllTimeMachineData } from '../../../../api/time-machine';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
+import { isDiffMetric } from '../../../../helpers/measures';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockAnalysis, mockComponent } from '../../../../helpers/testMocks';
-import { isDiffMetric } from '../../../../sonar-ui-common/helpers/measures';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
 import BranchOverviewRenderer from '../BranchOverviewRenderer';
 
-jest.mock('../../../../sonar-ui-common/helpers/dates', () => ({
+jest.mock('../../../../helpers/dates', () => ({
   parseDate: jest.fn(date => `PARSED:${date}`),
   toNotSoISOString: jest.fn(date => date)
 }));

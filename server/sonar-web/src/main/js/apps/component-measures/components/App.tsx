@@ -34,13 +34,13 @@ import {
   getLocalizedMetricDomain,
   translate,
   translateWithParameters
-} from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../sonar-ui-common/helpers/pages';
+} from '../../../helpers/pages';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';

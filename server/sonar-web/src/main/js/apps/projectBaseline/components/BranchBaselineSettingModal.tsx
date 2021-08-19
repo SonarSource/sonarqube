@@ -19,14 +19,11 @@
  */
 import * as React from 'react';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { toNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { toNotSoISOString } from '../../../helpers/dates';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';

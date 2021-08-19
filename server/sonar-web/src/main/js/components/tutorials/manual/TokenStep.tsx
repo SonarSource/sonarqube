@@ -21,15 +21,11 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
-import {
-  Button,
-  DeleteButton,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Radio from '../../../sonar-ui-common/components/controls/Radio';
-import AlertErrorIcon from '../../../sonar-ui-common/components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../sonar-ui-common/components/icons/AlertSuccessIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button, DeleteButton, SubmitButton } from '../../../components/controls/buttons';
+import Radio from '../../../components/controls/Radio';
+import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
+import { translate } from '../../../helpers/l10n';
+import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
 

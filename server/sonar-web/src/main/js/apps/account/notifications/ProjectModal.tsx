@@ -21,14 +21,11 @@ import * as classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { getSuggestions } from '../../../api/components';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
-import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import SearchBox from '../../../components/controls/SearchBox';
+import SimpleModal from '../../../components/controls/SimpleModal';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   addedProjects: T.NotificationProject[];

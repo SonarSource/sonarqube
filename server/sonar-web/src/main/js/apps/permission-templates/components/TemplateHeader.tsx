@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import ActionsCell from './ActionsCell';
 

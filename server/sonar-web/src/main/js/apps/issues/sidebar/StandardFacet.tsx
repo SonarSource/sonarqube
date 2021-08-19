@@ -25,6 +25,8 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import { translate } from '../../../helpers/l10n';
+import { highlightTerm } from '../../../helpers/search';
 import {
   getStandards,
   renderCWECategory,
@@ -32,8 +34,6 @@ import {
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { highlightTerm } from '../../../sonar-ui-common/helpers/search';
 import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards, StandardType } from '../../../types/security';
 import { formatFacetStat, Query, STANDARDS } from '../utils';

@@ -22,9 +22,9 @@ import { FormattedMessage } from 'react-intl';
 import { Link, WithRouterProps } from 'react-router';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { withRouter } from '../../../../components/hoc/withRouter';
+import { Alert } from '../../../../components/ui/Alert';
+import { hasMessage, translate } from '../../../../helpers/l10n';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { hasMessage, translate } from '../../../../sonar-ui-common/helpers/l10n';
 import { Task, TaskStatuses } from '../../../../types/tasks';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 

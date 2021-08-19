@@ -25,7 +25,7 @@ import {
   mockQualityProfile,
   mockRouter
 } from '../../../../helpers/testMocks';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import { PageHeader } from '../PageHeader';
 
 it('should render correctly', () => {

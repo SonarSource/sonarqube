@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { Button } from '../../../../../../sonar-ui-common/components/controls/buttons';
-import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../../../../components/controls/buttons';
+import { translate } from '../../../../../../helpers/l10n';
 import { BadgeType } from './utils';
 
 interface Props {

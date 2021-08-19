@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { ComponentContext } from '../../../app/components/ComponentContext';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
 import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
 

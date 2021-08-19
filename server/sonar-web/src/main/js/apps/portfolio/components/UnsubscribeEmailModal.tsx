@@ -19,15 +19,11 @@
  */
 import * as React from 'react';
 import { unsubscribeFromEmailReport } from '../../../api/component-report';
-import {
-  Button,
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import SimpleModal from '../../../sonar-ui-common/components/controls/SimpleModal';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import SimpleModal from '../../../components/controls/SimpleModal';
+import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   component: T.Component;

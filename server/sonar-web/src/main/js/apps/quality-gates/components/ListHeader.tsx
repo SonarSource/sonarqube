@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import ModalButton from '../../../sonar-ui-common/components/controls/ModalButton';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import ModalButton from '../../../components/controls/ModalButton';
+import { translate } from '../../../helpers/l10n';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {

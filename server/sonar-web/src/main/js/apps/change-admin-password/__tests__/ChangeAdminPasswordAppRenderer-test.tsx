@@ -21,7 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockLocation } from '../../../helpers/testMocks';
-import { change, submit } from '../../../sonar-ui-common/helpers/testUtils';
+import { change, submit } from '../../../helpers/testUtils';
 import ChangeAdminPasswordAppRenderer, {
   ChangeAdminPasswordAppRendererProps
 } from '../ChangeAdminPasswordAppRenderer';

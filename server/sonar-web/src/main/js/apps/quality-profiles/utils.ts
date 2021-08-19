@@ -20,7 +20,7 @@
 import * as differenceInYears from 'date-fns/difference_in_years';
 import { sortBy } from 'lodash';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
-import { isValidDate, parseDate } from '../../sonar-ui-common/helpers/dates';
+import { isValidDate, parseDate } from '../../helpers/dates';
 import { Profile } from './types';
 
 export function sortProfiles(profiles: BaseProfile[]): Profile[] {

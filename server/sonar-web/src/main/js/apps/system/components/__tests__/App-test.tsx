@@ -26,7 +26,7 @@ import {
   mockRouter,
   mockStandaloneSysInfo
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 
 jest.mock('../../../../api/system', () => ({

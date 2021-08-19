@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { colors } from '../../app/theme';
-import LightBulbIcon from '../../sonar-ui-common/components/icons/LightBulbIcon';
+import LightBulbIcon from '../../components/icons/LightBulbIcon';
 import { RuleDescriptor } from './context';
 
 interface Props {

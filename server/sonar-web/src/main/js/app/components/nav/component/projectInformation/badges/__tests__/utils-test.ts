@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from '../../../../../../../sonar-ui-common/helpers/urls';
+import { Location } from '../../../../../../../helpers/urls';
 import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils';
 
-jest.mock('../../../../../../../sonar-ui-common/helpers/urls', () => ({
-  ...jest.requireActual('../../../../../../../sonar-ui-common/helpers/urls'),
+jest.mock('../../../../../../../helpers/urls', () => ({
+  ...jest.requireActual('../../../../../../../helpers/urls'),
   getHostUrl: () => 'host',
   getPathUrlAsString: (o: Location) =>
     `host${o.pathname}?id=${o.query ? o.query.id : ''}&branch=${o.query ? o.query.branch : ''}`

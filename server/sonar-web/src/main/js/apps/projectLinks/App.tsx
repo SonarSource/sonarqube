@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createLink, deleteLink, getProjectLinks } from '../../api/projectLinks';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
 import Header from './Header';
 import Table from './Table';
 

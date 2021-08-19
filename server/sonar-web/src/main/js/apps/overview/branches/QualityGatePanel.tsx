@@ -19,10 +19,10 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import QualityGatePanelSection from './QualityGatePanelSection';
 

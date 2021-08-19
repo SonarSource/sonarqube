@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { getProfileInheritance } from '../../../api/quality-profiles';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import ChangeParentForm from './ChangeParentForm';
 import ProfileInheritanceBox from './ProfileInheritanceBox';

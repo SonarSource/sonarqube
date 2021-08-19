@@ -20,16 +20,19 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
+import { Button } from '../../../components/controls/buttons';
+import { ClipboardButton } from '../../../components/controls/clipboard';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import LinkIcon from '../../../components/icons/LinkIcon';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { fillBranchLike, getBranchLikeQuery } from '../../../helpers/branch-like';
-import { getComponentSecurityHotspotsUrl, getRuleUrl } from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
+import {
+  getComponentSecurityHotspotsUrl,
+  getPathUrlAsString,
+  getRuleUrl
+} from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { ClipboardButton } from '../../../sonar-ui-common/components/controls/clipboard';
-import LinkIcon from '../../../sonar-ui-common/components/icons/LinkIcon';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { getPathUrlAsString } from '../../../sonar-ui-common/helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import Assignee from './assignee/Assignee';

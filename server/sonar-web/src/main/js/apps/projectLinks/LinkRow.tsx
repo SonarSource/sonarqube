@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import isValidUri from '../../app/utils/isValidUri';
+import { Button } from '../../components/controls/buttons';
+import ConfirmButton from '../../components/controls/ConfirmButton';
+import ProjectLinkIcon from '../../components/icons/ProjectLinkIcon';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getLinkName, isProvided } from '../../helpers/projectLinks';
-import { Button } from '../../sonar-ui-common/components/controls/buttons';
-import ConfirmButton from '../../sonar-ui-common/components/controls/ConfirmButton';
-import ProjectLinkIcon from '../../sonar-ui-common/components/icons/ProjectLinkIcon';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   link: T.ProjectLink;

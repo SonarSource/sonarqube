@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
-import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmTab from '../AlmTab';
 

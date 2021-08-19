@@ -20,9 +20,9 @@
 import { invert } from 'lodash';
 import { Facet, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
-import { RequestData } from '../../sonar-ui-common/helpers/request';
+import { RequestData } from '../../helpers/request';
 import { MetricKey } from '../../types/metrics';
 import { convertToFilter, Query } from './query';
 

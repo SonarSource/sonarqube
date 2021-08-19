@@ -25,7 +25,7 @@ import {
   ApplicationLeakPeriodInfoProps
 } from '../ApplicationLeakPeriodInfo';
 
-jest.mock('../../../../sonar-ui-common/components/intl/DateFromNow');
+jest.mock('../../../../components/intl/DateFromNow');
 
 it('renders correctly', () => {
   const wrapper = shallowRender();

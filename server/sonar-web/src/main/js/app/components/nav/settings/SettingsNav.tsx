@@ -20,12 +20,12 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
-import Dropdown from '../../../../sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from '../../../../sonar-ui-common/components/icons/DropdownIcon';
-import ContextNavBar from '../../../../sonar-ui-common/components/ui/ContextNavBar';
-import NavBarTabs from '../../../../sonar-ui-common/components/ui/NavBarTabs';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../../sonar-ui-common/helpers/urls';
+import Dropdown from '../../../../components/controls/Dropdown';
+import DropdownIcon from '../../../../components/icons/DropdownIcon';
+import ContextNavBar from '../../../../components/ui/ContextNavBar';
+import NavBarTabs from '../../../../components/ui/NavBarTabs';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/urls';
 import { AdminPageExtension } from '../../../../types/extension';
 import { PendingPluginResult } from '../../../../types/plugins';
 import { rawSizes } from '../../../theme';

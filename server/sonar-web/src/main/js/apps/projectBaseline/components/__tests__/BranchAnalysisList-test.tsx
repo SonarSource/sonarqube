@@ -21,9 +21,9 @@ import { subDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getProjectActivity } from '../../../../api/projectActivity';
+import { toShortNotSoISOString } from '../../../../helpers/dates';
 import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/testMocks';
-import { toShortNotSoISOString } from '../../../../sonar-ui-common/helpers/dates';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import BranchAnalysisList from '../BranchAnalysisList';
 
 jest.mock('date-fns/start_of_day', () =>
@@ -32,7 +32,7 @@ jest.mock('date-fns/start_of_day', () =>
   }))
 );
 
-jest.mock('../../../../sonar-ui-common/helpers/dates', () => ({
+jest.mock('../../../../helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('2017-03-02'),
   toShortNotSoISOString: jest.fn().mockReturnValue('2017-03-02')
 }));

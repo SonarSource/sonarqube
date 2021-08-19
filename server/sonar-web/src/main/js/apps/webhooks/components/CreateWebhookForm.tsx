@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { isWebUri } from 'valid-url';
-import InputValidationField from '../../../sonar-ui-common/components/controls/InputValidationField';
-import ValidationModal from '../../../sonar-ui-common/components/controls/ValidationModal';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import InputValidationField from '../../../components/controls/InputValidationField';
+import ValidationModal from '../../../components/controls/ValidationModal';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;

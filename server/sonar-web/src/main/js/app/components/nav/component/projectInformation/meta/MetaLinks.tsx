@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getProjectLinks } from '../../../../../../api/projectLinks';
+import { translate } from '../../../../../../helpers/l10n';
 import { orderLinks } from '../../../../../../helpers/projectLinks';
-import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
 import MetaLink from './MetaLink';
 
 interface Props {

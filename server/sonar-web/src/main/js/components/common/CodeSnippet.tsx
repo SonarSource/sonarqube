@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { ClipboardButton } from '../../sonar-ui-common/components/controls/clipboard';
-import { isDefined } from '../../sonar-ui-common/helpers/types';
+import { ClipboardButton } from '../../components/controls/clipboard';
+import { isDefined } from '../../helpers/types';
 import './CodeSnippet.css';
 
 export interface CodeSnippetProps {

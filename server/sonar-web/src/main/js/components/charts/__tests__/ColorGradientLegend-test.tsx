@@ -17,13 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getHistory from '../../helpers/getHistory';
-import * as Router from 'react-router';
+import { scaleLinear } from 'd3-scale';
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import testTheme from '../../../../../../config/jest/testTheme';
+import ColorGradientLegend from '../ColorGradientLegend';
 
-it('should get browser history properly', () => {
-  expect(getHistory()).not.toBeUndefined();
-  expect(getHistory().getCurrentLocation().pathname).toBe('/');
-  const pathname = '/foo/bar';
-  Router.browserHistory.push(pathname);
-  expect(getHistory().getCurrentLocation().pathname).toBe(pathname);
+const { colors } = testTheme;
+const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
+
+it('should render properly', () => {
+  const colorScale = scaleLinear<string, string>()
+    .domain([0, 25, 50, 75, 100])
+    .range(COLORS);
+  const wrapper = shallow(
+    <ColorGradientLegend
+      className="measure-details-treemap-legend"
+      colorScale={colorScale}
+      showColorNA={true}
+      height={20}
+      width={200}
+    />
+  );
+  expect(wrapper.dive()).toMatchSnapshot();
 });

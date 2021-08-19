@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getTask } from '../../../api/ce';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import Modal from '../../../components/controls/Modal';
+import { translate } from '../../../helpers/l10n';
 import { Task } from '../../../types/tasks';
 
 interface Props {

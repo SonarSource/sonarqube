@@ -19,30 +19,44 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../config/jest/testTheme';
-import { click } from '../../../helpers/testUtils';
+import testTheme from '../../../../../../config/jest/testTheme';
 import { ThemeProvider } from '../../theme';
-import BackButton from '../BackButton';
+import HelpTooltip, { DarkHelpTooltip } from '../HelpTooltip';
 
 it('should render properly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('ContextConsumer').dive()).toMatchSnapshot();
-});
-
-it('should handle click', () => {
-  const onClick = jest.fn();
-  const wrapper = shallowRender({ onClick });
-  expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('a'));
-  expect(onClick).toBeCalled();
-});
-
-function shallowRender(props: Partial<BackButton['props']> = {}) {
-  return shallow<BackButton>(<BackButton onClick={jest.fn()} {...props} />, {
+  const wrapper = shallow(<HelpTooltip overlay={<div className="my-overlay" />} />, {
     wrappingComponent: ThemeProvider,
     wrappingComponentProps: {
       theme: testTheme
     }
   });
-}
+  expect(wrapper).toMatchSnapshot('default');
+  expect(wrapper.find('ContextConsumer').dive()).toMatchSnapshot('default icon');
+
+  wrapper.setProps({ size: 18 });
+  expect(
+    wrapper
+      .find('ContextConsumer')
+      .dive()
+      .prop('size')
+  ).toBe(18);
+});
+
+it('should render dark helptooltip properly', () => {
+  const wrapper = shallow(<DarkHelpTooltip overlay={<div className="my-overlay" />} size={14} />, {
+    wrappingComponent: ThemeProvider,
+    wrappingComponentProps: {
+      theme: testTheme
+    }
+  });
+  expect(wrapper).toMatchSnapshot('dark');
+  expect(wrapper.find('ContextConsumer').dive()).toMatchSnapshot('dark icon');
+
+  wrapper.setProps({ size: undefined });
+  expect(
+    wrapper
+      .find('ContextConsumer')
+      .dive()
+      .prop('size')
+  ).toBe(12);
+});

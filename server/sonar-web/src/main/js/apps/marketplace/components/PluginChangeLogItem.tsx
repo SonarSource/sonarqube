@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import DateFormatter from '../../../sonar-ui-common/components/intl/DateFormatter';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import Tooltip from '../../../components/controls/Tooltip';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import { translate } from '../../../helpers/l10n';
 import { Release, Update } from '../../../types/plugins';
 
 interface Props {

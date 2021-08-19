@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { pick } from 'lodash';
+import { isNil, omitBy, pick } from 'lodash';
+import { stringify } from 'querystring';
 import { getProfilePath } from '../apps/quality-profiles/utils';
-import { getBaseUrl, Location } from '../sonar-ui-common/helpers/urls';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
+import { getUrlContext, IS_SSR } from './init';
+
+export interface Location {
+  pathname: string;
+  query?: T.Dict<string | undefined | number>;
+}
 
 type Query = Location['query'];
 
@@ -307,4 +313,34 @@ export function convertGithubApiUrlToLink(url: string) {
 
 export function stripTrailingSlash(url: string) {
   return url.replace(/\/$/, '');
+}
+
+export function getBaseUrl(): string {
+  return getUrlContext();
+}
+
+export function getHostUrl(): string {
+  if (IS_SSR) {
+    throw new Error('No host url available on server side.');
+  }
+  return window.location.origin + getBaseUrl();
+}
+
+export function getPathUrlAsString(path: Location, internal = true): string {
+  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname}?${stringify(
+    omitBy(path.query, isNil)
+  )}`;
+}
+
+export function getReturnUrl(location: { hash?: string; query?: { return_to?: string } }) {
+  const returnTo = location.query && location.query['return_to'];
+  if (isRelativeUrl(returnTo)) {
+    return returnTo + (location.hash ? location.hash : '');
+  }
+  return getBaseUrl() + '/';
+}
+
+export function isRelativeUrl(url?: string): boolean {
+  const regex = new RegExp(/^\/[^/\\]/);
+  return Boolean(url && regex.test(url));
 }

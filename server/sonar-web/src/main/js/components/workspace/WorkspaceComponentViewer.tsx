@@ -22,7 +22,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { getParents } from '../../api/components';
 import { isPullRequest } from '../../helpers/branch-like';
-import { scrollToElement } from '../../sonar-ui-common/helpers/scrolling';
+import { scrollToElement } from '../../helpers/scrolling';
 import { fetchBranchStatus } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
 import SourceViewer from '../SourceViewer/SourceViewer';

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Profile as BaseProfile } from '../../../api/quality-profiles';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
+import { Button } from '../../../components/controls/buttons';
 import ActivationFormModal from './ActivationFormModal';
 
 interface Props {

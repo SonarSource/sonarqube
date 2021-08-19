@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { get, save } from '../../../../sonar-ui-common/helpers/storage';
+import { get, save } from '../../../../helpers/storage';
 import { ComponentQualifier } from '../../../../types/component';
 import {
   AllProjects,
@@ -55,7 +55,7 @@ jest.mock('../../utils', () => {
   return utils;
 });
 
-jest.mock('../../../../sonar-ui-common/helpers/storage', () => ({
+jest.mock('../../../../helpers/storage', () => ({
   get: jest.fn(() => null),
   save: jest.fn()
 }));

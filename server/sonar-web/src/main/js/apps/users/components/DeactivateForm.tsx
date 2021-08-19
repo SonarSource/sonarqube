@@ -19,12 +19,9 @@
  */
 import * as React from 'react';
 import { deactivateUser } from '../../../api/users';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   onClose: () => void;

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
 interface Props extends BasicProps {

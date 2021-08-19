@@ -19,9 +19,9 @@
  */
 import { isEqual } from 'lodash';
 import * as React from 'react';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../sonar-ui-common/helpers/urls';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/urls';
 import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
 import GraphHistory from './GraphHistory';
 import './styles.css';

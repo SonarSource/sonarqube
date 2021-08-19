@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getStore from '../../app/utils/getStore';
+import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { getLocalizedMetricName } from '../../sonar-ui-common/helpers/l10n';
 import { getMetricByKey } from '../../store/rootReducer';
 
 export function checkIfDefault(qualityGate: T.QualityGate, list: T.QualityGate[]): boolean {

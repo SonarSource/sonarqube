@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import Tooltip from '../../../components/controls/Tooltip';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { deactivateRule } from '../../../../api/quality-profiles';
 import { mockEvent, mockQualityProfile, mockRule } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import RuleListItem from '../RuleListItem';
 
 jest.mock('../../../../api/quality-profiles', () => ({

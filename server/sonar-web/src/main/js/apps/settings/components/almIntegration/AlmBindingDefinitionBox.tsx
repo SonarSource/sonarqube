@@ -20,17 +20,17 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { Button } from '../../../../components/controls/buttons';
+import HelpTooltip from '../../../../components/controls/HelpTooltip';
+import Tooltip from '../../../../components/controls/Tooltip';
+import AlertErrorIcon from '../../../../components/icons/AlertErrorIcon';
+import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
+import DeleteIcon from '../../../../components/icons/DeleteIcon';
+import EditIcon from '../../../../components/icons/EditIcon';
+import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS, IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
-import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
-import HelpTooltip from '../../../../sonar-ui-common/components/controls/HelpTooltip';
-import Tooltip from '../../../../sonar-ui-common/components/controls/Tooltip';
-import AlertErrorIcon from '../../../../sonar-ui-common/components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../../sonar-ui-common/components/icons/AlertSuccessIcon';
-import DeleteIcon from '../../../../sonar-ui-common/components/icons/DeleteIcon';
-import EditIcon from '../../../../sonar-ui-common/components/icons/EditIcon';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 import {
   AlmBindingDefinitionBase,
   AlmKeys,

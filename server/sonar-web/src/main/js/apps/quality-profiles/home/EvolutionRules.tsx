@@ -21,10 +21,10 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { searchRules } from '../../../api/rules';
+import { toShortNotSoISOString } from '../../../helpers/dates';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
-import { toShortNotSoISOString } from '../../../sonar-ui-common/helpers/dates';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 
 const RULES_LIMIT = 10;
 

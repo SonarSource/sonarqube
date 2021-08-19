@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate } from '../../../../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../../../../helpers/urls';
-import { translate } from '../../../../../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   qualityGate: { isDefault?: boolean; key: string; name: string };

@@ -24,8 +24,8 @@ import {
   searchUsers,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import ProfilePermissionsForm from './ProfilePermissionsForm';
 import ProfilePermissionsGroup from './ProfilePermissionsGroup';

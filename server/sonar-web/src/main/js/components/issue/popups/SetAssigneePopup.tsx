@@ -20,10 +20,10 @@
 import { map } from 'lodash';
 import * as React from 'react';
 import { searchUsers } from '../../../api/users';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import SearchBox from '../../../components/controls/SearchBox';
+import { translate } from '../../../helpers/l10n';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import { withCurrentUser } from '../../hoc/withCurrentUser';

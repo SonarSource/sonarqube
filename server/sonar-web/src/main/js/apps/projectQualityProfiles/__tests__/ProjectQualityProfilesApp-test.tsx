@@ -28,7 +28,7 @@ import {
 } from '../../../api/quality-profiles';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import ProjectQualityProfilesApp from '../ProjectQualityProfilesApp';
 
 jest.mock('../../../api/quality-profiles', () => {

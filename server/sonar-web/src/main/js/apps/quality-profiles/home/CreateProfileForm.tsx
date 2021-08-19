@@ -24,17 +24,14 @@ import {
   createQualityProfile,
   getImporters
 } from '../../../api/quality-profiles';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
 import { Location } from '../../../components/hoc/withRouter';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import MandatoryFieldMarker from '../../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { parseAsOptionalString } from '../../../sonar-ui-common/helpers/query';
+import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../../helpers/l10n';
+import { parseAsOptionalString } from '../../../helpers/query';
 import { Profile } from '../types';
 
 interface Props {

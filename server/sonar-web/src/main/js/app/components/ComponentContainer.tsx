@@ -33,8 +33,8 @@ import {
   isMainBranch,
   isPullRequest
 } from '../../helpers/branch-like';
+import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl } from '../../helpers/urls';
-import { HttpStatus } from '../../sonar-ui-common/helpers/request';
 import { registerBranchStatus, requireAuthorization } from '../../store/rootActions';
 import {
   ProjectAlmBindingConfigurationErrors,

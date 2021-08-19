@@ -29,19 +29,19 @@ import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import ListFooter from '../../../components/controls/ListFooter';
+import SearchBox from '../../../components/controls/SearchBox';
+import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
-import { isLoggedIn } from '../../../helpers/users';
-import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
-import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
-import BackIcon from '../../../sonar-ui-common/components/icons/BackIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../sonar-ui-common/helpers/pages';
-import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
+} from '../../../helpers/pages';
+import { scrollToElement } from '../../../helpers/scrolling';
+import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, getLanguages, Store } from '../../../store/rootReducer';
 import { SecurityStandard } from '../../../types/security';
 import {

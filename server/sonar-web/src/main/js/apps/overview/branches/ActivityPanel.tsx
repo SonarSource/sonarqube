@@ -27,9 +27,9 @@ import {
   splitSeriesInGraphs
 } from '../../../components/activity-graph/utils';
 import ActivityLink from '../../../components/common/ActivityLink';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { parseDate } from '../../../sonar-ui-common/helpers/dates';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { parseDate } from '../../../helpers/dates';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import Analysis from './Analysis';

@@ -19,8 +19,8 @@
  */
 
 import * as React from 'react';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate } from '../../../../helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import { DotNetProps } from './DotNet';
 import DotNetExecute from './DotNetExecute';

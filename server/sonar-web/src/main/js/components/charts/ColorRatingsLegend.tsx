@@ -19,11 +19,11 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { ButtonLink } from '../../components/controls/buttons';
+import Tooltip from '../../components/controls/Tooltip';
 import { RATING_COLORS } from '../../helpers/constants';
-import { ButtonLink } from '../../sonar-ui-common/components/controls/buttons';
-import Tooltip from '../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
+import { translate } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
 import './ColorBoxLegend.css';
 
 export interface ColorRatingsLegendProps {

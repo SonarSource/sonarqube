@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Select from '../../../../components/controls/Select';
 import { mockComponent, mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import Select from '../../../../sonar-ui-common/components/controls/Select';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import { Languages, LanguagesProps } from '../Languages';
 

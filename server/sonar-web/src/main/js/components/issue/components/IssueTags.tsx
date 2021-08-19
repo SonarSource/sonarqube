@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { setIssueTags } from '../../../api/issues';
-import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ButtonLink } from '../../../components/controls/buttons';
+import Toggler from '../../../components/controls/Toggler';
+import { translate } from '../../../helpers/l10n';
 import TagsList from '../../tags/TagsList';
 import { updateIssue } from '../actions';
 import SetIssueTagsPopup from '../popups/SetIssueTagsPopup';

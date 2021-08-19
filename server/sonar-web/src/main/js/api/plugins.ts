@@ -19,8 +19,8 @@
  */
 import { findLastIndex } from 'lodash';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { getJSON, post } from '../sonar-ui-common/helpers/request';
-import { isDefined } from '../sonar-ui-common/helpers/types';
+import { getJSON, post } from '../helpers/request';
+import { isDefined } from '../helpers/types';
 import {
   AvailablePlugin,
   InstalledPlugin,

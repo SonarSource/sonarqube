@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import PageCounter from '../../../components/common/PageCounter';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   current: number | undefined;

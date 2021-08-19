@@ -20,7 +20,7 @@
 import { subDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { HousekeepingPolicy, RangeOption } from '../../utils';
 import { AuditApp } from '../AuditApp';
 import AuditAppRenderer from '../AuditAppRenderer';

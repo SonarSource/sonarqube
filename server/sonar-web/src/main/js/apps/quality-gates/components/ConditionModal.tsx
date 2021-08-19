@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
-import ConfirmModal from '../../../sonar-ui-common/components/controls/ConfirmModal';
-import Radio from '../../../sonar-ui-common/components/controls/Radio';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
+import Radio from '../../../components/controls/Radio';
+import { Alert } from '../../../components/ui/Alert';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
+import { isDiffMetric } from '../../../helpers/measures';
 import { getPossibleOperators } from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';

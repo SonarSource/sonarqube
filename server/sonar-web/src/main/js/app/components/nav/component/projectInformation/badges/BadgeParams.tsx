@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { fetchWebApi } from '../../../../../../api/web-api';
-import Select from '../../../../../../sonar-ui-common/components/controls/Select';
-import { getLocalizedMetricName, translate } from '../../../../../../sonar-ui-common/helpers/l10n';
+import Select from '../../../../../../components/controls/Select';
+import { getLocalizedMetricName, translate } from '../../../../../../helpers/l10n';
 import { BadgeColors, BadgeFormats, BadgeOptions, BadgeType } from './utils';
 
 interface Props {

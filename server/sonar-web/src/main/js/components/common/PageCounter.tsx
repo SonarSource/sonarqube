@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { formatMeasure } from '../../sonar-ui-common/helpers/measures';
+import { formatMeasure } from '../../helpers/measures';
 
 export interface PageCounterProps {
   className?: string;

@@ -20,9 +20,8 @@
 import * as React from 'react';
 import { getLeakValue } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { findMeasure, localizeMetric } from '../../../helpers/measures';
-import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
+import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 

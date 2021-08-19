@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import Level from '../../../sonar-ui-common/components/ui/Level';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import Level from '../../../components/ui/Level';
+import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';

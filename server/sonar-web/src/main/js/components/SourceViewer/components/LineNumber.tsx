@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import Toggler from '../../../components/controls/Toggler';
+import { translateWithParameters } from '../../../helpers/l10n';
 import LineOptionsPopup from './LineOptionsPopup';
 
 export interface LineNumberProps {

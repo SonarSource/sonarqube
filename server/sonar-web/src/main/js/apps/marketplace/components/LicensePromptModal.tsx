@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;

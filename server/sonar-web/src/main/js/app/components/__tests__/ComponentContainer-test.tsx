@@ -28,7 +28,7 @@ import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockTask } from '../../../helpers/mocks/tasks';
 import { mockAppState, mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses } from '../../../types/tasks';

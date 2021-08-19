@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
-import { mockEvent, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import ChangeParentForm from '../ChangeParentForm';
 
 beforeEach(() => jest.clearAllMocks());

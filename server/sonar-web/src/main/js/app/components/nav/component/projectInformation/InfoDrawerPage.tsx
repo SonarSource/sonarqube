@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import BackIcon from '../../../../../sonar-ui-common/components/icons/BackIcon';
-import { translate } from '../../../../../sonar-ui-common/helpers/l10n';
+import BackIcon from '../../../../../components/icons/BackIcon';
+import { translate } from '../../../../../helpers/l10n';
 
 export interface InfoDrawerPageProps {
   children: React.ReactNode;

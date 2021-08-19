@@ -23,7 +23,7 @@ import { getGitlabProjects, importGitlabProject } from '../../../../api/alm-inte
 import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import GitlabProjectCreate from '../GitlabProjectCreate';
 

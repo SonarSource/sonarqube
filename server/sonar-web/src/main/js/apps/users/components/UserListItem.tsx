@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ButtonIcon } from '../../../components/controls/buttons';
+import BulletListIcon from '../../../components/icons/BulletListIcon';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import Avatar from '../../../components/ui/Avatar';
-import { ButtonIcon } from '../../../sonar-ui-common/components/controls/buttons';
-import BulletListIcon from '../../../sonar-ui-common/components/icons/BulletListIcon';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserGroups from './UserGroups';

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
+import SonarUiCommonInitializer from '../helpers/init';
 import { loadL10nBundle } from '../helpers/l10n';
+import { parseJSON, request } from '../helpers/request';
 import { getBaseUrl, getSystemStatus } from '../helpers/system';
-import SonarUiCommonInitializer from '../sonar-ui-common/helpers/init';
-import { parseJSON, request } from '../sonar-ui-common/helpers/request';
 import './styles/sonar.css';
 
 SonarUiCommonInitializer.setUrlContext(getBaseUrl());

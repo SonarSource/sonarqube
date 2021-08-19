@@ -22,10 +22,10 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { sendTestEmail } from '../../../../api/settings';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { change, submit, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { change, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { EmailForm } from '../EmailForm';
 
-jest.mock('../../../../sonar-ui-common/helpers/request', () => ({
+jest.mock('../../../../helpers/request', () => ({
   parseError: jest.fn().mockResolvedValue('Error message')
 }));
 

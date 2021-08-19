@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import Select from '../../../components/controls/Select';
+import { translate } from '../../../helpers/l10n';
 import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';

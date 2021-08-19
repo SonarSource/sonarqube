@@ -19,18 +19,16 @@
  */
 import * as React from 'react';
 import BranchStatus from '../../../components/common/BranchStatus';
+import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
+import DateFromNow from '../../../components/intl/DateFromNow';
 import {
   getBranchLikeDisplayName,
   isBranch,
   isMainBranch,
   isPullRequest
 } from '../../../helpers/branch-like';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import BranchPurgeSetting from './BranchPurgeSetting';
 

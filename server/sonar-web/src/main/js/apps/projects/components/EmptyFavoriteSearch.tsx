@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import '../../../components/common/EmptySearch.css';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { Query } from '../query';
 
 export default function EmptyFavoriteSearch({ query }: { query: Query }) {

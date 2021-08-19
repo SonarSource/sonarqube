@@ -24,12 +24,10 @@ import {
   dissociateGateWithProject,
   searchProjects
 } from '../../../../api/quality-gates';
+import SelectList, { SelectListFilter } from '../../../../components/controls/SelectList';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockCondition } from '../../../../helpers/testMocks';
-import SelectList, {
-  SelectListFilter
-} from '../../../../sonar-ui-common/components/controls/SelectList';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import Projects from '../Projects';
 
 jest.mock('../../../../api/quality-gates', () => ({

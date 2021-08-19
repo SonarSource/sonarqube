@@ -25,7 +25,7 @@ import rehypeSlug from 'rehype-slug';
 import remark from 'remark';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import remarkRehype from 'remark-rehype';
-import { scrollToElement } from '../../sonar-ui-common/helpers/scrolling';
+import { scrollToElement } from '../../helpers/scrolling';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
 import DocLink from './DocLink';

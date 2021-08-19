@@ -20,8 +20,8 @@
 import { connect } from 'react-redux';
 import { searchIssues } from '../../../api/issues';
 import { withRouter } from '../../../components/hoc/withRouter';
+import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { FetchIssuesPromise } from '../../../types/issues';

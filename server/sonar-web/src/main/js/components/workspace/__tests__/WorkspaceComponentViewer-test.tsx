@@ -22,7 +22,7 @@ import * as React from 'react';
 import { getParents } from '../../../api/components';
 import { mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockIssue } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { Props, WorkspaceComponentViewer } from '../WorkspaceComponentViewer';
 
 jest.mock('../../../api/components', () => ({

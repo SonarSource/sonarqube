@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { change } from '../../../../../helpers/testUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForJSON from '../InputForJSON';
 

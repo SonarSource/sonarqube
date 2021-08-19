@@ -20,7 +20,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { mockRule } from '../../../../helpers/testMocks';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import SimilarRulesFilter from '../SimilarRulesFilter';
 
 it('should render correctly', () => {

@@ -36,7 +36,7 @@ import {
   mockProjectAlmBindingResponse
 } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
 import { PRDecorationBinding } from '../PRDecorationBinding';
 import PRDecorationBindingRenderer from '../PRDecorationBindingRenderer';

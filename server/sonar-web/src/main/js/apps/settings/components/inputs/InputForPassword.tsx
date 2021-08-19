@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { colors } from '../../../../app/theme';
-import { Button } from '../../../../sonar-ui-common/components/controls/buttons';
-import LockIcon from '../../../../sonar-ui-common/components/icons/LockIcon';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../../components/controls/buttons';
+import LockIcon from '../../../../components/icons/LockIcon';
+import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 interface State {

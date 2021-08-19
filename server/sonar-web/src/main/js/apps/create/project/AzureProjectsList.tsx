@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import ListFooter from '../../../components/controls/ListFooter';
+import { Alert } from '../../../components/ui/Alert';
+import { translate } from '../../../helpers/l10n';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import AzureProjectAccordion from './AzureProjectAccordion';
 import { CreateProjectModes } from './types';

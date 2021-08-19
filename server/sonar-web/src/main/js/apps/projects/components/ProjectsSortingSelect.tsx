@@ -20,12 +20,12 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { colors } from '../../../app/theme';
-import { ButtonIcon } from '../../../sonar-ui-common/components/controls/buttons';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import SortAscIcon from '../../../sonar-ui-common/components/icons/SortAscIcon';
-import SortDescIcon from '../../../sonar-ui-common/components/icons/SortDescIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ButtonIcon } from '../../../components/controls/buttons';
+import Select from '../../../components/controls/Select';
+import Tooltip from '../../../components/controls/Tooltip';
+import SortAscIcon from '../../../components/icons/SortAscIcon';
+import SortDescIcon from '../../../components/icons/SortDescIcon';
+import { translate } from '../../../helpers/l10n';
 import { parseSorting, SORTING_LEAK_METRICS, SORTING_METRICS } from '../utils';
 import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
 

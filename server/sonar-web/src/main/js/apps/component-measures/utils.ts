@@ -20,9 +20,9 @@
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isBranch, isPullRequest } from '../../helpers/branch-like';
+import { getLocalizedMetricName } from '../../helpers/l10n';
 import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
-import { getLocalizedMetricName } from '../../sonar-ui-common/helpers/l10n';
-import { cleanQuery, parseAsString, serializeString } from '../../sonar-ui-common/helpers/query';
+import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MetricKey } from '../../types/metrics';

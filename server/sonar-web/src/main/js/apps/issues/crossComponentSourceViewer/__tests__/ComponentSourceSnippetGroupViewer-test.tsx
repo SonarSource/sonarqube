@@ -30,7 +30,7 @@ import {
   mockSourceLine,
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
 import SnippetViewer from '../SnippetViewer';
 

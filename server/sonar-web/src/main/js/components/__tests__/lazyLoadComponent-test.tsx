@@ -22,7 +22,7 @@ import * as React from 'react';
 import { waitAndUpdate } from '../../helpers/testUtils';
 import { lazyLoadComponent } from '../lazyLoadComponent';
 
-const factory = jest.fn().mockImplementation(() => import('../controls/Checkbox'));
+const factory = jest.fn().mockImplementation(() => import('../../components/controls/Checkbox'));
 
 beforeEach(() => {
   factory.mockClear();

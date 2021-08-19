@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { translate } from '../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
 import { OSs } from '../../types';

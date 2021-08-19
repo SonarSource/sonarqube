@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Radio from '../../../../components/controls/Radio';
+import SearchBox from '../../../../components/controls/SearchBox';
+import SearchSelect from '../../../../components/controls/SearchSelect';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
-import Radio from '../../../../sonar-ui-common/components/controls/Radio';
-import SearchBox from '../../../../sonar-ui-common/components/controls/SearchBox';
-import SearchSelect from '../../../../sonar-ui-common/components/controls/SearchSelect';
 import { GithubOrganization } from '../../../../types/alm-integration';
 import GitHubProjectCreateRenderer, {
   GitHubProjectCreateRendererProps

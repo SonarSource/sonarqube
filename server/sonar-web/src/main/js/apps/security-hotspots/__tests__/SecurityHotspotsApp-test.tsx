@@ -31,7 +31,7 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import { SecurityStandard } from '../../../types/security';
 import {
   HotspotResolution,

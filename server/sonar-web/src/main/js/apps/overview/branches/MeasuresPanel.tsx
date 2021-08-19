@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import { rawSizes } from '../../../app/theme';
+import BoxedTabs from '../../../components/controls/BoxedTabs';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
-import { findMeasure } from '../../../helpers/measures';
-import BoxedTabs from '../../../sonar-ui-common/components/controls/BoxedTabs';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
+import { findMeasure, isDiffMetric } from '../../../helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';

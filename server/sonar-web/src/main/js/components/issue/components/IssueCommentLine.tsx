@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DeleteButton, EditButton } from '../../../components/controls/buttons';
+import Toggler from '../../../components/controls/Toggler';
+import { PopupPlacement } from '../../../components/ui/popups';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { DeleteButton, EditButton } from '../../../sonar-ui-common/components/controls/buttons';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import DateFromNow from '../../intl/DateFromNow';
 import Avatar from '../../ui/Avatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';

@@ -27,29 +27,29 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import { Button } from '../../../components/controls/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
+import ListFooter from '../../../components/controls/ListFooter';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
+import { Alert } from '../../../components/ui/Alert';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import {
   fillBranchLike,
   getBranchLikeQuery,
   isPullRequest,
   isSameBranchLike
 } from '../../../helpers/branch-like';
-import { isSonarCloud } from '../../../helpers/system';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
-import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import handleRequiredAuthentication from '../../../sonar-ui-common/helpers/handleRequiredAuthentication';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../sonar-ui-common/helpers/pages';
-import { serializeDate } from '../../../sonar-ui-common/helpers/query';
+} from '../../../helpers/pages';
+import { serializeDate } from '../../../helpers/query';
+import { isSonarCloud } from '../../../helpers/system';
 import { BranchLike } from '../../../types/branch-like';
 import {
   Facet,

@@ -27,8 +27,8 @@ import {
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
-} from '../../../sonar-ui-common/components/controls/SelectList';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../components/controls/SelectList';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   canEdit?: boolean;

@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
-import { findMeasure } from '../../../helpers/measures';
-import { getLocalizedMetricName } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
+import { findMeasure, formatMeasure } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 

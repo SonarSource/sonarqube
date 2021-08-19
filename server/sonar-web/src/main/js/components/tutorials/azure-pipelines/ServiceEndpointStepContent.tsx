@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { ClipboardIconButton } from '../../../sonar-ui-common/components/controls/clipboard';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import { ClipboardIconButton } from '../../../components/controls/clipboard';
+import { translate } from '../../../helpers/l10n';
 import EditTokenModal from '../components/EditTokenModal';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 

@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { setQualityGateAsDefault } from '../../../api/quality-gates';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import ModalButton from '../../../sonar-ui-common/components/controls/ModalButton';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import ModalButton from '../../../components/controls/ModalButton';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';

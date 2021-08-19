@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { getTree } from '../../../api/components';
+import SearchBox from '../../../components/controls/SearchBox';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import SearchBox from '../../../sonar-ui-common/components/controls/SearchBox';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 
 interface Props {

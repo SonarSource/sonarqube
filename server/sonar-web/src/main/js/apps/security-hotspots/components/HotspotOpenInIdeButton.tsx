@@ -20,12 +20,12 @@
 import * as React from 'react';
 import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
+import { Button } from '../../../components/controls/buttons';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import Toggler from '../../../components/controls/Toggler';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { Ide } from '../../../types/sonarlint';
 import { HotspotOpenInIdeOverlay } from './HotspotOpenInIdeOverlay';
 

@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import { max, min } from 'date-fns';
 import * as React from 'react';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import DateInput from './DateInput';
 
 type DateRange = { from?: Date; to?: Date };

@@ -20,12 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getSuggestions } from '../../../../api/components';
-import {
-  change,
-  elementKeydown,
-  submit,
-  waitAndUpdate
-} from '../../../../sonar-ui-common/helpers/testUtils';
+import { change, elementKeydown, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import ProjectModal from '../ProjectModal';
 
 jest.mock('../../../../api/components', () => ({

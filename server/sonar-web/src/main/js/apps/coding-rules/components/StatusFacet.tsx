@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { RULE_STATUSES } from '../../../helpers/constants';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
 export default class StatusFacet extends React.PureComponent<BasicProps> {

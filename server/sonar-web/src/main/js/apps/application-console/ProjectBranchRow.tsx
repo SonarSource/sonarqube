@@ -20,11 +20,11 @@
 import { orderBy } from 'lodash';
 import * as React from 'react';
 import { getBranches } from '../../api/branches';
-import Checkbox from '../../sonar-ui-common/components/controls/Checkbox';
-import Select from '../../sonar-ui-common/components/controls/Select';
-import Tooltip from '../../sonar-ui-common/components/controls/Tooltip';
-import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import Checkbox from '../../components/controls/Checkbox';
+import Select from '../../components/controls/Select';
+import Tooltip from '../../components/controls/Tooltip';
+import QualifierIcon from '../../components/icons/QualifierIcon';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { ApplicationProject } from '../../types/application';
 import BranchSelectItem from './BranchSelectItem';
 import { ApplicationBranch, SelectBranchOption } from './utils';

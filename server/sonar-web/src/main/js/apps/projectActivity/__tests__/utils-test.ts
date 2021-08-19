@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { DEFAULT_GRAPH } from '../../../components/activity-graph/utils';
-import * as dates from '../../../sonar-ui-common/helpers/dates';
+import * as dates from '../../../helpers/dates';
 import { GraphType } from '../../../types/project-activity';
 import * as utils from '../utils';
 

@@ -17,27 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { scaleLinear } from 'd3-scale';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../config/jest/testTheme';
-import ColorGradientLegend from '../ColorGradientLegend';
-
-const { colors } = testTheme;
-const COLORS = [colors.green, colors.lightGreen, colors.yellow, colors.orange, colors.red];
+import testTheme from '../../../../../../config/jest/testTheme';
+import { click } from '../../../helpers/testUtils';
+import { ThemeProvider } from '../../theme';
+import BackButton from '../BackButton';
 
 it('should render properly', () => {
-  const colorScale = scaleLinear<string, string>()
-    .domain([0, 25, 50, 75, 100])
-    .range(COLORS);
-  const wrapper = shallow(
-    <ColorGradientLegend
-      className="measure-details-treemap-legend"
-      colorScale={colorScale}
-      showColorNA={true}
-      height={20}
-      width={200}
-    />
-  );
-  expect(wrapper.dive()).toMatchSnapshot();
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('ContextConsumer').dive()).toMatchSnapshot();
 });
+
+it('should handle click', () => {
+  const onClick = jest.fn();
+  const wrapper = shallowRender({ onClick });
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('a'));
+  expect(onClick).toBeCalled();
+});
+
+function shallowRender(props: Partial<BackButton['props']> = {}) {
+  return shallow<BackButton>(<BackButton onClick={jest.fn()} {...props} />, {
+    wrappingComponent: ThemeProvider,
+    wrappingComponentProps: {
+      theme: testTheme
+    }
+  });
+}

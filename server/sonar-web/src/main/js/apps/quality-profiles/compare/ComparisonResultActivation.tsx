@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 
 const ActivationFormModal = lazyLoadComponent(
   () => import('../../coding-rules/components/ActivationFormModal'),

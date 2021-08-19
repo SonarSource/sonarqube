@@ -24,11 +24,9 @@ import {
   getApplicationProjects,
   removeProjectFromApplication
 } from '../../../api/application';
+import SelectList, { SelectListFilter } from '../../../components/controls/SelectList';
 import { mockApplication } from '../../../helpers/mocks/application';
-import SelectList, {
-  SelectListFilter
-} from '../../../sonar-ui-common/components/controls/SelectList';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import ApplicationProjects from '../ApplicationProjects';
 
 jest.mock('../../../api/application', () => ({

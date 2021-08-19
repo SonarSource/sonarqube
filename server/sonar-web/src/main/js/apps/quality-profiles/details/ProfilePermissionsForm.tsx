@@ -25,12 +25,9 @@ import {
   searchUsers,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import { translate } from '../../../helpers/l10n';
 import { Group } from './ProfilePermissions';
 import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
 

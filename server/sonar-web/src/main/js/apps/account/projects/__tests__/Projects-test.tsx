@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ListFooter from '../../../../sonar-ui-common/components/controls/ListFooter';
+import ListFooter from '../../../../components/controls/ListFooter';
 import ProjectCard from '../ProjectCard';
 import Projects from '../Projects';
 

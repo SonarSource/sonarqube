@@ -24,13 +24,13 @@ import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../sonar-ui-common/helpers/pages';
+} from '../../../helpers/pages';
 import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
 import { fetchSettings } from '../store/actions';
 import '../styles.css';

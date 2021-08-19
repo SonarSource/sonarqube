@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { colors } from '../../app/theme';
-import { lazyLoadComponent } from '../../sonar-ui-common/components/lazyLoadComponent';
+import { lazyLoadComponent } from '../lazyLoadComponent';
 
 const DonutChart = lazyLoadComponent(
-  () => import('../../sonar-ui-common/components/charts/DonutChart'),
+  () => import('../../components/charts/DonutChart'),
   'DonutChart'
 );
 

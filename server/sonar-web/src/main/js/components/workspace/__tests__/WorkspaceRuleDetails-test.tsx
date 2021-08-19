@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import WorkspaceRuleDetails from '../WorkspaceRuleDetails';
 
 jest.mock('../../../api/rules', () => ({

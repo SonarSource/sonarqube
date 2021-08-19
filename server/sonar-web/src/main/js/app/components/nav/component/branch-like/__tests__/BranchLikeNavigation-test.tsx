@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Toggler from '../../../../../../components/controls/Toggler';
 import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-like';
 import { mockAppState, mockComponent } from '../../../../../../helpers/testMocks';
-import Toggler from '../../../../../../sonar-ui-common/components/controls/Toggler';
-import { click } from '../../../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../../../helpers/testUtils';
 import { BranchLikeNavigation, BranchLikeNavigationProps } from '../BranchLikeNavigation';
 
 it('should render correctly', () => {

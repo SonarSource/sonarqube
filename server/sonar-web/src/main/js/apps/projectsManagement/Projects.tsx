@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { Project } from '../../api/components';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import ProjectRow from './ProjectRow';
 
 interface Props {

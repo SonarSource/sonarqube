@@ -22,7 +22,7 @@ import * as React from 'react';
 import { getMeasuresWithPeriod } from '../../../../api/measures';
 import { mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockIssue, mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 
 jest.mock('../../../../api/metrics', () => ({

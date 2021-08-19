@@ -20,8 +20,8 @@
 import * as React from 'react';
 import ResetPasswordForm from '../../components/common/ResetPasswordForm';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
+import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 
 export interface ResetPasswordProps {

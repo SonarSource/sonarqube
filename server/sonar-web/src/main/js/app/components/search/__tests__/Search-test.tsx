@@ -20,7 +20,7 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { mockRouter } from '../../../../helpers/testMocks';
-import { elementKeydown } from '../../../../sonar-ui-common/helpers/testUtils';
+import { elementKeydown } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { Search } from '../Search';
 

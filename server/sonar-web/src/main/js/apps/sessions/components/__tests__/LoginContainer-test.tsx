@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getIdentityProviders } from '../../../../api/users';
 import { mockLocation } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { LoginContainer } from '../LoginContainer';
 
 jest.mock('../../../../api/users', () => {

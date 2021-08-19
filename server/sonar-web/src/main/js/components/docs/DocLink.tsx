@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import DetachIcon from '../../components/icons/DetachIcon';
 import { isSonarCloud } from '../../helpers/system';
-import DetachIcon from '../../sonar-ui-common/components/icons/DetachIcon';
 import { withAppState } from '../hoc/withAppState';
 
 interface OwnProps {

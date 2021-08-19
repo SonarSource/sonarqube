@@ -22,8 +22,8 @@ import { InjectedIntlProps, injectIntl } from 'react-intl';
 import DateInput from '../../../components/controls/DateInput';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
-import { longFormatterOption } from '../../../sonar-ui-common/components/intl/DateFormatter';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { longFormatterOption } from '../../../components/intl/DateFormatter';
+import { translate } from '../../../helpers/l10n';
 import { Query } from '../query';
 
 interface Props {

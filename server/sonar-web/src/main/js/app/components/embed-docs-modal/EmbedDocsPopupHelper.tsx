@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import Toggler from '../../../sonar-ui-common/components/controls/Toggler';
-import HelpIcon from '../../../sonar-ui-common/components/icons/HelpIcon';
-import { lazyLoadComponent } from '../../../sonar-ui-common/components/lazyLoadComponent';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ButtonLink } from '../../../components/controls/buttons';
+import Toggler from '../../../components/controls/Toggler';
+import HelpIcon from '../../../components/icons/HelpIcon';
+import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
+import { translate } from '../../../helpers/l10n';
 
 const EmbedDocsPopup = lazyLoadComponent(() => import('./EmbedDocsPopup'));
 

@@ -19,7 +19,7 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../config/jest/testTheme';
+import testTheme from '../../../../../../config/jest/testTheme';
 import { resizeWindowTo, setNodeRect } from '../../../helpers/testUtils';
 import { ScreenPositionFixer } from '../ScreenPositionFixer';
 

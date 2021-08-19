@@ -20,12 +20,10 @@
 import * as React from 'react';
 import { Project } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
+import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from '../../sonar-ui-common/components/controls/ActionsDropdown';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';
 

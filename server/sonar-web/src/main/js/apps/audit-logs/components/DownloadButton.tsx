@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import '../style.css';
 import { now, RangeOption } from '../utils';
 

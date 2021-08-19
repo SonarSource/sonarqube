@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import TagsIcon from '../../../sonar-ui-common/components/icons/TagsIcon';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { fileFromPath, limitComponentName } from '../../../sonar-ui-common/helpers/path';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import TagsIcon from '../../../components/icons/TagsIcon';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { fileFromPath, limitComponentName } from '../../../helpers/path';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import SeverityHelper from '../../shared/SeverityHelper';

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { editApplication, getApplicationDetails, refreshApplication } from '../../api/application';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import { Application, ApplicationProject } from '../../types/application';
 import ApplicationConsoleAppRenderer from './ApplicationConsoleAppRenderer';
 import { ApplicationBranch } from './utils';

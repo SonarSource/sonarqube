@@ -20,11 +20,11 @@
 import * as React from 'react';
 import AdminContext from '../../../app/components/AdminContext';
 import RestartButton from '../../../components/common/RestartButton';
-import { Button, EditButton } from '../../../sonar-ui-common/components/controls/buttons';
-import Dropdown from '../../../sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from '../../../sonar-ui-common/components/icons/DropdownIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
+import { Button, EditButton } from '../../../components/controls/buttons';
+import Dropdown from '../../../components/controls/Dropdown';
+import DropdownIcon from '../../../components/icons/DropdownIcon';
+import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 import { getFileNameSuffix } from '../utils';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
 

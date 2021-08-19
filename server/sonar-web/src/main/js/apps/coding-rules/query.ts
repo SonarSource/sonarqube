@@ -29,7 +29,7 @@ import {
   serializeOptionalBoolean,
   serializeString,
   serializeStringArray
-} from '../../sonar-ui-common/helpers/query';
+} from '../../helpers/query';
 
 export interface Query {
   activation: boolean | undefined;

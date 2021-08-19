@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
-import { translate } from '../../../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../../types/component';
 import DrawerLink from './DrawerLink';
 import MetaKey from './meta/MetaKey';

@@ -20,8 +20,8 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 

@@ -21,8 +21,8 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { isValidLicense } from '../../../../api/marketplace';
 import { withAppState } from '../../../../components/hoc/withAppState';
-import { Alert } from '../../../../sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from '../../../../sonar-ui-common/helpers/l10n';
+import { Alert } from '../../../../components/ui/Alert';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task } from '../../../../types/tasks';
 

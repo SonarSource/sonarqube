@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { searchDeliveries } from '../../../api/webhooks';
-import { ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import ListFooter from '../../../sonar-ui-common/components/controls/ListFooter';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink } from '../../../components/controls/buttons';
+import ListFooter from '../../../components/controls/ListFooter';
+import Modal from '../../../components/controls/Modal';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import DeliveryAccordion from './DeliveryAccordion';
 
 interface Props {

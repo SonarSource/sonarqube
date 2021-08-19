@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { excludeBranchFromPurge } from '../../../api/branches';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import Toggle from '../../../components/controls/Toggle';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isMainBranch } from '../../../helpers/branch-like';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import Toggle from '../../../sonar-ui-common/components/controls/Toggle';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { Branch } from '../../../types/branch-like';
 
 interface Props {

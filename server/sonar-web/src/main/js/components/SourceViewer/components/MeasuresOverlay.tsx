@@ -23,18 +23,21 @@ import { Link } from 'react-router';
 import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
+import { ResetButtonLink } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import TagsIcon from '../../../components/icons/TagsIcon';
+import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { ISSUE_TYPES, SEVERITIES } from '../../../helpers/constants';
-import { enhanceMeasuresWithMetrics, getDisplayMetrics } from '../../../helpers/measures';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
+import {
+  enhanceMeasuresWithMetrics,
+  formatMeasure,
+  getDisplayMetrics
+} from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
-import { ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import IssueTypeIcon from '../../../sonar-ui-common/components/icons/IssueTypeIcon';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import TagsIcon from '../../../sonar-ui-common/components/icons/TagsIcon';
-import DuplicationsRating from '../../../sonar-ui-common/components/ui/DuplicationsRating';
-import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import Measure from '../../measure/Measure';
 import SeverityHelper from '../../shared/SeverityHelper';

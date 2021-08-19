@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { getIssueChangelog } from '../../../api/issues';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import DateTimeFormatter from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import { PopupPlacement } from '../../../components/ui/popups';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import Avatar from '../../ui/Avatar';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
 

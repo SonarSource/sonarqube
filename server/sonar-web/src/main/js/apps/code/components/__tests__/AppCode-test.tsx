@@ -26,7 +26,7 @@ import {
   mockIssue,
   mockRouter
 } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { loadMoreChildren, retrieveComponent } from '../../utils';
 import { AppCode } from '../AppCode';

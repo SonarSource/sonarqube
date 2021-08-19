@@ -20,9 +20,9 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
 import { Project } from '../types';
 import ApplicationCreation from './ApplicationCreation';

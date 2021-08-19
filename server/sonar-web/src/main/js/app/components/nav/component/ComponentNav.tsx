@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import ContextNavBar from '../../../../sonar-ui-common/components/ui/ContextNavBar';
+import ContextNavBar from '../../../../components/ui/ContextNavBar';
 import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse

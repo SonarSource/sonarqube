@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { parseDate } from '../../../../sonar-ui-common/helpers/dates';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { parseDate } from '../../../../helpers/dates';
+import { click } from '../../../../helpers/testUtils';
 import ChangelogSearch from '../ChangelogSearch';
 
 it('should render', () => {

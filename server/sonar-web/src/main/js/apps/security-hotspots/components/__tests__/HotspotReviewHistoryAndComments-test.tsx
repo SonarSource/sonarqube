@@ -26,8 +26,8 @@ import {
 } from '../../../../api/security-hotspots';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { isLoggedIn } from '../../../../helpers/users';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import HotspotReviewHistory from '../HotspotReviewHistory';
 import HotspotReviewHistoryAndComments from '../HotspotReviewHistoryAndComments';
 

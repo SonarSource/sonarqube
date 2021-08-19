@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { getComponentNavigation } from '../../../api/nav';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
+import { Button } from '../../../components/controls/buttons';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
 

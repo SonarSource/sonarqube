@@ -22,13 +22,13 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { createProject } from '../../api/components';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
+import Modal from '../../components/controls/Modal';
+import { Alert } from '../../components/ui/Alert';
+import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
+import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
-import { ResetButtonLink, SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../sonar-ui-common/components/controls/Modal';
-import { Alert } from '../../sonar-ui-common/components/ui/Alert';
-import MandatoryFieldMarker from '../../sonar-ui-common/components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../sonar-ui-common/components/ui/MandatoryFieldsExplanation';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
 
 interface Props {
   defaultProjectVisibility?: T.Visibility;

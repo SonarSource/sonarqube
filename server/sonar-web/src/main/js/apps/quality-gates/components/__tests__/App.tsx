@@ -22,17 +22,17 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import { mockRouter } from '../../../../helpers/testMocks';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../../sonar-ui-common/helpers/pages';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+} from '../../../../helpers/pages';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import App from '../App';
 
-jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   addWhitePageClass: jest.fn(),
   removeSideBarClass: jest.fn(),

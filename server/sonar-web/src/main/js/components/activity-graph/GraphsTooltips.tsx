@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateTimeFormatter from '../../sonar-ui-common/components/intl/DateTimeFormatter';
-import { Popup, PopupPlacement } from '../../sonar-ui-common/components/ui/popups';
-import { isDefined } from '../../sonar-ui-common/helpers/types';
+import { Popup, PopupPlacement } from '../../components/ui/popups';
+import { isDefined } from '../../helpers/types';
 import { MeasureHistory, Serie } from '../../types/project-activity';
+import DateTimeFormatter from '../intl/DateTimeFormatter';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';

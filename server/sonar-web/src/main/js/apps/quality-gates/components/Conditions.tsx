@@ -20,12 +20,12 @@
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
+import { Button } from '../../../components/controls/buttons';
+import ModalButton from '../../../components/controls/ModalButton';
 import { withAppState } from '../../../components/hoc/withAppState';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import ModalButton from '../../../sonar-ui-common/components/controls/ModalButton';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { getLocalizedMetricName, translate } from '../../../sonar-ui-common/helpers/l10n';
-import { isDiffMetric } from '../../../sonar-ui-common/helpers/measures';
+import { Alert } from '../../../components/ui/Alert';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
+import { isDiffMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';

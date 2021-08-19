@@ -20,12 +20,12 @@
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest } from '../../../helpers/branch-like';
+import { translate } from '../../../helpers/l10n';
+import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { collapsedDirFromPath, fileFromPath } from '../../../sonar-ui-common/helpers/path';
 import { BranchLike } from '../../../types/branch-like';
 import { WorkspaceContextShape } from '../../workspace/context';
 

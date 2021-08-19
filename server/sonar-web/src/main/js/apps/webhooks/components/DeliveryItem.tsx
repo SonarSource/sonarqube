@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../components/common/CodeSnippet';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { formatMeasure } from '../../../sonar-ui-common/helpers/measures';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
 
 interface Props {
   className?: string;

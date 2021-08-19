@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
-import { Button } from '../../../sonar-ui-common/components/controls/buttons';
-import Checkbox from '../../../sonar-ui-common/components/controls/Checkbox';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import CheckIcon from '../../../sonar-ui-common/components/icons/CheckIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { Button } from '../../../components/controls/buttons';
+import Checkbox from '../../../components/controls/Checkbox';
+import Tooltip from '../../../components/controls/Tooltip';
+import CheckIcon from '../../../components/icons/CheckIcon';
+import { translate } from '../../../helpers/l10n';
 import { isAvailablePlugin, isInstalledPlugin, Plugin } from '../../../types/plugins';
 import PluginUpdateButton from './PluginUpdateButton';
 

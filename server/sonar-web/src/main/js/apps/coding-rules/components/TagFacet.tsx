@@ -22,9 +22,9 @@ import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
 import { colors } from '../../../app/theme';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import TagsIcon from '../../../sonar-ui-common/components/icons/TagsIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { highlightTerm } from '../../../sonar-ui-common/helpers/search';
+import TagsIcon from '../../../components/icons/TagsIcon';
+import { translate } from '../../../helpers/l10n';
+import { highlightTerm } from '../../../helpers/search';
 import { BasicProps } from './Facet';
 
 export default class TagFacet extends React.PureComponent<BasicProps> {

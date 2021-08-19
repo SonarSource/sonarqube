@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { DropdownOverlay } from '../../../sonar-ui-common/components/controls/Dropdown';
-import { hasMessage, translate } from '../../../sonar-ui-common/helpers/l10n';
+import { DropdownOverlay } from '../../../components/controls/Dropdown';
+import { hasMessage, translate } from '../../../helpers/l10n';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 

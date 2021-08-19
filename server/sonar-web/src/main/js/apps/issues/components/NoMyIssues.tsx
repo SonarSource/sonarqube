@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import '../../../components/common/EmptySearch.css';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 
 export default function NoMyIssues() {
   return (

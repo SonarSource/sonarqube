@@ -20,7 +20,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../helpers/testMocks';
-import { KEYCODE_MAP, keydown } from '../../../sonar-ui-common/helpers/testUtils';
+import { KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
 import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
 
 class X extends React.Component<{

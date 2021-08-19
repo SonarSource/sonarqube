@@ -20,11 +20,11 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { SubmitButton } from '../../../sonar-ui-common/components/controls/buttons';
-import ValidationInput from '../../../sonar-ui-common/components/controls/ValidationInput';
-import DetachIcon from '../../../sonar-ui-common/components/icons/DetachIcon';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { SubmitButton } from '../../../components/controls/buttons';
+import ValidationInput from '../../../components/controls/ValidationInput';
+import DetachIcon from '../../../components/icons/DetachIcon';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 
 export interface AzurePersonalAccessTokenFormProps {

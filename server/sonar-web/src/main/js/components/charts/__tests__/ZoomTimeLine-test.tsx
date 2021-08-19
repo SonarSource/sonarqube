@@ -20,7 +20,7 @@
 import { scaleTime } from 'd3-scale';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import testTheme from '../../../config/jest/testTheme';
+import testTheme from '../../../../../../config/jest/testTheme';
 import ZoomTimeLine from '../ZoomTimeLine';
 
 const series = [

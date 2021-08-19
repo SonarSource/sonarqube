@@ -30,7 +30,7 @@ import {
   isCustomGraph
 } from '../../../components/activity-graph/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { parseDate } from '../../../sonar-ui-common/helpers/dates';
+import { parseDate } from '../../../helpers/dates';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';

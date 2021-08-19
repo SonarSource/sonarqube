@@ -23,7 +23,7 @@ import { getRuleDetails, getRulesApp } from '../../api/rules';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import '../../apps/coding-rules/styles.css';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
 
 interface Props {
   onLoad: (details: { name: string }) => void;

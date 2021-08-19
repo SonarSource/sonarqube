@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import UserExternalIdentity, { UserExternalIdentityProps } from '../UserExternalIdentity';
 
 jest.mock('../../../../api/users', () => ({

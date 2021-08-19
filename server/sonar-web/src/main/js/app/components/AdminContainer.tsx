@@ -24,7 +24,7 @@ import { getSettingsNavigation } from '../../api/nav';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../helpers/l10n';
 import { setAdminPages } from '../../store/appState';
 import { getAppState, Store } from '../../store/rootReducer';
 import { PendingPluginResult } from '../../types/plugins';

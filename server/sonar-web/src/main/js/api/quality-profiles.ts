@@ -20,8 +20,8 @@
 import { map } from 'lodash';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
-import { csvEscape } from '../sonar-ui-common/helpers/csv';
-import { getJSON, post, postJSON, RequestData } from '../sonar-ui-common/helpers/request';
+import { csvEscape } from '../helpers/csv';
+import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 
 export interface ProfileActions {
   associateProjects?: boolean;

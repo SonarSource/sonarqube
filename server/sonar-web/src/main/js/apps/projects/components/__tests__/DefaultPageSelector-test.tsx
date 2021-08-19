@@ -20,15 +20,15 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchProjects } from '../../../../api/components';
+import { get } from '../../../../helpers/storage';
 import {
   mockCurrentUser,
   mockLocation,
   mockLoggedInUser,
   mockRouter
 } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { hasGlobalPermission } from '../../../../helpers/users';
-import { get } from '../../../../sonar-ui-common/helpers/storage';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
 import { DefaultPageSelector } from '../DefaultPageSelector';
 
 jest.mock('../AllProjectsContainer', () => ({
@@ -38,7 +38,7 @@ jest.mock('../AllProjectsContainer', () => ({
   }
 }));
 
-jest.mock('../../../../sonar-ui-common/helpers/storage', () => ({
+jest.mock('../../../../helpers/storage', () => ({
   get: jest.fn().mockReturnValue(undefined)
 }));
 

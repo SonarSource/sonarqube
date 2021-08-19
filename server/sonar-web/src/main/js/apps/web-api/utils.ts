@@ -23,7 +23,7 @@ import {
   parseAsOptionalBoolean,
   parseAsString,
   serializeString
-} from '../../sonar-ui-common/helpers/query';
+} from '../../helpers/query';
 
 export interface Query {
   search: string;

@@ -20,9 +20,9 @@
 import { last } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
+import QualifierIcon from '../../../../components/icons/QualifierIcon';
 import { isMainBranch } from '../../../../helpers/branch-like';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';
-import QualifierIcon from '../../../../sonar-ui-common/components/icons/QualifierIcon';
 import { BranchLike } from '../../../../types/branch-like';
 
 interface Props {

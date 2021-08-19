@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../sonar-ui-common/components/controls/clipboard';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { ClipboardIconButton } from '../../../components/controls/clipboard';
+import { translate } from '../../../helpers/l10n';
 import { withAppState } from '../../hoc/withAppState';
 import FinishButton from '../components/FinishButton';
 import Step from '../components/Step';

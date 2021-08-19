@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import GraphsHistory from '../../../../components/activity-graph/GraphsHistory';
+import { parseDate } from '../../../../helpers/dates';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockAnalysis,
@@ -28,7 +29,6 @@ import {
   mockMeasure,
   mockMetric
 } from '../../../../helpers/testMocks';
-import { parseDate } from '../../../../sonar-ui-common/helpers/dates';
 import { GraphType } from '../../../../types/project-activity';
 import { ActivityPanel, ActivityPanelProps } from '../ActivityPanel';
 

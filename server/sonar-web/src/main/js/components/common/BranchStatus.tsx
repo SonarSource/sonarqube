@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Level from '../../sonar-ui-common/components/ui/Level';
+import Level from '../../components/ui/Level';
 import { getBranchStatusByBranchLike, Store } from '../../store/rootReducer';
 import { BranchLike } from '../../types/branch-like';
 

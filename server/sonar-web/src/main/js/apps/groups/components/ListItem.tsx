@@ -21,8 +21,8 @@ import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
-} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+} from '../../../components/controls/ActionsDropdown';
+import { translate } from '../../../helpers/l10n';
 import EditMembers from './EditMembers';
 
 export interface ListItemProps {

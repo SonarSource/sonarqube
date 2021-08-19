@@ -21,7 +21,7 @@ import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { getIdentityProviders } from '../../../api/users';
-import { getReturnUrl } from '../../../sonar-ui-common/helpers/urls';
+import { getReturnUrl } from '../../../helpers/urls';
 import { doLogin } from '../../../store/rootActions';
 import Login from './Login';
 

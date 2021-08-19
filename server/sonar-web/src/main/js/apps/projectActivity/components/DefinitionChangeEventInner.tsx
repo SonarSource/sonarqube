@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { ButtonLink } from '../../../components/controls/buttons';
+import BranchIcon from '../../../components/icons/BranchIcon';
+import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { isMainBranch } from '../../../helpers/branch-like';
+import { translate } from '../../../helpers/l10n';
+import { limitComponentName } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
-import { ButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
-import DropdownIcon from '../../../sonar-ui-common/components/icons/DropdownIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
-import { limitComponentName } from '../../../sonar-ui-common/helpers/path';
 import { BranchLike } from '../../../types/branch-like';
 
 export type DefinitionChangeEvent = T.AnalysisEvent &

@@ -20,17 +20,14 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { activateRule, Profile } from '../../../api/quality-profiles';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { Alert } from '../../../components/ui/Alert';
 import { SEVERITIES } from '../../../helpers/constants';
+import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import {
-  ResetButtonLink,
-  SubmitButton
-} from '../../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../../sonar-ui-common/components/controls/Modal';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import { Alert } from '../../../sonar-ui-common/components/ui/Alert';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
 import { sortProfiles } from '../../quality-profiles/utils';
 
 interface Props {

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { setQualityGateAsDefault } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockCondition } from '../../../../helpers/testMocks';
-import { click, waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import DetailsHeader from '../DetailsHeader';
 
 jest.mock('../../../../api/quality-gates', () => ({

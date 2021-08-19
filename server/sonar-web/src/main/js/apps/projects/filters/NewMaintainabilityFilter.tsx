@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CodeSmellIcon from '../../../sonar-ui-common/components/icons/CodeSmellIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import CodeSmellIcon from '../../../components/icons/CodeSmellIcon';
+import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
 import IssuesFilter from './IssuesFilter';
 

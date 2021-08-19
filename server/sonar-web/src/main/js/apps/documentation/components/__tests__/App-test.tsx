@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { addSideBarClass, removeSideBarClass } from '../../../../sonar-ui-common/helpers/pages';
-import { request } from '../../../../sonar-ui-common/helpers/request';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { addSideBarClass, removeSideBarClass } from '../../../../helpers/pages';
+import { request } from '../../../../helpers/request';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { InstalledPlugin } from '../../../../types/plugins';
 import getPages from '../../pages';
 import App from '../App';
@@ -51,12 +51,12 @@ jest.mock('Docs/../static/SonarQubeNavigationTree.json', () => ({
   ]
 }));
 
-jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   removeSideBarClass: jest.fn()
 }));
 
-jest.mock('../../../../sonar-ui-common/helpers/request', () => {
+jest.mock('../../../../helpers/request', () => {
   const { mockDocumentationMarkdown } = jest.requireActual('../../../../helpers/testMocks');
   return {
     request: jest.fn(() => ({

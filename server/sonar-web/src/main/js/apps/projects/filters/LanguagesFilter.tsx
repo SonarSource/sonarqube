@@ -19,7 +19,7 @@
  */
 import { difference, sortBy } from 'lodash';
 import * as React from 'react';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { getLanguageByKey } from '../../../store/languages';
 import { Facet } from '../types';
 import Filter from './Filter';

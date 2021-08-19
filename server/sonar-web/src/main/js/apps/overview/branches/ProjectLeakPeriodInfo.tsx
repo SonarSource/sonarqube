@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { InjectedIntl, injectIntl } from 'react-intl';
+import { longFormatterOption } from '../../../components/intl/DateFormatter';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import { formatterOption } from '../../../components/intl/DateTimeFormatter';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
-import { longFormatterOption } from '../../../sonar-ui-common/components/intl/DateFormatter';
-import DateFromNow from '../../../sonar-ui-common/components/intl/DateFromNow';
-import { formatterOption } from '../../../sonar-ui-common/components/intl/DateTimeFormatter';
-import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 
 export interface ProjectLeakPeriodInfoProps {
   intl: Pick<InjectedIntl, 'formatDate' | 'formatTime'>;

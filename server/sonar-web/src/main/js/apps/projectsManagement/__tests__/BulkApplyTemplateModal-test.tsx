@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { parseDate } from '../../../sonar-ui-common/helpers/dates';
-import { click, waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { parseDate } from '../../../helpers/dates';
+import { click, waitAndUpdate } from '../../../helpers/testUtils';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
 
 jest.mock('../../../api/permissions', () => ({

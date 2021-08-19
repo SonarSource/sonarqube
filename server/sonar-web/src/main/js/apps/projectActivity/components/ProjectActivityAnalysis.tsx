@@ -22,14 +22,14 @@ import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem
-} from '../../../sonar-ui-common/components/controls/ActionsDropdown';
-import ClickEventBoundary from '../../../sonar-ui-common/components/controls/ClickEventBoundary';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import TimeFormatter from '../../../sonar-ui-common/components/intl/TimeFormatter';
-import { PopupPlacement } from '../../../sonar-ui-common/components/ui/popups';
-import { parseDate } from '../../../sonar-ui-common/helpers/dates';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { scrollToElement } from '../../../sonar-ui-common/helpers/scrolling';
+} from '../../../components/controls/ActionsDropdown';
+import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import TimeFormatter from '../../../components/intl/TimeFormatter';
+import { PopupPlacement } from '../../../components/ui/popups';
+import { parseDate } from '../../../helpers/dates';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { scrollToElement } from '../../../helpers/scrolling';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';

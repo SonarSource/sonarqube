@@ -25,8 +25,8 @@ import {
   unsubscribeFromEmailReport
 } from '../../api/component-report';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isLoggedIn } from '../../helpers/users';
-import { translate, translateWithParameters } from '../../sonar-ui-common/helpers/l10n';
 import { Store } from '../../store/rootReducer';
 import { Branch } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';

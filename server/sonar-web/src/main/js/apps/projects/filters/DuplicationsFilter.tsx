@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DuplicationsRating from '../../../sonar-ui-common/components/ui/DuplicationsRating';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import DuplicationsRating from '../../../components/ui/DuplicationsRating';
+import { translate } from '../../../helpers/l10n';
 import {
   getDuplicationsRatingAverageValue,
   getDuplicationsRatingLabel
-} from '../../../sonar-ui-common/helpers/ratings';
+} from '../../../helpers/ratings';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';

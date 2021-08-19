@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
+import { Button, ResetButtonLink } from '../../../components/controls/buttons';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
-import { Button, ResetButtonLink } from '../../../sonar-ui-common/components/controls/buttons';
-import { translate, translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 
 interface Props {

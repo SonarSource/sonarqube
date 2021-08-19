@@ -24,15 +24,15 @@ import { fetchQualityGates } from '../../../api/quality-gates';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import '../../../components/search-navigator.css';
-import { getQualityGateUrl } from '../../../helpers/urls';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
-} from '../../../sonar-ui-common/helpers/pages';
+} from '../../../helpers/pages';
+import { getQualityGateUrl } from '../../../helpers/urls';
 import '../styles.css';
 import Details from './Details';
 import List from './List';

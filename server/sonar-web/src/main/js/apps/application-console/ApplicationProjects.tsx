@@ -27,8 +27,8 @@ import {
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams
-} from '../../sonar-ui-common/components/controls/SelectList';
-import QualifierIcon from '../../sonar-ui-common/components/icons/QualifierIcon';
+} from '../../components/controls/SelectList';
+import QualifierIcon from '../../components/icons/QualifierIcon';
 import { Application, ApplicationProject } from '../../types/application';
 
 interface Props {

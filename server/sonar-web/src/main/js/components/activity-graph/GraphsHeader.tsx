@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import Select from '../../sonar-ui-common/components/controls/Select';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import Select from '../../components/controls/Select';
+import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
 import AddGraphMetric from './AddGraphMetric';
 import './styles.css';

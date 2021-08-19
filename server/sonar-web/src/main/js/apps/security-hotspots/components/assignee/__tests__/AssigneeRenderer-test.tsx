@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { EditButton } from '../../../../../components/controls/buttons';
+import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
-import { EditButton } from '../../../../../sonar-ui-common/components/controls/buttons';
-import OutsideClickHandler from '../../../../../sonar-ui-common/components/controls/OutsideClickHandler';
-import { click } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../../helpers/testUtils';
 import AssigneeRenderer, { AssigneeRendererProps } from '../AssigneeRenderer';
 import AssigneeSelection from '../AssigneeSelection';
 

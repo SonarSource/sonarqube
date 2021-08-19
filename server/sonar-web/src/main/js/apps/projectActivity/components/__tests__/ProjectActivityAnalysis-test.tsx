@@ -21,22 +21,22 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { IntlProvider } from 'react-intl';
+import TimeFormatter from '../../../../components/intl/TimeFormatter';
+import { scrollToElement } from '../../../../helpers/scrolling';
 import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/testMocks';
-import TimeFormatter from '../../../../sonar-ui-common/components/intl/TimeFormatter';
-import { scrollToElement } from '../../../../sonar-ui-common/helpers/scrolling';
-import { click } from '../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
 import AddEventForm from '../forms/AddEventForm';
 import RemoveAnalysisForm from '../forms/RemoveAnalysisForm';
 import { ProjectActivityAnalysis, ProjectActivityAnalysisProps } from '../ProjectActivityAnalysis';
 
-jest.mock('../../../../sonar-ui-common/helpers/dates', () => ({
+jest.mock('../../../../helpers/dates', () => ({
   parseDate: () => ({
     valueOf: () => 1546333200000,
     toISOString: () => '2019-01-01T09:00:00.000Z'
   })
 }));
 
-jest.mock('../../../../sonar-ui-common/helpers/scrolling', () => ({
+jest.mock('../../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 

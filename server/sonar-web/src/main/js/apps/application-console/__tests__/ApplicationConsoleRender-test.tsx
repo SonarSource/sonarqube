@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockApplication } from '../../../helpers/mocks/application';
-import { click } from '../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../helpers/testUtils';
 import ApplicationConsoleAppRenderer, {
   ApplicationConsoleAppRendererProps
 } from '../ApplicationConsoleAppRenderer';

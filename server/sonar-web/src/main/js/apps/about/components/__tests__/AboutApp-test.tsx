@@ -21,13 +21,13 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchProjects } from '../../../../api/components';
 import { getFacet } from '../../../../api/issues';
+import { addWhitePageClass, removeWhitePageClass } from '../../../../helpers/pages';
 import { mockCurrentUser, mockLocation } from '../../../../helpers/testMocks';
-import { addWhitePageClass, removeWhitePageClass } from '../../../../sonar-ui-common/helpers/pages';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { AboutApp } from '../AboutApp';
 import EntryIssueTypes from '../EntryIssueTypes';
 
-jest.mock('../../../../sonar-ui-common/helpers/pages', () => ({
+jest.mock('../../../../helpers/pages', () => ({
   addWhitePageClass: jest.fn(),
   removeWhitePageClass: jest.fn()
 }));

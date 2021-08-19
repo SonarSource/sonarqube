@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { generateToken, getTokens, revokeToken } from '../../../../api/user-tokens';
 import { mockComponent, mockEvent, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getUniqueTokenName } from '../../utils';
 import EditTokenModal from '../EditTokenModal';
 

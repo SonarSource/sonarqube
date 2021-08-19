@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { getWorkers } from '../../../api/ce';
 import { colors } from '../../../app/theme';
-import { EditButton } from '../../../sonar-ui-common/components/controls/buttons';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import Tooltip from '../../../sonar-ui-common/components/controls/Tooltip';
-import AlertWarnIcon from '../../../sonar-ui-common/components/icons/AlertWarnIcon';
-import PlusCircleIcon from '../../../sonar-ui-common/components/icons/PlusCircleIcon';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { EditButton } from '../../../components/controls/buttons';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import Tooltip from '../../../components/controls/Tooltip';
+import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
+import PlusCircleIcon from '../../../components/icons/PlusCircleIcon';
+import { translate } from '../../../helpers/l10n';
 import NoWorkersSupportPopup from './NoWorkersSupportPopup';
 import WorkersForm from './WorkersForm';
 

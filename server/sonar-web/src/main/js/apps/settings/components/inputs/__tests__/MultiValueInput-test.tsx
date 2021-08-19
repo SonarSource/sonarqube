@@ -19,7 +19,7 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { click } from '../../../../../sonar-ui-common/helpers/testUtils';
+import { click } from '../../../../../helpers/testUtils';
 import { SettingCategoryDefinition } from '../../../../../types/settings';
 import { DefaultInputProps } from '../../../utils';
 import MultiValueInput from '../MultiValueInput';

@@ -21,9 +21,9 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Project } from '../../api/components';
 import { grantPermissionToUser } from '../../api/permissions';
-import { ResetButtonLink, SubmitButton } from '../../sonar-ui-common/components/controls/buttons';
-import Modal from '../../sonar-ui-common/components/controls/Modal';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
+import Modal from '../../components/controls/Modal';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;

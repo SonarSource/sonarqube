@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import BranchIcon from '../../../components/icons/BranchIcon';
+import PullRequestIcon from '../../../components/icons/PullRequestIcon';
+import QualifierIcon from '../../../components/icons/QualifierIcon';
 import {
   getBranchUrl,
   getPortfolioUrl,
   getProjectUrl,
   getPullRequestUrl
 } from '../../../helpers/urls';
-import BranchIcon from '../../../sonar-ui-common/components/icons/BranchIcon';
-import PullRequestIcon from '../../../sonar-ui-common/components/icons/PullRequestIcon';
-import QualifierIcon from '../../../sonar-ui-common/components/icons/QualifierIcon';
 import { isPortfolioLike } from '../../../types/component';
 import { Task } from '../../../types/tasks';
 import TaskType from './TaskType';

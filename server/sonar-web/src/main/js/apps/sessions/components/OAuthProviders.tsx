@@ -19,10 +19,10 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import HelpTooltip from '../../../sonar-ui-common/components/controls/HelpTooltip';
-import IdentityProviderLink from '../../../sonar-ui-common/components/controls/IdentityProviderLink';
-import { translateWithParameters } from '../../../sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from '../../../sonar-ui-common/helpers/urls';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
+import IdentityProviderLink from '../../../components/controls/IdentityProviderLink';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/urls';
 import './OAuthProviders.css';
 
 interface Props {

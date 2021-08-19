@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
-import DeferredSpinner from '../../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';

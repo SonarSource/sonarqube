@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { getDefinitions, getValues, setSimpleSettingValue } from '../../api/settings';
-import DeferredSpinner from '../../sonar-ui-common/components/ui/DeferredSpinner';
-import { translate } from '../../sonar-ui-common/helpers/l10n';
+import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { translate } from '../../helpers/l10n';
 import { SettingCategoryDefinition, SettingsKey } from '../../types/settings';
 import ReportFrequencyForm from './ReportFrequencyForm';
 

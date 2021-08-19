@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Radio from '../../../components/controls/Radio';
+import Select from '../../../components/controls/Select';
 import { mockQualityGate } from '../../../helpers/mocks/quality-gates';
 import { mockCondition } from '../../../helpers/testMocks';
-import Radio from '../../../sonar-ui-common/components/controls/Radio';
-import Select from '../../../sonar-ui-common/components/controls/Select';
-import { submit } from '../../../sonar-ui-common/helpers/testUtils';
+import { submit } from '../../../helpers/testUtils';
 import { MetricKey } from '../../../types/metrics';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 import ProjectQualityGateAppRenderer, {

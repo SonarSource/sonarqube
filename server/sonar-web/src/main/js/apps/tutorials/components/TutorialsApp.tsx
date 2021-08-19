@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
+import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { isLoggedIn } from '../../../helpers/users';
-import handleRequiredAuthentication from '../../../sonar-ui-common/helpers/handleRequiredAuthentication';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 
 export interface TutorialsAppProps {

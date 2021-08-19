@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { DEFAULT_GRAPH } from '../../../../components/activity-graph/utils';
+import { parseDate } from '../../../../helpers/dates';
 import { mockParsedAnalysis } from '../../../../helpers/testMocks';
-import { parseDate } from '../../../../sonar-ui-common/helpers/dates';
 import { ComponentQualifier } from '../../../../types/component';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
@@ -31,8 +31,8 @@ jest.mock('date-fns/start_of_day', () => (date: Date) => {
   return startDay;
 });
 
-jest.mock('../../../../sonar-ui-common/helpers/dates', () => {
-  const actual = jest.requireActual('../../../../sonar-ui-common/helpers/dates');
+jest.mock('../../../../helpers/dates', () => {
+  const actual = jest.requireActual('../../../../helpers/dates');
   return { ...actual, toShortNotSoISOString: (date: string) => 'ISO.' + date };
 });
 

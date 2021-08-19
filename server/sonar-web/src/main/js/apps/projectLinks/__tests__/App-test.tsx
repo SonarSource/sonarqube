@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { createLink, deleteLink, getProjectLinks } from '../../../api/projectLinks';
-import { waitAndUpdate } from '../../../sonar-ui-common/helpers/testUtils';
+import { waitAndUpdate } from '../../../helpers/testUtils';
 import App from '../App';
 
 // import { getProjectLinks, createLink, deleteLink } from '../../api/projectLinks';

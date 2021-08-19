@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getMyProjects } from '../../../api/components';
-import { translate } from '../../../sonar-ui-common/helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import Projects from './Projects';
 
 interface State {
