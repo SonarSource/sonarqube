@@ -1,11 +1,9 @@
 ---
-title: Deploy SonarQube on Kubernetes
+title: Deploy Non-DCE on Kubernetes
 url: /setup/sonarqube-on-kubernetes/
 ---
 
-_This part of the Documentation is only valid for Community, Developer, and Enterprise Editions._
-
-Please follow [this](/setup/sonarqube-cluster-on-kubernetes/) documentation for deploying the DataCenter Edition on Kubernetes.
+_This part of the Documentation is only valid for Community, Developer, and Enterprise Editions. For information on deploying the Data Center Edition of SonarQube on Kubernetes, see [this](/setup/sonarqube-cluster-on-kubernetes/) documentation._
 
 # Overview 
 

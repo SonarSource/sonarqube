@@ -23,7 +23,7 @@
       "/setup/install-cluster/",
       "/setup/operate-cluster/",
             {
-        "title": "Deploy SonarQube on Kubernetes",
+        "title": "Deploy on Kubernetes",
         "children": [
 		  "/setup/sonarqube-on-kubernetes/",
 		  "/setup/sonarqube-cluster-on-kubernetes/"
