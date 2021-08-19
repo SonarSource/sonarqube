@@ -20,41 +20,30 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../utils/testUtils';
-import OutsideClickHandler from '../OutsideClickHandler';
-import VersionSelect from '../VersionSelect';
+import MetaDataVersion from '../MetaDataVersion';
+import MetaDataVersions from '../MetaDataVersions';
+import { mockMetaDataVersionInformation } from '../mocks/update-center-metadata';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-
   const wrapper = shallowRender();
-  wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot('open');
-
-  expect(shallowRender({ isOnCurrentVersion: true })).toMatchSnapshot('on current version');
+  expect(wrapper).toMatchSnapshot();
 });
 
-it('should handle open/closing the list', () => {
+it('should properly handle show more / show less', () => {
   const wrapper = shallowRender();
+  expect(wrapper.find(MetaDataVersion).length).toBe(1);
 
-  click(wrapper.find('button'));
-  expect(wrapper.state().open).toBe(true);
-  click(wrapper.find('button'));
-  expect(wrapper.state().open).toBe(false);
-
-  wrapper.setState({ open: true });
-  wrapper.find(OutsideClickHandler).prop('onClickOutside')();
-  expect(wrapper.state().open).toBe(false);
+  click(wrapper.find('.update-center-meta-data-versions-show-more'));
+  expect(wrapper.find(MetaDataVersion).length).toBe(3);
 });
 
-function shallowRender(props: Partial<VersionSelect['props']> = {}) {
-  return shallow<VersionSelect>(
-    <VersionSelect
-      isOnCurrentVersion={false}
-      selectedVersionValue="1.0"
+function shallowRender(props?: Partial<MetaDataVersions['props']>) {
+  return shallow<MetaDataVersions>(
+    <MetaDataVersions
       versions={[
-        { value: '3.0', current: true },
-        { value: '2.0', current: false, lts: true },
-        { value: '1.0', current: false }
+        mockMetaDataVersionInformation({ version: '3.0' }),
+        mockMetaDataVersionInformation({ version: '2.0', archived: true }),
+        mockMetaDataVersionInformation({ version: '1.0', archived: true })
       ]}
       {...props}
     />

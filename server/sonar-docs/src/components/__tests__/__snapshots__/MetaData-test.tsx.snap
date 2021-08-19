@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="update-center-meta-data"
+>
+  <div
+    className="update-center-meta-data-header"
+  >
+    <span
+      className="update-center-meta-data-vendor"
+    >
+      By 
+      <a
+        href="http://www.sonarsource.com/"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        SonarSource
+      </a>
+    </span>
+    <span
+      className="update-center-meta-data-license"
+    >
+      SonarSource
+    </span>
+    <span
+      className="update-center-meta-data-issue-tracker"
+    >
+      <a
+        href="https://jira.sonarsource.com/browse/SONARJAVA"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Issue Tracker
+      </a>
+    </span>
+    <span
+      className="update-center-meta-data-supported"
+    >
+      Supported by SonarSource
+    </span>
+  </div>
+  <MetaDataVersions
+    versions={
+      Array [
+        Object {
+          "archived": false,
+          "changeLogUrl": "https://example.com/sonar-java-plugin/release",
+          "compatibility": "6.7",
+          "date": "2019-05-31",
+          "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
+          "version": "2.0",
+        },
+        Object {
+          "archived": true,
+          "changeLogUrl": "https://example.com/sonar-java-plugin/release",
+          "compatibility": "6.7",
+          "date": "2019-05-31",
+          "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
+          "version": "1.0",
+        },
+      ]
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly with organization 1`] = `
+<div
+  className="update-center-meta-data"
+>
+  <div
+    className="update-center-meta-data-header"
+  >
+    <span
+      className="update-center-meta-data-vendor"
+    >
+      By 
+      <a
+        href="test-org-url"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        test-org
+      </a>
+    </span>
+    <span
+      className="update-center-meta-data-license"
+    >
+      SonarSource
+    </span>
+    <span
+      className="update-center-meta-data-issue-tracker"
+    >
+      <a
+        href="https://jira.sonarsource.com/browse/SONARJAVA"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Issue Tracker
+      </a>
+    </span>
+    <span
+      className="update-center-meta-data-supported"
+    >
+      Supported by SonarSource
+    </span>
+  </div>
+  <MetaDataVersions
+    versions={
+      Array [
+        Object {
+          "archived": false,
+          "changeLogUrl": "https://example.com/sonar-java-plugin/release",
+          "compatibility": "6.7",
+          "date": "2019-05-31",
+          "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
+          "version": "2.0",
+        },
+        Object {
+          "archived": true,
+          "changeLogUrl": "https://example.com/sonar-java-plugin/release",
+          "compatibility": "6.7",
+          "date": "2019-05-31",
+          "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
+          "version": "1.0",
+        },
+      ]
+    }
+  />
+</div>
+`;

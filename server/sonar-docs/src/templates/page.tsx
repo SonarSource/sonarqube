@@ -22,9 +22,9 @@ import { selectAll } from 'hast-util-select';
 import * as React from 'react';
 import Helmet from 'react-helmet';
 import rehypeReact from 'rehype-react';
-import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import { MarkdownHeading, MarkdownRemark, MarkdownRemarkConnection } from '../@types/graphql-types';
 import HeaderList from '../components/HeaderList';
+import MetaData from '../components/MetaData';
 import { HtmlAST, HtmlASTNode } from '../types/hast';
 
 interface Props {

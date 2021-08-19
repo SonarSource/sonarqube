@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="update-center-meta-data-versions"
+>
+  <button
+    className="update-center-meta-data-versions-show-more"
+    onClick={[Function]}
+    type="button"
+  >
+    Show more versions
+  </button>
+  <MetaDataVersion
+    key="3.0"
+    versionInformation={
+      Object {
+        "archived": false,
+        "changeLogUrl": "https://example.com/sonar-java-plugin/release",
+        "compatibility": "6.7",
+        "date": "2019-05-31",
+        "downloadURL": "https://example.com/sonar-java-plugin-5.13.0.18197.jar",
+        "version": "3.0",
+      }
+    }
+  />
+</div>
+`;

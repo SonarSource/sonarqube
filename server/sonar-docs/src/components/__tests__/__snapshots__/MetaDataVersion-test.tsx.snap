@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="update-center-meta-data-version"
+>
+  <div
+    className="update-center-meta-data-version-version"
+  >
+    5.13
+  </div>
+  <div
+    className="update-center-meta-data-version-release-info"
+  >
+    <time
+      className="update-center-meta-data-version-release-date"
+    >
+      2019-05-31
+    </time>
+    <span
+      className="update-center-meta-data-version-compatibility"
+    >
+      6.7
+    </span>
+  </div>
+  <div
+    className="update-center-meta-data-version-release-links"
+  >
+    <span
+      className="update-center-meta-data-version-download"
+      key="0"
+    >
+      <a
+        href="https://example.com/sonar-java-plugin-5.13.0.18197.jar"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Download
+      </a>
+    </span>
+    <span
+      className="update-center-meta-data-version-release-notes"
+    >
+      <a
+        href="https://example.com/sonar-java-plugin/release"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Release notes
+      </a>
+    </span>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: with advanced downloadUrl 1`] = `
+<div
+  className="update-center-meta-data-version"
+>
+  <div
+    className="update-center-meta-data-version-version"
+  >
+    5.13
+  </div>
+  <div
+    className="update-center-meta-data-version-release-info"
+  >
+    <time
+      className="update-center-meta-data-version-release-date"
+    >
+      2019-05-31
+    </time>
+    <span
+      className="update-center-meta-data-version-compatibility"
+    >
+      6.7
+    </span>
+  </div>
+  <div
+    className="update-center-meta-data-version-release-links"
+  >
+    <span
+      className="update-center-meta-data-version-release-notes"
+    >
+      <a
+        href="https://example.com/sonar-java-plugin/release"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        Release notes
+      </a>
+    </span>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: with very few info 1`] = `
+<div
+  className="update-center-meta-data-version"
+>
+  <div
+    className="update-center-meta-data-version-version"
+  >
+    2.0
+  </div>
+  <div
+    className="update-center-meta-data-version-release-info"
+  />
+  <div
+    className="update-center-meta-data-version-release-links"
+  />
+</div>
+`;

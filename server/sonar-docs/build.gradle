@@ -55,10 +55,6 @@ task extractAnalyzerDocFiles {
   }
 }
 
-yarn.configure {
-  dependsOn tasks.getByPath(':server:sonar-ui-common:yarn_run')
-}
-
 yarn_run {
   def docsVersion = version.split("[.-]").take(2).join('.')
   environment = [ GATSBY_DOCS_VERSION: docsVersion ]
