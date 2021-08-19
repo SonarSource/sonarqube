@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
 import { withAppState } from '../../hoc/withAppState';
 import SentenceWithHighlights from './SentenceWithHighlights';

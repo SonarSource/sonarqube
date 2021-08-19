@@ -21,7 +21,7 @@ import * as React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 
 export interface UserExternalIdentityProps {
   user: T.LoggedInUser;

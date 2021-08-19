@@ -33,8 +33,8 @@ import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { omitNil } from '../../helpers/request';
+import { getBaseUrl } from '../../helpers/system';
 import {
-  getBaseUrl,
   getBranchLikeUrl,
   getCodeUrl,
   getComponentIssuesUrl,

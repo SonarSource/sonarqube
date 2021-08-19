@@ -20,10 +20,18 @@
 import { fetchL10nBundle } from '../api/l10n';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10n';
 import { toNotSoISOString } from './dates';
-import SonarUiCommonInitializer, { DEFAULT_LOCALE, getLocale, getMessages } from './init';
 import { get as loadFromLocalStorage, save as saveInLocalStorage } from './storage';
 
 export type Messages = T.Dict<string>;
+
+export const DEFAULT_LOCALE = 'en';
+export const DEFAULT_MESSAGES = {
+  // eslint-disable-next-line camelcase
+  default_error_message: 'The request cannot be processed. Try again later.'
+};
+
+let allMessages: Messages = {};
+let locale: string | undefined;
 
 export function translate(...keys: string[]): string {
   const messageKey = keys.join('.');
@@ -57,6 +65,18 @@ export function hasMessage(...keys: string[]): boolean {
   return getMessages()[messageKey] != null;
 }
 
+export function getMessages() {
+  if (typeof allMessages === 'undefined') {
+    logWarning('L10n messages are not initialized. Use default messages.');
+    return DEFAULT_MESSAGES;
+  }
+  return allMessages;
+}
+
+export function resetMessages(newMessages: Messages) {
+  allMessages = newMessages;
+}
+
 export function getLocalizedMetricName(
   metric: { key: string; name?: string },
   short = false
@@ -81,7 +101,11 @@ export function getLocalizedMetricDomain(domainName: string) {
 }
 
 export function getCurrentLocale() {
-  return getLocale();
+  return locale;
+}
+
+export function resetCurrentLocale(newLocale: string) {
+  locale = newLocale;
 }
 
 export function getShortMonthName(index: number) {
@@ -120,7 +144,9 @@ export async function loadL10nBundle() {
     messages: {}
   }));
 
-  SonarUiCommonInitializer.setLocale(bundle.locale).setMessages(bundle.messages);
+  resetCurrentLocale(bundle.locale);
+  resetMessages(bundle.messages);
+
   // No need to load english (default) bundle, it's coming with react-intl
   if (bundle.locale !== DEFAULT_LOCALE) {
     const [intlBundle, intl] = await Promise.all([
@@ -159,9 +185,8 @@ export async function getLatestL10nBundle() {
         effectiveLocale: cachedBundle.locale || browserLocale || DEFAULT_LOCALE,
         messages: cachedBundle.messages ?? {}
       };
-    } else {
-      throw new Error(`Unexpected status code: ${response.status}`);
     }
+    throw new Error(`Unexpected status code: ${response.status}`);
   });
 
   const bundle = {
@@ -197,4 +222,11 @@ function loadL10nBundleFromLocalStorage() {
 
 function saveL10nBundleToLocalStorage(bundle: L10nBundle) {
   saveInLocalStorage(L10N_BUNDLE_LS_KEY, JSON.stringify(bundle));
+}
+
+function logWarning(message: string) {
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line no-console
+    console.warn(message);
+  }
 }

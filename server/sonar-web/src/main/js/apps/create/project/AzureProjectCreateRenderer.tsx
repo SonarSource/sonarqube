@@ -22,7 +22,7 @@ import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';

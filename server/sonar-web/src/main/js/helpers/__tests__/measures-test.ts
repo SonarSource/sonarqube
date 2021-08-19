@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import SonarUiCommonInitializer from '../init';
+import { resetMessages } from '../l10n';
 import {
   enhanceConditionWithMeasure,
   formatMeasure,
@@ -77,7 +77,7 @@ const ONE_HOUR = ONE_MINUTE * 60;
 const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
 beforeAll(() => {
-  SonarUiCommonInitializer.setMessages({
+  resetMessages({
     'work_duration.x_days': '{0}d',
     'work_duration.x_hours': '{0}h',
     'work_duration.x_minutes': '{0}min',
@@ -92,7 +92,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  SonarUiCommonInitializer.setMessages({});
+  resetMessages({});
 });
 
 describe('#formatMeasure()', () => {

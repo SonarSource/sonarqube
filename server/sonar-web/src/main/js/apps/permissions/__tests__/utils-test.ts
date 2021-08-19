@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import SonarUiCommonInitializer from '../../../helpers/init';
+import { resetMessages } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import { convertToPermissionDefinitions } from '../utils';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
 afterEach(() => {
-  SonarUiCommonInitializer.setMessages({});
+  resetMessages({});
 });
 
 describe('convertToPermissionDefinitions', () => {
   it('should convert and translate a permission definition', () => {
     (isSonarCloud as jest.Mock).mockImplementation(() => false);
 
-    SonarUiCommonInitializer.setMessages({
+    resetMessages({
       'global_permissions.admin': 'Administer System'
     });
 
@@ -46,7 +46,7 @@ describe('convertToPermissionDefinitions', () => {
   it('should convert and translate a permission definition for SonarCloud', () => {
     (isSonarCloud as jest.Mock).mockImplementation(() => true);
 
-    SonarUiCommonInitializer.setMessages({
+    resetMessages({
       'global_permissions.admin': 'Administer System',
       'global_permissions.admin.sonarcloud': 'Administer Organization'
     });
@@ -66,7 +66,7 @@ describe('convertToPermissionDefinitions', () => {
   it('should fallback to basic message when SonarCloud version does not exist', () => {
     (isSonarCloud as jest.Mock).mockImplementation(() => true);
 
-    SonarUiCommonInitializer.setMessages({
+    resetMessages({
       'global_permissions.admin': 'Administer System'
     });
 

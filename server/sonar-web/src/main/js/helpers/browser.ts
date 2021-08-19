@@ -19,6 +19,8 @@
  */
 import { EnhancedWindow } from '../types/browser';
 
+export const IS_SSR = typeof window === 'undefined';
+
 export function getEnhancedWindow() {
   return (window as unknown) as EnhancedWindow;
 }

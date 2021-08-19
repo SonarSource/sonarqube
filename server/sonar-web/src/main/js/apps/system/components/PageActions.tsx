@@ -24,7 +24,7 @@ import { Button, EditButton } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { getFileNameSuffix } from '../utils';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
 

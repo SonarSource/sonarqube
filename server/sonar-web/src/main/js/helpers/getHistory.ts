@@ -19,14 +19,14 @@
  */
 import { createHistory, History } from 'history';
 import { useRouterHistory } from 'react-router';
-import { getUrlContext } from './init';
+import { getBaseUrl } from './system';
 
 let history: History;
 
 function ensureHistory() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   history = useRouterHistory(createHistory)({
-    basename: getUrlContext()
+    basename: getBaseUrl()
   });
   return history;
 }

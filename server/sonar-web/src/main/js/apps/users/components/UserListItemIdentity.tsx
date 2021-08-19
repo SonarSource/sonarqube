@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { colors } from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 
 export interface Props {
   identityProvider?: T.IdentityProvider;

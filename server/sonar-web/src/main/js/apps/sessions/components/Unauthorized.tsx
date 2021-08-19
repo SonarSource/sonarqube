@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 
 export default function Unauthorized() {
   const message = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');

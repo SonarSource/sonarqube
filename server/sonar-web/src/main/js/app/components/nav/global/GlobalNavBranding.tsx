@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
 import { getGlobalSettingValue, Store } from '../../../../store/rootReducer';
 
 interface StateProps {

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 
 export interface EmptyHotspotsPageProps {
   filtered: boolean;

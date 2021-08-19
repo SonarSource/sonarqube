@@ -21,7 +21,7 @@ import { isEqual } from 'lodash';
 import * as React from 'react';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/urls';
+import { getBaseUrl } from '../../helpers/system';
 import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
 import GraphHistory from './GraphHistory';
 import './styles.css';

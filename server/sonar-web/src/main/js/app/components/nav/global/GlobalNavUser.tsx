@@ -23,7 +23,7 @@ import Dropdown from '../../../../components/controls/Dropdown';
 import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
 import { rawSizes } from '../../../theme';
 

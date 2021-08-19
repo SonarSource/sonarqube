@@ -29,7 +29,7 @@ import ValidationInput from '../../../components/controls/ValidationInput';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 
 interface Props {

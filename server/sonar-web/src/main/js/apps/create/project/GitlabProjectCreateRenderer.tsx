@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { GitlabProject } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import CreateProjectPageHeader from './CreateProjectPageHeader';

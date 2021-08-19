@@ -23,7 +23,7 @@ import { withAppState } from '../../../components/hoc/withAppState';
 import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
 import { CreateProjectModes } from './types';
 

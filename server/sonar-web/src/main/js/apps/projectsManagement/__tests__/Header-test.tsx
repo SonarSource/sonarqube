@@ -22,7 +22,10 @@ import * as React from 'react';
 import { click } from '../../../helpers/testUtils';
 import Header, { Props } from '../Header';
 
-jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn().mockReturnValue(false) }));
+jest.mock('../../../helpers/system', () => ({
+  getReactDomContainerSelector: jest.fn(() => '#content'),
+  isSonarCloud: jest.fn().mockReturnValue(false)
+}));
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot('default');

@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import * as ReactModal from 'react-modal';
-import { getReactDomContainerSelector } from '../../helpers/init';
+import { getReactDomContainerSelector } from '../../helpers/system';
 import './Modal.css';
 
 ReactModal.setAppElement(getReactDomContainerSelector());

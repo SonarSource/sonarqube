@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as reactIntl from 'react-intl';
 import { fetchL10nBundle } from '../../api/l10n';
-import SonarUiCommonInitializer, { getMessages } from '../init';
 import {
   getLocalizedCategoryMetricName,
   getLocalizedMetricDomain,
   getLocalizedMetricName,
+  getMessages,
   getShortMonthName,
   getShortWeekDayName,
   getWeekDayName,
   hasMessage,
   loadL10nBundle,
+  resetMessages,
   translate,
   translateWithParameters
 } from '../l10n';
@@ -86,35 +86,23 @@ describe('#loadL10nBundle', () => {
       expect.objectContaining({ locale: cachedBundle.locale, messages: cachedBundle.messages })
     );
   });
-
-  it('should init react-intl & sonar-ui-common', async () => {
-    jest.spyOn(SonarUiCommonInitializer, 'setLocale');
-    jest.spyOn(SonarUiCommonInitializer, 'setMessages');
-    jest.spyOn(reactIntl, 'addLocaleData');
-
-    await loadL10nBundle();
-
-    expect(SonarUiCommonInitializer.setLocale).toHaveBeenCalledWith('de');
-    expect(SonarUiCommonInitializer.setMessages).toHaveBeenCalledWith({ test_message: 'test' });
-    expect(reactIntl.addLocaleData).toHaveBeenCalled();
-  });
 });
 
 const originalMessages = getMessages();
 const MSG = 'my_message';
 
 afterEach(() => {
-  SonarUiCommonInitializer.setMessages(originalMessages);
+  resetMessages(originalMessages);
 });
 
 describe('translate', () => {
   it('should translate simple message', () => {
-    SonarUiCommonInitializer.setMessages({ my_key: MSG });
+    resetMessages({ my_key: MSG });
     expect(translate('my_key')).toBe(MSG);
   });
 
   it('should translate message with composite key', () => {
-    SonarUiCommonInitializer.setMessages({ 'my.composite.message': MSG });
+    resetMessages({ 'my.composite.message': MSG });
     expect(translate('my', 'composite', 'message')).toBe(MSG);
     expect(translate('my.composite', 'message')).toBe(MSG);
     expect(translate('my', 'composite.message')).toBe(MSG);
@@ -130,22 +118,22 @@ describe('translate', () => {
 
 describe('translateWithParameters', () => {
   it('should translate message with one parameter in the beginning', () => {
-    SonarUiCommonInitializer.setMessages({ x_apples: '{0} apples' });
+    resetMessages({ x_apples: '{0} apples' });
     expect(translateWithParameters('x_apples', 5)).toBe('5 apples');
   });
 
   it('should translate message with one parameter in the middle', () => {
-    SonarUiCommonInitializer.setMessages({ x_apples: 'I have {0} apples' });
+    resetMessages({ x_apples: 'I have {0} apples' });
     expect(translateWithParameters('x_apples', 5)).toBe('I have 5 apples');
   });
 
   it('should translate message with one parameter in the end', () => {
-    SonarUiCommonInitializer.setMessages({ x_apples: 'Apples: {0}' });
+    resetMessages({ x_apples: 'Apples: {0}' });
     expect(translateWithParameters('x_apples', 5)).toBe('Apples: 5');
   });
 
   it('should translate message with several parameters', () => {
-    SonarUiCommonInitializer.setMessages({
+    resetMessages({
       x_apples: '{0}: I have {2} apples in my {1} baskets - {3}'
     });
     expect(translateWithParameters('x_apples', 1, 2, 3, 4)).toBe(
@@ -154,7 +142,7 @@ describe('translateWithParameters', () => {
   });
 
   it('should not be affected by replacement pattern XSS vulnerability of String.replace', () => {
-    SonarUiCommonInitializer.setMessages({ x_apples: 'I have {0} apples' });
+    resetMessages({ x_apples: 'I have {0} apples' });
     expect(translateWithParameters('x_apples', '$`')).toBe('I have $` apples');
   });
 
@@ -167,7 +155,7 @@ describe('translateWithParameters', () => {
 
 describe('hasMessage', () => {
   it('should return that the message exists', () => {
-    SonarUiCommonInitializer.setMessages({ foo: 'Foo', 'foo.bar': 'Foo Bar' });
+    resetMessages({ foo: 'Foo', 'foo.bar': 'Foo Bar' });
     expect(hasMessage('foo')).toBe(true);
     expect(hasMessage('foo', 'bar')).toBe(true);
   });
@@ -182,19 +170,19 @@ describe('getLocalizedMetricName', () => {
   const metric = { key: 'new_code', name: 'new_code_metric_name' };
 
   it('should return the metric name translation', () => {
-    SonarUiCommonInitializer.setMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
+    resetMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
     expect(getLocalizedMetricName(metric)).toBe('metric.new_code.name_t');
   });
 
   it('should return the metric short name', () => {
-    SonarUiCommonInitializer.setMessages({
+    resetMessages({
       'metric.new_code.short_name': 'metric.new_code.short_name_t'
     });
     expect(getLocalizedMetricName(metric, true)).toBe('metric.new_code.short_name_t');
   });
 
   it('should fallback on name if short name is absent', () => {
-    SonarUiCommonInitializer.setMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
+    resetMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
     expect(getLocalizedMetricName(metric, true)).toBe('metric.new_code.name_t');
   });
 
@@ -209,7 +197,7 @@ describe('getLocalizedMetricName', () => {
 
 describe('getLocalizedCategoryMetricName', () => {
   it('should return metric category name translation', () => {
-    SonarUiCommonInitializer.setMessages({
+    resetMessages({
       'metric.new_code.extra_short_name': 'metric.new_code.extra_short_name_t'
     });
     expect(getLocalizedCategoryMetricName({ key: 'new_code' })).toBe(
@@ -218,14 +206,14 @@ describe('getLocalizedCategoryMetricName', () => {
   });
 
   it('should fallback on metric name if extra_short_name is absent', () => {
-    SonarUiCommonInitializer.setMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
+    resetMessages({ 'metric.new_code.name': 'metric.new_code.name_t' });
     expect(getLocalizedCategoryMetricName({ key: 'new_code' })).toBe('metric.new_code.name_t');
   });
 });
 
 describe('getLocalizedMetricDomain', () => {
   it('should return metric domain name translation', () => {
-    SonarUiCommonInitializer.setMessages({ 'metric_domain.domain': 'metric_domain.domain_t' });
+    resetMessages({ 'metric_domain.domain': 'metric_domain.domain_t' });
     expect(getLocalizedMetricDomain('domain')).toBe('metric_domain.domain_t');
   });
 
@@ -236,21 +224,21 @@ describe('getLocalizedMetricDomain', () => {
 
 describe('getShortMonthName', () => {
   it('should properly translation months', () => {
-    SonarUiCommonInitializer.setMessages({ Jan: 'Jan_t' });
+    resetMessages({ Jan: 'Jan_t' });
     expect(getShortMonthName(0)).toBe('Jan_t');
   });
 });
 
 describe('getWeekDayName', () => {
   it('should properly translation weekday', () => {
-    SonarUiCommonInitializer.setMessages({ Sunday: 'Sunday_t' });
+    resetMessages({ Sunday: 'Sunday_t' });
     expect(getWeekDayName(0)).toBe('Sunday_t');
   });
 });
 
 describe('getShortWeekDayName', () => {
   it('should properly translation short weekday', () => {
-    SonarUiCommonInitializer.setMessages({ Sun: 'Sun_t' });
+    resetMessages({ Sun: 'Sun_t' });
     expect(getShortWeekDayName(0)).toBe('Sun_t');
   });
 });

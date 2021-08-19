@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { isDarkColor } from '../../helpers/colors';
-import { getBaseUrl } from '../../helpers/urls';
+import { getBaseUrl } from '../../helpers/system';
 import './IdentityProviderLink.css';
 
 interface Props {

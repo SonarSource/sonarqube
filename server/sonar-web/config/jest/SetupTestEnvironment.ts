@@ -19,7 +19,6 @@
  */
 import * as theme from '../../src/main/js/app/theme';
 import ThemeContext from '../../src/main/js/components/theme';
-import SonarUiCommonInitializer, { DEFAULT_LOCALE } from '../../src/main/js/helpers/init';
 
 const content = document.createElement('div');
 content.id = 'content';
@@ -27,9 +26,6 @@ document.documentElement.appendChild(content);
 
 const baseUrl = '';
 (window as any).baseUrl = baseUrl;
-SonarUiCommonInitializer.setLocale(DEFAULT_LOCALE)
-  .setMessages({})
-  .setUrlContext(baseUrl);
 
 // Hack : override the default value of the context used for theme by emotion
 // This allows tests to get the theme value without specifiying a theme provider

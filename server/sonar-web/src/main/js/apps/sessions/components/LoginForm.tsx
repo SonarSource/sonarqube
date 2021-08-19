@@ -21,7 +21,7 @@ import * as React from 'react';
 import { SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import './LoginForm.css';
 
 interface Props {

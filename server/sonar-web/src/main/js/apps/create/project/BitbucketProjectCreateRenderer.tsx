@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,

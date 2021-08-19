@@ -25,7 +25,8 @@ import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/com
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
-import { getUrlContext, IS_SSR } from './init';
+import { IS_SSR } from './browser';
+import { getBaseUrl } from './system';
 
 export interface Location {
   pathname: string;
@@ -313,10 +314,6 @@ export function convertGithubApiUrlToLink(url: string) {
 
 export function stripTrailingSlash(url: string) {
   return url.replace(/\/$/, '');
-}
-
-export function getBaseUrl(): string {
-  return getUrlContext();
 }
 
 export function getHostUrl(): string {

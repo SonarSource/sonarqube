@@ -20,7 +20,7 @@
 import * as React from 'react';
 import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
 import {
   AlmKeys,
   AlmSettingsBindingDefinitions,

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import EllipsisIcon from '../../components/icons/EllipsisIcon';
 import { translate } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/urls';
+import { getBaseUrl } from '../../helpers/system';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';

@@ -20,8 +20,8 @@
 import { isNil, omitBy } from 'lodash';
 import { stringify } from 'querystring';
 import { getCookie } from './cookies';
-import { getUrlContext } from './init';
 import { translate } from './l10n';
+import { getBaseUrl } from './system';
 
 export function getCSRFTokenName(): string {
   return 'X-XSRF-TOKEN';
@@ -110,7 +110,7 @@ class Request {
 
   submit(): Promise<Response> {
     const { url, options } = this.getSubmitData({ ...getCSRFToken() });
-    return window.fetch(getUrlContext() + url, options);
+    return window.fetch(getBaseUrl() + url, options);
   }
 
   setMethod(method: string): Request {

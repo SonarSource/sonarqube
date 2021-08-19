@@ -39,3 +39,7 @@ export function isOfficial() {
 export function isSonarCloud() {
   return getInstance() === InstanceType.SonarCloud;
 }
+
+export function getReactDomContainerSelector() {
+  return '#content';
+}

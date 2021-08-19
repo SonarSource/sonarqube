@@ -20,7 +20,6 @@
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
-import SonarUICommonInitializer from '../init';
 import {
   convertGithubApiUrlToLink,
   getComponentDrilldownUrl,
@@ -186,10 +185,6 @@ describe('#getProjectSettingsUrl', () => {
   });
 });
 
-afterEach(() => {
-  SonarUICommonInitializer.setUrlContext('');
-});
-
 describe('#getPathUrlAsString', () => {
   it('should return component url', () => {
     expect(
@@ -201,13 +196,6 @@ describe('#getPathUrlAsString', () => {
     expect(
       getPathUrlAsString({ pathname: '/dashboard', query: { id: COMPLEX_COMPONENT_KEY } })
     ).toBe('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
-  });
-
-  it('should take baseUrl into account', () => {
-    SonarUICommonInitializer.setUrlContext('/context');
-    expect(
-      getPathUrlAsString({ pathname: '/dashboard', query: { id: COMPLEX_COMPONENT_KEY } })
-    ).toBe('/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 });
 

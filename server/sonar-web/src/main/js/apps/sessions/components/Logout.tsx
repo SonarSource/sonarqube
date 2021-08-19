@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import RecentHistory from '../../../app/components/RecentHistory';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { doLogout } from '../../../store/rootActions';
 
 interface Props {

@@ -27,8 +27,8 @@ import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { translate } from '../../../helpers/l10n';
-import { isSonarCloud } from '../../../helpers/system';
-import { getBaseUrl, getReturnUrl } from '../../../helpers/urls';
+import { getBaseUrl, isSonarCloud } from '../../../helpers/system';
+import { getReturnUrl } from '../../../helpers/urls';
 import '../styles.css';
 
 interface Props {

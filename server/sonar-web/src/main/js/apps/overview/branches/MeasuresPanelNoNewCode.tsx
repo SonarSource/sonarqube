@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 

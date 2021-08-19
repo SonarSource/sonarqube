@@ -22,7 +22,7 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import IdentityProviderLink from '../../../components/controls/IdentityProviderLink';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import './OAuthProviders.css';
 
 interface Props {

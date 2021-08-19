@@ -25,7 +25,7 @@ import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import ContextNavBar from '../../../../components/ui/ContextNavBar';
 import NavBarTabs from '../../../../components/ui/NavBarTabs';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
 import { AdminPageExtension } from '../../../../types/extension';
 import { PendingPluginResult } from '../../../../types/plugins';
 import { rawSizes } from '../../../theme';

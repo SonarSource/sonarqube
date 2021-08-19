@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/urls';
+import { getBaseUrl } from '../../../helpers/system';
 import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Alert } from '../components/ui/Alert';
-import { IS_SSR } from '../helpers/init';
+import { IS_SSR } from '../helpers/browser';
 import { translate } from '../helpers/l10n';
 import { requestTryAndRepeatUntil } from '../helpers/request';
 

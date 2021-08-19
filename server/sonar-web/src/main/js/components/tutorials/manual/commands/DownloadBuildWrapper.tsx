@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
 import { OSs } from '../../types';
 
 export interface DownloadBuildWrapperProps {
