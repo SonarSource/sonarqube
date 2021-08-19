@@ -40,6 +40,7 @@ public final class SqTables {
     "analysis_properties",
     "app_branch_project_branch",
     "app_projects",
+    "audits",
     "ce_activity",
     "ce_queue",
     "ce_task_characteristics",
