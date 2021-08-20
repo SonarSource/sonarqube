@@ -21,7 +21,6 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { withAppState } from '../../../components/hoc/withAppState';
 import ChevronsIcon from '../../../components/icons/ChevronsIcon';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
@@ -37,7 +36,7 @@ export interface CreateProjectModeSelectionProps {
   onConfigMode: (mode: AlmKeys) => void;
 }
 
-const DEFAULT_ICON_SIZE = 80;
+const DEFAULT_ICON_SIZE = 50;
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
@@ -133,44 +132,35 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
 
   return (
     <>
-      <header className="padded huge-spacer-top display-flex-column display-flex-center">
-        <div className="abs-width-800 huge-spacer-bottom">
-          <h1 className="text-center big-spacer-bottom">
-            {translate('onboarding.create_project.select_method')}
-          </h1>
-          <p className="text-center spacer-bottom">
-            {translate('onboarding.create_project.select_method.description1')}
-          </p>
-          <p className="text-center">
-            {translate('onboarding.create_project.select_method.description2')}
-          </p>
-        </div>
-      </header>
+      <h1 className="huge-spacer-top huge-spacer-bottom">
+        {translate('onboarding.create_project.select_method')}
+      </h1>
 
-      <div className="create-project-modes huge-spacer-top display-flex-end display-flex-justify-center">
-        <div className="display-flex-column">
-          {almTotalCount === 0 && canAdmin && (
-            <Alert variant="info" className="big-spacer-bottom">
-              {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
-            </Alert>
-          )}
-          <div className="display-flex-center display-flex-space-between">
-            {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-            {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
-            {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
-            {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
-          </div>
-        </div>
-        <button
-          className="button button-huge big-spacer-left display-flex-column create-project-mode-type-manual"
-          onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
-          type="button">
-          <ChevronsIcon size={DEFAULT_ICON_SIZE} />
-          <div className="medium big-spacer-top">
-            {translate('onboarding.create_project.select_method.manual')}
-          </div>
-        </button>
+      <p>{translate('onboarding.create_project.select_method.devops_platform')}</p>
+      {almTotalCount === 0 && canAdmin && (
+        <p className="spacer-top">
+          {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
+        </p>
+      )}
+      <div className="big-spacer-top huge-spacer-bottom display-flex-center">
+        {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
+        {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
+        {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
+        {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
       </div>
+
+      <p className="big-spacer-bottom">
+        {translate('onboarding.create_project.select_method.manually')}
+      </p>
+      <button
+        className="button button-huge display-flex-column create-project-mode-type-manual"
+        onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
+        type="button">
+        <ChevronsIcon size={DEFAULT_ICON_SIZE} />
+        <div className="medium big-spacer-top">
+          {translate('onboarding.create_project.select_method.manual')}
+        </div>
+      </button>
     </>
   );
 }

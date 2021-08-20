@@ -180,9 +180,9 @@
 
 .button-huge {
   flex-direction: column;
-  padding: calc(2 * var(--gridSize));
-  width: 200px;
-  height: 200px;
+  padding: calc(2 * var(--gridSize)) var(--gridSize);
+  width: 180px;
+  height: 180px;
   background-color: var(--white);
   border: solid 1px var(--white);
   border-radius: 3px;

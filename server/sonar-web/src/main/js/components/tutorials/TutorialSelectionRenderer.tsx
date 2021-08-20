@@ -42,8 +42,8 @@ export interface TutorialSelectionRendererProps {
   willRefreshAutomatically?: boolean;
 }
 
-const DEFAULT_ICON_SIZE = 80;
-const GH_ACTION_ICON_SIZE = 64;
+const DEFAULT_ICON_SIZE = 60;
+const GH_ACTION_ICON_SIZE = 46;
 
 function renderButton(
   mode: TutorialModes,
@@ -52,7 +52,7 @@ function renderButton(
 ) {
   return (
     <button
-      className={`button button-huge display-flex-column spacer-left spacer-right huge-spacer-bottom tutorial-mode-${mode}`}
+      className={`button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-${mode}`}
       // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
       // tutorial in the future.
       onClick={() => onSelectTutorial(mode === TutorialModes.OtherCI ? TutorialModes.Manual : mode)}
@@ -103,87 +103,95 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   return (
     <>
       {selectedTutorial === undefined && (
-        <div className="tutorial-selection">
-          <header className="spacer-top spacer-bottom padded">
-            <h1 className="text-center big-spacer-bottom">
-              {translate('onboarding.tutorial.choose_method')}
-            </h1>
-          </header>
+        <>
+          <h1 className="spacer-top huge-spacer-bottom">
+            {translate('onboarding.tutorial.choose_method')}
+          </h1>
 
-          <div className="display-flex-justify-center display-flex-wrap">
-            {renderButton(
-              TutorialModes.Manual,
-              props.onSelectTutorial,
-              <img
-                alt="" // Should be ignored by screen readers
-                height={DEFAULT_ICON_SIZE}
-                src={`${getBaseUrl()}/images/tutorials/manual.svg`}
-              />
-            )}
+          <div className="tutorial-selection">
+            <p className="big-spacer-bottom">
+              {translate('onboarding.tutorial.choose_method.devops_platform.description')}
+            </p>
+            <div className="display-flex-start display-flex-wrap">
+              {showJenkins &&
+                renderButton(
+                  TutorialModes.Jenkins,
+                  props.onSelectTutorial,
+                  <img
+                    alt="" // Should be ignored by screen readers
+                    height={DEFAULT_ICON_SIZE}
+                    src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
+                  />
+                )}
 
-            {showAzurePipelines &&
-              renderButton(
-                TutorialModes.AzurePipelines,
+              {showGitHubActions &&
+                renderButton(
+                  TutorialModes.GitHubActions,
+                  props.onSelectTutorial,
+                  <img
+                    alt="" // Should be ignored by screen readers
+                    height={GH_ACTION_ICON_SIZE}
+                    className="spacer-bottom spacer-top"
+                    src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
+                  />
+                )}
+
+              {showBitbucketPipelines &&
+                renderButton(
+                  TutorialModes.BitbucketPipelines,
+                  props.onSelectTutorial,
+                  <img
+                    alt="" // Should be ignored by screen readers
+                    height={DEFAULT_ICON_SIZE}
+                    src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                  />
+                )}
+
+              {showGitLabCICD &&
+                renderButton(
+                  TutorialModes.GitLabCI,
+                  props.onSelectTutorial,
+                  <img
+                    alt="" // Should be ignored by screen readers
+                    height={DEFAULT_ICON_SIZE}
+                    src={`${getBaseUrl()}/images/alm/gitlab.svg`}
+                  />
+                )}
+
+              {showAzurePipelines &&
+                renderButton(
+                  TutorialModes.AzurePipelines,
+                  props.onSelectTutorial,
+                  <img
+                    alt="" // Should be ignored by screen readers
+                    height={DEFAULT_ICON_SIZE}
+                    src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
+                  />
+                )}
+
+              {renderButton(
+                TutorialModes.OtherCI,
+                props.onSelectTutorial,
+                <EllipsisIcon size={DEFAULT_ICON_SIZE} />
+              )}
+            </div>
+
+            <p className="big-spacer-bottom spacer-top">
+              {translate('onboarding.tutorial.choose_method.locally.description')}
+            </p>
+            <div>
+              {renderButton(
+                TutorialModes.Manual,
                 props.onSelectTutorial,
                 <img
                   alt="" // Should be ignored by screen readers
                   height={DEFAULT_ICON_SIZE}
-                  src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
+                  src={`${getBaseUrl()}/images/tutorials/manual.svg`}
                 />
               )}
-
-            {showBitbucketPipelines &&
-              renderButton(
-                TutorialModes.BitbucketPipelines,
-                props.onSelectTutorial,
-                <img
-                  alt="" // Should be ignored by screen readers
-                  height={DEFAULT_ICON_SIZE}
-                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                />
-              )}
-
-            {showGitHubActions &&
-              renderButton(
-                TutorialModes.GitHubActions,
-                props.onSelectTutorial,
-                <img
-                  alt="" // Should be ignored by screen readers
-                  height={GH_ACTION_ICON_SIZE}
-                  className="spacer-bottom spacer-top"
-                  src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
-                />
-              )}
-
-            {showGitLabCICD &&
-              renderButton(
-                TutorialModes.GitLabCI,
-                props.onSelectTutorial,
-                <img
-                  alt="" // Should be ignored by screen readers
-                  height={DEFAULT_ICON_SIZE}
-                  src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-                />
-              )}
-
-            {showJenkins &&
-              renderButton(
-                TutorialModes.Jenkins,
-                props.onSelectTutorial,
-                <img
-                  alt="" // Should be ignored by screen readers
-                  height={DEFAULT_ICON_SIZE}
-                  src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
-                />
-              )}
-
-            {renderButton(
-              TutorialModes.OtherCI,
-              props.onSelectTutorial,
-              <EllipsisIcon size={DEFAULT_ICON_SIZE / 2} />
-            )}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {selectedTutorial === TutorialModes.Manual && (
