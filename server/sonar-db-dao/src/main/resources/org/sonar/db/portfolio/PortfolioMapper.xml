@@ -55,18 +55,18 @@
       p.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectAll" resultType="Portfolio">
+    SELECT
+    <include refid="portfolioColumns"/>
+    FROM portfolios p
+  </select>
+
   <select id="selectAllRoots" resultType="Portfolio">
     SELECT
       <include refid="portfolioColumns"/>
     FROM portfolios p
     where
       p.parent_uuid is null
-  </select>
-
-  <select id="selectAll" resultType="Portfolio">
-    SELECT
-      <include refid="portfolioColumns"/>
-    FROM portfolios p
   </select>
 
    <select id="selectProjects" resultType="Project">
@@ -76,6 +76,17 @@
      INNER JOIN projects p on p.uuid = pp.project_uuid
      WHERE
       pp.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAllProjectsOfPortfolios" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
+    SELECT
+       pp.uuid,
+       pp.project_uuid as projectUuid,
+       pp.portfolio_uuid as portfolioUuid,
+       pp.project_uuid as projectUuid,
+       pp.created_at as createdAt
+    FROM portfolio_projects pp
+    INNER JOIN projects p on p.uuid = pp.project_uuid
   </select>
 
   <select id="selectAllProjectsInHierarchy" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
@@ -206,6 +217,18 @@
   <delete id="deleteProjectsByPortfolioUuids" parameterType="String">
     DELETE FROM portfolio_projects WHERE portfolio_uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteAllDescendantPortfolios" parameterType="String">
+    DELETE FROM portfolios WHERE root_uuid = #{rootUuid,jdbcType=VARCHAR} and parent_uuid is not null
+  </delete>
+
+  <delete id="deleteAllReferences" parameterType="String">
+    DELETE FROM portfolio_references
+  </delete>
+
+  <delete id="deleteAllProjects" parameterType="String">
+    DELETE FROM portfolio_projects
   </delete>
 
   <insert id="insertReference" parameterType="PortfolioReference">

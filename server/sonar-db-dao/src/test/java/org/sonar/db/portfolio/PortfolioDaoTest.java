@@ -237,6 +237,61 @@ public class PortfolioDaoTest {
     assertThat(portfolioDao.getAllProjectsInHierarchy(db.getSession(), "nonexisting")).isEmpty();
   }
 
+  @Test
+  public void deleteAllDescendantPortfolios() {
+    createPortfolio("root", null, "root");
+    createPortfolio("child1", null, "root");
+    createPortfolio("child11", "child1", "root");
+
+    createPortfolio("root2", null, "root2");
+
+    portfolioDao.deleteAllDescendantPortfolios(db.getSession(), "root");
+    portfolioDao.deleteAllDescendantPortfolios(db.getSession(), "root2");
+
+    assertThat(db.countSql(db.getSession(), "select count(*) from portfolios where parent_uuid is not null")).isZero();
+  }
+
+  @Test
+  public void deleteAllReferences() {
+    createPortfolio("root", null, "root");
+    createPortfolio("child1", null, "root");
+    createPortfolio("child11", "child1", "root");
+
+    createPortfolio("root2", null, "root2");
+    createPortfolio("root3", null, "root3");
+    createPortfolio("root4", null, "root4");
+
+    portfolioDao.addReference(db.getSession(), "child1", "root2");
+    portfolioDao.addReference(db.getSession(), "root3", "root4");
+
+    portfolioDao.deleteAllReferences(db.getSession());
+
+    assertThat(db.countSql(db.getSession(), "select count(*) from portfolio_references")).isZero();
+  }
+
+  @Test
+  public void deleteAllProjects() {
+    db.components().insertPrivateProject("p1");
+    db.components().insertPrivateProject("p2");
+    db.components().insertPrivateProject("p3");
+    db.components().insertPrivateProject("p4");
+
+    createPortfolio("root", null, "root");
+    createPortfolio("child1", null, "root");
+    createPortfolio("child11", "child1", "root");
+
+    createPortfolio("root2", null, "root2");
+
+    portfolioDao.addProject(db.getSession(), "root", "p1");
+    portfolioDao.addProject(db.getSession(), "child1", "p2");
+    portfolioDao.addProject(db.getSession(), "child11", "p3");
+    portfolioDao.addProject(db.getSession(), "root2", "p4");
+
+    portfolioDao.deleteAllProjects(db.getSession());
+
+    assertThat(db.countSql(db.getSession(), "select count(*) from portfolio_projects")).isZero();
+  }
+
   private PortfolioDto createPortfolio(String uuid, @Nullable String parentUuid, String rootUuid) {
     PortfolioDto p = new PortfolioDto()
       .setName("name_" + uuid)

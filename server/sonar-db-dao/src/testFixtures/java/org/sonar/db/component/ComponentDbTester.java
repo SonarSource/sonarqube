@@ -236,6 +236,13 @@ public class ComponentDbTester {
     return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, portfolioPopulator);
   }
 
+  public void addPortfolioReference(ComponentDto portfolio, String... referencerUuids) {
+    for (String uuid : referencerUuids) {
+      dbClient.portfolioDao().addReference(dbSession, portfolio.uuid(), uuid);
+    }
+    db.commit();
+  }
+
   public void addPortfolioProject(ComponentDto portfolio, String... projectUuids) {
     for (String uuid : projectUuids) {
       dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), uuid);

@@ -64,9 +64,6 @@ public class PortfolioDao implements Dao {
   }
 
   public void insert(DbSession dbSession, PortfolioDto portfolio) {
-    if (portfolio.getUuid() == null) {
-      portfolio.setUuid(uuidFactory.create());
-    }
     mapper(dbSession).insert(portfolio);
   }
 
@@ -160,4 +157,22 @@ public class PortfolioDao implements Dao {
     return executeLargeInputs(uuids, uuids1 -> mapper(dbSession).selectByUuids(uuids1)).stream()
       .collect(Collectors.toMap(PortfolioDto::getUuid, PortfolioDto::getKey));
   }
+
+  public void deleteAllDescendantPortfolios(DbSession dbSession, String rootUuid) {
+    mapper(dbSession).deleteAllDescendantPortfolios(rootUuid);
+  }
+
+  public void deleteAllReferences(DbSession dbSession) {
+    mapper(dbSession).deleteAllReferences();
+
+  }
+
+  public void deleteAllProjects(DbSession dbSession) {
+    mapper(dbSession).deleteAllProjects();
+  }
+
+  public List<PortfolioProjectDto> selectAllProjectsOfPortfolios(DbSession dbSession) {
+    return mapper(dbSession).selectAllProjectsOfPortfolios();
+  }
+
 }

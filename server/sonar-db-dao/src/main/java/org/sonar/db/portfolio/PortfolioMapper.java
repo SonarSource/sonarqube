@@ -76,4 +76,15 @@ public interface PortfolioMapper {
   void deleteProjects(String portfolioUuid);
 
   void deleteProject(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid);
+
+  void deleteAllDescendantPortfolios(String rootUuid);
+
+  void deleteAllReferences();
+
+  void deleteAllProjects();
+
+  List<PortfolioProjectDto> selectAllProjectsOfPortfolios();
+
+  List<ReferenceDto> selectAllReferencesOfPortfolios();
+
 }
