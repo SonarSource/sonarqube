@@ -6,12 +6,13 @@ sonarqube {
 
 dependencies {
   // please keep list ordered
-
+  compile 'io.undertow:undertow-websockets-jsr'
   compile 'org.codehaus.sonar:sonar-channel'
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-
+  compile 'org.jsoup:jsoup:1.14.2'
+  compile 'org.jsoup:jsoup'
   compileOnly 'com.google.code.findbugs:jsr305'
-
+  compile 'com.fasterxml.jackson.core:jackson-databind'
   testCompile 'ch.qos.logback:logback-classic'
   testCompile 'commons-io:commons-io'
   testCompile 'junit:junit'

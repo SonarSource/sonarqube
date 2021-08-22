@@ -13,6 +13,9 @@ plugins {
   id "de.undercouch.download" version "4.1.1" apply false
 }
 
+// Adding comment
+// Adding comment 
+// Adding comment
 // display a summary of task durations at the end of the build
 if (project.hasProperty('time-tracker')) {
   apply plugin: 'com.asarkar.gradle.build-time-tracker'

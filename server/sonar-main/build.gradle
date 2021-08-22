@@ -16,7 +16,7 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'org.apache.logging.log4j:log4j-to-slf4j'
-  compile 'org.apache.logging.log4j:log4j-api'
+  compile 'org.apache.logging.log4j:log4j-api:2.14.2'
   compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
   compile 'org.elasticsearch:elasticsearch'
   compile 'org.elasticsearch:elasticsearch-core'
