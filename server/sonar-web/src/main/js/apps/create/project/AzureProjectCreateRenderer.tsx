@@ -18,13 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
+import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { getGlobalSettingsUrl } from '../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
@@ -70,11 +75,16 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     tokenValidationFailed
   } = props;
 
+  const settingIsValid = settings && settings.url;
+  const showCountError = !loading && !settings;
+  const showUrlError = !loading && settings && !settings.url;
+
   return (
     <>
       <CreateProjectPageHeader
         additionalActions={
-          !showPersonalAccessTokenForm && (
+          !showPersonalAccessTokenForm &&
+          settingIsValid && (
             <div className="display-flex-center pull-right">
               <DeferredSpinner className="spacer-right" loading={importing} />
               <Button
@@ -101,12 +111,32 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
 
       {loading && <i className="spinner" />}
 
-      {!loading && !(settings && settings.url) && (
-        <WrongBindingCountAlert alm={AlmKeys.Azure} canAdmin={!!canAdmin} />
+      {showUrlError && (
+        <Alert variant="error">
+          {canAdmin ? (
+            <FormattedMessage
+              defaultMessage={translate('onboarding.create_project.azure.no_url.admin')}
+              id="onboarding.create_project.azure.no_url.admin"
+              values={{
+                alm: translate('onboarding.alm', AlmKeys.Azure),
+                url: (
+                  <Link to={getGlobalSettingsUrl(ALM_INTEGRATION)}>
+                    {translate('settings.page')}
+                  </Link>
+                )
+              }}
+            />
+          ) : (
+            translate('onboarding.create_project.azure.no_url')
+          )}
+        </Alert>
       )}
+
+      {showCountError && <WrongBindingCountAlert alm={AlmKeys.Azure} canAdmin={!!canAdmin} />}
 
       {!loading &&
         settings &&
+        settings.url &&
         (showPersonalAccessTokenForm ? (
           <div className="display-flex-justify-center">
             <AzurePersonalAccessTokenForm

@@ -31,10 +31,22 @@ it('should render correctly', () => {
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
   expect(shallowRender({ settings: undefined })).toMatchSnapshot('no settings');
   expect(shallowRender({ showPersonalAccessTokenForm: true })).toMatchSnapshot('token form');
-  expect(shallowRender({})).toMatchSnapshot('project list');
+  expect(shallowRender()).toMatchSnapshot('project list');
+  expect(
+    shallowRender({
+      settings: mockAlmSettingsInstance({ alm: AlmKeys.Azure }),
+      showPersonalAccessTokenForm: true
+    })
+  ).toMatchSnapshot('setting missing url, admin');
+  expect(
+    shallowRender({
+      canAdmin: false,
+      settings: mockAlmSettingsInstance({ alm: AlmKeys.Azure })
+    })
+  ).toMatchSnapshot('setting missing url, not admin');
 });
 
-function shallowRender(overrides: Partial<AzureProjectCreateRendererProps>) {
+function shallowRender(overrides: Partial<AzureProjectCreateRendererProps> = {}) {
   const project = mockAzureProject();
 
   return shallow(
@@ -51,7 +63,7 @@ function shallowRender(overrides: Partial<AzureProjectCreateRendererProps>) {
       projects={[project]}
       repositories={{ [project.name]: [mockAzureRepository()] }}
       tokenValidationFailed={false}
-      settings={mockAlmSettingsInstance({ alm: AlmKeys.Azure })}
+      settings={mockAlmSettingsInstance({ alm: AlmKeys.Azure, url: 'https://azure.company.com' })}
       showPersonalAccessTokenForm={false}
       submittingToken={false}
       {...overrides}
