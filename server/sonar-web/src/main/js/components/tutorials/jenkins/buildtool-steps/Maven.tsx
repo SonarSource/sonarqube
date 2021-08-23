@@ -32,7 +32,7 @@ const JENKINSFILE_SNIPPET = `node {
   stage('SonarQube Analysis') {
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
-      sh "\${mvn}/bin/mvn sonar:sonar"
+      sh "\${mvn}/bin/mvn clean verify sonar:sonar"
     }
   }
 }`;
