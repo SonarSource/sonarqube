@@ -62,7 +62,9 @@ export default function PageHeader(props: Props) {
                   <th>
                     <strong>{translate('system.server_id')}</strong>
                   </th>
-                  <td>{serverId}</td>
+                  <td>
+                    <code>{serverId}</code>
+                  </td>
                 </tr>
                 <tr>
                   <th>

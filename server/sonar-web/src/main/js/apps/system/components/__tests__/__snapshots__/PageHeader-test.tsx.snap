@@ -72,7 +72,9 @@ exports[`should render correctly 3`] = `
               </strong>
             </th>
             <td>
-              foo-bar
+              <code>
+                foo-bar
+              </code>
             </td>
           </tr>
           <tr>
