@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Select from '../../../../components/controls/Select';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import ComparisonForm from '../ComparisonForm';
 
@@ -30,6 +31,8 @@ it('should render Select with right options', () => {
     mockQualityProfile({ key: 'java', name: 'java', language: 'java' })
   ];
 
+  const profileDefault = { value: 'c', label: 'c name', isDefault: true };
+
   const output = shallow(
     <ComparisonForm
       onCompare={() => true}
@@ -37,8 +40,18 @@ it('should render Select with right options', () => {
       profiles={profiles}
       withKey="another"
     />
-  ).find('Select');
+  ).find(Select);
+  expect(output.props().valueRenderer!(profileDefault)).toMatchSnapshot('Render default for value');
+  expect(output.props().valueRenderer!(profile)).toMatchSnapshot('Render for value');
+
+  expect(output.props().optionRenderer!(profileDefault)).toMatchSnapshot(
+    'Render default for option'
+  );
+  expect(output.props().optionRenderer!(profile)).toMatchSnapshot('Render for option');
+
   expect(output.length).toBe(1);
   expect(output.prop('value')).toBe('another');
-  expect(output.prop('options')).toEqual([{ value: 'another', label: 'another name' }]);
+  expect(output.prop('options')).toEqual([
+    { isDefault: false, value: 'another', label: 'another name' }
+  ]);
 });

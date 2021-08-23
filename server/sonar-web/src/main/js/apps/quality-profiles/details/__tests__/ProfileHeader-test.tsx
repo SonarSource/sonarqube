@@ -24,6 +24,9 @@ import ProfileHeader from '../ProfileHeader';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ profile: mockQualityProfile({ isDefault: true }) })).toMatchSnapshot(
+    'for default profile'
+  );
 });
 
 function shallowRender(props: Partial<ProfileHeader['props']> = {}) {

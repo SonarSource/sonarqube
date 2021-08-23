@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Select from '../../../components/controls/Select';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -38,7 +39,20 @@ export default class ComparisonForm extends React.PureComponent<Props> {
     const { profile, profiles, withKey } = this.props;
     const options = profiles
       .filter(p => p.language === profile.language && p !== profile)
-      .map(p => ({ value: p.key, label: p.name }));
+      .map(p => ({ value: p.key, label: p.name, isDefault: p.isDefault }));
+
+    function renderValue(p: typeof options[0]) {
+      return (
+        <div>
+          <span>{p.label}</span>
+          {p.isDefault && (
+            <Tooltip overlay={translate('quality_profiles.list.default.help')}>
+              <span className=" spacer-left badge">{translate('default')}</span>
+            </Tooltip>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div className="display-inline-block">
@@ -48,6 +62,8 @@ export default class ComparisonForm extends React.PureComponent<Props> {
           clearable={false}
           onChange={this.handleChange}
           options={options}
+          valueRenderer={renderValue}
+          optionRenderer={renderValue}
           placeholder={translate('select_verb')}
           value={withKey}
         />

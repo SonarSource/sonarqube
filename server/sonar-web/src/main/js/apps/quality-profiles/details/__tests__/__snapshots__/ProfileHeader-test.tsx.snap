@@ -112,3 +112,125 @@ exports[`should render correctly 1`] = `
   </div>
 </header>
 `;
+
+exports[`should render correctly: for default profile 1`] = `
+<header
+  className="page-header quality-profile-header"
+>
+  <div
+    className="note spacer-bottom"
+  >
+    <IndexLink
+      className="text-muted"
+      to="/profiles"
+    >
+      quality_profiles.page
+    </IndexLink>
+     / 
+    <Link
+      className="text-muted"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/profiles",
+          "query": Object {
+            "language": "js",
+          },
+        }
+      }
+    >
+      JavaScript
+    </Link>
+  </div>
+  <h1
+    className="page-title"
+  >
+    <ProfileLink
+      className="link-base-color"
+      language="js"
+      name="name"
+    >
+      <span>
+        name
+      </span>
+    </ProfileLink>
+    <Tooltip
+      overlay="quality_profiles.list.default.help"
+    >
+      <span
+        className=" spacer-left badge"
+      >
+        default
+      </span>
+    </Tooltip>
+  </h1>
+  <div
+    className="pull-right"
+  >
+    <ul
+      className="list-inline"
+      style={
+        Object {
+          "lineHeight": "24px",
+        }
+      }
+    >
+      <li
+        className="small spacer-right"
+      >
+        quality_profiles.updated_
+         
+        <DateFromNow />
+      </li>
+      <li
+        className="small big-spacer-right"
+      >
+        quality_profiles.used_
+         
+        <DateFromNow />
+      </li>
+      <li>
+        <Link
+          className="button"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/profiles/changelog",
+              "query": Object {
+                "language": "js",
+                "name": "name",
+              },
+            }
+          }
+        >
+          changelog
+        </Link>
+      </li>
+      <li>
+        <withRouter(ProfileActions)
+          className="pull-left"
+          profile={
+            Object {
+              "activeDeprecatedRuleCount": 2,
+              "activeRuleCount": 10,
+              "childrenCount": 0,
+              "depth": 1,
+              "isBuiltIn": false,
+              "isDefault": true,
+              "isInherited": false,
+              "key": "key",
+              "language": "js",
+              "languageName": "JavaScript",
+              "name": "name",
+              "projectCount": 3,
+            }
+          }
+          updateProfiles={[MockFunction]}
+        />
+      </li>
+    </ul>
+  </div>
+</header>
+`;

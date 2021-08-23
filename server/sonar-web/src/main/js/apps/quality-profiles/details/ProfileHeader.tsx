@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
+import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate } from '../../../helpers/l10n';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
@@ -52,6 +53,11 @@ export default class ProfileHeader extends React.PureComponent<Props> {
           <ProfileLink className="link-base-color" language={profile.language} name={profile.name}>
             <span>{profile.name}</span>
           </ProfileLink>
+          {profile.isDefault && (
+            <Tooltip overlay={translate('quality_profiles.list.default.help')}>
+              <span className=" spacer-left badge">{translate('default')}</span>
+            </Tooltip>
+          )}
           {profile.isBuiltIn && (
             <BuiltInQualityProfileBadge className="spacer-left" tooltip={false} />
           )}
