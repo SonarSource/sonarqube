@@ -49,7 +49,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
 
     return (
       <Select
-        className="input-medium"
+        className="input-large"
         clearable={false}
         onChange={this.handleChange}
         options={allOptions}
