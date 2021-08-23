@@ -9,7 +9,7 @@ While running an analysis, SonarQube raises an issue every time a piece of code 
 
 There are three types of issues:
 
-1. **Bug** – A coding error that will break your code and needs to be fixed immediately.
+1. **Bug** – A coding mistake that can lead to an error or unexpected behavior at runtime.
 1. **Vulnerability** – A point in your code that's open to attack.
 1. **Code Smell** – A maintainability issue that makes your code confusing and difficult to maintain.
 
