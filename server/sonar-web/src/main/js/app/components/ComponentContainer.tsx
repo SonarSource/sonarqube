@@ -42,7 +42,7 @@ import {
 } from '../../types/alm-settings';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
-import { Task, TaskStatuses, TaskWarning } from '../../types/tasks';
+import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
@@ -147,7 +147,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         loading: false
       });
 
-      this.fetchStatus(componentWithQualifier);
+      this.fetchStatus(componentWithQualifier.key);
       this.fetchWarnings(componentWithQualifier, branchLike);
       this.fetchProjectBindingErrors(componentWithQualifier);
     }
@@ -181,37 +181,30 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return { branchLike, branchLikes };
   };
 
-  fetchStatus = (component: T.Component) => {
-    getTasksForComponent(component.key).then(
+  fetchStatus = (componentKey: string) => {
+    getTasksForComponent(componentKey).then(
       ({ current, queue }) => {
         if (this.mounted) {
           let shouldFetchComponent = false;
           this.setState(
             ({ branchLike, component, currentTask, tasksInProgress }) => {
               const newCurrentTask = this.getCurrentTask(current, branchLike);
-              const pendingTasks = this.getPendingTasks(queue, branchLike);
-              const newTasksInProgress = pendingTasks.filter(
-                task => task.status === TaskStatuses.InProgress
+              const pendingTasks = this.getPendingTasksForBranchLike(queue, branchLike);
+              const newTasksInProgress = this.getInProgressTasks(pendingTasks);
+
+              shouldFetchComponent = this.computeShouldFetchComponent(
+                tasksInProgress,
+                newTasksInProgress,
+                currentTask,
+                newCurrentTask,
+                component
               );
 
-              const currentTaskChanged =
-                (!currentTask && newCurrentTask) ||
-                (currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id);
-              const progressChanged =
-                tasksInProgress &&
-                (newTasksInProgress.length !== tasksInProgress.length ||
-                  differenceBy(newTasksInProgress, tasksInProgress, 'id').length > 0);
-
-              shouldFetchComponent = Boolean(currentTaskChanged || progressChanged);
-              if (
-                !shouldFetchComponent &&
-                component &&
-                (newTasksInProgress.length > 0 || !component.analysisDate)
-              ) {
+              if (this.needsAnotherCheck(shouldFetchComponent, component, newTasksInProgress)) {
                 // Refresh the status as long as there is tasks in progress or no analysis
                 window.clearTimeout(this.watchStatusTimer);
                 this.watchStatusTimer = window.setTimeout(
-                  () => this.fetchStatus(component),
+                  () => this.fetchStatus(componentKey),
                   FETCH_STATUS_WAIT_TIME
                 );
               }
@@ -277,7 +270,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   getCurrentTask = (current: Task, branchLike?: BranchLike) => {
-    if (!current) {
+    if (!current || !this.isReportRelatedTask(current)) {
       return undefined;
     }
 
@@ -286,8 +279,64 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       : undefined;
   };
 
-  getPendingTasks = (pendingTasks: Task[], branchLike?: BranchLike) => {
-    return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
+  getPendingTasksForBranchLike = (pendingTasks: Task[], branchLike?: BranchLike) => {
+    return pendingTasks.filter(
+      task => this.isReportRelatedTask(task) && this.isSameBranch(task, branchLike)
+    );
+  };
+
+  getInProgressTasks = (pendingTasks: Task[]) => {
+    return pendingTasks.filter(task => task.status === TaskStatuses.InProgress);
+  };
+
+  isReportRelatedTask = (task: Task) => {
+    return [TaskTypes.AppRefresh, TaskTypes.Report, TaskTypes.ViewRefresh].includes(task.type);
+  };
+
+  computeShouldFetchComponent = (
+    tasksInProgress: Task[] | undefined,
+    newTasksInProgress: Task[],
+    currentTask: Task | undefined,
+    newCurrentTask: Task | undefined,
+    component: T.Component | undefined
+  ) => {
+    const progressHasChanged = Boolean(
+      tasksInProgress &&
+        (newTasksInProgress.length !== tasksInProgress.length ||
+          differenceBy(newTasksInProgress, tasksInProgress, 'id').length > 0)
+    );
+
+    const currentTaskHasChanged = Boolean(
+      (!currentTask && newCurrentTask) ||
+        (currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id)
+    );
+
+    if (progressHasChanged) {
+      return true;
+    } else if (currentTaskHasChanged && component) {
+      // We return true if:
+      // - there was no prior analysis date (means this is an empty project, and
+      //   a new analysis came in)
+      // - OR, there was a prior analysis date (non-empty project) AND there were
+      //   some tasks in progress before
+      return (
+        Boolean(!component.analysisDate) ||
+        Boolean(component.analysisDate && tasksInProgress?.length)
+      );
+    }
+    return false;
+  };
+
+  needsAnotherCheck = (
+    shouldFetchComponent: boolean,
+    component: T.Component | undefined,
+    newTasksInProgress: Task[]
+  ) => {
+    return (
+      !shouldFetchComponent &&
+      component &&
+      (newTasksInProgress.length > 0 || !component.analysisDate)
+    );
   };
 
   isSameBranch = (task: Pick<Task, 'branch' | 'pullRequest'>, branchLike?: BranchLike) => {

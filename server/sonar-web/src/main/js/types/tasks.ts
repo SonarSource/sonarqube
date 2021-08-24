@@ -19,7 +19,9 @@
  */
 export enum TaskTypes {
   Report = 'REPORT',
-  IssueSync = 'ISSUE_SYNC'
+  IssueSync = 'ISSUE_SYNC',
+  AppRefresh = 'APP_REFRESH',
+  ViewRefresh = 'VIEW_REFRESH'
 }
 
 export enum TaskStatuses {

@@ -31,7 +31,7 @@ import { mockAppState, mockComponent, mockLocation, mockRouter } from '../../../
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
-import { TaskStatuses } from '../../../types/tasks';
+import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { ComponentContainer } from '../ComponentContainer';
 import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
@@ -168,7 +168,7 @@ it('filters correctly the pending tasks for a main branch', () => {
   const branch2 = mockBranch({ name: 'branch-2' });
   const pullRequest = mockPullRequest();
 
-  expect(component.isSameBranch({} /*, undefined*/)).toBe(true);
+  expect(component.isSameBranch({})).toBe(true);
   expect(component.isSameBranch({}, mainBranch)).toBe(true);
   expect(component.isSameBranch({ branch: mainBranch.name }, mainBranch)).toBe(true);
   expect(component.isSameBranch({}, branch3)).toBe(false);
@@ -182,19 +182,21 @@ it('filters correctly the pending tasks for a main branch', () => {
   const currentTask = mockTask({ pullRequest: pullRequest.key, status: TaskStatuses.InProgress });
   const failedTask = { ...currentTask, status: TaskStatuses.Failed };
   const pendingTasks = [currentTask, mockTask({ branch: branch3.name }), mockTask()];
-  expect(component.getCurrentTask(currentTask, undefined)).toBeUndefined();
+  expect(component.getCurrentTask(currentTask)).toBeUndefined();
   expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
   expect(component.getCurrentTask(currentTask, mainBranch)).toBeUndefined();
   expect(component.getCurrentTask(currentTask, pullRequest)).toMatchObject(currentTask);
-  expect(component.getPendingTasks(pendingTasks, mainBranch)).toMatchObject([{}]);
-  expect(component.getPendingTasks(pendingTasks, pullRequest)).toMatchObject([currentTask]);
+  expect(component.getPendingTasksForBranchLike(pendingTasks, mainBranch)).toMatchObject([{}]);
+  expect(component.getPendingTasksForBranchLike(pendingTasks, pullRequest)).toMatchObject([
+    currentTask
+  ]);
 });
 
 it('reload component after task progress finished', async () => {
   jest.useFakeTimers();
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({
-      queue: [{ id: 'foo', status: TaskStatuses.InProgress }]
+      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }]
     })
     .mockResolvedValueOnce({
       queue: []
@@ -237,7 +239,10 @@ it('reloads component after task progress finished, and moves straight to curren
   });
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({ queue: [] })
-    .mockResolvedValueOnce({ queue: [], current: { id: 'foo', status: TaskStatuses.Success } });
+    .mockResolvedValueOnce({
+      queue: [],
+      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh }
+    });
   const wrapper = shallowRender();
 
   // First round, nothing in the queue, and component navigation was not called
@@ -251,6 +256,56 @@ it('reloads component after task progress finished, and moves straight to curren
   // Second round, nothing in the queue, BUT a success task is current. This
   // means the queue was processed too quick for us to see, and we didn't see
   // any pending tasks in the queue. So we immediately load the component again.
+  expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+  // Trigger the update.
+  await waitAndUpdate(wrapper);
+  // The component was correctly re-loaded.
+  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+  // The status API call will be called 1 final time after the component is
+  // fully loaded, so the total will be 3.
+  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+});
+
+it('only fully loads a non-empty component once', async () => {
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { key: 'bar', analysisDate: '2019-01-01' }
+  });
+  (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({
+    queue: [],
+    current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report }
+  });
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+  expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+  expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+});
+
+it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
+  jest.useFakeTimers();
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { key: 'bar', analysisDate: '2019-01-01' }
+  });
+  (getTasksForComponent as jest.Mock<any>)
+    .mockResolvedValueOnce({
+      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.AppRefresh }]
+    })
+    .mockResolvedValueOnce({
+      queue: [],
+      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh }
+    });
+  const wrapper = shallowRender();
+
+  // First round, a pending task in the queue. This should trigger a reload of the
+  // status endpoint.
+  await waitAndUpdate(wrapper);
+  jest.runOnlyPendingTimers();
+
+  // Second round, nothing in the queue, and a success task is current. This
+  // implies the current task was updated, and previously we displayed some information
+  // about a pending task. This new information must prompt the component to reload
+  // all data.
   expect(getTasksForComponent).toHaveBeenCalledTimes(2);
 
   // Trigger the update.
