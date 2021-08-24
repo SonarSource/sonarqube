@@ -19,9 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { searchQualityProfiles } from '../../../../api/quality-profiles';
 import { getRulesApp } from '../../../../api/rules';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
-import { mockCurrentUser, mockLocation, mockRouter, mockRule } from '../../../../helpers/testMocks';
+import {
+  mockCurrentUser,
+  mockLocation,
+  mockQualityProfile,
+  mockRouter,
+  mockRule
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 
@@ -78,18 +85,30 @@ describe('renderBulkButton', () => {
     const wrapper = shallowRender({
       currentUser: mockCurrentUser()
     });
-    expect(wrapper.instance().renderBulkButton()).toBeNull();
+    expect(wrapper.instance().renderBulkButton()).toMatchSnapshot();
   });
 
   it('should be null when the user does not have the sufficient permission', () => {
-    (getRulesApp as jest.Mock).mockReturnValue({ canWrite: false, repositories: [] });
+    (getRulesApp as jest.Mock).mockReturnValueOnce({ canWrite: false, repositories: [] });
 
     const wrapper = shallowRender();
-    expect(wrapper.instance().renderBulkButton()).toBeNull();
+    expect(wrapper.instance().renderBulkButton()).toMatchSnapshot();
   });
 
-  it('should show bulk change button when everything is fine', async () => {
-    (getRulesApp as jest.Mock).mockReturnValue({ canWrite: true, repositories: [] });
+  it('should show bulk change button when user has global admin rights on quality profiles', async () => {
+    (getRulesApp as jest.Mock).mockReturnValueOnce({ canWrite: true, repositories: [] });
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+
+    expect(wrapper.instance().renderBulkButton()).toMatchSnapshot();
+  });
+
+  it('should show bulk change button when user has edit rights on specific quality profile', async () => {
+    (getRulesApp as jest.Mock).mockReturnValueOnce({ canWrite: false, repositories: [] });
+    (searchQualityProfiles as jest.Mock).mockReturnValueOnce({
+      profiles: [mockQualityProfile({ key: 'foo', actions: { edit: true } }), mockQualityProfile()]
+    });
+
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);
 

@@ -526,9 +526,10 @@ export class App extends React.PureComponent<Props, State> {
   renderBulkButton = () => {
     const { currentUser, languages } = this.props;
     const { canWrite, paging, query, referencedProfiles } = this.state;
+    const canUpdate = canWrite || Object.values(referencedProfiles).some(p => p.actions?.edit);
 
-    if (!isLoggedIn(currentUser) || !canWrite) {
-      return null;
+    if (!isLoggedIn(currentUser) || !canUpdate) {
+      return <div />;
     }
 
     return (
