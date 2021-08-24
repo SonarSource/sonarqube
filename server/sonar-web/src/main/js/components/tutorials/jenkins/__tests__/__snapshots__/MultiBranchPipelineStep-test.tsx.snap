@@ -72,9 +72,59 @@ exports[`should render correctly: content for bitbucket 1`] = `
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_prs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_prs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_pr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p
@@ -191,9 +241,59 @@ exports[`should render correctly: content for bitbucket cloud 1`] = `
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_prs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_prs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_pr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p
@@ -308,9 +408,59 @@ exports[`should render correctly: content for bitbucket cloud, no binding 1`] = 
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_prs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_prs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_pr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p
@@ -425,9 +575,59 @@ exports[`should render correctly: content for bitbucket, no binding 1`] = `
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_prs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_prs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_pr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p
@@ -533,9 +733,59 @@ exports[`should render correctly: content for github 1`] = `
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_prs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_prs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_pr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p
@@ -640,9 +890,59 @@ exports[`should render correctly: content for github, no binding 1`] = `
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_prs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_prs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_pr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p
@@ -752,9 +1052,59 @@ exports[`should render correctly: content for gitlab 1`] = `
           </li>
         </React.Fragment>
         <li>
-          <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.behaviour"
-          />
+          <strong>
+            onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label
+            :
+          </strong>
+          <ul
+            className="list-styled little-spacer-top abs-width-600"
+          >
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.branches_mrs"
+              />
+            </li>
+            <li>
+              <LabelActionPair
+                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.discover_mrs"
+              />
+            </li>
+            <li>
+              <strong>
+                onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label
+                :
+              </strong>
+              <ul
+                className="list-styled little-spacer-top"
+              >
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "add",
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                  />
+                </li>
+                <li>
+                  <SentenceWithHighlights
+                    highlightKeys={
+                      Array [
+                        "ref_spec",
+                      ]
+                    }
+                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.set_mr_ref_specs"
+                  />
+                  <CodeSnippet
+                    isOneLine={true}
+                    snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                  />
+                </li>
+              </ul>
+            </li>
+          </ul>
         </li>
       </ul>
       <p

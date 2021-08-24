@@ -27,6 +27,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import CodeSnippet from '../../common/CodeSnippet';
 import LabelActionPair from '../components/LabelActionPair';
 import LabelValuePair from '../components/LabelValuePair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
@@ -58,6 +59,10 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
   const { alm, almBinding, finished, open, projectBinding } = props;
 
   const workspaceId = extractBitbucketCloudWorkspaceId(almBinding);
+  const isGitLab = alm === AlmKeys.GitLab;
+  const isBitbucketServer = alm === AlmKeys.BitbucketServer;
+  const isBitbucketCloud = alm === AlmKeys.BitbucketCloud;
+  const isGitHub = alm === AlmKeys.GitHub;
 
   return (
     <Step
@@ -82,7 +87,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                 translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${alm}`}
               />
               <ul className="list-styled">
-                {alm === AlmKeys.BitbucketServer && (
+                {isBitbucketServer && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.server" />
@@ -112,7 +117,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                     </li>
                   </>
                 )}
-                {alm === AlmKeys.BitbucketCloud && (
+                {isBitbucketCloud && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucketcloud.server" />
@@ -142,7 +147,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                     </li>
                   </>
                 )}
-                {alm === AlmKeys.GitHub && (
+                {isGitHub && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds" />
@@ -161,7 +166,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                     </li>
                   </>
                 )}
-                {alm === AlmKeys.GitLab && (
+                {isGitLab && (
                   <>
                     <li>
                       <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.gitlab.creds" />
@@ -175,9 +180,56 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                   </>
                 )}
                 <li>
-                  <LabelActionPair
-                    translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${alm}.behaviour`}
-                  />
+                  <strong>
+                    {translate(
+                      'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label'
+                    )}
+                    :
+                  </strong>
+                  <ul className="list-styled little-spacer-top abs-width-600">
+                    <li>
+                      <LabelActionPair
+                        translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${
+                          isGitLab ? 'branches_mrs' : 'branches_prs'
+                        }`}
+                      />
+                    </li>
+                    <li>
+                      <LabelActionPair
+                        translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${
+                          isGitLab ? 'discover_mrs' : 'discover_prs'
+                        }`}
+                      />
+                    </li>
+                    <li>
+                      <strong>
+                        {translate(
+                          'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label'
+                        )}
+                        :
+                      </strong>
+                      <ul className="list-styled little-spacer-top">
+                        <li>
+                          <SentenceWithHighlights
+                            highlightKeys={['add', 'ref_spec']}
+                            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.add_behaviour"
+                          />
+                        </li>
+                        <li>
+                          <SentenceWithHighlights
+                            highlightKeys={['ref_spec']}
+                            translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.${
+                              isGitLab ? 'set_mr_ref_specs' : 'set_pr_ref_specs'
+                            }`}
+                          />
+                          <CodeSnippet
+                            isOneLine={true}
+                            snippet="+refs/heads/*:refs/remotes/@{remote}/*"
+                          />
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
                 </li>
               </ul>
               <p className="big-spacer-left padder-left">
