@@ -19,16 +19,18 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import FilesCounter from './FilesCounter';
+import { formatMeasure } from '../../helpers/measures';
+import { ComponentQualifier } from '../../types/component';
 
 export interface Props {
+  componentQualifier?: string;
   current?: number;
   showShortcuts?: boolean;
   total?: number;
 }
 
 export default function PageActions(props: Props) {
-  const { current, showShortcuts, total = 0 } = props;
+  const { componentQualifier, current, showShortcuts, total = 0 } = props;
 
   return (
     <div className="page-actions display-flex-center">
@@ -47,9 +49,20 @@ export default function PageActions(props: Props) {
           </span>
         </span>
       )}
-      {total > 0 && (
+      {total > 0 && componentQualifier === ComponentQualifier.Project && (
         <div className="nowrap">
-          <FilesCounter className="big-spacer-left" current={current} total={total} />
+          <span className="big-spacer-left">
+            <strong>
+              {current !== undefined && (
+                <span>
+                  {formatMeasure(current, 'INT')}
+                  {' / '}
+                </span>
+              )}
+              {formatMeasure(total, 'INT')}
+            </strong>{' '}
+            {translate('component_measures.files')}
+          </span>
         </div>
       )}
     </div>

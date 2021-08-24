@@ -185,6 +185,7 @@ exports[`should render correctly for a project 1`] = `
                   view="list"
                 />
                 <PageActions
+                  componentQualifier="TRK"
                   showShortcuts={true}
                   total={2}
                 />

@@ -163,6 +163,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
                 }
                 right={
                   <PageActions
+                    componentQualifier={rootComponent.qualifier}
                     current={this.state.components.length}
                     total={paging && paging.total}
                   />

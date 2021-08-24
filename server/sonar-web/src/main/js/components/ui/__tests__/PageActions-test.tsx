@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../types/component';
 import PageActions, { Props } from '../PageActions';
 
 it('should render correctly', () => {
@@ -28,5 +29,7 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<Props> = {}) {
-  return shallow(<PageActions showShortcuts={true} {...props} />);
+  return shallow(
+    <PageActions componentQualifier={ComponentQualifier.Project} showShortcuts={true} {...props} />
+  );
 }

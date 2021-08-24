@@ -340,6 +340,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                         />
 
                         <PageActions
+                          componentQualifier={rootComponent.qualifier}
                           current={
                             selectedIdx !== undefined && view !== 'treemap'
                               ? selectedIdx + 1

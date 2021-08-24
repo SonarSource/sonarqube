@@ -78,10 +78,15 @@ exports[`should render correctly 2`] = `
   <div
     className="nowrap"
   >
-    <FilesCounter
+    <span
       className="big-spacer-left"
-      total={10}
-    />
+    >
+      <strong>
+        10
+      </strong>
+       
+      component_measures.files
+    </span>
   </div>
 </div>
 `;
@@ -93,11 +98,19 @@ exports[`should render correctly 3`] = `
   <div
     className="nowrap"
   >
-    <FilesCounter
+    <span
       className="big-spacer-left"
-      current={12}
-      total={120}
-    />
+    >
+      <strong>
+        <span>
+          12
+           / 
+        </span>
+        120
+      </strong>
+       
+      component_measures.files
+    </span>
   </div>
 </div>
 `;
