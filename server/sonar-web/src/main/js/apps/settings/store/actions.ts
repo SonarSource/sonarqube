@@ -24,7 +24,7 @@ import {
   resetSettingValue,
   setSettingValue
 } from '../../../api/settings';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import { closeAllGlobalMessages } from '../../../store/globalMessages';
 import {
@@ -32,6 +32,7 @@ import {
   getSettingsAppDefinition,
   Store
 } from '../../../store/rootReducer';
+import { SettingDefinition } from '../../../types/settings';
 import { isEmptyValue } from '../utils';
 import { receiveDefinitions } from './definitions';
 import {
@@ -42,6 +43,18 @@ import {
   stopLoading
 } from './settingsPage';
 import { receiveValues } from './values';
+
+function isURLKind(definition: SettingDefinition) {
+  return [
+    'sonar.core.serverBaseURL',
+    'sonar.auth.github.apiUrl',
+    'sonar.auth.github.webUrl',
+    'sonar.auth.gitlab.url',
+    'sonar.lf.gravatarServerUrl',
+    'sonar.lf.logoUrl',
+    'sonar.auth.saml.loginUrl'
+  ].includes(definition.key);
+}
 
 export function fetchSettings(component?: string) {
   return (dispatch: Dispatch) => {
@@ -75,11 +88,24 @@ export function checkValue(key: string) {
       return false;
     }
 
+    if (isURLKind(definition)) {
+      try {
+        // eslint-disable-next-line no-new
+        new URL(value);
+      } catch (e) {
+        dispatch(
+          failValidation(key, translateWithParameters('settings.state.url_not_valid', value))
+        );
+        return false;
+      }
+    }
+
     if (definition.type === 'JSON') {
       try {
         JSON.parse(value);
       } catch (e) {
         dispatch(failValidation(key, e.message));
+
         return false;
       }
     }

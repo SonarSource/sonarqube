@@ -142,4 +142,25 @@ describe('checkValue', () => {
       key
     });
   });
+
+  it('should correctly identify URL', () => {
+    (getSettingsAppDefinition as jest.Mock).mockReturnValue({
+      key: 'sonar.core.serverBaseURL'
+    });
+
+    (getSettingsAppChangedValue as jest.Mock).mockReturnValue('http://test');
+    const key = 'sonar.core.serverBaseURL';
+    expect(checkValue(key)(dispatch, jest.fn())).toBe(true);
+    expect(dispatch).toBeCalledWith({
+      type: 'settingsPage/PASS_VALIDATION',
+      key
+    });
+
+    (getSettingsAppChangedValue as jest.Mock).mockReturnValue('not valid');
+    expect(checkValue(key)(dispatch, jest.fn())).toBe(false);
+    expect(dispatch).toBeCalledWith({
+      type: 'settingsPage/PASS_VALIDATION',
+      key
+    });
+  });
 });
