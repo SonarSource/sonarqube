@@ -125,7 +125,6 @@ function renderRedirects() {
       <Redirect from="/governance" to="/portfolio" />
       <Redirect from="/groups" to="/admin/groups" />
       <Redirect from="/extension/governance/portfolios" to="/portfolios" />
-      <Redirect from="/metrics" to="/admin/custom_metrics" />
       <Redirect from="/permission_templates" to="/admin/permission_templates" />
       <Redirect from="/profiles/index" to="/profiles" />
       <Redirect from="/projects_admin" to="/admin/projects_management" />
