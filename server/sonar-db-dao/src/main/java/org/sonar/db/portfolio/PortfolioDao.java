@@ -31,6 +31,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -64,6 +65,7 @@ public class PortfolioDao implements Dao {
   }
 
   public void insert(DbSession dbSession, PortfolioDto portfolio) {
+    checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
     mapper(dbSession).insert(portfolio);
   }
 
@@ -80,16 +82,23 @@ public class PortfolioDao implements Dao {
     mapper(dbSession).deleteByUuids(portfolioUuids);
   }
 
-  public List<ReferenceDto> selectAllReferencesToPortfolios(DbSession dbSession) {
-    return mapper(dbSession).selectAllReferencesToPortfolios();
-  }
-
-  public List<ReferenceDto> selectAllReferencesToApplications(DbSession dbSession) {
-    return mapper(dbSession).selectAllReferencesToApplications();
-  }
-
   public List<PortfolioDto> selectTree(DbSession dbSession, String portfolioUuid) {
     return mapper(dbSession).selectTree(portfolioUuid);
+  }
+
+  public void update(DbSession dbSession, PortfolioDto portfolio) {
+    checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
+    portfolio.setUpdatedAt(system2.now());
+    mapper(dbSession).update(portfolio);
+  }
+
+  public Map<String, String> selectKeysByUuids(DbSession dbSession, Collection<String> uuids) {
+    return executeLargeInputs(uuids, uuids1 -> mapper(dbSession).selectByUuids(uuids1)).stream()
+      .collect(Collectors.toMap(PortfolioDto::getUuid, PortfolioDto::getKey));
+  }
+
+  public void deleteAllDescendantPortfolios(DbSession dbSession, String rootUuid) {
+    mapper(dbSession).deleteAllDescendantPortfolios(rootUuid);
   }
 
   public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
@@ -98,6 +107,14 @@ public class PortfolioDao implements Dao {
       .setPortfolioUuid(portfolioUuid)
       .setReferenceUuid(referenceUuid)
       .setCreatedAt(system2.now()));
+  }
+
+  public List<ReferenceDto> selectAllReferencesToPortfolios(DbSession dbSession) {
+    return mapper(dbSession).selectAllReferencesToPortfolios();
+  }
+
+  public List<ReferenceDto> selectAllReferencesToApplications(DbSession dbSession) {
+    return mapper(dbSession).selectAllReferencesToApplications();
   }
 
   public Set<String> getReferences(DbSession dbSession, String portfolioUuid) {
@@ -110,6 +127,22 @@ public class PortfolioDao implements Dao {
 
   public List<PortfolioDto> selectRootOfReferencers(DbSession dbSession, String referenceUuid) {
     return mapper(dbSession).selectRootOfReferencers(referenceUuid);
+  }
+
+  public void deleteReferencesTo(DbSession dbSession, String referenceUuid) {
+    mapper(dbSession).deleteReferencesTo(referenceUuid);
+  }
+
+  public void deleteAllReferences(DbSession dbSession) {
+    mapper(dbSession).deleteAllReferences();
+  }
+
+  public int deleteReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
+    return mapper(dbSession).deleteReference(portfolioUuid, referenceUuid);
+  }
+
+  public ReferenceDto selectReference(DbSession dbSession, String portfolioUuid, String referenceKey) {
+    return mapper(dbSession).selectReference(portfolioUuid, referenceKey);
   }
 
   public List<ProjectDto> getProjects(DbSession dbSession, String portfolioUuid) {
@@ -132,15 +165,6 @@ public class PortfolioDao implements Dao {
       .setCreatedAt(system2.now()));
   }
 
-  public void update(DbSession dbSession, PortfolioDto portfolio) {
-    portfolio.setUpdatedAt(system2.now());
-    mapper(dbSession).update(portfolio);
-  }
-
-  private static PortfolioMapper mapper(DbSession session) {
-    return session.getMapper(PortfolioMapper.class);
-  }
-
   public void deleteProjects(DbSession dbSession, String portfolioUuid) {
     mapper(dbSession).deleteProjects(portfolioUuid);
   }
@@ -149,30 +173,16 @@ public class PortfolioDao implements Dao {
     mapper(dbSession).deleteProject(portfolioUuid, projectUuid);
   }
 
-  public void deleteReferencesTo(DbSession dbSession, String referenceUuid) {
-    mapper(dbSession).deleteReferencesTo(referenceUuid);
-  }
-
-  public Map<String, String> selectKeysByUuids(DbSession dbSession, Collection<String> uuids) {
-    return executeLargeInputs(uuids, uuids1 -> mapper(dbSession).selectByUuids(uuids1)).stream()
-      .collect(Collectors.toMap(PortfolioDto::getUuid, PortfolioDto::getKey));
-  }
-
-  public void deleteAllDescendantPortfolios(DbSession dbSession, String rootUuid) {
-    mapper(dbSession).deleteAllDescendantPortfolios(rootUuid);
-  }
-
-  public void deleteAllReferences(DbSession dbSession) {
-    mapper(dbSession).deleteAllReferences();
-
-  }
-
   public void deleteAllProjects(DbSession dbSession) {
     mapper(dbSession).deleteAllProjects();
   }
-
+  
   public List<PortfolioProjectDto> selectAllProjectsOfPortfolios(DbSession dbSession) {
     return mapper(dbSession).selectAllProjectsOfPortfolios();
+  }
+
+  private static PortfolioMapper mapper(DbSession session) {
+    return session.getMapper(PortfolioMapper.class);
   }
 
 }

@@ -145,6 +145,39 @@
     WHERE pj.kee=#{referenceKey,jdbcType=VARCHAR}
   </select>
 
+  <delete id="deleteReference">
+    DELETE FROM portfolio_references
+    WHERE
+      portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    AND reference_uuid = #{referenceUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectReference" resultType="org.sonar.db.portfolio.ReferenceDto">
+    (SELECT
+      source.uuid as sourceUuid,
+      source.root_uuid as sourceRootUuid,
+      target.uuid as targetUuid,
+      target.root_uuid as targetRootUuid
+    FROM portfolio_references pr
+     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+     INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
+     WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+     AND target.kee=#{referenceKey,jdbcType=VARCHAR}
+
+    UNION
+
+    SELECT
+      source.uuid as sourceUuid,
+      source.root_uuid as sourceRootUuid,
+      target.uuid as targetUuid,
+      target.uuid as targetRootUuid
+    FROM portfolio_references pr
+     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+     INNER JOIN projects target ON pr.reference_uuid = target.uuid AND target.qualifier = 'APP'
+     WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+     AND target.kee=#{referenceKey,jdbcType=VARCHAR})
+  </select>
+
    <insert id="insert" parameterType="Portfolio">
     INSERT INTO portfolios (
       kee,
@@ -292,6 +325,8 @@
     description = #{description,jdbcType=VARCHAR},
     selection_mode = #{selectionMode,jdbcType=VARCHAR},
     selection_expression = #{selectionExpression,jdbcType=VARCHAR},
+    parent_uuid = #{parentUuid,jdbcType=VARCHAR},
+    root_uuid = #{rootUuid,jdbcType=VARCHAR},
     updated_at = #{updatedAt,jdbcType=BIGINT}
     where
     uuid = #{uuid,jdbcType=VARCHAR}

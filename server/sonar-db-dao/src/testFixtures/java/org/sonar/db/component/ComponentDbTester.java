@@ -123,6 +123,11 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
+  public final ProjectDto insertPrivateProjectDto(String uuid) {
+    ComponentDto componentDto = insertPrivateProject(uuid);
+    return getProjectDto(componentDto);
+  }
+
   public final ProjectDto insertPrivateProjectDto(Consumer<ComponentDto> componentDtoPopulator) {
     return insertPrivateProjectDto(componentDtoPopulator, defaults());
   }
@@ -174,8 +179,22 @@ public class ComponentDbTester {
     return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(false), false, dtoPopulator, portfolioPopulator);
   }
 
+  public final PortfolioDto insertPublicPortfolioDto() {
+    return insertPublicPortfolioDto(defaults());
+  }
+
   public final PortfolioDto insertPublicPortfolioDto(Consumer<ComponentDto> dtoPopulator) {
     ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(false), false, dtoPopulator, defaults());
+    return getPortfolioDto(component);
+  }
+
+  public final PortfolioDto insertPrivatePortfolioDto(String uuid) {
+    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio(uuid).setPrivate(true), true, defaults(), defaults());
+    return getPortfolioDto(component);
+  }
+
+  public final PortfolioDto insertPrivatePortfolioDto() {
+    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, defaults(), defaults());
     return getPortfolioDto(component);
   }
 
@@ -185,7 +204,7 @@ public class ComponentDbTester {
   }
 
   public final PortfolioDto insertPrivatePortfolioDto(Consumer<ComponentDto> dtoPopulator, Consumer<PortfolioDto> portfolioPopulator) {
-    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator,portfolioPopulator);
+    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, portfolioPopulator);
     return getPortfolioDto(component);
   }
 
@@ -243,6 +262,13 @@ public class ComponentDbTester {
     db.commit();
   }
 
+  public void addPortfolioReference(PortfolioDto portfolio, String... referencerUuids) {
+    for (String uuid : referencerUuids) {
+      dbClient.portfolioDao().addReference(dbSession, portfolio.getUuid(), uuid);
+    }
+    db.commit();
+  }
+
   public void addPortfolioProject(ComponentDto portfolio, String... projectUuids) {
     for (String uuid : projectUuids) {
       dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), uuid);
@@ -251,10 +277,7 @@ public class ComponentDbTester {
   }
 
   public void addPortfolioProject(ComponentDto portfolio, ComponentDto... projects) {
-    for (ComponentDto project : projects) {
-      dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), project.uuid());
-    }
-    db.commit();
+    addPortfolioProject(portfolio, Arrays.stream(projects).map(ComponentDto::uuid).toArray(String[]::new));
   }
 
   public void addPortfolioProject(PortfolioDto portfolioDto, ProjectDto... projects) {
@@ -479,7 +502,7 @@ public class ComponentDbTester {
       .setName(componentDto.name());
   }
 
-  private static <T> Consumer<T> defaults() {
+  public static <T> Consumer<T> defaults() {
     return t -> {
     };
   }

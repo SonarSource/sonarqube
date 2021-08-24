@@ -173,10 +173,10 @@ public class SearchMyProjectsActionTest {
   @Test
   public void does_not_return_views() {
     ComponentDto jdk7 = insertJdk7();
-    ComponentDto view = insertPortfolio();
+    ComponentDto portfolio = insertPortfolio();
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, view);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, portfolio);
 
     SearchMyProjectsWsResponse result = callWs();
 
@@ -260,9 +260,11 @@ public class SearchMyProjectsActionTest {
   }
 
   private ComponentDto insertPortfolio() {
+    String uuid = "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc";
     return db.components().insertPublicPortfolio(p -> p.setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
-      .setName("Java")
-      .setDbKey("Java"));
+        .setName("Java")
+        .setDbKey("Java"),
+      p -> p.setRootUuid(uuid));
   }
 
   private SearchMyProjectsWsResponse callWs() {
