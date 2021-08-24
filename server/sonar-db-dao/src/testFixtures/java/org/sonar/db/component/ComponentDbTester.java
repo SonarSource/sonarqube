@@ -255,25 +255,30 @@ public class ComponentDbTester {
     return insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, dtoPopulator, portfolioPopulator);
   }
 
-  public void addPortfolioReference(ComponentDto portfolio, String... referencerUuids) {
+  public void addPortfolioReference(String portfolioUuid, String... referencerUuids) {
     for (String uuid : referencerUuids) {
-      dbClient.portfolioDao().addReference(dbSession, portfolio.uuid(), uuid);
+      dbClient.portfolioDao().addReference(dbSession, portfolioUuid, uuid);
     }
     db.commit();
   }
 
+  public void addPortfolioReference(ComponentDto portfolio, String... referencerUuids) {
+    addPortfolioReference(portfolio.uuid(), referencerUuids);
+  }
+
   public void addPortfolioReference(PortfolioDto portfolio, String... referencerUuids) {
-    for (String uuid : referencerUuids) {
-      dbClient.portfolioDao().addReference(dbSession, portfolio.getUuid(), uuid);
+    addPortfolioReference(portfolio.getUuid(), referencerUuids);
+  }
+
+  public void addPortfolioProject(String portfolioUuid, String... projectUuids) {
+    for (String uuid : projectUuids) {
+      dbClient.portfolioDao().addProject(dbSession, portfolioUuid, uuid);
     }
     db.commit();
   }
 
   public void addPortfolioProject(ComponentDto portfolio, String... projectUuids) {
-    for (String uuid : projectUuids) {
-      dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), uuid);
-    }
-    db.commit();
+    addPortfolioProject(portfolio.uuid(), projectUuids);
   }
 
   public void addPortfolioProject(ComponentDto portfolio, ComponentDto... projects) {

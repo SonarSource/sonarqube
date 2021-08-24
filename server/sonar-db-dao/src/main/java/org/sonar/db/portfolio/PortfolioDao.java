@@ -33,9 +33,6 @@ import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PortfolioDao implements Dao {
@@ -149,12 +146,8 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectProjects(portfolioUuid);
   }
 
-  public Map<String, Set<String>> getAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
-    return mapper(dbSession).selectAllProjectsInHierarchy(rootUuid)
-      .stream()
-      .collect(groupingBy(
-        PortfolioProjectDto::getProjectUuid,
-        mapping(PortfolioProjectDto::getPortfolioUuid, toSet())));
+  public List<PortfolioProjectDto> getAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
+    return mapper(dbSession).selectAllProjectsInHierarchy(rootUuid);
   }
 
   public void addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
@@ -176,13 +169,20 @@ public class PortfolioDao implements Dao {
   public void deleteAllProjects(DbSession dbSession) {
     mapper(dbSession).deleteAllProjects();
   }
-  
+
   public List<PortfolioProjectDto> selectAllProjectsOfPortfolios(DbSession dbSession) {
     return mapper(dbSession).selectAllProjectsOfPortfolios();
+  }
+
+  public List<ReferenceDto> selectAllReferencesInHierarchy(DbSession dbSession, String uuid) {
+    return mapper(dbSession).selectAllReferencesInHierarchy(uuid);
+  }
+
+  public List<PortfolioDto> selectByUuids(DbSession dbSession, Set<String> uuidsToRefresh) {
+    return mapper(dbSession).selectByUuids(uuidsToRefresh);
   }
 
   private static PortfolioMapper mapper(DbSession session) {
     return session.getMapper(PortfolioMapper.class);
   }
-
 }

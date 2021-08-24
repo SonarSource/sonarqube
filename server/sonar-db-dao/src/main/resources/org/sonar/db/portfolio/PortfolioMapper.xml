@@ -235,6 +235,29 @@
     INNER JOIN projects target ON pr.reference_uuid = target.uuid where target.qualifier = 'APP'
   </select>
 
+  <select id="selectAllReferencesInHierarchy" resultType="org.sonar.db.portfolio.ReferenceDto">
+    (SELECT
+    source.uuid as sourceUuid,
+    source.root_uuid as sourceRootUuid,
+    target.uuid as targetUuid,
+    target.root_uuid as targetRootUuid
+    FROM portfolio_references pr
+    INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+    INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
+    WHERE source.root_uuid = #{rootUuid,jdbcType=VARCHAR}
+    UNION
+    SELECT
+    source.uuid as sourceUuid,
+    source.root_uuid as sourceRootUuid,
+    target.uuid as targetUuid,
+    target.uuid as targetRootUuid
+    FROM portfolio_references pr
+    INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+    INNER JOIN projects target ON pr.reference_uuid = target.uuid
+    WHERE target.qualifier = 'APP'
+    AND source.root_uuid = #{rootUuid,jdbcType=VARCHAR})
+  </select>
+
   <delete id="deletePortfoliosByUuids" parameterType="String">
     DELETE FROM portfolios WHERE uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>

@@ -296,7 +296,8 @@ public class PortfolioDaoTest {
     portfolioDao.addProject(session, root2.getUuid(), "p4");
     session.commit();
 
-    assertThat(portfolioDao.getAllProjectsInHierarchy(session, root.getUuid()).keySet()).containsExactly("p1", "p2", "p3");
+    assertThat(portfolioDao.getAllProjectsInHierarchy(session, root.getUuid()))
+      .extracting(PortfolioProjectDto::getProjectUuid).containsExactly("p1", "p2", "p3");
     assertThat(portfolioDao.getAllProjectsInHierarchy(session, "nonexisting")).isEmpty();
   }
 

@@ -59,7 +59,7 @@ public interface PortfolioMapper {
 
   List<ReferenceDto> selectAllReferencesToApplications();
 
-  Set<PortfolioProjectDto> selectAllProjectsInHierarchy(String rootUuid);
+  List<PortfolioProjectDto> selectAllProjectsInHierarchy(String rootUuid);
 
   List<PortfolioDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
@@ -91,4 +91,5 @@ public interface PortfolioMapper {
 
   List<ReferenceDto> selectAllReferencesOfPortfolios();
 
+  List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
 }
