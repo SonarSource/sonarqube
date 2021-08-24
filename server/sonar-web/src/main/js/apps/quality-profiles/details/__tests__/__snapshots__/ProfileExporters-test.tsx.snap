@@ -10,6 +10,12 @@ exports[`should render correctly 1`] = `
   <div
     className="boxed-group-inner"
   >
+    <Alert
+      className="big-spacer-bottom"
+      variant="warning"
+    >
+      quality_profiles.exporters.deprecated
+    </Alert>
     <ul>
       <li
         data-key="exporter-key"

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
+import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { Exporter, Profile } from '../types';
@@ -46,6 +47,9 @@ export default class ProfileExporters extends React.PureComponent<Props> {
       <div className="boxed-group quality-profile-exporters">
         <h2>{translate('quality_profiles.exporters')}</h2>
         <div className="boxed-group-inner">
+          <Alert className="big-spacer-bottom" variant="warning">
+            {translate('quality_profiles.exporters.deprecated')}
+          </Alert>
           <ul>
             {exportersForLanguage.map((exporter, index) => (
               <li
