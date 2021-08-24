@@ -21,16 +21,21 @@ import { shallow } from 'enzyme';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import OriginalBubbleChart from '../../../../components/charts/BubbleChart';
-import { mockComponentMeasure, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
+import {
+  mockComponentMeasure,
+  mockMeasure,
+  mockMetric,
+  mockPaging
+} from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import { enhanceComponent } from '../../utils';
 import BubbleChart from '../BubbleChart';
 
 const metrics = keyBy(
   [
-    mockMetric({ key: MetricKey.ncloc, type: 'NUMBER' }),
-    mockMetric({ key: MetricKey.security_remediation_effort, type: 'NUMBER' }),
-    mockMetric({ key: MetricKey.vulnerabilities, type: 'NUMBER' }),
+    mockMetric({ key: MetricKey.ncloc, type: 'INT' }),
+    mockMetric({ key: MetricKey.security_remediation_effort, type: 'DATA' }),
+    mockMetric({ key: MetricKey.vulnerabilities, type: 'INT' }),
     mockMetric({ key: MetricKey.security_rating, type: 'RATING' })
   ],
   m => m.key
@@ -38,6 +43,9 @@ const metrics = keyBy(
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ paging: mockPaging({ total: 1000 }) })).toMatchSnapshot(
+    'only showing first 500 files'
+  );
   expect(
     shallowRender({
       components: [
@@ -88,6 +96,7 @@ function shallowRender(overrides: Partial<BubbleChart['props']> = {}) {
       ]}
       domain="Security"
       metrics={metrics}
+      paging={mockPaging({ total: 100 })}
       updateSelected={jest.fn()}
       {...overrides}
     />

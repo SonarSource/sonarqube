@@ -790,3 +790,12 @@ export function mockRef(
     }
   } as React.RefObject<HTMLElement>;
 }
+
+export function mockPaging(overrides: Partial<T.Paging> = {}): T.Paging {
+  return {
+    pageIndex: 1,
+    pageSize: 100,
+    total: 1000,
+    ...overrides
+  };
+}

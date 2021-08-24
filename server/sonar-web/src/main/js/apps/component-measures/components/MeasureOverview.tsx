@@ -26,7 +26,13 @@ import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import BubbleChart from '../drilldown/BubbleChart';
-import { enhanceComponent, getBubbleMetrics, hasFullMeasures, isFileType } from '../utils';
+import {
+  BUBBLES_FETCH_LIMIT,
+  enhanceComponent,
+  getBubbleMetrics,
+  hasFullMeasures,
+  isFileType
+} from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
@@ -49,8 +55,6 @@ interface State {
   components: T.ComponentMeasureEnhanced[];
   paging?: T.Paging;
 }
-
-const BUBBLES_LIMIT = 500;
 
 export default class MeasureOverview extends React.PureComponent<Props, State> {
   mounted = false;
@@ -92,7 +96,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
       s: 'metric',
       metricSort: size.key,
       asc: false,
-      ps: BUBBLES_LIMIT
+      ps: BUBBLES_FETCH_LIMIT
     };
 
     this.props.updateLoading({ bubbles: true });
@@ -101,9 +105,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
         if (domain === this.props.domain) {
           if (this.mounted) {
             this.setState({
-              components: r.components.map(component =>
-                enhanceComponent(component, undefined, metrics)
-              ),
+              components: r.components.map(c => enhanceComponent(c, undefined, metrics)),
               paging: r.paging
             });
           }
@@ -115,7 +117,9 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
   };
 
   renderContent() {
-    const { branchLike, component } = this.props;
+    const { branchLike, component, domain, metrics } = this.props;
+    const { paging } = this.state;
+
     if (isFileType(component)) {
       return (
         <div className="measure-details-viewer">
@@ -130,21 +134,21 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
 
     return (
       <BubbleChart
-        component={this.props.component}
+        component={component}
         components={this.state.components}
-        domain={this.props.domain}
-        metrics={this.props.metrics}
+        domain={domain}
+        metrics={metrics}
+        paging={paging}
         updateSelected={this.props.updateSelected}
       />
     );
   }
 
   render() {
-    const { branchLike, component, leakPeriod, rootComponent } = this.props;
-    const { paging } = this.state;
+    const { branchLike, className, component, leakPeriod, loading, rootComponent } = this.props;
     const displayLeak = hasFullMeasures(branchLike);
     return (
-      <div className={this.props.className}>
+      <div className={className}>
         <div className="layout-page-header-panel layout-page-main-header">
           <A11ySkipTarget anchor="measures_main" />
 
@@ -165,7 +169,6 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
                   <PageActions
                     componentQualifier={rootComponent.qualifier}
                     current={this.state.components.length}
-                    total={paging && paging.total}
                   />
                 }
               />
@@ -178,8 +181,8 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
               <LeakPeriodLegend className="pull-right" component={component} period={leakPeriod} />
             )}
           </div>
-          <DeferredSpinner loading={this.props.loading} />
-          {!this.props.loading && this.renderContent()}
+          <DeferredSpinner loading={loading} />
+          {!loading && this.renderContent()}
         </div>
       </div>
     );

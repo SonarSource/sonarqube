@@ -30,7 +30,12 @@ import {
 } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { getBubbleMetrics, getBubbleYDomain, isProjectOverview } from '../utils';
+import {
+  BUBBLES_FETCH_LIMIT,
+  getBubbleMetrics,
+  getBubbleYDomain,
+  isProjectOverview
+} from '../utils';
 import EmptyResult from './EmptyResult';
 
 const HEIGHT = 500;
@@ -40,6 +45,7 @@ interface Props {
   components: T.ComponentMeasureEnhanced[];
   domain: string;
   metrics: T.Dict<T.Metric>;
+  paging?: T.Paging;
   updateSelected: (component: string) => void;
 }
 
@@ -170,6 +176,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
 
   renderChartHeader(domain: string, sizeMetric: T.Metric, colorsMetric?: T.Metric[]) {
     const { ratingFilters } = this.state;
+    const { paging } = this.props;
 
     const title = isProjectOverview(domain)
       ? translate('component_measures.overview', domain, 'title')
@@ -180,8 +187,16 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     return (
       <div className="measure-overview-bubble-chart-header">
         <span className="measure-overview-bubble-chart-title">
-          <span className="text-middle">{title}</span>
-          <HelpTooltip className="spacer-left" overlay={this.getDescription(domain)} />
+          <div className="display-flex-center">
+            {title}
+            <HelpTooltip className="spacer-left" overlay={this.getDescription(domain)} />
+          </div>
+
+          {paging?.total && paging?.total > BUBBLES_FETCH_LIMIT && (
+            <div className="note spacer-top">
+              ({translate('component_measures.legend.only_first_500_files')})
+            </div>
+          )}
         </span>
         <span className="measure-overview-bubble-chart-legend">
           <span className="note">

@@ -10,15 +10,15 @@ exports[`should render correctly: all on x=0 1`] = `
     <span
       className="measure-overview-bubble-chart-title"
     >
-      <span
-        className="text-middle"
+      <div
+        className="display-flex-center"
       >
         component_measures.domain_x_overview.Security
-      </span>
-      <HelpTooltip
-        className="spacer-left"
-        overlay={null}
-      />
+        <HelpTooltip
+          className="spacer-left"
+          overlay={null}
+        />
+      </div>
     </span>
     <span
       className="measure-overview-bubble-chart-legend"
@@ -66,7 +66,7 @@ exports[`should render correctly: all on x=0 1`] = `
                     "id": "ncloc",
                     "key": "ncloc",
                     "name": "Ncloc",
-                    "type": "NUMBER",
+                    "type": "INT",
                   },
                   "period": Object {
                     "bestValue": true,
@@ -82,7 +82,7 @@ exports[`should render correctly: all on x=0 1`] = `
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
                     "name": "Security_remediation_effort",
-                    "type": "NUMBER",
+                    "type": "DATA",
                   },
                   "period": Object {
                     "bestValue": true,
@@ -98,7 +98,7 @@ exports[`should render correctly: all on x=0 1`] = `
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
                     "name": "Vulnerabilities",
-                    "type": "NUMBER",
+                    "type": "INT",
                   },
                   "period": Object {
                     "bestValue": true,
@@ -204,15 +204,15 @@ exports[`should render correctly: default 1`] = `
     <span
       className="measure-overview-bubble-chart-title"
     >
-      <span
-        className="text-middle"
+      <div
+        className="display-flex-center"
       >
         component_measures.domain_x_overview.Security
-      </span>
-      <HelpTooltip
-        className="spacer-left"
-        overlay={null}
-      />
+        <HelpTooltip
+          className="spacer-left"
+          overlay={null}
+        />
+      </div>
     </span>
     <span
       className="measure-overview-bubble-chart-legend"
@@ -260,7 +260,7 @@ exports[`should render correctly: default 1`] = `
                     "id": "ncloc",
                     "key": "ncloc",
                     "name": "Ncloc",
-                    "type": "NUMBER",
+                    "type": "INT",
                   },
                   "period": Object {
                     "bestValue": true,
@@ -276,7 +276,7 @@ exports[`should render correctly: default 1`] = `
                     "id": "security_remediation_effort",
                     "key": "security_remediation_effort",
                     "name": "Security_remediation_effort",
-                    "type": "NUMBER",
+                    "type": "DATA",
                   },
                   "period": Object {
                     "bestValue": true,
@@ -292,7 +292,202 @@ exports[`should render correctly: default 1`] = `
                     "id": "vulnerabilities",
                     "key": "vulnerabilities",
                     "name": "Vulnerabilities",
-                    "type": "NUMBER",
+                    "type": "INT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "3",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "security_rating",
+                    "key": "security_rating",
+                    "name": "Security_rating",
+                    "type": "RATING",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "2",
+                },
+              ],
+              "name": "index.tsx",
+              "path": "src/index.tsx",
+              "qualifier": "FIL",
+              "value": "3",
+            },
+            "size": 3,
+            "tooltip": <div
+              className="text-left"
+            >
+              <React.Fragment>
+                index.tsx
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Ncloc: 236
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Security_remediation_effort: 10
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Vulnerabilities: 3
+                <br />
+              </React.Fragment>
+              <React.Fragment>
+                Security_rating: B
+              </React.Fragment>
+            </div>,
+            "x": 236,
+            "y": 10,
+          },
+        ]
+      }
+      onBubbleClick={[Function]}
+      padding={
+        Array [
+          25,
+          60,
+          50,
+          60,
+        ]
+      }
+      sizeRange={
+        Array [
+          5,
+          45,
+        ]
+      }
+    />
+  </div>
+  <div
+    className="measure-overview-bubble-chart-axis x"
+  >
+    Ncloc
+  </div>
+  <div
+    className="measure-overview-bubble-chart-axis y"
+  >
+    Security_remediation_effort
+  </div>
+</div>
+`;
+
+exports[`should render correctly: only showing first 500 files 1`] = `
+<div
+  className="measure-overview-bubble-chart"
+>
+  <div
+    className="measure-overview-bubble-chart-header"
+  >
+    <span
+      className="measure-overview-bubble-chart-title"
+    >
+      <div
+        className="display-flex-center"
+      >
+        component_measures.domain_x_overview.Security
+        <HelpTooltip
+          className="spacer-left"
+          overlay={null}
+        />
+      </div>
+      <div
+        className="note spacer-top"
+      >
+        (
+        component_measures.legend.only_first_500_files
+        )
+      </div>
+    </span>
+    <span
+      className="measure-overview-bubble-chart-legend"
+    >
+      <span
+        className="note"
+      >
+        <span
+          className="spacer-right"
+        >
+          component_measures.legend.color_x.Security_rating
+        </span>
+        component_measures.legend.size_x.Vulnerabilities
+      </span>
+      <ColorRatingsLegend
+        className="spacer-top"
+        filters={Object {}}
+        onRatingClick={[Function]}
+      />
+    </span>
+  </div>
+  <div
+    className="measure-overview-bubble-chart-content"
+  >
+    <BubbleChart
+      displayXGrid={true}
+      displayXTicks={true}
+      displayYGrid={true}
+      displayYTicks={true}
+      formatXTick={[Function]}
+      formatYTick={[Function]}
+      height={500}
+      items={
+        Array [
+          Object {
+            "color": "#b0d513",
+            "data": Object {
+              "key": "foo:src/index.tsx",
+              "leak": "1.0",
+              "measures": Array [
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "ncloc",
+                    "key": "ncloc",
+                    "name": "Ncloc",
+                    "type": "INT",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "236",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "security_remediation_effort",
+                    "key": "security_remediation_effort",
+                    "name": "Security_remediation_effort",
+                    "type": "DATA",
+                  },
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                  "value": "10",
+                },
+                Object {
+                  "bestValue": true,
+                  "leak": "1.0",
+                  "metric": Object {
+                    "id": "vulnerabilities",
+                    "key": "vulnerabilities",
+                    "name": "Vulnerabilities",
+                    "type": "INT",
                   },
                   "period": Object {
                     "bestValue": true,

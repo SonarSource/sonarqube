@@ -31,6 +31,7 @@ import { domains } from './config/domains';
 
 export type View = 'list' | 'tree' | 'treemap';
 
+export const BUBBLES_FETCH_LIMIT = 500;
 export const PROJECT_OVERVEW = 'project_overview';
 export const DEFAULT_VIEW: View = 'tree';
 export const DEFAULT_METRIC = PROJECT_OVERVEW;

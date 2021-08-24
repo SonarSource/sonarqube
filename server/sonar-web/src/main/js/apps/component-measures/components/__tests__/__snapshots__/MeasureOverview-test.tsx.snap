@@ -1,0 +1,428 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div>
+  <div
+    className="layout-page-header-panel layout-page-main-header"
+  >
+    <A11ySkipTarget
+      anchor="measures_main"
+    />
+    <div
+      className="layout-page-header-panel-inner layout-page-main-header-inner"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <MeasureContentHeader
+          left={
+            <Breadcrumbs
+              backToFirst={true}
+              className="text-ellipsis"
+              component={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+              handleSelect={[MockFunction]}
+              rootComponent={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+            />
+          }
+          right={
+            <PageActions
+              componentQualifier="TRK"
+              current={0}
+            />
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main-inner measure-details-content"
+  >
+    <div
+      className="clearfix big-spacer-bottom"
+    />
+    <DeferredSpinner
+      loading={false}
+    />
+    <BubbleChart
+      component={
+        Object {
+          "key": "foo",
+          "measures": Array [
+            Object {
+              "bestValue": false,
+              "metric": "bugs",
+              "value": "12",
+            },
+          ],
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      components={Array []}
+      domain="Reliability"
+      metrics={
+        Object {
+          "bugs": Object {
+            "id": "bugs",
+            "key": "bugs",
+            "name": "Bugs",
+            "type": "INT",
+          },
+          "ncloc": Object {
+            "id": "ncloc",
+            "key": "ncloc",
+            "name": "Ncloc",
+            "type": "INT",
+          },
+          "reliability_rating": Object {
+            "id": "reliability_rating",
+            "key": "reliability_rating",
+            "name": "Reliability_rating",
+            "type": "DATA",
+          },
+          "reliability_remediation_effort": Object {
+            "id": "reliability_remediation_effort",
+            "key": "reliability_remediation_effort",
+            "name": "Reliability_remediation_effort",
+            "type": "INT",
+          },
+        }
+      }
+      updateSelected={[MockFunction]}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: has leak period 1`] = `
+<div>
+  <div
+    className="layout-page-header-panel layout-page-main-header"
+  >
+    <A11ySkipTarget
+      anchor="measures_main"
+    />
+    <div
+      className="layout-page-header-panel-inner layout-page-main-header-inner"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <MeasureContentHeader
+          left={
+            <Breadcrumbs
+              backToFirst={true}
+              branchLike={
+                Object {
+                  "analysisDate": "2018-01-01",
+                  "excludedFromPurge": true,
+                  "isMain": false,
+                  "name": "branch-6.7",
+                }
+              }
+              className="text-ellipsis"
+              component={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+              handleSelect={[MockFunction]}
+              rootComponent={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+            />
+          }
+          right={
+            <PageActions
+              componentQualifier="TRK"
+              current={0}
+            />
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main-inner measure-details-content"
+  >
+    <div
+      className="clearfix big-spacer-bottom"
+    >
+      <InjectIntl(LeakPeriodLegend)
+        className="pull-right"
+        component={
+          Object {
+            "key": "foo",
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "metric": "bugs",
+                "value": "12",
+              },
+            ],
+            "name": "Foo",
+            "qualifier": "TRK",
+          }
+        }
+        period={
+          Object {
+            "date": "2019-04-23T02:12:32+0100",
+            "index": 0,
+            "mode": "previous_version",
+          }
+        }
+      />
+    </div>
+    <DeferredSpinner
+      loading={false}
+    />
+    <BubbleChart
+      component={
+        Object {
+          "key": "foo",
+          "measures": Array [
+            Object {
+              "bestValue": false,
+              "metric": "bugs",
+              "value": "12",
+            },
+          ],
+          "name": "Foo",
+          "qualifier": "TRK",
+        }
+      }
+      components={Array []}
+      domain="Reliability"
+      metrics={
+        Object {
+          "bugs": Object {
+            "id": "bugs",
+            "key": "bugs",
+            "name": "Bugs",
+            "type": "INT",
+          },
+          "ncloc": Object {
+            "id": "ncloc",
+            "key": "ncloc",
+            "name": "Ncloc",
+            "type": "INT",
+          },
+          "reliability_rating": Object {
+            "id": "reliability_rating",
+            "key": "reliability_rating",
+            "name": "Reliability_rating",
+            "type": "DATA",
+          },
+          "reliability_remediation_effort": Object {
+            "id": "reliability_remediation_effort",
+            "key": "reliability_remediation_effort",
+            "name": "Reliability_remediation_effort",
+            "type": "INT",
+          },
+        }
+      }
+      updateSelected={[MockFunction]}
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: is file 1`] = `
+<div>
+  <div
+    className="layout-page-header-panel layout-page-main-header"
+  >
+    <A11ySkipTarget
+      anchor="measures_main"
+    />
+    <div
+      className="layout-page-header-panel-inner layout-page-main-header-inner"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <MeasureContentHeader
+          left={
+            <Breadcrumbs
+              backToFirst={true}
+              className="text-ellipsis"
+              component={
+                Object {
+                  "key": "foo:src/index.tsx",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "1",
+                    },
+                  ],
+                  "name": "index.tsx",
+                  "path": "src/index.tsx",
+                  "qualifier": "FIL",
+                }
+              }
+              handleSelect={[MockFunction]}
+              rootComponent={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+            />
+          }
+          right={
+            <PageActions
+              componentQualifier="TRK"
+              current={0}
+            />
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main-inner measure-details-content"
+  >
+    <div
+      className="clearfix big-spacer-bottom"
+    />
+    <DeferredSpinner
+      loading={false}
+    />
+    <div
+      className="measure-details-viewer"
+    >
+      <SourceViewer
+        component="foo:src/index.tsx"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div>
+  <div
+    className="layout-page-header-panel layout-page-main-header"
+  >
+    <A11ySkipTarget
+      anchor="measures_main"
+    />
+    <div
+      className="layout-page-header-panel-inner layout-page-main-header-inner"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <MeasureContentHeader
+          left={
+            <Breadcrumbs
+              backToFirst={true}
+              className="text-ellipsis"
+              component={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+              handleSelect={[MockFunction]}
+              rootComponent={
+                Object {
+                  "key": "foo",
+                  "measures": Array [
+                    Object {
+                      "bestValue": false,
+                      "metric": "bugs",
+                      "value": "12",
+                    },
+                  ],
+                  "name": "Foo",
+                  "qualifier": "TRK",
+                }
+              }
+            />
+          }
+          right={
+            <PageActions
+              componentQualifier="TRK"
+              current={0}
+            />
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="layout-page-main-inner measure-details-content"
+  >
+    <div
+      className="clearfix big-spacer-bottom"
+    />
+    <DeferredSpinner
+      loading={true}
+    />
+  </div>
+</div>
+`;
