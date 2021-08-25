@@ -93,6 +93,7 @@ export default function AzureForm(props: AzureFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken}
+        maxLength={2000}
         isSecret={true}
       />
     </>

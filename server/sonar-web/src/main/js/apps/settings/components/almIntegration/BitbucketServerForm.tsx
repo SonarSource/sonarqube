@@ -92,6 +92,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken || ''}
+        maxLength={2000}
         isSecret={true}
       />
     </>

@@ -104,6 +104,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
         value={formData.clientSecret || ''}
+        maxLength={160}
         isSecret={true}
       />
     </>

@@ -77,6 +77,7 @@ exports[`should render correctly 1`] = `
     help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
     id="client_secret.bitbucketcloud"
     isSecret={true}
+    maxLength={160}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}
     propKey="clientSecret"

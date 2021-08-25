@@ -95,7 +95,7 @@ export default function GithubForm(props: GithubFormProps) {
       <AlmBindingDefinitionFormField
         id="client_secret.github"
         help={translate('settings.almintegration.form.client_secret.github.help')}
-        maxLength={80}
+        maxLength={160}
         onFieldChange={onFieldChange}
         overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
@@ -110,6 +110,7 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="privateKey"
         value={formData.privateKey}
+        maxLength={2500}
         isSecret={true}
       />
     </>
