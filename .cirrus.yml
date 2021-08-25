@@ -24,7 +24,7 @@ env:
   ELASTIC_PWD: ENCRYPTED[78c127034b9f06bc1b5ad7a520de2da094f3eaf1dcb35f12b0f178fa90ce2fd157bd6f9feece9bf3a54b4e3805bc39fb]
   CIRRUS_LOG_TIMESTAMP: true
 
-auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*'
+auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
 
 only_nightly_depending_on_build_template: &ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
