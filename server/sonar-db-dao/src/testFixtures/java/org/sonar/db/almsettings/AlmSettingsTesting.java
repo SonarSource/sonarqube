@@ -40,6 +40,15 @@ public class AlmSettingsTesting {
       .setAlm(ALM.GITHUB);
   }
 
+  public static AlmSettingDto newAlmSettingDtoWithEmptySecrets() {
+    return new AlmSettingDto()
+      .setKey(randomAlphanumeric(200))
+      .setUrl(randomAlphanumeric(2000))
+      .setAppId(randomNumeric(8))
+      .setClientId(randomNumeric(8))
+      .setAlm(ALM.GITHUB);
+  }
+
   public static AlmSettingDto newAzureAlmSettingDto() {
     return new AlmSettingDto()
       .setKey(randomAlphanumeric(200))

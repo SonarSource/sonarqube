@@ -22,6 +22,7 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -49,6 +50,8 @@ public class UpdateAzureActionTest {
 
   private static String AZURE_URL = "https://ado.sonarqube.com/";
 
+  private final Encryption encryption = mock(Encryption.class);
+
   private WsActionTester ws = new WsActionTester(new UpdateAzureAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
       mock(MultipleAlmFeatureProvider.class))));
@@ -66,7 +69,7 @@ public class UpdateAzureActionTest {
       .setParam("url", AZURE_URL)
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
       .containsOnly(tuple(almSettingDto.getKey(), AZURE_URL, "10987654321"));
   }
 
@@ -84,7 +87,7 @@ public class UpdateAzureActionTest {
       .setParam("url", AZURE_URL)
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
       .containsOnly(tuple("Azure Server - Infra Team", AZURE_URL, "0123456789"));
   }
 
@@ -100,8 +103,8 @@ public class UpdateAzureActionTest {
       .setParam("url", AZURE_URL)
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
-      .containsOnly(tuple(almSettingDto.getKey(), AZURE_URL, almSettingDto.getPersonalAccessToken()));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
+      .containsOnly(tuple(almSettingDto.getKey(), AZURE_URL, almSettingDto.getDecryptedPersonalAccessToken(encryption)));
   }
 
   @Test

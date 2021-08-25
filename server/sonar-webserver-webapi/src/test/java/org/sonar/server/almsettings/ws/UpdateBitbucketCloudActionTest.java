@@ -21,6 +21,7 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -38,7 +39,9 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UpdateBitbucketCloudActionTest {
   @Rule
@@ -46,12 +49,15 @@ public class UpdateBitbucketCloudActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
+  private final Encryption encryption = mock(Encryption.class);
+
   private final WsActionTester ws = new WsActionTester(new UpdateBitbucketCloudAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class)),
       mock(MultipleAlmFeatureProvider.class))));
 
   @Test
   public void update() {
+    when(encryption.isEncrypted(any())).thenReturn(false);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
@@ -64,12 +70,15 @@ public class UpdateBitbucketCloudActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret, AlmSettingDto::getAppId)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId,
+        s -> s.getDecryptedClientSecret(encryption), AlmSettingDto::getAppId)
       .containsOnly(tuple(almSettingDto.getKey(), "id", "secret", "workspace"));
   }
 
   @Test
   public void update_with_new_key() {
+    when(encryption.isEncrypted(any())).thenReturn(false);
+
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
@@ -83,12 +92,15 @@ public class UpdateBitbucketCloudActionTest {
       .setParam("clientSecret", "secret")
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret, AlmSettingDto::getAppId)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId,
+        s -> s.getDecryptedClientSecret(encryption), AlmSettingDto::getAppId)
       .containsOnly(tuple("Bitbucket Server - Infra Team", "id", "secret", "workspace"));
   }
 
   @Test
   public void update_binding_without_changing_the_key() {
+    when(encryption.isEncrypted(any())).thenReturn(false);
+
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
@@ -102,12 +114,15 @@ public class UpdateBitbucketCloudActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret, AlmSettingDto::getAppId)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId,
+        s -> s.getDecryptedClientSecret(encryption), AlmSettingDto::getAppId)
       .containsOnly(tuple(almSetting.getKey(), "id", "secret", "workspace"));
   }
 
   @Test
   public void update_without_secret() {
+    when(encryption.isEncrypted(any())).thenReturn(false);
+
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
@@ -119,8 +134,9 @@ public class UpdateBitbucketCloudActionTest {
       .setParam("clientId", "id")
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret, AlmSettingDto::getAppId)
-      .containsOnly(tuple(almSettingDto.getKey(), "id", almSettingDto.getClientSecret(), "workspace"));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId,
+        s -> s.getDecryptedClientSecret(encryption), AlmSettingDto::getAppId)
+      .containsOnly(tuple(almSettingDto.getKey(), "id", almSettingDto.getDecryptedPrivateKey(encryption), "workspace"));
   }
 
   @Test

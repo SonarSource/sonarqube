@@ -21,6 +21,9 @@ package org.sonar.db.alm.setting;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.config.internal.Encryption;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class AlmSettingDto {
 
@@ -142,7 +145,10 @@ public class AlmSettingDto {
   }
 
   @CheckForNull
-  public String getPrivateKey() {
+  public String getDecryptedPrivateKey(Encryption encryption) {
+    if (!isNullOrEmpty(privateKey) && encryption.isEncrypted(privateKey)) {
+      return encryption.decrypt(privateKey);
+    }
     return privateKey;
   }
 
@@ -152,7 +158,10 @@ public class AlmSettingDto {
   }
 
   @CheckForNull
-  public String getPersonalAccessToken() {
+  public String getDecryptedPersonalAccessToken(Encryption encryption) {
+    if (!isNullOrEmpty(personalAccessToken) && encryption.isEncrypted(personalAccessToken)) {
+      return encryption.decrypt(personalAccessToken);
+    }
     return personalAccessToken;
   }
 
@@ -172,7 +181,10 @@ public class AlmSettingDto {
   }
 
   @CheckForNull
-  public String getClientSecret() {
+  public String getDecryptedClientSecret(Encryption encryption) {
+    if (!isNullOrEmpty(clientSecret) && encryption.isEncrypted(clientSecret)) {
+      return encryption.decrypt(clientSecret);
+    }
     return clientSecret;
   }
 

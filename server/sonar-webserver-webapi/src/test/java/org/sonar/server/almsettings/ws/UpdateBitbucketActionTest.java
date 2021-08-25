@@ -22,6 +22,7 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -47,6 +48,8 @@ public class UpdateBitbucketActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
+  private final Encryption encryption = mock(Encryption.class);
+
   private WsActionTester ws = new WsActionTester(new UpdateBitbucketAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
       mock(MultipleAlmFeatureProvider.class))));
@@ -64,7 +67,7 @@ public class UpdateBitbucketActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
       .containsOnly(tuple(almSettingDto.getKey(), "https://bitbucket.enterprise-unicorn.com", "10987654321"));
   }
 
@@ -82,7 +85,7 @@ public class UpdateBitbucketActionTest {
       .setParam("personalAccessToken", "0123456789")
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
       .containsOnly(tuple("Bitbucket Server - Infra Team", "https://bitbucket.enterprise-unicorn.com", "0123456789"));
   }
 
@@ -98,8 +101,8 @@ public class UpdateBitbucketActionTest {
       .setParam("url", "https://bitbucket.enterprise-unicorn.com")
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
-      .containsOnly(tuple(almSettingDto.getKey(), "https://bitbucket.enterprise-unicorn.com", almSettingDto.getPersonalAccessToken()));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
+      .containsOnly(tuple(almSettingDto.getKey(), "https://bitbucket.enterprise-unicorn.com", almSettingDto.getDecryptedPersonalAccessToken(encryption)));
   }
 
   @Test

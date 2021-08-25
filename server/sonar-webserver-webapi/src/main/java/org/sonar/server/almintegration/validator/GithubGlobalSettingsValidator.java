@@ -23,6 +23,8 @@ import java.util.Optional;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
@@ -31,9 +33,11 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 @ServerSide
 public class GithubGlobalSettingsValidator {
 
+  private final Encryption encryption;
   private final GithubApplicationClient githubApplicationClient;
 
-  public GithubGlobalSettingsValidator(GithubApplicationClientImpl githubApplicationClient) {
+  public GithubGlobalSettingsValidator(GithubApplicationClientImpl githubApplicationClient, Settings settings) {
+    this.encryption = settings.getEncryption();
     this.githubApplicationClient = githubApplicationClient;
   }
 
@@ -47,10 +51,11 @@ public class GithubGlobalSettingsValidator {
     if (isBlank(settings.getClientId())) {
       throw new IllegalArgumentException("Missing Client Id");
     }
-    if (isBlank(settings.getClientSecret())) {
+    if (isBlank(settings.getDecryptedClientSecret(encryption))) {
       throw new IllegalArgumentException("Missing Client Secret");
     }
-    GithubAppConfiguration configuration = new GithubAppConfiguration(appId, settings.getPrivateKey(), settings.getUrl());
+    GithubAppConfiguration configuration = new GithubAppConfiguration(appId, settings.getDecryptedPrivateKey(encryption),
+      settings.getUrl());
 
     githubApplicationClient.checkApiEndpoint(configuration);
     githubApplicationClient.checkAppPermissions(configuration);

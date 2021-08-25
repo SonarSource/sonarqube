@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -48,7 +49,8 @@ public class CreateAzureActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final Encryption encryption = mock(Encryption.class);
+  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
 
   private WsActionTester ws = new WsActionTester(new CreateAzureAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
@@ -71,7 +73,9 @@ public class CreateAzureActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getPersonalAccessToken, AlmSettingDto::getUrl)
+      .extracting(AlmSettingDto::getKey,
+        s -> s.getDecryptedPersonalAccessToken(encryption),
+        AlmSettingDto::getUrl)
       .containsOnly(tuple("Azure Server - Dev Team", "98765432100", "https://ado.sonarqube.com/"));
   }
 

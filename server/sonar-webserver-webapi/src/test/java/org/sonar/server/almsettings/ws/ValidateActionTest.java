@@ -19,11 +19,14 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -48,8 +51,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ValidateActionTest {
+  private static final Encryption encryption = mock(Encryption.class);
+  private static final Settings settings = mock(Settings.class);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -65,8 +71,13 @@ public class ValidateActionTest {
   private final BitbucketServerSettingsValidator bitbucketServerSettingsValidator = mock(BitbucketServerSettingsValidator.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final WsActionTester ws = new WsActionTester(
-    new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator, gitlabSettingsValidator,
-      bitbucketServerSettingsValidator, bitbucketCloudRestClient));
+    new ValidateAction(db.getDbClient(), settings, userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator,
+      gitlabSettingsValidator, bitbucketServerSettingsValidator, bitbucketCloudRestClient));
+
+  @BeforeClass
+  public static void setUp() {
+    when(settings.getEncryption()).thenReturn(encryption);
+  }
 
   @Test
   public void fail_when_key_does_not_match_existing_alm_setting() {
@@ -93,6 +104,7 @@ public class ValidateActionTest {
   @Test
   public void gitlab_validation_checks() {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitlabAlmSetting());
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     ws.newRequest()
       .setParam("key", almSetting.getKey())
@@ -105,6 +117,7 @@ public class ValidateActionTest {
   public void github_validation_checks() {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setClientId("clientId")
       .setClientSecret("clientSecret")));
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     ws.newRequest()
       .setParam("key", almSetting.getKey())
@@ -114,7 +127,29 @@ public class ValidateActionTest {
     verify(githubGlobalSettingsValidator).validate(almSettingDtoArgumentCaptor.capture());
     assertThat(almSettingDtoArgumentCaptor.getAllValues()).hasSize(1);
     assertThat(almSettingDtoArgumentCaptor.getValue().getClientId()).isEqualTo(almSetting.getClientId());
-    assertThat(almSettingDtoArgumentCaptor.getValue().getClientSecret()).isEqualTo(almSetting.getClientSecret());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getDecryptedClientSecret(encryption)).isEqualTo(almSetting.getDecryptedClientSecret(encryption));
+    assertThat(almSettingDtoArgumentCaptor.getValue().getAlm()).isEqualTo(almSetting.getAlm());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getAppId()).isEqualTo(almSetting.getAppId());
+  }
+
+  @Test
+  public void github_validation_checks_with_encrypted_secret() {
+    String secret = "encrypted-secret";
+    String decryptedSecret = "decrypted-secret";
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setClientId("clientId")
+      .setClientSecret(secret)));
+    when(encryption.isEncrypted(secret)).thenReturn(true);
+    when(encryption.decrypt(secret)).thenReturn(decryptedSecret);
+
+    ws.newRequest()
+      .setParam("key", almSetting.getKey())
+      .execute();
+
+    ArgumentCaptor<AlmSettingDto> almSettingDtoArgumentCaptor = ArgumentCaptor.forClass(AlmSettingDto.class);
+    verify(githubGlobalSettingsValidator).validate(almSettingDtoArgumentCaptor.capture());
+    assertThat(almSettingDtoArgumentCaptor.getAllValues()).hasSize(1);
+    assertThat(almSettingDtoArgumentCaptor.getValue().getClientId()).isEqualTo(almSetting.getClientId());
+    assertThat(almSettingDtoArgumentCaptor.getValue().getDecryptedClientSecret(encryption)).isEqualTo(decryptedSecret);
     assertThat(almSettingDtoArgumentCaptor.getValue().getAlm()).isEqualTo(almSetting.getAlm());
     assertThat(almSettingDtoArgumentCaptor.getValue().getAppId()).isEqualTo(almSetting.getAppId());
   }
@@ -122,6 +157,7 @@ public class ValidateActionTest {
   @Test
   public void bitbucketServer_validation_checks() {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertBitbucketAlmSetting());
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     ws.newRequest()
       .setParam("key", almSetting.getKey())
@@ -137,12 +173,27 @@ public class ValidateActionTest {
   @Test
   public void azure_devops_validation_checks() {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertAzureAlmSetting());
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     ws.newRequest()
       .setParam("key", almSetting.getKey())
       .execute();
 
-    verify(azureDevOpsHttpClient).checkPAT(almSetting.getUrl(), almSetting.getPersonalAccessToken());
+    verify(azureDevOpsHttpClient).checkPAT(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption));
+  }
+
+  @Test
+  public void azure_devops_validation_checks_with_encrypted_token() {
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertAzureAlmSetting());
+    String decryptedToken = "decrypted-token";
+    when(encryption.isEncrypted(any())).thenReturn(true);
+    when(encryption.decrypt(any())).thenReturn(decryptedToken);
+
+    ws.newRequest()
+      .setParam("key", almSetting.getKey())
+      .execute();
+
+    verify(azureDevOpsHttpClient).checkPAT(almSetting.getUrl(), decryptedToken);
   }
 
   @Test
@@ -150,7 +201,7 @@ public class ValidateActionTest {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertAzureAlmSetting());
 
     doThrow(IllegalArgumentException.class)
-      .when(azureDevOpsHttpClient).checkPAT(almSetting.getUrl(), almSetting.getPersonalAccessToken());
+      .when(azureDevOpsHttpClient).checkPAT(any(), any());
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", almSetting.getKey())
@@ -160,20 +211,36 @@ public class ValidateActionTest {
   @Test
   public void bitbucketcloud_validation_checks() {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertBitbucketCloudAlmSetting());
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     ws.newRequest()
       .setParam("key", almSetting.getKey())
       .execute();
 
-    verify(bitbucketCloudRestClient).validate(almSetting.getClientId(), almSetting.getClientSecret(), almSetting.getAppId());
+    verify(bitbucketCloudRestClient).validate(almSetting.getClientId(), almSetting.getDecryptedClientSecret(encryption), almSetting.getAppId());
+  }
+
+  @Test
+  public void bitbucketcloud_validation_checks_with_encrypted_secret() {
+    String decryptedSecret = "decrypted-secret";
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertBitbucketCloudAlmSetting());
+    when(encryption.isEncrypted(any())).thenReturn(true);
+    when(encryption.decrypt(any())).thenReturn(decryptedSecret);
+
+    ws.newRequest()
+      .setParam("key", almSetting.getKey())
+      .execute();
+
+    verify(bitbucketCloudRestClient).validate(almSetting.getClientId(), decryptedSecret, almSetting.getAppId());
   }
 
   @Test
   public void bitbucketcloud_validation_check_fails() {
     AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertBitbucketCloudAlmSetting());
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     doThrow(IllegalArgumentException.class)
-      .when(bitbucketCloudRestClient).validate(almSetting.getClientId(), almSetting.getClientSecret(), almSetting.getAppId());
+      .when(bitbucketCloudRestClient).validate(any(), any(), any());
 
     TestRequest request = ws.newRequest()
       .setParam("key", almSetting.getKey());

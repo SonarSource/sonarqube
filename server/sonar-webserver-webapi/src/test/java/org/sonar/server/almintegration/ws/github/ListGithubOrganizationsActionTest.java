@@ -21,12 +21,15 @@ package org.sonar.server.almintegration.ws.github;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -58,6 +61,8 @@ import static org.sonar.server.almintegration.ws.github.ListGithubOrganizationsA
 import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class ListGithubOrganizationsActionTest {
+  private static final Encryption encryption = mock(Encryption.class);
+  private static final Settings settings = mock(Settings.class);
 
   @Rule
   public UserSessionRule userSession = standalone();
@@ -68,7 +73,12 @@ public class ListGithubOrganizationsActionTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private final WsActionTester ws = new WsActionTester(new ListGithubOrganizationsAction(db.getDbClient(), userSession, appClient));
+  private final WsActionTester ws = new WsActionTester(new ListGithubOrganizationsAction(db.getDbClient(), settings, userSession, appClient));
+
+  @BeforeClass
+  public static void setUp() {
+    when(settings.getEncryption()).thenReturn(encryption);
+  }
 
   @Test
   public void fail_when_missing_create_project_permission() {
@@ -91,7 +101,8 @@ public class ListGithubOrganizationsActionTest {
   @Test
   public void fail_when_unable_to_create_personal_access_token() {
     AlmSettingDto githubAlmSetting = setupAlm();
-    when(appClient.createUserAccessToken(githubAlmSetting.getUrl(), githubAlmSetting.getClientId(), githubAlmSetting.getClientSecret(), "abc"))
+    when(appClient.createUserAccessToken(githubAlmSetting.getUrl(), githubAlmSetting.getClientId(),
+      githubAlmSetting.getDecryptedClientSecret(encryption), "abc"))
       .thenThrow(IllegalStateException.class);
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -105,7 +116,8 @@ public class ListGithubOrganizationsActionTest {
   @Test
   public void fail_create_personal_access_token_because_of_invalid_settings() {
     AlmSettingDto githubAlmSetting = setupAlm();
-    when(appClient.createUserAccessToken(githubAlmSetting.getUrl(), githubAlmSetting.getClientId(), githubAlmSetting.getClientSecret(), "abc"))
+    when(appClient.createUserAccessToken(githubAlmSetting.getUrl(), githubAlmSetting.getClientId(),
+      githubAlmSetting.getDecryptedClientSecret(encryption), "abc"))
       .thenThrow(IllegalArgumentException.class);
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -130,8 +142,10 @@ public class ListGithubOrganizationsActionTest {
   public void return_organizations_and_store_personal_access_token() {
     UserAccessToken accessToken = new UserAccessToken("token_for_abc");
     AlmSettingDto githubAlmSettings = setupAlm();
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
-    when(appClient.createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(), githubAlmSettings.getClientSecret(), "abc"))
+    when(appClient.createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(),
+      githubAlmSettings.getDecryptedClientSecret(encryption), "abc"))
       .thenReturn(accessToken);
     setupGhOrganizations(githubAlmSettings, accessToken.getValue());
 
@@ -147,7 +161,39 @@ public class ListGithubOrganizationsActionTest {
       .extracting(GithubOrganization::getKey, GithubOrganization::getName)
       .containsOnly(tuple("github", "github"), tuple("octacat", "octacat"));
 
-    verify(appClient).createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(), githubAlmSettings.getClientSecret(), "abc");
+    verify(appClient).createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(),
+      githubAlmSettings.getDecryptedClientSecret(encryption), "abc");
+    verify(appClient).listOrganizations(githubAlmSettings.getUrl(), accessToken, 1, 100);
+    Mockito.verifyNoMoreInteractions(appClient);
+    assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), userSession.getUuid(), githubAlmSettings).get().getPersonalAccessToken())
+      .isEqualTo(accessToken.getValue());
+  }
+
+  @Test
+  public void return_organizations_and_store_personal_access_token_with_encrypted_client_secret() {
+    String decryptedSecret = "decrypted-secret";
+    UserAccessToken accessToken = new UserAccessToken("token_for_abc");
+    AlmSettingDto githubAlmSettings = setupAlm();
+    when(encryption.isEncrypted(any())).thenReturn(true);
+    when(encryption.decrypt(any())).thenReturn(decryptedSecret);
+
+    when(appClient.createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(), decryptedSecret, "abc"))
+      .thenReturn(accessToken);
+    setupGhOrganizations(githubAlmSettings, accessToken.getValue());
+
+    ListGithubOrganizationsWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSettings.getKey())
+      .setParam(PARAM_TOKEN, "abc")
+      .executeProtobuf(ListGithubOrganizationsWsResponse.class);
+
+    assertThat(response.getPaging())
+      .extracting(Common.Paging::getPageIndex, Common.Paging::getPageSize, Common.Paging::getTotal)
+      .containsOnly(1, 100, 2);
+    assertThat(response.getOrganizationsList())
+      .extracting(GithubOrganization::getKey, GithubOrganization::getName)
+      .containsOnly(tuple("github", "github"), tuple("octacat", "octacat"));
+
+    verify(appClient).createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(), decryptedSecret, "abc");
     verify(appClient).listOrganizations(githubAlmSettings.getUrl(), accessToken, 1, 100);
     Mockito.verifyNoMoreInteractions(appClient);
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), userSession.getUuid(), githubAlmSettings).get().getPersonalAccessToken())
@@ -163,7 +209,8 @@ public class ListGithubOrganizationsActionTest {
 
     // new pat
     UserAccessToken accessToken = new UserAccessToken("token_for_abc");
-    when(appClient.createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(), githubAlmSettings.getClientSecret(), "abc"))
+    when(appClient.createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(),
+      githubAlmSettings.getDecryptedClientSecret(encryption), "abc"))
       .thenReturn(accessToken);
     setupGhOrganizations(githubAlmSettings, accessToken.getValue());
 
@@ -179,7 +226,8 @@ public class ListGithubOrganizationsActionTest {
       .extracting(GithubOrganization::getKey, GithubOrganization::getName)
       .containsOnly(tuple("github", "github"), tuple("octacat", "octacat"));
 
-    verify(appClient).createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(), githubAlmSettings.getClientSecret(), "abc");
+    verify(appClient).createUserAccessToken(githubAlmSettings.getUrl(), githubAlmSettings.getClientId(),
+      githubAlmSettings.getDecryptedClientSecret(encryption), "abc");
     verify(appClient).listOrganizations(eq(githubAlmSettings.getUrl()), argThat(token -> token.getValue().equals(accessToken.getValue())), eq(1), eq(100));
     Mockito.verifyNoMoreInteractions(appClient);
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), userSession.getUuid(), githubAlmSettings).get().getPersonalAccessToken())

@@ -21,6 +21,8 @@ package org.sonar.server.almsettings.ws;
 
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,6 +39,7 @@ public class ValidateAction implements AlmSettingsWsAction {
   private static final String PARAM_KEY = "key";
 
   private final DbClient dbClient;
+  private final Encryption encryption;
   private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
   private final AzureDevOpsHttpClient azureDevOpsHttpClient;
@@ -46,6 +49,7 @@ public class ValidateAction implements AlmSettingsWsAction {
   private final BitbucketCloudRestClient bitbucketCloudRestClient;
 
   public ValidateAction(DbClient dbClient,
+    Settings settings,
     UserSession userSession,
     AlmSettingsSupport almSettingsSupport,
     AzureDevOpsHttpClient azureDevOpsHttpClient,
@@ -54,6 +58,7 @@ public class ValidateAction implements AlmSettingsWsAction {
     BitbucketServerSettingsValidator bitbucketServerSettingsValidator,
     BitbucketCloudRestClient bitbucketCloudRestClient) {
     this.dbClient = dbClient;
+    this.encryption = settings.getEncryption();
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
     this.azureDevOpsHttpClient = azureDevOpsHttpClient;
@@ -111,13 +116,13 @@ public class ValidateAction implements AlmSettingsWsAction {
 
   private void validateAzure(AlmSettingDto almSettingDto) {
     try {
-      azureDevOpsHttpClient.checkPAT(almSettingDto.getUrl(), almSettingDto.getPersonalAccessToken());
+      azureDevOpsHttpClient.checkPAT(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Invalid Azure URL or Personal Access Token", e);
     }
   }
 
   private void validateBitbucketCloud(AlmSettingDto almSettingDto) {
-    bitbucketCloudRestClient.validate(almSettingDto.getClientId(), almSettingDto.getClientSecret(), almSettingDto.getAppId());
+    bitbucketCloudRestClient.validate(almSettingDto.getClientId(), almSettingDto.getDecryptedClientSecret(encryption), almSettingDto.getAppId());
   }
 }

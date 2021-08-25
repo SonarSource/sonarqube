@@ -116,13 +116,20 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
       if (isNotBlank(newKey) && !newKey.equals(key)) {
         almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
       }
+
+      if (isNotBlank(privateKey)) {
+        almSettingDto.setPrivateKey(privateKey);
+      }
+
+      if (isNotBlank(clientSecret)) {
+        almSettingDto.setClientSecret(clientSecret);
+      }
+
       dbClient.almSettingDao().update(dbSession, almSettingDto
-        .setKey(isNotBlank(newKey) ? newKey : key)
-        .setUrl(url)
-        .setAppId(appId)
-        .setPrivateKey(isNotBlank(privateKey) ? privateKey : almSettingDto.getPrivateKey())
-        .setClientId(clientId)
-        .setClientSecret(isNotBlank(clientSecret) ? clientSecret : almSettingDto.getClientSecret()),
+          .setKey(isNotBlank(newKey) ? newKey : key)
+          .setUrl(url)
+          .setAppId(appId)
+          .setClientId(clientId),
         clientSecret != null || privateKey != null);
       dbSession.commit();
     }

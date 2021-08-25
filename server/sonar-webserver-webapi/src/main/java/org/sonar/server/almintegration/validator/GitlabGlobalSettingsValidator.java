@@ -20,21 +20,25 @@
 package org.sonar.server.almintegration.validator;
 
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 @ServerSide
 public class GitlabGlobalSettingsValidator {
 
+  private final Encryption encryption;
   private final GitlabHttpClient gitlabHttpClient;
 
-  public GitlabGlobalSettingsValidator(GitlabHttpClient gitlabHttpClient) {
+  public GitlabGlobalSettingsValidator(GitlabHttpClient gitlabHttpClient, Settings settings) {
+    this.encryption = settings.getEncryption();
     this.gitlabHttpClient = gitlabHttpClient;
   }
 
   public void validate(AlmSettingDto almSettingDto) {
     String gitlabUrl = almSettingDto.getUrl();
-    String accessToken = almSettingDto.getPersonalAccessToken();
+    String accessToken = almSettingDto.getDecryptedPersonalAccessToken(encryption);
 
     if (gitlabUrl == null || accessToken == null) {
       throw new IllegalArgumentException("Your Gitlab global configuration is incomplete.");

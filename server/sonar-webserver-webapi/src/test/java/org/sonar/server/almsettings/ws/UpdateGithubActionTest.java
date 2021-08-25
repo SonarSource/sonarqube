@@ -22,6 +22,7 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -47,6 +48,8 @@ public class UpdateGithubActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
+  private final Encryption encryption = mock(Encryption.class);
+
   private WsActionTester ws = new WsActionTester(new UpdateGithubAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
       mock(MultipleAlmFeatureProvider.class))));
@@ -67,7 +70,8 @@ public class UpdateGithubActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
       .containsOnly(tuple(almSettingDto.getKey(), "https://github.enterprise-unicorn.com", "54321", "10987654321", "client_1234", "client_so_secret"));
   }
 
@@ -87,7 +91,8 @@ public class UpdateGithubActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
       .containsOnly(tuple(almSettingDto.getKey(), "https://github.enterprise-unicorn.com", "54321", "10987654321", "client_1234", "client_so_secret"));
   }
 
@@ -108,7 +113,8 @@ public class UpdateGithubActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
       .containsOnly(tuple("GitHub Server - Infra Team", "https://github.enterprise-unicorn.com", "54321", "10987654321", "client_1234", "client_so_secret"));
   }
 
@@ -126,8 +132,10 @@ public class UpdateGithubActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret)
-      .containsOnly(tuple(almSettingDto.getKey(), "https://github.enterprise-unicorn.com", "54321", almSettingDto.getPrivateKey(), "client_1234", almSettingDto.getClientSecret()));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
+      .containsOnly(tuple(almSettingDto.getKey(), "https://github.enterprise-unicorn.com", "54321",
+        almSettingDto.getDecryptedPrivateKey(encryption), "client_1234", almSettingDto.getDecryptedClientSecret(encryption)));
   }
 
   @Test

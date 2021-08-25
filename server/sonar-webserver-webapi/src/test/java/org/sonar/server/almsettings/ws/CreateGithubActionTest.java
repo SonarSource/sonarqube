@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -48,7 +49,8 @@ public class CreateGithubActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final Encryption encryption = mock(Encryption.class);
+  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
 
   private WsActionTester ws = new WsActionTester(new CreateGithubAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
@@ -74,7 +76,8 @@ public class CreateGithubActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
       .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", "12345", "678910", "client_1234", "client_so_secret"));
   }
 
@@ -93,7 +96,8 @@ public class CreateGithubActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
+        s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
       .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", "12345", "678910", "client_1234", "client_so_secret"));
   }
 

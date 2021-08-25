@@ -96,11 +96,15 @@ public class UpdateBitbucketCloudAction implements AlmSettingsWsAction {
       if (isNotBlank(newKey) && !newKey.equals(key)) {
         almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
       }
+
+      if (isNotBlank(clientSecret)) {
+        almSettingDto.setClientSecret(clientSecret);
+      }
+
       dbClient.almSettingDao().update(dbSession, almSettingDto
         .setKey(isNotBlank(newKey) ? newKey : key)
         .setClientId(clientId)
-        .setAppId(workspace)
-        .setClientSecret(isNotBlank(clientSecret) ? clientSecret : almSettingDto.getClientSecret()),
+        .setAppId(workspace),
         clientSecret != null);
       dbSession.commit();
     }

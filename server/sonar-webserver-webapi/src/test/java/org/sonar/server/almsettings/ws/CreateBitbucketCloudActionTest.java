@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -48,7 +49,8 @@ public class CreateBitbucketCloudActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final Encryption encryption = mock(Encryption.class);
+  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
 
   private WsActionTester ws = new WsActionTester(new CreateBitbucketCloudAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
@@ -72,7 +74,7 @@ public class CreateBitbucketCloudActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId, AlmSettingDto::getClientSecret, AlmSettingDto::getAppId)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption), AlmSettingDto::getAppId)
       .containsOnly(tuple("Bitbucket Server - Dev Team", "id", "secret", "workspace1"));
   }
 

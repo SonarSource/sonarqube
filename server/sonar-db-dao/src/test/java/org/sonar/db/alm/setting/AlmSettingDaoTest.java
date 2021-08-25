@@ -22,6 +22,7 @@ package org.sonar.db.alm.setting;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
@@ -30,6 +31,7 @@ import org.sonar.db.almsettings.AlmSettingsTesting;
 import org.sonar.db.audit.NoOpAuditPersister;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
@@ -42,6 +44,8 @@ public class AlmSettingDaoTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
+  private final Encryption encryption = mock(Encryption.class);
+
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
 
@@ -50,17 +54,22 @@ public class AlmSettingDaoTest {
   @Test
   public void selectByUuid() {
     when(uuidFactory.create()).thenReturn(A_UUID);
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     AlmSettingDto almSettingDto = newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
 
     assertThat(underTest.selectByUuid(dbSession, A_UUID).get())
       .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getPersonalAccessToken,
-        AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt)
+        AlmSettingDto::getAppId, AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt,
+        s -> almSettingDto.getDecryptedPrivateKey(encryption),
+        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
+        s -> almSettingDto.getDecryptedClientSecret(encryption))
       .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), almSettingDto.getPrivateKey(),
-        almSettingDto.getPersonalAccessToken(), NOW, NOW);
+        almSettingDto.getAppId(), NOW, NOW,
+        almSettingDto.getDecryptedPrivateKey(encryption),
+        almSettingDto.getDecryptedPersonalAccessToken(encryption),
+        almSettingDto.getDecryptedClientSecret(encryption));
 
     assertThat(underTest.selectByUuid(dbSession, "foo")).isNotPresent();
   }
@@ -68,17 +77,46 @@ public class AlmSettingDaoTest {
   @Test
   public void selectByKey() {
     when(uuidFactory.create()).thenReturn(A_UUID);
+    String decrypted = "decrypted";
+    when(encryption.isEncrypted(any())).thenReturn(true);
+    when(encryption.decrypt(any())).thenReturn(decrypted);
 
     AlmSettingDto almSettingDto = AlmSettingsTesting.newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
 
     assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey()).get())
       .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getPersonalAccessToken,
-        AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt)
+        AlmSettingDto::getAppId, AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt,
+        s -> almSettingDto.getDecryptedPrivateKey(encryption),
+        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
+        s -> almSettingDto.getDecryptedClientSecret(encryption))
       .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), almSettingDto.getPrivateKey(),
-        almSettingDto.getPersonalAccessToken(), NOW, NOW);
+        almSettingDto.getAppId(), NOW, NOW,
+        almSettingDto.getDecryptedPrivateKey(encryption),
+        null,
+        almSettingDto.getDecryptedClientSecret(encryption));
+
+    assertThat(underTest.selectByKey(dbSession, "foo")).isNotPresent();
+  }
+
+  @Test
+  public void selectByKey_withEmptySecrets() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    String decrypted = "decrypted";
+    when(encryption.isEncrypted(any())).thenReturn(true);
+    when(encryption.decrypt(any())).thenReturn(decrypted);
+
+    AlmSettingDto almSettingDto = AlmSettingsTesting.newAlmSettingDtoWithEmptySecrets();
+    underTest.insert(dbSession, almSettingDto);
+
+    assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey()).get())
+      .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
+        AlmSettingDto::getAppId, AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt,
+        s -> almSettingDto.getDecryptedPrivateKey(encryption),
+        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
+        s -> almSettingDto.getDecryptedClientSecret(encryption))
+      .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
+        almSettingDto.getAppId(), NOW, NOW, null, null, null);
 
     assertThat(underTest.selectByKey(dbSession, "foo")).isNotPresent();
   }
@@ -127,11 +165,13 @@ public class AlmSettingDaoTest {
     AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).get();
     assertThat(result)
       .extracting(AlmSettingDto::getUuid, AlmSettingDto::getKey, AlmSettingDto::getRawAlm, AlmSettingDto::getUrl,
-        AlmSettingDto::getAppId, AlmSettingDto::getPrivateKey, AlmSettingDto::getPersonalAccessToken,
+        AlmSettingDto::getAppId,
+        s -> almSettingDto.getDecryptedPrivateKey(encryption),
+        s -> almSettingDto.getDecryptedPersonalAccessToken(encryption),
         AlmSettingDto::getCreatedAt, AlmSettingDto::getUpdatedAt)
       .containsExactly(A_UUID, almSettingDto.getKey(), ALM.GITHUB.getId(), almSettingDto.getUrl(),
-        almSettingDto.getAppId(), almSettingDto.getPrivateKey(),
-        almSettingDto.getPersonalAccessToken(), NOW, NOW + 1);
+        almSettingDto.getAppId(), almSettingDto.getDecryptedPrivateKey(encryption),
+        almSettingDto.getDecryptedPersonalAccessToken(encryption), NOW, NOW + 1);
   }
 
   @Test

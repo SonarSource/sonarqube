@@ -20,20 +20,24 @@
 package org.sonar.server.almintegration.validator;
 
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 @ServerSide
 public class BitbucketServerSettingsValidator {
   private final BitbucketServerRestClient bitbucketServerRestClient;
+  private final Encryption encryption;
 
-  public BitbucketServerSettingsValidator(BitbucketServerRestClient bitbucketServerRestClient) {
+  public BitbucketServerSettingsValidator(BitbucketServerRestClient bitbucketServerRestClient, Settings settings) {
     this.bitbucketServerRestClient = bitbucketServerRestClient;
+    this.encryption = settings.getEncryption();
   }
 
   public void validate(AlmSettingDto almSettingDto) {
     String bitbucketUrl = almSettingDto.getUrl();
-    String bitbucketToken = almSettingDto.getPersonalAccessToken();
+    String bitbucketToken = almSettingDto.getDecryptedPersonalAccessToken(encryption);
     if (bitbucketUrl == null || bitbucketToken == null) {
       throw new IllegalArgumentException("Your global Bitbucket Server configuration is incomplete.");
     }

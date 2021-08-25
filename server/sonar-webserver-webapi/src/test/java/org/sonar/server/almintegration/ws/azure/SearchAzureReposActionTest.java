@@ -28,6 +28,7 @@ import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureProject;
 import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.alm.client.azure.GsonAzureRepoList;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -60,8 +61,9 @@ public class SearchAzureReposActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
-  private WsActionTester ws = new WsActionTester(new SearchAzureReposAction(db.getDbClient(), userSession, azureDevOpsHttpClient));
+  private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
+  private final Encryption encryption = mock(Encryption.class);
+  private final WsActionTester ws = new WsActionTester(new SearchAzureReposAction(db.getDbClient(), userSession, azureDevOpsHttpClient));
 
   @Before
   public void before() {
@@ -347,7 +349,7 @@ public class SearchAzureReposActionTest {
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken(almSetting.getPersonalAccessToken());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
     });
     return almSetting;
   }

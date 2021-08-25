@@ -26,6 +26,8 @@ import org.sonar.alm.client.github.GithubApplicationClient.Organization;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -53,11 +55,14 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
   public static final String PARAM_TOKEN = "token";
 
   private final DbClient dbClient;
+  private final Encryption encryption;
   private final UserSession userSession;
   private final GithubApplicationClient githubApplicationClient;
 
-  public ListGithubOrganizationsAction(DbClient dbClient, UserSession userSession, GithubApplicationClientImpl githubApplicationClient) {
+  public ListGithubOrganizationsAction(DbClient dbClient, Settings settings, UserSession userSession,
+    GithubApplicationClientImpl githubApplicationClient) {
     this.dbClient = dbClient;
+    this.encryption = settings.getEncryption();
     this.userSession = userSession;
     this.githubApplicationClient = githubApplicationClient;
   }
@@ -109,7 +114,8 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
       if (request.hasParam(PARAM_TOKEN)) {
         String code = request.mandatoryParam(PARAM_TOKEN);
         String clientId = requireNonNull(almSettingDto.getClientId(), String.format("No clientId set for GitHub ALM '%s'", almSettingKey));
-        String clientSecret = requireNonNull(almSettingDto.getClientSecret(), String.format("No clientSecret set for GitHub ALM '%s'", almSettingKey));
+        String clientSecret = requireNonNull(almSettingDto.getDecryptedClientSecret(encryption), String.format("No clientSecret set for GitHub ALM '%s'",
+          almSettingKey));
 
         try {
           accessToken = githubApplicationClient.createUserAccessToken(url, clientId, clientSecret, code);

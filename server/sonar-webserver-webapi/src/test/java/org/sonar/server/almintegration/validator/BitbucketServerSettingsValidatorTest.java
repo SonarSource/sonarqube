@@ -19,34 +19,64 @@
  */
 package org.sonar.server.almintegration.validator;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
 
 public class BitbucketServerSettingsValidatorTest {
+  private static final Encryption encryption = mock(Encryption.class);
+  private static final Settings settings = mock(Settings.class);
 
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
-  private final BitbucketServerSettingsValidator underTest = new BitbucketServerSettingsValidator(bitbucketServerRestClient);
+  private final BitbucketServerSettingsValidator underTest = new BitbucketServerSettingsValidator(bitbucketServerRestClient, settings);
+
+  @BeforeClass
+  public static void setUp() {
+    when(settings.getEncryption()).thenReturn(encryption);
+  }
 
   @Test
   public void validate_success() {
     AlmSettingDto almSettingDto = newBitbucketAlmSettingDto()
       .setUrl("http://abc.com")
       .setPersonalAccessToken("abc");
+    when(encryption.isEncrypted(any())).thenReturn(false);
 
     underTest.validate(almSettingDto);
 
     verify(bitbucketServerRestClient, times(1)).validateUrl("http://abc.com");
     verify(bitbucketServerRestClient, times(1)).validateToken("http://abc.com", "abc");
     verify(bitbucketServerRestClient, times(1)).validateReadPermission("http://abc.com", "abc");
+  }
+
+  @Test
+  public void validate_success_with_encrypted_token() {
+    String encryptedToken = "abc";
+    String decryptedToken = "decrypted-token";
+    AlmSettingDto almSettingDto = newBitbucketAlmSettingDto()
+      .setUrl("http://abc.com")
+      .setPersonalAccessToken(encryptedToken);
+    when(encryption.isEncrypted(encryptedToken)).thenReturn(true);
+    when(encryption.decrypt(encryptedToken)).thenReturn(decryptedToken);
+
+    underTest.validate(almSettingDto);
+
+    verify(bitbucketServerRestClient, times(1)).validateUrl("http://abc.com");
+    verify(bitbucketServerRestClient, times(1)).validateToken("http://abc.com", decryptedToken);
+    verify(bitbucketServerRestClient, times(1)).validateReadPermission("http://abc.com", decryptedToken);
   }
 
   @Test

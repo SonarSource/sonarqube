@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureProject;
 import org.sonar.alm.client.azure.GsonAzureRepo;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
@@ -78,6 +79,7 @@ public class ImportAzureProjectActionTest {
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
 
+  private final Encryption encryption = mock(Encryption.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final ImportAzureProjectAction importAzureProjectAction = new ImportAzureProjectAction(db.getDbClient(), userSession,
@@ -96,11 +98,12 @@ public class ImportAzureProjectActionTest {
     AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getPersonalAccessToken());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
       dto.setUserUuid(user.getUuid());
     });
     GsonAzureRepo repo = getGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getPersonalAccessToken(), "project-name", "repo-name"))
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
       .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -138,11 +141,12 @@ public class ImportAzureProjectActionTest {
     AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getPersonalAccessToken());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
       dto.setUserUuid(user.getUuid());
     });
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getPersonalAccessToken(), "project-name", "repo-name"))
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
       .thenReturn(repo);
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -228,14 +232,15 @@ public class ImportAzureProjectActionTest {
     AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getPersonalAccessToken());
+      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
       dto.setUserUuid(user.getUuid());
     });
     GsonAzureRepo repo = getGsonAzureRepo();
     String projectKey = repo.getProject().getName() + "_" + repo.getName();
     db.components().insertPublicProject(p -> p.setDbKey(projectKey));
 
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getPersonalAccessToken(), "project-name", "repo-name")).thenReturn(repo);
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name")).thenReturn(repo);
     TestRequest request = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
       .setParam("projectName", "project-name")

@@ -19,26 +19,63 @@
  */
 package org.sonar.server.almintegration.validator;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GitlabGlobalSettingsValidatorTest {
+  private static final Encryption encryption = mock(Encryption.class);
+  private static final Settings settings = mock(Settings.class);
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
 
-  private final GitlabGlobalSettingsValidator underTest = new GitlabGlobalSettingsValidator(gitlabHttpClient);
+  private final GitlabGlobalSettingsValidator underTest = new GitlabGlobalSettingsValidator(gitlabHttpClient, settings);
+
+  @BeforeClass
+  public static void setUp() {
+    when(settings.getEncryption()).thenReturn(encryption);
+  }
 
   @Test
   public void validate_success() {
+    String token = "personal-access-token";
     AlmSettingDto almSettingDto = new AlmSettingDto()
       .setUrl("https://gitlab.com/api")
       .setPersonalAccessToken("personal-access-token");
+    when(encryption.isEncrypted(token)).thenReturn(false);
 
     underTest.validate(almSettingDto);
+    verify(gitlabHttpClient, times(1)).checkUrl(almSettingDto.getUrl());
+    verify(gitlabHttpClient, times(1)).checkToken(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
+    verify(gitlabHttpClient, times(1)).checkReadPermission(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
+    verify(gitlabHttpClient, times(1)).checkWritePermission(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
+  }
+
+  @Test
+  public void validate_success_with_encrypted_token() {
+    String encryptedToken = "personal-access-token";
+    String decryptedToken = "decrypted-token";
+    AlmSettingDto almSettingDto = new AlmSettingDto()
+      .setUrl("https://gitlab.com/api")
+      .setPersonalAccessToken(encryptedToken);
+    when(encryption.isEncrypted(encryptedToken)).thenReturn(true);
+    when(encryption.decrypt(encryptedToken)).thenReturn(decryptedToken);
+
+    underTest.validate(almSettingDto);
+
+    verify(gitlabHttpClient, times(1)).checkUrl(almSettingDto.getUrl());
+    verify(gitlabHttpClient, times(1)).checkToken(almSettingDto.getUrl(), decryptedToken);
+    verify(gitlabHttpClient, times(1)).checkReadPermission(almSettingDto.getUrl(), decryptedToken);
+    verify(gitlabHttpClient, times(1)).checkWritePermission(almSettingDto.getUrl(), decryptedToken);
   }
 
   @Test

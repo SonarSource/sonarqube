@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -53,7 +54,8 @@ public class UpdateGitlabActionTest {
 
   private static String GITLAB_URL = "gitlab.com/api/v4";
 
-  private MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
+  private final Encryption encryption = mock(Encryption.class);
+  private final MultipleAlmFeatureProvider multipleAlmFeatureProvider = mock(MultipleAlmFeatureProvider.class);
 
   private WsActionTester ws = new WsActionTester(new UpdateGitlabAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeatureProvider)));
@@ -90,7 +92,7 @@ public class UpdateGitlabActionTest {
       .setParam("personalAccessToken", "10987654321")
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
       .containsOnly(tuple(almSettingDto.getKey(), GITLAB_URL, "10987654321"));
   }
 
@@ -109,7 +111,7 @@ public class UpdateGitlabActionTest {
       .execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getPersonalAccessToken, AlmSettingDto::getUrl)
+      .extracting(AlmSettingDto::getKey, s -> s.getDecryptedPersonalAccessToken(encryption), AlmSettingDto::getUrl)
       .containsOnly(tuple("Gitlab - Infra Team", "0123456789", GITLAB_URL));
   }
 
@@ -125,8 +127,8 @@ public class UpdateGitlabActionTest {
       .setParam("url", GITLAB_URL)
       .execute();
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getPersonalAccessToken)
-      .containsOnly(tuple(almSettingDto.getKey(), GITLAB_URL, almSettingDto.getPersonalAccessToken()));
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
+      .containsOnly(tuple(almSettingDto.getKey(), GITLAB_URL, almSettingDto.getDecryptedPersonalAccessToken(encryption)));
   }
 
   @Test
