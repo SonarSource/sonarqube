@@ -19,29 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.VARCHAR;
 
-public class DbVersion91Test {
+public class AlterClientSecretColumnLengthOfAlmSettingsTableTest {
+  private final String TABLE = "alm_settings";
+  private final String COLUMN = "client_secret";
 
-  private final DbVersion91 underTest = new DbVersion91();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AlterClientSecretColumnLengthOfAlmSettingsTableTest.class, "schema.sql");
+
+  private DdlChange underTest = new AlterClientSecretColumnLengthOfAlmSettingsTable(db.database());
 
   @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public void client_secret_column_is_not_null() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition(TABLE, COLUMN, VARCHAR, 160, true);
   }
 
   @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
-  }
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 10);
+    db.assertColumnDefinition(TABLE, COLUMN, VARCHAR, 160, true);
   }
-
 }

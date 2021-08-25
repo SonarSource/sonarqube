@@ -79,7 +79,7 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
       .setDescription("GitHub API ID");
     action.createParam(PARAM_PRIVATE_KEY)
       .setRequired(false)
-      .setMaximumLength(2000)
+      .setMaximumLength(2500)
       .setDescription("GitHub App private key");
     action.createParam(PARAM_CLIENT_ID)
       .setRequired(true)
@@ -87,7 +87,7 @@ public class UpdateGithubAction implements AlmSettingsWsAction {
       .setDescription("GitHub App Client ID");
     action.createParam(PARAM_CLIENT_SECRET)
       .setRequired(false)
-      .setMaximumLength(80)
+      .setMaximumLength(160)
       .setDescription("GitHub App Client Secret");
   }
 

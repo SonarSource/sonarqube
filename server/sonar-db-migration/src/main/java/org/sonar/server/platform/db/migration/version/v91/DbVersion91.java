@@ -34,6 +34,7 @@ public class DbVersion91 implements DbVersion {
       .add(6006, "Drop 'user_managed' column from 'metrics' table", DropUserManagedColumnFromMetricsTable.class)
       .add(6007, "Create Audit table", CreateAuditTable.class)
       .add(6008, "Add column 'removed' to 'plugins' table", AddColumnRemovedToPlugins.class)
-    ;
+      .add(6009, "Alter column 'client_secret' of 'alm_settings' table to length 160", AlterClientSecretColumnLengthOfAlmSettingsTable.class)
+      .add(6010, "Alter column 'private_key' of 'alm_settings' table to length 2500", AlterPrivateKeyColumnLengthOfAlmSettingsTable.class);
   }
 }
