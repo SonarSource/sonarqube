@@ -13,7 +13,7 @@ exports[`should render correctly: cluster sysinfo 1`] = `
     title="system_info.page"
   />
   <SystemUpgradeNotif />
-  <PageHeader
+  <Connect(PageHeader)
     isCluster={true}
     loading={false}
     logLevel="DEBUG"
@@ -215,7 +215,7 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
     title="system_info.page"
   />
   <SystemUpgradeNotif />
-  <PageHeader
+  <Connect(PageHeader)
     isCluster={false}
     loading={false}
     logLevel="DEBUG"

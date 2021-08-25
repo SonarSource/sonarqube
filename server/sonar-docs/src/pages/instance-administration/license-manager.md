@@ -8,6 +8,9 @@ _Starting in [Developer Edition](https://redirect.sonarsource.com/editions/devel
 
 You can use the License Manager to retrieve your server ID (required for obtaining a License Key) and configure your SonarSource-provided License key.
 
+[[warning]]
+|The server ID is specific to the current database system. Make sure to configure an external database for long-term use prior to requesting your license with this server ID.
+
 ### Retrieving the server ID
 The server ID is always available on the License Manager page, as well as in the **System Info** section at **Administration > System**.
 

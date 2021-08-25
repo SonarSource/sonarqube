@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import PageHeader, { Props } from '../PageHeader';
+import { PageHeader, Props } from '../PageHeader';
 
 jest.mock('../../../../helpers/dates', () => ({
   toShortNotSoISOString: () => '2019-01-01'
@@ -27,6 +27,9 @@ jest.mock('../../../../helpers/dates', () => ({
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(
+    shallowRender({ productionDatabase: false, serverId: 'foo-bar', version: '7.7.0.1234' })
+  ).toMatchSnapshot('on embedded database');
   expect(shallowRender({ loading: true, showActions: false })).toMatchSnapshot();
   expect(shallowRender({ serverId: 'foo-bar', version: '7.7.0.1234' })).toMatchSnapshot();
 });
@@ -38,6 +41,7 @@ function shallowRender(props: Partial<Props> = {}) {
       loading={false}
       logLevel="INFO"
       onLogLevelChange={jest.fn()}
+      productionDatabase={true}
       showActions={true}
       {...props}
     />
