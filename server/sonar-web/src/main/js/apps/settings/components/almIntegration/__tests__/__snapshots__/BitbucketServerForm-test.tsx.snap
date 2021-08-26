@@ -59,6 +59,7 @@ exports[`should render correctly 1`] = `
       />
     }
     id="personal_access_token"
+    isSecret={true}
     isTextArea={true}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}

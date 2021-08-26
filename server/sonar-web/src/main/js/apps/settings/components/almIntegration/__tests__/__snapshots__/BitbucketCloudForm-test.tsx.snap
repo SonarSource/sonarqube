@@ -36,7 +36,7 @@ exports[`should render correctly 1`] = `
     value="workspace"
   />
   <Alert
-    className="big-spacer-top big-spacer-right"
+    className="big-spacer-top"
     variant="info"
   >
     <FormattedMessage
@@ -76,6 +76,7 @@ exports[`should render correctly 1`] = `
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.oauth_secret.bitbucketcloud.help"
     id="client_secret.bitbucketcloud"
+    isSecret={true}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}
     propKey="clientSecret"

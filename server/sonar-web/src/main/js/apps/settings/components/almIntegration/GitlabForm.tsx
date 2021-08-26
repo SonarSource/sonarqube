@@ -89,6 +89,7 @@ export default function GitlabForm(props: GitlabFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="personalAccessToken"
         value={formData.personalAccessToken}
+        isSecret={true}
       />
     </>
   );

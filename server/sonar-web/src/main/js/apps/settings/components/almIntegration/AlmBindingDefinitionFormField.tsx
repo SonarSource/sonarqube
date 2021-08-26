@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { ButtonLink } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { translate } from '../../../../helpers/l10n';
 import { AlmBindingDefinitionBase } from '../../../../types/alm-settings';
@@ -35,6 +38,7 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
   overwriteOnly?: boolean;
   propKey: keyof B;
   value: string;
+  isSecret?: boolean;
 }
 
 export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase>(
@@ -49,7 +53,8 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
     optional,
     overwriteOnly = false,
     propKey,
-    value
+    value,
+    isSecret
   } = props;
   const [showField, setShowField] = React.useState(!overwriteOnly);
 
@@ -62,23 +67,23 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
         {!optional && <MandatoryFieldMarker />}
         {help && <div className="markdown small spacer-top">{help}</div>}
       </div>
-      <div className="settings-definition-right big-padded-top">
+      <div className="settings-definition-right big-padded-top display-flex-column">
         {!showField && overwriteOnly && (
           <div>
-            <p>{translate('settings.almintegration.form.secret_field')}</p>
+            <p>{translate('settings.almintegration.form.secret.field')}</p>
             <ButtonLink
               onClick={() => {
                 props.onFieldChange(propKey, '');
                 setShowField(true);
               }}>
-              {translate('settings.almintegration.form.update_secret_field')}
+              {translate('settings.almintegration.form.secret.update_field')}
             </ButtonLink>
           </div>
         )}
 
         {showField && isTextArea && (
           <textarea
-            className="settings-large-input"
+            className="width-100"
             id={id}
             maxLength={maxLength || 2000}
             onChange={e => props.onFieldChange(propKey, e.currentTarget.value)}
@@ -90,8 +95,8 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
 
         {showField && !isTextArea && (
           <input
+            className="width-100"
             autoFocus={autoFocus}
-            className="settings-large-input"
             id={id}
             maxLength={maxLength || 100}
             name={id}
@@ -100,6 +105,27 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
             type="text"
             value={value}
           />
+        )}
+
+        {showField && isSecret && (
+          <Alert variant="info" className="spacer-top">
+            <FormattedMessage
+              id="settings.almintegration.form.secret.can_encrypt"
+              defaultMessage={translate('settings.almintegration.form.secret.can_encrypt')}
+              values={{
+                learn_more: (
+                  <Link
+                    target="_blank"
+                    to={{
+                      pathname:
+                        '/documentation/instance-administration/security/#settings-encryption'
+                    }}>
+                    {translate('learn_more')}
+                  </Link>
+                )
+              }}
+            />
+          </Alert>
         )}
       </div>
     </div>

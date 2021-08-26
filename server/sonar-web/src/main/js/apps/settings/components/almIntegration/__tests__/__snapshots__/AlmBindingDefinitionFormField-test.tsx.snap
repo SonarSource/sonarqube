@@ -16,10 +16,10 @@ exports[`should render correctly: default 1`] = `
     <MandatoryFieldMarker />
   </div>
   <div
-    className="settings-definition-right big-padded-top"
+    className="settings-definition-right big-padded-top display-flex-column"
   >
     <input
-      className="settings-large-input"
+      className="width-100"
       id="key"
       maxLength={40}
       name="key"
@@ -28,6 +28,63 @@ exports[`should render correctly: default 1`] = `
       type="text"
       value="key"
     />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: encryptable 1`] = `
+<div
+  className="settings-definition"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <label
+      className="h3"
+      htmlFor="key"
+    >
+      settings.almintegration.form.key
+    </label>
+    <MandatoryFieldMarker />
+  </div>
+  <div
+    className="settings-definition-right big-padded-top display-flex-column"
+  >
+    <input
+      className="width-100"
+      id="key"
+      maxLength={40}
+      name="key"
+      onChange={[Function]}
+      size={50}
+      type="text"
+      value="key"
+    />
+    <Alert
+      className="spacer-top"
+      variant="info"
+    >
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.secret.can_encrypt"
+        id="settings.almintegration.form.secret.can_encrypt"
+        values={
+          Object {
+            "learn_more": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              target="_blank"
+              to={
+                Object {
+                  "pathname": "/documentation/instance-administration/security/#settings-encryption",
+                }
+              }
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    </Alert>
   </div>
 </div>
 `;
@@ -47,10 +104,10 @@ exports[`should render correctly: optional 1`] = `
     </label>
   </div>
   <div
-    className="settings-definition-right big-padded-top"
+    className="settings-definition-right big-padded-top display-flex-column"
   >
     <input
-      className="settings-large-input"
+      className="width-100"
       id="key"
       maxLength={40}
       name="key"
@@ -79,16 +136,16 @@ exports[`should render correctly: secret 1`] = `
     <MandatoryFieldMarker />
   </div>
   <div
-    className="settings-definition-right big-padded-top"
+    className="settings-definition-right big-padded-top display-flex-column"
   >
     <div>
       <p>
-        settings.almintegration.form.secret_field
+        settings.almintegration.form.secret.field
       </p>
       <ButtonLink
         onClick={[Function]}
       >
-        settings.almintegration.form.update_secret_field
+        settings.almintegration.form.secret.update_field
       </ButtonLink>
     </div>
   </div>
@@ -111,10 +168,10 @@ exports[`should render correctly: textarea 1`] = `
     <MandatoryFieldMarker />
   </div>
   <div
-    className="settings-definition-right big-padded-top"
+    className="settings-definition-right big-padded-top display-flex-column"
   >
     <textarea
-      className="settings-large-input"
+      className="width-100"
       id="key"
       maxLength={40}
       onChange={[Function]}
@@ -147,10 +204,10 @@ exports[`should render correctly: with help 1`] = `
     </div>
   </div>
   <div
-    className="settings-definition-right big-padded-top"
+    className="settings-definition-right big-padded-top display-flex-column"
   >
     <input
-      className="settings-large-input"
+      className="width-100"
       id="key"
       maxLength={40}
       name="key"

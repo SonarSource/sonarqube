@@ -63,7 +63,7 @@ export default function GithubForm(props: GithubFormProps) {
         propKey="url"
         value={formData.url}
       />
-      <Alert className="big-spacer-top big-spacer-right" variant="info">
+      <Alert className="big-spacer-top" variant="info">
         <FormattedMessage
           defaultMessage={translate(`settings.almintegration.github.info`)}
           id="settings.almintegration.github.info"
@@ -100,6 +100,7 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
         value={formData.clientSecret}
+        isSecret={true}
       />
       <AlmBindingDefinitionFormField
         id="private_key"
@@ -109,6 +110,7 @@ export default function GithubForm(props: GithubFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="privateKey"
         value={formData.privateKey}
+        isSecret={true}
       />
     </>
   );

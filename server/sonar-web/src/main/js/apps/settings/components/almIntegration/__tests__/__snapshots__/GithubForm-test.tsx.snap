@@ -34,7 +34,7 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <Alert
-    className="big-spacer-top big-spacer-right"
+    className="big-spacer-top"
     variant="info"
   >
     <FormattedMessage
@@ -73,6 +73,7 @@ exports[`should render correctly 1`] = `
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.client_secret.github.help"
     id="client_secret.github"
+    isSecret={true}
     maxLength={80}
     onFieldChange={[MockFunction]}
     overwriteOnly={false}
@@ -82,6 +83,7 @@ exports[`should render correctly 1`] = `
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.private_key.github.help"
     id="private_key"
+    isSecret={true}
     isTextArea={true}
     onFieldChange={[MockFunction]}
     overwriteOnly={false}
@@ -125,7 +127,7 @@ exports[`should render correctly 2`] = `
     value="http://github.enterprise.com"
   />
   <Alert
-    className="big-spacer-top big-spacer-right"
+    className="big-spacer-top"
     variant="info"
   >
     <FormattedMessage
@@ -164,6 +166,7 @@ exports[`should render correctly 2`] = `
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.client_secret.github.help"
     id="client_secret.github"
+    isSecret={true}
     maxLength={80}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}
@@ -173,6 +176,7 @@ exports[`should render correctly 2`] = `
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.private_key.github.help"
     id="private_key"
+    isSecret={true}
     isTextArea={true}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}

@@ -63,6 +63,7 @@ exports[`should render correctly: create 1`] = `
       />
     }
     id="personal_access_token"
+    isSecret={true}
     isTextArea={true}
     onFieldChange={[MockFunction]}
     overwriteOnly={false}
@@ -135,6 +136,7 @@ exports[`should render correctly: edit 1`] = `
       />
     }
     id="personal_access_token"
+    isSecret={true}
     isTextArea={true}
     onFieldChange={[MockFunction]}
     overwriteOnly={true}

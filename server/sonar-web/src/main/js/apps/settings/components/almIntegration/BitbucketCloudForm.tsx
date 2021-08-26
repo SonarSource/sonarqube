@@ -68,7 +68,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         propKey="workspace"
         value={formData.workspace || ''}
       />
-      <Alert className="big-spacer-top big-spacer-right" variant="info">
+      <Alert className="big-spacer-top" variant="info">
         <FormattedMessage
           defaultMessage={translate(`settings.almintegration.bitbucketcloud.info`)}
           id="settings.almintegration.bitbucketcloud.info"
@@ -104,6 +104,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         overwriteOnly={Boolean(formData.key)}
         propKey="clientSecret"
         value={formData.clientSecret || ''}
+        isSecret={true}
       />
     </>
   );

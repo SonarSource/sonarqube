@@ -33,6 +33,7 @@ it('should render correctly', () => {
   expect(shallowRender({ isTextArea: true })).toMatchSnapshot('textarea');
   expect(shallowRender({ optional: true })).toMatchSnapshot('optional');
   expect(shallowRender({ overwriteOnly: true })).toMatchSnapshot('secret');
+  expect(shallowRender({ isSecret: true })).toMatchSnapshot('encryptable');
 });
 
 it('should call onFieldChange', () => {
