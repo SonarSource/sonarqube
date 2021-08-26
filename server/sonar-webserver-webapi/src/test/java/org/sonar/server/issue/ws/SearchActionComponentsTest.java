@@ -72,13 +72,10 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
@@ -167,11 +164,6 @@ public class SearchActionComponentsTest {
 
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, module1.getKey())
-      .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
-        .containsExactlyInAnyOrder(issue1.getKey());
-
-    assertThat(ws.newRequest()
-      .setParam(PARAM_MODULE_UUIDS, module1.uuid())
       .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
         .containsExactlyInAnyOrder(issue1.getKey());
   }
@@ -340,18 +332,6 @@ public class SearchActionComponentsTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, directory2.getKey())
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json");
-
-    ws.newRequest()
-      .setParam(PARAM_MODULE_UUIDS, module1.uuid())
-      .setParam(PARAM_DIRECTORIES, "src/main/java/dir")
-      .execute()
-      .assertJson(this.getClass(), "search_by_directory_uuid.json");
-
-    ws.newRequest()
-      .setParam(PARAM_MODULE_UUIDS, module2.uuid())
-      .setParam(PARAM_DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 

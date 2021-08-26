@@ -35,7 +35,7 @@ interface Props {
   open: boolean;
   query: Query;
   stats: T.Dict<number> | undefined;
-  authors: string[];
+  author: string[];
 }
 
 const SEARCH_SIZE = 100;
@@ -56,8 +56,8 @@ export default class AuthorFacet extends React.PureComponent<Props> {
     }).then(authors => ({ maxResults: authors.length === SEARCH_SIZE, results: authors }));
   };
 
-  loadSearchResultCount = (authors: string[]) => {
-    return this.props.loadSearchResultCount('authors', { authors });
+  loadSearchResultCount = (author: string[]) => {
+    return this.props.loadSearchResultCount('author', { author });
   };
 
   renderSearchResult = (author: string, term: string) => {
@@ -77,13 +77,13 @@ export default class AuthorFacet extends React.PureComponent<Props> {
         onSearch={this.handleSearch}
         onToggle={this.props.onToggle}
         open={this.props.open}
-        property="authors"
-        query={omit(this.props.query, 'authors')}
+        property="author"
+        query={omit(this.props.query, 'author')}
         renderFacetItem={this.identity}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_authors')}
         stats={this.props.stats}
-        values={this.props.authors}
+        values={this.props.author}
       />
     );
   }

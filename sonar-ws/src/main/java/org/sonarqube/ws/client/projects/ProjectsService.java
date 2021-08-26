@@ -22,7 +22,6 @@ package org.sonarqube.ws.client.projects;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse;
@@ -59,23 +58,6 @@ public class ProjectsService extends BaseService {
         .setParam("visibility", request.getVisibility())
         .setMediaType(MediaTypes.JSON)
       ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/bulk_update_key">Further information about this action online (including a response example)</a>
-   * @since 6.1
-   */
-  public BulkUpdateKeyWsResponse bulkUpdateKey(BulkUpdateKeyRequest request) {
-    return call(
-      new PostRequest(path("bulk_update_key"))
-        .setParam("dryRun", request.getDryRun())
-        .setParam("from", request.getFrom())
-        .setParam("project", request.getProject())
-        .setParam("to", request.getTo()),
-      BulkUpdateKeyWsResponse.parser());
   }
 
   /**

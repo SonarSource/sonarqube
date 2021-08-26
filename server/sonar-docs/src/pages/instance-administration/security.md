@@ -65,7 +65,6 @@ If the **Force user authentication** property is set to false, the following API
 | * api/system/status
 | * api/system/upgrades
 | * api/users/search
-| * api/views/run
 | * api/webservices/list
 | * api/webservices/response_example
 

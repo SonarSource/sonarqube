@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ListStyleFacet
+  facetHeader="issues.facet.authors"
+  fetching={false}
+  getFacetItemText={[Function]}
+  getSearchResultKey={[Function]}
+  getSearchResultText={[Function]}
+  loadSearchResultCount={[Function]}
+  maxInitialItems={15}
+  maxItems={100}
+  minSearchLength={2}
+  onChange={[MockFunction]}
+  onSearch={[Function]}
+  onToggle={[MockFunction]}
+  open={true}
+  property="author"
+  query={Object {}}
+  renderFacetItem={[Function]}
+  renderSearchResult={[Function]}
+  searchPlaceholder="search.search_for_authors"
+  stats={Object {}}
+  values={Array []}
+/>
+`;

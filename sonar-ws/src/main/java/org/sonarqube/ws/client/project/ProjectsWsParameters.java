@@ -26,10 +26,8 @@ public class ProjectsWsParameters {
   public static final String CONTROLLER = "api/projects";
 
   public static final String ACTION_CREATE = "create";
-  public static final String ACTION_INDEX = "index";
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_UPDATE_KEY = "update_key";
-  public static final String ACTION_BULK_UPDATE_KEY = "bulk_update_key";
   public static final String ACTION_UPDATE_VISIBILITY = "update_visibility";
 
   public static final String PARAM_PROJECT = "project";

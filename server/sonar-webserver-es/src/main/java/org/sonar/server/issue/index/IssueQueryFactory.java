@@ -246,7 +246,6 @@ public class IssueQueryFactory {
       builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
       setBranch(builder, projects.get(0), request.getBranch(), request.getPullRequest());
     }
-    builder.moduleUuids(request.getModuleUuids());
     builder.directories(request.getDirectories());
     builder.files(request.getFiles());
 

@@ -360,7 +360,6 @@ declare namespace T {
     status: string;
     subProject?: string;
     subProjectName?: string;
-    subProjectUuid?: string;
     tags?: string[];
     textRange?: TextRange;
     transitions: string[];

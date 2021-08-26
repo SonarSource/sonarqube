@@ -114,7 +114,6 @@ public class ViewsService extends BaseService {
         .setParam("description", request.getDescription())
         .setParam("key", request.getKey())
         .setParam("name", request.getName())
-        .setParam("qualifier", request.getQualifier())
         .setParam("visibility", request.getVisibility())
         .setMediaType(MediaTypes.JSON)
       ).content();
@@ -197,26 +196,6 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/mode">Further information about this action online (including a response example)</a>
-   * @since 2.6
-   * @deprecated since 7.4
-   */
-  public void mode(ModeRequest request) {
-    call(
-      new PostRequest(path("mode"))
-        .setParam("key", request.getKey())
-        .setParam("measure", request.getMeasure())
-        .setParam("regexp", request.getRegexp())
-        .setParam("selectionMode", request.getSelectionMode())
-        .setParam("value", request.getValue())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/move">Further information about this action online (including a response example)</a>
    * @since 1.0
    */
@@ -282,23 +261,6 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/regexp">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   * @deprecated since 7.4
-   */
-  public void regexp(RegexpRequest request) {
-    call(
-      new PostRequest(path("regexp"))
-        .setParam("key", request.getKey())
-        .setParam("regexp", request.getRegexp())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/remove_project">Further information about this action online (including a response example)</a>
    * @since 1.0
    */
@@ -356,6 +318,21 @@ public class ViewsService extends BaseService {
   public void setManualMode(SetManualModeRequest request) {
     call(
       new PostRequest(path("set_manual_mode"))
+        .setParam("portfolio", request.getPortfolio())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/set_none_mode">Further information about this action online (including a response example)</a>
+   * @since 9.1
+   */
+  public void setNoneMode(SetNoneModeRequest request) {
+    call(
+      new PostRequest(path("set_none_mode"))
         .setParam("portfolio", request.getPortfolio())
         .setMediaType(MediaTypes.JSON)
     ).content();

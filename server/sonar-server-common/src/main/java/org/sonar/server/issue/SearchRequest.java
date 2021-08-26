@@ -46,7 +46,6 @@ public class SearchRequest {
   private List<String> issues;
   private Set<String> scopes;
   private List<String> languages;
-  private List<String> moduleUuids;
   private Boolean onComponentOnly;
   private String branch;
   private String pullRequest;
@@ -249,16 +248,6 @@ public class SearchRequest {
 
   public SearchRequest setLanguages(@Nullable List<String> languages) {
     this.languages = languages;
-    return this;
-  }
-
-  @CheckForNull
-  public List<String> getModuleUuids() {
-    return moduleUuids;
-  }
-
-  public SearchRequest setModuleUuids(@Nullable List<String> moduleUuids) {
-    this.moduleUuids = moduleUuids;
     return this;
   }
 

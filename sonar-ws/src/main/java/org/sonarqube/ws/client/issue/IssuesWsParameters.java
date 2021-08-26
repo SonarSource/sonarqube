@@ -55,7 +55,6 @@ public class IssuesWsParameters {
   public static final String PARAM_RESOLVED = "resolved";
   public static final String PARAM_COMPONENT_KEYS = "componentKeys";
   public static final String PARAM_COMPONENT_UUIDS = "componentUuids";
-  public static final String PARAM_MODULE_UUIDS = "moduleUuids";
   public static final String PARAM_PROJECTS = "projects";
   public static final String PARAM_DIRECTORIES = "directories";
   public static final String PARAM_FILES = "files";
@@ -72,11 +71,6 @@ public class IssuesWsParameters {
   public static final String PARAM_SEND_NOTIFICATIONS = "sendNotifications";
   public static final String PARAM_ASSIGNEES = "assignees";
 
-  /**
-   * @deprecated since 7.7, please use 'author' instead
-   */
-  @Deprecated
-  public static final String DEPRECATED_PARAM_AUTHORS = "authors";
 
   public static final String PARAM_AUTHOR = "author";
   public static final String PARAM_SCOPES = "scopes";
@@ -96,18 +90,10 @@ public class IssuesWsParameters {
   public static final String PARAM_CREATED_BEFORE = "createdBefore";
   public static final String PARAM_CREATED_IN_LAST = "createdInLast";
   public static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
-  public static final String PARAM_PAGE_SIZE = "pageSize";
-  public static final String PARAM_PAGE_INDEX = "pageIndex";
   public static final String PARAM_ASC = "asc";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
   public static final String PARAM_TIMEZONE = "timeZone";
 
-  /**
-   * @deprecated since 7.9
-   */
-  @Deprecated
-  public static final String FACET_MODE = "facetMode";
-  public static final String FACET_MODE_COUNT = "count";
   public static final String FACET_MODE_EFFORT = "effort";
 
   private IssuesWsParameters() {

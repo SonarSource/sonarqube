@@ -36,7 +36,6 @@ public class SearchRequest {
   private String assigned;
   private List<String> assignees;
   private List<String> author;
-  private List<String> authors;
   private String branch;
   private List<String> componentKeys;
   private List<String> componentUuids;
@@ -51,7 +50,6 @@ public class SearchRequest {
   private List<String> fileUuids;
   private List<String> issues;
   private List<String> languages;
-  private List<String> moduleUuids;
   private String onComponentOnly;
   private List<String> owaspTop10;
   private String p;
@@ -150,20 +148,6 @@ public class SearchRequest {
 
   public List<String> getAuthor() {
     return author;
-  }
-
-  /**
-   * Example value: "torvalds@linux-foundation.org"
-   * @deprecated since 7.7
-   */
-  @Deprecated
-  public SearchRequest setAuthors(List<String> authors) {
-    this.authors = authors;
-    return this;
-  }
-
-  public List<String> getAuthors() {
-    return authors;
   }
 
   /**
@@ -281,22 +265,6 @@ public class SearchRequest {
   /**
    * Possible values:
    * <ul>
-   *   <li>"count"</li>
-   *   <li>"effort"</li>
-   * </ul>
-   */
-  public SearchRequest setFacetMode(String facetMode) {
-    this.facetMode = facetMode;
-    return this;
-  }
-
-  public String getFacetMode() {
-    return facetMode;
-  }
-
-  /**
-   * Possible values:
-   * <ul>
    *   <li>"projects"</li>
    *   <li>"moduleUuids"</li>
    *   <li>"fileUuids"</li>
@@ -365,21 +333,6 @@ public class SearchRequest {
 
   public List<String> getLanguages() {
     return languages;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "7d8749e8-3070-4903-9188-bdd82933bb92"
-   * @deprecated since 7.6
-   */
-  @Deprecated
-  public SearchRequest setModuleUuids(List<String> moduleUuids) {
-    this.moduleUuids = moduleUuids;
-    return this;
-  }
-
-  public List<String> getModuleUuids() {
-    return moduleUuids;
   }
 
   /**

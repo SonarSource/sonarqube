@@ -20,18 +20,10 @@
 package org.sonar.db.component;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -41,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 
-import static org.sonar.core.component.ComponentKeys.checkProjectKey;
 import static org.sonar.db.component.ComponentDto.BRANCH_KEY_SEPARATOR;
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
@@ -108,85 +99,9 @@ public class ComponentKeyUpdaterDao implements Dao {
     }
   }
 
-  /**
-   *
-   * @return a map with currentKey/newKey is a bulk update was executed
-   */
-  public Map<String, String> simulateBulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
-    return collectAllModules(projectUuid, stringToReplace, mapper(dbSession), false)
-      .stream()
-      .collect(Collectors.toMap(
-        ResourceDto::getKey,
-        component -> {
-          String newKey = computeNewKey(component.getKey(), stringToReplace, replacementString);
-          checkProjectKey(newKey);
-          return newKey;
-        }));
-  }
-
-  /**
-   * @return a map with the component key as key, and boolean as true if key already exists in db
-   */
-  public Map<String, Boolean> checkComponentKeys(DbSession dbSession, List<String> newComponentKeys) {
-    return newComponentKeys.stream().collect(Collectors.toMap(Function.identity(), key -> mapper(dbSession).countResourceByKey(key) > 0));
-  }
-
   @VisibleForTesting
   static String computeNewKey(String key, String stringToReplace, String replacementString) {
     return key.replace(stringToReplace, replacementString);
-  }
-
-  public Set<RekeyedResource> bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString,
-    Predicate<RekeyedResource> rekeyedResourceFilter) {
-    ComponentKeyUpdaterMapper mapper = session.getMapper(ComponentKeyUpdaterMapper.class);
-    // must SELECT first everything
-    Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper, true);
-    checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
-
-    // add branches (no check should be done as branch keys cannot be changed by the user)
-    Map<String, String> branchBaseKeys = new HashMap<>();
-    session.getMapper(BranchMapper.class).selectByProjectUuid(projectUuid).stream()
-      .filter(branch -> !projectUuid.equals(branch.getUuid()))
-      .forEach(branch -> {
-        Set<ResourceDto> branchModules = collectAllModules(branch.getUuid(), stringToReplace, mapper, true);
-        modules.addAll(branchModules);
-        branchModules.forEach(module -> branchBaseKeys.put(module.getKey(), branchBaseKey(module.getKey())));
-      });
-
-    Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = new HashMap<>();
-    for (ResourceDto module : modules) {
-      allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getUuid()));
-    }
-
-    Set<RekeyedResource> rekeyedResources = new HashSet<>();
-    // and then proceed with the batch UPDATE at once
-    for (ResourceDto module : modules) {
-      String oldModuleKey = module.getKey();
-      oldModuleKey = branchBaseKeys.getOrDefault(oldModuleKey, oldModuleKey);
-      String newModuleKey = computeNewKey(oldModuleKey, stringToReplace, replacementString);
-      Collection<ResourceDto> resources = Lists.newArrayList(module);
-      resources.addAll(allResourcesByModuleMap.get(module));
-      runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper,
-        (resource, oldKey) -> {
-          RekeyedResource rekeyedResource = new RekeyedResource(resource, oldKey);
-          if (rekeyedResourceFilter.test(rekeyedResource)) {
-            rekeyedResources.add(rekeyedResource);
-          }
-        }, session);
-    }
-    return rekeyedResources;
-  }
-
-  private static String branchBaseKey(String key) {
-    int index = key.lastIndexOf(ComponentDto.BRANCH_KEY_SEPARATOR);
-    if (index > -1) {
-      return key.substring(0, index);
-    }
-    index = key.lastIndexOf(ComponentDto.PULL_REQUEST_SEPARATOR);
-    if (index > -1) {
-      return key.substring(0, index);
-    }
-    return key;
   }
 
   private void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ComponentKeyUpdaterMapper mapper,
@@ -247,26 +162,6 @@ public class ComponentKeyUpdaterDao implements Dao {
     @Override
     public int hashCode() {
       return resource.getUuid().hashCode();
-    }
-  }
-
-  private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ComponentKeyUpdaterMapper mapper, boolean includeDisabled) {
-    ResourceDto project = mapper.selectProjectByUuid(projectUuid);
-    Set<ResourceDto> modules = new HashSet<>();
-    if (project.getKey().contains(stringToReplace) && (project.isEnabled() || includeDisabled)) {
-      modules.add(project);
-    }
-    for (ResourceDto submodule : mapper.selectDescendantProjects(projectUuid)) {
-      modules.addAll(collectAllModules(submodule.getUuid(), stringToReplace, mapper, includeDisabled));
-    }
-    return modules;
-  }
-
-  private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ComponentKeyUpdaterMapper mapper) {
-    for (ResourceDto module : modules) {
-      String newKey = computeNewKey(module.getKey(), stringToReplace, replacementString);
-      checkProjectKey(newKey);
-      checkExistentKey(mapper, newKey);
     }
   }
 

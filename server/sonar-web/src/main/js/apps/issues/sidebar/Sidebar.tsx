@@ -256,15 +256,15 @@ export class Sidebar extends React.PureComponent<Props> {
         )}
         {displayAuthorFacet && !this.props.disableDeveloperAggregatedInfo && (
           <AuthorFacet
-            authors={query.authors}
+            author={query.author}
             component={component}
-            fetching={this.props.loadingFacets.authors === true}
+            fetching={this.props.loadingFacets.author === true}
             loadSearchResultCount={this.props.loadSearchResultCount}
             onChange={this.props.onFilterChange}
             onToggle={this.props.onFacetToggle}
-            open={!!openFacets.authors}
+            open={!!openFacets.author}
             query={query}
-            stats={facets.authors}
+            stats={facets.author}
           />
         )}
       </>

@@ -78,6 +78,7 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
+import static org.sonar.server.issue.index.IssueIndex.FACET_MODULES;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
@@ -91,10 +92,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_COUNT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASC;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
@@ -111,7 +108,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
@@ -136,7 +132,7 @@ public class SearchAction implements IssuesWsAction {
 
   static final List<String> SUPPORTED_FACETS = List.of(
     FACET_PROJECTS,
-    PARAM_MODULE_UUIDS,
+    FACET_MODULES,
     PARAM_FILES,
     FACET_ASSIGNED_TO_ME,
     PARAM_SEVERITIES,
@@ -144,7 +140,6 @@ public class SearchAction implements IssuesWsAction {
     PARAM_RESOLUTIONS,
     PARAM_RULES,
     PARAM_ASSIGNEES,
-    DEPRECATED_PARAM_AUTHORS,
     PARAM_AUTHOR,
     PARAM_DIRECTORIES,
     PARAM_SCOPES,
@@ -159,7 +154,7 @@ public class SearchAction implements IssuesWsAction {
   );
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
-  private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILES, PARAM_DIRECTORIES);
+  private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(FACET_MODULES, PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -191,6 +186,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.1", "Deprecated parameters 'authors', 'facetMode' and 'moduleUuids' were dropped"),
         new Change("8.6", "Parameter 'timeZone' added"),
         new Change("8.5", "Facet 'fileUuids' is dropped in favour of the new facet 'files'" +
           "Note that they are not strictly identical, the latter returns the file paths."),
@@ -202,11 +198,11 @@ public class SearchAction implements IssuesWsAction {
         new Change("8.2", "Status 'IN_REVIEW' for Security Hotspots has been deprecated"),
         new Change("7.8", format("added new Security Hotspots statuses : %s, %s and %s", STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED)),
         new Change("7.8", "Security hotspots are returned by default"),
-        new Change("7.7", format("Value '%s' in parameter '%s' is deprecated, please use '%s' instead", DEPRECATED_PARAM_AUTHORS, FACETS, PARAM_AUTHOR)),
+        new Change("7.7", format("Value 'authors' in parameter '%s' is deprecated, please use '%s' instead", FACETS, PARAM_AUTHOR)),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT_KEYS)),
         new Change("7.4", "The facet 'projectUuids' is dropped in favour of the new facet 'projects'. " +
           "Note that they are not strictly identical, the latter returns the project keys."),
-        new Change("7.4", format("Parameter '%s' does not accept anymore deprecated value 'debt'", FACET_MODE)),
+        new Change("7.4", "Parameter 'facetMode' does not accept anymore deprecated value 'debt'"),
         new Change("7.3", "response field 'fromHotspot' added to issues that are security hotspots"),
         new Change("7.3", "added facets 'sansTop25', 'owaspTop10' and 'cwe'"),
         new Change("7.2", "response field 'externalRuleEngine' added to issues that have been imported from an external rule engine"),
@@ -222,11 +218,6 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(SUPPORTED_FACETS);
-    action.createParam(FACET_MODE)
-      .setDefaultValue(FACET_MODE_COUNT)
-      .setDeprecatedSince("7.9")
-      .setDescription("Choose the returned value for facet items, either count of issues or sum of remediation effort.")
-      .setPossibleValues(FACET_MODE_COUNT, FACET_MODE_EFFORT);
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.createParam(PARAM_ADDITIONAL_FIELDS)
       .setSince("5.2")
@@ -278,10 +269,6 @@ public class SearchAction implements IssuesWsAction {
         " with any category")
       .setSince("7.8")
       .setPossibleValues(Arrays.stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));
-    action.createParam(DEPRECATED_PARAM_AUTHORS)
-      .setDeprecatedSince("7.7")
-      .setDescription("This parameter is deprecated, please use '%s' instead", PARAM_AUTHOR)
-      .setExampleValue("torvalds@linux-foundation.org");
     action.createParam(PARAM_AUTHOR)
       .setDescription("SCM accounts. To set several values, the parameter must be called once for each value.")
       .setExampleValue("author=torvalds@linux-foundation.org&author=linux@fondation.org");
@@ -346,13 +333,6 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set, projectUuids must not be set.")
       .setInternal(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-
-    action.createParam(PARAM_MODULE_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module IDs). " +
-        INTERNAL_PARAMETER_DISCLAIMER)
-      .setInternal(true)
-      .setDeprecatedSince("7.6")
-      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(PARAM_DIRECTORIES)
       .setDescription("To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). " +
@@ -448,7 +428,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_STATUSES, ISSUE_STATUSES);
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
-    addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
+    addMandatoryValuesToFacet(facets, FACET_MODULES, query.moduleUuids());
     addMandatoryValuesToFacet(facets, PARAM_FILES, query.files());
 
     List<String> assignees = Lists.newArrayList("");
@@ -499,13 +479,11 @@ public class SearchAction implements IssuesWsAction {
 
   private static void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
     collector.addProjectUuids(facets.getBucketKeys(FACET_PROJECTS));
-    collector.addComponentUuids(facets.getBucketKeys(PARAM_MODULE_UUIDS));
     collector.addRuleIds(facets.getBucketKeys(PARAM_RULES));
     collector.addUserUuids(facets.getBucketKeys(PARAM_ASSIGNEES));
   }
 
   private static void collectRequestParams(SearchResponseLoader.Collector collector, SearchRequest request) {
-    collector.addComponentUuids(request.getModuleUuids());
     collector.addUserUuids(request.getAssigneeUuids());
   }
 
@@ -515,20 +493,18 @@ public class SearchAction implements IssuesWsAction {
       .setAsc(request.mandatoryParamAsBoolean(PARAM_ASC))
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
       .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
-      .setAuthors(request.hasParam(PARAM_AUTHOR) ? request.multiParam(PARAM_AUTHOR) : request.paramAsStrings(DEPRECATED_PARAM_AUTHORS))
+      .setAuthors(request.multiParam(PARAM_AUTHOR))
       .setComponents(request.paramAsStrings(PARAM_COMPONENT_KEYS))
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
       .setCreatedAt(request.param(PARAM_CREATED_AT))
       .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))
       .setCreatedInLast(request.param(PARAM_CREATED_IN_LAST))
       .setDirectories(request.paramAsStrings(PARAM_DIRECTORIES))
-      .setFacetMode(request.mandatoryParam(FACET_MODE))
       .setFacets(request.paramAsStrings(FACETS))
       .setFiles(request.paramAsStrings(PARAM_FILES))
       .setIssues(request.paramAsStrings(PARAM_ISSUES))
       .setScopes(request.paramAsStrings(PARAM_SCOPES))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
-      .setModuleUuids(request.paramAsStrings(PARAM_MODULE_UUIDS))
       .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))
       .setBranch(request.param(PARAM_BRANCH))
       .setPullRequest(request.param(PARAM_PULL_REQUEST))

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -34,18 +33,12 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
-import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.tester.UserSessionRule;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class ComponentServiceUpdateKeyTest {
 
@@ -147,46 +140,6 @@ public class ComponentServiceUpdateKeyTest {
     assertThatThrownBy(() -> underTest.updateKey(dbSession, projectDto, "sample?root"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-  }
-
-  @Test
-  public void bulk_update_key() {
-    ComponentDto project = componentDb.insertPublicProject(c -> c.setDbKey("my_project"));
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:module"));
-    ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setDbKey("my_project:root:inactive_module").setEnabled(false));
-    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
-    ComponentDto inactiveFile = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/InactiveFile.xoo").setEnabled(false));
-
-    underTest.bulkUpdateKey(dbSession, componentDb.getProjectDto(project), "my_", "your_");
-
-    assertComponentKeyUpdated(project.getDbKey(), "your_project");
-    assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
-    assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
-    assertComponentKeyUpdated(inactiveModule.getDbKey(), "your_project:root:inactive_module");
-    assertComponentKeyUpdated(inactiveFile.getDbKey(), "your_project:root:module:src/InactiveFile.xoo");
-    verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
-      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")));
-  }
-
-  @Test
-  public void bulk_update_key_with_branch_and_pr() {
-    ComponentDto project = componentDb.insertPublicProject(c -> c.setDbKey("my_project"));
-    ComponentDto branch = componentDb.insertProjectBranch(project);
-    ComponentDto module = componentDb.insertComponent(newModuleDto(branch).setDbKey("my_project:root:module"));
-    ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setDbKey("my_project:root:module:src/File.xoo"));
-
-    underTest.bulkUpdateKey(dbSession, componentDb.getProjectDto(project), "my_", "your_");
-
-    assertComponentKeyUpdated(project.getDbKey(), "your_project");
-    assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
-    assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
-    verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
-      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")));
-  }
-
-  private void assertComponentKeyUpdated(String oldKey, String newKey) {
-    assertThat(dbClient.componentDao().selectByKey(dbSession, oldKey)).isEmpty();
-    assertThat(dbClient.componentDao().selectByKey(dbSession, newKey)).isPresent();
   }
 
   private ComponentDto insertSampleProject() {

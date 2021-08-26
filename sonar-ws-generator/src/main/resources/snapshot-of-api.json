@@ -3941,89 +3941,6 @@
           ]
         },
         {
-          "key": "search_global_permissions",
-          "description": "List global permissions. <br />Requires the following permission: 'Administer System'",
-          "since": "5.2",
-          "deprecatedSince": "6.5",
-          "internal": false,
-          "post": false,
-          "hasResponseExample": true,
-          "changelog": [],
-          "params": [
-            {
-              "key": "organization",
-              "description": "Key of organization, used when group name is set",
-              "since": "6.2",
-              "required": false,
-              "internal": true,
-              "exampleValue": "my-org"
-            }
-          ]
-        },
-        {
-          "key": "search_project_permissions",
-          "description": "List project permissions. A project can be a technical project, a view or a developer.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>",
-          "since": "5.2",
-          "deprecatedSince": "6.5",
-          "internal": false,
-          "post": false,
-          "hasResponseExample": true,
-          "changelog": [],
-          "params": [
-            {
-              "key": "p",
-              "description": "1-based page number",
-              "required": false,
-              "internal": false,
-              "defaultValue": "1",
-              "exampleValue": "42",
-              "deprecatedKey": "pageIndex",
-              "deprecatedKeySince": "5.2"
-            },
-            {
-              "key": "projectId",
-              "description": "Project id",
-              "required": false,
-              "internal": false,
-              "exampleValue": "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
-            },
-            {
-              "key": "projectKey",
-              "description": "Project key",
-              "required": false,
-              "internal": false,
-              "exampleValue": "my_project"
-            },
-            {
-              "key": "ps",
-              "description": "Page size. Must be greater than 0.",
-              "required": false,
-              "internal": false,
-              "defaultValue": "25",
-              "exampleValue": "20",
-              "deprecatedKey": "pageSize",
-              "deprecatedKeySince": "5.2"
-            },
-            {
-              "key": "q",
-              "description": "Limit search to: <ul><li>project names that contain the supplied string</li><li>project keys that are exactly the same as the supplied string</li></ul>",
-              "required": false,
-              "internal": false,
-              "exampleValue": "apac"
-            },
-            {
-              "key": "qualifier",
-              "description": "Project qualifier. Filter the results with the specified qualifier. Possible values are:<ul><li>TRK - Projects</li></ul>",
-              "since": "5.3",
-              "required": false,
-              "internal": false,
-              "possibleValues": [
-                "TRK"
-              ]
-            }
-          ]
-        },
-        {
           "key": "search_templates",
           "description": "List permission templates.<br />Requires the following permission: 'Administer System'.",
           "since": "5.2",
@@ -6065,24 +5982,6 @@
               "required": false,
               "internal": false,
               "exampleValue": "My Quality Gate"
-            }
-          ]
-        },
-        {
-          "key": "unset_default",
-          "description": "Unset a quality gate as the default quality gate.<br>Requires the 'Administer Quality Gates' permission.",
-          "since": "4.3",
-          "internal": false,
-          "post": true,
-          "hasResponseExample": false,
-          "changelog": [],
-          "params": [
-            {
-              "key": "id",
-              "description": "ID of the quality gate to unset as default",
-              "required": true,
-              "internal": false,
-              "exampleValue": "1"
             }
           ]
         },

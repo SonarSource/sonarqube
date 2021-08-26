@@ -36,7 +36,6 @@ public class SearchRequestTest {
       .setResolutions(singletonList("FALSE-POSITIVE"))
       .setResolved(true)
       .setProjects(singletonList("project-a"))
-      .setModuleUuids(singletonList("module-a"))
       .setDirectories(singletonList("aDirPath"))
       .setFiles(asList("file-a", "file-b"))
       .setAssigneesUuid(asList("user-a", "user-b"))
@@ -56,7 +55,6 @@ public class SearchRequestTest {
     assertThat(underTest.getResolutions()).containsExactly("FALSE-POSITIVE");
     assertThat(underTest.getResolved()).isTrue();
     assertThat(underTest.getProjects()).containsExactly("project-a");
-    assertThat(underTest.getModuleUuids()).containsExactly("module-a");
     assertThat(underTest.getDirectories()).containsExactly("aDirPath");
     assertThat(underTest.getFiles()).containsExactly("file-a", "file-b");
     assertThat(underTest.getAssigneeUuids()).containsExactly("user-a", "user-b");

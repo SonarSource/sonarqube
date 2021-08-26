@@ -5,7 +5,10 @@ url: /setup/upgrade-notes/
 
 ## Release 9.1 Upgrade Notes  
 **Custom measures feature has been dropped**
-The custom measures feature, which was previously deprecated, has been removed. ([SONAR-10762)[https://jira.sonarsource.com/browse/SONAR-10762]).
+The custom measures feature, which was previously deprecated, has been removed. ([SONAR-10762](https://jira.sonarsource.com/browse/SONAR-10762)).
+
+**Deprecated WebAPI endpoints and parameters removal**
+The WebAPI endpoints and parameters deprecated during the 7.X release cycle have been removed. For a complete list of removed endpoints and parameters see [SONAR-15313](https://jira.sonarsource.com/browse/SONAR-15313).
 
 ## Release 9.0 Upgrade Notes  
 **Scanners require Java 11**  

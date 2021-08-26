@@ -91,7 +91,6 @@ public class IssueQueryFactoryTest {
       .setResolutions(asList("FALSE-POSITIVE"))
       .setResolved(true)
       .setProjects(asList(project.getDbKey()))
-      .setModuleUuids(asList(module.uuid()))
       .setDirectories(asList("aDirPath"))
       .setFiles(asList(file.uuid()))
       .setAssigneesUuid(asList(user.getUuid()))
@@ -113,7 +112,6 @@ public class IssueQueryFactoryTest {
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.resolved()).isTrue();
     assertThat(query.projectUuids()).containsOnly(project.uuid());
-    assertThat(query.moduleUuids()).containsOnly(module.uuid());
     assertThat(query.files()).containsOnly(file.uuid());
     assertThat(query.assignees()).containsOnly(user.getUuid());
     assertThat(query.scopes()).containsOnly("TEST", "MAIN");

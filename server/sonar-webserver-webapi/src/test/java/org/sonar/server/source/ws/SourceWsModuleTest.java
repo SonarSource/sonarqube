@@ -32,7 +32,7 @@ public class SourceWsModuleTest {
   public void verify_count_of_actions() {
     ComponentContainer container = new ComponentContainer();
     underTest.configure(container);
-    assertThat(container.getPicoContainer().getComponentAdapters(WsAction.class)).hasSize(7);
+    assertThat(container.getPicoContainer().getComponentAdapters(WsAction.class)).hasSize(6);
   }
 
 }

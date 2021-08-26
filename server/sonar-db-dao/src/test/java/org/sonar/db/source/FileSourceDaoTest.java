@@ -21,17 +21,12 @@ package org.sonar.db.source;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
@@ -76,30 +71,6 @@ public class FileSourceDaoTest {
     assertThat(fileSourceDto.getRevision()).isEqualTo(expected.getRevision());
     assertThat(fileSourceDto.getLineHashesVersion()).isEqualTo(expected.getLineHashesVersion());
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(expected.getLineHashes());
-  }
-
-  @Test
-  public void select_line_hashes() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
-
-    ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbSession, expected.getFileUuid(), fn);
-
-    assertThat(fn.result).isEqualTo(expected.getLineHashes().isEmpty() ? null : String.join("\n", expected.getLineHashes()));
-  }
-
-  @Test
-  public void no_line_hashes_on_unknown_file() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    dbTester.fileSources().insertFileSource(file);
-
-    ReaderToStringConsumer fn = new ReaderToStringConsumer();
-    underTest.readLineHashesStream(dbSession, "unknown", fn);
-
-    assertThat(fn.result).isNull();
   }
 
   @Test
@@ -215,31 +186,6 @@ public class FileSourceDaoTest {
     dbSession.commit();
 
     assertThat(underTest.selectLineHashesVersion(dbSession, "FILE2_UUID")).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
-  }
-
-  @Test
-  public void readLineHashesStream_does_not_fail_when_lineshashes_is_null() {
-    underTest.insert(dbSession, new FileSourceDto()
-      .setUuid(Uuids.createFast())
-      .setProjectUuid("PRJ_UUID")
-      .setFileUuid("FILE2_UUID")
-      .setBinaryData("FILE2_BINARY_DATA".getBytes())
-      .setDataHash("FILE2_DATA_HASH")
-      .setSrcHash("FILE2_HASH")
-      .setCreatedAt(1500000000000L)
-      .setUpdatedAt(1500000000001L)
-      .setRevision("123456789"));
-    dbSession.commit();
-
-    boolean[] flag = {false};
-    underTest.readLineHashesStream(dbSession, "FILE2_UUID", new Consumer<Reader>() {
-      @Override
-      public void accept(@Nullable Reader input) {
-        fail("function must never been called since there is no data to read");
-        flag[0] = true;
-      }
-    });
-    assertThat(flag[0]).isFalse();
   }
 
   @Test
@@ -390,19 +336,5 @@ public class FileSourceDaoTest {
     FileSourceDto res = underTest.selectByFileUuid(dbSession, fileSourceDto.getFileUuid());
     assertThat(res.getLineHashes()).isEmpty();
     assertThat(res.getLineCount()).isEqualTo(1);
-  }
-
-  private static class ReaderToStringConsumer implements Consumer<Reader> {
-
-    String result = null;
-
-    @Override
-    public void accept(Reader input) {
-      try {
-        result = IOUtils.toString(input);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
   }
 }

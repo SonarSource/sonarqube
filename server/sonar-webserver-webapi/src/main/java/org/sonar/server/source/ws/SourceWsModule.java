@@ -34,7 +34,6 @@ public class SourceWsModule extends Module {
       ShowAction.class,
       IssueSnippetsAction.class,
       LinesAction.class,
-      HashAction.class,
       RawAction.class,
       IndexAction.class,
       ScmAction.class

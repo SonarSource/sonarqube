@@ -17,17 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.permissions;
+package org.sonarqube.ws.client.views;
 
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/search_global_permissions">Further information about this action online (including a response example)</a>
- * @since 5.2
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/set_none_mode">Further information about this action online (including a response example)</a>
+ * @since 9.1
  */
 @Generated("sonar-ws-generator")
-public class SearchGlobalPermissionsRequest {
+public class SetNoneModeRequest {
+
+  private String portfolio;
+
+  /**
+   * This is a mandatory parameter.
+   */
+  public SetNoneModeRequest setPortfolio(String portfolio) {
+    this.portfolio = portfolio;
+    return this;
+  }
+
+  public String getPortfolio() {
+    return portfolio;
+  }
 
 }

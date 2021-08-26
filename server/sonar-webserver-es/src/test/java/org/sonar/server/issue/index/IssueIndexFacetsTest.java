@@ -401,20 +401,6 @@ public class IssueIndexFacetsTest {
   }
 
   @Test
-  public void facets_on_deprecated_authors() {
-    ComponentDto project = newPrivateProjectDto();
-    ComponentDto file = newFileDto(project, null);
-
-    indexIssues(
-      newDoc("I1", file).setAuthorLogin("steph"),
-      newDoc("I2", file).setAuthorLogin("marcel"),
-      newDoc("I3", file).setAuthorLogin("marcel"),
-      newDoc("I4", file).setAuthorLogin(null));
-
-    assertThatFacetHasOnly(IssueQuery.builder(), "authors", entry("steph", 1L), entry("marcel", 2L));
-  }
-
-  @Test
   public void facets_on_authors_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null)).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
@@ -422,8 +408,8 @@ public class IssueIndexFacetsTest {
     IssueDoc issue2 = newDoc(newFileDto(project, null)).setAuthorLogin("user2");
     indexIssues(issue1, issue2);
 
-    assertThatFacetHasSize(IssueQuery.builder().build(), "authors", 100);
-    assertThatFacetHasSize(IssueQuery.builder().authors(asList(issue1.authorLogin(), issue2.authorLogin())).build(), "authors", 102);
+    assertThatFacetHasSize(IssueQuery.builder().build(), "author", 100);
+    assertThatFacetHasSize(IssueQuery.builder().authors(asList(issue1.authorLogin(), issue2.authorLogin())).build(), "author", 102);
   }
 
   @Test

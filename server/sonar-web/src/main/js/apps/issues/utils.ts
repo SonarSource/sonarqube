@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isArray } from 'lodash';
 import { searchUsers } from '../../api/users';
 import { formatMeasure } from '../../helpers/measures';
 import {
@@ -32,13 +33,14 @@ import {
 } from '../../helpers/query';
 import { scrollToElement } from '../../helpers/scrolling';
 import { get, save } from '../../helpers/storage';
+import { isDefined } from '../../helpers/types';
 import { Facet, RawFacet } from '../../types/issues';
 import { SecurityStandard, StandardType } from '../../types/security';
 
 export interface Query {
   assigned: boolean;
   assignees: string[];
-  authors: string[];
+  author: string[];
   createdAfter: Date | undefined;
   createdAt: string;
   createdBefore: Date | undefined;
@@ -48,7 +50,6 @@ export interface Query {
   files: string[];
   issues: string[];
   languages: string[];
-  modules: string[];
   owaspTop10: string[];
   projects: string[];
   resolutions: string[];
@@ -81,7 +82,7 @@ export function parseQuery(query: T.RawQuery): Query {
   return {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
-    authors: parseAsArray(query.authors, parseAsString),
+    author: isArray(query.author) ? query.author : [query.author].filter(isDefined),
     createdAfter: parseAsDate(query.createdAfter),
     createdAt: parseAsString(query.createdAt),
     createdBefore: parseAsDate(query.createdBefore),
@@ -91,7 +92,6 @@ export function parseQuery(query: T.RawQuery): Query {
     files: parseAsArray(query.files, parseAsString),
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
-    modules: parseAsArray(query.moduleUuids, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
     projects: parseAsArray(query.projects, parseAsString),
     resolutions: parseAsArray(query.resolutions, parseAsString),
@@ -119,7 +119,7 @@ export function serializeQuery(query: Query): T.RawQuery {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
-    authors: serializeStringArray(query.authors),
+    author: query.author,
     createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),
@@ -129,7 +129,6 @@ export function serializeQuery(query: Query): T.RawQuery {
     files: serializeStringArray(query.files),
     issues: serializeStringArray(query.issues),
     languages: serializeStringArray(query.languages),
-    moduleUuids: serializeStringArray(query.modules),
     owaspTop10: serializeStringArray(query.owaspTop10),
     projects: serializeStringArray(query.projects),
     resolutions: serializeStringArray(query.resolutions),
@@ -145,28 +144,17 @@ export function serializeQuery(query: Query): T.RawQuery {
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types)
   };
+
   return cleanQuery(filter);
 }
 
 export const areQueriesEqual = (a: T.RawQuery, b: T.RawQuery) =>
   queriesEqual(parseQuery(a), parseQuery(b));
 
-export function mapFacet(facet: string) {
-  const propertyMapping: T.Dict<string> = {
-    modules: 'moduleUuids'
-  };
-  return propertyMapping[facet] || facet;
-}
-
 export function parseFacets(facets: RawFacet[]): T.Dict<Facet> {
   if (!facets) {
     return {};
   }
-
-  // for readability purpose
-  const propertyMapping: T.Dict<string> = {
-    moduleUuids: 'modules'
-  };
 
   const result: T.Dict<Facet> = {};
   facets.forEach(facet => {
@@ -174,8 +162,7 @@ export function parseFacets(facets: RawFacet[]): T.Dict<Facet> {
     facet.values.forEach(value => {
       values[value.val] = value.count;
     });
-    const finalProperty = propertyMapping[facet.property] || facet.property;
-    result[finalProperty] = values;
+    result[facet.property] = values;
   });
   return result;
 }

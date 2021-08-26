@@ -22,12 +22,8 @@ package org.sonar.server.qualitygate.ws;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.server.ws.Change;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.Condition;
-import org.sonar.server.ws.RemovedWebServiceHandler;
 
 import static org.sonar.server.qualitygate.QualityGateConditionsUpdater.INVALID_METRIC_KEYS;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
@@ -53,17 +49,6 @@ public class QualityGatesWs implements WebService {
     for (QualityGatesWsAction action : actions) {
       action.define(controller);
     }
-
-    // unset_default is no more authorized
-    controller.createAction("unset_default")
-      .setDescription("This webservice is no more available : a default quality gate is mandatory.")
-      .setSince("4.3")
-      .setDeprecatedSince("7.0")
-      .setPost(true)
-      .setHandler(RemovedWebServiceHandler.INSTANCE)
-      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample())
-      .setChangelog(
-        new Change("7.0", "Unset a quality gate is no more authorized"));
 
     controller.done();
   }
@@ -104,14 +89,6 @@ public class QualityGatesWs implements WebService {
   private static String getInvalidMetrics() {
     return INVALID_METRIC_KEYS.stream().map(s -> "<li>" + s + "</li>")
       .collect(Collectors.joining());
-  }
-
-  static Long parseId(Request request, String paramName) {
-    try {
-      return Long.valueOf(request.mandatoryParam(paramName));
-    } catch (NumberFormatException badFormat) {
-      throw BadRequestException.create(paramName + " must be a valid long value");
-    }
   }
 
   private static Set<String> getPossibleOperators() {

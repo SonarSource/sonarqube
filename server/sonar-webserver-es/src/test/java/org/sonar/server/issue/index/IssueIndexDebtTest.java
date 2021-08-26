@@ -201,7 +201,7 @@ public class IssueIndexDebtTest {
   }
 
   @Test
-  public void facets_on_authors() {
+  public void facets_on_author() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
@@ -211,9 +211,9 @@ public class IssueIndexDebtTest {
       IssueDocTesting.newDoc("I3", file).setAuthorLogin("simon").setEffort(10L),
       IssueDocTesting.newDoc("I4", file).setAuthorLogin(null).setEffort(10L));
 
-    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList("authors"))), system2.getDefaultTimeZone().toZoneId());
-    assertThat(facets.getNames()).containsOnly("authors", FACET_MODE_EFFORT);
-    assertThat(facets.get("authors")).containsOnly(entry("steph", 10L), entry("simon", 20L));
+    Facets facets = new Facets(underTest.search(newQueryBuilder().build(), new SearchOptions().addFacets(singletonList("author"))), system2.getDefaultTimeZone().toZoneId());
+    assertThat(facets.getNames()).containsOnly("author", FACET_MODE_EFFORT);
+    assertThat(facets.get("author")).containsOnly(entry("steph", 10L), entry("simon", 20L));
     assertThat(facets.get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
   }
 

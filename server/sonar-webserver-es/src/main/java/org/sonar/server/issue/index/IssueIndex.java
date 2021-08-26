@@ -115,7 +115,6 @@ import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SU
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNEES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHOR;
-import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHORS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
@@ -171,7 +170,6 @@ import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_I
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_AUTHORS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
@@ -180,7 +178,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
@@ -200,6 +197,7 @@ public class IssueIndex {
 
   public static final String FACET_PROJECTS = "projects";
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
+  public static final String FACET_MODULES = "moduleUuids";
 
   private static final int DEFAULT_FACET_SIZE = 15;
   private static final int MAX_FACET_SIZE = 100;
@@ -238,10 +236,9 @@ public class IssueIndex {
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
     RULES(PARAM_RULES, FIELD_ISSUE_RULE_UUID, STICKY, MAX_FACET_SIZE),
     TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, STICKY, MAX_FACET_SIZE),
-    AUTHORS(DEPRECATED_PARAM_AUTHORS, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
     AUTHOR(PARAM_AUTHOR, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
     PROJECT_UUIDS(FACET_PROJECTS, FIELD_ISSUE_PROJECT_UUID, STICKY, MAX_FACET_SIZE),
-    MODULE_UUIDS(PARAM_MODULE_UUIDS, FIELD_ISSUE_MODULE_UUID, STICKY, MAX_FACET_SIZE),
+    MODULE_UUIDS(FACET_MODULES, FIELD_ISSUE_MODULE_UUID, STICKY, MAX_FACET_SIZE),
     FILES(PARAM_FILES, FIELD_ISSUE_FILE_PATH, STICKY, MAX_FACET_SIZE),
     DIRECTORIES(PARAM_DIRECTORIES, FIELD_ISSUE_DIRECTORY_PATH, STICKY, MAX_FACET_SIZE),
     ASSIGNEES(PARAM_ASSIGNEES, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, MAX_FACET_SIZE),
@@ -674,7 +671,6 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, SCOPES, query.scopes().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, LANGUAGES, query.languages().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.ruleUuids().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHORS, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHOR, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TYPES, query.types().toArray());

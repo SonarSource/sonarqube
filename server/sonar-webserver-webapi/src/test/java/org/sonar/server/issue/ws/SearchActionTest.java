@@ -912,39 +912,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_by_deprecated_authors_parameter() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("leia"));
-    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setAuthorLogin("luke"));
-    indexPermissions();
-    indexIssues();
-
-    SearchWsResponse response = ws.newRequest()
-      .setParam("authors", "leia")
-      .setParam(FACETS, "authors")
-      .executeProtobuf(SearchWsResponse.class);
-    assertThat(response.getIssuesList()).extracting(Issue::getKey).containsExactlyInAnyOrder(issue1.getKey());
-    Common.Facet facet = response.getFacets().getFacetsList().get(0);
-    assertThat(facet.getProperty()).isEqualTo("authors");
-    assertThat(facet.getValuesList())
-      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactlyInAnyOrder(
-        tuple("leia", 1L),
-        tuple("luke", 1L));
-
-    // Deprecated parameter 'authors' will be ignored if new parameter 'author' is set
-    assertThat(ws.newRequest()
-      .setMultiParam("author", singletonList("luke"))
-      // This parameter will be ignored
-      .setParam("authors", "leia")
-      .executeProtobuf(SearchWsResponse.class).getIssuesList())
-        .extracting(Issue::getKey)
-        .containsExactlyInAnyOrder(issue2.getKey());
-  }
-
-  @Test
   public void sort_by_updated_at() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
@@ -1350,8 +1317,8 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
-      "createdBefore", "createdInLast", "directories", "facetMode", "facets", "files", "issues", "scopes", "languages", "moduleUuids", "onComponentOnly",
+      "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
+      "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "owaspTop10", "sansTop25",
       "cwe", "sonarsourceSecurity", "timeZone");
 

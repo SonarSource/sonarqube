@@ -68,7 +68,6 @@ import {
   areMyIssuesSelected,
   areQueriesEqual,
   getOpen,
-  mapFacet,
   parseFacets,
   parseQuery,
   Query,
@@ -408,7 +407,6 @@ export default class App extends React.PureComponent<Props, State> {
     const facets = requestFacets
       ? Object.keys(openFacets)
           .filter(facet => facet !== STANDARDS)
-          .map(mapFacet)
           .join(',')
       : undefined;
 
@@ -590,7 +588,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchFacet = (facet: string) => {
-    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }, false).then(
+    return this.fetchIssues({ ps: 1, facets: facet }, false).then(
       ({ facets, ...other }) => {
         if (this.mounted) {
           this.setState(state => ({
@@ -689,7 +687,7 @@ export default class App extends React.PureComponent<Props, State> {
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
-      facets: mapFacet(property),
+      facets: property,
       s: 'FILE_LINE',
       ...serializeQuery({ ...query, ...changes }),
       ps: 1

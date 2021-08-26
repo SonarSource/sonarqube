@@ -30,7 +30,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 

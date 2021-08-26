@@ -72,16 +72,6 @@ public class WebServiceReroutingFilterTest {
     assertRedirection("/api/projects/update_key", "POST");
   }
 
-  @Test
-  public void redirect_components_bulk_update_key() {
-    when(request.getServletPath()).thenReturn("/api/components/bulk_update_key");
-    when(request.getMethod()).thenReturn("POST");
-
-    underTest.doFilter(request, response, chain);
-
-    assertRedirection("/api/projects/bulk_update_key", "POST");
-  }
-
   private void assertRedirection(String path, String method) {
     verify(webServiceEngine).execute(servletRequestCaptor.capture(), any(ServletResponse.class));
     assertThat(servletRequestCaptor.getValue().getPath()).isEqualTo(path);

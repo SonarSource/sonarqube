@@ -270,21 +270,6 @@ public class QualitygatesService extends BaseService {
    * This is part of the internal API.
    * This is a POST request.
    *
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/unset_default">Further information about this action online (including a response example)</a>
-   * @since 4.3
-   * @deprecated since 7.0
-   */
-  @Deprecated
-  public String unsetDefault() {
-    return call(
-      new PostRequest(path("unset_default"))
-        .setMediaType(MediaTypes.JSON)).content();
-  }
-
-  /**
-   * This is part of the internal API.
-   * This is a POST request.
-   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/update_condition">Further information about this action online (including a response example)</a>
    * @since 4.3
    */

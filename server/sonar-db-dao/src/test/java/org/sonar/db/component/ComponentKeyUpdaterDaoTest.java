@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
@@ -37,9 +36,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.component.ComponentKeyUpdaterDao.RekeyedResource;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -217,94 +214,6 @@ public class ComponentKeyUpdaterDaoTest {
       .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
   }
 
-  @Test
-  public void bulk_updateKey_updates_branches_too() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto module = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(branch), project.getKey()));
-    ComponentDto file1 = db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
-    ComponentDto file2 = db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
-    int branchComponentCount = 4;
-
-    String oldProjectKey = project.getKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
-
-    String oldBranchKey = branch.getDbKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).hasSize(branchComponentCount);
-
-    String newProjectKey = "newKey";
-    Set<RekeyedResource> rekeyedResources = underTest.bulkUpdateKey(dbSession, project.uuid(), oldProjectKey, newProjectKey, a -> true);
-
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldBranchKey)).isEmpty();
-
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
-    String newBranchKey = ComponentDto.generateBranchKey(newProjectKey, branch.getBranch());
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newBranchKey)).hasSize(branchComponentCount);
-    db.select(dbSession, "select kee from components")
-      .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
-
-    assertThat(rekeyedResources)
-      .extracting(t -> t.getResource().getUuid())
-      .containsOnly(project.uuid(), branch.uuid(), module.uuid(), file1.uuid(), file2.uuid());
-    assertThat(rekeyedResources)
-      .extracting(t -> t.getResource().getKey())
-      .allMatch(t -> t.startsWith(newProjectKey));
-    assertThat(rekeyedResources)
-      .extracting(RekeyedResource::getOldKey)
-      .allMatch(t -> t.startsWith(oldProjectKey));
-  }
-
-  @Test
-  public void bulk_updateKey_on_branch_containing_slash() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch/with/slash"));
-    String newKey = "newKey";
-
-    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getKey(), newKey, t -> true);
-
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newKey)).hasSize(1);
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, ComponentDto.generateBranchKey(newKey, branch.getBranch()))).hasSize(1);
-  }
-
-  @Test
-  public void bulk_updateKey_updates_pull_requests_too() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
-    ComponentDto module = db.components().insertComponent(prefixDbKeyWithKey(newModuleDto(pullRequest), project.getKey()));
-    ComponentDto file1 = db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
-    ComponentDto file2 = db.components().insertComponent(prefixDbKeyWithKey(newFileDto(module), module.getKey()));
-    int branchComponentCount = 4;
-
-    String oldProjectKey = project.getKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).hasSize(1);
-
-    String oldPullRequestKey = pullRequest.getDbKey();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldPullRequestKey)).hasSize(branchComponentCount);
-
-    String newProjectKey = "newKey";
-    String newPullRequestKey = ComponentDto.generatePullRequestKey(newProjectKey, pullRequest.getPullRequest());
-    Set<RekeyedResource> rekeyedResources = underTest.bulkUpdateKey(dbSession, project.uuid(), oldProjectKey, newProjectKey, t -> true);
-
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldProjectKey)).isEmpty();
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, oldPullRequestKey)).isEmpty();
-
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newProjectKey)).hasSize(1);
-    assertThat(dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, newPullRequestKey)).hasSize(branchComponentCount);
-    db.select(dbSession, "select kee from components")
-      .forEach(map -> map.values().forEach(k -> assertThat(k.toString()).startsWith(newProjectKey)));
-
-    assertThat(rekeyedResources)
-      .extracting(t -> t.getResource().getUuid())
-      .containsOnly(project.uuid(), pullRequest.uuid(), module.uuid(), file1.uuid(), file2.uuid());
-    assertThat(rekeyedResources)
-      .extracting(t -> t.getResource().getKey())
-      .allMatch(t -> t.startsWith(newProjectKey));
-    assertThat(rekeyedResources)
-      .extracting(RekeyedResource::getOldKey)
-      .allMatch(t -> t.startsWith(oldProjectKey));
-  }
-
   private ComponentDto prefixDbKeyWithKey(ComponentDto componentDto, String key) {
     return componentDto.setDbKey(key + ":" + componentDto.getDbKey());
   }
@@ -320,99 +229,6 @@ public class ComponentKeyUpdaterDaoTest {
   }
 
   @Test
-  public void bulk_update_key_updates_disabled_components() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("my_project"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("my_project:module"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("my_project:inactive_module").setEnabled(false));
-
-    Set<RekeyedResource> rekeyedResources = underTestWithAuditPersister.bulkUpdateKey(dbSession, "A", "my_", "your_", doNotReturnAnyRekeyedResource());
-
-    List<ComponentDto> result = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, "your_project");
-    assertThat(result)
-      .hasSize(3)
-      .extracting(ComponentDto::getDbKey)
-      .containsOnlyOnce("your_project", "your_project:module", "your_project:inactive_module");
-  }
-
-  @Test
-  public void shouldBulkUpdateKey() {
-    populateSomeData();
-
-    underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
-    dbSession.commit();
-
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
-      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
-      .containsOnly(
-        Tuple.tuple("A", "org.apache.struts:struts"),
-        Tuple.tuple("B", "org.apache.struts:struts-core"),
-        Tuple.tuple("C", "org.apache.struts:struts-core:/src/org/struts"),
-        Tuple.tuple("D", "org.apache.struts:struts-core:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("E", "org.apache.struts:struts-ui"),
-        Tuple.tuple("F", "org.apache.struts:struts-ui:/src/org/struts"),
-        Tuple.tuple("G", "org.apache.struts:struts-ui:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("H", "foo:struts-core"));
-  }
-
-  @Test
-  public void shouldBulkUpdateKeyOnOnlyOneSubmodule() {
-    populateSomeData();
-
-    underTest.bulkUpdateKey(dbSession, "A", "struts-ui", "struts-web", doNotReturnAnyRekeyedResource());
-    dbSession.commit();
-
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
-      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
-      .containsOnly(
-        Tuple.tuple("A", "org.struts:struts"),
-        Tuple.tuple("B", "org.struts:struts-core"),
-        Tuple.tuple("C", "org.struts:struts-core:/src/org/struts"),
-        Tuple.tuple("D", "org.struts:struts-core:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("E", "org.struts:struts-web"),
-        Tuple.tuple("F", "org.struts:struts-web:/src/org/struts"),
-        Tuple.tuple("G", "org.struts:struts-web:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("H", "foo:struts-core"));
-  }
-
-  @Test
-  public void shouldFailBulkUpdateKeyIfKeyAlreadyExist() {
-    populateSomeData();
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Impossible to update key: a component with key \"foo:struts-core\" already exists.");
-
-    underTest.bulkUpdateKey(dbSession, "A", "org.struts", "foo", doNotReturnAnyRekeyedResource());
-    dbSession.commit();
-  }
-
-  @Test
-  public void shouldNotUpdateAllSubmodules() {
-    ComponentDto project1 = db.components().insertPrivateProject(t1 -> t1.setDbKey("org.struts:struts").setUuid("A"));
-    ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setDbKey("org.struts:struts-core").setUuid("B"));
-    ComponentDto directory1 = db.components().insertComponent(newDirectory(module1, "/src/org/struts").setUuid("C"));
-    db.components().insertComponent(ComponentTesting.newFileDto(module1, directory1).setDbKey("org.struts:struts-core:/src/org/struts/RequestContext.java").setUuid("D"));
-    ComponentDto module2 = db.components().insertComponent(newModuleDto(project1).setDbKey("foo:struts-ui").setUuid("E"));
-    ComponentDto directory2 = db.components().insertComponent(newDirectory(module2, "/src/org/struts").setUuid("F"));
-    db.components().insertComponent(ComponentTesting.newFileDto(module2, directory2).setDbKey("foo:struts-ui:/src/org/struts/RequestContext.java").setUuid("G"));
-    ComponentDto project2 = db.components().insertPublicProject(t1 -> t1.setDbKey("foo:struts-core").setUuid("H"));
-
-    underTest.bulkUpdateKey(dbSession, "A", "org.struts", "org.apache.struts", doNotReturnAnyRekeyedResource());
-    dbSession.commit();
-
-    assertThat(db.select("select uuid as \"UUID\", kee as \"KEE\" from components"))
-      .extracting(t -> t.get("UUID"), t -> t.get("KEE"))
-      .containsOnly(
-        Tuple.tuple("A", "org.apache.struts:struts"),
-        Tuple.tuple("B", "org.apache.struts:struts-core"),
-        Tuple.tuple("C", "org.apache.struts:struts-core:/src/org/struts"),
-        Tuple.tuple("D", "org.apache.struts:struts-core:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("E", "foo:struts-ui"),
-        Tuple.tuple("F", "foo:struts-ui:/src/org/struts"),
-        Tuple.tuple("G", "foo:struts-ui:/src/org/struts/RequestContext.java"),
-        Tuple.tuple("H", "foo:struts-core"));
-  }
-
-  @Test
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
     ComponentDto project = newPrivateProjectDto("project-uuid").setDbKey("old-project-key");
     db.components().insertComponent(project);
@@ -422,75 +238,6 @@ public class ComponentKeyUpdaterDaoTest {
     thrown.expectMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
 
     underTest.updateKey(dbSession, project.uuid(), newLongProjectKey);
-  }
-
-  @Test
-  public void fail_when_new_key_is_invalid() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-
-    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getDbKey(), "my?project?key", doNotReturnAnyRekeyedResource());
-  }
-
-  @Test
-  public void check_component_keys() {
-    populateSomeData();
-
-    Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("foo:struts", "foo:struts-core", "foo:struts-ui"));
-
-    assertThat(result)
-      .hasSize(3)
-      .containsOnly(entry("foo:struts", false), entry("foo:struts-core", true), entry("foo:struts-ui", false));
-  }
-
-  @Test
-  public void check_component_keys_checks_inactive_components() {
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("my-project"));
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto().setDbKey("your-project").setEnabled(false));
-
-    Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("my-project", "your-project", "new-project"));
-
-    assertThat(result)
-      .hasSize(3)
-      .containsOnly(entry("my-project", true), entry("your-project", true), entry("new-project", false));
-  }
-
-  @Test
-  public void simulate_bulk_update_key() {
-    populateSomeData();
-
-    Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "org.struts", "foo");
-
-    assertThat(result)
-      .hasSize(3)
-      .containsOnly(entry("org.struts:struts", "foo:struts"), entry("org.struts:struts-core", "foo:struts-core"), entry("org.struts:struts-ui", "foo:struts-ui"));
-  }
-
-  @Test
-  public void simulate_bulk_update_key_does_not_return_disable_components() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("project"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
-    db.components().insertComponent(newPrivateProjectDto("D").setDbKey("other-project"));
-
-    Map<String, String> result = underTest.simulateBulkUpdateKey(dbSession, "A", "project", "new-project");
-
-    assertThat(result).containsOnly(
-      entry("project", "new-project"),
-      entry("project:enabled-module", "new-project:enabled-module"));
-  }
-
-  @Test
-  public void simulate_bulk_update_key_fails_if_invalid_componentKey() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("project"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
-
-    thrown.expect(IllegalArgumentException.class);
-
-    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "project?");
   }
 
   @Test
@@ -509,19 +256,6 @@ public class ComponentKeyUpdaterDaoTest {
       .componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
   }
 
-  @Test
-  public void bulkUpdate_callsAuditPersister() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto("A").setDbKey("project"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("project:enabled-module"));
-    db.components().insertComponent(newModuleDto(project).setDbKey("project:disabled-module").setEnabled(false));
-
-    thrown.expect(IllegalArgumentException.class);
-
-    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "project?");
-
-    verify(auditPersister, times(1))
-      .componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
-  }
 
   private Predicate<RekeyedResource> doNotReturnAnyRekeyedResource() {
     return a -> false;

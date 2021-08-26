@@ -63,11 +63,8 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 
 public class SearchActionFacetsTest {
@@ -136,43 +133,6 @@ public class SearchActionFacetsTest {
   }
 
   @Test
-  public void display_facets_in_effort_mode() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, file, i -> i
-      .setSeverity("MAJOR")
-      .setStatus("OPEN")
-      .setType(RuleType.CODE_SMELL)
-      .setEffort(10L)
-      .setAssigneeUuid(null));
-    indexPermissions();
-    indexIssues();
-
-    SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,files,assignees")
-      .setParam("facetMode", FACET_MODE_EFFORT)
-      .executeProtobuf(SearchWsResponse.class);
-
-    Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 10L).put("CONFIRMED", 0L)
-      .put("REOPENED", 0L).put("RESOLVED", 0L).put("CLOSED", 0L).build();
-
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(
-        tuple("severities", of("INFO", 0L, "MINOR", 0L, "MAJOR", 10L, "CRITICAL", 0L, "BLOCKER", 0L)),
-        tuple("statuses", expectedStatuses),
-        tuple("resolutions", of("", 10L, "FALSE-POSITIVE", 0L, "FIXED", 0L, "REMOVED", 0L, "WONTFIX", 0L)),
-        tuple("rules", of(rule.getKey().toString(), 10L)),
-        tuple("types", of("CODE_SMELL", 10L, "BUG", 0L, "VULNERABILITY", 0L)),
-        tuple("languages", of(rule.getLanguage(), 10L)),
-        tuple("projects", of(project.getKey(), 10L)),
-        tuple("files", of(file.path(), 10L)),
-        tuple("assignees", of("", 10L)));
-  }
-
-  @Test
   public void display_projects_facet() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -214,52 +174,6 @@ public class SearchActionFacetsTest {
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
       .containsExactlyInAnyOrder(tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 1L, project3.getKey(), 1L)));
-  }
-
-  @Test
-  public void display_moduleUuids_facet_using_project() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module));
-    ComponentDto subModule2 = db.components().insertComponent(newModuleDto(module));
-    ComponentDto subModule3 = db.components().insertComponent(newModuleDto(module));
-    ComponentDto file1 = db.components().insertComponent(newFileDto(subModule1));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(subModule2));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, file1);
-    db.issues().insertIssue(rule, project, file2);
-    indexPermissions();
-    indexIssues();
-
-    SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
-      .setParam(PARAM_COMPONENT_UUIDS, module.uuid())
-      .setParam(PARAM_MODULE_UUIDS, subModule1.uuid())
-      .setParam(WebService.Param.FACETS, "moduleUuids")
-      .executeProtobuf(SearchWsResponse.class);
-
-    assertThat(response.getFacets().getFacetsList())
-      .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(tuple("moduleUuids", of(subModule1.uuid(), 1L, subModule2.uuid(), 1L)));
-  }
-
-  @Test
-  public void fail_to_display_module_facet_when_no_project_is_set() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    ComponentDto file = db.components().insertComponent(newFileDto(module, null));
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    db.issues().insertIssue(rule, project, file);
-    indexPermissions();
-    indexIssues();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Facet(s) 'moduleUuids' require to also filter by project");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_UUIDS, module.uuid())
-      .setParam(WebService.Param.FACETS, "moduleUuids")
-      .execute();
   }
 
   @Test
@@ -439,7 +353,6 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_PROJECTS, project1.getKey() + "," + project2.getKey())
-      .setParam(PARAM_MODULE_UUIDS, module1.uuid() + "," + module2.uuid())
       .setParam(PARAM_FILES, file1.path() + "," + file2.path())
       .setParam("rules", rule1.getKey().toString() + "," + rule2.getKey().toString())
       .setParam("severities", "MAJOR,MINOR")
@@ -461,7 +374,7 @@ public class SearchActionFacetsTest {
         tuple("types", of("CODE_SMELL", 1L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule1.getLanguage(), 1L, rule2.getLanguage(), 0L)),
         tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 0L)),
-        tuple("moduleUuids", of(module1.uuid(), 1L, module2.uuid(), 0L)),
+        tuple("moduleUuids", of(module1.uuid(), 1L)),
         tuple("files", of(file1.path(), 1L, file2.path(), 0L)),
         tuple("assignees", of("", 0L, user1.getLogin(), 1L, user2.getLogin(), 0L)));
   }

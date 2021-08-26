@@ -19,17 +19,10 @@
  */
 package org.sonar.server.component;
 
-import java.util.Set;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentKeyUpdaterDao;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -38,7 +31,6 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.RekeyedProject;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.checkProjectKey;
@@ -64,33 +56,6 @@ public class ComponentService {
     projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     Project newProject = new Project(project.getUuid(), newKey, project.getName(), project.getDescription(), project.getTags());
     projectLifeCycleListeners.onProjectsRekeyed(singleton(new RekeyedProject(newProject, project.getKey())));
-  }
-
-  public void bulkUpdateKey(DbSession dbSession, ProjectDto project, String stringToReplace, String replacementString) {
-    Set<ComponentKeyUpdaterDao.RekeyedResource> rekeyedProjects = dbClient.componentKeyUpdaterDao().bulkUpdateKey(
-      dbSession, project.getUuid(), stringToReplace, replacementString,
-      ComponentService::isMainProject);
-    projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-    if (!rekeyedProjects.isEmpty()) {
-      projectLifeCycleListeners.onProjectsRekeyed(rekeyedProjects.stream()
-        .map(ComponentService::toRekeyedProject)
-        .collect(MoreCollectors.toSet(rekeyedProjects.size())));
-    }
-  }
-
-  private static boolean isMainProject(ComponentKeyUpdaterDao.RekeyedResource rekeyedResource) {
-    ResourceDto resource = rekeyedResource.getResource();
-    String resourceKey = resource.getKey();
-    return Scopes.PROJECT.equals(resource.getScope())
-      && Qualifiers.PROJECT.equals(resource.getQualifier())
-      && !resourceKey.contains(ComponentDto.BRANCH_KEY_SEPARATOR)
-      && !resourceKey.contains(ComponentDto.PULL_REQUEST_SEPARATOR);
-  }
-
-  private static RekeyedProject toRekeyedProject(ComponentKeyUpdaterDao.RekeyedResource rekeyedResource) {
-    ResourceDto resource = rekeyedResource.getResource();
-    Project project = new Project(resource.getUuid(), resource.getKey(), resource.getName(), resource.getDescription(), emptyList());
-    return new RekeyedProject(project, rekeyedResource.getOldKey());
   }
 
 }
