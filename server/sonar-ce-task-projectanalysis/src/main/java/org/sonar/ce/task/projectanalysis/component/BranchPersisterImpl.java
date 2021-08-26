@@ -82,7 +82,7 @@ public class BranchPersisterImpl implements BranchPersister {
   }
 
   private boolean checkIfExcludedFromPurge() {
-    if (analysisMetadataHolder.getBranch().isMain()) {
+    if (analysisMetadataHolder.getBranch().isMain() || analysisMetadataHolder.getBranch().getTargetBranchName() == null) {
       return true;
     }
 
