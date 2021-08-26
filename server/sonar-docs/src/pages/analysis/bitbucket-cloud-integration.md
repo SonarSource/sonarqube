@@ -38,7 +38,7 @@ To set your global ALM Integration settings, navigate to **Administration > ALM 
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Cloud configuration at the project level. Use something succinct and easily recognizable.
 - **Workspace ID** – The workspace ID is part of your bitbucket cloud URL `https://bitbucket.org/{WORKSPACE-ID}/{repository-slug}`
 - **OAuth Key** – Bitbucket automatically creates an OAuth key when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**.
-- **OAuth Secret** – Bitbucket automatically creates an OAuth secret when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**.
+- **OAuth Secret** – Bitbucket automatically creates an OAuth secret when you create your OAuth consumer. You can find it in your Bitbucket Cloud workspace settings under **OAuth consumers**. Administrators can encrypt this secret at **Administration > Configuration > Encryption**. See the **Settings Encryption** section of the [Security](/instance-administration/security/) page for more information.
 
 ### Adding your Bitbucket username and an app password
 After setting your global settings, you can add a project from Bitbucket Cloud by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **Bitbucket**.

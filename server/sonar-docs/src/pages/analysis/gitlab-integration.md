@@ -64,7 +64,9 @@ To import your GitLab projects into SonarQube, you need to first set your global
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitLab configuration at the project level. Use something succinct and easily recognizable.
 - **GitLab URL** – The GitLab API URL.
-- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed. This personal access token is used to merge request decoration. You'll be asked for another personal access token for importing projects in the following section. 
+- **Personal Access Token** – A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). Use a personal access token from this account with the **api** scope authorized for the repositories you're analyzing. Administrators can encrypt this token at **Administration > Configuration > Encryption**. See the **Settings Encryption** section of the [Security](/instance-administration/security/) page for more information.
+
+   This personal access token is used to report your Quality Gate status to your pull requests. You'll be asked for another personal access token for importing projects in the following section. 
 
 ### Adding a personal access token for importing projects
 After setting these global settings, you can add a project from GitLab by clicking the **Add project** button in the upper-right corner of the **Projects** homepage and selecting **GitLab**.

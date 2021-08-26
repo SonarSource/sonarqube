@@ -193,9 +193,9 @@ A unique secret key must be shared between all parts of the SonarQube infrastruc
 Go back to **[Administration > Configuration > Encryption](/#sonarqube-admin#/admin/settings/encryption)** and use the form that has been added to the interface to generated encrypted versions of your values.
 ![Encrypt values through the admin interface](/images/encrypt-value.png)
 1. **Use the encrypted values in your SonarQube server configuration**  
-Simply copy these encrypted values into _$SONARQUBE-HOME/conf/sonar.properties_
-```
-sonar.jdbc.password={aes-gcm}CCGCFg4Xpm6r+PiJb1Swfg==  # Encrypted DB password
-...
-sonar.secretKeyPath=C:/path/to/my/secure/location/my_secret_key.txt
-```
+Encrypted values can either be set in SonarQube or copied into _$SONARQUBE-HOME/conf/sonar.properties_:
+   ```
+   sonar.jdbc.password={aes-gcm}CCGCFg4Xpm6r+PiJb1Swfg==  # Encrypted DB password
+   ...
+   sonar.secretKeyPath=C:/path/to/my/secure/location/my_secret_key.txt
+   ```

@@ -85,8 +85,8 @@ Navigate to **Administration > Configuration > General Settings > ALM Integratio
 - **GitHub URL** – For example, `https://github.company.com/api/v3` for GitHub Enterprise or `https://api.github.com/` for GitHub.com.
 - **GitHub App ID** – The App ID is found on your GitHub App's page on GitHub at **Settings > Developer Settings > GitHub Apps**. 
 - **Client ID** – The Client ID is found on your GitHub App's page.
-- **Client secret** – The Client secret is found on your GitHub App's page.
-- **Private Key** – Your GitHub App's private key. You can generate a `.pem` file from your GitHub App's page under **Private keys**. Copy and paste the whole contents of the file here.
+- **Client secret** – The Client secret is found on your GitHub App's page. Administrators can encrypt this secret at **Administration > Configuration > Encryption**. See the **Settings Encryption** section of the [Security](/instance-administration/security/) page for more information.
+- **Private Key** – Your GitHub App's private key. You can generate a `.pem` file from your GitHub App's page under **Private keys**. Copy and paste the whole contents of the file here. Administrators can encrypt this key at **Administration > Configuration > Encryption**. See the **Settings Encryption** section of the [Security](/instance-administration/security/) page for more information.
 
 ## Analyzing projects with GitHub Actions
 SonarScanners running in GitHub Actions can automatically detect branches and pull requests being built so you don't need to specifically pass them as parameters to the scanner.
