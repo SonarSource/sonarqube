@@ -25,7 +25,7 @@ import { mockIssue, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { loadMoreChildren, retrieveComponent } from '../../utils';
-import { AppCode } from '../AppCode';
+import { CodeApp } from '../CodeApp';
 
 jest.mock('../../utils', () => ({
   loadMoreChildren: jest.fn().mockResolvedValue({}),
@@ -174,9 +174,9 @@ it('should handle select correctly', () => {
   });
 });
 
-function shallowRender(props: Partial<AppCode['props']> = {}) {
-  return shallow<AppCode>(
-    <AppCode
+function shallowRender(props: Partial<CodeApp['props']> = {}) {
+  return shallow<CodeApp>(
+    <CodeApp
       component={{
         breadcrumbs: [],
         name: 'foo',

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../types/component';
+import { ComponentQualifier, TreeComponent } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
 import { mockMeasureEnhanced } from '../testMocks';
 
@@ -37,6 +37,16 @@ export function mockComponent(overrides: Partial<T.Component> = {}): T.Component
       }
     ],
     tags: [],
+    ...overrides
+  };
+}
+
+export function mockTreeComponent(overrides: Partial<TreeComponent>): TreeComponent {
+  return {
+    key: 'my-key',
+    qualifier: ComponentQualifier.Project,
+    name: 'component',
+    visibility: 'public',
     ...overrides
   };
 }

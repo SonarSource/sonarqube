@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit } from 'lodash';
 import * as React from 'react';
 import { getTree } from '../../../api/components';
 import SearchBox from '../../../components/controls/SearchBox';
@@ -32,7 +33,7 @@ interface Props {
   location: Location;
   onSearchClear: () => void;
   onSearchResults: (results?: T.ComponentMeasure[]) => void;
-  router: Pick<Router, 'push'>;
+  router: Router;
 }
 
 interface State {
@@ -40,7 +41,7 @@ interface State {
   loading: boolean;
 }
 
-class Search extends React.PureComponent<Props, State> {
+export class Search extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     query: '',
@@ -49,11 +50,14 @@ class Search extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    if (this.props.location.query.search) {
+      this.handleQueryChange(this.props.location.query.search);
+    }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    // if the url has change, reset the current state
-    if (nextProps.location !== this.props.location) {
+  componentDidUpdate(nextProps: Props) {
+    // if the component has change, reset the current state
+    if (nextProps.location.query.id !== this.props.location.query.id) {
       this.setState({
         query: '',
         loading: false
@@ -79,8 +83,9 @@ class Search extends React.PureComponent<Props, State> {
 
   handleSearch = (query: string) => {
     if (this.mounted) {
-      const { branchLike, component } = this.props;
+      const { branchLike, component, router, location } = this.props;
       this.setState({ loading: true });
+      router.replace({ pathname: location.pathname, query: { ...location.query, search: query } });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
       const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
@@ -109,8 +114,10 @@ class Search extends React.PureComponent<Props, State> {
   };
 
   handleQueryChange = (query: string) => {
+    const { router, location } = this.props;
     this.setState({ query });
     if (query.length === 0) {
+      router.replace({ pathname: location.pathname, query: omit(location.query, 'search') });
       this.props.onSearchClear();
     } else {
       this.handleSearch(query);

@@ -71,7 +71,7 @@ interface State {
   total: number;
 }
 
-export class AppCode extends React.PureComponent<Props, State> {
+export class CodeApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
 
@@ -374,4 +374,4 @@ const mapDispatchToProps: DispatchToProps = {
 export default connect<StateToProps, DispatchToProps, Props>(
   mapStateToProps,
   mapDispatchToProps
-)(AppCode);
+)(CodeApp);

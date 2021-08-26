@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correcly 1`] = `
+<div
+  className="code-search"
+  id="code-search"
+>
+  <SearchBox
+    minLength={3}
+    onChange={[Function]}
+    onKeyDown={[Function]}
+    placeholder="code.search_placeholder"
+    value=""
+  />
+  <DeferredSpinner
+    className="spacer-left"
+    loading={false}
+  />
+</div>
+`;
