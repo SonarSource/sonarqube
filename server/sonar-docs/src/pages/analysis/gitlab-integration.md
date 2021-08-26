@@ -124,7 +124,7 @@ Click the scanner you're using below to expand an example configuration:
 |   allow_failure: true
 |   only:
 |     - merge_requests
-|     - master
+|     - master # or the name of your main branch
 |     - develop
 | ```
  
@@ -146,7 +146,7 @@ Click the scanner you're using below to expand an example configuration:
 |   allow_failure: true
 |   only:
 |     - merge_requests
-|     - master
+|     - master # or the name of your main branch
 |     - develop
 | ```
 
@@ -170,7 +170,7 @@ Click the scanner you're using below to expand an example configuration:
 |   allow_failure: true
 |   only:
 |     - merge_requests
-|     - master
+|     - master # or the name of your main branch
 |     - develop
 | ```
 |

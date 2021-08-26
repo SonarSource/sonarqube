@@ -87,7 +87,7 @@ Select your build technology below to expand the instructions for configuring br
 | **.yml example**:
 | ```
 | trigger:
-| - master
+| - master # or the name of your main branch
 | - feature/*
 |
 | steps:
@@ -128,7 +128,7 @@ Select your build technology below to expand the instructions for configuring br
 | **.yml example**:
 | ```
 | trigger:
-| - master
+| - master # or the name of your main branch
 | - feature/*
 |
 | steps:
@@ -160,7 +160,7 @@ Select your build technology below to expand the instructions for configuring br
 | **.yml example**:
 | ```
 | trigger:
-| - master
+| - master # or the name of your main branch
 | - feature/*
 |
 | steps:
@@ -233,7 +233,7 @@ Select your build technology below to expand the instructions for configuring br
 | **.yml example**:
 | ```
 | trigger:
-| - master
+| - master # or the name of your main branch
 | - feature/*
 |
 | steps:

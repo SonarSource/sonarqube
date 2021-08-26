@@ -124,7 +124,7 @@ const cfamilyYamlTemplate = (branchesEnabled: boolean, os: OSs) => `name: Build
 on:
   push:
     branches:
-      - master
+      - master # or the name of your main branch
 ${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]' : ''}
 
 jobs:

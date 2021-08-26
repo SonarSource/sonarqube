@@ -100,7 +100,7 @@ Click the scanner you're using below to expand the example configuration:
 |
 | pipelines:
 |   branches:
-|     '{master,develop}':
+|     '{master,main,develop}':
 |       - step:
 |           name: SonarQube analysis
 |           caches:
@@ -139,7 +139,7 @@ Click the scanner you're using below to expand the example configuration:
 |
 | pipelines:
 |   branches:
-|     '{master,develop}':
+|     '{master,main,develop}':
 |       - step:
 |           name: SonarQube analysis
 |           caches:
@@ -172,7 +172,7 @@ Click the scanner you're using below to expand the example configuration:
 | image: mcr.microsoft.com/dotnet/core/sdk:latest
 | pipelines:
 |   branches:
-|     '{master}':
+|     '{master,main,develop}':
 |       - step:
 |           name: SonarQube analysis
 |           caches:
@@ -224,7 +224,7 @@ Click the scanner you're using below to expand the example configuration:
 |
 |    pipelines:
 |      branches:
-|        '{master,develop}':
+|        '{master,main,develop}':
 |          - step:
 |              name: SonarQube analysis
 |              image: sonarsource/sonar-scanner-cli:latest

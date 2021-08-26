@@ -40,7 +40,7 @@ If AutoScan does not make sense yet for your repository, you need to configure y
 
 Here is an example of configuration for pull requests when you are not on Travis CI and you need to configure your CI jobs:
 ```
-sonar.pullrequest.base=master
+sonar.pullrequest.base=main
 sonar.pullrequest.branch=feature/my-new-feature
 sonar.pullrequest.key=5
 sonar.pullrequest.provider=GitHub

@@ -26,7 +26,7 @@ clone:
 
 pipelines:
   branches:
-    '{master}':
+    '{master}': # or the name of your main branch
       - step:
           name: Download and install the build wrapper, build the project
           script:

@@ -23,7 +23,7 @@ export default function dotNetExample(branchesEnabled: boolean, projectKey: stri
    
 pipelines:
   branches:
-    '{master}':
+    '{master}': # or the name of your main branch
       - step:
           name: SonarQube analysis
           caches:

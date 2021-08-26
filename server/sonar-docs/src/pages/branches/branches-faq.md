@@ -12,7 +12,7 @@ Branches will be deleted automatically when they are inactive according to your 
 No, you don't need to be connected to a SCM. However, SCM data still enhances the SonarQube experience (including issue auto-assignment and issue backdating), and you will be well prepared to take advantage of [Pull Request Analysis](/analysis/pull-request/)!
 
 ## What if I mark an Issue "Won't Fix" or "False-Positive" in a branch?
-It will be replicated as such when creating a pull request and merging the pull request into the master branch.
+It will be replicated as such when creating a pull request and merging the pull request into the main branch.
 
 If you're using the **Reference Branch** [New Code](/project-administration/new-code-period/) definition, issues in the reference branch that come from a feature branch automatically inherit their attributes (including "Won't Fix" and "False Positive" resolutions) from the feature branch.
 ## Can I manually delete a branch?  

@@ -148,7 +148,7 @@ Property  | Description | Default | Required
 `sonar.cluster.es.hosts`|Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port but not both. The item format is `sonar.cluster.node.es.host` for host only or`sonar.cluster.node.es.host:sonar.cluster.node.es.port` for host and port.| |yes
 `sonar.cluster.node.es.host`|Elasticsearch host of the current node used by Elasticsearch internal communication to form a cluster (TCP transport).|localhost|yes
 `sonar.cluster.node.es.port`|Elasticsearch port of the current node used by Elasticsearch internal communication to form a cluster (TCP transport). Port must be accessible to all other search nodes|9002| yes
-`sonar.search.initialStateTimeout`|The timeout for the Elasticsearch nodes to elect a master node. The default value will be fine in most cases, but in a situation where startup is failing because of a timeout, this may need to be adjusted. The value must be set in the format: `{integer}{timeunit}`. Valid `{timeunit}` values are: `ms` (milliseconds); `s` (seconds); `m` (minutes); `h` (hours); `d` (days); `w` (weeks)|cluster: 120s; standalone: 30s|no
+`sonar.search.initialStateTimeout`|The timeout for the Elasticsearch nodes to elect a primary node. The default value will be fine in most cases, but in a situation where startup is failing because of a timeout, this may need to be adjusted. The value must be set in the format: `{integer}{timeunit}`. Valid `{timeunit}` values are: `ms` (milliseconds); `s` (seconds); `m` (minutes); `h` (hours); `d` (days); `w` (weeks)|cluster: 120s; standalone: 30s|no
 
 ### Elasticsearch authentication
 

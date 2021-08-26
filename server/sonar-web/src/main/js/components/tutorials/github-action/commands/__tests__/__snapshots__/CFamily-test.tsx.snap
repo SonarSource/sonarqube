@@ -96,7 +96,7 @@ exports[`should render correctly for linux: branches disabled 1`] = `
 on:
   push:
     branches:
-      - master
+      - master # or the name of your main branch
 
 
 jobs:
@@ -185,7 +185,7 @@ exports[`should render correctly for mac: branches enabled 1`] = `
 on:
   push:
     branches:
-      - master
+      - master # or the name of your main branch
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -280,7 +280,7 @@ exports[`should render correctly for win: branches enabled 1`] = `
 on:
   push:
     branches:
-      - master
+      - master # or the name of your main branch
   pull_request:
     types: [opened, synchronize, reopened]
 

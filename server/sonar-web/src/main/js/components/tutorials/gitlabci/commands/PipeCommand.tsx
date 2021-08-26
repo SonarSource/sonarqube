@@ -91,7 +91,7 @@ sonarqube-check:
   } else {
     const onlyBlock = branchesEnabled
       ? `- merge_requests
-    - master
+    - master # or the name of your main branch
     - develop`
       : '- master # or the name of your main branch';
 

@@ -21,7 +21,7 @@ Starting in [Developer Edition](https://redirect.sonarsource.com/editions/develo
 
 ### Settings and Quality Profiles on Branches
 
-Branch settings and Quality Profiles are the same as those set for the master branch, and by design, it's not possible to configure other values. The New Code Period is the only exception to this as it can be set on a branch-by-branch basis. 
+Branch settings and Quality Profiles are the same as those set for the main branch, and by design, it's not possible to configure other values. The New Code Period is the only exception to this as it can be set on a branch-by-branch basis.
 
 ### New Code
 
@@ -46,17 +46,17 @@ A branch is created when the `sonar.branch.name` parameter is passed during anal
 
 You need to add a condition to your pipeline script to ensure only relevant branches are analyzed. For example, you wouldn't want to run analysis on feature branches that won't need analysis until they have pull requests . 
 
-In the following example, analysis would be limited to branches named `master` or `release/*`.
+In the following example, analysis would be limited to branches named `main` or `release/*`.
 
 ```
-if [[ "$CI_BRANCH_NAME" == master ]] || [[ "$CI_BRANCH_NAME" == release/* ]]; then
+if [[ "$CI_BRANCH_NAME" == main ]] || [[ "$CI_BRANCH_NAME" == release/* ]]; then
   ./gradlew sonarqube
 fi
 ``` 
 
 ### Issue Creation and Synchronization
 
-During the first analysis, issues (type, severity, status, assignee, change log, comments) are synchronized with the Main Branch. In each synchronized issue, a comment is added to the change log of the issue on the branch: "The issue has been copied from branch 'master' to branch 'yyy'".
+During the first analysis, issues (type, severity, status, assignee, change log, comments) are synchronized with the Main Branch. In each synchronized issue, a comment is added to the change log of the issue on the branch: "The issue has been copied from branch 'main' to branch 'yyy'".
 
 At each subsequent analysis of the branch, any new issue in the Main Branch that comes from a pull request automatically inherits its attributes (type, severity, ...) from the pull request. A comment is added to the change log of the issue on the branch: "The issue has been merged from 'xxx' into 'yyy'"
 
