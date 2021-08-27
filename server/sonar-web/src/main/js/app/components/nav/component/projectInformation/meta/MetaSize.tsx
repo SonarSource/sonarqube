@@ -39,7 +39,10 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
 
   return (
     <>
-      <h3>{localizeMetric(MetricKey.ncloc)}</h3>
+      <div className="display-flex-row display-inline-flex-baseline">
+        <h3>{localizeMetric(MetricKey.ncloc)}</h3>
+        <span className="spacer-left small">({translate('project.info.main_branch')})</span>
+      </div>
       <div className="display-flex-center">
         {ncloc ? (
           <>

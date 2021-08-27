@@ -2,9 +2,20 @@
 
 exports[`should render correctly: application 1`] = `
 <Fragment>
-  <h3>
-    metric.ncloc.name
-  </h3>
+  <div
+    className="display-flex-row display-inline-flex-baseline"
+  >
+    <h3>
+      metric.ncloc.name
+    </h3>
+    <span
+      className="spacer-left small"
+    >
+      (
+      project.info.main_branch
+      )
+    </span>
+  </div>
   <div
     className="display-flex-center"
   >
@@ -47,9 +58,20 @@ exports[`should render correctly: application 1`] = `
 
 exports[`should render correctly: project 1`] = `
 <Fragment>
-  <h3>
-    metric.ncloc.name
-  </h3>
+  <div
+    className="display-flex-row display-inline-flex-baseline"
+  >
+    <h3>
+      metric.ncloc.name
+    </h3>
+    <span
+      className="spacer-left small"
+    >
+      (
+      project.info.main_branch
+      )
+    </span>
+  </div>
   <div
     className="display-flex-center"
   >
