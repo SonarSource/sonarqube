@@ -371,7 +371,7 @@ public class IssueIndexSecurityReportsTest {
         SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
         SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(0L, 1L, 0L);
-    assertThat(findRuleInCweByYear(cwe2021, "862")).isNull();
+    assertThat(findRuleInCweByYear(cwe2021, "295")).isNull();
     assertThat(findRuleInCweByYear(cwe2021, "999")).isNull();
   }
 
@@ -455,7 +455,7 @@ public class IssueIndexSecurityReportsTest {
         SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
         SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
       .containsExactlyInAnyOrder(0L, 1L, 0L);
-    assertThat(findRuleInCweByYear(cwe2021, "862")).isNull();
+    assertThat(findRuleInCweByYear(cwe2021, "295")).isNull();
     assertThat(findRuleInCweByYear(cwe2021, "999")).isNull();
   }
 

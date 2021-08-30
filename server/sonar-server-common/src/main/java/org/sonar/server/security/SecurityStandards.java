@@ -85,9 +85,9 @@ public final class SecurityStandards {
 
   // https://cwe.mitre.org/top25/archive/2021/2021_cwe_top25.html
   public static final List<String> CWE_TOP25_2021 =
-    Collections.unmodifiableList(asList("119", "79", "20", "200", "125", "89", "416", "190", "352",
-      "22", "78", "787", "287", "476", "732", "434", "611", "94",
-      "798", "400", "772", "426", "502", "269", "295"));
+    Collections.unmodifiableList(asList("787", "79", "125", "20", "78", "89", "416", "22", "352",
+      "434", "306", "190", "502", "287", "476", "798", "119", "862",
+      "276", "200", "522", "732", "611", "918", "77"));
 
   public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = Map.of(
     "2019", CWE_TOP25_2019,
