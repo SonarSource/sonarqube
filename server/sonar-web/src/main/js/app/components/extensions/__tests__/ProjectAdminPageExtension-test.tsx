@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockLocation } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLocation } from '../../../../helpers/testMocks';
 import {
   ProjectAdminPageExtension,
   ProjectAdminPageExtensionProps

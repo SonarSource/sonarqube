@@ -44,7 +44,6 @@ it('should renders correctly', () => {
         components={COMPONENTS}
         metric={METRICS.new_bugs}
         metrics={METRICS}
-        onClick={jest.fn()}
         rootComponent={COMPONENTS[0]}
         view="tree"
       />
@@ -59,7 +58,6 @@ it('should renders empty', () => {
         components={[]}
         metric={METRICS.new_bugs}
         metrics={METRICS}
-        onClick={jest.fn()}
         rootComponent={COMPONENTS[0]}
         view="tree"
       />
@@ -74,7 +72,6 @@ it('should renders with multiple measures', () => {
         components={COMPONENTS}
         metric={METRICS.coverage}
         metrics={METRICS}
-        onClick={jest.fn()}
         rootComponent={COMPONENTS[0]}
         view="tree"
       />

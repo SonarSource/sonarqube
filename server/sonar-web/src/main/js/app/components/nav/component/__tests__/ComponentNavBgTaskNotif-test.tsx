@@ -22,8 +22,9 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Alert } from '../../../../../components/ui/Alert';
 import { hasMessage } from '../../../../../helpers/l10n';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
-import { mockComponent, mockLocation } from '../../../../../helpers/testMocks';
+import { mockLocation } from '../../../../../helpers/testMocks';
 import { Task, TaskStatuses, TaskTypes } from '../../../../../types/tasks';
 import { ComponentNavBgTaskNotif } from '../ComponentNavBgTaskNotif';
 

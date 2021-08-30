@@ -19,7 +19,8 @@
  */
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { mockComponent, mockIssue } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
+import { mockIssue } from '../../../helpers/testMocks';
 import { updateIssue } from '../actions';
 
 jest.mock('../../../app/utils/throwGlobalError', () => ({

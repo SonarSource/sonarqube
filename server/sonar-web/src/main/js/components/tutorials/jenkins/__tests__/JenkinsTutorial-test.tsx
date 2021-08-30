@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockProjectBitbucketBindingResponse } from '../../../../helpers/mocks/alm-settings';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { AlmKeys } from '../../../../types/alm-settings';
 import JenkinsfileStep from '../JenkinsfileStep';
 import { JenkinsTutorial, JenkinsTutorialProps } from '../JenkinsTutorial';

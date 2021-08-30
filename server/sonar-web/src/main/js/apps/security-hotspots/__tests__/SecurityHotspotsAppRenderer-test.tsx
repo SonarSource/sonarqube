@@ -20,9 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { mockComponent } from '../../../helpers/testMocks';
 import { SecurityStandard } from '../../../types/security';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
 import FilterBar from '../components/FilterBar';

@@ -19,7 +19,7 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
 import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
 

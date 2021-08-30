@@ -20,7 +20,7 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
-import { View } from '../utils';
+import { MeasurePageView } from '../../../types/measures';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
 
@@ -28,11 +28,10 @@ interface Props {
   branchLike?: BranchLike;
   component: T.ComponentMeasureEnhanced;
   isSelected: boolean;
-  onClick: (component: string) => void;
   otherMetrics: T.Metric[];
   metric: T.Metric;
   rootComponent: T.ComponentMeasure;
-  view: View;
+  view: MeasurePageView;
 }
 
 export default function ComponentsListRow(props: Props) {
@@ -50,7 +49,6 @@ export default function ComponentsListRow(props: Props) {
         branchLike={branchLike}
         component={component}
         metric={props.metric}
-        onClick={props.onClick}
         rootComponent={rootComponent}
         view={props.view}
       />

@@ -22,10 +22,10 @@ import * as React from 'react';
 import GraphsHistory from '../../../../components/activity-graph/GraphsHistory';
 import { parseDate } from '../../../../helpers/dates';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockAnalysis,
   mockAnalysisEvent,
-  mockComponent,
   mockMeasure,
   mockMetric
 } from '../../../../helpers/testMocks';

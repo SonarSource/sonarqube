@@ -27,8 +27,9 @@ import {
 } from '../../../api/component-report';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockComponentReportStatus } from '../../../helpers/mocks/component-report';
-import { mockComponent, mockCurrentUser } from '../../../helpers/testMocks';
+import { mockCurrentUser } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../types/component';
 import { ComponentReportActions } from '../ComponentReportActions';

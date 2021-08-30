@@ -10,7 +10,6 @@ exports[`should render correctly: default 1`] = `
     <Link
       className="link-no-underline"
       id="component-measures-component-link-foo:src/index.tsx"
-      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -20,6 +19,7 @@ exports[`should render correctly: default 1`] = `
             "id": "foo",
             "metric": "bugs",
             "selected": "foo:src/index.tsx",
+            "view": "list",
           },
         }
       }
@@ -46,7 +46,7 @@ exports[`should render correctly: default 1`] = `
 </td>
 `;
 
-exports[`should render correctly: ref component 1`] = `
+exports[`should render correctly: ref application component, alert_status metric 1`] = `
 <td
   className="measure-details-component-cell"
 >
@@ -55,7 +55,7 @@ exports[`should render correctly: ref component 1`] = `
   >
     <Link
       className="link-no-underline"
-      id="component-measures-component-link-project-key"
+      id="component-measures-component-link-foo"
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -63,7 +63,7 @@ exports[`should render correctly: ref component 1`] = `
           "pathname": "/dashboard",
           "query": Object {
             "branch": undefined,
-            "id": "project-key",
+            "id": "app-key",
           },
         }
       }
@@ -74,7 +74,141 @@ exports[`should render correctly: ref component 1`] = `
         <LinkIcon />
       </span>
       <span
-        title="project-key"
+        title="foo"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="APP"
+        />
+        <span>
+          Foo
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: ref application component, projects 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "branch": "branch-6.7",
+            "id": "app-key",
+            "metric": "projects",
+            "view": "list",
+          },
+        }
+      }
+    >
+      <span
+        className="big-spacer-right"
+      >
+        <LinkIcon />
+      </span>
+      <span
+        title="foo"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="APP"
+        />
+        <span>
+          Foo
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: ref portfolio component, alert_status metric 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "id": "vw-key",
+            "metric": "alert_status",
+            "pullRequest": "1001",
+            "view": "list",
+          },
+        }
+      }
+    >
+      <span
+        className="big-spacer-right"
+      >
+        <LinkIcon />
+      </span>
+      <span
+        title="foo"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="VW"
+        />
+        <span>
+          Foo
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: ref project component 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "id": "project-key",
+            "metric": "bugs",
+            "view": "list",
+          },
+        }
+      }
+    >
+      <span
+        className="big-spacer-right"
+      >
+        <LinkIcon />
+      </span>
+      <span
+        title="foo"
       >
         <QualifierIcon
           className="little-spacer-right"
@@ -89,7 +223,141 @@ exports[`should render correctly: ref component 1`] = `
 </td>
 `;
 
-exports[`should render correctly: security review domain 1`] = `
+exports[`should render correctly: ref project component, projects 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": "branch-6.7",
+            "id": "project-key",
+          },
+        }
+      }
+    >
+      <span
+        className="big-spacer-right"
+      >
+        <LinkIcon />
+      </span>
+      <span
+        title="foo"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+        <span>
+          Foo
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: ref project component, releasability metric 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": "branch-6.7",
+            "id": "project-key",
+          },
+        }
+      }
+    >
+      <span
+        className="big-spacer-right"
+      >
+        <LinkIcon />
+      </span>
+      <span
+        title="foo"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+        <span>
+          Foo
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: root component is application, component has branch 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-foo"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "id": "foo",
+            "metric": "bugs",
+            "selected": "foo",
+            "view": "list",
+          },
+        }
+      }
+    >
+      <span
+        title="foo"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+        <span>
+          Foo
+        </span>
+        <BranchIcon
+          className="spacer-left little-spacer-right"
+        />
+        <span
+          className="note"
+        >
+          develop
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: root component is application, component is on main branch 1`] = `
 <td
   className="measure-details-component-cell"
 >
@@ -103,15 +371,12 @@ exports[`should render correctly: security review domain 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/security_hotspots",
+          "pathname": "/component_measures",
           "query": Object {
-            "assignedToMe": undefined,
-            "branch": undefined,
-            "file": "src/index.tsx",
-            "hotspots": undefined,
             "id": "foo",
-            "pullRequest": undefined,
-            "sinceLeakPeriod": undefined,
+            "metric": "bugs",
+            "selected": "foo:src/index.tsx",
+            "view": "list",
           },
         }
       }
@@ -131,6 +396,51 @@ exports[`should render correctly: security review domain 1`] = `
         </span>
         <span>
           index.tsx
+        </span>
+        <span
+          className="spacer-left badge"
+        >
+          branches.main_branch
+        </span>
+      </span>
+    </Link>
+  </div>
+</td>
+`;
+
+exports[`should render correctly: sub-portfolio component 1`] = `
+<td
+  className="measure-details-component-cell"
+>
+  <div
+    className="text-ellipsis"
+  >
+    <Link
+      className="link-no-underline"
+      id="component-measures-component-link-svw-bar"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/component_measures",
+          "query": Object {
+            "id": "foo",
+            "metric": "bugs",
+            "selected": "svw-bar",
+            "view": "list",
+          },
+        }
+      }
+    >
+      <span
+        title="svw-bar"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="SVW"
+        />
+        <span>
+          Foo
         </span>
       </span>
     </Link>

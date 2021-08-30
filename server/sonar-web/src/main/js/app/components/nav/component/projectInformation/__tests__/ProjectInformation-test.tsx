@@ -19,12 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import {
-  mockComponent,
-  mockCurrentUser,
-  mockLoggedInUser,
-  mockMetric
-} from '../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../helpers/mocks/component';
+import { mockCurrentUser, mockLoggedInUser, mockMetric } from '../../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../../helpers/testUtils';
 import { ProjectInformation } from '../ProjectInformation';
 import { ProjectInformationPages } from '../ProjectInformationPages';

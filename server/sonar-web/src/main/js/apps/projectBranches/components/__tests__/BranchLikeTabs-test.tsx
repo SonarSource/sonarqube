@@ -25,7 +25,7 @@ import {
   mockPullRequest,
   mockSetOfBranchAndPullRequest
 } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { BranchLikeTable } from '../BranchLikeTable';
 import BranchLikeTabs, { Tabs } from '../BranchLikeTabs';
 import DeleteBranchModal from '../DeleteBranchModal';

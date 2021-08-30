@@ -23,7 +23,8 @@ import {
   mockAlmSettingsInstance,
   mockProjectGithubBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
-import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import SecretStep, { SecretStepProps } from '../SecretStep';
 
 it('should render correctly', () => {

@@ -31,7 +31,6 @@ exports[`should render with best values hidden 1`] = `
         },
       }
     }
-    onClick={[MockFunction]}
     rootComponent={
       Object {
         "key": "parent",
@@ -92,7 +91,6 @@ exports[`should renders correctly 1`] = `
         },
       }
     }
-    onClick={[MockFunction]}
     rootComponent={
       Object {
         "key": "parent",

@@ -27,8 +27,8 @@ import {
   searchProjects
 } from '../../../api/quality-gates';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockQualityGate } from '../../../helpers/mocks/quality-gates';
-import { mockComponent } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 import ProjectQualityGateApp from '../ProjectQualityGateApp';

@@ -21,12 +21,8 @@ import { shallow } from 'enzyme';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import OriginalBubbleChart from '../../../../components/charts/BubbleChart';
-import {
-  mockComponentMeasure,
-  mockMeasure,
-  mockMetric,
-  mockPaging
-} from '../../../../helpers/testMocks';
+import { mockComponentMeasure } from '../../../../helpers/mocks/component';
+import { mockMeasure, mockMetric, mockPaging } from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import { enhanceComponent } from '../../utils';
 import BubbleChart from '../BubbleChart';

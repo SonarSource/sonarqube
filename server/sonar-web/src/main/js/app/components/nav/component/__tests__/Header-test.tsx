@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Favorite from '../../../../../components/controls/Favorite';
 import { mockSetOfBranchAndPullRequest } from '../../../../../helpers/mocks/branch-like';
-import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/mocks/component';
+import { mockCurrentUser } from '../../../../../helpers/testMocks';
 import { Header, HeaderProps } from '../Header';
 
 it('should render correctly', () => {

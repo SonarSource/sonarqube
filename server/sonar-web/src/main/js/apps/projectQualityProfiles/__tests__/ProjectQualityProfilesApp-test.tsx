@@ -27,7 +27,7 @@ import {
   searchQualityProfiles
 } from '../../../api/quality-profiles';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
-import { mockComponent } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import ProjectQualityProfilesApp from '../ProjectQualityProfilesApp';
 

@@ -21,12 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import {
-  mockComponent,
-  mockMeasureEnhanced,
-  mockMetric,
-  mockPeriod
-} from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockMeasureEnhanced, mockMetric, mockPeriod } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';

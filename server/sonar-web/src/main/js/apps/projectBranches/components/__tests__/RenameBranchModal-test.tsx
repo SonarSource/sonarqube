@@ -21,7 +21,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { renameBranch } from '../../../../api/branches';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { change, click, doAsync, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import RenameBranchModal from '../RenameBranchModal';
 

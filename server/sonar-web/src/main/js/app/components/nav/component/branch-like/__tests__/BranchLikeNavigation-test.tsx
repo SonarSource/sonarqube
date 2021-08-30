@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Toggler from '../../../../../../components/controls/Toggler';
 import { mockSetOfBranchAndPullRequest } from '../../../../../../helpers/mocks/branch-like';
-import { mockAppState, mockComponent } from '../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../helpers/mocks/component';
+import { mockAppState } from '../../../../../../helpers/testMocks';
 import { click } from '../../../../../../helpers/testUtils';
 import { BranchLikeNavigation, BranchLikeNavigationProps } from '../BranchLikeNavigation';
 

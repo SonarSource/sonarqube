@@ -23,9 +23,11 @@ import { keyBy } from 'lodash';
 import * as React from 'react';
 import { getComponentLeaves } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponentMeasureEnhanced } from '../../../../helpers/mocks/component';
 import {
   mockComponentMeasure,
+  mockComponentMeasureEnhanced
+} from '../../../../helpers/mocks/component';
+import {
   mockMeasure,
   mockMeasureEnhanced,
   mockMetric,

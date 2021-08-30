@@ -24,7 +24,7 @@ import {
   mockMainBranch,
   mockPullRequest
 } from '../../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Menu } from '../Menu';
 

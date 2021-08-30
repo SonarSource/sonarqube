@@ -22,10 +22,10 @@ import * as React from 'react';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import {
-  mockComponent,
   mockCurrentUser,
   mockLocation,
   mockLoggedInUser,

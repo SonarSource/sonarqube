@@ -20,8 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { mockComponent, mockCurrentUser, mockUser } from '../../../../helpers/testMocks';
+import { mockCurrentUser, mockUser } from '../../../../helpers/testMocks';
 import { HotspotViewerRenderer, HotspotViewerRendererProps } from '../HotspotViewerRenderer';
 
 jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));

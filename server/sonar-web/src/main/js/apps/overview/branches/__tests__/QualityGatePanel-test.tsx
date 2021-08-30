@@ -19,11 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockQualityGateStatus,
   mockQualityGateStatusConditionEnhanced
 } from '../../../../helpers/mocks/quality-gates';
-import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { QualityGatePanel, QualityGatePanelProps } from '../QualityGatePanel';

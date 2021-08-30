@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import { BuildTools, OSs } from '../../../types';
 import AnalysisCommand, { AnalysisCommandProps } from '../AnalysisCommand';
 

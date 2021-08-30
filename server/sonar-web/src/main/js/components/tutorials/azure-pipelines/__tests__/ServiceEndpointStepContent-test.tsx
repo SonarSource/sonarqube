@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
-import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 import EditTokenModal from '../../components/EditTokenModal';
 import ServiceEndpointStepContent from '../ServiceEndpointStepContent';

@@ -24,7 +24,7 @@ import {
   mockProjectGitLabBindingResponse
 } from '../../../../../../helpers/mocks/alm-settings';
 import { mockMainBranch } from '../../../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { ComponentQualifier } from '../../../../../../types/component';
 import { CurrentBranchLike, CurrentBranchLikeProps } from '../CurrentBranchLike';
 

@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockPeriod } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockPeriod } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import MeasuresPanelNoNewCode, { MeasuresPanelNoNewCodeProps } from '../MeasuresPanelNoNewCode';
 

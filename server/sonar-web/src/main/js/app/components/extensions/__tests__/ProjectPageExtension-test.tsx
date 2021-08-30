@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockLocation } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLocation } from '../../../../helpers/testMocks';
 import ProjectPageExtension, { ProjectPageExtensionProps } from '../ProjectPageExtension';
 
 it('should render correctly', () => {

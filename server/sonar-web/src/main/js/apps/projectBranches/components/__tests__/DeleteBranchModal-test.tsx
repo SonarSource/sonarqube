@@ -21,7 +21,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { deleteBranch, deletePullRequest } from '../../../../api/branches';
 import { mockBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { click, doAsync, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { BranchLike } from '../../../../types/branch-like';
 import DeleteBranchModal from '../DeleteBranchModal';

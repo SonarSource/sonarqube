@@ -27,7 +27,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
-import { View } from '../utils';
+import { MeasurePageView } from '../../../types/measures';
 import ComponentsList from './ComponentsList';
 
 interface Props {
@@ -44,7 +44,7 @@ interface Props {
   rootComponent: T.ComponentMeasure;
   selectedKey?: string;
   selectedIdx?: number;
-  view: View;
+  view: MeasurePageView;
 }
 
 interface State {
@@ -173,7 +173,6 @@ export default class FilesView extends React.PureComponent<Props, State> {
           components={filteredComponents}
           metric={this.props.metric}
           metrics={this.props.metrics}
-          onClick={this.props.handleOpen}
           rootComponent={this.props.rootComponent}
           selectedComponent={this.props.selectedKey}
           view={this.props.view}

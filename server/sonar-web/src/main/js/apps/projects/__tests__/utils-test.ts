@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { searchProjects } from '../../../api/components';
-import { mockComponent } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
 import * as utils from '../utils';
 
 jest.mock('../../../api/components', () => ({

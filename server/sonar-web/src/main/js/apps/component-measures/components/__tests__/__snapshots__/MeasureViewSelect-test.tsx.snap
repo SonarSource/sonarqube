@@ -1,6 +1,53 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly with treemap option 1`] = `
+exports[`should render correctly: has no list 1`] = `
+<Select
+  autoBlur={true}
+  clearable={false}
+  onChange={[Function]}
+  optionRenderer={[Function]}
+  options={
+    Array [
+      Object {
+        "icon": <TreeIcon />,
+        "label": "component_measures.tab.tree",
+        "value": "tree",
+      },
+      Object {
+        "icon": <TreemapIcon />,
+        "label": "component_measures.tab.treemap",
+        "value": "treemap",
+      },
+    ]
+  }
+  searchable={false}
+  value="list"
+  valueRenderer={[Function]}
+/>
+`;
+
+exports[`should render correctly: has no tree 1`] = `
+<Select
+  autoBlur={true}
+  clearable={false}
+  onChange={[Function]}
+  optionRenderer={[Function]}
+  options={
+    Array [
+      Object {
+        "icon": <ListIcon />,
+        "label": "component_measures.tab.list",
+        "value": "list",
+      },
+    ]
+  }
+  searchable={false}
+  value="list"
+  valueRenderer={[Function]}
+/>
+`;
+
+exports[`should render correctly: has no treemap 1`] = `
 <Select
   autoBlur={true}
   clearable={false}
@@ -26,7 +73,7 @@ exports[`should display correctly with treemap option 1`] = `
     ]
   }
   searchable={false}
-  value="tree"
+  value="list"
   valueRenderer={[Function]}
 />
 `;

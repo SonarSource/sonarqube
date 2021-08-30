@@ -26,7 +26,8 @@ import {
   mockPullRequest,
   mockSetOfBranchAndPullRequest
 } from '../../../../../../helpers/mocks/branch-like';
-import { mockComponent, mockRouter } from '../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../helpers/mocks/component';
+import { mockRouter } from '../../../../../../helpers/testMocks';
 import { click, mockEvent } from '../../../../../../helpers/testUtils';
 import { Menu } from '../Menu';
 import { MenuItemList } from '../MenuItemList';

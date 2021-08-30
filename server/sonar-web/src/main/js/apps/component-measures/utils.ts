@@ -25,15 +25,14 @@ import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
+import { MeasurePageView } from '../../types/measures';
 import { MetricKey } from '../../types/metrics';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
 
-export type View = 'list' | 'tree' | 'treemap';
-
 export const BUBBLES_FETCH_LIMIT = 500;
 export const PROJECT_OVERVEW = 'project_overview';
-export const DEFAULT_VIEW: View = 'tree';
+export const DEFAULT_VIEW: MeasurePageView = 'tree';
 export const DEFAULT_METRIC = PROJECT_OVERVEW;
 export const KNOWN_DOMAINS = [
   'Releasability',
@@ -212,8 +211,8 @@ export function isProjectOverview(metric: string) {
   return metric === PROJECT_OVERVEW;
 }
 
-function parseView(metric: string, rawView?: string): View {
-  const view = (parseAsString(rawView) || DEFAULT_VIEW) as View;
+function parseView(metric: string, rawView?: string): MeasurePageView {
+  const view = (parseAsString(rawView) || DEFAULT_VIEW) as MeasurePageView;
   if (!hasTree(metric)) {
     return 'list';
   } else if (view === 'list' && !hasList(metric)) {
@@ -225,7 +224,7 @@ function parseView(metric: string, rawView?: string): View {
 export interface Query {
   metric: string;
   selected?: string;
-  view: View;
+  view: MeasurePageView;
 }
 
 export const parseQuery = memoize(

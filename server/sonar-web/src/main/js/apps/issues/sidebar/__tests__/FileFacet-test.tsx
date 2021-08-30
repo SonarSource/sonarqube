@@ -22,7 +22,7 @@ import * as React from 'react';
 import { getFiles } from '../../../../api/components';
 import ListStyleFacet from '../../../../components/facet/ListStyleFacet';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { TreeComponentWithPath } from '../../../../types/component';
 import { Query } from '../../utils';
 import FileFacet from '../FileFacet';

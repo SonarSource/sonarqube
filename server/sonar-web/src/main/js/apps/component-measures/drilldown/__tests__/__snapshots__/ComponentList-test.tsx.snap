@@ -24,7 +24,6 @@ exports[`should renders correctly 1`] = `
           "type": "INT",
         }
       }
-      onClick={[MockFunction]}
       otherMetrics={Array []}
       rootComponent={
         Object {
@@ -102,7 +101,6 @@ exports[`should renders with multiple measures 1`] = `
           "type": "PERCENT",
         }
       }
-      onClick={[MockFunction]}
       otherMetrics={
         Array [
           Object {

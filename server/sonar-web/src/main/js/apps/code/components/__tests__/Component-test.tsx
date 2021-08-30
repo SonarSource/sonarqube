@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponentMeasure, mockMetric } from '../../../../helpers/testMocks';
+import { mockComponentMeasure } from '../../../../helpers/mocks/component';
+import { mockMetric } from '../../../../helpers/testMocks';
 import { Component } from '../Component';
 
 it('should render correctly', () => {

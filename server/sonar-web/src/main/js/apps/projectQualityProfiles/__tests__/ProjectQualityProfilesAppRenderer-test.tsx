@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockQualityProfile } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
+import { mockQualityProfile } from '../../../helpers/testMocks';
 import ProjectQualityProfilesAppRenderer, {
   ProjectQualityProfilesAppRendererProps
 } from '../ProjectQualityProfilesAppRenderer';

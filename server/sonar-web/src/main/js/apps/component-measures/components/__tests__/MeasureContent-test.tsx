@@ -20,8 +20,9 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getComponentTree } from '../../../../api/components';
+import { mockComponentMeasure } from '../../../../helpers/mocks/component';
 import { scrollToElement } from '../../../../helpers/scrolling';
-import { mockComponentMeasure, mockRouter } from '../../../../helpers/testMocks';
+import { mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MeasureContent from '../MeasureContent';
 
@@ -30,7 +31,7 @@ jest.mock('../../../../helpers/scrolling', () => ({
 }));
 
 jest.mock('../../../../api/components', () => {
-  const { mockComponentMeasure } = jest.requireActual('../../../../helpers/testMocks');
+  const { mockComponentMeasure } = jest.requireActual('../../../../helpers/mocks/component');
   return {
     getComponentTree: jest.fn().mockResolvedValue({
       paging: { pageIndex: 1, pageSize: 500, total: 2 },

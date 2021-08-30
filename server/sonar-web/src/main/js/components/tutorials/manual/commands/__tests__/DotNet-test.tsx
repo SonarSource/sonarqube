@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import DotNet from '../DotNet';
 
 it('should render correctly', () => {

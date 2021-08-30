@@ -20,12 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import {
-  mockComponent,
-  mockComponentMeasure,
-  mockIssue,
-  mockRouter
-} from '../../../../helpers/testMocks';
+import { mockComponent, mockComponentMeasure } from '../../../../helpers/mocks/component';
+import { mockIssue, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { loadMoreChildren, retrieveComponent } from '../../utils';

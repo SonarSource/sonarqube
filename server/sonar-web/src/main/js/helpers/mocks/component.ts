@@ -17,7 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockComponentMeasure, mockMeasureEnhanced } from '../testMocks';
+import { ComponentQualifier } from '../../types/component';
+import { MetricKey } from '../../types/metrics';
+import { mockMeasureEnhanced } from '../testMocks';
+
+export function mockComponent(overrides: Partial<T.Component> = {}): T.Component {
+  return {
+    breadcrumbs: [],
+    key: 'my-project',
+    name: 'MyProject',
+    qualifier: ComponentQualifier.Project,
+    qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
+    qualityProfiles: [
+      {
+        deleted: false,
+        key: 'my-qp',
+        language: 'ts',
+        name: 'Sonar way'
+      }
+    ],
+    tags: [],
+    ...overrides
+  };
+}
+
+export function mockComponentMeasure(
+  file = false,
+  overrides: Partial<T.ComponentMeasure> = {}
+): T.ComponentMeasure {
+  if (file) {
+    return {
+      key: 'foo:src/index.tsx',
+      name: 'index.tsx',
+      qualifier: ComponentQualifier.File,
+      path: 'src/index.tsx',
+      measures: [{ metric: MetricKey.bugs, value: '1', bestValue: false }],
+      ...overrides
+    };
+  }
+  return {
+    key: 'foo',
+    name: 'Foo',
+    qualifier: ComponentQualifier.Project,
+    measures: [{ metric: MetricKey.bugs, value: '12', bestValue: false }],
+    ...overrides
+  };
+}
 
 export function mockComponentMeasureEnhanced(
   overrides: Partial<T.ComponentMeasureEnhanced> = {}

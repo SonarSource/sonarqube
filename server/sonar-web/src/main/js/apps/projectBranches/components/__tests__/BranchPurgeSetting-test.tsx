@@ -22,7 +22,7 @@ import * as React from 'react';
 import { excludeBranchFromPurge } from '../../../../api/branches';
 import Toggle from '../../../../components/controls/Toggle';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import BranchPurgeSetting from '../BranchPurgeSetting';
 
 jest.mock('../../../../api/branches', () => ({

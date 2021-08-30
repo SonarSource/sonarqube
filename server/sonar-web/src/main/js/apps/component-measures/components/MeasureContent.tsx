@@ -31,11 +31,12 @@ import { RequestData } from '../../../helpers/request';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
-import { enhanceComponent, isFileType, isViewType, Query, View } from '../utils';
+import { enhanceComponent, isFileType, isViewType, Query } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
@@ -51,7 +52,7 @@ interface Props {
   router: InjectedRouter;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
-  view: View;
+  view: MeasurePageView;
 }
 
 interface State {
@@ -170,7 +171,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   };
 
   getComponentRequestParams(
-    view: View,
+    view: MeasurePageView,
     metric: Pick<T.Metric, 'key' | 'direction'>,
     options: Object = {}
   ) {
@@ -218,7 +219,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     });
   };
 
-  updateView = (view: View) => {
+  updateView = (view: MeasurePageView) => {
     this.props.updateQuery({ view });
   };
 

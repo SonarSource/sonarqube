@@ -21,8 +21,9 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import HomePageSelect from '../../../../../components/controls/HomePageSelect';
 import { mockBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockTaskWarning } from '../../../../../helpers/mocks/tasks';
-import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { mockCurrentUser } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { getCurrentPage, HeaderMeta, HeaderMetaProps } from '../HeaderMeta';
 

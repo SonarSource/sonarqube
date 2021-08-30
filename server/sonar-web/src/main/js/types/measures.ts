@@ -33,3 +33,5 @@ export interface MeasuresAndMetaWithPeriod {
   component: T.ComponentMeasure;
   period: T.Period;
 }
+
+export type MeasurePageView = 'list' | 'tree' | 'treemap';

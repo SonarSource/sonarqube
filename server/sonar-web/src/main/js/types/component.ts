@@ -73,3 +73,9 @@ export function isApplication(
 ): componentQualifier is ComponentQualifier.Application {
   return componentQualifier === ComponentQualifier.Application;
 }
+
+export function isProject(
+  componentQualifier?: string | ComponentQualifier
+): componentQualifier is ComponentQualifier.Project {
+  return componentQualifier === ComponentQualifier.Project;
+}

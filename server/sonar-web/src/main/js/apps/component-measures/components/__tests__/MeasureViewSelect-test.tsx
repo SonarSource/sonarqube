@@ -17,18 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockMetric } from '../../../../helpers/testMocks';
+import { MetricKey } from '../../../../types/metrics';
 import MeasureViewSelect from '../MeasureViewSelect';
 
-it('should display correctly with treemap option', () => {
+it('should render correctly', () => {
   expect(
-    shallow(
-      <MeasureViewSelect
-        handleViewChange={() => {}}
-        metric={{ type: 'PERCENT' } as T.Metric}
-        view="tree"
-      />
-    )
-  ).toMatchSnapshot();
+    shallowRender({ metric: mockMetric({ key: MetricKey.releasability_rating }) })
+  ).toMatchSnapshot('has no list');
+  expect(
+    shallowRender({ metric: mockMetric({ key: MetricKey.alert_status, type: 'LEVEL' }) })
+  ).toMatchSnapshot('has no tree');
+  expect(shallowRender({ metric: mockMetric({ type: 'RATING' }) })).toMatchSnapshot(
+    'has no treemap'
+  );
 });
+
+it('should correctly trigger a selection change', () => {
+  const handleViewChange = jest.fn();
+  const wrapper = shallowRender({ handleViewChange });
+  wrapper.instance().handleChange({ value: 'list' });
+  expect(handleViewChange).toBeCalledWith('list');
+});
+
+function shallowRender(props: Partial<MeasureViewSelect['props']> = {}) {
+  return shallow<MeasureViewSelect>(
+    <MeasureViewSelect metric={mockMetric()} handleViewChange={jest.fn()} view="list" {...props} />
+  );
+}

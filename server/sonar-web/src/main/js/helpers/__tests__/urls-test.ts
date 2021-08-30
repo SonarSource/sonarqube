@@ -20,9 +20,11 @@
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 import {
   convertGithubApiUrlToLink,
   getComponentDrilldownUrl,
+  getComponentDrilldownUrlWithSelection,
   getComponentIssuesUrl,
   getComponentOverviewUrl,
   getComponentSecurityHotspotsUrl,
@@ -138,6 +140,92 @@ describe('#getComponentDrilldownUrl', () => {
     ).toEqual({
       pathname: '/component_measures',
       query: { id: COMPLEX_COMPONENT_KEY, metric: METRIC }
+    });
+  });
+});
+
+describe('#getComponentDrilldownUrlWithSelection', () => {
+  it('should return component drilldown url with selection', () => {
+    expect(
+      getComponentDrilldownUrlWithSelection(SIMPLE_COMPONENT_KEY, COMPLEX_COMPONENT_KEY, METRIC)
+    ).toEqual({
+      pathname: '/component_measures',
+      query: { id: SIMPLE_COMPONENT_KEY, metric: METRIC, selected: COMPLEX_COMPONENT_KEY }
+    });
+  });
+
+  it('should return component drilldown url with branchLike', () => {
+    expect(
+      getComponentDrilldownUrlWithSelection(
+        SIMPLE_COMPONENT_KEY,
+        COMPLEX_COMPONENT_KEY,
+        METRIC,
+        mockBranch({ name: 'foo' })
+      )
+    ).toEqual({
+      pathname: '/component_measures',
+      query: {
+        id: SIMPLE_COMPONENT_KEY,
+        metric: METRIC,
+        selected: COMPLEX_COMPONENT_KEY,
+        branch: 'foo'
+      }
+    });
+  });
+
+  it('should return component drilldown url with view parameter', () => {
+    expect(
+      getComponentDrilldownUrlWithSelection(
+        SIMPLE_COMPONENT_KEY,
+        COMPLEX_COMPONENT_KEY,
+        METRIC,
+        undefined,
+        'list'
+      )
+    ).toEqual({
+      pathname: '/component_measures',
+      query: {
+        id: SIMPLE_COMPONENT_KEY,
+        metric: METRIC,
+        selected: COMPLEX_COMPONENT_KEY,
+        view: 'list'
+      }
+    });
+
+    expect(
+      getComponentDrilldownUrlWithSelection(
+        SIMPLE_COMPONENT_KEY,
+        COMPLEX_COMPONENT_KEY,
+        METRIC,
+        mockMainBranch(),
+        'treemap'
+      )
+    ).toEqual({
+      pathname: '/component_measures',
+      query: {
+        id: SIMPLE_COMPONENT_KEY,
+        metric: METRIC,
+        selected: COMPLEX_COMPONENT_KEY,
+        view: 'treemap'
+      }
+    });
+
+    expect(
+      getComponentDrilldownUrlWithSelection(
+        SIMPLE_COMPONENT_KEY,
+        COMPLEX_COMPONENT_KEY,
+        METRIC,
+        mockPullRequest({ key: '1' }),
+        'tree'
+      )
+    ).toEqual({
+      pathname: '/component_measures',
+      query: {
+        id: SIMPLE_COMPONENT_KEY,
+        metric: METRIC,
+        selected: COMPLEX_COMPONENT_KEY,
+        pullRequest: '1'
+      }
     });
   });
 });

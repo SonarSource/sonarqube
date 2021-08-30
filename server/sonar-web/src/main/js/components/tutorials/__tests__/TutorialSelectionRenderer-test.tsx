@@ -27,7 +27,8 @@ import {
   mockProjectGithubBindingResponse,
   mockProjectGitLabBindingResponse
 } from '../../../helpers/mocks/alm-settings';
-import { mockComponent, mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
+import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { click } from '../../../helpers/testUtils';
 import TutorialSelectionRenderer, {
   TutorialSelectionRendererProps

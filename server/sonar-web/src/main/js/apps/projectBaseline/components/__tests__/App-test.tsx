@@ -25,7 +25,8 @@ import {
   setNewCodePeriod
 } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockEvent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockEvent } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import App from '../App';
 

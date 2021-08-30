@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { IssueType } from '../../../../types/issues';
 import { MetricKey } from '../../../../types/metrics';

@@ -19,31 +19,104 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponentMeasure, mockMetric } from '../../../../helpers/testMocks';
+import { mockBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import {
+  mockComponentMeasure,
+  mockComponentMeasureEnhanced
+} from '../../../../helpers/mocks/component';
+import { mockMetric } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { enhanceComponent } from '../../utils';
-import ComponentCell from '../ComponentCell';
+import ComponentCell, { ComponentCellProps } from '../ComponentCell';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({}, MetricKey.security_hotspots)).toMatchSnapshot('security review domain');
-
-  const metric = mockMetric({ key: MetricKey.bugs });
   expect(
     shallowRender({
-      component: enhanceComponent(
-        mockComponentMeasure(false, { refKey: 'project-key' }),
-        { key: metric.key },
-        { [metric.key]: metric }
-      )
+      rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application })
     })
-  ).toMatchSnapshot('ref component');
+  ).toMatchSnapshot('root component is application, component is on main branch');
+  expect(
+    shallowRender({
+      rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application }),
+      component: mockComponentMeasureEnhanced({ branch: 'develop' })
+    })
+  ).toMatchSnapshot('root component is application, component has branch');
+  expect(
+    shallowRender({ component: mockComponentMeasureEnhanced({ refKey: 'project-key' }) })
+  ).toMatchSnapshot('ref project component');
+  expect(
+    shallowRender(
+      {
+        component: mockComponentMeasureEnhanced({
+          refKey: 'project-key',
+          qualifier: ComponentQualifier.Project
+        }),
+        branchLike: mockBranch()
+      },
+      MetricKey.releasability_rating
+    )
+  ).toMatchSnapshot('ref project component, releasability metric');
+  expect(
+    shallowRender(
+      {
+        component: mockComponentMeasureEnhanced({
+          refKey: 'app-key',
+          qualifier: ComponentQualifier.Application
+        }),
+        branchLike: mockBranch()
+      },
+      MetricKey.projects
+    )
+  ).toMatchSnapshot('ref application component, projects');
+  expect(
+    shallowRender(
+      {
+        component: mockComponentMeasureEnhanced({
+          refKey: 'project-key',
+          qualifier: ComponentQualifier.Project
+        }),
+        branchLike: mockBranch()
+      },
+      MetricKey.projects
+    )
+  ).toMatchSnapshot('ref project component, projects');
+  expect(
+    shallowRender(
+      {
+        component: mockComponentMeasureEnhanced({
+          refKey: 'app-key',
+          qualifier: ComponentQualifier.Application
+        }),
+        branchLike: mockPullRequest()
+      },
+      MetricKey.alert_status
+    )
+  ).toMatchSnapshot('ref application component, alert_status metric');
+  expect(
+    shallowRender(
+      {
+        component: mockComponentMeasureEnhanced({
+          refKey: 'vw-key',
+          qualifier: ComponentQualifier.Portfolio
+        }),
+        branchLike: mockPullRequest()
+      },
+      MetricKey.alert_status
+    )
+  ).toMatchSnapshot('ref portfolio component, alert_status metric');
+  expect(
+    shallowRender({
+      component: mockComponentMeasureEnhanced({
+        key: 'svw-bar',
+        qualifier: ComponentQualifier.SubPortfolio
+      })
+    })
+  ).toMatchSnapshot('sub-portfolio component');
 });
 
-function shallowRender(
-  overrides: Partial<ComponentCell['props']> = {},
-  metricKey = MetricKey.bugs
-) {
+function shallowRender(overrides: Partial<ComponentCellProps> = {}, metricKey = MetricKey.bugs) {
   const metric = mockMetric({ key: metricKey });
   const component = enhanceComponent(
     mockComponentMeasure(true, {
@@ -53,11 +126,10 @@ function shallowRender(
     { [metric.key]: metric }
   );
 
-  return shallow<ComponentCell>(
+  return shallow<ComponentCellProps>(
     <ComponentCell
       component={component}
       metric={metric}
-      onClick={jest.fn()}
       rootComponent={mockComponentMeasure(false)}
       view="list"
       {...overrides}

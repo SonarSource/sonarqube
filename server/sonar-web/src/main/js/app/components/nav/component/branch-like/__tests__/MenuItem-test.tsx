@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch, mockPullRequest } from '../../../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { click } from '../../../../../../helpers/testUtils';
 import { MenuItem, MenuItemProps } from '../MenuItem';
 

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { setSimpleSettingValue } from '../../../api/settings';
-import { mockComponent } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { SettingsKey } from '../../../types/settings';
 import ApplicationSettingsApp from '../ApplicationSettingsApp';

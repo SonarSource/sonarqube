@@ -35,7 +35,8 @@ import {
   mockProjectAlmBindingConfigurationErrors,
   mockProjectAlmBindingResponse
 } from '../../../../../helpers/mocks/alm-settings';
-import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/mocks/component';
+import { mockCurrentUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
 import { PRDecorationBinding } from '../PRDecorationBinding';

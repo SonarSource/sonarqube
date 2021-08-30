@@ -23,7 +23,6 @@ import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
-import { ComponentQualifier } from '../types/component';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
@@ -252,49 +251,6 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): T.SysInfoClust
     Statistics: {
       ncloc: 989880
     },
-    ...overrides
-  };
-}
-
-export function mockComponent(overrides: Partial<T.Component> = {}): T.Component {
-  return {
-    breadcrumbs: [],
-    key: 'my-project',
-    name: 'MyProject',
-    qualifier: ComponentQualifier.Project,
-    qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
-    qualityProfiles: [
-      {
-        deleted: false,
-        key: 'my-qp',
-        language: 'ts',
-        name: 'Sonar way'
-      }
-    ],
-    tags: [],
-    ...overrides
-  };
-}
-
-export function mockComponentMeasure(
-  file = false,
-  overrides: Partial<T.ComponentMeasure> = {}
-): T.ComponentMeasure {
-  if (file) {
-    return {
-      key: 'foo:src/index.tsx',
-      name: 'index.tsx',
-      qualifier: 'FIL',
-      path: 'src/index.tsx',
-      measures: [{ metric: 'bugs', value: '1', bestValue: false }],
-      ...overrides
-    };
-  }
-  return {
-    key: 'foo',
-    name: 'Foo',
-    qualifier: 'TRK',
-    measures: [{ metric: 'bugs', value: '12', bestValue: false }],
     ...overrides
   };
 }

@@ -20,7 +20,7 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
-import { mockComponent } from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
 import ProjectAdminContainer from '../ProjectAdminContainer';
 
 jest.mock('../../utils/handleRequiredAuthorization', () => {

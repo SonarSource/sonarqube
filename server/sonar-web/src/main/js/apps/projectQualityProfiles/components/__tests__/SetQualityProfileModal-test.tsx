@@ -22,7 +22,8 @@ import * as React from 'react';
 import Radio from '../../../../components/controls/Radio';
 import Select from '../../../../components/controls/Select';
 import SimpleModal from '../../../../components/controls/SimpleModal';
-import { mockComponent, mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 import SetQualityProfileModal, { SetQualityProfileModalProps } from '../SetQualityProfileModal';
 
 it('should render correctly', () => {

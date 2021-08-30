@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
-import { mockComponent } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { TaskStatuses } from '../../../../../types/tasks';
 import RecentHistory from '../../../RecentHistory';

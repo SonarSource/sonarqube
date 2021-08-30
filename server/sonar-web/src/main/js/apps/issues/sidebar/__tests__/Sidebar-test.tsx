@@ -20,7 +20,7 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import { flatten } from 'lodash';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { getGlobalSettingValue } from '../../../../store/rootReducer';
 import { ComponentQualifier } from '../../../../types/component';
 import { Query } from '../../utils';

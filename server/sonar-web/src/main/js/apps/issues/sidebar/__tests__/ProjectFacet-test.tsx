@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { getTree, searchProjects } from '../../../../api/components';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { ComponentQualifier } from '../../../../types/component';
 import { ReferencedComponent } from '../../../../types/issues';
 import { Query } from '../../utils';

@@ -24,7 +24,7 @@ import {
   mockPullRequest,
   mockSetOfBranchAndPullRequest
 } from '../../../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { MenuItemList, MenuItemListProps } from '../MenuItemList';
 
 it('should render correctly', () => {

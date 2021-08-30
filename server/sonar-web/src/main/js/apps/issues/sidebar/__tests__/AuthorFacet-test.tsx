@@ -21,7 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import ListStyleFacet from '../../../../components/facet/ListStyleFacet';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { Query } from '../../utils';
 import AuthorFacet from '../AuthorFacet';
 

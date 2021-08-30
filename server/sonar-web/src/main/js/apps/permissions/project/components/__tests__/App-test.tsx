@@ -25,7 +25,7 @@ import {
   revokePermissionFromGroup,
   revokePermissionFromUser
 } from '../../../../../api/permissions';
-import { mockComponent } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import App from '../App';
 

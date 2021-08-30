@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { generateToken, getTokens, revokeToken } from '../../../../api/user-tokens';
-import { mockComponent, mockEvent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockEvent, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { getUniqueTokenName } from '../../utils';
 import EditTokenModal from '../EditTokenModal';

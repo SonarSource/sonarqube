@@ -22,7 +22,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { unsubscribeFromEmailReport } from '../../../../api/component-report';
 import SimpleModal from '../../../../components/controls/SimpleModal';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import UnsubscribeEmailModal from '../UnsubscribeEmailModal';

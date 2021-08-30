@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAppState, mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { BuildTools } from '../../types';
 import { AnalysisCommand, AnalysisCommandProps } from '../AnalysisCommand';
 

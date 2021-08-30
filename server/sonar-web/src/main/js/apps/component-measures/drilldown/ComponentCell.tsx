@@ -17,123 +17,113 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LocationDescriptor } from 'history';
 import * as React from 'react';
 import { Link } from 'react-router';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
-import { isDiffMetric } from '../../../helpers/measures';
 import { splitPath } from '../../../helpers/path';
 import {
   getBranchLikeUrl,
   getComponentDrilldownUrlWithSelection,
-  getComponentSecurityHotspotsUrl,
   getProjectUrl
 } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { isFileType, isSecurityReviewMetric, View } from '../utils';
+import {
+  ComponentQualifier,
+  isApplication,
+  isPortfolioLike,
+  isProject
+} from '../../../types/component';
+import { MeasurePageView } from '../../../types/measures';
+import { MetricKey } from '../../../types/metrics';
 
-interface Props {
+export interface ComponentCellProps {
   branchLike?: BranchLike;
   component: T.ComponentMeasureEnhanced;
-  onClick: (component: string) => void;
   metric: T.Metric;
   rootComponent: T.ComponentMeasure;
-  view: View;
+  view: MeasurePageView;
 }
 
-export default class ComponentCell extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    const isLeftClickEvent = event.button === 0;
-    const isModifiedEvent = !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+export default function ComponentCell(props: ComponentCellProps) {
+  const { branchLike, component, metric, rootComponent, view } = props;
 
-    if (isLeftClickEvent && !isModifiedEvent) {
-      event.preventDefault();
-      this.props.onClick(this.props.component.key);
-    }
-  };
+  let head = '';
+  let tail = component.name;
 
-  renderInner(componentKey: string) {
-    const { component } = this.props;
-    let head = '';
-    let tail = component.name;
+  if (
+    view === 'list' &&
+    ([
+      ComponentQualifier.File,
+      ComponentQualifier.TestFile,
+      ComponentQualifier.Directory
+    ] as string[]).includes(component.qualifier) &&
+    component.path
+  ) {
+    ({ head, tail } = splitPath(component.path));
+  }
 
+  let path: LocationDescriptor;
+  if (component.refKey) {
     if (
-      this.props.view === 'list' &&
-      ['FIL', 'UTS', 'DIR'].includes(component.qualifier) &&
-      component.path
+      !isPortfolioLike(component.qualifier) &&
+      ([MetricKey.releasability_rating, MetricKey.alert_status] as string[]).includes(metric.key)
     ) {
-      ({ head, tail } = splitPath(component.path));
+      path = isApplication(component.qualifier)
+        ? getProjectUrl(component.refKey, component.branch)
+        : getBranchLikeUrl(component.refKey, branchLike);
+    } else if (isProject(component.qualifier) && metric.key === MetricKey.projects) {
+      path = getBranchLikeUrl(component.refKey, branchLike);
+    } else {
+      path = getComponentDrilldownUrlWithSelection(
+        component.refKey,
+        '',
+        metric.key,
+        branchLike,
+        view
+      );
     }
-
-    const isApp = this.props.rootComponent.qualifier === 'APP';
-
-    return (
-      <span title={componentKey}>
-        <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
-        {head.length > 0 && <span className="note">{head}/</span>}
-        <span>{tail}</span>
-        {isApp &&
-          (component.branch ? (
-            <>
-              <BranchIcon className="spacer-left little-spacer-right" />
-              <span className="note">{component.branch}</span>
-            </>
-          ) : (
-            <span className="spacer-left badge">{translate('branches.main_branch')}</span>
-          ))}
-      </span>
+  } else {
+    path = getComponentDrilldownUrlWithSelection(
+      rootComponent.key,
+      component.key,
+      metric.key,
+      branchLike,
+      view
     );
   }
 
-  render() {
-    const { branchLike, component, metric, rootComponent } = this.props;
-
-    let hotspotsUrl;
-    if (isFileType(component) && isSecurityReviewMetric(metric.key)) {
-      hotspotsUrl = getComponentSecurityHotspotsUrl(this.props.rootComponent.key, {
-        file: component.path,
-        sinceLeakPeriod: isDiffMetric(metric.key) ? 'true' : undefined
-      });
-    }
-
-    return (
-      <td className="measure-details-component-cell">
-        <div className="text-ellipsis">
-          {!component.refKey ? (
-            <Link
-              className="link-no-underline"
-              to={
-                hotspotsUrl ||
-                getComponentDrilldownUrlWithSelection(
-                  rootComponent.key,
-                  component.key,
-                  metric.key,
-                  branchLike
-                )
-              }
-              id={'component-measures-component-link-' + component.key}
-              onClick={hotspotsUrl ? undefined : this.handleClick}>
-              {this.renderInner(component.key)}
-            </Link>
-          ) : (
-            <Link
-              className="link-no-underline"
-              id={'component-measures-component-link-' + component.refKey}
-              to={
-                this.props.rootComponent.qualifier === 'APP'
-                  ? getProjectUrl(component.refKey, component.branch)
-                  : getBranchLikeUrl(component.refKey, branchLike)
-              }>
-              <span className="big-spacer-right">
-                <LinkIcon />
-              </span>
-              {this.renderInner(component.refKey)}
-            </Link>
+  return (
+    <td className="measure-details-component-cell">
+      <div className="text-ellipsis">
+        <Link
+          className="link-no-underline"
+          to={path}
+          id={'component-measures-component-link-' + component.key}>
+          {component.refKey && (
+            <span className="big-spacer-right">
+              <LinkIcon />
+            </span>
           )}
-        </div>
-      </td>
-    );
-  }
+          <span title={component.key}>
+            <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
+            {head.length > 0 && <span className="note">{head}/</span>}
+            <span>{tail}</span>
+            {isApplication(rootComponent.qualifier) &&
+              (component.branch ? (
+                <>
+                  <BranchIcon className="spacer-left little-spacer-right" />
+                  <span className="note">{component.branch}</span>
+                </>
+              ) : (
+                <span className="spacer-left badge">{translate('branches.main_branch')}</span>
+              ))}
+          </span>
+        </Link>
+      </div>
+    </td>
+  );
 }

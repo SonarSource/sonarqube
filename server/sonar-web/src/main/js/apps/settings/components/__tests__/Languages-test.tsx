@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import Select from '../../../../components/controls/Select';
-import { mockComponent, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import { Languages, LanguagesProps } from '../Languages';
 

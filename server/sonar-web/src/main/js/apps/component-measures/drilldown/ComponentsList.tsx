@@ -20,20 +20,19 @@
 import * as React from 'react';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { MeasurePageView } from '../../../types/measures';
 import { complementary } from '../config/complementary';
-import { View } from '../utils';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 
 interface Props {
   branchLike?: BranchLike;
   components: T.ComponentMeasureEnhanced[];
-  onClick: (component: string) => void;
   metric: T.Metric;
   metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
   selectedComponent?: string;
-  view: View;
+  view: MeasurePageView;
 }
 
 export default function ComponentsList({ components, metric, metrics, ...props }: Props) {

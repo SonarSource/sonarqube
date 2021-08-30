@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
-import { mockComponent } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
 import { QualityGateConditions, QualityGateConditionsProps } from '../QualityGateConditions';

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import RenderOptions from '../../components/RenderOptions';
 import { BuildTools } from '../../types';
 import { BranchAnalysisStepContent, BranchesAnalysisStepProps } from '../BranchAnalysisStepContent';

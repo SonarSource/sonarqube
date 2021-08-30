@@ -22,6 +22,7 @@ import { stringify } from 'querystring';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
+import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
@@ -172,9 +173,17 @@ export function getComponentDrilldownUrlWithSelection(
   componentKey: string,
   selectionKey: string,
   metric: string,
-  branchLike?: BranchLike
+  branchLike?: BranchLike,
+  view?: MeasurePageView
 ): Location {
-  return getComponentDrilldownUrl({ componentKey, selectionKey, metric, branchLike });
+  return getComponentDrilldownUrl({
+    componentKey,
+    selectionKey,
+    metric,
+    branchLike,
+    treemapView: view === 'treemap',
+    listView: view === 'list'
+  });
 }
 
 export function getMeasureTreemapUrl(componentKey: string, metric: string) {

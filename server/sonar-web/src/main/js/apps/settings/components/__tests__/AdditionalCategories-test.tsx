@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { find } from 'lodash';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { ADDITIONAL_CATEGORIES } from '../AdditionalCategories';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../AdditionalCategoryKeys';
 

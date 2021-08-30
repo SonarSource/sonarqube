@@ -20,7 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockMeasureEnhanced } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockMeasureEnhanced } from '../../../../helpers/testMocks';
 import { GraphType } from '../../../../types/project-activity';
 import { BranchOverviewRenderer, BranchOverviewRendererProps } from '../BranchOverviewRenderer';
 

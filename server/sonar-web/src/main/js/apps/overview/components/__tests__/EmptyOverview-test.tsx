@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockProjectGithubBindingResponse } from '../../../../helpers/mocks/alm-settings';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { EmptyOverview, EmptyOverviewProps } from '../EmptyOverview';
 

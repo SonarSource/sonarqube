@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import DefaultProjectKey, { DefaultProjectKeyProps } from '../DefaultProjectKey';
 
 it('should render correctly', () => {

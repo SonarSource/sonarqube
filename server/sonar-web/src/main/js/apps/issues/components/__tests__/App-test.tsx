@@ -23,6 +23,7 @@ import * as React from 'react';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { KeyCodes } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   addSideBarClass,
   addWhitePageClass,
@@ -30,7 +31,6 @@ import {
   removeWhitePageClass
 } from '../../../../helpers/pages';
 import {
-  mockComponent,
   mockCurrentUser,
   mockEvent,
   mockIssue,

@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import GitLabCITutorial, { GitLabCITutorialProps } from '../GitLabCITutorial';
 
 it('should render correctly', () => {

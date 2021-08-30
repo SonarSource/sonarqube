@@ -23,13 +23,14 @@ import ListIcon from '../../../components/icons/ListIcon';
 import TreeIcon from '../../../components/icons/TreeIcon';
 import TreemapIcon from '../../../components/icons/TreemapIcon';
 import { translate } from '../../../helpers/l10n';
-import { hasList, hasTree, hasTreemap, View } from '../utils';
+import { MeasurePageView } from '../../../types/measures';
+import { hasList, hasTree, hasTreemap } from '../utils';
 
 interface Props {
   className?: string;
   metric: T.Metric;
-  handleViewChange: (view: View) => void;
-  view: View;
+  handleViewChange: (view: MeasurePageView) => void;
+  view: MeasurePageView;
 }
 
 export default class MeasureViewSelect extends React.PureComponent<Props> {
@@ -61,7 +62,7 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
   };
 
   handleChange = (option: { value: string }) => {
-    return this.props.handleViewChange(option.value as View);
+    return this.props.handleViewChange(option.value as MeasurePageView);
   };
 
   renderOption = (option: { icon: JSX.Element; label: string }) => {

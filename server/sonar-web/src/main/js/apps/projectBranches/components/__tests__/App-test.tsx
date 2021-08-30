@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { App, AppProps } from '../App';
 import BranchLikeTabs from '../BranchLikeTabs';
 

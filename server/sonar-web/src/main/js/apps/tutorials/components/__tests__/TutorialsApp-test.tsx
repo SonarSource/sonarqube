@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { mockProjectAzureBindingResponse } from '../../../../helpers/mocks/alm-settings';
-import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { TutorialsApp, TutorialsAppProps } from '../TutorialsApp';
 
 jest.mock('../../../../helpers/handleRequiredAuthentication', () => ({

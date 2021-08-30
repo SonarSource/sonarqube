@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockMeasure } from '../../../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../../../helpers/mocks/component';
+import { mockMeasure } from '../../../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../../../types/component';
 import { MetricKey } from '../../../../../../../types/metrics';
 import MetaSize, { MetaSizeProps } from '../MetaSize';

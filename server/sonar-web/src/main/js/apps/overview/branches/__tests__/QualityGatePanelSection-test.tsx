@@ -20,11 +20,11 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockQualityGateStatus,
   mockQualityGateStatusConditionEnhanced
 } from '../../../../helpers/mocks/quality-gates';
-import { mockComponent } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { QualityGatePanelSection, QualityGatePanelSectionProps } from '../QualityGatePanelSection';

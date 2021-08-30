@@ -22,8 +22,8 @@ import * as React from 'react';
 import { getChildren } from '../../../../api/components';
 import { getMeasures } from '../../../../api/measures';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import {
-  mockComponent,
   mockCurrentUser,
   mockLocation,
   mockLoggedInUser,

@@ -25,12 +25,8 @@ import {
   mockAlmSettingsInstance,
   mockProjectBitbucketBindingResponse
 } from '../../../helpers/mocks/alm-settings';
-import {
-  mockComponent,
-  mockLocation,
-  mockLoggedInUser,
-  mockRouter
-} from '../../../helpers/testMocks';
+import { mockComponent } from '../../../helpers/mocks/component';
+import { mockLocation, mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { getHostUrl } from '../../../helpers/urls';
 import { SettingsKey } from '../../../types/settings';

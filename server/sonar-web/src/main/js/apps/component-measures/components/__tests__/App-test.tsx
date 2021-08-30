@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getMeasuresWithPeriod } from '../../../../api/measures';
 import { mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockIssue, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockIssue, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 

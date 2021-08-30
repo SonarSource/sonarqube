@@ -23,7 +23,8 @@ import {
   mockAlmSettingsInstance,
   mockProjectBitbucketCloudBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
-import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import Step from '../../components/Step';
 import { renderStepContent } from '../../test-utils';
 import BitbucketPipelinesTutorial, {
