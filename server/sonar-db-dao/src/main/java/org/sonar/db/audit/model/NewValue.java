@@ -33,6 +33,9 @@ public abstract class NewValue {
     if (!isNullOrEmpty(value)) {
       sb.append(field);
       addQuote(sb, isString);
+      if (value.contains("\"")) {
+        value = value.replace("\"", "\\\"");
+      }
       sb.append(value);
       addQuote(sb, isString);
       sb.append(", ");

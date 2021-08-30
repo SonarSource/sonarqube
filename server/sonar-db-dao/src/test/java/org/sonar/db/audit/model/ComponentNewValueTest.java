@@ -47,13 +47,13 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_project_uuid_and_name_and_isPrivate() {
-    ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true,"TRK");
+  public void toString_project_uuid_and_name_and_isPrivate_withEscapedQuotes() {
+    ComponentNewValue newValue = new ComponentNewValue("uuid", "the \"best\" name", "key", true,"TRK");
 
     assertThat(newValue.toString())
       .contains("\"componentUuid\": \"uuid\"")
       .contains("\"componentKey\": \"key\"")
-      .contains("\"componentName\": \"name\"")
+      .contains("\"componentName\": \"the \\\"best\\\" name\"")
       .contains("\"qualifier\": \"project\"")
       .contains("\"isPrivate\": true");
   }
