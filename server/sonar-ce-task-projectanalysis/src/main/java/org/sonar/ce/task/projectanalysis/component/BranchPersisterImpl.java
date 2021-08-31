@@ -70,13 +70,11 @@ public class BranchPersisterImpl implements BranchPersister {
     // Insert NewCodePeriods settings if there is a target branch.
     if (branch.getTargetBranchName() != null) {
       // Create branch-level New Code Periods settings.
-      BranchDto referenceBranchDto = dbClient.branchDao().selectByUuid(dbSession, branchDto.getMergeBranchUuid())
-              .orElseThrow(() -> new IllegalStateException("No branch found by uuid " + branchDto.getMergeBranchUuid()));
       NewCodePeriodDto newCodePeriod = new NewCodePeriodDto()
               .setProjectUuid(branchDto.getProjectUuid())
               .setBranchUuid(branchComponentDto.uuid())
               .setType(NewCodePeriodType.REFERENCE_BRANCH)
-              .setValue(referenceBranchDto.getKey());
+              .setValue(branch.getTargetBranchName());
       dbClient.newCodePeriodDao().upsert(dbSession, newCodePeriod);
     }
   }

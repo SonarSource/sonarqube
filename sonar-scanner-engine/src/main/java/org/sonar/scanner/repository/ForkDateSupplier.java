@@ -92,22 +92,55 @@ public class ForkDateSupplier {
 
     Instant scmDate = getForkDateFromScmProvider(referenceBranchName);
 
+    if (scmDate == null) {
+      scmDate = properties.get("sonar.branch.forkDate")
+              .map(val -> {
+                LOG.info("Parsing sonar.branch.forkDate={} property value to use in New Code.", val);
+                java.util.Date parsedDate = org.sonar.api.utils.DateUtils.parseDateTimeQuietly(val);
+                return parsedDate != null ? parsedDate.toInstant() : null;
+              })
+              .orElse(null);
+    }
+
+    if (scmDate == null
+            && StringUtils.isNotEmpty(referenceBranchName)
+            && properties.get("sonar.newCode.referenceBranch.useNewCodePeriodStartDate").map(Boolean::parseBoolean).orElse(false)) {
+      Measures.ComponentWsResponse componentMeasures = measuresComponentLoader.load(project.key(), referenceBranchName);
+
+      LOG.info("Getting period start date for reference branch '{}'", referenceBranchName);
+      scmDate = StringUtils.isNotEmpty(componentMeasures.getPeriod().getDate())
+              ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getDate()).toInstant() : null;
+    }
+
+    if (scmDate == null
+            && StringUtils.isNotEmpty(referenceBranchName)
+            && properties.get("sonar.newCode.referenceBranch.useLastAnalysisDate").map(Boolean::parseBoolean).orElse(false)) {
+      Measures.ComponentWsResponse componentMeasures = measuresComponentLoader.load(project.key(), referenceBranchName);
+
+      LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
+      scmDate = StringUtils.isNotEmpty(componentMeasures.getPeriod().getBuildDate())
+              ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getBuildDate()).toInstant() : null;
+    }
+
+    if (scmDate == null) {
+      Measures.ComponentWsResponse branchMeasures = measuresComponentLoader.load(project.key(), branchName);
+      if (branchMeasures != null) {
+        LOG.info("The branch {} was already analysed before. Using the period date from first run: {}",
+                branchName, branchMeasures.getPeriod().getDate());
+        scmDate = StringUtils.isNotEmpty(branchMeasures.getPeriod().getDate())
+                ? org.sonar.api.utils.DateUtils.parseDateTime(branchMeasures.getPeriod().getDate()).toInstant() : null;
+      }
+    }
+
     if (scmDate == null && StringUtils.isNotEmpty(referenceBranchName)) {
       Measures.ComponentWsResponse componentMeasures = measuresComponentLoader.load(project.key(), referenceBranchName);
 
-      String useNewCodePeriodStartDate = properties.get("sonar.newCode.referenceBranch.useNewCodePeriodStartDate").orElse(null);
-      if (Boolean.parseBoolean(useNewCodePeriodStartDate)) {
-        LOG.info("Getting period start date for reference branch '{}'", referenceBranchName);
-        scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getDate())
-                ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getDate()).toInstant() : null;
-      } else {
-        LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
-        scmDate = componentMeasures.getPeriod() != null && StringUtils.isNotEmpty(componentMeasures.getPeriod().getBuildDate())
-                ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getBuildDate()).toInstant() : null;
-      }
-      LOG.info("Use fork date: '{}'", scmDate);
+      LOG.info("Getting last analysis date for reference branch '{}'", referenceBranchName);
+      scmDate = StringUtils.isNotEmpty(componentMeasures.getPeriod().getBuildDate())
+              ? org.sonar.api.utils.DateUtils.parseDateTime(componentMeasures.getPeriod().getBuildDate()).toInstant() : null;
     }
 
+    LOG.info("Using the value '{}' as a branch fork date", scmDate);
     return scmDate;
   }
 

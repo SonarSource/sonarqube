@@ -23,13 +23,18 @@ import static org.sonar.api.impl.utils.ScannerUtils.encodeForUrl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsResponse;
 
 public class DefaultMeasuresComponentLoader implements MeasuresComponentLoader {
+
+    private static final Logger LOG = Loggers.get(MeasuresComponentLoader.class);
 
     private static final String WS_URL = "/api/measures/component.protobuf";
 
@@ -45,14 +50,17 @@ public class DefaultMeasuresComponentLoader implements MeasuresComponentLoader {
         try {
             return call(url);
         } catch (HttpException | IOException e) {
-            throw new IllegalStateException("Failed to get the New Code definition: " + e.getMessage(), e);
+            LOG.debug("Failed to get component measures {}:{} due to {}", componentKey, branchName, e.getMessage());
+            return null;
         }
     }
 
     private Measures.ComponentWsResponse call(String url) throws IOException {
         GetRequest getRequest = new GetRequest(url);
-        try (InputStream is = wsClient.call(getRequest).contentStream()) {
-            return Measures.ComponentWsResponse.parseFrom(is);
+        try (WsResponse wsResponse = wsClient.call(getRequest)) {
+            try (InputStream is = wsResponse.contentStream()) {
+                return Measures.ComponentWsResponse.parseFrom(is);
+            }
         }
     }
 }

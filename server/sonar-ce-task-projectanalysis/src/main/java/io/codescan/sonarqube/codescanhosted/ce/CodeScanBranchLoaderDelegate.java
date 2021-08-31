@@ -60,7 +60,7 @@ public class CodeScanBranchLoaderDelegate implements BranchLoaderDelegate {
             Optional<BranchDto> branchDto = findBranchByProjectUuid(projectUuid);
             if (branchDto.isPresent()) {
                 BranchDto dto = branchDto.get();
-                return new CodeScanBranch(dto.getKey(), null, dto.getBranchType(), dto.isMain(), targetBranch);
+                return new CodeScanBranch(dto.getKey(), null, dto.getBranchType(), dto.isMain(), null);
             } else {
                 throw new IllegalStateException("Could not find main branch");
             }
