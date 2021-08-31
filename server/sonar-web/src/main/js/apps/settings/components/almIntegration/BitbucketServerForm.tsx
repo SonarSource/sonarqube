@@ -40,7 +40,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
         autoFocus={true}
         help={translate('settings.almintegration.form.name.bitbucket.help')}
         id="name.bitbucket"
-        maxLength={100}
+        maxLength={200}
         onFieldChange={props.onFieldChange}
         propKey="key"
         value={formData.key || ''}

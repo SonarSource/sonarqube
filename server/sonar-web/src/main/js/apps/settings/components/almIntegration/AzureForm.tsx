@@ -42,6 +42,7 @@ export default function AzureForm(props: AzureFormProps) {
         onFieldChange={onFieldChange}
         propKey="key"
         value={formData.key}
+        maxLength={200}
       />
       <AlmBindingDefinitionFormField
         help={

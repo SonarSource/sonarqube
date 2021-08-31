@@ -41,7 +41,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         autoFocus={true}
         help={translate('settings.almintegration.form.name.bitbucketcloud.help')}
         id="name.bitbucket"
-        maxLength={100}
+        maxLength={200}
         onFieldChange={props.onFieldChange}
         propKey="key"
         value={formData.key || ''}
@@ -63,7 +63,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
           />
         }
         id="workspace.bitbucketcloud"
-        maxLength={2000}
+        maxLength={80}
         onFieldChange={props.onFieldChange}
         propKey="workspace"
         value={formData.workspace || ''}
@@ -96,6 +96,7 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         onFieldChange={props.onFieldChange}
         propKey="clientId"
         value={formData.clientId || ''}
+        maxLength={80}
       />
       <AlmBindingDefinitionFormField
         id="client_secret.bitbucketcloud"

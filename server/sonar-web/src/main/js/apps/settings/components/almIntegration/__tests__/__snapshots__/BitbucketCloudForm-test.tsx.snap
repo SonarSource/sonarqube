@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
     autoFocus={true}
     help="settings.almintegration.form.name.bitbucketcloud.help"
     id="name.bitbucket"
-    maxLength={100}
+    maxLength={200}
     onFieldChange={[MockFunction]}
     propKey="key"
     value="key"
@@ -30,7 +30,7 @@ exports[`should render correctly 1`] = `
       />
     }
     id="workspace.bitbucketcloud"
-    maxLength={2000}
+    maxLength={80}
     onFieldChange={[MockFunction]}
     propKey="workspace"
     value="workspace"
@@ -69,6 +69,7 @@ exports[`should render correctly 1`] = `
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.oauth_key.bitbucketcloud.help"
     id="client_id.bitbucketcloud"
+    maxLength={80}
     onFieldChange={[MockFunction]}
     propKey="clientId"
     value="client1"

@@ -43,6 +43,7 @@ export default function GithubForm(props: GithubFormProps) {
         onFieldChange={onFieldChange}
         propKey="key"
         value={formData.key}
+        maxLength={200}
       />
       <AlmBindingDefinitionFormField
         help={

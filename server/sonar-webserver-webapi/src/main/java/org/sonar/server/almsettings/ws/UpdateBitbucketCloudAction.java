@@ -66,14 +66,15 @@ public class UpdateBitbucketCloudAction implements AlmSettingsWsAction {
       .setDescription("Optional new value for an unique key of the Bitbucket Cloud setting");
     action.createParam(PARAM_WORKSPACE)
       .setRequired(true)
+      .setMaximumLength(80)
       .setDescription("Bitbucket Cloud workspace ID");
     action.createParam(PARAM_CLIENT_ID)
       .setRequired(true)
-      .setMaximumLength(2000)
+      .setMaximumLength(80)
       .setDescription("Bitbucket Cloud Client ID");
     action.createParam(PARAM_CLIENT_SECRET)
       .setRequired(false)
-      .setMaximumLength(2000)
+      .setMaximumLength(160)
       .setDescription("Optional new value for the Bitbucket Cloud client secret");
   }
 

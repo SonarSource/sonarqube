@@ -72,7 +72,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
       .setDescription("GitHub App ID");
     action.createParam(PARAM_PRIVATE_KEY)
       .setRequired(true)
-      .setMaximumLength(2000)
+      .setMaximumLength(2500)
       .setDescription("GitHub App private key");
     action.createParam(PARAM_CLIENT_ID)
       .setRequired(true)
@@ -80,7 +80,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
       .setDescription("GitHub App Client ID");
     action.createParam(PARAM_CLIENT_SECRET)
       .setRequired(true)
-      .setMaximumLength(80)
+      .setMaximumLength(160)
       .setDescription("GitHub App Client Secret");
   }
 
