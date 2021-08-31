@@ -193,6 +193,11 @@ public class ComponentDbTester {
     return getPortfolioDto(component);
   }
 
+  public final PortfolioDto insertPrivatePortfolioDto(String uuid, Consumer<PortfolioDto> portfolioPopulator) {
+    ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio(uuid).setPrivate(true), true, defaults(), portfolioPopulator);
+    return getPortfolioDto(component);
+  }
+
   public final PortfolioDto insertPrivatePortfolioDto() {
     ComponentDto component = insertComponentAndPortfolio(ComponentTesting.newPortfolio().setPrivate(true), true, defaults(), defaults());
     return getPortfolioDto(component);
@@ -268,6 +273,10 @@ public class ComponentDbTester {
 
   public void addPortfolioReference(PortfolioDto portfolio, String... referencerUuids) {
     addPortfolioReference(portfolio.getUuid(), referencerUuids);
+  }
+
+  public void addPortfolioReference(PortfolioDto portfolio, PortfolioDto reference) {
+    addPortfolioReference(portfolio.getUuid(), reference.getUuid());
   }
 
   public void addPortfolioProject(String portfolioUuid, String... projectUuids) {
