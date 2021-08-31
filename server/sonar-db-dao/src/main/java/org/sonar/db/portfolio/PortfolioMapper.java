@@ -49,9 +49,9 @@ public interface PortfolioMapper {
 
   List<PortfolioDto> selectTree(String portfolioUuid);
 
-  Set<String> selectReferences(String portfolioUuid);
+  Set<String> selectReferenceUuids(String portfolioUuid);
 
-  List<PortfolioDto> selectReferencersByKey(String referenceKey);
+  List<PortfolioDto> selectReferencers(String referenceUuid);
 
   List<ProjectDto> selectProjects(String portfolioUuid);
 
@@ -83,13 +83,11 @@ public interface PortfolioMapper {
 
   int deleteReference(@Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid);
 
-  ReferenceDto selectReference(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
+  ReferenceDetailsDto selectReference(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
 
   void deleteAllProjects();
 
-  List<PortfolioProjectDto> selectAllProjectsOfPortfolios();
-
-  List<ReferenceDto> selectAllReferencesOfPortfolios();
+  List<PortfolioProjectDto> selectAllPortfolioProjects();
 
   List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
 }

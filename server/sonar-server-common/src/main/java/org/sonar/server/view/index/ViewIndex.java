@@ -19,6 +19,7 @@
  */
 package org.sonar.server.view.index;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -57,7 +58,7 @@ public class ViewIndex {
       .scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
     SearchResponse response = esClient.search(esSearch);
-    List<String> result = newArrayList();
+    List<String> result = new ArrayList<>();
     while (true) {
       List<SearchHit> hits = newArrayList(response.getHits());
       for (SearchHit hit : hits) {

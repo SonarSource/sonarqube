@@ -308,6 +308,10 @@ public class ComponentDbTester {
     return getProjectDto(insertPublicApplication());
   }
 
+  public final ProjectDto insertPublicApplicationDto(Consumer<ComponentDto> dtoPopulator) {
+    return getProjectDto(insertPublicApplication(dtoPopulator));
+  }
+
   public final ProjectDto insertPrivateApplicationDto(Consumer<ComponentDto> dtoPopulator) {
     return getProjectDto(insertPrivateApplication(dtoPopulator, defaults()));
   }

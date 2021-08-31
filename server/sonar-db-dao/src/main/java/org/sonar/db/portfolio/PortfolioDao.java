@@ -25,24 +25,29 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PortfolioDao implements Dao {
   private final System2 system2;
   private final UuidFactory uuidFactory;
+  private final AuditPersister auditPersister;
 
-  public PortfolioDao(System2 system2, UuidFactory uuidFactory) {
-    // TODO: Audits missing
+  public PortfolioDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
+    this.auditPersister = auditPersister;
   }
 
   public List<PortfolioDto> selectAllRoots(DbSession dbSession) {
@@ -53,6 +58,10 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectAll();
   }
 
+  public List<PortfolioDto> selectTree(DbSession dbSession, String portfolioUuid) {
+    return mapper(dbSession).selectTree(portfolioUuid);
+  }
+
   public Optional<PortfolioDto> selectByKey(DbSession dbSession, String key) {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key));
   }
@@ -61,41 +70,50 @@ public class PortfolioDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
 
+  public List<PortfolioDto> selectByUuids(DbSession dbSession, Set<String> uuids) {
+    if (uuids.isEmpty()) {
+      return emptyList();
+    }
+    return mapper(dbSession).selectByUuids(uuids);
+  }
+
   public void insert(DbSession dbSession, PortfolioDto portfolio) {
     checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
     mapper(dbSession).insert(portfolio);
+    auditPersister.addComponent(dbSession, toComponentNewValue(portfolio));
   }
 
-  public void delete(DbSession dbSession, String portfolioUuid) {
-    mapper(dbSession).deletePortfoliosByUuids(singleton(portfolioUuid));
-    mapper(dbSession).deleteReferencesByPortfolioOrReferenceUuids(singleton(portfolioUuid));
-    mapper(dbSession).deleteProjectsByPortfolioUuids(singleton(portfolioUuid));
+  public void delete(DbSession dbSession, PortfolioDto portfolio) {
+    mapper(dbSession).deletePortfoliosByUuids(singleton(portfolio.getUuid()));
+    mapper(dbSession).deleteReferencesByPortfolioOrReferenceUuids(singleton(portfolio.getUuid()));
+    mapper(dbSession).deleteProjectsByPortfolioUuids(singleton(portfolio.getUuid()));
+    auditPersister.deleteComponent(dbSession, toComponentNewValue(portfolio));
   }
 
-  public void deleteByUuids(DbSession dbSession, Set<String> portfolioUuids) {
-    if (portfolioUuids.isEmpty()) {
-      return;
-    }
-    mapper(dbSession).deleteByUuids(portfolioUuids);
-  }
-
-  public List<PortfolioDto> selectTree(DbSession dbSession, String portfolioUuid) {
-    return mapper(dbSession).selectTree(portfolioUuid);
+  public void deleteAllDescendantPortfolios(DbSession dbSession, String rootUuid) {
+    // not audited but it's part of DefineWs
+    mapper(dbSession).deleteAllDescendantPortfolios(rootUuid);
   }
 
   public void update(DbSession dbSession, PortfolioDto portfolio) {
     checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
     portfolio.setUpdatedAt(system2.now());
     mapper(dbSession).update(portfolio);
+    auditPersister.updateComponent(dbSession, toComponentNewValue(portfolio));
+  }
+
+  private static ComponentNewValue toComponentNewValue(PortfolioDto portfolio) {
+    return new ComponentNewValue(portfolio.getUuid(), portfolio.getName(), portfolio.getKey(), portfolio.isPrivate(),
+      portfolio.getDescription(), qualifier(portfolio));
+  }
+
+  private static String qualifier(PortfolioDto portfolioDto) {
+    return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
   }
 
   public Map<String, String> selectKeysByUuids(DbSession dbSession, Collection<String> uuids) {
     return executeLargeInputs(uuids, uuids1 -> mapper(dbSession).selectByUuids(uuids1)).stream()
       .collect(Collectors.toMap(PortfolioDto::getUuid, PortfolioDto::getKey));
-  }
-
-  public void deleteAllDescendantPortfolios(DbSession dbSession, String rootUuid) {
-    mapper(dbSession).deleteAllDescendantPortfolios(rootUuid);
   }
 
   public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
@@ -114,12 +132,16 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectAllReferencesToApplications();
   }
 
-  public Set<String> getReferences(DbSession dbSession, String portfolioUuid) {
-    return mapper(dbSession).selectReferences(portfolioUuid);
+  public Set<String> selectReferenceUuids(DbSession dbSession, String portfolioUuid) {
+    return mapper(dbSession).selectReferenceUuids(portfolioUuid);
   }
 
-  public List<PortfolioDto> selectReferencersByKey(DbSession dbSession, String referenceKey) {
-    return mapper(dbSession).selectReferencersByKey(referenceKey);
+  public List<ReferenceDto> selectAllReferencesInHierarchy(DbSession dbSession, String uuid) {
+    return mapper(dbSession).selectAllReferencesInHierarchy(uuid);
+  }
+
+  public List<PortfolioDto> selectReferencers(DbSession dbSession, String referenceUuid) {
+    return mapper(dbSession).selectReferencers(referenceUuid);
   }
 
   public List<PortfolioDto> selectRootOfReferencers(DbSession dbSession, String referenceUuid) {
@@ -138,16 +160,20 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).deleteReference(portfolioUuid, referenceUuid);
   }
 
-  public ReferenceDto selectReference(DbSession dbSession, String portfolioUuid, String referenceKey) {
+  public ReferenceDetailsDto selectReference(DbSession dbSession, String portfolioUuid, String referenceKey) {
     return mapper(dbSession).selectReference(portfolioUuid, referenceKey);
   }
 
-  public List<ProjectDto> getProjects(DbSession dbSession, String portfolioUuid) {
+  public List<ProjectDto> selectProjects(DbSession dbSession, String portfolioUuid) {
     return mapper(dbSession).selectProjects(portfolioUuid);
   }
 
-  public List<PortfolioProjectDto> getAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
+  public List<PortfolioProjectDto> selectAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
     return mapper(dbSession).selectAllProjectsInHierarchy(rootUuid);
+  }
+
+  public List<PortfolioProjectDto> selectAllPortfolioProjects(DbSession dbSession) {
+    return mapper(dbSession).selectAllPortfolioProjects();
   }
 
   public void addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
@@ -168,18 +194,6 @@ public class PortfolioDao implements Dao {
 
   public void deleteAllProjects(DbSession dbSession) {
     mapper(dbSession).deleteAllProjects();
-  }
-
-  public List<PortfolioProjectDto> selectAllProjectsOfPortfolios(DbSession dbSession) {
-    return mapper(dbSession).selectAllProjectsOfPortfolios();
-  }
-
-  public List<ReferenceDto> selectAllReferencesInHierarchy(DbSession dbSession, String uuid) {
-    return mapper(dbSession).selectAllReferencesInHierarchy(uuid);
-  }
-
-  public List<PortfolioDto> selectByUuids(DbSession dbSession, Set<String> uuidsToRefresh) {
-    return mapper(dbSession).selectByUuids(uuidsToRefresh);
   }
 
   private static PortfolioMapper mapper(DbSession session) {

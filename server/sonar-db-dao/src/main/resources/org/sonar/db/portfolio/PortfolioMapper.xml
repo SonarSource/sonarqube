@@ -78,7 +78,7 @@
       pp.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllProjectsOfPortfolios" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
+  <select id="selectAllPortfolioProjects" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
     SELECT
        pp.uuid,
        pp.project_uuid as projectUuid,
@@ -103,7 +103,7 @@
        p.root_uuid = #{rootUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectReferences" resultType="String">
+  <select id="selectReferenceUuids" resultType="String">
     SELECT
       p.reference_uuid
     FROM portfolio_references p
@@ -120,29 +120,19 @@
       pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
   </select>
 
- <select id="selectTree" parameterType="String" resultType="Portfolio">
+  <select id="selectTree" parameterType="String" resultType="Portfolio">
     SELECT <include refid="portfolioColumns"/>
     FROM portfolios p
     INNER JOIN portfolios p2 ON p.root_uuid = p2.root_uuid
     WHERE p2.uuid=#{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectReferencersByKey" resultType="Portfolio">
+ <select id="selectReferencers" resultType="Portfolio">
     SELECT
       <include refid="portfolioColumns"/>
     FROM portfolios p
     INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
-    INNER JOIN portfolios p2 ON pr.reference_uuid = p2.uuid
-    WHERE p2.kee=#{referenceKey,jdbcType=VARCHAR}
-
-    UNION
-
-    SELECT
-      <include refid="portfolioColumns"/>
-    FROM portfolios p
-    INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
-    INNER JOIN projects pj ON pr.reference_uuid = pj.uuid AND pj.qualifier = 'APP'
-    WHERE pj.kee=#{referenceKey,jdbcType=VARCHAR}
+    WHERE pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
   </select>
 
   <delete id="deleteReference">
@@ -152,12 +142,14 @@
     AND reference_uuid = #{referenceUuid,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectReference" resultType="org.sonar.db.portfolio.ReferenceDto">
+  <select id="selectReference" resultType="org.sonar.db.portfolio.ReferenceDetailsDto">
     (SELECT
       source.uuid as sourceUuid,
       source.root_uuid as sourceRootUuid,
       target.uuid as targetUuid,
-      target.root_uuid as targetRootUuid
+      target.root_uuid as targetRootUuid,
+      target.name as targetName,
+      target.kee as targetKey
     FROM portfolio_references pr
      INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
      INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
@@ -170,7 +162,9 @@
       source.uuid as sourceUuid,
       source.root_uuid as sourceRootUuid,
       target.uuid as targetUuid,
-      target.uuid as targetRootUuid
+      target.uuid as targetRootUuid,
+      target.name as targetName,
+      target.kee as targetKey
     FROM portfolio_references pr
      INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
      INNER JOIN projects target ON pr.reference_uuid = target.uuid AND target.qualifier = 'APP'
