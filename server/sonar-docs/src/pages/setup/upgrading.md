@@ -59,9 +59,36 @@ To upgrade SonarQube using the Docker image:
 
 No specific Docker operations are needed, just use the new tag.
 
-## Upgrading from the Helm Chart
+## Upgrading from the Helm Chart 
 
-Follow the instructions in the **Upgrade** section of the SonarQube Helm Chart repository [README](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube).
+[[info]]
+| If you're upgrading with an Oracle database or you're using plugins, you can reuse your extensions PVC from the previous version to avoid moving plugins or drivers. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that your plugins are compatible with your version. Analysis of all languages provided by your edition is available by default without plugins.
+
+To upgrade SonarQube using our official Helm Chart:
+
+1. Change the SonarQube version on your `values.yaml`.
+
+2. Redeploy SonarQube with the same helm chart:
+
+	```bash
+	helm upgrade --install -f values.yaml -n <your namespace> <your release name> <path to sonarqube helm chart>
+	```
+
+3. Go to `http://yourSonarQubeServerURL/setup` and follow the setup instructions.
+
+4. Reanalyze your projects to get fresh data.
+
+## Rollback
+
+If you need to revert to the previous version of SonarQube, the high-level rollback procedure for all deployments is as follows: 
+
+1. Shutdown your SonarQube instance/cluster.
+
+2. Roll back your database to the backup you took before starting the upgrade.
+
+3. Switch back to the previous version of your SonarQube installation.
+
+4. Start your SonarQube instance/cluster.
 
 ## Changing your edition
 
