@@ -15,15 +15,15 @@ title: SonarScanner for .NET
 
 <!-- sonarcloud -->
 [[info]]
-| **Download SonarScanner for .NET 5.2.0** - [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) - [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
+| **Download SonarScanner for .NET** - [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) - [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
 |
-| [Standalone executables](https://github.com/SonarSource/sonar-scanner-msbuild/releases/tag/5.2.0.29862) |
+| [Standalone executables](https://github.com/SonarSource/sonar-scanner-msbuild/releases) |
 | [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
 <!-- /sonarcloud -->
 
 [[info]]
 | Since version 5.0, the SonarScanner for MSBuild is now the SonarScanner for .NET. 
-| Documentation is updated with that new name, artifacts and links will remain with the old name for now.
+| documentation is updated with that new name, artifacts and links will remain with the old name for now.
 
 The SonarScanner for .NET is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](https://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/).
 
@@ -151,6 +151,24 @@ The begin step is executed when you add the `begin` command line argument. It ho
 
 Command Line Parameters:
 
+<!-- sonarcloud -->
+
+Parameter|Description
+---|---
+`/k:<project-key>`|[required] Specifies the key of the analyzed project in {instance}
+`/n:<project name>`|[optional] Specifies the name of the analyzed project in {instance}. Adding this argument will overwrite the project name in {instance} if it already exists.
+`/v:<version>`|[recommended] Specifies the version of your project.
+`/o:<organization>`|[required] Specifies the name of the target organization in SonarCloud.
+`/d:sonar.login=<token> or <username>`| [recommended] Specifies the [authentication token](/user-guide/user-token/) or username used to authenticate with to {instance}. If this argument is added to the begin step, it must also be added to the end step.
+`/d:sonar.password=<password>`|[optional] Specifies the password for the {instance} username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
+`/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
+`/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
+`/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
+
+<!-- /sonarcloud -->
+
+<!-- sonarqube -->
+
 Parameter|Description
 ---|---
 `/k:<project-key>`|[required] Specifies the key of the analyzed project in {instance}
@@ -161,7 +179,9 @@ Parameter|Description
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
 `/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
 `/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
-<!-- sonarcloud --> `/o:<organization>`|[required] Specifies the name of the target organization in SonarCloud. <!-- /sonarcloud -->
+
+<!-- /sonarqube -->
+
 For detailed information about all available parameters, see [Analysis Parameters](/analysis/analysis-parameters/).
 
 [[warning]]
@@ -225,6 +245,12 @@ Projects targeting older versions of the .NET Framework can be built using MSBui
 * [How to: Target a Version of the .NET Framework](https://msdn.microsoft.com/en-us/library/bb398202.aspx)
 * [MSBuild Target Framework and Target Platform](https://msdn.microsoft.com/en-us/library/hh264221.aspx)
 
+For example, if you want to build a .NET 3.5 project, but you are using a newer MSBuild version:
+
+```
+MSBuild.exe /t:Rebuild /p:TargetFramework=net35
+```
+
 If you do not want to switch your production build to MSBuild 14.0, you can set up a separate build dedicated to the {instance} analysis.
 
 **Detection of test projects**
@@ -245,7 +271,9 @@ Some analysis parameters can be set for a single MSBuild project by adding them 
 
 **Analyzing languages other than C# and VB**
 
-By default, SonarScanner for .NET will only analyze C# and VB files in your project. To enable the analysis of other types of files, these files must be listed in the MSBuild project file (the `.csproj` or `.vbproj` file).
+For newer SDK-style projects (used by .NET Core, .NET 5, and later), the SonarScanner for .NET will analyze all file types that are supported by the available language plugins unless explicitly excluded. 
+
+For older-style projects, the scanner will only analyze files that are listed in the `.csproj` or `.vbproj` project file. Normally this means that only C# and VB files will be analyzed. To enable the analysis of other types of files, include them in the project file.
 
 More specifically, any files included by an element of one of the `ItemTypes` in
 [this list](https://github.com/SonarSource/sonar-scanner-msbuild/blob/master/src/SonarScanner.MSBuild.Tasks/Targets/SonarQube.Integration.targets#L112)
@@ -275,7 +303,7 @@ SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyP
 ```
 Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for HTTPS, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html.
 
-```HTTP_PROXY```, ```HTTPS_PROXY```, ```ALL_PROXY``` and ```NO_PROXY``` will be automatically recognized and used to make calls against {instance}. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
+`HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY` will be automatically recognized and use to make call against {instance}. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
 
 ## Known issues
 
