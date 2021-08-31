@@ -550,8 +550,8 @@ subprojects {
     apply plugin: 'com.github.node-gradle.node'
 
     node {
-      version = '10.22.1'
-      yarnVersion = '1.22.0'
+      version = '14.17.5'
+      yarnVersion = '1.22.11'
       download = true
     }
 
