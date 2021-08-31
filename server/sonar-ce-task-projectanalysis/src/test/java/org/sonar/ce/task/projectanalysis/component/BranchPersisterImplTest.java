@@ -162,7 +162,7 @@ public class BranchPersisterImplTest {
   }
 
   @Test
-  public void non_main_branch_is_included_from_branch_purge_if_target_branch_is_present() {
+  public void non_main_branch_is_included_in_branch_purge_if_target_branch_is_present() {
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY", targetBranch.getUuid()));
     treeRootHolder.setRoot(BRANCH1);
     ComponentDto mainComponent = dbTester.components().insertPublicProject(p -> p.setDbKey(MAIN.getDbKey()).setUuid(MAIN.getUuid()));
@@ -195,7 +195,7 @@ public class BranchPersisterImplTest {
   }
 
   @Test
-  public void non_main_branch_with_target_is_included_in_branch_purge_if_branch_name_does_not_match_sonar_dbcleaner_keepFromPurge_property() {
+  public void non_main_branch_with_target_branch_is_included_in_branch_purge_if_branch_name_does_not_match_sonar_dbcleaner_keepFromPurge_property() {
     when(configuration.getStringArray(BRANCHES_TO_KEEP_WHEN_INACTIVE)).thenReturn(new String[] {"foobar-.*"});
 
     analysisMetadataHolder.setBranch(createBranch(BRANCH, false, "BRANCH_KEY", targetBranch.getUuid()));
