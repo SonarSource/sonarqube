@@ -66,6 +66,10 @@ public class PortfolioDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key));
   }
 
+  public List<PortfolioDto> selectByKeys(DbSession dbSession, Set<String> portfolioDbKeys) {
+    return executeLargeInputs(portfolioDbKeys, input -> mapper(dbSession).selectByKeys(input));
+  }
+
   public Optional<PortfolioDto> selectByUuid(DbSession dbSession, String uuid) {
     return Optional.ofNullable(mapper(dbSession).selectByUuid(uuid));
   }
@@ -199,4 +203,5 @@ public class PortfolioDao implements Dao {
   private static PortfolioMapper mapper(DbSession session) {
     return session.getMapper(PortfolioMapper.class);
   }
+
 }

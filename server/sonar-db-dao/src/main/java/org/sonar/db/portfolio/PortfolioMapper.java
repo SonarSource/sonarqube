@@ -30,6 +30,8 @@ public interface PortfolioMapper {
   @CheckForNull
   PortfolioDto selectByKey(String key);
 
+  List<PortfolioDto> selectByKeys(@Param("keys")List<String> keys);
+
   @CheckForNull
   PortfolioDto selectByUuid(String uuid);
 
@@ -90,4 +92,6 @@ public interface PortfolioMapper {
   List<PortfolioProjectDto> selectAllPortfolioProjects();
 
   List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
+
+
 }

@@ -55,6 +55,17 @@
       p.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByKeys" parameterType="String" resultType="Portfolio">
+    SELECT
+    <include refid="portfolioColumns"/>
+    FROM portfolios p
+    where
+    p.kee in
+    <foreach collection="keys" open="(" close=")" item="key" separator=",">
+      #{key,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
   <select id="selectAll" resultType="Portfolio">
     SELECT
     <include refid="portfolioColumns"/>
