@@ -57,7 +57,7 @@ public class UpdateLoginActionTest {
 
   private WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
     new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
-      null, null, null, null, null)));
+      null, null, null, null, null, null)));
 
   @Test
   public void update_login_from_sonarqube_account_when_user_is_local() {

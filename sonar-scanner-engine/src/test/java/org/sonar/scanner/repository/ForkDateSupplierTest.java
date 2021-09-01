@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranches;
@@ -49,12 +50,14 @@ public class ForkDateSupplierTest {
 
   private NewCodePeriodLoader newCodePeriodLoader = mock(NewCodePeriodLoader.class);
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private MeasuresComponentLoader measuresComponentLoader = mock(MeasuresComponentLoader.class);
   private DefaultInputProject project = mock(DefaultInputProject.class);
   private ScmConfiguration scmConfiguration = mock(ScmConfiguration.class);
   private ScmProvider scmProvider = mock(ScmProvider.class);
   private ProjectBranches projectBranches = mock(ProjectBranches.class);
   private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-  private ForkDateSupplier forkDateSupplier = new ForkDateSupplier(newCodePeriodLoader, branchConfiguration, project, scmConfiguration, projectBranches, analysisWarnings);
+  private ScanProperties scanProperties = mock(ScanProperties.class);
+  private ForkDateSupplier forkDateSupplier = new ForkDateSupplier(newCodePeriodLoader, measuresComponentLoader, branchConfiguration, project, scmConfiguration, projectBranches, analysisWarnings, scanProperties);
 
   @Before
   public void setUp() {

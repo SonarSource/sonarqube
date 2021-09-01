@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Qualifiers;
@@ -110,7 +111,7 @@ public class CreateActionTest {
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation,
-    userIndexer, mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient, new SequenceUuidFactory()), permissionService);
+    mock(Configuration.class), userIndexer, mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient, new SequenceUuidFactory()), permissionService);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private OrganizationAlmBinding organizationAlmBinding = mock(OrganizationAlmBinding.class);
 

@@ -65,7 +65,6 @@ public class AddMemberActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public EsTester es = EsTester.create();
-  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   @Rule
   public DbTester db = DbTester.create();
 

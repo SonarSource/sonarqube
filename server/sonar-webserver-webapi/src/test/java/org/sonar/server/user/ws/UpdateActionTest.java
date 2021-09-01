@@ -36,6 +36,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
@@ -74,7 +75,7 @@ public class UpdateActionTest {
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(
     new UserUpdater(system2, mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+    mock(OrganizationUpdater.class), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before

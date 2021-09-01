@@ -26,11 +26,13 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -102,6 +104,7 @@ public class OrganizationUpdaterImplTest {
   private DbClient dbClient = db.getDbClient();
   private UuidFactory uuidFactory = new SequenceUuidFactory();
   private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
+  private Configuration configuration = mock(Configuration.class);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client(), system2);
   private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient, uuidFactory);
@@ -109,7 +112,7 @@ public class OrganizationUpdaterImplTest {
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
 
-  private OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, userIndexer,
+  private OrganizationUpdaterImpl underTest = new OrganizationUpdaterImpl(dbClient, system2, uuidFactory, organizationValidation, configuration, userIndexer,
     builtInQProfileRepositoryRule, defaultGroupCreator, permissionService);
   @Test
   public void visibility_public_if_not_set() throws OrganizationUpdater.KeyConflictException {
@@ -120,29 +123,6 @@ public class OrganizationUpdaterImplTest {
 
     assertThat(db.organizations().getNewProjectPrivate(organization)).isFalse();
   }
-
-  @Test
-  public void visibility_public_if_true() throws OrganizationUpdater.KeyConflictException {
-	builtInQProfileRepositoryRule.initialize();
-	UserDto user = db.users().insertUser();
-	db.qualityGates().insertBuiltInQualityGate();
-	settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY, true);
-	OrganizationDto organization = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
-
-    assertThat(db.organizations().getNewProjectPrivate(organization)).isFalse();
-  }
-  
-  @Test
-  public void visibility_public_if_false() throws OrganizationUpdater.KeyConflictException {
-	builtInQProfileRepositoryRule.initialize();
-	UserDto user = db.users().insertUser();
-	db.qualityGates().insertBuiltInQualityGate();
-	settings.setProperty(CorePropertyDefinitions.ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY, false);
-	OrganizationDto organization = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
-	
-    assertThat(db.organizations().getNewProjectPrivate(organization)).isTrue();
-  }
-
 
   @Test
   public void create_creates_organization_with_properties_from_NewOrganization_arg() throws OrganizationUpdater.KeyConflictException {

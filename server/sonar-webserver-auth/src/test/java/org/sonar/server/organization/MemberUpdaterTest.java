@@ -57,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
@@ -77,8 +78,9 @@ public class MemberUpdaterTest {
   private DbClient dbClient = db.getDbClient();
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
-  private MemberUpdater underTest = new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), userIndexer);
+  private MemberUpdater underTest = new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), userIndexer, billingValidations);
 
   @Test
   public void add_member_in_db_and_user_index() {
