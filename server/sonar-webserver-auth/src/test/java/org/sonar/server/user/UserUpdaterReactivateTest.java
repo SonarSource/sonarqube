@@ -37,6 +37,7 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.index.UserIndexer;
@@ -69,8 +70,9 @@ public class UserUpdaterReactivateTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
+          organizationUpdater, new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
   public void reactivate_user() {

@@ -35,6 +35,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -50,6 +51,7 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
@@ -71,7 +73,7 @@ public class RemoveMemberActionTest {
   private OrganizationsWsSupport wsSupport = new OrganizationsWsSupport(new OrganizationValidationImpl(), dbClient);
 
   private WsActionTester ws = new WsActionTester(new RemoveMemberAction(dbClient, userSession, wsSupport,
-    new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), new UserIndexer(dbClient, es.client()))));
+    new MemberUpdater(dbClient, new DefaultGroupFinder(dbClient), new UserIndexer(dbClient, es.client()), mock(BillingValidationsProxy.class))));
 
   @Test
   public void remove_member() {

@@ -105,7 +105,7 @@ public class HttpHeadersAuthenticationTest {
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(
     db.getDbClient(),
-    new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider,
+    new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationUpdater,
       new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()), null);
 

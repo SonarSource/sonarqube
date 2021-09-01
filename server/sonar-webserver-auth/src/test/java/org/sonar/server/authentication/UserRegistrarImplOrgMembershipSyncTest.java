@@ -38,6 +38,7 @@ import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.MemberUpdater;
 import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -90,6 +91,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
+  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private UserUpdater userUpdater = new UserUpdater(
@@ -99,6 +101,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
     userIndexer,
     organizationFlags,
     defaultOrganizationProvider,
+    organizationUpdater,
     new DefaultGroupFinder(db.getDbClient()),
     settings.asConfig(),
     localAuthentication);
@@ -108,7 +111,7 @@ public class UserRegistrarImplOrgMembershipSyncTest {
   private DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
 
   private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
-    defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
+    defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer, billingValidations));
 
   @Test
   public void authenticate_new_github_user_syncs_organization() {

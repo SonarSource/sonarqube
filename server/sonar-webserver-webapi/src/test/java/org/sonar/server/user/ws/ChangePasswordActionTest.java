@@ -33,6 +33,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
@@ -68,6 +69,7 @@ public class ChangePasswordActionTest {
   private UserUpdater userUpdater = new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()),
     organizationFlags,
     TestDefaultOrganizationProvider.from(db),
+    mock(OrganizationUpdater.class),
     new DefaultGroupFinder(db.getDbClient()),
     new MapSettings().asConfig(),
     localAuthentication);
