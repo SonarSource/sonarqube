@@ -45,6 +45,7 @@ import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
@@ -138,6 +139,7 @@ public class RuleCreator {
     validateRuleKey(errors, newRule.ruleKey());
     validateName(errors, newRule);
     validateDescription(errors, newRule);
+    validateOrganizationKey(errors, newRule);
 
     String severity = newRule.severity();
     if (Strings.isNullOrEmpty(severity)) {
@@ -189,11 +191,20 @@ public class RuleCreator {
     }
   }
 
+  private static void validateOrganizationKey(List<String> errors, NewCustomRule newRule) {
+    if (Strings.isNullOrEmpty(newRule.getOrganizationKey()) ) {
+      errors.add("The organization key is missing");
+    }
+  }
+
   private Optional<RuleDefinitionDto> loadRule(DbSession dbSession, RuleKey ruleKey) {
     return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
   }
 
   private String createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
+    OrganizationDto organizationDto = dbClient.organizationDao().selectByKey(dbSession, newRule.getOrganizationKey())
+            .orElseThrow(() -> new NotFoundException("No organization with key " + newRule.getOrganizationKey()));
+
     RuleDefinitionDto ruleDefinition = new RuleDefinitionDto()
       .setUuid(uuidFactory.create())
       .setRuleKey(ruleKey)
@@ -206,6 +217,7 @@ public class RuleCreator {
       .setSeverity(newRule.severity())
       .setStatus(newRule.status())
       .setType(newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant())
+      .setOrganizationUuid(organizationDto.getUuid())
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())

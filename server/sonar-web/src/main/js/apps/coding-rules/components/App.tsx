@@ -612,7 +612,6 @@ export class App extends React.PureComponent<Props, State> {
                       onFilterChange={this.handleFilterChange}
                       openFacets={this.state.openFacets}
                       organization={organization}
-                      organizationsEnabled={this.props.appState.organizationsEnabled}
                       query={this.state.query}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}
@@ -657,7 +656,7 @@ export class App extends React.PureComponent<Props, State> {
             <div className="layout-page-main-inner">
               {this.state.openRule ? (
                 <RuleDetails
-                  allowCustomRules={!this.props.appState.organizationsEnabled}
+                  allowCustomRules={true}
                   canWrite={this.state.canWrite}
                   hideQualityProfiles={hideQualityProfiles}
                   onActivate={this.handleRuleActivate}

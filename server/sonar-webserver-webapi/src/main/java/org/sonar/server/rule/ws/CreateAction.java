@@ -58,6 +58,7 @@ public class CreateAction implements RulesWsAction {
   public static final String PARAM_TEMPLATE_KEY = "template_key";
   public static final String PARAM_TYPE = "type";
   public static final String PARAMS = "params";
+  public static final String PARAM_ORGANIZATION = "organization";
 
   public static final String PARAM_PREVENT_REACTIVATION = "prevent_reactivation";
   static final int KEY_MAXIMUM_LENGTH = 200;
@@ -137,6 +138,11 @@ public class CreateAction implements RulesWsAction {
       .setPossibleValues(RuleType.names())
       .setDescription("Rule type")
       .setSince("6.7");
+
+    action.createParam(PARAM_ORGANIZATION)
+            .setDescription("Organization key")
+            .setRequired(true)
+            .setExampleValue("org-key");
   }
 
   @Override
@@ -150,6 +156,7 @@ public class CreateAction implements RulesWsAction {
           .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
           .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
           .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
+          .setOrganizationKey(request.mandatoryParam(PARAM_ORGANIZATION))
           .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
         String params = request.param(PARAMS);
         if (!isNullOrEmpty(params)) {

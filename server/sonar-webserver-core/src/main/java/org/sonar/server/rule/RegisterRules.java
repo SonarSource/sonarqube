@@ -127,9 +127,6 @@ public class RegisterRules implements Startable {
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-            if (noTemplateRuleWithOrganizationsEnabled(registerRulesContext, orgsEnabled, ruleDef)) {
-              continue;
-            }
             registerRule(registerRulesContext, ruleDef, dbSession);
           }
           dbSession.commit();
@@ -179,22 +176,6 @@ public class RegisterRules implements Startable {
     return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .map(SingleDeprecatedRuleKey::from)
       .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleUuid, Collectors.toSet()));
-  }
-
-  private static boolean noTemplateRuleWithOrganizationsEnabled(RegisterRulesContext registerRulesContext, boolean orgsEnabled, RulesDefinition.Rule ruleDef) {
-    if (!ruleDef.template() || !orgsEnabled) {
-      return false;
-    }
-
-    Optional<RuleDefinitionDto> dbRule = registerRulesContext.getDbRuleFor(ruleDef);
-    if (dbRule.isPresent() && dbRule.get().getStatus() == RuleStatus.REMOVED) {
-      RuleDefinitionDto dto = dbRule.get();
-      LOG.debug("Template rule {} kept removed, because organizations are enabled.", dto.getKey());
-      registerRulesContext.removed(dto);
-    } else {
-      LOG.info("Template rule {} will not be imported, because organizations are enabled.", RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
-    }
-    return true;
   }
 
   private static class RegisterRulesContext {
@@ -730,10 +711,6 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(customRule.getGapDescription(), templateRule.getGapDescription())) {
       customRule.setGapDescription(templateRule.getGapDescription());
-      changed = true;
-    }
-    if (customRule.getStatus() != templateRule.getStatus()) {
-      customRule.setStatus(templateRule.getStatus());
       changed = true;
     }
     if (!StringUtils.equals(customRule.getSeverityString(), templateRule.getSeverityString())) {

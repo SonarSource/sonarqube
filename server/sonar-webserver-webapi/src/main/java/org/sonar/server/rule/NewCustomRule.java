@@ -39,6 +39,7 @@ public class NewCustomRule {
   private String severity;
   private RuleStatus status;
   private RuleType type;
+  private String organizationKey;
   private final Map<String, String> parameters = new HashMap<>();
 
   private boolean preventReactivation = false;
@@ -136,6 +137,15 @@ public class NewCustomRule {
    */
   public NewCustomRule setPreventReactivation(boolean preventReactivation) {
     this.preventReactivation = preventReactivation;
+    return this;
+  }
+
+  public String getOrganizationKey() {
+    return organizationKey;
+  }
+
+  public NewCustomRule setOrganizationKey(String organizationKey) {
+    this.organizationKey = organizationKey;
     return this;
   }
 
