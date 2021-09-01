@@ -250,8 +250,8 @@ When an issue could be made clearer by highlighting multiple code segments, such
 
 
 ### Guidelines for Bug, Vulnerability, and Code Smell rules
-#### Titles
 
+#### Titles
 * The title of the rule should match the pattern "X should [ not ] Y" for most rules. Note that the "should [ not ]" pattern is too strong for Finding rules, which are about observations on the code. Finding titles should be neutral, such as "Track x".
 * All other things being equal, the positive form is preferred. E.G.
    * "X should Y" is preferred to 
@@ -299,7 +299,7 @@ Deprecated (optional): listing replacement rules with links
 
 Code samples for COBOL should be in upper case. 
 
-When displayed in SonarQube, any code or keywords in the description should be enclosed in <code> tags. For descriptions written in JIRA, this means using double curly braces (`{{` and `}}`) to enclose such text. They will be translated in the final output.
+When displayed in SonarQube, any code or keywords in the description should be enclosed in `<code>` tags. For descriptions written in JIRA, this means using double curly braces (`{{` and `}}`) to enclose such text. They will be translated in the final output.
 
 #### Messages
 Issue messages should contain the remediation message for bug and quality rules. For potential-bug rules, it should make it explicit that a manual review is required. It should be in the imperative mood ("Do x"), and therefore start with a verb.
