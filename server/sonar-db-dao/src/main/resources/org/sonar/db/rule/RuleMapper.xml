@@ -18,6 +18,7 @@
     r.is_ad_hoc as "isAdHoc",
     r.language as "language",
     r.template_uuid as "templateUuid",
+    r.organization_uuid as "organizationUuid",
     r.def_remediation_function as "defRemediationFunction",
     r.def_remediation_gap_mult as "defRemediationGapMultiplier",
     r.def_remediation_base_effort as "defRemediationBaseEffort",
@@ -67,6 +68,7 @@
     from
       rules r
     <include refid="outerJoinRulesMetadata"/>
+    where (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectAllDefinitions" resultType="org.sonar.db.rule.RuleDefinitionDto">
@@ -93,6 +95,7 @@
     <include refid="outerJoinRulesMetadata"/>
     where
       r.uuid=#{uuid,jdbcType=VARCHAR}
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectDefinitionByUuid" parameterType="String" resultType="org.sonar.db.rule.RuleDefinitionDto">
@@ -111,9 +114,8 @@
       rules r
     <include refid="outerJoinRulesMetadata"/>
     where
-      <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
-        r.uuid=#{uuid,jdbcType=VARCHAR}
-      </foreach>
+      r.uuid in <foreach collection="uuids" item="uuid" separator="," open="(" close=")">#{uuid,jdbcType=VARCHAR}</foreach>
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectDefinitionByUuids" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
@@ -136,6 +138,7 @@
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectDefinitionByKey" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
@@ -222,9 +225,10 @@
       rules r
     <include refid="outerJoinRulesMetadata"/>
     where
-      <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+      (<foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
         (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
-      </foreach>
+      </foreach>)
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <select id="selectDefinitionByKeys" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
@@ -285,6 +289,7 @@
     <include refid="outerJoinRulesMetadata"/>
     where
       r.status != 'REMOVED'
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
       <if test="query.repositoryKey!=null">
         and r.plugin_name = #{query.repositoryKey,jdbcType=VARCHAR}
       </if>
@@ -308,6 +313,7 @@
       r.status != 'REMOVED' and r.is_external=${_false} and r.is_template=${_false}
       and r.rule_type in <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
       and r.language in <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+      and (r.organization_uuid IS NULL or r.organization_uuid = #{organizationUuid,jdbcType=VARCHAR})
   </select>
 
   <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" useGeneratedKeys="false">
@@ -327,6 +333,7 @@
       is_ad_hoc,
       language,
       template_uuid,
+      organization_uuid,
       def_remediation_function,
       def_remediation_gap_mult,
       def_remediation_base_effort,
@@ -354,6 +361,7 @@
       #{isAdHoc,jdbcType=BOOLEAN},
       #{language,jdbcType=VARCHAR},
       #{templateUuid,jdbcType=VARCHAR},
+      #{organizationUuid,jdbcType=VARCHAR},
       #{defRemediationFunction,jdbcType=VARCHAR},
       #{defRemediationGapMultiplier,jdbcType=VARCHAR},
       #{defRemediationBaseEffort,jdbcType=VARCHAR},

@@ -55,6 +55,7 @@ public class DbVersion85 implements DbVersion {
       .add(4024, "Populate 'branch_type' in 'project_branches'", FillProjectBranchesBranchType.class)
       .add(4025, "Make 'branch_type' in 'project_branches' not nullable", MakeProjectBranchesBranchTypeNotNullable.class)
       .add(4026, "Drop column 'key_type' in table 'project_branches'", DropProjectBranchesKeyType.class)
+      .add(4027, "Add 'organization_uuid' column in table 'rules'", AddOrganizationUuidColumnToRulesTable.class)
 
     ;
   }

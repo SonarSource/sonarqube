@@ -76,6 +76,7 @@ public class RuleDefinitionDto {
 
   private String language;
   private String templateUuid;
+  private String organizationUuid;
   private String defRemediationFunction;
   private String defRemediationGapMultiplier;
   private String defRemediationBaseEffort;
@@ -409,6 +410,16 @@ public class RuleDefinitionDto {
     return this;
   }
 
+  @CheckForNull
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public RuleDefinitionDto setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof RuleDefinitionDto)) {
@@ -443,6 +454,7 @@ public class RuleDefinitionDto {
       ", isTemplate=" + isTemplate +
       ", language='" + language + '\'' +
       ", templateUuid=" + templateUuid +
+      ", organizationUuid=" + organizationUuid +
       ", defRemediationFunction='" + defRemediationFunction + '\'' +
       ", defRemediationGapMultiplier='" + defRemediationGapMultiplier + '\'' +
       ", defRemediationBaseEffort='" + defRemediationBaseEffort + '\'' +
