@@ -109,7 +109,7 @@ The way authorization is implemented in SonarQube is pretty standard. It is poss
 To administer groups and users, choose **Administration > Security**, and use the sub-menu items.
 
 ### User
-Multiple integrations that allow the delegation of authentication are available (see the [Plugin Library](https://redirect.sonarsource.com/doc/plugin-library.html) and [Other Plugins](https://docs.sonarqube.org/display/PLUG/Other+Plugins), but you can manually create and edit users at **[Settings > Security > Users](/#sonarqube-admin#/admin/users)**. For manually-created users, login and password can be set at creation. Manually-created users can edit their passwords.
+Multiple integrations that allow the delegation of authentication are available (see the [Plugin Version Matrix](/instance-administration/plugin-version-matrix/)), but you can manually create and edit users at **[Settings > Security > Users](/#sonarqube-admin#/admin/users)**. For manually-created users, login and password can be set at creation. Manually-created users can edit their passwords.
 
 During both user creation and edit, you can set an account's screen name, email address. User login and email address will be implicitly recognized by the Issue Assignment feature as SCM accounts if applicable, but you can set additional SCM accounts explicitly. 
 

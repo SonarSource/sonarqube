@@ -14,7 +14,7 @@ We use an augmented GitHub markdown syntax:
 - Install nodejs v10, which is the current LTS version.
 - Install https://yarnpkg.com/en
 - Set the following properties in `~/.gradle/gradle.properties`:
-  - `artifactoryUsername=<GitHub username>`
+  - `artifactoryUsername=<Artifactory username>`
   - `artifactoryPassword=<Artifactory API key>`
 - Run the following to set up the dev servers:
 
@@ -114,10 +114,10 @@ url: /sonarcloud-pricing/
 ---
 ```
 
-** Metadata conventions**
+**Metadata conventions**
 
 - Metadata tags can appear in any order, but by convention, `title` should come first.
-- The `url` tag is required, and should start and end with '/'
+- The `url` tag is required, and should start and end with `/`
 
 ### Includes
 
@@ -328,7 +328,7 @@ You can include multiple boxes per page, if needed.
 ## URL Rewrites
 The code in this section replaces 0-n pages that used to live on Confluence. To ease the transition (search results, user bookmarks, etc.) we've put server-level redirects in place from the old Confluence pages to the static site. Those redirects are maintained here:
 
-* https://github.com/SonarSource/marlin/blob/master/ansible/installs/prod/docs.yml
-* https://github.com/SonarSource/marlin/blob/master/ansible/installs/prod/docs3.yml
+* https://github.com/SonarSource/marlin/blob/master/ansible/installs/docs.yml
+* https://github.com/SonarSource/marlin/blob/master/ansible/installs/docs3.yml
 * https://github.com/SonarSource/test-infra/blob/master/tests/docs_sonarqube_org_test.py
 

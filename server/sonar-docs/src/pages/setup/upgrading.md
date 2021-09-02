@@ -15,7 +15,7 @@ During your upgrade, tables may be duplicated to speed up the migration process.
 ## Upgrading from the ZIP file
 
 1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONAR_HOME`
-2. If you're using third-party plugins, Manually install plugins that are compatible with your version of SonarQube. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that the versions you install are compatible with your server version. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors. Analysis of all languages provided by your edition is available by default without plugins.
+2. If you're using third-party plugins, Manually install plugins that are compatible with your version of SonarQube. Use the [Plugin Version Matrix](/instance-administration/plugin-version-matrix/) to ensure that the versions you install are compatible with your server version. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors. Analysis of all languages provided by your edition is available by default without plugins.
 3. Update the contents of `sonar.properties` and `wrapper.conf` files (in `$NEW_SONAR_HOME/conf`) with the settings of the related files in the `$OLD_SONAR_HOME/conf` directory (web server URL, database, ldap settings, etc.). Do not copy-paste the old files.
 If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONAR_HOME/extensions/jdbc-driver/oracle`
 4. Stop your old SonarQube Server
@@ -26,7 +26,7 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONAR_HOME/exten
 ## Upgrading from the Docker image
 
 [[info]]
-| If you're upgrading with an Oracle database or you're using plugins, you can reuse your extensions volume from the previous version to avoid moving plugins or drivers. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that your plugins are compatible with your version. Analysis of all languages provided by your edition is available by default without plugins.
+| If you're upgrading with an Oracle database or you're using plugins, you can reuse your extensions volume from the previous version to avoid moving plugins or drivers. Use the [Plugin Version Matrix](/instance-administration/plugin-version-matrix/) to ensure that your plugins are compatible with your version. Analysis of all languages provided by your edition is available by default without plugins.
 
 To upgrade SonarQube using the Docker image:
 
@@ -62,7 +62,7 @@ No specific Docker operations are needed, just use the new tag.
 ## Upgrading from the Helm Chart 
 
 [[info]]
-| If you're upgrading with an Oracle database or you're using plugins, you can reuse your extensions PVC from the previous version to avoid moving plugins or drivers. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that your plugins are compatible with your version. Analysis of all languages provided by your edition is available by default without plugins.
+| If you're upgrading with an Oracle database or you're using plugins, you can reuse your extensions PVC from the previous version to avoid moving plugins or drivers. Use the [Plugin Version Matrix](/instance-administration/plugin-version-matrix/) to ensure that your plugins are compatible with your version. Analysis of all languages provided by your edition is available by default without plugins.
 
 To upgrade SonarQube using our official Helm Chart:
 
