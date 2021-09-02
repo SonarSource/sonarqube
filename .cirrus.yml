@@ -418,6 +418,7 @@ promote_task:
 
 deploy_docs_task:
   depends_on: promote
+  skip: true
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
