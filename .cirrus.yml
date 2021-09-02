@@ -94,6 +94,12 @@ node_modules_cache_template: &NODE_MODULES_CACHE_TEMPLATE
         private/core-extension-license/yarn.lock \
         private/core-extension-securityreport/yarn.lock
 
+custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
+  clone_script: |
+    git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR --depth=1
+    git fetch origin $CIRRUS_CHANGE_IN_REPO --depth=1
+    git reset --hard $CIRRUS_CHANGE_IN_REPO
+
 build_task:
   <<: *NODE_MODULES_CACHE_TEMPLATE
   only_if: >-
@@ -433,8 +439,7 @@ package_docker_task:
     disk: 10
     cpu: 4
     memory: 8G
-  env:
-    CIRRUS_CLONE_DEPTH: '1'
+  <<: *CUSTOM_CLONE_SCRIPT_TEMPLATE
   install_tooling_script:
     - ./private/cirrus/cirrus-tooling-for-package-docker.sh
   package_script:
