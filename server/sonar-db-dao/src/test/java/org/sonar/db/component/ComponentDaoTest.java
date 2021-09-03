@@ -86,6 +86,7 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newApplication;
+import static org.sonar.db.component.ComponentTesting.newBranchComponent;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -1912,6 +1913,17 @@ public class ComponentDaoTest {
     underTestWithAuditPersister.insert(dbSession, app);
 
     verify(auditPersister).addComponent(any(DbSession.class), any(ComponentNewValue.class));
+  }
+
+  @Test
+  public void insert_branch_auditPersisterIsNotCalled() {
+    ComponentDto project = db.components().insertPublicProject();
+    BranchDto branch = newBranchDto(project);
+    ComponentDto branchComponent = newBranchComponent(project, branch);
+    
+    underTestWithAuditPersister.insert(dbSession, branchComponent);
+
+    verifyNoInteractions(auditPersister);
   }
 
   private boolean privateFlagOfUuid(String uuid) {

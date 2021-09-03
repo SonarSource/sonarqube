@@ -335,7 +335,9 @@ public class ComponentDao implements Dao {
 
   public void insert(DbSession session, ComponentDto item) {
     mapper(session).insert(item);
-    auditPersister.addComponent(session, new ComponentNewValue(item));
+    if (!isBranchOrPullRequest(item)) {
+      auditPersister.addComponent(session, new ComponentNewValue(item));
+    }
   }
 
   public void insert(DbSession session, Collection<ComponentDto> items) {
@@ -398,6 +400,10 @@ public class ComponentDao implements Dao {
       }).stream().anyMatch(b -> b);
     }
     return false;
+  }
+
+  private static boolean isBranchOrPullRequest(ComponentDto item) {
+    return item.getMainBranchProjectUuid() != null;
   }
 
 }
