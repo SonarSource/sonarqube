@@ -108,6 +108,7 @@ declare namespace T {
     standalone?: boolean;
     version: string;
     webAnalyticsJsPath?: string;
+    pendoInitialized?: boolean;
   }
 
   export interface Breadcrumb {

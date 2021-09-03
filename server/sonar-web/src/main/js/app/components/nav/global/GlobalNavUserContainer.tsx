@@ -23,10 +23,12 @@ import GlobalNavUser from './GlobalNavUser';
 
 interface StateProps {
   organizations: T.Organization[];
+  pendoInitialized?: boolean;
 }
 
 const mapStateToProps = (state: Store): StateProps => ({
-  organizations: getMyOrganizations(state)
+  organizations: getMyOrganizations(state),
+  pendoInitialized: state.appState.pendoInitialized,
 });
 
 export default connect(mapStateToProps)(GlobalNavUser);

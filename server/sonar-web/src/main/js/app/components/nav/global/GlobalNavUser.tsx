@@ -28,11 +28,14 @@ import Avatar from '../../../../components/ui/Avatar';
 import OrganizationListItem from '../../../../components/ui/OrganizationListItem';
 import { isLoggedIn } from '../../../../helpers/users';
 import { rawSizes } from '../../../theme';
+import { setPendoInitialized } from "../../../../store/appState";
+import getStore from "../../../utils/getStore";
 
 interface Props {
   appState: { organizationsEnabled?: boolean };
   currentUser: T.CurrentUser;
   organizations: T.Organization[];
+  pendoInitialized: boolean;
   router: Pick<Router, 'push'>;
 }
 
@@ -55,9 +58,30 @@ export class GlobalNavUser extends React.PureComponent<Props> {
   };
 
   renderAuthenticated() {
-    const { organizations } = this.props;
+    const { organizations, pendoInitialized } = this.props;
     const currentUser = this.props.currentUser as T.LoggedInUser;
     const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
+
+    if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized) {
+      const script = document.createElement('script');
+
+      const orgKeys = organizations.map(o => o.key).join(',');
+
+      script.innerHTML =
+          "      pendo.initialize({\n" +
+          "        visitor: {\n" +
+          "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
+          "        },\n" +
+          "        account: {\n" +
+          "          id: '" + orgKeys + "'\n" +
+          "        }\n" +
+          "      });";
+
+      document.body.appendChild(script);
+
+      getStore().dispatch(setPendoInitialized());
+    }
+
     return (
       <Dropdown
         className="js-user-authenticated"
