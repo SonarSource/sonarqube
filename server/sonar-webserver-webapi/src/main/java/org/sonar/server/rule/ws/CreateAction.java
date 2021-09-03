@@ -35,6 +35,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.NewCustomRule;
@@ -147,16 +148,19 @@ public class CreateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ruleWsSupport.checkQProfileAdminPermissionOnDefaultOrganization();
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
+    String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, organizationKey);
+      ruleWsSupport.checkQProfileAdminPermissionOnOrganization(organization);
+
       try {
         NewCustomRule newRule = NewCustomRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))
           .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
           .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
           .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
-          .setOrganizationKey(request.mandatoryParam(PARAM_ORGANIZATION))
+          .setOrganizationKey(organizationKey)
           .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
         String params = request.param(PARAMS);
         if (!isNullOrEmpty(params)) {
