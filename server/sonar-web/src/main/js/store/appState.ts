@@ -22,12 +22,14 @@ import { ActionType } from './utils/actions';
 export const enum Actions {
   SetAppState = 'SET_APP_STATE',
   SetAdminPages = 'SET_ADMIN_PAGES',
+  SetPendoInitialized = 'SET_PENDO_INITIALIZED',
   RequireAuthorization = 'REQUIRE_AUTHORIZATION'
 }
 
 export type Action =
   | ActionType<typeof setAppState, Actions.SetAppState>
   | ActionType<typeof setAdminPages, Actions.SetAdminPages>
+  | ActionType<typeof setPendoInitialized, Actions.SetPendoInitialized>
   | ActionType<typeof requireAuthorization, Actions.RequireAuthorization>;
 
 export function setAppState(appState: T.AppState) {
@@ -36,6 +38,10 @@ export function setAppState(appState: T.AppState) {
 
 export function setAdminPages(adminPages: T.Extension[]) {
   return { type: Actions.SetAdminPages, adminPages };
+}
+
+export function setPendoInitialized() {
+  return { type: Actions.SetPendoInitialized };
 }
 
 export function requireAuthorization() {
@@ -49,6 +55,7 @@ const defaultValue: T.AppState = {
   edition: undefined,
   organizationsEnabled: false,
   productionDatabase: true,
+  pendoInitialized: false,
   qualifiers: [],
   settings: {},
   version: ''
@@ -60,6 +67,9 @@ export default function(state: T.AppState = defaultValue, action: Action): T.App
   }
   if (action.type === Actions.SetAdminPages) {
     return { ...state, adminPages: action.adminPages };
+  }
+  if (action.type === Actions.SetPendoInitialized) {
+    return { ...state, pendoInitialized: true };
   }
   if (action.type === Actions.RequireAuthorization) {
     return { ...state, authorizationError: true };
