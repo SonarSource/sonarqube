@@ -71,6 +71,7 @@ public final class IssueDto implements Serializable {
   private String assigneeUuid;
   private String authorLogin;
   private String issueAttributes;
+  private String securityStandards;
   private byte[] locations;
   private long createdAt;
   private long updatedAt;
@@ -355,6 +356,15 @@ public final class IssueDto implements Serializable {
     checkArgument(s == null || s.length() <= 4000, "Value is too long for issue attributes: %s", s);
     this.issueAttributes = s;
     return this;
+  }
+
+  public IssueDto setSecurityStandards(@Nullable String s) {
+    this.securityStandards = s;
+    return this;
+  }
+
+  public Set<String> getSecurityStandards() {
+    return RuleDefinitionDto.deserializeSecurityStandardsString(securityStandards);
   }
 
   /**

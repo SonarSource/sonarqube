@@ -30,6 +30,7 @@
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     r.language as language,
+    r.security_standards as securityStandards,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
     p.module_uuid as moduleUuid,
@@ -38,6 +39,33 @@
     root.kee as projectKey,
     i.project_uuid as projectUuid,
     i.issue_type as type
+  </sql>
+
+   <sql id="issueColumnsInInnerQuery">
+    i.kee,
+    i.rule_uuid,
+    i.severity,
+    i.manual_severity,
+    i.message,
+    i.line,
+    i.locations,
+    i.gap,
+    i.effort,
+    i.status,
+    i.resolution,
+    i.checksum,
+    i.assignee,
+    i.author_login,
+    i.tags,
+    i.issue_attributes,
+    i.issue_creation_date,
+    i.issue_update_date,
+    i.issue_close_date,
+    i.created_at,
+    i.updated_at,
+    i.component_uuid,
+    i.project_uuid,
+    i.issue_type
   </sql>
 
   <sql id="sortColumn">
@@ -323,6 +351,56 @@
     and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
     ) i2
     group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
+  </select>
+
+  <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.uuid=i.rule_uuid
+    inner join components p on p.uuid=i.component_uuid
+    inner join components root on root.uuid=i.project_uuid
+    where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
+    order by i.kee
+    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="mssql">
+  	select
+    <include refid="issueColumns"/>
+    from
+    (select
+        row_number() over(order by i.kee) as row_number,
+          <include refid="issueColumnsInInnerQuery" />
+        from issues i
+        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
+      order by row_number asc
+      offset #{pagination.offset} rows
+      fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
+    inner join rules r on r.uuid=i.rule_uuid
+    inner join components p on p.uuid=i.component_uuid
+    inner join components root on root.uuid=i.project_uuid
+  </select>
+
+   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="oracle">
+    select
+    <include refid="issueColumns"/>
+    from
+	  (select <include refid="issueColumnsInInnerQuery"/> from (
+	      select rownum as rn, t.* from (
+	        select
+	        <include refid="issueColumnsInInnerQuery"/>
+	        from issues i
+	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
+	        	order by i.kee
+	      ) t
+	    ) i
+	    where
+	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+	    order by i.rn asc) i
+    inner join rules r on r.uuid=i.rule_uuid
+    inner join components p on p.uuid=i.component_uuid
+    inner join components root on root.uuid=i.project_uuid
   </select>
 </mapper>
 

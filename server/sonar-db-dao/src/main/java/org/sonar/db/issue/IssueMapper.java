@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.db.Pagination;
 import org.sonar.db.component.ComponentDto;
 
 public interface IssueMapper {
@@ -35,6 +36,9 @@ public interface IssueMapper {
   Set<String> selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 
   List<IssueDto> selectByKeys(List<String> keys);
+
+  List<IssueDto> selectByComponentUuidPaginated(@Param("componentUuid") String componentUuid,
+                                                @Param("pagination") Pagination pagination);
 
   List<IssueDto> selectByKeysIfNotUpdatedAt(@Param("keys") List<String> keys, @Param("updatedAt") long updatedAt);
 

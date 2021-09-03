@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.WildcardPosition;
 import org.sonar.db.component.ComponentDto;
@@ -33,6 +34,7 @@ import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
+  public static final int DEFAULT_PAGE_SIZE = 1000;
 
   public Optional<IssueDto> selectByKey(DbSession session, String key) {
     return Optional.ofNullable(mapper(session).selectByKey(key));
@@ -40,7 +42,7 @@ public class IssueDao implements Dao {
 
   public IssueDto selectOrFailByKey(DbSession session, String key) {
     Optional<IssueDto> issue = selectByKey(session, key);
-    if (!issue.isPresent()) {
+    if (issue.isEmpty()) {
       throw new RowNotFoundException(String.format("Issue with key '%s' does not exist", key));
     }
     return issue.get();
@@ -54,6 +56,10 @@ public class IssueDao implements Dao {
    */
   public List<IssueDto> selectByKeys(DbSession session, Collection<String> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
+  }
+
+  public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
+    return mapper(session).selectByComponentUuidPaginated(componentUuid, Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE));
   }
 
   public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {

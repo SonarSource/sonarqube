@@ -43,6 +43,7 @@ public class DbVersion91 implements DbVersion {
       .add(6015, "Create 'portfolio_projects' table", CreatePortfolioProjectsTable.class)
       .add(6016, "Create unique index for 'portfolio_projects'", CreateIndexForPortfolioProjects.class)
       .add(6017, "Migrate portfolios to new tables", MigratePortfoliosToNewTables.class)
+      .add(6018, "Create index for 'issue_changes' on 'issue_key' and 'change_type'", CreateIndexForIssueChangesOnIssueKeyAndChangeType.class)
     ;
   }
 }

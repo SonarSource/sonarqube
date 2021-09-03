@@ -129,6 +129,17 @@ public class IssueDaoTest {
   }
 
   @Test
+  public void selectByComponentUuidPaginated() {
+    // contains I1 and I2
+    prepareTables();
+
+    List<IssueDto> issues = underTest.selectByComponentUuidPaginated(db.getSession(), PROJECT_UUID, 1);
+
+    // results are not ordered, so do not use "containsExactly"
+    assertThat(issues).extracting("key").containsOnly("I1", "I2");
+  }
+
+  @Test
   public void scrollNonClosedByComponentUuid() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
