@@ -349,6 +349,13 @@
     where project_branch_uuid=#{projectBranchUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deletePortfolioProjectsByProjectUuid" parameterType="map">
+    DELETE
+    FROM portfolio_projects
+    WHERE
+    project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteIssueChangesFromIssueKeys" parameterType="map">
     DELETE FROM issue_changes
     WHERE issue_key IN

@@ -73,6 +73,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -89,7 +90,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -400,7 +401,7 @@ public class PurgeDaoTest {
 
   @Test
   public void selectPurgeableAnalyses() {
-    SnapshotDto[] analyses = new SnapshotDto[]{
+    SnapshotDto[] analyses = new SnapshotDto[] {
       newSnapshot()
         .setUuid("u1")
         .setComponentUuid(PROJECT_UUID)
@@ -1371,6 +1372,24 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void deleteProject_deletes_portfolio_projects() {
+    ComponentDto portfolio1 = db.components().insertPrivatePortfolio();
+    ComponentDto portfolio2 = db.components().insertPrivatePortfolio();
+
+    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto otherProject = db.components().insertPublicProjectDto();
+
+    db.components().addPortfolioProject(portfolio1, project.getUuid(), otherProject.getUuid());
+    db.components().addPortfolioProject(portfolio2, project.getUuid());
+
+    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
+
+    assertThat(dbClient.portfolioDao().selectAllPortfolioProjects(dbSession))
+      .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid)
+      .containsExactlyInAnyOrder(tuple(portfolio1.uuid(), otherProject.getUuid()));
+  }
+
+  @Test
   public void deleteNonRootComponents_has_no_effect_when_parameter_is_empty() {
     DbSession dbSession = mock(DbSession.class);
 
@@ -1643,18 +1662,18 @@ public class PurgeDaoTest {
 
   private void insertPropertyFor(ComponentDto... components) {
     Stream.of(components).forEach(componentDto -> db.properties().insertProperty(new PropertyDto()
-        .setKey(randomAlphabetic(3))
-        .setValue(randomAlphabetic(3))
-        .setComponentUuid(componentDto.uuid()),
+      .setKey(randomAlphabetic(3))
+      .setValue(randomAlphabetic(3))
+      .setComponentUuid(componentDto.uuid()),
       componentDto.getKey(), componentDto.name(), componentDto.qualifier(), null));
   }
 
   private void insertPropertyFor(Collection<BranchDto> branches) {
     branches.stream().forEach(branchDto -> db.properties().insertProperty(new PropertyDto()
-        .setKey(randomAlphabetic(3))
-        .setValue(randomAlphabetic(3))
-        .setComponentUuid(branchDto.getUuid()),
-      null, branchDto.getKey(), null,null));
+      .setKey(randomAlphabetic(3))
+      .setValue(randomAlphabetic(3))
+      .setComponentUuid(branchDto.getUuid()),
+      null, branchDto.getKey(), null, null));
   }
 
   private Stream<String> getComponentUuidsOfMeasures() {

@@ -147,6 +147,8 @@ public interface PurgeMapper {
 
   void deleteApplicationBranchProjectBranchesByProjectBranchUuid(@Param("projectBranchUuid") String projectBranchUuid);
 
+  void deletePortfolioProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void deleteBranchByUuid(@Param("uuid") String uuid);
 
   void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);
@@ -158,4 +160,5 @@ public interface PurgeMapper {
   void deleteProjectAlmSettingsByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteUserDismissedMessagesByProjectUuid(@Param("projectUuid") String projectUuid);
+
 }

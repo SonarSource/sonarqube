@@ -47,6 +47,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
@@ -57,6 +58,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -648,6 +650,27 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("user_dismissed_messages")).isEqualTo(1);
   }
 
+  @Test
+  public void deleteProjectInPortfolios_deletes_project_from_portfolios() {
+    var portfolio1 = dbTester.components().insertPrivatePortfolio();
+    var portfolio2 = dbTester.components().insertPrivatePortfolio();
+    dbTester.components().insertPrivatePortfolio();
+
+    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = dbTester.components().insertPrivateProjectDto();
+
+    dbTester.components().addPortfolioProject(portfolio1, project.getUuid(), anotherProject.getUuid());
+    dbTester.components().addPortfolioProject(portfolio2, project.getUuid());
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+
+    purgeCommands.deleteProjectInPortfolios(project.getUuid());
+
+    assertThat(dbTester.getDbClient().portfolioDao().selectAllPortfolioProjects(dbTester.getSession()))
+      .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid)
+      .containsExactlyInAnyOrder(tuple(portfolio1.uuid(), anotherProject.getUuid()));
+  }
+
   private void addPermissions(ComponentDto root) {
     if (!root.isPrivate()) {
       dbTester.users().insertProjectPermissionOnAnyone("foo1", root);
@@ -664,10 +687,6 @@ public class PurgeCommandsTest {
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(root.isPrivate() ? 2 : 4);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(2);
-  }
-
-  private int countMeasures(SnapshotDto analysis, MetricDto metric) {
-    return dbTester.countSql("select count(*) from project_measures where analysis_uuid='" + analysis.getUuid() + "' and metric_id=" + metric.getUuid());
   }
 
   private int countComponentOfRoot(ComponentDto projectOrView) {

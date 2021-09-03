@@ -453,4 +453,10 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteProjectInPortfolios(String projectUuid) {
+    profiler.start("deleteProjectInPortfolios (portfolio_projects)");
+    purgeMapper.deletePortfolioProjectsByProjectUuid(projectUuid);
+    session.commit();
+    profiler.stop();
+  }
 }
