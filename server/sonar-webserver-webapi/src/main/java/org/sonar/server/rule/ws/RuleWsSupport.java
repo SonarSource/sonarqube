@@ -89,10 +89,10 @@ public class RuleWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public void checkQProfileAdminPermissionOnDefaultOrganization() {
+  public void checkQProfileAdminPermissionOnOrganization(OrganizationDto organization) {
     userSession
       .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .checkPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
   }
 
   public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {

@@ -79,13 +79,15 @@ public class DeleteAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    ruleWsSupport.checkQProfileAdminPermissionOnDefaultOrganization();
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     delete(key, request.mandatoryParam(PARAM_ORGANIZATION));
   }
 
   public void delete(RuleKey ruleKey, String organizationKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, organizationKey);
+      ruleWsSupport.checkQProfileAdminPermissionOnOrganization(organization);
+
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
       checkArgument(rule.isCustomRule(), "Rule '%s' cannot be deleted because it is not a custom rule", rule.getKey().toString());
 
