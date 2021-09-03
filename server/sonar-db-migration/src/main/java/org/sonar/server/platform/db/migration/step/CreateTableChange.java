@@ -26,7 +26,7 @@ import org.sonar.db.DatabaseUtils;
 public abstract class CreateTableChange extends DdlChange {
   protected final String tableName;
 
-  public CreateTableChange(Database db, String tableName) {
+  protected CreateTableChange(Database db, String tableName) {
     super(db);
     this.tableName = tableName;
   }
