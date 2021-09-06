@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import {
   commentSecurityHotspot,
@@ -25,7 +24,7 @@ import {
   editSecurityHotspotComment
 } from '../../../api/security-hotspots';
 import FormattingTips from '../../../components/common/FormattingTips';
-import { Button, ResetButtonLink } from '../../../components/controls/buttons';
+import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
@@ -35,28 +34,28 @@ interface Props {
   currentUser: T.CurrentUser;
   hotspot: Hotspot;
   commentTextRef: React.RefObject<HTMLTextAreaElement>;
-  commentVisible: boolean;
   onCommentUpdate: () => void;
-  onOpenComment: () => void;
-  onCloseComment: () => void;
 }
 
 interface State {
   comment: string;
+  showFullHistory: boolean;
 }
 
 export default class HotspotReviewHistoryAndComments extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      comment: ''
+      comment: '',
+      showFullHistory: false
     };
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.hotspot !== this.props.hotspot) {
+    if (prevProps.hotspot.key !== this.props.hotspot.key) {
       this.setState({
-        comment: ''
+        comment: '',
+        showFullHistory: false
       });
     }
   }
@@ -65,15 +64,9 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     this.setState({ comment: event.target.value });
   };
 
-  handleCloseComment = () => {
-    this.setState({ comment: '' });
-    this.props.onCloseComment();
-  };
-
   handleSubmitComment = () => {
     return commentSecurityHotspot(this.props.hotspot.key, this.state.comment).then(() => {
       this.setState({ comment: '' });
-      this.props.onCloseComment();
       this.props.onCommentUpdate();
     });
   };
@@ -90,62 +83,49 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     });
   };
 
+  handleShowFullHistory = () => {
+    this.setState({ showFullHistory: true });
+  };
+
   render() {
-    const { currentUser, hotspot, commentTextRef, commentVisible } = this.props;
-    const { comment } = this.state;
+    const { currentUser, hotspot, commentTextRef } = this.props;
+    const { comment, showFullHistory } = this.state;
     return (
-      <>
-        <h1>{translate('hotspot.section.activity')}</h1>
-        <div className="padded it__hs-review-history">
-          <HotspotReviewHistory
-            hotspot={hotspot}
-            onDeleteComment={this.handleDeleteComment}
-            onEditComment={this.handleEditComment}
-          />
-
-          {isLoggedIn(currentUser) && (
-            <>
-              <hr />
-              <div className="big-spacer-top">
+      <div className="padded it__hs-review-history">
+        {isLoggedIn(currentUser) && (
+          <div className="big-spacer-top">
+            <div className="little-spacer-bottom">{translate('hotspots.comment.field')}</div>
+            <textarea
+              className="form-field fixed-width width-100 spacer-bottom"
+              onChange={this.handleCommentChange}
+              ref={commentTextRef}
+              rows={2}
+              value={comment}
+            />
+            <div className="display-flex-space-between display-flex-center ">
+              <FormattingTips className="huge-spacer-bottom" />
+              <div>
                 <Button
-                  className={classNames('it__hs-add-comment', { invisible: commentVisible })}
-                  id="hotspot-comment-box-display"
-                  onClick={this.props.onOpenComment}>
-                  {translate('hotspots.comment.open')}
+                  className="huge-spacer-bottom"
+                  id="hotspot-comment-box-submit"
+                  onClick={this.handleSubmitComment}>
+                  {translate('hotspots.comment.submit')}
                 </Button>
-
-                <div className={classNames({ invisible: !commentVisible })}>
-                  <div className="little-spacer-bottom">{translate('hotspots.comment.field')}</div>
-                  <textarea
-                    className="form-field fixed-width width-100 spacer-bottom"
-                    onChange={this.handleCommentChange}
-                    ref={commentTextRef}
-                    rows={2}
-                    value={comment}
-                  />
-                  <div className="display-flex-space-between display-flex-center ">
-                    <FormattingTips className="huge-spacer-bottom" />
-                    <div>
-                      <Button
-                        className="huge-spacer-bottom"
-                        id="hotspot-comment-box-submit"
-                        onClick={this.handleSubmitComment}>
-                        {translate('hotspots.comment.submit')}
-                      </Button>
-                      <ResetButtonLink
-                        className="spacer-left huge-spacer-bottom"
-                        id="hotspot-comment-box-cancel"
-                        onClick={this.handleCloseComment}>
-                        {translate('cancel')}
-                      </ResetButtonLink>
-                    </div>
-                  </div>
-                </div>
               </div>
-            </>
-          )}
-        </div>
-      </>
+            </div>
+          </div>
+        )}
+
+        <h2 className="spacer-top big-spacer-bottom">{translate('hotspot.section.activity')}</h2>
+
+        <HotspotReviewHistory
+          hotspot={hotspot}
+          onDeleteComment={this.handleDeleteComment}
+          onEditComment={this.handleEditComment}
+          onShowFullHistory={this.handleShowFullHistory}
+          showFullHistory={showFullHistory}
+        />
+      </div>
     );
   }
 }

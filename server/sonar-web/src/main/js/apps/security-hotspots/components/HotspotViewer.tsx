@@ -43,7 +43,6 @@ interface State {
   hotspot?: Hotspot;
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
-  commentVisible: boolean;
   showStatusUpdateSuccessModal: boolean;
 }
 
@@ -55,7 +54,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.commentTextRef = React.createRef<HTMLTextAreaElement>();
-    this.state = { loading: false, commentVisible: false, showStatusUpdateSuccessModal: false };
+    this.state = { loading: false, showStatusUpdateSuccessModal: false };
   }
 
   componentDidMount() {
@@ -63,11 +62,11 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     this.fetchHotspot();
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.hotspotKey !== this.props.hotspotKey) {
       this.fetchHotspot();
     }
-    if (this.commentTextRef.current && !prevState.commentVisible && this.state.commentVisible) {
+    if (this.commentTextRef.current) {
       this.commentTextRef.current.focus({ preventScroll: true });
     }
   }
@@ -99,21 +98,13 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     }
   };
 
-  handleOpenComment = () => {
-    this.setState({ commentVisible: true });
+  handleScrollToCommentForm = () => {
     if (this.commentTextRef.current) {
-      // Edge case when the comment is already open and unfocus.
       this.commentTextRef.current.focus({ preventScroll: true });
-    }
-    if (this.commentTextRef.current) {
       scrollToElement(this.commentTextRef.current, {
         bottomOffset: 100
       });
     }
-  };
-
-  handleCloseComment = () => {
-    this.setState({ commentVisible: false });
   };
 
   handleSwitchFilterToStatusOfUpdatedHotspot = () => {
@@ -129,28 +120,20 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, component, hotspotsReviewedMeasure, securityCategories } = this.props;
-    const {
-      hotspot,
-      lastStatusChangedTo,
-      loading,
-      commentVisible,
-      showStatusUpdateSuccessModal
-    } = this.state;
+    const { hotspot, lastStatusChangedTo, loading, showStatusUpdateSuccessModal } = this.state;
 
     return (
       <HotspotViewerRenderer
         branchLike={branchLike}
         component={component}
         commentTextRef={this.commentTextRef}
-        commentVisible={commentVisible}
         hotspot={hotspot}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         lastStatusChangedTo={lastStatusChangedTo}
         loading={loading}
-        onCloseComment={this.handleCloseComment}
         onCloseStatusUpdateSuccessModal={this.handleCloseStatusUpdateSuccessModal}
-        onOpenComment={this.handleOpenComment}
         onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
+        onShowCommentForm={this.handleScrollToCommentForm}
         onUpdateHotspot={this.handleHotspotUpdate}
         showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
         securityCategories={securityCategories}

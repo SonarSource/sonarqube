@@ -26,3 +26,20 @@ export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): Ref
     ...overrides
   };
 }
+
+export function mockIssueChangelog(overrides: Partial<T.IssueChangelog> = {}): T.IssueChangelog {
+  return {
+    creationDate: '2018-10-01',
+    isUserActive: true,
+    user: 'luke.skywalker',
+    userName: 'Luke Skywalker',
+    diffs: [
+      {
+        key: 'assign',
+        newValue: 'darth.vader',
+        oldValue: 'luke.skywalker'
+      }
+    ],
+    ...overrides
+  };
+}

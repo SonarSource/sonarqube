@@ -21,6 +21,7 @@ import { ComponentQualifier } from '../../types/component';
 import { Standards } from '../../types/security';
 import {
   Hotspot,
+  HotspotComment,
   HotspotComponent,
   HotspotResolution,
   HotspotRule,
@@ -90,6 +91,19 @@ export function mockHotspotComponent(overrides?: Partial<HotspotComponent>): Hot
     longName: 'Hotspot component long name',
     qualifier: ComponentQualifier.File,
     path: 'path/to/component',
+    ...overrides
+  };
+}
+
+export function mockHotspotComment(overrides?: Partial<HotspotComment>): HotspotComment {
+  return {
+    key: 'comment-1',
+    createdAt: '2018-09-10',
+    htmlText: '<strong>TEST</strong>',
+    markdown: '*TEST*',
+    updatable: false,
+    login: 'dude-2',
+    user: mockUser({ login: 'dude-2' }),
     ...overrides
   };
 }

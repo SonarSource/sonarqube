@@ -191,14 +191,14 @@ describe('getHotspotReviewHistory', () => {
     const reviewHistory = getHotspotReviewHistory(hotspot);
 
     expect(reviewHistory.length).toBe(4);
-    expect(reviewHistory[0]).toEqual(
+    expect(reviewHistory[3]).toEqual(
       expect.objectContaining({
         type: ReviewHistoryType.Creation,
         date: hotspot.creationDate,
         user: hotspot.authorUser
       })
     );
-    expect(reviewHistory[1]).toEqual(
+    expect(reviewHistory[2]).toEqual(
       expect.objectContaining({
         type: ReviewHistoryType.Comment,
         date: commentElement.createdAt,
@@ -206,7 +206,7 @@ describe('getHotspotReviewHistory', () => {
         html: commentElement.htmlText
       })
     );
-    expect(reviewHistory[2]).toEqual(
+    expect(reviewHistory[1]).toEqual(
       expect.objectContaining({
         type: ReviewHistoryType.Comment,
         date: commentElement1.createdAt,
@@ -214,7 +214,7 @@ describe('getHotspotReviewHistory', () => {
         html: commentElement1.htmlText
       })
     );
-    expect(reviewHistory[3]).toEqual(
+    expect(reviewHistory[0]).toEqual(
       expect.objectContaining({
         type: ReviewHistoryType.Diff,
         date: changelogElement.creationDate,

@@ -148,7 +148,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
     );
   }
 
-  return sortBy(history, elt => elt.date);
+  return sortBy(history, elt => elt.date).reverse();
 }
 
 const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {

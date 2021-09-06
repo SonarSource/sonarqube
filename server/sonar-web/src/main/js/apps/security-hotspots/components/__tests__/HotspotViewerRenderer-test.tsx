@@ -69,16 +69,14 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
       branchLike={mockBranch()}
       component={mockComponent()}
       commentTextRef={React.createRef()}
-      commentVisible={false}
       currentUser={mockCurrentUser()}
       hotspot={mockHotspot()}
       hotspotsReviewedMeasure="75"
       lastStatusChangedTo={HotspotStatusOption.FIXED}
       loading={false}
-      onCloseComment={jest.fn()}
       onCloseStatusUpdateSuccessModal={jest.fn()}
-      onOpenComment={jest.fn()}
       onSwitchFilterToStatusOfUpdatedHotspot={jest.fn()}
+      onShowCommentForm={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
       showStatusUpdateSuccessModal={false}

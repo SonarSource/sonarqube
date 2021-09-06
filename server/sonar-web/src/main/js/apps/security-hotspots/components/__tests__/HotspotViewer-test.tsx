@@ -104,25 +104,17 @@ it('should NOT refresh hotspot list on assignee/comment updates', () => {
   expect(onUpdateHotspot).not.toHaveBeenCalled();
 });
 
-it('should open comment form when scroll to comment', () => {
+it('should scroll to comment form', () => {
   const wrapper = shallowRender();
   const mockTextRef = ({ current: { focus: jest.fn() } } as any) as React.RefObject<
     HTMLTextAreaElement
   >;
   wrapper.instance().commentTextRef = mockTextRef;
 
-  wrapper.find(HotspotViewerRenderer).simulate('openComment');
+  wrapper.find(HotspotViewerRenderer).simulate('showCommentForm');
 
-  expect(wrapper.state().commentVisible).toBe(true);
   expect(mockTextRef.current?.focus).toHaveBeenCalled();
   expect(scrollToElement).toHaveBeenCalledWith(mockTextRef.current, expect.anything());
-});
-
-it('should close comment', () => {
-  const wrapper = shallowRender();
-  wrapper.setState({ commentVisible: true });
-  wrapper.find(HotspotViewerRenderer).simulate('closeComment');
-  expect(wrapper.state().commentVisible).toBe(false);
 });
 
 it('should reset loading even on fetch error', async () => {

@@ -451,7 +451,6 @@ exports[`should render correctly: anonymous user 1`] = `
           "current": null,
         }
       }
-      commentVisible={false}
       currentUser={
         Object {
           "isLoggedIn": false,
@@ -528,9 +527,7 @@ exports[`should render correctly: anonymous user 1`] = `
           ],
         }
       }
-      onCloseComment={[MockFunction]}
       onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -987,7 +984,6 @@ exports[`should render correctly: assignee without name 1`] = `
           "current": null,
         }
       }
-      commentVisible={false}
       currentUser={
         Object {
           "isLoggedIn": false,
@@ -1064,9 +1060,7 @@ exports[`should render correctly: assignee without name 1`] = `
           ],
         }
       }
-      onCloseComment={[MockFunction]}
       onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -1523,7 +1517,6 @@ exports[`should render correctly: default 1`] = `
           "current": null,
         }
       }
-      commentVisible={false}
       currentUser={
         Object {
           "isLoggedIn": false,
@@ -1600,9 +1593,7 @@ exports[`should render correctly: default 1`] = `
           ],
         }
       }
-      onCloseComment={[MockFunction]}
       onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -2059,7 +2050,6 @@ exports[`should render correctly: deleted assignee 1`] = `
           "current": null,
         }
       }
-      commentVisible={false}
       currentUser={
         Object {
           "isLoggedIn": false,
@@ -2136,9 +2126,7 @@ exports[`should render correctly: deleted assignee 1`] = `
           ],
         }
       }
-      onCloseComment={[MockFunction]}
       onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -2608,7 +2596,6 @@ exports[`should render correctly: show success modal 1`] = `
           "current": null,
         }
       }
-      commentVisible={false}
       currentUser={
         Object {
           "isLoggedIn": false,
@@ -2685,9 +2672,7 @@ exports[`should render correctly: show success modal 1`] = `
           ],
         }
       }
-      onCloseComment={[MockFunction]}
       onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -3144,7 +3129,6 @@ exports[`should render correctly: unassigned 1`] = `
           "current": null,
         }
       }
-      commentVisible={false}
       currentUser={
         Object {
           "isLoggedIn": false,
@@ -3221,9 +3205,7 @@ exports[`should render correctly: unassigned 1`] = `
           ],
         }
       }
-      onCloseComment={[MockFunction]}
       onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>

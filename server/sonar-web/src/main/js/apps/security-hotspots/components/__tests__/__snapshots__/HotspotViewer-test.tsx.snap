@@ -7,7 +7,6 @@ exports[`should render correctly 1`] = `
       "current": null,
     }
   }
-  commentVisible={false}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -31,9 +30,8 @@ exports[`should render correctly 1`] = `
     }
   }
   loading={true}
-  onCloseComment={[Function]}
   onCloseStatusUpdateSuccessModal={[Function]}
-  onOpenComment={[Function]}
+  onShowCommentForm={[Function]}
   onSwitchFilterToStatusOfUpdatedHotspot={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={
@@ -54,7 +52,6 @@ exports[`should render correctly 2`] = `
       "current": null,
     }
   }
-  commentVisible={false}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -83,9 +80,8 @@ exports[`should render correctly 2`] = `
     }
   }
   loading={false}
-  onCloseComment={[Function]}
   onCloseStatusUpdateSuccessModal={[Function]}
-  onOpenComment={[Function]}
+  onShowCommentForm={[Function]}
   onSwitchFilterToStatusOfUpdatedHotspot={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={

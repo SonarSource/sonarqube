@@ -50,16 +50,10 @@ it('should render correctly without user', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should open comment form', () => {
-  const wrapper = shallowRender();
-  wrapper.find('#hotspot-comment-box-display').simulate('click');
-  expect(wrapper.instance().props.onOpenComment).toHaveBeenCalled();
-});
-
 it('should submit comment', async () => {
   const mockApi = commentSecurityHotspot as jest.Mock;
   const hotspot = mockHotspot();
-  const wrapper = shallowRender({ hotspot, commentVisible: true });
+  const wrapper = shallowRender({ hotspot });
   mockApi.mockClear();
   wrapper.instance().setState({ comment: 'Comment' });
 
@@ -68,26 +62,11 @@ it('should submit comment', async () => {
 
   expect(mockApi).toHaveBeenCalledWith(hotspot.key, 'Comment');
   expect(wrapper.state().comment).toBe('');
-  expect(wrapper.instance().props.onCloseComment).toHaveBeenCalledTimes(1);
   expect(wrapper.instance().props.onCommentUpdate).toHaveBeenCalledTimes(1);
 });
 
-it('should cancel comment', () => {
-  const mockApi = commentSecurityHotspot as jest.Mock;
-  const hotspot = mockHotspot();
-  const wrapper = shallowRender({ hotspot, commentVisible: true });
-  wrapper.instance().setState({ comment: 'Comment' });
-  mockApi.mockClear();
-
-  wrapper.find('#hotspot-comment-box-cancel').simulate('click');
-
-  expect(mockApi).not.toHaveBeenCalled();
-  expect(wrapper.state().comment).toBe('');
-  expect(wrapper.instance().props.onCloseComment).toHaveBeenCalledTimes(1);
-});
-
 it('should change comment', () => {
-  const wrapper = shallowRender({ commentVisible: true });
+  const wrapper = shallowRender();
   wrapper.instance().setState({ comment: 'Comment' });
   wrapper.find('textarea').simulate('change', { target: { value: 'Foo' } });
 
@@ -97,7 +76,7 @@ it('should change comment', () => {
 it('should reset on change hotspot', () => {
   const wrapper = shallowRender();
   wrapper.setState({ comment: 'NOP' });
-  wrapper.setProps({ hotspot: mockHotspot() });
+  wrapper.setProps({ hotspot: mockHotspot({ key: 'other-hotspot' }) });
 
   expect(wrapper.state().comment).toBe('');
 });
@@ -122,16 +101,23 @@ it('should edit comment', async () => {
   expect(wrapper.instance().props.onCommentUpdate).toBeCalledTimes(1);
 });
 
+it('should correctly toggle the show full history state', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.state().showFullHistory).toBe(false);
+  wrapper
+    .find(HotspotReviewHistory)
+    .props()
+    .onShowFullHistory();
+  expect(wrapper.state().showFullHistory).toBe(true);
+});
+
 function shallowRender(props?: Partial<HotspotReviewHistoryAndComments['props']>) {
   return shallow<HotspotReviewHistoryAndComments>(
     <HotspotReviewHistoryAndComments
       commentTextRef={React.createRef()}
-      commentVisible={false}
       currentUser={mockCurrentUser()}
       hotspot={mockHotspot()}
-      onCloseComment={jest.fn()}
       onCommentUpdate={jest.fn()}
-      onOpenComment={jest.fn()}
       {...props}
     />
   );

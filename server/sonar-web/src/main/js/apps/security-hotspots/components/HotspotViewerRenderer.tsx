@@ -52,12 +52,10 @@ export interface HotspotViewerRendererProps {
   hotspotsReviewedMeasure?: string;
   lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
-  commentVisible: boolean;
   commentTextRef: React.RefObject<HTMLTextAreaElement>;
-  onOpenComment: () => void;
-  onCloseComment: () => void;
   onCloseStatusUpdateSuccessModal: () => void;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  onShowCommentForm: () => void;
   onSwitchFilterToStatusOfUpdatedHotspot: () => void;
   showStatusUpdateSuccessModal: boolean;
   securityCategories: T.StandardSecurityCategories;
@@ -74,8 +72,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     lastStatusChangedTo,
     showStatusUpdateSuccessModal,
     securityCategories,
-    commentTextRef,
-    commentVisible
+    commentTextRef
   } = props;
 
   const permalink = getPathUrlAsString(
@@ -115,7 +112,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               {isLoggedIn(currentUser) && (
                 <>
                   <div className="dropdown spacer-right flex-1-0-auto">
-                    <Button className="it__hs-add-comment" onClick={props.onOpenComment}>
+                    <Button className="it__hs-add-comment" onClick={props.onShowCommentForm}>
                       {translate('hotspots.comment.open')}
                     </Button>
                   </div>
@@ -175,12 +172,9 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
           <HotspotViewerTabs hotspot={hotspot} />
           <HotspotReviewHistoryAndComments
             commentTextRef={commentTextRef}
-            commentVisible={commentVisible}
             currentUser={currentUser}
             hotspot={hotspot}
-            onCloseComment={props.onCloseComment}
             onCommentUpdate={props.onUpdateHotspot}
-            onOpenComment={props.onOpenComment}
           />
         </div>
       )}
