@@ -19,29 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class RemoveSVNPropertiesData extends DataChange {
 
-public class DbVersion91Test {
+  private static final String[] propKeysInINClause = {"'sonar.svn.username'", "'sonar.svn.privateKeyPath'",
+    "'sonar.svn.password.secured'", "'sonar.svn.passphrase.secured'"};
 
-  private final DbVersion91 underTest = new DbVersion91();
-
-  @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public RemoveSVNPropertiesData(Database db) {
+    super(db);
   }
 
-  @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
-  }
+  @Override
+  protected void execute(Context context) throws SQLException {
+    String updateQuery = String.format("DELETE FROM properties WHERE prop_key in (%s)",
+      String.join(",", propKeysInINClause));
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 19);
+    Upsert upsert = context.prepareUpsert(updateQuery);
+    upsert.execute();
+    upsert.commit();
   }
-
 }
