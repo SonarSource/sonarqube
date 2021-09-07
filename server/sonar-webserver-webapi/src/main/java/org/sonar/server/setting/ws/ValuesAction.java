@@ -43,7 +43,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -100,16 +99,11 @@ public class ValuesAction implements SettingsWsAction {
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "The settings from conf/sonar.properties are excluded from results.<br>" +
-        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>" +
-        "To access secured settings, one of the following permissions is required: " +
-        "<ul>" +
-        "<li>'Execute Analysis'</li>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified component</li>" +
-        "</ul>")
+        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("9.1", "The value of secured settings are no longer returned"),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings from conf/sonar.properties are excluded from results."))
       .setHandler(this);
@@ -196,18 +190,11 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private List<Setting> loadGlobalSettings(DbSession dbSession, Set<String> keys) {
-    Set<String> allowedKeys;
-    if (isSonarCloud && !userSession.isSystemAdministrator()) {
-      // remove the global settings that require admin permission
-      allowedKeys = keys.stream().filter(k -> !isSecured(k)).collect(Collectors.toSet());
-    } else {
-      allowedKeys = keys;
-    }
-    List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, allowedKeys);
+    List<PropertyDto> properties = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, keys);
     List<PropertyDto> propertySets = dbClient.propertiesDao().selectGlobalPropertiesByKeys(dbSession, getPropertySetKeys(properties));
     return properties.stream()
       .map(property -> Setting.createFromDto(property, getPropertySets(property.getKey(), propertySets, null), propertyDefinitions.get(property.getKey())))
-      .collect(MoreCollectors.toList(properties.size()));
+      .collect(Collectors.toList());
   }
 
   /**
@@ -286,6 +273,9 @@ public class ValuesAction implements SettingsWsAction {
     }
 
     private void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
+      if (isSecured(setting.getKey())) {
+        return;
+      }
       PropertyDefinition definition = setting.getDefinition();
       String value = setting.getValue();
       if (definition == null) {

@@ -21,7 +21,10 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,6 +59,7 @@ import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.resources.Qualifiers.MODULE;
@@ -608,7 +612,9 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = executeRequestForProjectProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "global.secret.secured", "secret.secured");
+    List<Settings.Setting> settingsList = result.getSettingsList().stream().sorted(comparing(Settings.Setting::getKey)).collect(Collectors.toList());
+    assertThat(settingsList).extracting(Settings.Setting::getKey).containsExactly("foo", "global.secret.secured", "secret.secured");
+    assertThat(settingsList).extracting(Settings.Setting::hasValue).containsExactly(true, false, false);
   }
 
   @Test
@@ -804,7 +810,7 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void sonarcloud_global_secured_properties_require_system_admin_permission() {
+  public void global_secured_properties_require_system_admin_permission() {
     PropertyDefinition securedDef = PropertyDefinition.builder("my.password.secured").build();
     PropertyDefinition standardDef = PropertyDefinition.builder("my.property").build();
     definitions.addComponents(asList(securedDef, standardDef));
@@ -813,26 +819,29 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey(standardDef.key()).setValue("standardValue"));
 
     // anonymous
-    WsActionTester tester = newSonarCloudTester();
+    WsActionTester tester = newTester();
     ValuesWsResponse response = executeRequest(tester, null, securedDef.key(), standardDef.key());
-    assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey).containsExactly("my.property");
 
     // only scan global permission
     userSession.logIn()
       .addPermission(GlobalPermission.SCAN);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
-    assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey).containsExactly("my.password.secured", "my.property");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::hasValue).containsExactly(false, true);
 
     // global administrator
     userSession.logIn()
       .addPermission(GlobalPermission.ADMINISTER);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
-    assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey).containsExactly("my.password.secured", "my.property");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::hasValue).containsExactly(false, true);
 
     // system administrator
     userSession.logIn().setSystemAdministrator();
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
-    assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactlyInAnyOrder("securedValue", "standardValue");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey).containsExactly("my.password.secured", "my.property");
+    assertThat(response.getSettingsList()).extracting(Settings.Setting::hasValue).containsExactly(false, true);
   }
 
   private ValuesWsResponse executeRequestForComponentProperties(ComponentDto componentDto, String... keys) {

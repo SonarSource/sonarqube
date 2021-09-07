@@ -28,6 +28,7 @@ import org.sonarqube.ws.Settings.Values;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
 public class AbstractSettingsLoaderTest {
@@ -46,6 +47,21 @@ public class AbstractSettingsLoaderTest {
       .setKey("sonar.preview.supportedPlugins")
       .setValues(Values.newBuilder().addValues("ja,va").addValues("p\"hp")).build())))
         .containsExactly(entry("sonar.preview.supportedPlugins", "\"ja,va\",\"p\"\"hp\""));
+  }
+
+  @Test
+  public void should_throw_exception_when_no_value_of_non_secured_settings() {
+    assertThatThrownBy(() -> AbstractSettingsLoader.toMap(singletonList(Setting.newBuilder()
+      .setKey("sonar.open.setting").build())))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Unknown property value for sonar.open.setting");
+  }
+
+  @Test
+  public void should_filter_secured_settings_without_value() {
+    assertThat(AbstractSettingsLoader.toMap(singletonList(Setting.newBuilder()
+      .setKey("sonar.setting.secured").build())))
+        .isEmpty();
   }
 
   @Test

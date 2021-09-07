@@ -86,7 +86,9 @@ public abstract class AbstractSettingsLoader {
             convertPropertySetToProps(result, s);
             break;
           default:
-            throw new IllegalStateException("Unknown property value for " + s.getKey());
+            if (!s.getKey().endsWith(".secured")) {
+              throw new IllegalStateException("Unknown property value for " + s.getKey());
+            }
         }
       }
     }
