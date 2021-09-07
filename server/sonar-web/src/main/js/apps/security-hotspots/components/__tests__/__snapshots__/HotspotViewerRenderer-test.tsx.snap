@@ -1,541 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
-<DeferredSpinner
-  className="big-spacer-left big-spacer-top"
-  loading={false}
->
-  <div
-    className="big-padded hotspot-content"
-  >
-    <div
-      className="huge-spacer-bottom display-flex-space-between"
-    >
-      <div
-        className="display-flex-column"
-      >
-        <strong
-          className="big big-spacer-right little-spacer-bottom"
-        >
-          '3' is a magic number.
-        </strong>
-        <div>
-          <span
-            className="note padded-right"
-          >
-            That rule
-          </span>
-          <Link
-            className="small"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to={
-              Object {
-                "pathname": "/coding_rules",
-                "query": Object {
-                  "open": "squid:S2077",
-                  "rule_key": "squid:S2077",
-                },
-              }
-            }
-          >
-            squid:S2077
-          </Link>
-        </div>
-      </div>
-      <div
-        className="display-flex-row flex-0"
-      >
-        <div
-          className="dropdown spacer-right flex-1-0-auto"
-        >
-          <Button
-            className="it__hs-add-comment"
-            onClick={[MockFunction]}
-          >
-            hotspots.comment.open
-          </Button>
-        </div>
-        <div
-          className="dropdown spacer-right flex-1-0-auto"
-        >
-          <HotspotOpenInIdeButton
-            hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-            projectKey="hotspot-component"
-          />
-        </div>
-        <ClipboardButton
-          className="flex-1-0-auto"
-          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        >
-          <LinkIcon
-            className="spacer-right"
-          />
-          <span>
-            hotspots.get_permalink
-          </span>
-        </ClipboardButton>
-      </div>
-    </div>
-    <div
-      className="huge-spacer-bottom display-flex-row display-flex-space-between"
-    >
-      <div
-        className="hotspot-information display-flex-column display-flex-space-between"
-      >
-        <div
-          className="display-flex-center"
-        >
-          <span
-            className="big-spacer-right"
-          >
-            category
-          </span>
-          <strong
-            className="nowrap"
-          >
-            SQL injection
-          </strong>
-        </div>
-        <div
-          className="display-flex-center"
-        >
-          <span
-            className="big-spacer-right"
-          >
-            hotspots.risk_exposure
-          </span>
-          <div
-            className="hotspot-risk-badge HIGH"
-          >
-            risk_exposure.HIGH
-          </div>
-        </div>
-        <div
-          className="display-flex-center it__hs-assignee"
-        >
-          <span
-            className="big-spacer-right"
-          >
-            assignee
-          </span>
-          <div>
-            <Connect(withCurrentUser(Assignee))
-              hotspot={
-                Object {
-                  "assignee": "assignee",
-                  "assigneeUser": Object {
-                    "active": true,
-                    "local": true,
-                    "login": "assignee",
-                    "name": "John Doe",
-                  },
-                  "author": "author",
-                  "authorUser": Object {
-                    "active": true,
-                    "local": true,
-                    "login": "author",
-                    "name": "John Doe",
-                  },
-                  "canChangeStatus": true,
-                  "changelog": Array [],
-                  "comment": Array [],
-                  "component": Object {
-                    "key": "hotspot-component",
-                    "longName": "Hotspot component long name",
-                    "name": "Hotspot Component",
-                    "path": "path/to/component",
-                    "qualifier": "FIL",
-                  },
-                  "creationDate": "2013-05-13T17:55:41+0200",
-                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-                  "line": 142,
-                  "message": "'3' is a magic number.",
-                  "project": Object {
-                    "key": "hotspot-component",
-                    "longName": "Hotspot component long name",
-                    "name": "Hotspot Component",
-                    "path": "path/to/component",
-                    "qualifier": "TRK",
-                  },
-                  "resolution": "FIXED",
-                  "rule": Object {
-                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-                    "key": "squid:S2077",
-                    "name": "That rule",
-                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-                    "securityCategory": "sql-injection",
-                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-                    "vulnerabilityProbability": "HIGH",
-                  },
-                  "status": "REVIEWED",
-                  "textRange": Object {
-                    "endLine": 142,
-                    "endOffset": 83,
-                    "startLine": 142,
-                    "startOffset": 26,
-                  },
-                  "updateDate": "2013-05-13T17:55:42+0200",
-                  "users": Array [
-                    Object {
-                      "active": true,
-                      "local": true,
-                      "login": "assignee",
-                      "name": "John Doe",
-                    },
-                    Object {
-                      "active": true,
-                      "local": true,
-                      "login": "author",
-                      "name": "John Doe",
-                    },
-                  ],
-                }
-              }
-              onAssigneeChange={[MockFunction]}
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        className="huge-spacer-left abs-width-400"
-      >
-        <Connect(withCurrentUser(Status))
-          hotspot={
-            Object {
-              "assignee": "assignee",
-              "assigneeUser": Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              "author": "author",
-              "authorUser": Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-              "canChangeStatus": true,
-              "changelog": Array [],
-              "comment": Array [],
-              "component": Object {
-                "key": "hotspot-component",
-                "longName": "Hotspot component long name",
-                "name": "Hotspot Component",
-                "path": "path/to/component",
-                "qualifier": "FIL",
-              },
-              "creationDate": "2013-05-13T17:55:41+0200",
-              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-              "line": 142,
-              "message": "'3' is a magic number.",
-              "project": Object {
-                "key": "hotspot-component",
-                "longName": "Hotspot component long name",
-                "name": "Hotspot Component",
-                "path": "path/to/component",
-                "qualifier": "TRK",
-              },
-              "resolution": "FIXED",
-              "rule": Object {
-                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-                "key": "squid:S2077",
-                "name": "That rule",
-                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-                "securityCategory": "sql-injection",
-                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-                "vulnerabilityProbability": "HIGH",
-              },
-              "status": "REVIEWED",
-              "textRange": Object {
-                "endLine": 142,
-                "endOffset": 83,
-                "startLine": 142,
-                "startOffset": 26,
-              },
-              "updateDate": "2013-05-13T17:55:42+0200",
-              "users": Array [
-                Object {
-                  "active": true,
-                  "local": true,
-                  "login": "assignee",
-                  "name": "John Doe",
-                },
-                Object {
-                  "active": true,
-                  "local": true,
-                  "login": "author",
-                  "name": "John Doe",
-                },
-              ],
-            }
-          }
-          onStatusChange={[Function]}
-        />
-      </div>
-    </div>
-    <HotspotSnippetContainer
-      component={
-        Object {
-          "breadcrumbs": Array [],
-          "key": "my-project",
-          "name": "MyProject",
-          "qualifier": "TRK",
-          "qualityGate": Object {
-            "isDefault": true,
-            "key": "30",
-            "name": "Sonar way",
-          },
-          "qualityProfiles": Array [
-            Object {
-              "deleted": false,
-              "key": "my-qp",
-              "language": "ts",
-              "name": "Sonar way",
-            },
-          ],
-          "tags": Array [],
-        }
-      }
-      hotspot={
-        Object {
-          "assignee": "assignee",
-          "assigneeUser": Object {
-            "active": true,
-            "local": true,
-            "login": "assignee",
-            "name": "John Doe",
-          },
-          "author": "author",
-          "authorUser": Object {
-            "active": true,
-            "local": true,
-            "login": "author",
-            "name": "John Doe",
-          },
-          "canChangeStatus": true,
-          "changelog": Array [],
-          "comment": Array [],
-          "component": Object {
-            "key": "hotspot-component",
-            "longName": "Hotspot component long name",
-            "name": "Hotspot Component",
-            "path": "path/to/component",
-            "qualifier": "FIL",
-          },
-          "creationDate": "2013-05-13T17:55:41+0200",
-          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-          "line": 142,
-          "message": "'3' is a magic number.",
-          "project": Object {
-            "key": "hotspot-component",
-            "longName": "Hotspot component long name",
-            "name": "Hotspot Component",
-            "path": "path/to/component",
-            "qualifier": "TRK",
-          },
-          "resolution": "FIXED",
-          "rule": Object {
-            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-            "key": "squid:S2077",
-            "name": "That rule",
-            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-            "securityCategory": "sql-injection",
-            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-            "vulnerabilityProbability": "HIGH",
-          },
-          "status": "REVIEWED",
-          "textRange": Object {
-            "endLine": 142,
-            "endOffset": 83,
-            "startLine": 142,
-            "startOffset": 26,
-          },
-          "updateDate": "2013-05-13T17:55:42+0200",
-          "users": Array [
-            Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-          ],
-        }
-      }
-    />
-    <HotspotViewerTabs
-      hotspot={
-        Object {
-          "assignee": "assignee",
-          "assigneeUser": Object {
-            "active": true,
-            "local": true,
-            "login": "assignee",
-            "name": "John Doe",
-          },
-          "author": "author",
-          "authorUser": Object {
-            "active": true,
-            "local": true,
-            "login": "author",
-            "name": "John Doe",
-          },
-          "canChangeStatus": true,
-          "changelog": Array [],
-          "comment": Array [],
-          "component": Object {
-            "key": "hotspot-component",
-            "longName": "Hotspot component long name",
-            "name": "Hotspot Component",
-            "path": "path/to/component",
-            "qualifier": "FIL",
-          },
-          "creationDate": "2013-05-13T17:55:41+0200",
-          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-          "line": 142,
-          "message": "'3' is a magic number.",
-          "project": Object {
-            "key": "hotspot-component",
-            "longName": "Hotspot component long name",
-            "name": "Hotspot Component",
-            "path": "path/to/component",
-            "qualifier": "TRK",
-          },
-          "resolution": "FIXED",
-          "rule": Object {
-            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-            "key": "squid:S2077",
-            "name": "That rule",
-            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-            "securityCategory": "sql-injection",
-            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-            "vulnerabilityProbability": "HIGH",
-          },
-          "status": "REVIEWED",
-          "textRange": Object {
-            "endLine": 142,
-            "endOffset": 83,
-            "startLine": 142,
-            "startOffset": 26,
-          },
-          "updateDate": "2013-05-13T17:55:42+0200",
-          "users": Array [
-            Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-          ],
-        }
-      }
-    />
-    <HotspotReviewHistoryAndComments
-      commentTextRef={
-        Object {
-          "current": null,
-        }
-      }
-      commentVisible={false}
-      currentUser={
-        Object {
-          "isLoggedIn": false,
-        }
-      }
-      hotspot={
-        Object {
-          "assignee": "assignee",
-          "assigneeUser": Object {
-            "active": true,
-            "local": true,
-            "login": "assignee",
-            "name": "John Doe",
-          },
-          "author": "author",
-          "authorUser": Object {
-            "active": true,
-            "local": true,
-            "login": "author",
-            "name": "John Doe",
-          },
-          "canChangeStatus": true,
-          "changelog": Array [],
-          "comment": Array [],
-          "component": Object {
-            "key": "hotspot-component",
-            "longName": "Hotspot component long name",
-            "name": "Hotspot Component",
-            "path": "path/to/component",
-            "qualifier": "FIL",
-          },
-          "creationDate": "2013-05-13T17:55:41+0200",
-          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-          "line": 142,
-          "message": "'3' is a magic number.",
-          "project": Object {
-            "key": "hotspot-component",
-            "longName": "Hotspot component long name",
-            "name": "Hotspot Component",
-            "path": "path/to/component",
-            "qualifier": "TRK",
-          },
-          "resolution": "FIXED",
-          "rule": Object {
-            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-            "key": "squid:S2077",
-            "name": "That rule",
-            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-            "securityCategory": "sql-injection",
-            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-            "vulnerabilityProbability": "HIGH",
-          },
-          "status": "REVIEWED",
-          "textRange": Object {
-            "endLine": 142,
-            "endOffset": 83,
-            "startLine": 142,
-            "startOffset": 26,
-          },
-          "updateDate": "2013-05-13T17:55:42+0200",
-          "users": Array [
-            Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-          ],
-        }
-      }
-      onCloseComment={[MockFunction]}
-      onCommentUpdate={[MockFunction]}
-      onOpenComment={[MockFunction]}
-    />
-  </div>
-</DeferredSpinner>
-`;
-
 exports[`should render correctly: anonymous user 1`] = `
 <DeferredSpinner
   className="big-spacer-left big-spacer-top"
@@ -1608,6 +1072,542 @@ exports[`should render correctly: assignee without name 1`] = `
 </DeferredSpinner>
 `;
 
+exports[`should render correctly: default 1`] = `
+<DeferredSpinner
+  className="big-spacer-left big-spacer-top"
+  loading={false}
+>
+  <div
+    className="big-padded hotspot-content"
+  >
+    <div
+      className="huge-spacer-bottom display-flex-space-between"
+    >
+      <div
+        className="display-flex-column"
+      >
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
+      <div
+        className="display-flex-row flex-0"
+      >
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            className="it__hs-add-comment"
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <HotspotOpenInIdeButton
+            hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+            projectKey="hotspot-component"
+          />
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
+    </div>
+    <div
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
+    >
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center it__hs-assignee"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
+                Object {
+                  "assignee": "assignee",
+                  "assigneeUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "assignee",
+                    "name": "John Doe",
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
+                    "qualifier": "FIL",
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
+                    "qualifier": "TRK",
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left abs-width-400"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              "author": "author",
+              "authorUser": Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
+                "qualifier": "FIL",
+              },
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
+                "qualifier": "TRK",
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
+              ],
+            }
+          }
+          onStatusChange={[Function]}
+        />
+      </div>
+    </div>
+    <HotspotSnippetContainer
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+    />
+    <HotspotViewerTabs
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
+    />
+  </div>
+</DeferredSpinner>
+`;
+
 exports[`should render correctly: deleted assignee 1`] = `
 <DeferredSpinner
   className="big-spacer-left big-spacer-top"
@@ -2149,6 +2149,548 @@ exports[`should render correctly: no hotspot 1`] = `
   className="big-spacer-left big-spacer-top"
   loading={false}
 />
+`;
+
+exports[`should render correctly: show success modal 1`] = `
+<DeferredSpinner
+  className="big-spacer-left big-spacer-top"
+  loading={false}
+>
+  <StatusUpdateSuccessModal
+    hotspotsReviewedMeasure="75"
+    lastStatusChangedTo="FIXED"
+    onClose={[MockFunction]}
+    onSwitchFilterToStatusOfUpdatedHotspot={[MockFunction]}
+  />
+  <div
+    className="big-padded hotspot-content"
+  >
+    <div
+      className="huge-spacer-bottom display-flex-space-between"
+    >
+      <div
+        className="display-flex-column"
+      >
+        <strong
+          className="big big-spacer-right little-spacer-bottom"
+        >
+          '3' is a magic number.
+        </strong>
+        <div>
+          <span
+            className="note padded-right"
+          >
+            That rule
+          </span>
+          <Link
+            className="small"
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to={
+              Object {
+                "pathname": "/coding_rules",
+                "query": Object {
+                  "open": "squid:S2077",
+                  "rule_key": "squid:S2077",
+                },
+              }
+            }
+          >
+            squid:S2077
+          </Link>
+        </div>
+      </div>
+      <div
+        className="display-flex-row flex-0"
+      >
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            className="it__hs-add-comment"
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <HotspotOpenInIdeButton
+            hotspotKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+            projectKey="hotspot-component"
+          />
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
+    </div>
+    <div
+      className="huge-spacer-bottom display-flex-row display-flex-space-between"
+    >
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center it__hs-assignee"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
+                Object {
+                  "assignee": "assignee",
+                  "assigneeUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "assignee",
+                    "name": "John Doe",
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
+                    "qualifier": "FIL",
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "key": "hotspot-component",
+                    "longName": "Hotspot component long name",
+                    "name": "Hotspot Component",
+                    "path": "path/to/component",
+                    "qualifier": "TRK",
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left abs-width-400"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              "author": "author",
+              "authorUser": Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
+                "qualifier": "FIL",
+              },
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
+                "qualifier": "TRK",
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
+              ],
+            }
+          }
+          onStatusChange={[Function]}
+        />
+      </div>
+    </div>
+    <HotspotSnippetContainer
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+    />
+    <HotspotViewerTabs
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
+    />
+  </div>
+</DeferredSpinner>
 `;
 
 exports[`should render correctly: unassigned 1`] = `

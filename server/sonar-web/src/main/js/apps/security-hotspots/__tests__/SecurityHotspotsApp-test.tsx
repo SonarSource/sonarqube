@@ -343,8 +343,8 @@ it('should handle status filter change', async () => {
 
   expect(wrapper.state().hotspots[0]).toBe(hotspots2[0]);
 
-  // Set filter to FIXED
-  wrapper.instance().handleChangeFilters({ status: HotspotStatusFilter.FIXED });
+  // Set filter to FIXED (use the other method to check this one):
+  wrapper.instance().handleChangeStatusFilter(HotspotStatusFilter.FIXED);
 
   expect(getSecurityHotspots).toBeCalledWith(
     expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.FIXED })

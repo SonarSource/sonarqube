@@ -21,21 +21,30 @@ import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
-import { Hotspot } from '../../../types/security-hotspots';
+import {
+  Hotspot,
+  HotspotStatusFilter,
+  HotspotStatusOption
+} from '../../../types/security-hotspots';
+import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
   branchLike?: BranchLike;
   component: T.Component;
   hotspotKey: string;
+  hotspotsReviewedMeasure?: string;
+  onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   securityCategories: T.StandardSecurityCategories;
 }
 
 interface State {
   hotspot?: Hotspot;
+  lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
   commentVisible: boolean;
+  showStatusUpdateSuccessModal: boolean;
 }
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
@@ -46,7 +55,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.commentTextRef = React.createRef<HTMLTextAreaElement>();
-    this.state = { loading: false, commentVisible: false };
+    this.state = { loading: false, commentVisible: false, showStatusUpdateSuccessModal: false };
   }
 
   componentDidMount() {
@@ -79,10 +88,11 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       .catch(() => this.mounted && this.setState({ loading: false }));
   };
 
-  handleHotspotUpdate = async (statusUpdate = false) => {
+  handleHotspotUpdate = async (statusUpdate = false, statusOption?: HotspotStatusOption) => {
     const { hotspotKey } = this.props;
 
     if (statusUpdate) {
+      this.setState({ lastStatusChangedTo: statusOption, showStatusUpdateSuccessModal: true });
       await this.props.onUpdateHotspot(hotspotKey);
     } else {
       await this.fetchHotspot();
@@ -106,9 +116,26 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     this.setState({ commentVisible: false });
   };
 
+  handleSwitchFilterToStatusOfUpdatedHotspot = () => {
+    const { lastStatusChangedTo } = this.state;
+    if (lastStatusChangedTo) {
+      this.props.onSwitchStatusFilter(getStatusFilterFromStatusOption(lastStatusChangedTo));
+    }
+  };
+
+  handleCloseStatusUpdateSuccessModal = () => {
+    this.setState({ showStatusUpdateSuccessModal: false });
+  };
+
   render() {
-    const { branchLike, component, securityCategories } = this.props;
-    const { hotspot, loading, commentVisible } = this.state;
+    const { branchLike, component, hotspotsReviewedMeasure, securityCategories } = this.props;
+    const {
+      hotspot,
+      lastStatusChangedTo,
+      loading,
+      commentVisible,
+      showStatusUpdateSuccessModal
+    } = this.state;
 
     return (
       <HotspotViewerRenderer
@@ -117,10 +144,15 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
         commentTextRef={this.commentTextRef}
         commentVisible={commentVisible}
         hotspot={hotspot}
+        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+        lastStatusChangedTo={lastStatusChangedTo}
         loading={loading}
         onCloseComment={this.handleCloseComment}
+        onCloseStatusUpdateSuccessModal={this.handleCloseStatusUpdateSuccessModal}
         onOpenComment={this.handleOpenComment}
+        onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
         onUpdateHotspot={this.handleHotspotUpdate}
+        showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
         securityCategories={securityCategories}
       />
     );

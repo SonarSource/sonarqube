@@ -57,6 +57,7 @@ export interface SecurityHotspotsAppRendererProps {
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
   onShowAllHotspots: () => void;
+  onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   selectedHotspot: RawHotspot | undefined;
   securityCategories: T.StandardSecurityCategories;
@@ -172,6 +173,8 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 branchLike={branchLike}
                 component={component}
                 hotspotKey={selectedHotspot.key}
+                hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                onSwitchStatusFilter={props.onSwitchStatusFilter}
                 onUpdateHotspot={props.onUpdateHotspot}
                 securityCategories={securityCategories}
               />

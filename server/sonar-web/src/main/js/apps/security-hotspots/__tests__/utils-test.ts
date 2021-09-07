@@ -22,6 +22,7 @@ import { mockUser } from '../../../helpers/testMocks';
 import {
   HotspotResolution,
   HotspotStatus,
+  HotspotStatusFilter,
   HotspotStatusOption,
   ReviewHistoryType,
   RiskExposure
@@ -29,6 +30,7 @@ import {
 import {
   getHotspotReviewHistory,
   getStatusAndResolutionFromStatusOption,
+  getStatusFilterFromStatusOption,
   getStatusOptionFromStatusAndResolution,
   groupByCategory,
   mapRules,
@@ -258,5 +260,19 @@ describe('getStatusAndResolutionFromStatusOption', () => {
       status: HotspotStatus.REVIEWED,
       resolution: HotspotResolution.SAFE
     });
+  });
+});
+
+describe('getStatusFilterFromStatusOption', () => {
+  it('should return the correct values', () => {
+    expect(getStatusFilterFromStatusOption(HotspotStatusOption.TO_REVIEW)).toEqual(
+      HotspotStatusFilter.TO_REVIEW
+    );
+    expect(getStatusFilterFromStatusOption(HotspotStatusOption.SAFE)).toEqual(
+      HotspotStatusFilter.SAFE
+    );
+    expect(getStatusFilterFromStatusOption(HotspotStatusOption.FIXED)).toEqual(
+      HotspotStatusFilter.FIXED
+    );
   });
 });

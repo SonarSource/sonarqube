@@ -154,7 +154,7 @@ th.hide-overflow {
 }
 
 .padded {
-  padding: var(--gridSize);
+  padding: var(--gridSize) !important;
 }
 
 .big-padded {

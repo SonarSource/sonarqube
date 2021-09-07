@@ -29,6 +29,7 @@ import {
   Hotspot,
   HotspotResolution,
   HotspotStatus,
+  HotspotStatusFilter,
   HotspotStatusOption,
   RawHotspot,
   ReviewHistoryElement,
@@ -180,4 +181,14 @@ const STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP = {
 
 export function getStatusAndResolutionFromStatusOption(statusOption: HotspotStatusOption) {
   return STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP[statusOption];
+}
+
+const STATUS_OPTION_TO_STATUS_FILTER = {
+  [HotspotStatusOption.TO_REVIEW]: HotspotStatusFilter.TO_REVIEW,
+  [HotspotStatusOption.FIXED]: HotspotStatusFilter.FIXED,
+  [HotspotStatusOption.SAFE]: HotspotStatusFilter.SAFE
+};
+
+export function getStatusFilterFromStatusOption(statusOption: HotspotStatusOption) {
+  return STATUS_OPTION_TO_STATUS_FILTER[statusOption];
 }

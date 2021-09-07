@@ -164,23 +164,23 @@ blockquote cite {
 
 small,
 .small {
-  font-size: var(--smallFontSize);
+  font-size: var(--smallFontSize) !important;
 }
 
 .medium {
-  font-size: var(--mediumFontSize);
+  font-size: var(--mediumFontSize) !important;
 }
 
 .big {
-  font-size: var(--bigFontSize);
+  font-size: var(--bigFontSize) !important;
 }
 
 .huge {
-  font-size: var(--hugeFontSize);
+  font-size: var(--hugeFontSize) !important;
 }
 
 .gigantic {
-  font-size: var(--giganticFontSize);
+  font-size: var(--giganticFontSize) !important;
 }
 
 .zero-font-size {

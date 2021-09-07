@@ -209,3 +209,15 @@
 .modal-foot input[type='button'] {
   margin-left: var(--gridSize);
 }
+
+.modal-foot button:first-of-type,
+.modal-foot .button:first-of-type,
+.modal-foot input[type='submit']:first-of-type,
+.modal-foot input[type='button']:first-of-type {
+  margin-left: 0;
+}
+
+.modal-foot-clear {
+  border-top: 0;
+  background-color: transparent;
+}

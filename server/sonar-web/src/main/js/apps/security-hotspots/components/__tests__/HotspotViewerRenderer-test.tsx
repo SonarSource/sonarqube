@@ -23,13 +23,17 @@ import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../helpers/testMocks';
+import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import { HotspotViewerRenderer, HotspotViewerRendererProps } from '../HotspotViewerRenderer';
+import Status from '../status/Status';
 
 jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ showStatusUpdateSuccessModal: true })).toMatchSnapshot(
+    'show success modal'
+  );
   expect(shallowRender({ hotspot: undefined })).toMatchSnapshot('no hotspot');
   expect(shallowRender({ hotspot: mockHotspot({ assignee: undefined }) })).toMatchSnapshot(
     'unassigned'
@@ -47,6 +51,18 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('anonymous user');
 });
 
+it('correctly propagates the status change', () => {
+  const onUpdateHotspot = jest.fn();
+  const wrapper = shallowRender({ onUpdateHotspot });
+
+  wrapper
+    .find(Status)
+    .props()
+    .onStatusChange(HotspotStatusOption.FIXED);
+
+  expect(onUpdateHotspot).toHaveBeenCalledWith(true, HotspotStatusOption.FIXED);
+});
+
 function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
   return shallow(
     <HotspotViewerRenderer
@@ -56,11 +72,16 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
       commentVisible={false}
       currentUser={mockCurrentUser()}
       hotspot={mockHotspot()}
+      hotspotsReviewedMeasure="75"
+      lastStatusChangedTo={HotspotStatusOption.FIXED}
       loading={false}
       onCloseComment={jest.fn()}
+      onCloseStatusUpdateSuccessModal={jest.fn()}
       onOpenComment={jest.fn()}
+      onSwitchFilterToStatusOfUpdatedHotspot={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
+      showStatusUpdateSuccessModal={false}
       {...props}
     />
   );

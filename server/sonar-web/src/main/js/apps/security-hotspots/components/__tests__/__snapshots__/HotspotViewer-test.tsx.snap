@@ -32,7 +32,9 @@ exports[`should render correctly 1`] = `
   }
   loading={true}
   onCloseComment={[Function]}
+  onCloseStatusUpdateSuccessModal={[Function]}
   onOpenComment={[Function]}
+  onSwitchFilterToStatusOfUpdatedHotspot={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={
     Object {
@@ -41,6 +43,7 @@ exports[`should render correctly 1`] = `
       },
     }
   }
+  showStatusUpdateSuccessModal={false}
 />
 `;
 
@@ -81,7 +84,9 @@ exports[`should render correctly 2`] = `
   }
   loading={false}
   onCloseComment={[Function]}
+  onCloseStatusUpdateSuccessModal={[Function]}
   onOpenComment={[Function]}
+  onSwitchFilterToStatusOfUpdatedHotspot={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={
     Object {
@@ -90,5 +95,6 @@ exports[`should render correctly 2`] = `
       },
     }
   }
+  showStatusUpdateSuccessModal={false}
 />
 `;

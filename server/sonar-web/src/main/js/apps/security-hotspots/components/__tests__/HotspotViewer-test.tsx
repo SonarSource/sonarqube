@@ -24,6 +24,7 @@ import { getSecurityHotspotDetails } from '../../../../api/security-hotspots';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { scrollToElement } from '../../../../helpers/scrolling';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import HotspotViewer from '../HotspotViewer';
 import HotspotViewerRenderer from '../HotspotViewerRenderer';
 
@@ -61,6 +62,36 @@ it('should refresh hotspot list on status update', () => {
     .props()
     .onUpdateHotspot(true);
   expect(onUpdateHotspot).toHaveBeenCalled();
+});
+
+it('should store last status selected when updating a hotspot status', () => {
+  const wrapper = shallowRender();
+
+  expect(wrapper.state().lastStatusChangedTo).toBeUndefined();
+  wrapper
+    .find(HotspotViewerRenderer)
+    .props()
+    .onUpdateHotspot(true, HotspotStatusOption.FIXED);
+  expect(wrapper.state().lastStatusChangedTo).toBe(HotspotStatusOption.FIXED);
+});
+
+it('should correctly propagate a request to switch the status filter', () => {
+  const onSwitchStatusFilter = jest.fn();
+  const wrapper = shallowRender({ onSwitchStatusFilter });
+
+  wrapper.instance().handleSwitchFilterToStatusOfUpdatedHotspot();
+  expect(onSwitchStatusFilter).not.toBeCalled();
+
+  wrapper.setState({ lastStatusChangedTo: HotspotStatusOption.FIXED });
+  wrapper.instance().handleSwitchFilterToStatusOfUpdatedHotspot();
+  expect(onSwitchStatusFilter).toBeCalledWith(HotspotStatusOption.FIXED);
+});
+
+it('should correctly close the success modal', () => {
+  const wrapper = shallowRender();
+  wrapper.setState({ showStatusUpdateSuccessModal: true });
+  wrapper.instance().handleCloseStatusUpdateSuccessModal();
+  expect(wrapper.state().showStatusUpdateSuccessModal).toBe(false);
 });
 
 it('should NOT refresh hotspot list on assignee/comment updates', () => {
@@ -118,6 +149,7 @@ function shallowRender(props?: Partial<HotspotViewer['props']>) {
     <HotspotViewer
       component={mockComponent()}
       hotspotKey={hotspotKey}
+      onSwitchStatusFilter={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{ cat1: { title: 'cat1' } }}
       {...props}

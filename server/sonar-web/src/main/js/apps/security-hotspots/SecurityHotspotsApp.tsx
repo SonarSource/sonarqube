@@ -347,6 +347,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     );
   };
 
+  handleChangeStatusFilter = (status: HotspotStatusFilter) => {
+    this.handleChangeFilters({ status });
+  };
+
   handleHotspotClick = (selectedHotspot: RawHotspot) => this.setState({ selectedHotspot });
 
   handleHotspotUpdate = (hotspotKey: string) => {
@@ -452,6 +456,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onHotspotClick={this.handleHotspotClick}
         onLoadMore={this.handleLoadMore}
         onShowAllHotspots={this.handleShowAllHotspots}
+        onSwitchStatusFilter={this.handleChangeStatusFilter}
         onUpdateHotspot={this.handleHotspotUpdate}
         securityCategories={standards[SecurityStandard.SONARSOURCE]}
         selectedHotspot={selectedHotspot}

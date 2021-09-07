@@ -34,7 +34,7 @@ import {
 } from '../../../helpers/urls';
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
-import { Hotspot } from '../../../types/security-hotspots';
+import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import Assignee from './assignee/Assignee';
 import HotspotOpenInIdeButton from './HotspotOpenInIdeButton';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
@@ -42,18 +42,24 @@ import HotspotSnippetContainer from './HotspotSnippetContainer';
 import './HotspotViewer.css';
 import HotspotViewerTabs from './HotspotViewerTabs';
 import Status from './status/Status';
+import StatusUpdateSuccessModal from './StatusUpdateSuccessModal';
 
 export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
   component: T.Component;
   currentUser: T.CurrentUser;
   hotspot?: Hotspot;
+  hotspotsReviewedMeasure?: string;
+  lastStatusChangedTo?: HotspotStatusOption;
   loading: boolean;
   commentVisible: boolean;
   commentTextRef: React.RefObject<HTMLTextAreaElement>;
   onOpenComment: () => void;
   onCloseComment: () => void;
-  onUpdateHotspot: (statusUpdate?: boolean) => Promise<void>;
+  onCloseStatusUpdateSuccessModal: () => void;
+  onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  onSwitchFilterToStatusOfUpdatedHotspot: () => void;
+  showStatusUpdateSuccessModal: boolean;
   securityCategories: T.StandardSecurityCategories;
 }
 
@@ -63,7 +69,10 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     component,
     currentUser,
     hotspot,
+    hotspotsReviewedMeasure,
     loading,
+    lastStatusChangedTo,
+    showStatusUpdateSuccessModal,
     securityCategories,
     commentTextRef,
     commentVisible
@@ -79,6 +88,15 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
 
   return (
     <DeferredSpinner className="big-spacer-left big-spacer-top" loading={loading}>
+      {showStatusUpdateSuccessModal && (
+        <StatusUpdateSuccessModal
+          hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+          lastStatusChangedTo={lastStatusChangedTo}
+          onClose={props.onCloseStatusUpdateSuccessModal}
+          onSwitchFilterToStatusOfUpdatedHotspot={props.onSwitchFilterToStatusOfUpdatedHotspot}
+        />
+      )}
+
       {hotspot && (
         <div className="big-padded hotspot-content">
           <div className="huge-spacer-bottom display-flex-space-between">
@@ -142,7 +160,10 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               </div>
             </div>
             <div className="huge-spacer-left abs-width-400">
-              <Status hotspot={hotspot} onStatusChange={() => props.onUpdateHotspot(true)} />
+              <Status
+                hotspot={hotspot}
+                onStatusChange={statusOption => props.onUpdateHotspot(true, statusOption)}
+              />
             </div>
           </div>
 

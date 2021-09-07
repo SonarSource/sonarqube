@@ -28,7 +28,7 @@ import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
 import { isLoggedIn } from '../../../../helpers/users';
-import { Hotspot } from '../../../../types/security-hotspots';
+import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
 import { getStatusOptionFromStatusAndResolution } from '../../utils';
 import StatusDescription from './StatusDescription';
 import StatusSelection from './StatusSelection';
@@ -37,7 +37,7 @@ export interface StatusProps {
   currentUser: T.CurrentUser;
   hotspot: Hotspot;
 
-  onStatusChange: () => Promise<void>;
+  onStatusChange: (statusOption: HotspotStatusOption) => Promise<void>;
 }
 
 export function Status(props: StatusProps) {
@@ -64,8 +64,8 @@ export function Status(props: StatusProps) {
                 <DropdownOverlay noPadding={true} placement={PopupPlacement.Bottom}>
                   <StatusSelection
                     hotspot={hotspot}
-                    onStatusOptionChange={async () => {
-                      await props.onStatusChange();
+                    onStatusOptionChange={async status => {
+                      await props.onStatusChange(status);
                       setIsOpen(false);
                     }}
                   />
