@@ -96,20 +96,12 @@ public class UserRegistrarImpl implements UserRegistrar {
     }
     // all gitlab users have an external ID, so the other two authentication methods should never be used
     if (provider.getKey().equals("gitlab")) {
-      throw loginAlreadyUsedException(userIdentity, source);
+      throw failAuthenticationException(userIdentity, source);
+    } else if (provider.getKey().equals("github")) {
+      validateEmailToAvoidLoginRecycling(userIdentity, user, source);
     }
 
-    validateEmailToAvoidLoginRecycling(userIdentity, user, source);
-    updateUserExternalId(dbSession, user, userIdentity);
     return user;
-  }
-
-  private void updateUserExternalId(DbSession dbSession, UserDto user, UserIdentity userIdentity) {
-    String externalId = userIdentity.getProviderId();
-    if (externalId != null) {
-      user.setExternalId(externalId);
-      dbClient.userDao().update(dbSession, user);
-    }
   }
 
   private static void validateEmailToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, AuthenticationEvent.Source source) {
@@ -122,18 +114,14 @@ public class UserRegistrarImpl implements UserRegistrar {
     String externalEmail = userIdentity.getEmail();
 
     if (!dbEmail.equals(externalEmail)) {
-      LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'",
-        userIdentity.getProviderLogin(), externalEmail, dbEmail);
-      throw loginAlreadyUsedException(userIdentity, source);
+      LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'", userIdentity.getProviderLogin(), externalEmail, dbEmail);
+      throw failAuthenticationException(userIdentity, source);
     }
   }
 
-  private static AuthenticationException loginAlreadyUsedException(UserIdentity userIdentity, AuthenticationEvent.Source source) {
-    return authException(
-      userIdentity,
-      source,
-      String.format("Login '%s' is already used", userIdentity.getProviderLogin()),
-      String.format("You can't sign up because login '%s' is already used by an existing user.", userIdentity.getProviderLogin()));
+  private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, AuthenticationEvent.Source source) {
+    String message = String.format("Failed to authenticate with login '%s'", userIdentity.getProviderLogin());
+    return authException(userIdentity, source, message, message);
   }
 
   private static AuthenticationException authException(UserIdentity userIdentity, AuthenticationEvent.Source source, String message, String publicMessage) {
