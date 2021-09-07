@@ -37,9 +37,12 @@ public class DbVersion91 implements DbVersion {
       .add(6009, "Alter column 'client_secret' of 'alm_settings' table to length 160", AlterClientSecretColumnLengthOfAlmSettingsTable.class)
       .add(6010, "Alter column 'private_key' of 'alm_settings' table to length 2500", AlterPrivateKeyColumnLengthOfAlmSettingsTable.class)
       .add(6011, "Create 'portfolios' table", CreatePortfoliosTable.class)
-      .add(6012, "Create 'portfolio_references' table", CreatePortfolioReferencesTable.class)
-      .add(6013, "Create 'portfolio_projects' table", CreatePortfolioProjectsTable.class)
-      .add(6014, "Migrate portfolios to new tables", MigratePortfoliosToNewTables.class)
+      .add(6012, "Create unique index for 'kee' in 'portfolios'", CreateIndexOnKeeForPortfolios.class)
+      .add(6013, "Create 'portfolio_references' table", CreatePortfolioReferencesTable.class)
+      .add(6014, "Create unique index for 'portfolio_references'", CreateIndexForPortfolioReferences.class)
+      .add(6015, "Create 'portfolio_projects' table", CreatePortfolioProjectsTable.class)
+      .add(6016, "Create unique index for 'portfolio_projects'", CreateIndexForPortfolioProjects.class)
+      .add(6017, "Migrate portfolios to new tables", MigratePortfoliosToNewTables.class)
     ;
   }
 }

@@ -19,29 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class CreateIndexOnKeeForPortfoliosTest {
+  private final static String TABLE_NAME = "portfolios";
+  private final static String INDEX_NAME = "uniq_portfolios_kee";
 
-public class DbVersion91Test {
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexOnKeeForPortfoliosTest.class, "schema.sql");
 
-  private final DbVersion91 underTest = new DbVersion91();
+  private final CreateIndexOnKeeForPortfolios underTest = new CreateIndexOnKeeForPortfolios(db.database());
 
   @Test
-  public void verify_no_support_component() {
-    assertThat(underTest.getSupportComponents()).isEmpty();
+  public void should_create_index() throws SQLException {
+    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
+    underTest.execute();
+    db.assertUniqueIndex(TABLE_NAME, INDEX_NAME, "kee");
   }
 
   @Test
-  public void migrationNumber_starts_at_6001() {
-    verifyMinimumMigrationNumber(underTest, 6001);
-  }
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 17);
-  }
+    underTest.execute();
+    //re-entrant
+    underTest.execute();
 
+    db.assertUniqueIndex(TABLE_NAME, INDEX_NAME, "kee");
+  }
 }
