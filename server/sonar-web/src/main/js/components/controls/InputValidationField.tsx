@@ -31,8 +31,8 @@ interface Props {
   id?: string;
   label?: React.ReactNode;
   name: string;
-  onBlur: (event: React.FocusEvent<any>) => void;
-  onChange: (event: React.ChangeEvent<any>) => void;
+  onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   touched: boolean | undefined;
   type?: string;

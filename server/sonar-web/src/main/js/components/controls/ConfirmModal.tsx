@@ -54,7 +54,9 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
   handleSubmit = () => {
     const result = this.props.onConfirm(this.props.confirmData);
     if (result) {
-      return result.then(this.props.onClose, () => {});
+      return result.then(this.props.onClose, () => {
+        /* noop */
+      });
     }
     this.props.onClose();
     return undefined;

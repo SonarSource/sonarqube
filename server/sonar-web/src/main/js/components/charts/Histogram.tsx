@@ -47,7 +47,7 @@ export default class Histogram extends React.PureComponent<Props> {
 
     const width = Math.round(xScale(d)) + /* minimum bar width */ 1;
     const x = xScale.range()[0] + (alignTicks ? padding[3] : 0);
-    const y = Math.round(yScale(index)! + yScale.bandwidth() / 2);
+    const y = Math.round((yScale(index) || 0) + yScale.bandwidth() / 2);
 
     return <rect className="bar-chart-bar" height={BAR_HEIGHT} width={width} x={x} y={y} />;
   }
@@ -62,7 +62,7 @@ export default class Histogram extends React.PureComponent<Props> {
     }
 
     const x = xScale(d) + (alignTicks ? padding[3] : 0);
-    const y = Math.round(yScale(index)! + yScale.bandwidth() / 2 + BAR_HEIGHT / 2);
+    const y = Math.round((yScale(index) || 0) + yScale.bandwidth() / 2 + BAR_HEIGHT / 2);
 
     return (
       <Tooltip overlay={this.props.yTooltips && this.props.yTooltips[index]}>
@@ -83,7 +83,7 @@ export default class Histogram extends React.PureComponent<Props> {
     }
 
     const x = xScale.range()[0];
-    const y = Math.round(yScale(index)! + yScale.bandwidth() / 2 + BAR_HEIGHT / 2);
+    const y = Math.round((yScale(index) || 0) + yScale.bandwidth() / 2 + BAR_HEIGHT / 2);
     const historyTickClass = alignTicks ? 'histogram-tick-start' : 'histogram-tick';
 
     return (

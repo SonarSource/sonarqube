@@ -102,7 +102,6 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     this.zoom = zoom()
       .scaleExtent([1, 10])
       .on('zoom', this.zoomed);
-    // TODO: Check why as any cast is necessary now.
     select(this.node).call(this.zoom as any);
   };
 
@@ -118,11 +117,10 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
     });
   };
 
-  resetZoom = (event: React.MouseEvent<Link>) => {
-    event.stopPropagation();
-    event.preventDefault();
+  resetZoom = (e: React.MouseEvent<Link>) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (this.zoom && this.node) {
-      // TODO: Check why as any cast is necessary now.
       select(this.node).call(this.zoom.transform as any, zoomIdentity);
     }
   };
@@ -144,11 +142,11 @@ export default class BubbleChart<T> extends React.PureComponent<Props<T>, State>
   }
 
   getTicks(scale: Scale, format: (d: number) => string) {
-    const zoom = Math.ceil(this.state.transform.k);
-    const ticks = scale.ticks(TICKS_COUNT * zoom).map(tick => format(tick));
+    const zoomAmount = Math.ceil(this.state.transform.k);
+    const ticks = scale.ticks(TICKS_COUNT * zoomAmount).map(tick => format(tick));
     const uniqueTicksCount = uniq(ticks).length;
     const ticksCount =
-      uniqueTicksCount < TICKS_COUNT * zoom ? uniqueTicksCount - 1 : TICKS_COUNT * zoom;
+      uniqueTicksCount < TICKS_COUNT * zoomAmount ? uniqueTicksCount - 1 : TICKS_COUNT * zoomAmount;
     return scale.ticks(ticksCount);
   }
 
@@ -360,10 +358,10 @@ interface BubbleProps<T> {
 }
 
 function Bubble<T>(props: BubbleProps<T>) {
-  const handleClick = (event: React.MouseEvent<SVGCircleElement>) => {
+  const handleClick = (e: React.MouseEvent<SVGCircleElement>) => {
     if (props.onClick) {
-      event.stopPropagation();
-      event.preventDefault();
+      e.stopPropagation();
+      e.preventDefault();
       props.onClick(props.data);
     }
   };

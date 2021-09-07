@@ -21,10 +21,9 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import './NavBarTabs.css';
 
-interface Props {
-  children?: any;
+interface Props extends React.HTMLAttributes<HTMLUListElement> {
+  children?: React.ReactNode;
   className?: string;
-  [attr: string]: any;
 }
 
 export default function NavBarTabs({ children, className, ...other }: Props) {

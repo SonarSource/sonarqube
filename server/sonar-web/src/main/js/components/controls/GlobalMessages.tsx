@@ -24,7 +24,7 @@ import { colors, sizes, zIndexes } from '../../app/theme';
 import { cutLongWords } from '../../helpers/path';
 import { ClearButton } from './buttons';
 
-interface Message {
+interface IMessage {
   id: string;
   level: 'ERROR' | 'SUCCESS';
   message: string;
@@ -32,7 +32,7 @@ interface Message {
 
 export interface GlobalMessagesProps {
   closeGlobalMessage: (id: string) => void;
-  messages: Message[];
+  messages: IMessage[];
 }
 
 export default function GlobalMessages({ closeGlobalMessage, messages }: GlobalMessagesProps) {
@@ -60,7 +60,7 @@ const MessagesContainer = styled.div`
 
 export class GlobalMessage extends React.PureComponent<{
   closeGlobalMessage: (id: string) => void;
-  message: Message;
+  message: IMessage;
 }> {
   handleClose = () => {
     this.props.closeGlobalMessage(this.props.message.id);
@@ -94,7 +94,7 @@ const appearAnim = keyframes`
   }
 `;
 
-const Message = styled.div<Pick<Message, 'level'>>`
+const Message = styled.div<Pick<IMessage, 'level'>>`
   position: relative;
   padding: 0 30px 0 10px;
   line-height: ${sizes.controlHeight};
@@ -112,7 +112,7 @@ const Message = styled.div<Pick<Message, 'level'>>`
   }
 `;
 
-const CloseButton = styled(ClearButton)<Pick<Message, 'level'>>`
+const CloseButton = styled(ClearButton)<Pick<IMessage, 'level'>>`
   position: absolute;
   top: calc(${sizes.gridSize} / 4);
   right: calc(${sizes.gridSize} / 4);

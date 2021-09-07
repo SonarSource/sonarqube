@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import {
-  defaultFilterOptions as reactSelectDefaultFilterOptions,
+import ReactSelectClass, {
   ReactAsyncSelectProps,
   ReactCreatableSelectProps,
   ReactSelectProps
@@ -27,10 +26,6 @@ import {
 import { lazyLoadComponent } from '../lazyLoadComponent';
 import { ClearButton } from './buttons';
 import './Select.css';
-
-declare module 'react-select' {
-  export function defaultFilterOptions(...args: any[]): any;
-}
 
 const ReactSelectLib = import('react-select');
 const ReactSelect = lazyLoadComponent(() => ReactSelectLib);
@@ -43,30 +38,22 @@ function renderInput() {
   return <ClearButton className="button-tiny spacer-left text-middle" iconProps={{ size: 12 }} />;
 }
 
-interface WithInnerRef {
-  innerRef?: (element: React.Component) => void;
+export interface WithInnerRef {
+  innerRef?: React.Ref<ReactSelectClass<unknown>>;
 }
 
 export default function Select({ innerRef, ...props }: WithInnerRef & ReactSelectProps) {
-  // TODO try to define good defaults, if any
-  // ReactSelect doesn't declare `clearRenderer` prop
-  const ReactSelectAny = ReactSelect as any;
   // hide the "x" icon when select is empty
   const clearable = props.clearable ? Boolean(props.value) : false;
   return (
-    <ReactSelectAny {...props} clearable={clearable} clearRenderer={renderInput} ref={innerRef} />
+    <ReactSelect {...props} clearable={clearable} clearRenderer={renderInput} ref={innerRef} />
   );
 }
 
-export const defaultFilterOptions = reactSelectDefaultFilterOptions;
-
 export function Creatable(props: ReactCreatableSelectProps) {
-  // ReactSelect doesn't declare `clearRenderer` prop
-  const ReactCreatableAny = ReactCreatable as any;
-  return <ReactCreatableAny {...props} clearRenderer={renderInput} />;
+  return <ReactCreatable {...props} clearRenderer={renderInput} />;
 }
 
-// TODO figure out why `ref` prop is incompatible
-export function AsyncSelect(props: ReactAsyncSelectProps & { ref?: any }) {
+export function AsyncSelect(props: ReactAsyncSelectProps & WithInnerRef) {
   return <ReactAsync {...props} />;
 }

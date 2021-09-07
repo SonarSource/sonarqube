@@ -44,12 +44,15 @@ interface AlertVariantInformation {
   backGroundColor: string;
 }
 
+const DOUBLE = 2;
+const QUADRUPLE = 4;
+
 const StyledAlertIcon = styled.div<{ isBanner: boolean; variantInfo: AlertVariantInformation }>`
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: calc(${({ isBanner }) => (isBanner ? 2 : 4)} * ${sizes.gridSize});
+  width: calc(${({ isBanner }) => (isBanner ? DOUBLE : QUADRUPLE)} * ${sizes.gridSize});
   border-right: ${({ isBanner }) => (!isBanner ? '1px solid' : 'none')};
   border-color: ${({ variantInfo }) => variantInfo.borderColor};
 `;

@@ -23,9 +23,6 @@
   box-sizing: border-box;
 }
 
-.navbar {
-}
-
 .navbar-inner {
   position: fixed;
   left: 0;

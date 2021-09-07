@@ -49,7 +49,7 @@ export function removeNoFooterPageClass() {
   toggleBodyClass(CLASS_NO_FOOTER_PAGE, false);
 }
 
-function toggleBodyClass(className: string, force?: boolean) {
+function toggleBodyClass(className: string, force: boolean) {
   document.body.classList.toggle(className, force);
   if (document.documentElement) {
     document.documentElement.classList.toggle(className, force);

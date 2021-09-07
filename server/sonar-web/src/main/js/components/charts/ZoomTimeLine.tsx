@@ -49,7 +49,10 @@ interface State {
 }
 
 type XScale = ScaleTime<number, number>;
-// TODO it should be `ScaleLinear<number, number> | ScalePoint<number> | ScalePoint<string>`, but it's super hard to make it work :'(
+// It should be `ScaleLinear<number, number> | ScalePoint<number> | ScalePoint<string>`, but in order
+// to make it work, we need to write a lot of type guards :-(. This introduces a lot of unnecessary code,
+// not to mention overhead at runtime. The simplest is just to cast to any, and rely on D3's internals
+// to make it work.
 type YScale = any;
 
 export default class ZoomTimeLine extends React.PureComponent<Props, State> {
@@ -114,7 +117,7 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
     this.handleZoomUpdate(xScale, xDim);
   };
 
-  handleSelectionDrag = (xScale: XScale, width: number, xDim: number[], checkDelta?: boolean) => (
+  handleSelectionDrag = (xScale: XScale, width: number, xDim: number[], checkDelta = false) => (
     _: MouseEvent,
     data: DraggableData
   ) => {
@@ -129,7 +132,7 @@ export default class ZoomTimeLine extends React.PureComponent<Props, State> {
     fixedX: number,
     xDim: number[],
     handleDirection: string,
-    checkDelta?: boolean
+    checkDelta = false
   ) => (_: MouseEvent, data: DraggableData) => {
     if (!checkDelta || data.deltaX) {
       const x = Math.max(xDim[0], Math.min(data.x, xDim[1]));

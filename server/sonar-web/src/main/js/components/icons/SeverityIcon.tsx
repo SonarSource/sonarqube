@@ -38,8 +38,8 @@ export default function SeverityIcon({ severity, ...iconProps }: Props) {
     return null;
   }
 
-  const Icon = severityIcons[severity.toLowerCase()];
-  return Icon ? <Icon {...iconProps} /> : null;
+  const DesiredIcon = severityIcons[severity.toLowerCase()];
+  return DesiredIcon ? <DesiredIcon {...iconProps} /> : null;
 }
 
 function BlockerSeverityIcon(iconProps: IconProps) {

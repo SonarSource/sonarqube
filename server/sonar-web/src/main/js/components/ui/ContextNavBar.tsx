@@ -20,12 +20,12 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import './ContextNavBar.css';
-import NavBar from './NavBar';
+import NavBar, { NavBarProps } from './NavBar';
 
-interface Props {
+interface Props extends NavBarProps {
   className?: string;
+  id?: string;
   height: number;
-  [attr: string]: any;
 }
 
 export default function ContextNavBar({ className, ...other }: Props) {

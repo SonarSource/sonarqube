@@ -17,43 +17,135 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount } from 'enzyme';
+import { select } from 'd3-selection';
+import { zoom } from 'd3-zoom';
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AutoSizerProps } from 'react-virtualized';
+import { Link } from 'react-router';
+import { AutoSizer, AutoSizerProps } from 'react-virtualized/dist/commonjs/AutoSizer';
+import { mockComponentMeasureEnhanced } from '../../../helpers/mocks/component';
+import { mockHtmlElement } from '../../../helpers/mocks/dom';
+import { mockEvent } from '../../../helpers/testMocks';
+import { click } from '../../../helpers/testUtils';
 import BubbleChart from '../BubbleChart';
 
 jest.mock('react-virtualized/dist/commonjs/AutoSizer', () => ({
   AutoSizer: ({ children }: AutoSizerProps) => children({ width: 100, height: NaN })
 }));
 
-it('should display bubbles', () => {
-  const items = [
-    { x: 1, y: 10, size: 7 },
-    { x: 2, y: 30, size: 5 }
-  ];
-  const chart = mount(<BubbleChart height={100} items={items} padding={[0, 0, 0, 0]} />);
-  chart.find('Bubble').forEach(bubble => expect(bubble).toMatchSnapshot());
+jest.mock('d3-selection', () => ({
+  event: { transform: { x: 10, y: 10, k: 20 } },
+  select: jest.fn().mockReturnValue({ call: jest.fn() })
+}));
 
-  chart.setProps({ height: 120 });
+jest.mock('d3-zoom', () => ({
+  ...jest.requireActual('d3-zoom'),
+  zoom: jest.fn()
+}));
+
+beforeEach(jest.clearAllMocks);
+
+it('should display bubbles', () => {
+  const wrapper = shallowRender();
+  wrapper
+    .find(AutoSizer)
+    .dive()
+    .find('Bubble')
+    .forEach(bubble => {
+      expect(bubble.dive()).toMatchSnapshot();
+    });
 });
 
 it('should render bubble links', () => {
-  const items = [
-    { x: 1, y: 10, size: 7, link: 'foo' },
-    { x: 2, y: 30, size: 5, link: 'bar' }
-  ];
-  const chart = mount(<BubbleChart height={100} items={items} padding={[0, 0, 0, 0]} />);
-  chart.find('Bubble').forEach(bubble => expect(bubble).toMatchSnapshot());
+  const wrapper = shallowRender({
+    items: [
+      { x: 1, y: 10, size: 7, link: 'foo' },
+      { x: 2, y: 30, size: 5, link: 'bar' }
+    ]
+  });
+  wrapper
+    .find(AutoSizer)
+    .dive()
+    .find('Bubble')
+    .forEach(bubble => {
+      expect(bubble.dive()).toMatchSnapshot();
+    });
 });
 
 it('should render bubbles with click handlers', () => {
-  const onClick = jest.fn();
-  const items = [
-    { x: 1, y: 10, size: 7, data: 'foo' },
-    { x: 2, y: 30, size: 5, data: 'bar' }
-  ];
-  const chart = mount(
-    <BubbleChart height={100} items={items} onBubbleClick={onClick} padding={[0, 0, 0, 0]} />
-  );
-  chart.find('Bubble').forEach(bubble => expect(bubble).toMatchSnapshot());
+  const onBubbleClick = jest.fn();
+  const wrapper = shallowRender({ onBubbleClick });
+  wrapper
+    .find(AutoSizer)
+    .dive()
+    .find('Bubble')
+    .forEach(bubble => {
+      click(bubble.dive().find('circle'));
+      expect(bubble.dive()).toMatchSnapshot();
+    });
+  expect(onBubbleClick).toBeCalledTimes(2);
+  expect(onBubbleClick).toHaveBeenLastCalledWith(mockComponentMeasureEnhanced());
 });
+
+it('should correctly handle zooming', () => {
+  class ZoomBehaviorMock {
+    on = () => this;
+    scaleExtent = () => this;
+    translateExtent = () => this;
+  }
+
+  const call = jest.fn();
+  const zoomBehavior = new ZoomBehaviorMock();
+  (select as jest.Mock).mockReturnValueOnce({ call });
+  (zoom as jest.Mock).mockReturnValueOnce(zoomBehavior);
+
+  return new Promise<void>((resolve, reject) => {
+    const wrapper = shallowRender({ padding: [5, 5, 5, 5] });
+    wrapper.instance().boundNode(
+      mockHtmlElement<SVGSVGElement>({
+        getBoundingClientRect: () => ({ width: 100, height: 100 } as DOMRect)
+      })
+    );
+
+    // Call zoom event handler.
+    wrapper.instance().zoomed();
+    expect(wrapper.state().transform).toEqual({
+      x: 105,
+      y: 105,
+      k: 20
+    });
+
+    // Reset Zoom levels.
+    const resetZoomClick = wrapper
+      .find('div.bubble-chart-zoom')
+      .find(Link)
+      .props().onClick;
+    if (!resetZoomClick) {
+      reject();
+      return;
+    }
+
+    const stopPropagation = jest.fn();
+    const preventDefault = jest.fn();
+    resetZoomClick(mockEvent({ stopPropagation, preventDefault }));
+    expect(stopPropagation).toBeCalled();
+    expect(preventDefault).toBeCalled();
+    expect(call).toHaveBeenCalledWith(zoomBehavior);
+
+    resolve();
+  });
+});
+
+function shallowRender(props: Partial<BubbleChart<T.ComponentMeasureEnhanced>['props']> = {}) {
+  return shallow<BubbleChart<T.ComponentMeasureEnhanced>>(
+    <BubbleChart
+      height={100}
+      items={[
+        { x: 1, y: 10, size: 7, data: mockComponentMeasureEnhanced() },
+        { x: 2, y: 30, size: 5, data: mockComponentMeasureEnhanced() }
+      ]}
+      padding={[0, 0, 0, 0]}
+      {...props}
+    />
+  );
+}

@@ -334,7 +334,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     }
 
     const { classNameSpace = 'tooltip' } = this.props;
-    const placement = this.getPlacement();
+    const currentPlacement = this.getPlacement();
     const style = isMeasured(this.state)
       ? {
           left: this.state.left + leftFix,
@@ -346,7 +346,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
     return (
       <div
-        className={`${classNameSpace} ${placement}`}
+        className={`${classNameSpace} ${currentPlacement}`}
         onMouseEnter={this.handleOverlayMouseEnter}
         onMouseLeave={this.handleOverlayMouseLeave}
         ref={this.tooltipNodeRef}
@@ -356,7 +356,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           className={`${classNameSpace}-arrow`}
           style={
             isMeasured(this.state)
-              ? this.adjustArrowPosition(placement, { leftFix, topFix })
+              ? this.adjustArrowPosition(currentPlacement, { leftFix, topFix })
               : undefined
           }
         />

@@ -43,6 +43,8 @@ interface Fixes {
   topFix?: number;
 }
 
+const EDGE_MARGIN = rawSizes.grid / 2;
+
 export default class ScreenPositionFixer extends React.Component<Props, Fixes> {
   throttledPosition: () => void;
 
@@ -82,8 +84,6 @@ export default class ScreenPositionFixer extends React.Component<Props, Fixes> {
   };
 
   position = () => {
-    const edgeMargin = 0.5 * rawSizes.grid;
-
     // eslint-disable-next-line react/no-find-dom-node
     const node = findDOMNode(this);
     if (node && node instanceof Element) {
@@ -91,17 +91,17 @@ export default class ScreenPositionFixer extends React.Component<Props, Fixes> {
       const { clientHeight, clientWidth } = document.documentElement;
 
       let leftFix = 0;
-      if (left < edgeMargin) {
-        leftFix = edgeMargin - left;
-      } else if (left + width > clientWidth - edgeMargin) {
-        leftFix = clientWidth - edgeMargin - left - width;
+      if (left < EDGE_MARGIN) {
+        leftFix = EDGE_MARGIN - left;
+      } else if (left + width > clientWidth - EDGE_MARGIN) {
+        leftFix = clientWidth - EDGE_MARGIN - left - width;
       }
 
       let topFix = 0;
-      if (top < edgeMargin) {
-        topFix = edgeMargin - top;
-      } else if (top + height > clientHeight - edgeMargin) {
-        topFix = clientHeight - edgeMargin - top - height;
+      if (top < EDGE_MARGIN) {
+        topFix = EDGE_MARGIN - top;
+      } else if (top + height > clientHeight - EDGE_MARGIN) {
+        topFix = clientHeight - EDGE_MARGIN - top - height;
       }
 
       this.setState({ leftFix, topFix });

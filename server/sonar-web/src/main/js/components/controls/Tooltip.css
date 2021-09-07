@@ -56,9 +56,6 @@
   border-radius: 4px;
   overflow: hidden;
   word-break: break-word;
-}
-
-.tooltip-inner {
   padding: 12px 17px;
   color: #fff;
   background-color: #475760;

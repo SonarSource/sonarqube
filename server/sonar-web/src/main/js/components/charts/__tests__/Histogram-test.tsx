@@ -17,52 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { scaleBand } from 'd3-scale';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import Histogram from '../Histogram';
 
-it('renders', () => {
-  expect(shallow(<Histogram bars={[100, 75, 150]} height={75} width={100} />)).toMatchSnapshot();
+jest.mock('d3-scale', () => {
+  const d3 = jest.requireActual('d3-scale');
+  return {
+    ...d3,
+    scaleBand: jest.fn(d3.scaleBand)
+  };
 });
 
-it('renders with yValues', () => {
+beforeEach(jest.clearAllMocks);
+
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ alignTicks: true })).toMatchSnapshot('align ticks');
+  expect(shallowRender({ yValues: ['100.0', '75.0', '150.0'] })).toMatchSnapshot('with yValues');
   expect(
-    shallow(
-      <Histogram
-        bars={[100, 75, 150]}
-        height={75}
-        width={100}
-        yValues={['100.0', '75.0', '150.0']}
-      />
-    )
+    shallowRender({ yTicks: ['a', 'b', 'c'], yValues: ['100.0', '75.0', '150.0'] })
+  ).toMatchSnapshot('with yValues and yTicks');
+  expect(
+    shallowRender({
+      yTicks: ['a', 'b', 'c'],
+      yTooltips: ['a - 100', 'b - 75', 'c - 150'],
+      yValues: ['100.0', '75.0', '150.0']
+    })
+  ).toMatchSnapshot('with yValues, yTicks and yTooltips');
+});
+
+it('correctly handles yScale() returning undefined', () => {
+  const yScale = () => undefined;
+  yScale.bandwidth = () => 1;
+
+  (scaleBand as jest.Mock).mockReturnValueOnce({
+    domain: () => ({ rangeRound: () => yScale })
+  });
+
+  expect(
+    shallowRender({ yValues: ['100.0', '75.0', '150.0'], yTicks: ['a', 'b', 'c'] })
   ).toMatchSnapshot();
 });
 
-it('renders with yValues and yTicks', () => {
-  expect(
-    shallow(
-      <Histogram
-        bars={[100, 75, 150]}
-        height={75}
-        width={100}
-        yTicks={['a', 'b', 'c']}
-        yValues={['100.0', '75.0', '150.0']}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('renders with yValues, yTicks and yTooltips', () => {
-  expect(
-    shallow(
-      <Histogram
-        bars={[100, 75, 150]}
-        height={75}
-        width={100}
-        yTicks={['a', 'b', 'c']}
-        yTooltips={['a - 100', 'b - 75', 'c - 150']}
-        yValues={['100.0', '75.0', '150.0']}
-      />
-    )
-  ).toMatchSnapshot();
-});
+function shallowRender(props: Partial<Histogram['props']> = {}) {
+  return shallow<Histogram>(<Histogram bars={[100, 75, 150]} height={75} width={100} {...props} />);
+}

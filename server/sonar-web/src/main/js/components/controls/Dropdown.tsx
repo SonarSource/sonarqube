@@ -119,9 +119,6 @@ interface OverlayProps {
   placement?: PopupPlacement;
 }
 
-// TODO use the same styling for <Select />
-// TODO use the same styling for <DateInput />
-
 export class DropdownOverlay extends React.Component<OverlayProps> {
   get placement() {
     return this.props.placement || PopupPlacement.Bottom;

@@ -46,7 +46,7 @@ export default class RadioToggle extends React.PureComponent<Props> {
 
   renderOption = (option: Option) => {
     const checked = option.value === this.props.value;
-    const htmlId = this.props.name + '__' + option.value;
+    const htmlId = `${this.props.name}__${option.value}`;
     return (
       <li key={option.value.toString()}>
         <input

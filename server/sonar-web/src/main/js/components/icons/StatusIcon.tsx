@@ -37,8 +37,8 @@ const statusIcons: T.Dict<(props: IconProps) => React.ReactElement> = {
 };
 
 export default function StatusIcon({ status, ...iconProps }: Props) {
-  const Icon = statusIcons[status.toLowerCase()];
-  return Icon ? <Icon {...iconProps} /> : null;
+  const DesiredStatusIcon = statusIcons[status.toLowerCase()];
+  return DesiredStatusIcon ? <DesiredStatusIcon {...iconProps} /> : null;
 }
 
 function OpenStatusIcon(iconProps: IconProps) {
