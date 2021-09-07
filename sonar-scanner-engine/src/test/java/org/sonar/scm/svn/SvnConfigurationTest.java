@@ -37,7 +37,7 @@ public class SvnConfigurationTest {
 
   @Test
   public void sanityCheck() throws Exception {
-    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SvnProperties.all()));
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE));
     SvnConfiguration config = new SvnConfiguration(settings.asConfig());
 
     assertThat(config.username()).isNull();

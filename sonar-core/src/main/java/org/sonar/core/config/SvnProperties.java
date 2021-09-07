@@ -37,44 +37,4 @@ public class SvnProperties {
   private SvnProperties() {
     //private only
   }
-
-  public static List<PropertyDefinition> all() {
-    return Arrays.asList(
-      PropertyDefinition.builder(USER_PROP_KEY)
-        .name("Username")
-        .description("Username to be used for SVN server or SVN+SSH authentication")
-        .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(0)
-        .build(),
-      PropertyDefinition.builder(PASSWORD_PROP_KEY)
-        .name("Password")
-        .description("Password to be used for SVN server or SVN+SSH authentication")
-        .type(PropertyType.PASSWORD)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(1)
-        .build(),
-      PropertyDefinition.builder(PRIVATE_KEY_PATH_PROP_KEY)
-        .name("Path to private key file")
-        .description("Can be used instead of password for SVN+SSH authentication")
-        .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(2)
-        .build(),
-      PropertyDefinition.builder(PASSPHRASE_PROP_KEY)
-        .name("Passphrase")
-        .description("Optional passphrase of your private key file")
-        .type(PropertyType.PASSWORD)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_SVN)
-        .index(3)
-        .build());
-  }
 }
