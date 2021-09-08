@@ -5,7 +5,7 @@ plugins {
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.13' apply false
   id 'com.jfrog.artifactory' version '4.21.0'
-  id 'com.github.node-gradle.node' version '2.2.4' apply false
+  id 'com.github.node-gradle.node' version '3.1.0' apply false
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
   id 'org.owasp.dependencycheck' version '6.1.6'
@@ -659,10 +659,10 @@ def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn
 yarnInstallTasks.drop(1).eachWithIndex { it, i -> it.mustRunAfter(yarnInstallTasks[0..i]) }
 
 // by default, Yarn will update lock file if it is not up to date with "package.json"
-// using option "--frozen-lockfile" will disable this behavior and "yarn install" will fail if lock file is out of date
+// using option "--immutable" will disable this behavior and "yarn install" will fail if lock file is out of date
 // all "yarn install" tasks should be executed with this option for reproducibility of builds
 // and to prevent developers from forgetting to update lock file when they update "package.json"
-yarnInstallTasks.each { it -> it.args = ['--frozen-lockfile'] }
+yarnInstallTasks.each { it -> it.args = ['--immutable'] }
 
 // https://github.com/ben-manes/gradle-versions-plugin
 apply plugin: 'com.github.ben-manes.versions'

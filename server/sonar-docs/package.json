@@ -118,5 +118,6 @@
     "suiteNameTemplate": "{filename}",
     "classNameTemplate": "{classname}",
     "titleTemplate": "{title}"
-  }
+  },
+  "packageManager": "yarn@3.0.2"
 }

@@ -9,3 +9,12 @@ coverage/
 
 # eslint
 eslint-report.json
+
+# yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
