@@ -39,7 +39,7 @@ export class Form extends React.PureComponent<Props> {
       organizationId: component.organization,
       projectKey: component.key,
       projectDelete: true
-    }) : await deletePortfolio(component.key)
+    }) : await deletePortfolio(component.key);
     const redirectTo = isPortfolioLike(component.qualifier) ? '/portfolios' : '/';
 
     addGlobalSuccessMessage(

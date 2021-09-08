@@ -22,8 +22,8 @@ import throwGlobalError from "../app/utils/throwGlobalError";
 
 export function getNotificationsForOrganization(key: string) {
   return getJSON('/_codescan/notifications', { organizationId: key }).then(
-      r => r.organization,
-      throwGlobalError
+    r => r.organization,
+    throwGlobalError
   );
 }
 
