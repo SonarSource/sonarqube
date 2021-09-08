@@ -25,22 +25,22 @@ export const enum SettingsKey {
   ProjectReportFrequency = 'sonar.governance.report.project.branch.frequency'
 }
 
-export type Setting = SettingValue & { definition: SettingDefinition };
+export type Setting = SettingValue & { definition: SettingDefinition; hasValue: boolean };
 export type SettingWithCategory = Setting & { definition: SettingCategoryDefinition };
 
-export type SettingType =
-  | 'STRING'
-  | 'TEXT'
-  | 'JSON'
-  | 'PASSWORD'
-  | 'BOOLEAN'
-  | 'FLOAT'
-  | 'INTEGER'
-  | 'LICENSE'
-  | 'LONG'
-  | 'SINGLE_SELECT_LIST'
-  | 'PROPERTY_SET';
-
+export enum SettingType {
+  STRING = 'STRING',
+  TEXT = 'TEXT',
+  JSON = 'JSON',
+  PASSWORD = 'PASSWORD',
+  BOOLEAN = 'BOOLEAN',
+  FLOAT = 'FLOAT',
+  INTEGER = 'INTEGER',
+  LICENSE = 'LICENSE',
+  LONG = 'LONG',
+  SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST',
+  PROPERTY_SET = 'PROPERTY_SET'
+}
 export interface SettingDefinition {
   description?: string;
   key: string;

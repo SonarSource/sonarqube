@@ -35,7 +35,7 @@ import {
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY
 } from '../AdditionalCategoryKeys';
-import { App } from '../AppContainer';
+import { SettingsApp } from '../SettingsApp';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
@@ -105,9 +105,9 @@ it('should render pull request decoration binding correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<App['props']> = {}) {
+function shallowRender(props: Partial<SettingsApp['props']> = {}) {
   return shallow(
-    <App
+    <SettingsApp
       defaultCategory="general"
       fetchSettings={jest.fn().mockResolvedValue({})}
       location={mockLocation()}

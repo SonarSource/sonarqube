@@ -65,10 +65,10 @@ export function fetchSettings(component?: string) {
   };
 }
 
-export function fetchValues(keys: string, component?: string) {
+export function fetchValues(keys: string[], component?: string) {
   return (dispatch: Dispatch) =>
-    getValues({ keys, component }).then(settings => {
-      dispatch(receiveValues(settings, component));
+    getValues({ keys: keys.join(), component }).then(settings => {
+      dispatch(receiveValues(keys, settings, component));
       dispatch(closeAllGlobalMessages());
     });
 }
@@ -131,7 +131,7 @@ export function saveValue(key: string, component?: string) {
     return setSettingValue(definition, value, component)
       .then(() => getValues({ keys: key, component }))
       .then(values => {
-        dispatch(receiveValues(values, component));
+        dispatch(receiveValues([key], values, component));
         dispatch(cancelChange(key));
         dispatch(passValidation(key));
         dispatch(stopLoading(key));
@@ -148,9 +148,9 @@ export function resetValue(key: string, component?: string) {
       .then(() => getValues({ keys: key, component }))
       .then(values => {
         if (values.length > 0) {
-          dispatch(receiveValues(values, component));
+          dispatch(receiveValues([key], values, component));
         } else {
-          dispatch(receiveValues([{ key }], component));
+          dispatch(receiveValues([key], [], component));
         }
         dispatch(passValidation(key));
         dispatch(stopLoading(key));

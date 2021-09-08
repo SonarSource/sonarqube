@@ -34,50 +34,54 @@ exports[`should render correctly 1`] = `
     <div
       className="settings-definition-state"
     />
-    <Input
-      hasValueChanged={false}
-      onCancel={[Function]}
-      onChange={[Function]}
-      onSave={[Function]}
-      setting={
-        Object {
-          "definition": Object {
-            "description": "When Foo then Bar",
+    <form>
+      <Input
+        hasValueChanged={false}
+        onCancel={[Function]}
+        onChange={[Function]}
+        onSave={[Function]}
+        setting={
+          Object {
+            "definition": Object {
+              "description": "When Foo then Bar",
+              "key": "foo",
+              "name": "Foo setting",
+              "options": Array [],
+              "type": "INTEGER",
+            },
+            "hasValue": true,
+            "inherited": true,
             "key": "foo",
-            "name": "Foo setting",
-            "options": Array [],
-            "type": "INTEGER",
-          },
-          "inherited": true,
-          "key": "foo",
-          "value": "42",
+            "value": "42",
+          }
         }
-      }
-      value="42"
-    />
-    <DefinitionActions
-      changedValue={null}
-      hasError={false}
-      hasValueChanged={false}
-      isDefault={true}
-      onCancel={[Function]}
-      onReset={[Function]}
-      onSave={[Function]}
-      setting={
-        Object {
-          "definition": Object {
-            "description": "When Foo then Bar",
+        value="42"
+      />
+      <DefinitionActions
+        changedValue={null}
+        hasError={false}
+        hasValueChanged={false}
+        isDefault={true}
+        onCancel={[Function]}
+        onReset={[Function]}
+        onSave={[Function]}
+        setting={
+          Object {
+            "definition": Object {
+              "description": "When Foo then Bar",
+              "key": "foo",
+              "name": "Foo setting",
+              "options": Array [],
+              "type": "INTEGER",
+            },
+            "hasValue": true,
+            "inherited": true,
             "key": "foo",
-            "name": "Foo setting",
-            "options": Array [],
-            "type": "INTEGER",
-          },
-          "inherited": true,
-          "key": "foo",
-          "value": "42",
+            "value": "42",
+          }
         }
-      }
-    />
+      />
+    </form>
   </div>
 </div>
 `;

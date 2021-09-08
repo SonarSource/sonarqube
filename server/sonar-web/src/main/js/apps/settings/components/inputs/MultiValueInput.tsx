@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { DeleteButton } from '../../../../components/controls/buttons';
-import { DefaultInputProps, getEmptyValue } from '../../utils';
+import { DefaultSpecializedInputProps, getEmptyValue } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
 
-export default class MultiValueInput extends React.PureComponent<DefaultInputProps> {
+export default class MultiValueInput extends React.PureComponent<DefaultSpecializedInputProps> {
   ensureValue = () => {
     return this.props.value || [];
   };
@@ -40,17 +40,15 @@ export default class MultiValueInput extends React.PureComponent<DefaultInputPro
   };
 
   renderInput(value: any, index: number, isLast: boolean) {
-    const { setting } = this.props;
+    const { setting, isDefault, name } = this.props;
     return (
       <li className="spacer-bottom" key={index}>
         <PrimitiveInput
+          isDefault={isDefault}
+          name={name}
           hasValueChanged={this.props.hasValueChanged}
           onChange={value => this.handleSingleInputChange(index, value)}
-          setting={{
-            ...setting,
-            definition: { ...setting.definition, multiValues: false },
-            values: undefined
-          }}
+          setting={setting}
           value={value}
         />
 

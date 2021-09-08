@@ -50,7 +50,7 @@ interface State {
   loading: boolean;
 }
 
-export class App extends React.PureComponent<Props & WithRouterProps, State> {
+export class SettingsApp extends React.PureComponent<Props & WithRouterProps, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -150,4 +150,4 @@ const mapStateToProps = (state: Store) => ({
 
 const mapDispatchToProps = { fetchSettings: fetchSettings as any };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsApp);

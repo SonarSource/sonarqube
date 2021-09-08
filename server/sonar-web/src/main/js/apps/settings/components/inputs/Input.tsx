@@ -18,21 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DefaultInputProps, isCategoryDefinition } from '../../utils';
+import { SettingType } from '../../../../types/settings';
+import {
+  DefaultInputProps,
+  DefaultSpecializedInputProps,
+  getUniqueName,
+  isCategoryDefinition,
+  isDefaultOrInherited,
+  isSecuredDefinition
+} from '../../utils';
+import InputForSecured from './InputForSecured';
 import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
 import PropertySetInput from './PropertySetInput';
 
 export default function Input(props: DefaultInputProps) {
-  const { definition } = props.setting;
+  const { setting } = props;
+  const { definition } = setting;
+  const name = getUniqueName(definition);
+
+  let Input: React.ComponentType<DefaultSpecializedInputProps> = PrimitiveInput;
 
   if (isCategoryDefinition(definition) && definition.multiValues) {
-    return <MultiValueInput {...props} />;
+    Input = MultiValueInput;
   }
 
-  if (definition.type === 'PROPERTY_SET') {
-    return <PropertySetInput {...props} />;
+  if (definition.type === SettingType.PROPERTY_SET) {
+    Input = PropertySetInput;
   }
 
-  return <PrimitiveInput {...props} />;
+  if (isSecuredDefinition(definition)) {
+    return <InputForSecured input={Input} {...props} />;
+  }
+
+  return <Input {...props} name={name} isDefault={isDefaultOrInherited(setting)} />;
 }

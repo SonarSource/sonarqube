@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import Toggle from '../../../../components/controls/Toggle';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
@@ -30,7 +31,6 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
-import InputForBoolean from '../inputs/InputForBoolean';
 
 export interface AlmSpecificFormProps {
   alm: AlmKeys;
@@ -108,12 +108,10 @@ function renderBooleanField(
   return renderFieldWrapper(
     renderLabel({ ...props, optional: true }),
     <div className="display-flex-center big-spacer-top">
-      <InputForBoolean
-        isDefault={true}
-        name={id}
-        onChange={v => onFieldChange(propKey, v)}
-        value={value}
-      />
+      <div className="display-inline-block text-top">
+        <Toggle name={id} onChange={v => onFieldChange(propKey, v)} value={value} />
+        {value == null && <span className="spacer-left note">{translate('settings.not_set')}</span>}
+      </div>
       {inputExtra}
     </div>,
     renderHelp(props)

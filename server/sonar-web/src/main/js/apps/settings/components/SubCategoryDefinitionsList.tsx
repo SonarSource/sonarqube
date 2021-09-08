@@ -75,7 +75,7 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
   };
 
   fetchValues() {
-    const keys = this.props.settings.map(setting => setting.definition.key).join();
+    const keys = this.props.settings.map(setting => setting.definition.key);
     return this.props.fetchValues(keys, this.props.component && this.props.component.key);
   }
 

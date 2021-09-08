@@ -25,7 +25,7 @@ export function fetchAboutPageSettings() {
   return (dispatch: Dispatch) => {
     const keys = ['sonar.lf.aboutText'];
     return getValues({ keys: keys.join() }).then(values => {
-      dispatch(receiveValues(values));
+      dispatch(receiveValues(keys, values));
     });
   };
 }

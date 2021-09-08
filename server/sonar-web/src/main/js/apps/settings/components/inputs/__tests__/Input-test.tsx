@@ -19,38 +19,42 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Setting, SettingCategoryDefinition } from '../../../../../types/settings';
+import { mockDefinition, mockSetting } from '../../../../../helpers/mocks/settings';
+import { Setting, SettingType } from '../../../../../types/settings';
 import { DefaultInputProps } from '../../../utils';
 import Input from '../Input';
-
-const settingValue = {
-  key: 'example'
-};
-
-const settingDefinition: SettingCategoryDefinition = {
-  category: 'general',
-  fields: [],
-  key: 'example',
-  options: [],
-  subCategory: 'Branches',
-  type: 'STRING'
-};
+import InputForSecured from '../InputForSecured';
+import MultiValueInput from '../MultiValueInput';
+import PrimitiveInput from '../PrimitiveInput';
+import PropertySetInput from '../PropertySetInput';
 
 it('should render PrimitiveInput', () => {
-  const setting = { ...settingValue, definition: settingDefinition };
   const onChange = jest.fn();
-  const input = shallowRender({ onChange, setting }).find('PrimitiveInput');
+  const input = shallowRender({ onChange }).find(PrimitiveInput);
   expect(input.length).toBe(1);
-  expect(input.prop('setting')).toBe(setting);
+  expect(input.prop('value')).toBe('foo');
+  expect(input.prop('onChange')).toBe(onChange);
+});
+
+it('should render Secured input', () => {
+  const setting: Setting = mockSetting({
+    key: 'foo.secured',
+    definition: mockDefinition({ key: 'foo.secured', type: SettingType.PROPERTY_SET })
+  });
+  const onChange = jest.fn();
+  const input = shallowRender({ onChange, setting }).find(InputForSecured);
+  expect(input.length).toBe(1);
   expect(input.prop('value')).toBe('foo');
   expect(input.prop('onChange')).toBe(onChange);
 });
 
 it('should render MultiValueInput', () => {
-  const setting = { ...settingValue, definition: { ...settingDefinition, multiValues: true } };
+  const setting = mockSetting({
+    definition: mockDefinition({ multiValues: true })
+  });
   const onChange = jest.fn();
   const value = ['foo', 'bar'];
-  const input = shallowRender({ onChange, setting, value }).find('MultiValueInput');
+  const input = shallowRender({ onChange, setting, value }).find(MultiValueInput);
   expect(input.length).toBe(1);
   expect(input.prop('setting')).toBe(setting);
   expect(input.prop('value')).toBe(value);
@@ -58,14 +62,13 @@ it('should render MultiValueInput', () => {
 });
 
 it('should render PropertySetInput', () => {
-  const setting: Setting = {
-    ...settingValue,
-    definition: { ...settingDefinition, type: 'PROPERTY_SET' }
-  };
+  const setting: Setting = mockSetting({
+    definition: mockDefinition({ type: SettingType.PROPERTY_SET })
+  });
 
   const onChange = jest.fn();
   const value = [{ foo: 'bar' }];
-  const input = shallowRender({ onChange, setting, value }).find('PropertySetInput');
+  const input = shallowRender({ onChange, setting, value }).find(PropertySetInput);
   expect(input.length).toBe(1);
   expect(input.prop('setting')).toBe(setting);
   expect(input.prop('value')).toBe(value);
@@ -73,12 +76,5 @@ it('should render PropertySetInput', () => {
 });
 
 function shallowRender(props: Partial<DefaultInputProps> = {}) {
-  return shallow(
-    <Input
-      onChange={jest.fn()}
-      setting={{ ...settingValue, definition: settingDefinition }}
-      value="foo"
-      {...props}
-    />
-  );
+  return shallow(<Input onChange={jest.fn()} setting={mockSetting()} value="foo" {...props} />);
 }

@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockSetting } from '../../../../../helpers/mocks/settings';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForSingleSelectList from '../InputForSingleSelectList';
 
@@ -53,6 +54,7 @@ function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
       name="foo"
       onChange={jest.fn()}
       options={['foo', 'bar', 'baz']}
+      setting={mockSetting()}
       value="bar"
       {...props}
     />

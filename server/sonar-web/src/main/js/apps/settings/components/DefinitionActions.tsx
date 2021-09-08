@@ -22,7 +22,7 @@ import { Button, ResetButtonLink, SubmitButton } from '../../../components/contr
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import { Setting } from '../../../types/settings';
-import { getDefaultValue, getSettingValue, isEmptyValue } from '../utils';
+import { getDefaultValue, isEmptyValue } from '../utils';
 
 type Props = {
   changedValue: string;
@@ -74,13 +74,10 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   }
 
   render() {
-    const { setting, isDefault, changedValue, hasValueChanged } = this.props;
-
-    const hasValueToResetTo = !isEmptyValue(setting.definition, getSettingValue(setting));
+    const { setting, changedValue, isDefault, hasValueChanged } = this.props;
     const hasBeenChangedToEmptyValue =
       changedValue != null && isEmptyValue(setting.definition, changedValue);
-    const showReset =
-      hasValueToResetTo && (hasBeenChangedToEmptyValue || (!isDefault && !hasValueChanged));
+    const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
 
     return (
       <>

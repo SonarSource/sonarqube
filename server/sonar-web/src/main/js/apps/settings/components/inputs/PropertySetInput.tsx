@@ -19,10 +19,15 @@
  */
 import * as React from 'react';
 import { DeleteButton } from '../../../../components/controls/buttons';
-import { DefaultInputProps, getEmptyValue, getUniqueName, isCategoryDefinition } from '../../utils';
+import {
+  DefaultSpecializedInputProps,
+  getEmptyValue,
+  getUniqueName,
+  isCategoryDefinition
+} from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
 
-export default class PropertySetInput extends React.PureComponent<DefaultInputProps> {
+export default class PropertySetInput extends React.PureComponent<DefaultSpecializedInputProps> {
   ensureValue() {
     return this.props.value || [];
   }
@@ -42,23 +47,31 @@ export default class PropertySetInput extends React.PureComponent<DefaultInputPr
   };
 
   renderFields(fieldValues: any, index: number, isLast: boolean) {
-    const { setting } = this.props;
+    const { setting, isDefault } = this.props;
     const { definition } = setting;
 
     return (
       <tr key={index}>
         {isCategoryDefinition(definition) &&
-          definition.fields.map(field => (
-            <td key={field.key}>
-              <PrimitiveInput
-                hasValueChanged={this.props.hasValueChanged}
-                name={getUniqueName(definition, field.key)}
-                onChange={value => this.handleInputChange(index, field.key, value)}
-                setting={{ ...setting, definition: field, value: fieldValues[field.key] }}
-                value={fieldValues[field.key]}
-              />
-            </td>
-          ))}
+          definition.fields.map(field => {
+            const newSetting = {
+              ...setting,
+              definition: field,
+              value: fieldValues[field.key]
+            };
+            return (
+              <td key={field.key}>
+                <PrimitiveInput
+                  isDefault={isDefault}
+                  hasValueChanged={this.props.hasValueChanged}
+                  name={getUniqueName(definition, field.key)}
+                  onChange={value => this.handleInputChange(index, field.key, value)}
+                  setting={newSetting}
+                  value={fieldValues[field.key]}
+                />
+              </td>
+            );
+          })}
         <td className="thin nowrap text-middle">
           {!isLast && (
             <DeleteButton

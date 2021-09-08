@@ -47,7 +47,7 @@ export class AuditApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     const { hasGovernanceExtension } = this.props;
     if (hasGovernanceExtension) {
-      this.props.fetchValues('sonar.dbcleaner.auditHousekeeping');
+      this.props.fetchValues(['sonar.dbcleaner.auditHousekeeping']);
     }
   }
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { keyBy } from 'lodash';
+import { keyBy, omit } from 'lodash';
 import { combineReducers } from 'redux';
 import { Action as AppStateAction, Actions as AppStateActions } from '../../../store/appState';
 import { ActionType } from '../../../store/utils/actions';
@@ -37,10 +37,11 @@ export interface State {
 }
 
 export function receiveValues(
+  updateKeys: string[],
   settings: Array<{ key: string; value?: string }>,
   component?: string
 ) {
-  return { type: Actions.receiveValues, settings, component };
+  return { type: Actions.receiveValues, updateKeys, settings, component };
 }
 
 function components(state: State['components'] = {}, action: Action) {
@@ -50,7 +51,7 @@ function components(state: State['components'] = {}, action: Action) {
   }
   if (action.type === Actions.receiveValues) {
     const settingsByKey = keyBy(action.settings, 'key');
-    return { ...state, [key]: { ...(state[key] || {}), ...settingsByKey } };
+    return { ...state, [key]: { ...omit(state[key] || {}, action.updateKeys), ...settingsByKey } };
   }
   return state;
 }
@@ -61,8 +62,9 @@ function global(state: State['components'] = {}, action: Action | AppStateAction
       return state;
     }
     const settingsByKey = keyBy(action.settings, 'key');
-    return { ...state, ...settingsByKey };
+    return { ...omit(state, action.updateKeys), ...settingsByKey };
   }
+
   if (action.type === AppStateActions.SetAppState) {
     const settingsByKey: SettingsState = {};
     Object.keys(action.appState.settings).forEach(

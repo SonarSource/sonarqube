@@ -53,11 +53,16 @@ export function getValue(state: State, key: string, component?: string) {
 }
 
 export function getSettingsForCategory(state: State, category: string, component?: string) {
-  return fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => ({
-    key: definition.key,
-    ...getValue(state, definition.key, component),
-    definition
-  }));
+  return fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => {
+    const value = getValue(state, definition.key, component);
+    const hasValue = value !== undefined && value.inherited !== true;
+    return {
+      key: definition.key,
+      hasValue,
+      ...value,
+      definition
+    };
+  });
 }
 
 export function getChangedValue(state: State, key: string) {

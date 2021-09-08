@@ -22,8 +22,6 @@ import * as React from 'react';
 import { DefaultSpecializedInputProps } from '../../utils';
 
 interface Props extends DefaultSpecializedInputProps {
-  className?: string;
-  type: string;
   value: string | number;
 }
 
@@ -41,14 +39,17 @@ export default class SimpleInput extends React.PureComponent<Props> {
   };
 
   render() {
+    const { autoComplete, autoFocus, className, name, value = '', type } = this.props;
     return (
       <input
-        className={classNames('text-top', this.props.className)}
-        name={this.props.name}
+        autoComplete={autoComplete}
+        autoFocus={autoFocus}
+        className={classNames('text-top', className)}
+        name={name}
         onChange={this.handleInputChange}
         onKeyDown={this.handleKeyDown}
-        type={this.props.type}
-        value={this.props.value || ''}
+        type={type}
+        value={value}
       />
     );
   }

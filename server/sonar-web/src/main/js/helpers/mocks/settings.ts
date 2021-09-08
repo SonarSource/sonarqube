@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Setting, SettingCategoryDefinition, SettingWithCategory } from '../../types/settings';
+import {
+  Setting,
+  SettingCategoryDefinition,
+  SettingType,
+  SettingValue,
+  SettingWithCategory
+} from '../../types/settings';
 
 export function mockDefinition(
   overrides: Partial<SettingCategoryDefinition> = {}
@@ -36,14 +42,22 @@ export function mockSetting(overrides: Partial<Setting> = {}): Setting {
   return {
     key: 'foo',
     value: '42',
+    hasValue: true,
     inherited: true,
     definition: {
       key: 'foo',
       name: 'Foo setting',
       description: 'When Foo then Bar',
-      type: 'INTEGER',
+      type: SettingType.INTEGER,
       options: []
     },
+    ...overrides
+  };
+}
+
+export function mockSettingValue(overrides: Partial<SettingValue> = {}) {
+  return {
+    key: 'test',
     ...overrides
   };
 }
@@ -54,12 +68,13 @@ export function mockSettingWithCategory(
   return {
     key: 'foo',
     value: '42',
+    hasValue: true,
     inherited: true,
     definition: {
       key: 'foo',
       name: 'Foo setting',
       description: 'When Foo then Bar',
-      type: 'INTEGER',
+      type: SettingType.INTEGER,
       options: [],
       category: 'general',
       fields: [],

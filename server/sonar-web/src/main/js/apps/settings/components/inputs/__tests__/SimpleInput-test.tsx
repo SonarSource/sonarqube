@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockSetting } from '../../../../../helpers/mocks/settings';
 import { change } from '../../../../../helpers/testUtils';
 import SimpleInput from '../SimpleInput';
 
@@ -31,6 +32,7 @@ it('should render input', () => {
       name="foo"
       onChange={onChange}
       type="text"
+      setting={mockSetting()}
       value="bar"
     />
   ).find('input');
@@ -51,6 +53,7 @@ it('should call onChange', () => {
       name="foo"
       onChange={onChange}
       type="text"
+      setting={mockSetting()}
       value="bar"
     />
   ).find('input');

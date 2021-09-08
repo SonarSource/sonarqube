@@ -444,12 +444,15 @@ exports[`it should render correctly for github 1`] = `
       <div
         className="display-flex-center big-spacer-top"
       >
-        <InputForBoolean
-          isDefault={true}
-          name="github.summary_comment_setting"
-          onChange={[Function]}
-          value={true}
-        />
+        <div
+          className="display-inline-block text-top"
+        >
+          <Toggle
+            name="github.summary_comment_setting"
+            onChange={[Function]}
+            value={true}
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -535,12 +538,15 @@ exports[`it should render correctly for github if an instance URL is provided 1`
       <div
         className="display-flex-center big-spacer-top"
       >
-        <InputForBoolean
-          isDefault={true}
-          name="github.summary_comment_setting"
-          onChange={[Function]}
-          value={true}
-        />
+        <div
+          className="display-inline-block text-top"
+        >
+          <Toggle
+            name="github.summary_comment_setting"
+            onChange={[Function]}
+            value={true}
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -626,12 +632,15 @@ exports[`it should render correctly for github if an instance URL is provided 2`
       <div
         className="display-flex-center big-spacer-top"
       >
-        <InputForBoolean
-          isDefault={true}
-          name="github.summary_comment_setting"
-          onChange={[Function]}
-          value={true}
-        />
+        <div
+          className="display-inline-block text-top"
+        >
+          <Toggle
+            name="github.summary_comment_setting"
+            onChange={[Function]}
+            value={true}
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -828,12 +837,15 @@ exports[`should render the monorepo field when the feature is supported 1`] = `
       <div
         className="display-flex-center big-spacer-top"
       >
-        <InputForBoolean
-          isDefault={true}
-          name="monorepo"
-          onChange={[Function]}
-          value={false}
-        />
+        <div
+          className="display-inline-block text-top"
+        >
+          <Toggle
+            name="monorepo"
+            onChange={[Function]}
+            value={false}
+          />
+        </div>
       </div>
     </div>
   </div>

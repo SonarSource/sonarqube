@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockSetting } from '../../../../../helpers/mocks/settings';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForBoolean from '../InputForBoolean';
 
@@ -57,6 +58,13 @@ it('should call onChange', () => {
 
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
   return shallow(
-    <InputForBoolean isDefault={false} name="foo" onChange={jest.fn()} value={true} {...props} />
+    <InputForBoolean
+      isDefault={false}
+      name="foo"
+      onChange={jest.fn()}
+      setting={mockSetting()}
+      value={true}
+      {...props}
+    />
   );
 }

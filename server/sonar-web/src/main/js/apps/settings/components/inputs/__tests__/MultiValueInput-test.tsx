@@ -20,13 +20,14 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../../helpers/testUtils';
-import { SettingCategoryDefinition } from '../../../../../types/settings';
-import { DefaultInputProps } from '../../../utils';
+import { SettingCategoryDefinition, SettingType } from '../../../../../types/settings';
+import { DefaultSpecializedInputProps } from '../../../utils';
 import MultiValueInput from '../MultiValueInput';
 import PrimitiveInput from '../PrimitiveInput';
 
 const settingValue = {
-  key: 'example'
+  key: 'example',
+  hasValue: true
 };
 
 const settingDefinition: SettingCategoryDefinition = {
@@ -36,7 +37,7 @@ const settingDefinition: SettingCategoryDefinition = {
   multiValues: true,
   options: [],
   subCategory: 'Branches',
-  type: 'STRING'
+  type: SettingType.STRING
 };
 
 const assertValues = (inputs: ShallowWrapper<any>, values: string[]) => {
@@ -87,9 +88,11 @@ it('should add new value', () => {
   expect(onChange).toBeCalledWith(['foo', 'bar']);
 });
 
-function shallowRender(props: Partial<DefaultInputProps> = {}) {
+function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
   return shallow(
     <MultiValueInput
+      isDefault={true}
+      name="bar"
       onChange={jest.fn()}
       setting={{ ...settingValue, definition: settingDefinition }}
       value={['foo']}

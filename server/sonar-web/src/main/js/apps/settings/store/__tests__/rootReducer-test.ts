@@ -17,10 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { DefaultSpecializedInputProps } from '../../utils';
-import SimpleInput from './SimpleInput';
 
-export default function InputForString(props: DefaultSpecializedInputProps) {
-  return <SimpleInput className="settings-large-input" type="text" {...props} />;
-}
+import { getSettingsForCategory } from '../rootReducer';
+
+it('Should correclty assert if value is set', () => {
+  const settings = getSettingsForCategory(
+    {
+      definitions: {
+        foo: { category: 'cat', key: 'foo', fields: [], options: [], subCategory: 'test' },
+        bar: { category: 'cat', key: 'bar', fields: [], options: [], subCategory: 'test' }
+      },
+      globalMessages: [],
+      settingsPage: {
+        changedValues: {},
+        loading: {},
+        validationMessages: {}
+      },
+      values: { components: {}, global: { foo: { key: 'foo' } } }
+    },
+    'cat'
+  );
+  expect(settings[0].hasValue).toBe(true);
+  expect(settings[1].hasValue).toBe(false);
+});

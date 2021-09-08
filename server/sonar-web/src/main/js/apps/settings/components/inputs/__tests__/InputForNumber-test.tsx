@@ -19,13 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockSetting } from '../../../../../helpers/mocks/settings';
 import InputForNumber from '../InputForNumber';
 import SimpleInput from '../SimpleInput';
 
 it('should render SimpleInput', () => {
   const onChange = jest.fn();
   const simpleInput = shallow(
-    <InputForNumber isDefault={false} name="foo" onChange={onChange} value={17} />
+    <InputForNumber
+      isDefault={false}
+      name="foo"
+      onChange={onChange}
+      setting={mockSetting()}
+      value={17}
+    />
   ).find(SimpleInput);
   expect(simpleInput.length).toBe(1);
   expect(simpleInput.prop('name')).toBe('foo');

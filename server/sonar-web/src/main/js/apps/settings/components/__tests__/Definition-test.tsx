@@ -22,6 +22,8 @@ import * as React from 'react';
 import { mockSetting } from '../../../../helpers/mocks/settings';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Definition } from '../Definition';
+import DefinitionActions from '../DefinitionActions';
+import Input from '../inputs/Input';
 
 const setting = mockSetting();
 
@@ -42,7 +44,7 @@ it('should correctly handle change of value', () => {
   const changeValue = jest.fn();
   const checkValue = jest.fn();
   const wrapper = shallowRender({ changeValue, checkValue });
-  wrapper.find('Input').prop<Function>('onChange')(5);
+  wrapper.find(Input).prop<Function>('onChange')(5);
   expect(changeValue).toHaveBeenCalledWith(setting.definition.key, 5);
   expect(checkValue).toHaveBeenCalledWith(setting.definition.key);
 });
@@ -51,7 +53,7 @@ it('should correctly cancel value change', () => {
   const cancelChange = jest.fn();
   const passValidation = jest.fn();
   const wrapper = shallowRender({ cancelChange, passValidation });
-  wrapper.find('Input').prop<Function>('onCancel')();
+  wrapper.find(Input).prop<Function>('onCancel')();
   expect(cancelChange).toHaveBeenCalledWith(setting.definition.key);
   expect(passValidation).toHaveBeenCalledWith(setting.definition.key);
 });
@@ -59,7 +61,7 @@ it('should correctly cancel value change', () => {
 it('should correctly save value change', async () => {
   const saveValue = jest.fn().mockResolvedValue({});
   const wrapper = shallowRender({ changedValue: 10, saveValue });
-  wrapper.find('DefinitionActions').prop<Function>('onSave')();
+  wrapper.find(DefinitionActions).prop('onSave')();
   await waitAndUpdate(wrapper);
   expect(saveValue).toHaveBeenCalledWith(setting.definition.key, undefined);
   expect(wrapper.find('AlertSuccessIcon').exists()).toBe(true);
@@ -72,7 +74,7 @@ it('should correctly reset', async () => {
   const cancelChange = jest.fn();
   const resetValue = jest.fn().mockResolvedValue({});
   const wrapper = shallowRender({ cancelChange, changedValue: 10, resetValue });
-  wrapper.find('DefinitionActions').prop<Function>('onReset')();
+  wrapper.find(DefinitionActions).prop('onReset')();
   await waitAndUpdate(wrapper);
   expect(resetValue).toHaveBeenCalledWith(setting.definition.key, undefined);
   expect(cancelChange).toHaveBeenCalledWith(setting.definition.key);

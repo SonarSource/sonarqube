@@ -21,21 +21,25 @@ import {
   getSettingsAppChangedValue,
   getSettingsAppDefinition
 } from '../../../../store/rootReducer';
-import { checkValue, fetchSettings } from '../actions';
+import { checkValue, fetchSettings, fetchValues } from '../actions';
 import { receiveDefinitions } from '../definitions';
 
-jest.mock('../../../../api/settings', () => ({
-  getDefinitions: jest.fn().mockResolvedValue([
-    {
-      key: 'SETTINGS_1_KEY',
-      type: 'SETTINGS_1_TYPE'
-    },
-    {
-      key: 'SETTINGS_2_KEY',
-      type: 'LICENSE'
-    }
-  ])
-}));
+jest.mock('../../../../api/settings', () => {
+  const { mockSettingValue } = jest.requireActual('../../../../helpers/mocks/settings');
+  return {
+    getValues: jest.fn().mockResolvedValue([mockSettingValue()]),
+    getDefinitions: jest.fn().mockResolvedValue([
+      {
+        key: 'SETTINGS_1_KEY',
+        type: 'SETTINGS_1_TYPE'
+      },
+      {
+        key: 'SETTINGS_2_KEY',
+        type: 'LICENSE'
+      }
+    ])
+  };
+});
 
 jest.mock('../definitions', () => ({
   receiveDefinitions: jest.fn()
@@ -57,6 +61,18 @@ it('#fetchSettings should filter LICENSE type settings', async () => {
       type: 'SETTINGS_1_TYPE'
     }
   ]);
+});
+
+it('should fetchValue correclty', async () => {
+  const dispatch = jest.fn();
+  await fetchValues(['test'], 'foo')(dispatch);
+  expect(dispatch).toHaveBeenCalledWith({
+    component: 'foo',
+    settings: [{ key: 'test' }],
+    type: 'RECEIVE_VALUES',
+    updateKeys: ['test']
+  });
+  expect(dispatch).toHaveBeenCalledWith({ type: 'CLOSE_ALL_GLOBAL_MESSAGES' });
 });
 
 describe('checkValue', () => {

@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockSetting } from '../../../../../helpers/mocks/settings';
 import { change } from '../../../../../helpers/testUtils';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForJSON from '../InputForJSON';
@@ -67,6 +68,13 @@ it('should handle ignore formatting if empty', () => {
 
 function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
   return shallow<InputForJSON>(
-    <InputForJSON isDefault={false} name="foo" onChange={jest.fn()} value="" {...props} />
+    <InputForJSON
+      isDefault={false}
+      name="foo"
+      onChange={jest.fn()}
+      setting={mockSetting()}
+      value=""
+      {...props}
+    />
   );
 }

@@ -22,5 +22,5 @@ import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
 export default function InputForNumber(props: DefaultSpecializedInputProps) {
-  return <SimpleInput {...props} className="input-small" type="text" />;
+  return <SimpleInput className="input-small" type="text" {...props} />;
 }

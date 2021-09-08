@@ -21,7 +21,8 @@ import { mockDefinition } from '../../../helpers/mocks/settings';
 import {
   Setting,
   SettingCategoryDefinition,
-  SettingFieldDefinition
+  SettingFieldDefinition,
+  SettingType
 } from '../../../types/settings';
 import { buildSettingLink, getDefaultValue, getEmptyValue } from '../utils';
 
@@ -42,7 +43,7 @@ describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
     const setting: SettingCategoryDefinition = {
       ...settingDefinition,
-      type: 'PROPERTY_SET',
+      type: SettingType.PROPERTY_SET,
       fields
     };
     expect(getEmptyValue(setting)).toEqual([{ foo: '', bar: null }]);
@@ -51,7 +52,7 @@ describe('#getEmptyValue()', () => {
   it('should work for multi values string', () => {
     const setting: SettingCategoryDefinition = {
       ...settingDefinition,
-      type: 'STRING',
+      type: SettingType.STRING,
       multiValues: true
     };
     expect(getEmptyValue(setting)).toEqual(['']);
@@ -60,7 +61,7 @@ describe('#getEmptyValue()', () => {
   it('should work for multi values boolean', () => {
     const setting: SettingCategoryDefinition = {
       ...settingDefinition,
-      type: 'BOOLEAN',
+      type: SettingType.BOOLEAN,
       multiValues: true
     };
     expect(getEmptyValue(setting)).toEqual([null]);
@@ -75,7 +76,8 @@ describe('#getDefaultValue()', () => {
     'should work for boolean field when passing "%s"',
     (parentValue?: string, expected?: string) => {
       const setting: Setting = {
-        definition: { key: 'test', options: [], type: 'BOOLEAN' },
+        hasValue: true,
+        definition: { key: 'test', options: [], type: SettingType.BOOLEAN },
         parentValue,
         key: 'test'
       };

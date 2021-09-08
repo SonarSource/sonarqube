@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SettingCategoryDefinition } from '../../../../types/settings';
+import { SettingCategoryDefinition, SettingType } from '../../../../types/settings';
 import DefinitionActions from '../DefinitionActions';
 
 const definition: SettingCategoryDefinition = {
@@ -30,11 +30,12 @@ const definition: SettingCategoryDefinition = {
   name: 'foobar',
   options: [],
   subCategory: 'bar',
-  type: 'STRING'
+  type: SettingType.STRING
 };
 
 const settings = {
   key: 'key',
+  hasValue: true,
   definition,
   value: 'baz'
 };

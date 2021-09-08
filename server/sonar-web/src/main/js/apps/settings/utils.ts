@@ -25,12 +25,16 @@ import { Setting, SettingCategoryDefinition, SettingDefinition } from '../../typ
 
 export const DEFAULT_CATEGORY = 'general';
 
-export type DefaultSpecializedInputProps = T.Omit<DefaultInputProps, 'setting'> & {
+export type DefaultSpecializedInputProps = DefaultInputProps & {
+  className?: string;
+  autoComplete?: string;
   isDefault: boolean;
   name: string;
+  type?: string;
 };
 
 export interface DefaultInputProps {
+  autoFocus?: boolean;
   hasValueChanged?: boolean;
   onCancel?: () => void;
   onChange: (value: any) => void;
@@ -87,6 +91,10 @@ export function isEmptyValue(definition: SettingDefinition, value: any) {
   } else {
     return value.length === 0;
   }
+}
+
+export function isSecuredDefinition(item: SettingDefinition): boolean {
+  return item.key.endsWith('.secured');
 }
 
 export function isCategoryDefinition(item: SettingDefinition): item is SettingCategoryDefinition {

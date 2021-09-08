@@ -19,78 +19,24 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { change, click, submit } from '../../../../../helpers/testUtils';
-import { DefaultSpecializedInputProps } from '../../../utils';
+import { mockSetting } from '../../../../../helpers/mocks/settings';
 import InputForPassword from '../InputForPassword';
+import SimpleInput from '../SimpleInput';
 
-it('should render lock icon, but no form', () => {
+it('should render SimpleInput', () => {
   const onChange = jest.fn();
-  const input = shallowRender({ onChange });
-
-  expect(input.find('LockIcon').length).toBe(1);
-  expect(input.find('form').length).toBe(0);
-});
-
-it('should open form', () => {
-  const onChange = jest.fn();
-  const input = shallowRender({ onChange });
-  const button = input.find('Button');
-  expect(button.length).toBe(1);
-
-  click(button);
-  expect(input.find('form').length).toBe(1);
-});
-
-it('should set value', () => {
-  const onChange = jest.fn(() => Promise.resolve());
-  const input = shallowRender({ onChange });
-
-  click(input.find('Button'));
-  change(input.find('.js-password-input'), 'secret');
-  submit(input.find('form'));
-  expect(onChange).toBeCalledWith('secret');
-});
-
-it('should show form when empty, and enable handle typing', () => {
-  const input = shallowRender({ value: '' });
-  const onChange = (value: string) => input.setProps({ hasValueChanged: true, value });
-  input.setProps({ onChange });
-
-  expect(input.find('form').length).toBe(1);
-  change(input.find('input.js-password-input'), 'hello');
-  expect(input.find('form').length).toBe(1);
-  expect(input.find('input.js-password-input').prop('value')).toBe('hello');
-});
-
-it('should handle value reset', () => {
-  const input = shallowRender({ hasValueChanged: true, value: 'whatever' });
-  input.setState({ changing: true });
-
-  // reset
-  input.setProps({ hasValueChanged: false, value: 'original' });
-
-  expect(input.state('changing')).toBe(false);
-});
-
-it('should handle value reset to empty', () => {
-  const input = shallowRender({ hasValueChanged: true, value: 'whatever' });
-  input.setState({ changing: true });
-
-  // outside change
-  input.setProps({ hasValueChanged: false, value: '' });
-
-  expect(input.state('changing')).toBe(true);
-});
-
-function shallowRender(props: Partial<DefaultSpecializedInputProps> = {}) {
-  return shallow<InputForPassword>(
+  const simpleInput = shallow(
     <InputForPassword
-      hasValueChanged={false}
       isDefault={false}
       name="foo"
-      onChange={jest.fn()}
+      onChange={onChange}
+      setting={mockSetting()}
       value="bar"
-      {...props}
     />
-  );
-}
+  ).find(SimpleInput);
+  expect(simpleInput.length).toBe(1);
+  expect(simpleInput.prop('name')).toBe('foo');
+  expect(simpleInput.prop('value')).toBe('bar');
+  expect(simpleInput.prop('type')).toBe('password');
+  expect(simpleInput.prop('onChange')).toBeDefined();
+});

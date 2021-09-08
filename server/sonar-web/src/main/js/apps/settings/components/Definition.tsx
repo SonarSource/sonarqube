@@ -189,26 +189,26 @@ export class Definition extends React.PureComponent<Props, State> {
               </span>
             )}
           </div>
-
-          <Input
-            hasValueChanged={hasValueChanged}
-            onCancel={this.handleCancel}
-            onChange={this.handleChange}
-            onSave={this.handleSave}
-            setting={setting}
-            value={effectiveValue}
-          />
-
-          <DefinitionActions
-            changedValue={changedValue}
-            hasError={hasError}
-            hasValueChanged={hasValueChanged}
-            isDefault={isDefault}
-            onCancel={this.handleCancel}
-            onReset={this.handleReset}
-            onSave={this.handleSave}
-            setting={setting}
-          />
+          <form>
+            <Input
+              hasValueChanged={hasValueChanged}
+              onCancel={this.handleCancel}
+              onChange={this.handleChange}
+              onSave={this.handleSave}
+              setting={setting}
+              value={effectiveValue}
+            />
+            <DefinitionActions
+              changedValue={changedValue}
+              hasError={hasError}
+              hasValueChanged={hasValueChanged}
+              isDefault={isDefault}
+              onCancel={this.handleCancel}
+              onReset={this.handleReset}
+              onSave={this.handleSave}
+              setting={setting}
+            />
+          </form>
         </div>
       </div>
     );
