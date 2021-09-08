@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from 'sonar-ui-common/helpers/request';
+import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from "../app/utils/throwGlobalError";
 
 export function getNotificationsForOrganization(key: string) {
   return getJSON('/_codescan/notifications', { organizationId: key }).then(
-      r => r.organization,
-      throwGlobalError
+    r => r.organization,
+    throwGlobalError
   );
+}
+
+export function deleteIntegration(data: {
+  organizationId: string;
+  projectKey: string;
+  projectDelete?: boolean;
+}): Promise<void> {
+  return post('/_codescan/integrations/destroy', data);
 }

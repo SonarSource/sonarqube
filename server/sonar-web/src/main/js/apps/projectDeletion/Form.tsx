@@ -21,24 +21,26 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { deletePortfolio, deleteProject } from '../../api/components';
+import { deleteIntegration } from '../../api/codescan';
+import { deletePortfolio } from '../../api/components';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 
 interface Props {
-  component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;
+  component: Pick<T.Component, 'key' | 'name' | 'qualifier' | 'organization'>;
   router: Pick<Router, 'replace'>;
 }
 
 export class Form extends React.PureComponent<Props> {
   handleDelete = async () => {
     const { component } = this.props;
-    const deleteMethod =
-      component.qualifier === ComponentQualifier.Project ? deleteProject : deletePortfolio;
+    component.qualifier === ComponentQualifier.Project ? await deleteIntegration({
+      organizationId: component.organization,
+      projectKey: component.key,
+      projectDelete: true
+    }) : await deletePortfolio(component.key);
     const redirectTo = isPortfolioLike(component.qualifier) ? '/portfolios' : '/';
-
-    await deleteMethod(component.key);
 
     addGlobalSuccessMessage(
       translateWithParameters('project_deletion.resource_deleted', component.name)
