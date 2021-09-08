@@ -28,7 +28,7 @@ import { Router, withRouter } from '../../components/hoc/withRouter';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 
 interface Props {
-  component: Pick<T.Component, 'key' | 'name' | 'qualifier'| 'organization'>;
+  component: Pick<T.Component, 'key' | 'name' | 'qualifier' | 'organization'>;
   router: Pick<Router, 'replace'>;
 }
 
