@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
@@ -69,7 +70,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   @Override
   public UserDto register(UserRegistration registration) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = getUser(dbSession, registration.getUserIdentity(), registration.getProvider());
+      UserDto userDto = getUser(dbSession, registration.getUserIdentity(), registration.getProvider(), registration.getSource());
       if (userDto == null) {
         return registerNewUser(dbSession, null, registration);
       }
@@ -81,14 +82,55 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   @CheckForNull
-  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
+  private UserDto getUser(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider, AuthenticationEvent.Source source) {
     // First, try to authenticate using the external ID
     UserDto user = dbClient.userDao().selectByExternalIdAndIdentityProvider(dbSession, getProviderIdOrProviderLogin(userIdentity), provider.getKey());
     if (user != null) {
       return user;
     }
     // Then, try with the external login, for instance when external ID has changed
-    return dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
+    user = dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey());
+    if (user == null) {
+      return null;
+    }
+
+    // all gitlab users have an external ID
+    if (provider.getKey().equals("gitlab")) {
+      throw failAuthenticationException(userIdentity, source);
+    } else if (provider.getKey().equals("github")) {
+      validateEmailToAvoidLoginRecycling(userIdentity, user, source);
+    }
+    return user;
+  }
+
+  private static void validateEmailToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, AuthenticationEvent.Source source) {
+    String dbEmail = user.getEmail();
+
+    if (dbEmail == null) {
+      return;
+    }
+
+    String externalEmail = userIdentity.getEmail();
+
+    if (!dbEmail.equals(externalEmail)) {
+      LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'",
+        userIdentity.getProviderLogin(), externalEmail, dbEmail);
+      throw failAuthenticationException(userIdentity, source);
+    }
+  }
+
+  private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, AuthenticationEvent.Source source) {
+    String message = String.format("Failed to authenticate with login '%s'", userIdentity.getProviderLogin());
+    return authException(userIdentity, source, message, message);
+  }
+
+  private static AuthenticationException authException(UserIdentity userIdentity, AuthenticationEvent.Source source, String message, String publicMessage) {
+    return AuthenticationException.newBuilder()
+      .setSource(source)
+      .setLogin(userIdentity.getProviderLogin())
+      .setMessage(message)
+      .setPublicMessage(publicMessage)
+      .build();
   }
 
   private UserDto registerNewUser(DbSession dbSession, @Nullable UserDto disabledUser, UserRegistration authenticatorParameters) {

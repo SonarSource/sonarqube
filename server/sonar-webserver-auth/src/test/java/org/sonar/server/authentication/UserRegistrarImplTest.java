@@ -34,6 +34,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -42,6 +43,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
@@ -53,14 +55,19 @@ public class UserRegistrarImplTest {
 
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
     .setProviderId("ABCD")
-    .setProviderLogin("johndoo")
+    .setProviderLogin(USER_LOGIN)
     .setName("John")
     .setEmail("john@email.com")
     .build();
 
-  private static final TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
+  private static final TestIdentityProvider GH_IDENTITY_PROVIDER = new TestIdentityProvider()
     .setKey("github")
     .setName("name of github")
+    .setEnabled(true)
+    .setAllowsUsersToSignUp(true);
+  private static final TestIdentityProvider IDENTITY_PROVIDER = new TestIdentityProvider()
+    .setKey("other")
+    .setName("name of other")
     .setEnabled(true)
     .setAllowsUsersToSignUp(true);
 
@@ -105,7 +112,7 @@ public class UserRegistrarImplTest {
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("john@email.com");
     assertThat(user.getExternalLogin()).isEqualTo("johndoo");
-    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("other");
     assertThat(user.getExternalId()).isEqualTo("ABCD");
     assertThat(user.isRoot()).isFalse();
     checkGroupMembership(user, defaultGroup);
@@ -158,7 +165,7 @@ public class UserRegistrarImplTest {
     assertThat(user.getLogin()).isNotEqualTo("John Doe").startsWith("john-doe");
     assertThat(user.getEmail()).isEqualTo("john@email.com");
     assertThat(user.getExternalLogin()).isEqualTo("johndoo");
-    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("other");
     assertThat(user.getExternalId()).isEqualTo("ABCD");
   }
 
@@ -305,7 +312,7 @@ public class UserRegistrarImplTest {
 
     assertThat(db.users().selectUserByLogin(user.getLogin()).get())
       .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider, UserDto::isActive)
-      .contains("John", "john@email.com", "ABCD", "johndoo", "github", true);
+      .contains("John", "john@email.com", "ABCD", "johndoo", "other", true);
   }
 
   @Test
@@ -327,7 +334,7 @@ public class UserRegistrarImplTest {
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .contains(USER_LOGIN, "John", "john@email.com", "ABCD", "johndoo", "github", true);
+      .contains(USER_LOGIN, "John", "john@email.com", "ABCD", "johndoo", "other", true);
   }
 
   @Test
@@ -349,7 +356,7 @@ public class UserRegistrarImplTest {
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .contains("John", "john@email.com", "ABCD", "johndoo", "github", true);
+      .contains("John", "john@email.com", "ABCD", "johndoo", "other", true);
   }
 
   @Test
@@ -379,6 +386,88 @@ public class UserRegistrarImplTest {
   }
 
   @Test
+  public void authenticate_existing_github_user_matching_external_login_and_email_when_external_id_is_null() {
+    UserDto user = db.users().insertUser(u -> u
+      .setName("Old name")
+      .setEmail("john@email.com")
+      .setExternalId("Old id")
+      .setExternalLogin("johndoo")
+      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+
+    underTest.register(UserRegistration.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderId("id")
+        .setProviderLogin("johndoo")
+        .setName("John")
+        .setEmail("john@email.com")
+        .build())
+      .setProvider(GH_IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .build());
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains(user.getLogin(), "John", "john@email.com", "johndoo", "johndoo", "github", true);
+  }
+
+  @Test
+  public void fail_to_authenticate_existing_github_user_matching_external_login_if_email_doesnt_match() {
+    db.users().insertUser(u -> u
+      .setName("Old name")
+      .setEmail("Old email")
+      .setExternalId("")
+      .setExternalLogin("johndoo")
+      .setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderId(null)
+        .setProviderLogin("johndoo")
+        .setName("John")
+        .setEmail("john@email.com")
+        .build())
+      .setProvider(GH_IDENTITY_PROVIDER)
+      .setSource(Source.local(BASIC))
+      .build();
+
+    assertThatThrownBy(() -> underTest.register(registration))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Failed to authenticate with login 'johndoo'");
+  }
+
+  @Test
+  public void fail_to_authenticate_existing_gitlab_user_when_external_id_is_null() {
+    TestIdentityProvider gitlabProvider = new TestIdentityProvider()
+      .setKey("gitlab")
+      .setName("name of gitlab")
+      .setEnabled(true)
+      .setAllowsUsersToSignUp(true);
+
+    UserDto user = db.users().insertUser(u -> u
+      .setName("Old name")
+      .setEmail("john@email.com")
+      .setExternalId("Old id")
+      .setExternalLogin("johndoo")
+      .setExternalIdentityProvider(gitlabProvider.getKey()));
+
+    UserRegistration registration = UserRegistration.builder()
+      .setUserIdentity(UserIdentity.builder()
+        .setProviderId(null)
+        .setProviderLogin("johndoo")
+        .setName("John")
+        .setEmail("john@email.com")
+        .build())
+      .setProvider(gitlabProvider)
+      .setSource(Source.local(BASIC))
+      .build();
+
+    assertThatThrownBy(() -> underTest.register(registration))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Failed to authenticate with login 'johndoo'");
+  }
+
+  @Test
   public void authenticate_existing_user_matching_external_login_when_external_id_is_null() {
     UserDto user = db.users().insertUser(u -> u
       .setName("Old name")
@@ -401,7 +490,7 @@ public class UserRegistrarImplTest {
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
-      .contains(user.getLogin(), "John", "john@email.com", "johndoo", "johndoo", "github", true);
+      .contains(user.getLogin(), "John", "john@email.com", "johndoo", "johndoo", "other", true);
   }
 
   @Test
@@ -470,7 +559,7 @@ public class UserRegistrarImplTest {
     assertThat(userDto.getEmail()).isEqualTo("john@email.com");
     assertThat(userDto.getExternalId()).isEqualTo("ABCD");
     assertThat(userDto.getExternalLogin()).isEqualTo("johndoo");
-    assertThat(userDto.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(userDto.getExternalIdentityProvider()).isEqualTo("other");
     assertThat(userDto.isRoot()).isFalse();
   }
 
