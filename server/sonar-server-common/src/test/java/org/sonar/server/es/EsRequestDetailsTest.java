@@ -31,7 +31,7 @@ import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.core.TimeValue;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

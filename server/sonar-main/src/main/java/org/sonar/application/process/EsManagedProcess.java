@@ -20,6 +20,7 @@
 package org.sonar.application.process;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.rest.RestStatus;
@@ -94,6 +95,13 @@ public class EsManagedProcess extends AbstractManagedProcess {
         if (firstMasterNotDiscoveredLog.getAndSet(false)) {
           LOG.info("Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?");
         }
+      }
+      return KO;
+    } catch (ElasticsearchException e) {
+      if (e.status() == RestStatus.INTERNAL_SERVER_ERROR  && e.getMessage().contains("Connection refused")) {
+        return CONNECTION_REFUSED;
+      } else {
+        LOG.error("Failed to check status", e);
       }
       return KO;
     } catch (Exception e) {
