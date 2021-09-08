@@ -94,8 +94,8 @@ public class EsManagedProcessTest {
   public void isOperational_should_retry_if_Elasticsearch_is_unreachable() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
-      .thenReturn(Optional.empty())
-      .thenReturn(Optional.of(ClusterHealthStatus.GREEN));
+        .thenReturn(Optional.empty())
+        .thenReturn(Optional.of(ClusterHealthStatus.GREEN));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isTrue();
   }
@@ -104,7 +104,7 @@ public class EsManagedProcessTest {
   public void isOperational_should_return_false_if_Elasticsearch_status_cannot_be_evaluated() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
-      .thenThrow(new RuntimeException("test"));
+        .thenThrow(new RuntimeException("test"));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
   }
@@ -113,7 +113,7 @@ public class EsManagedProcessTest {
   public void isOperational_should_return_false_if_ElasticsearchException_with_connection_refused_thrown() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException("Connection refused"));
+        .thenThrow(new ElasticsearchException("Connection refused"));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
   }
@@ -122,7 +122,7 @@ public class EsManagedProcessTest {
   public void isOperational_should_return_false_if_ElasticsearchException_with_connection_timeout_thrown() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException(new ExecutionException(new ConnectException("Timeout connecting to [/127.0.0.1:9001]"))));
+        .thenThrow(new ElasticsearchException(new ExecutionException(new ConnectException("Timeout connecting to [/127.0.0.1:9001]"))));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT_LONG);
     assertThat(underTest.isOperational()).isFalse();
   }
@@ -131,7 +131,7 @@ public class EsManagedProcessTest {
   public void isOperational_should_return_false_if_ElasticsearchException_thrown() {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException("test"));
+        .thenThrow(new ElasticsearchException("test"));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
   }
@@ -147,24 +147,24 @@ public class EsManagedProcessTest {
 
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchStatusException("foobar[type=master_not_discovered_exception,acme]...", RestStatus.SERVICE_UNAVAILABLE));
+        .thenThrow(new ElasticsearchStatusException("foobar[type=master_not_discovered_exception,acme]...", RestStatus.SERVICE_UNAVAILABLE));
 
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
     assertThat(memoryAppender.events).isNotEmpty();
     assertThat(memoryAppender.events)
-      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
-      .containsOnlyOnce(
-        tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?")
-      );
+        .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
+        .containsOnlyOnce(
+            tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?")
+        );
 
     // Second call must not log another message
     assertThat(underTest.isOperational()).isFalse();
     assertThat(memoryAppender.events)
-      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
-      .containsOnlyOnce(
-        tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?")
-      );
+        .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
+        .containsOnlyOnce(
+            tuple(Level.INFO, "Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?")
+        );
   }
 
   private static class MemoryAppender<E> extends AppenderBase<E> {

@@ -56,6 +56,24 @@ public class EsConnectorImplTest {
     "  \"error\" : \"i-have-a-bad-feelings-about-this\"" +
     "}";
 
+  private static final String ES_INFO_RESPONSE = "{"
+    + "  \"name\" : \"sonarqube\","
+    + "  \"cluster_name\" : \"sonarqube\","
+    + "  \"cluster_uuid\" : \"6Oj9lFIyQVa_d5HgQWqQpA\","
+    + "  \"version\" : {"
+    + "    \"number\" : \"7.14.1\","
+    + "    \"build_flavor\" : \"default\","
+    + "    \"build_type\" : \"tar\","
+    + "    \"build_hash\" : \"66b55ebfa59c92c15db3f69a335d500018b3331e\","
+    + "    \"build_date\" : \"2021-08-26T09:01:05.390870785Z\","
+    + "    \"build_snapshot\" : false,"
+    + "    \"lucene_version\" : \"8.9.0\","
+    + "    \"minimum_wire_compatibility_version\" : \"6.8.0\","
+    + "    \"minimum_index_compatibility_version\" : \"6.0.0-beta1\""
+    + "  },"
+    + "  \"tagline\" : \"You Know, for Search\""
+    + "}";
+
   @Rule
   public MockWebServer mockWebServer = new MockWebServer();
 
@@ -96,9 +114,15 @@ public class EsConnectorImplTest {
 
   private void mockServerResponse(int httpCode, String jsonResponse) {
     mockWebServer.enqueue(new MockResponse()
+      .setResponseCode(200)
+      .setBody(ES_INFO_RESPONSE)
+      .setHeader("Content-Type", "application/json")
+      .setHeader("X-elastic-product", "Elasticsearch"));
+    mockWebServer.enqueue(new MockResponse()
       .setResponseCode(httpCode)
       .setBody(jsonResponse)
-      .setHeader("Content-Type", "application/json"));
+      .setHeader("Content-Type", "application/json")
+      .setHeader("X-elastic-product", "Elasticsearch"));
   }
 
 }

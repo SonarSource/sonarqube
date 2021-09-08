@@ -33,7 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -250,7 +250,7 @@ public class RuleIndex {
     /* Add enforced filter on main type Rule */
     filters.put(
       FIELD_INDEX_TYPE,
-      boolQuery().must(QueryBuilders.termsQuery(FIELD_INDEX_TYPE, TYPE_RULE.getType())));
+      boolQuery().must(termsQuery(FIELD_INDEX_TYPE, TYPE_RULE.getType())));
 
     /* Add enforced filter on rules that are REMOVED */
     filters.put(FIELD_RULE_STATUS,
@@ -270,45 +270,45 @@ public class RuleIndex {
 
     if (isNotEmpty(query.getLanguages())) {
       filters.put(FIELD_RULE_LANGUAGE,
-        QueryBuilders.termsQuery(FIELD_RULE_LANGUAGE, query.getLanguages()));
+        termsQuery(FIELD_RULE_LANGUAGE, query.getLanguages()));
     }
 
     if (isNotEmpty(query.getRepositories())) {
       filters.put(FIELD_RULE_REPOSITORY,
-        QueryBuilders.termsQuery(FIELD_RULE_REPOSITORY, query.getRepositories()));
+        termsQuery(FIELD_RULE_REPOSITORY, query.getRepositories()));
     }
 
     if (isNotEmpty(query.getSeverities())) {
       filters.put(FIELD_RULE_SEVERITY,
-        QueryBuilders.termsQuery(FIELD_RULE_SEVERITY, query.getSeverities()));
+        termsQuery(FIELD_RULE_SEVERITY, query.getSeverities()));
     }
 
     if (isNotEmpty(query.getCwe())) {
       filters.put(FIELD_RULE_CWE,
         boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_CWE, query.getCwe()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(termsQuery(FIELD_RULE_CWE, query.getCwe()))
+          .must(termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (isNotEmpty(query.getOwaspTop10())) {
       filters.put(FIELD_RULE_OWASP_TOP_10,
         boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(termsQuery(FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10()))
+          .must(termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (isNotEmpty(query.getSansTop25())) {
       filters.put(FIELD_RULE_SANS_TOP_25,
         boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_SANS_TOP_25, query.getSansTop25()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(termsQuery(FIELD_RULE_SANS_TOP_25, query.getSansTop25()))
+          .must(termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (isNotEmpty(query.getSonarsourceSecurity())) {
       filters.put(FIELD_RULE_SONARSOURCE_SECURITY,
         boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+          .must(termsQuery(FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity()))
+          .must(termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (StringUtils.isNotEmpty(query.getKey())) {
@@ -324,7 +324,7 @@ public class RuleIndex {
     if (isNotEmpty(types)) {
       List<String> typeNames = types.stream().map(RuleType::toString).collect(MoreCollectors.toList());
       filters.put(FIELD_RULE_TYPE,
-        QueryBuilders.termsQuery(FIELD_RULE_TYPE, typeNames));
+        termsQuery(FIELD_RULE_TYPE, typeNames));
     }
 
     if (query.getAvailableSinceLong() != null) {
@@ -338,7 +338,7 @@ public class RuleIndex {
         stringStatus.add(status.name());
       }
       filters.put(FIELD_RULE_STATUS,
-        QueryBuilders.termsQuery(FIELD_RULE_STATUS, stringStatus));
+        termsQuery(FIELD_RULE_STATUS, stringStatus));
     }
 
     Boolean isTemplate = query.isTemplate();

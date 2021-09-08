@@ -339,13 +339,12 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.13.4') {
+      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.14.1') {
         exclude 'org.apache.logging.log4j:log4j-core'
       }
-      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.13.4'
+      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.14.1'
       dependency 'org.elasticsearch:mocksocket:1.0'
-      //analysis-common need to stay at 7.10.2 as it hasn't been published to mvn central
-      dependency 'org.codelibs.elasticsearch.module:analysis-common:7.10.2'
+      dependency 'org.codelibs.elasticsearch.module:analysis-common:7.14.1'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r'
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.1'
       dependency 'org.hamcrest:hamcrest-all:1.3'
