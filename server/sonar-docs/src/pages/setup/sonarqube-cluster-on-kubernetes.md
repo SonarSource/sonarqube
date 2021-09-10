@@ -1,5 +1,5 @@
 ---
-title: Deploy DCE on Kubernetes
+title: Deploy a SonarQube Cluster on Kubernetes
 url: /setup/sonarqube-cluster-on-kubernetes/
 ---
 
@@ -7,8 +7,7 @@ _This page applies to deploying SonarQube Data Center Edition on Kubernetes. For
 
 # Overview 
 
-[[info]]
-| Deploying and operating SonarQube Data Center Edition on Kubernetes is currently in Beta status.
+[[info]] | Deploying and operating SonarQube Data Center Edition on Kubernetes is available starting SonarQube 9.1 and is currently in Beta status.
 
 You can find the SonarQube DCE Helm chart on [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube-dce).
 
@@ -41,15 +40,14 @@ We try to provide a good default with the Helm chart, but there are some points 
 
 Currently only helm3 is supported.
 
-To install the Helm Chart from the [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube-dce) Repository, you can use the following commands:
+To install the Helm Chart from Helm Repository, you can use the following commands:
 
 ```bash 
-git clone https://github.com/SonarSource/helm-chart-sonarqube.git
-cd helm-chart-sonarqube/charts/sonarqube-dce
-helm dependency update
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm repo update
 kubectl create namespace sonarqube-dce
 export JWT_SECRET=$(echo -n "your_secret" | openssl dgst -sha256 -hmac "your_key" -binary | base64)
-helm upgrade --install -f values.yaml -n sonarqube-dce sonarqube-dce --set ApplicationNodes.jwtSecret=$JWT_SECRET ./
+helm upgrade --install -n sonarqube-dce sonarqube-dce --set ApplicationNodes.jwtSecret=$JWT_SECRET sonarqube/sonarqube-dce
 ```
 
 ### Ingress Creation
@@ -130,6 +128,17 @@ spec:
       app: sonarqube-dce
 ```
 
+### Log Format
+
+SonarQube prints all logs in plain-text to stdout/stderr. It can print logs as JSON-String if the variable `logging.jsonOutput` is set to `true`. This will enable log collection tools like [Loki](https://grafana.com/oss/loki/) to do post processing on the information that are provided by the application.
+
+#### LogQL Example
+
+With JSON Logging enabled, you can define a LogQL Query like this to filter only logs with the severity "ERROR" and display the Name of the Pod as well as the Message:
+
+```
+{namespace="sonarqube-dce", app="sonarqube-dce"}| json | severity="ERROR" | line_format "{{.nodename}} {{.message}}"
+```
 
 ### Other Configuration Options
 
@@ -140,13 +149,8 @@ As SonarQube is intended to be run anywhere, there are some drawbacks that are c
 
 ### No Sidecar Support
 
-There is currently no support for additional sidecar containers and, as a result, there is no support for log collection. SonarQube will print the main application log to stdout, but logs on the web, ce, or search component will be printed to separate file streams inside the container.
+There is currently no support for additional sidecar containers.
 If you want to use a sidecar container with the SonarQube deployment, you have to manually alter the deployment.
-
-### No Log Complete Collection 
-
-As previously mentioned, there's currently no support for a log collection to make SonarQube observable. Logs are printed to separate file streams as plaintext.
-If you still want to scrape these logs, you will need to manually alter the deployment to read these 4 file streams and send them to your log collection solution manually.
 
 ### Problems with Azure Fileshare PVC
 

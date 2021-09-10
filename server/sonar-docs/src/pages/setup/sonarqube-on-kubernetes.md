@@ -1,13 +1,11 @@
 ---
-title: Deploy Non-DCE on Kubernetes
+title: Deploy SonarQube on Kubernetes
 url: /setup/sonarqube-on-kubernetes/
 ---
 
 _This part of the Documentation is only valid for Community, Developer, and Enterprise Editions. For information on deploying the Data Center Edition of SonarQube on Kubernetes, see [this](/setup/sonarqube-cluster-on-kubernetes/) documentation._
 
 # Overview 
-
-Deploying SonarQube on Kubernetes is still in the early phases. We've only tested deployment with the following recommendations and constraints, and deployment has some limitations as documented below. 
 
 You can find the SonarQube Helm chart on [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube).
 
@@ -19,11 +17,14 @@ When you want to operate SonarQube on Kubernetes, consider the following recomme
 
 ### Prerequisites
 
+#### SonarQube Helm Chart
+
 | Kubernetes Version  | Helm Chart Version | SonarQube Version |
 | -------- | ----------------------------- | ----------------- |
-| 1.19 | 1.0 | 8.9 |
-| 1.20 | 1.0 | 8.9 |
-| 1.21 | 1.0 | 8.9 |
+| 1.19 | 1.1 | 9.1 |
+| 1.20 | 1.1 | 9.1 |
+| 1.21 | 1.1 | 9.1 |
+
 
 ### Pod Security Policies
 
@@ -103,14 +104,13 @@ We try to provide a good default with the Helm chart, but there are some points 
 
 Currently only helm3 is supported.
 
-To install the Helm Chart from the [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube) Repository, you can use the following commands:
+To install the Helm Chart from our Helm Repository, you can use the following commands:
 
 ```bash 
-git clone https://github.com/SonarSource/helm-chart-sonarqube.git
-cd helm-chart-sonarqube/charts/sonarqube
-helm dependency update
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm repo update
 kubectl create namespace sonarqube
-helm upgrade --install -f values.yaml -n sonarqube sonarqube ./
+helm upgrade --install -n sonarqube sonarqube sonarqube/sonarqube
 ```
 
 ### Persistency 
@@ -206,34 +206,9 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: "8m"
 ```
 
-### Other Configuration Options
-
-While we only document the most pressing Helm chart customizations in this documentation, there are other possibilities for you to choose to [Customize the Chart Before Installing](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing). Please see the Helm chart [README](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube) file for more information on these.
-
-## Known Limitations
-
-As SonarQube is intended to be run anywhere, there are some drawbacks that are currently known when operating in Kubernetes. This list is not comprehensive, but something to keep in mind and points for us to improve on.
-
-### No Sidecar Support
-
-There is currently no support for additional sidecar containers and, as a result, there is no support for log collection. SonarQube will print the main application log to stdout, but logs on the web, ce, or search component will be printed to separate file streams inside the container.
-If you want to use a sidecar container with the SonarQube deployment, you have to manually alter the deployment.
-### No Log Complete Collection 
-
-As previously mentioned, there's currently no support for a log collection to make SonarQube observable. Logs are printed to separate file streams as plaintext.
-If you still want to scrape these logs, you will need to manually alter the deployment to read these 4 file streams and send them to your log collection solution manually.
-### Readiness and Startup delays
-
-When persistence is disabled, SonarQube startup takes significantly longer as the Elasticsearch indexes need to be rebuilt. As this delay depends on the amount of data in your SonarQube instance, the values for the startup/readiness and liveness probes need to be adjusted to your environment. 
-We also recommend taking a look at the default limits for the SonarQube deployment as the amount of CPU available to SonarQube also impacts the startup time.
-
-### Problems with Azure Fileshare PVC
-
-Currently, there is a known limitation when working on AKS that resonates around the use of Azure Fileshare. We recommend using another storage class for persistency on AKS.
-
 ### Monitoring
 
-Currently, no cloud-native monitoring solutions play nicely with SonarQube or are supported by SonarSource. It is, however, possible to expose at least the JMX metrics to Prometheus with the help of the Prometheus JMX exporter.
+Currently, no cloud-native monitoring solutions play nicely with SonarQube or are supported by SonarSource. It is, however, possible to expose at least the JMX metrics to Prometheus with the help of the Prometheus JMX exporter for the Application Nodes.
 To use this option, set the following values in your `values.yaml` file:
 
 ```yaml
@@ -247,3 +222,49 @@ prometheusExporter:
 This downloads the Prometheus JMX exporter agent and adds it to the startup options of SonarQube. With this default configuration, the JMX metrics will be exposed on /metrics for Prometheus to scrape.
 
 The config scope here defines a configuration that is understandable by the Prometheus JMX exporter. For more information, please see the [documentation](https://github.com/prometheus/jmx_exporter).
+
+#### PodMonitor
+
+You can collect metrics on application nodes using PodMonitor for Prometheus. Search node monitoring is not currently supported. To monitor applications nodes, define PodMonitor as follows:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: sonarqube
+  namespace: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+    - sonarqube
+  podMetricsEndpoints:
+  - interval: 30s
+    path: /
+    scheme: http
+    targetPort: monitoring-ce
+  - interval: 30s
+    path: /
+    scheme: http
+    targetPort: monitoring-web
+  selector:
+    matchLabels:
+      app: sonarqube
+```
+
+### Other Configuration Options
+
+While we only document the most pressing Helm chart customizations in this documentation, there are other possibilities for you to choose to [Customize the Chart Before Installing](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing). Please see the Helm chart [README](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube) file for more information on these.
+
+## Known Limitations
+
+As SonarQube is intended to be run anywhere, there are some drawbacks that are currently known when operating in Kubernetes. This list is not comprehensive, but something to keep in mind and points for us to improve on.
+
+### Readiness and Startup delays
+
+When persistence is disabled, SonarQube startup takes significantly longer as the Elasticsearch indexes need to be rebuilt. As this delay depends on the amount of data in your SonarQube instance, the values for the startup/readiness and liveness probes need to be adjusted to your environment. 
+We also recommend taking a look at the default limits for the SonarQube deployment as the amount of CPU available to SonarQube also impacts the startup time.
+
+### Problems with Azure Fileshare PVC
+
+Currently, there is a known limitation when working on AKS that resonates around the use of Azure Fileshare. We recommend using another storage class for persistency on AKS.
+
