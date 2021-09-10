@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -126,6 +127,17 @@ public class IssueDaoTest {
     List<IssueDto> issues = underTest.selectByKeys(db.getSession(), asList("I1", "I2", "I3"));
     // results are not ordered, so do not use "containsExactly"
     assertThat(issues).extracting("key").containsOnly("I1", "I2");
+  }
+
+  @Test
+  public void selectIssueKeysByComponentUuid() {
+    // contains I1 and I2
+    prepareTables();
+
+    Set<String> issues = underTest.selectIssueKeysByComponentUuid(db.getSession(), PROJECT_UUID);
+
+    // results are not ordered, so do not use "containsExactly"
+    assertThat(issues).containsOnly("I1", "I2");
   }
 
   @Test

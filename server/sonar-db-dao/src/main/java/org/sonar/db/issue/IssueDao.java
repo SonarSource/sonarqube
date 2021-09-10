@@ -58,6 +58,10 @@ public class IssueDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
+  public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid) {
+    return mapper(session).selectIssueKeysByComponentUuid(componentUuid);
+  }
+
   public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
     return mapper(session).selectByComponentUuidPaginated(componentUuid, Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE));
   }

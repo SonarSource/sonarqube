@@ -353,6 +353,14 @@
     group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
   </select>
 
+  <select id="selectIssueKeysByComponentUuid" parameterType="string" resultType="string">
+    select
+      i.kee
+    from issues i
+    where
+      i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>
@@ -361,7 +369,7 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-    order by i.kee
+    order by i.issue_creation_date ASC
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
@@ -370,7 +378,7 @@
     <include refid="issueColumns"/>
     from
     (select
-        row_number() over(order by i.kee) as row_number,
+        row_number() over(order by i.issue_creation_date ASC) as row_number,
           <include refid="issueColumnsInInnerQuery" />
         from issues i
         where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
@@ -392,7 +400,7 @@
 	        <include refid="issueColumnsInInnerQuery"/>
 	        from issues i
 	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-	        	order by i.kee
+	        	order by i.issue_creation_date ASC
 	      ) t
 	    ) i
 	    where
