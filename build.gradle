@@ -645,23 +645,11 @@ subprojects {
   }
 }
 
-
-// Yarn doesn't support concurrent access to its global cache,
-// i.e. parallel execution of several "yarn install" tasks,
-// since these tasks are independent, we can establish arbitrary total order
-// to prevent their concurrent execution.
-// Note that "task1.mustRunAfter(task2)" ordering has an effect only when both
-// tasks are scheduled for execution, therefore should be established between
-// all pairs of "yarn install" tasks to define their total order and to prevent
-// their concurrent execution even in case when one or more of these tasks not
-// scheduled.
-def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn') }
-yarnInstallTasks.drop(1).eachWithIndex { it, i -> it.mustRunAfter(yarnInstallTasks[0..i]) }
-
 // by default, Yarn will update lock file if it is not up to date with "package.json"
 // using option "--immutable" will disable this behavior and "yarn install" will fail if lock file is out of date
 // all "yarn install" tasks should be executed with this option for reproducibility of builds
 // and to prevent developers from forgetting to update lock file when they update "package.json"
+def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn') }
 yarnInstallTasks.each { it -> it.args = ['--immutable'] }
 
 // https://github.com/ben-manes/gradle-versions-plugin
