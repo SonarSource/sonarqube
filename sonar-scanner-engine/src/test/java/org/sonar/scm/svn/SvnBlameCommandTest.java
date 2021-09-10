@@ -43,18 +43,26 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameCommand.BlameInput;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.internal.wc2.compat.SvnCodec;
 import org.tmatesoft.svn.core.wc.ISVNOptions;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNLogClient;
 import org.tmatesoft.svn.core.wc.SVNRevision;
+import org.tmatesoft.svn.core.wc.SVNStatus;
+import org.tmatesoft.svn.core.wc.SVNStatusClient;
+import org.tmatesoft.svn.core.wc.SVNStatusType;
 import org.tmatesoft.svn.core.wc.SVNUpdateClient;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 import org.tmatesoft.svn.core.wc2.SvnCheckout;
@@ -62,7 +70,11 @@ import org.tmatesoft.svn.core.wc2.SvnTarget;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -82,6 +94,9 @@ public class SvnBlameCommandTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private FileSystem fs;
   private BlameInput input;
@@ -285,6 +300,65 @@ public class SvnBlameCommandTest {
 
     newSvnBlameCommand().blame(input, blameResult);
     verifyNoInteractions(blameResult);
+  }
+
+  @Test
+  public void blame_givenNoCredentials_logWarning() throws Exception {
+    BlameOutput output = mock(BlameOutput.class);
+    InputFile inputFile = mock(InputFile.class);
+    SvnBlameCommand svnBlameCommand = newSvnBlameCommand();
+
+    SVNClientManager clientManager = mock(SVNClientManager.class);
+    SVNLogClient logClient = mock(SVNLogClient.class);
+    SVNStatusClient statusClient = mock(SVNStatusClient.class);
+    SVNStatus status = mock(SVNStatus.class);
+
+    when(clientManager.getLogClient()).thenReturn(logClient);
+    when(clientManager.getStatusClient()).thenReturn(statusClient);
+    when(status.getContentsStatus()).thenReturn(SVNStatusType.STATUS_NORMAL);
+    when(inputFile.file()).thenReturn(mock(File.class));
+    when(statusClient.doStatus(any(File.class), anyBoolean())).thenReturn(status);
+
+    doThrow(SVNAuthenticationException.class).when(logClient).doAnnotate(any(File.class), any(SVNRevision.class),
+      any(SVNRevision.class), any(SVNRevision.class), anyBoolean(), anyBoolean(), any(AnnotationHandler.class),
+      eq(null));
+
+    assertThrows(IllegalStateException.class, () -> {
+      svnBlameCommand.blame(clientManager, inputFile, output);
+      assertThat(logTester.logs(LoggerLevel.WARN)).contains("Authentication to SVN server is required but no " +
+        "authentication data was passed to the scanner");
+    });
+
+  }
+
+  @Test
+  public void blame_givenCredentialsSupplied_doNotlogWarning() throws Exception {
+    BlameOutput output = mock(BlameOutput.class);
+    InputFile inputFile = mock(InputFile.class);
+    SvnConfiguration properties = mock(SvnConfiguration.class);
+    SvnBlameCommand svnBlameCommand = new SvnBlameCommand(properties);
+
+    SVNClientManager clientManager = mock(SVNClientManager.class);
+    SVNLogClient logClient = mock(SVNLogClient.class);
+    SVNStatusClient statusClient = mock(SVNStatusClient.class);
+    SVNStatus status = mock(SVNStatus.class);
+
+    when(properties.isEmpty()).thenReturn(true);
+    when(clientManager.getLogClient()).thenReturn(logClient);
+    when(clientManager.getStatusClient()).thenReturn(statusClient);
+    when(status.getContentsStatus()).thenReturn(SVNStatusType.STATUS_NORMAL);
+    when(inputFile.file()).thenReturn(mock(File.class));
+    when(statusClient.doStatus(any(File.class), anyBoolean())).thenReturn(status);
+
+    doThrow(SVNAuthenticationException.class).when(logClient).doAnnotate(any(File.class), any(SVNRevision.class),
+      any(SVNRevision.class), any(SVNRevision.class), anyBoolean(), anyBoolean(), any(AnnotationHandler.class),
+      eq(null));
+
+    assertThrows(IllegalStateException.class, () -> {
+      svnBlameCommand.blame(clientManager, inputFile, output);
+      assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
+    });
+
   }
 
   private static void javaUnzip(File zip, File toDir) {

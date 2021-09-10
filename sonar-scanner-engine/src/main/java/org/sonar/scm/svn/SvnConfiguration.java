@@ -64,4 +64,8 @@ public class SvnConfiguration {
   public String passPhrase() {
     return config.get(PASSPHRASE_PROP_KEY).orElse(null);
   }
+
+  public boolean isEmpty() {
+    return username() == null && password() == null && privateKey() == null && passPhrase() == null;
+  }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.scm.svn;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -26,6 +27,7 @@ import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
@@ -68,7 +70,8 @@ public class SvnBlameCommand extends BlameCommand {
     }
   }
 
-  private static void blame(SVNClientManager clientManager, InputFile inputFile, BlameOutput output) {
+  @VisibleForTesting
+  void blame(SVNClientManager clientManager, InputFile inputFile, BlameOutput output) {
     String filename = inputFile.relativePath();
 
     LOG.debug("Process file {}", filename);
@@ -81,6 +84,11 @@ public class SvnBlameCommand extends BlameCommand {
       SVNLogClient logClient = clientManager.getLogClient();
       logClient.setDiffOptions(new SVNDiffOptions(true, true, true));
       logClient.doAnnotate(inputFile.file(), SVNRevision.UNDEFINED, SVNRevision.create(1), SVNRevision.BASE, true, true, handler, null);
+    } catch (SVNAuthenticationException e) {
+      if(configuration.isEmpty()) {
+        LOG.warn("Authentication to SVN server is required but no authentication data was passed to the scanner");
+      }
+      throw new IllegalStateException("Authentication error when executing blame for file " + filename, e);
     } catch (SVNException e) {
       throw new IllegalStateException("Error when executing blame for file " + filename, e);
     }

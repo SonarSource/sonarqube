@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class SvnConfigurationTest {
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -64,5 +65,47 @@ public class SvnConfigurationTest {
     } catch (Exception e) {
       assertThat(e).hasMessageContaining("Unable to read private key from ");
     }
+  }
+
+  @Test
+  public void isEmpty_givenNullProperties_returnTrue() {
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE));
+
+    SvnConfiguration svnConfiguration = new SvnConfiguration(settings.asConfig());
+
+    assertThat(svnConfiguration.isEmpty()).isTrue();
+  }
+
+  @Test
+  public void isEmpty_givenNotNullProperties_returnFalse() {
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE));
+    settings.setProperty("sonar.svn.username", "bob");
+
+    SvnConfiguration svnConfiguration = new SvnConfiguration(settings.asConfig());
+
+    assertThat(svnConfiguration.isEmpty()).isFalse();
+  }
+
+  @Test
+  public void isEmpty_givenAllNotNullProperties_returnFalse() {
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE));
+    settings.setProperty("sonar.svn.username", "bob");
+    settings.setProperty("sonar.svn.privateKeyPath", "bob");
+    settings.setProperty("sonar.svn.passphrase.secured", "bob");
+
+    SvnConfiguration svnConfiguration = new SvnConfiguration(settings.asConfig());
+
+    assertThat(svnConfiguration.isEmpty()).isFalse();
+  }
+
+  @Test
+  public void isEmpty_givenHalfNotNullProperties_returnFalse() {
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE));
+    settings.setProperty("sonar.svn.password.secured", "bob");
+    settings.setProperty("sonar.svn.passphrase.secured", "bob");
+
+    SvnConfiguration svnConfiguration = new SvnConfiguration(settings.asConfig());
+
+    assertThat(svnConfiguration.isEmpty()).isFalse();
   }
 }
