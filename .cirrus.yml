@@ -83,9 +83,9 @@ screenshots_on_failure_template: &REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
   screenshots_artifacts:
     path: "**/build/screenshots/**/*"
 
-node_modules_cache_template: &NODE_MODULES_CACHE_TEMPLATE
-  node_modules_cache:
-    folder: "**/node_modules"
+yarn_cache_template: &YARN_CACHE_TEMPLATE
+  yarn_cache:
+    folder: "~/.yarn/berry/cache"
     fingerprint_script: |
       cat \
         server/sonar-web/yarn.lock \
@@ -101,7 +101,7 @@ custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
     git reset --hard $CIRRUS_CHANGE_IN_REPO
 
 build_task:
-  <<: *NODE_MODULES_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
   only_if: >-
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
            $CIRRUS_BRANCH != "public_master" &&
@@ -129,7 +129,7 @@ build_task:
 
 validate_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
-  <<: *NODE_MODULES_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -144,7 +144,7 @@ validate_task:
 
 yarn_check-ci_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
-  <<: *NODE_MODULES_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -519,7 +519,6 @@ upgd_mssql2019_task:
     - ./private/cirrus/cirrus-qa.sh mssql2017
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-
 
 upgd_oracle12_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
