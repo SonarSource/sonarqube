@@ -22,7 +22,7 @@ task fatJar(type: Jar) {
   manifest {
     attributes 'Main-Class': 'org.sonarqube.wsgenerator.Generator'
   }
-  classifier = 'jar-with-dependencies'
+  archiveClassifier = 'jar-with-dependencies'
   from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
   with jar
 }

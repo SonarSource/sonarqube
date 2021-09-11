@@ -444,12 +444,12 @@ subprojects {
   }
 
   task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
   }
 
   task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
   }
 
@@ -461,9 +461,9 @@ subprojects {
 
   jacocoTestReport {
     reports {
-      xml.enabled true
-      csv.enabled false
-      html.enabled false
+      xml.required = true
+      csv.required = false
+      html.required = false
     }
   }
 

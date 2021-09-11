@@ -50,13 +50,13 @@ test {
 }
 
 task dumpSchema(type:JavaExec) {
-    main = 'org.sonar.db.dump.DumpSQSchema'
+    mainClass = 'org.sonar.db.dump.DumpSQSchema'
     classpath = sourceSets.test.runtimeClasspath
 }
 tasks.check.dependsOn dumpSchema
 
 task createDB(type:JavaExec) {
-    main = 'org.sonar.db.createdb.CreateDb'
+    mainClass = 'org.sonar.db.createdb.CreateDb'
     classpath = sourceSets.test.runtimeClasspath
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
     if (!project.version.endsWith("-SNAPSHOT")) {
@@ -65,7 +65,7 @@ task createDB(type:JavaExec) {
 }
 
 task testJar(type: Jar) {
-  classifier = 'tests'
+  archiveClassifier = 'tests'
   from sourceSets.test.output
 }
 
