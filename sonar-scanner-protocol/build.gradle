@@ -27,9 +27,10 @@ task fatJar(type: Jar) {
   manifest {
     attributes 'Main-Class': 'org.sonar.scanner.protocol.viewer.ScannerReportViewerApp'
   }
-  baseName = project.name + '-all'
+  archiveBaseName.set(project.name + '-all')
   from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
   with jar
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 build.dependsOn fatJar
