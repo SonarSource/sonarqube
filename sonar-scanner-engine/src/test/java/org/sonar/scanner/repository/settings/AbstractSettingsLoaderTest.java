@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.repository.settings;
 
+import java.util.List;
 import org.junit.Test;
 import org.sonarqube.ws.Settings.FieldValues;
 import org.sonarqube.ws.Settings.FieldValues.Value;
@@ -28,8 +29,8 @@ import org.sonarqube.ws.Settings.Values;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class AbstractSettingsLoaderTest {
 
@@ -51,8 +52,11 @@ public class AbstractSettingsLoaderTest {
 
   @Test
   public void should_throw_exception_when_no_value_of_non_secured_settings() {
-    assertThatThrownBy(() -> AbstractSettingsLoader.toMap(singletonList(Setting.newBuilder()
-      .setKey("sonar.open.setting").build())))
+    Setting setting = Setting.newBuilder().setKey("sonar.open.setting").build();
+
+    List<Setting> singletonList = singletonList(setting);
+
+    assertThatThrownBy(() -> AbstractSettingsLoader.toMap(singletonList))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Unknown property value for sonar.open.setting");
   }
