@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -168,7 +169,8 @@ public class SearchResponseLoader {
     List<RuleDefinitionDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
-    ruleUuidsToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getUuid).collect(toList(preloadedRules.size())));
+    preloadedRules.stream().map(RuleDefinitionDto::getUuid).collect(toList(preloadedRules.size()))
+        .forEach(ruleUuidsToLoad::remove);
 
     List<RuleDefinitionDto> rules = dbClient.ruleDao().selectDefinitionByUuids(dbSession, ruleUuidsToLoad);
 
@@ -262,7 +264,7 @@ public class SearchResponseLoader {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
-        ruleUuids.add(issue.getRuleUuid());
+        Optional.ofNullable(issue.getRuleUuid()).ifPresent(ruleUuids::add);
         String issueAssigneeUuid = issue.getAssigneeUuid();
         if (issueAssigneeUuid != null) {
           userUuids.add(issueAssigneeUuid);
@@ -359,8 +361,7 @@ public class SearchResponseLoader {
     rules.stream().forEach(r -> {
       if (r.isAdHoc()) {
         String adHocName = adHocRulesMetadata.stream()
-          .filter(m -> m.getRuleUuid().equals(r.getUuid())).findFirst().
-            map(RuleMetadataDto::getAdHocName)
+          .filter(m -> m.getRuleUuid().equals(r.getUuid())).findFirst().map(RuleMetadataDto::getAdHocName)
           .orElse(null);
         r.setName(adHocName);
       }
