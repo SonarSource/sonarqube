@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { mockDefinition } from '../../../helpers/mocks/settings';
 import {
   Setting,
   SettingCategoryDefinition,
   SettingFieldDefinition
 } from '../../../types/settings';
-import { getDefaultValue, getEmptyValue } from '../utils';
+import { buildSettingLink, getDefaultValue, getEmptyValue } from '../utils';
 
 const fields = [
   { key: 'foo', type: 'STRING' } as SettingFieldDefinition,
@@ -81,4 +82,39 @@ describe('#getDefaultValue()', () => {
       expect(getDefaultValue(setting)).toEqual(expected);
     }
   );
+});
+
+describe('buildSettingLink', () => {
+  it.each([
+    [
+      mockDefinition({ key: 'anykey' }),
+      { hash: '#anykey', pathname: '/admin/settings', query: { category: 'foo category' } }
+    ],
+    [
+      mockDefinition({ key: 'sonar.auth.gitlab.name' }),
+      {
+        hash: '#sonar.auth.gitlab.name',
+        pathname: '/admin/settings',
+        query: { alm: 'gitlab', category: 'foo category' }
+      }
+    ],
+    [
+      mockDefinition({ key: 'sonar.auth.github.token' }),
+      {
+        hash: '#sonar.auth.github.token',
+        pathname: '/admin/settings',
+        query: { alm: 'github', category: 'foo category' }
+      }
+    ],
+    [
+      mockDefinition({ key: 'sonar.almintegration.azure' }),
+      {
+        hash: '#sonar.almintegration.azure',
+        pathname: '/admin/settings',
+        query: { alm: 'azure', category: 'foo category' }
+      }
+    ]
+  ])('should work as expected', (definition, expectedUrl) => {
+    expect(buildSettingLink(definition)).toEqual(expectedUrl);
+  });
 });

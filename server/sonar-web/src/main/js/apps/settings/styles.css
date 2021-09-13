@@ -55,6 +55,11 @@
   box-sizing: border-box;
 }
 
+#settings-page .top-bar-outer.with-search,
+#settings-page .top-bar-inner.with-search {
+  height: 120px;
+}
+
 #settings-page .page-title,
 #settings-page .page-description {
   float: none;
@@ -190,4 +195,11 @@
   #settings-page .top-bar-inner {
     margin: 0 20px;
   }
+}
+
+.settings-search-results {
+  max-height: 50vh;
+  width: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

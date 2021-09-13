@@ -25,7 +25,7 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../../api/alm-settings';
-import { mockLocation } from '../../../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
@@ -71,7 +71,8 @@ it('should validate existing configurations', async () => {
 });
 
 it('should handle alm selection', async () => {
-  const wrapper = shallowRender();
+  const router = mockRouter();
+  const wrapper = shallowRender({ router });
 
   wrapper.setState({ currentAlmTab: AlmKeys.Azure });
 
@@ -80,6 +81,7 @@ it('should handle alm selection', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().currentAlmTab).toBe(AlmKeys.GitHub);
+  expect(router.push).toBeCalled();
 });
 
 it('should handle delete', async () => {
@@ -179,10 +181,18 @@ it('should detect the current ALM from the query', () => {
 
   wrapper = shallowRender({ location: mockLocation({ query: { alm: AlmKeys.BitbucketCloud } }) });
   expect(wrapper.state().currentAlmTab).toBe(AlmKeys.BitbucketServer);
+
+  wrapper.setProps({ location: mockLocation({ query: { alm: AlmKeys.GitLab } }) });
+  expect(wrapper.state().currentAlmTab).toBe(AlmKeys.GitLab);
 });
 
 function shallowRender(props: Partial<AlmIntegration['props']> = {}) {
   return shallow<AlmIntegration>(
-    <AlmIntegration appState={{ branchesEnabled: true }} location={mockLocation()} {...props} />
+    <AlmIntegration
+      appState={{ branchesEnabled: true }}
+      location={mockLocation()}
+      router={mockRouter()}
+      {...props}
+    />
   );
 }

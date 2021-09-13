@@ -36,6 +36,10 @@ export function getDefinition(state: State, key: string) {
   return fromDefinitions.getDefinition(state.definitions, key);
 }
 
+export function getAllDefinitions(state: State) {
+  return fromDefinitions.getAllDefinitions(state.definitions);
+}
+
 export function getAllCategories(state: State) {
   return fromDefinitions.getAllCategories(state.definitions);
 }

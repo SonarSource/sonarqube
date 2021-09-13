@@ -23,14 +23,19 @@ import Definition from './Definition';
 
 interface Props {
   component?: T.Component;
+  scrollToDefinition: (element: HTMLLIElement) => void;
   settings: Setting[];
 }
 
-export default function DefinitionsList({ component, settings }: Props) {
+export default function DefinitionsList(props: Props) {
+  const { component, settings } = props;
   return (
     <ul className="settings-definitions-list">
       {settings.map(setting => (
-        <li key={setting.definition.key}>
+        <li
+          key={setting.definition.key}
+          data-key={setting.definition.key}
+          ref={props.scrollToDefinition}>
           <Definition component={component} setting={setting} />
         </li>
       ))}

@@ -36,7 +36,7 @@ import {
 } from '../../../../types/alm-settings';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
-interface Props extends Pick<WithRouterProps, 'location'> {
+interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   appState: Pick<T.AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
 }
 
@@ -99,6 +99,13 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
     });
   }
 
+  componentDidUpdate() {
+    const { location } = this.props;
+    if (location.query.alm && this.mounted) {
+      this.setState({ currentAlmTab: location.query.alm });
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
@@ -133,6 +140,10 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   };
 
   handleSelectAlm = (currentAlmTab: AlmTabs) => {
+    const { location, router } = this.props;
+    location.query.alm = currentAlmTab;
+    location.hash = '';
+    router.push(location);
     this.setState({ currentAlmTab });
   };
 

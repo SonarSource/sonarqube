@@ -55,12 +55,13 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
 
     const { hash } = this.props.location;
     if (hash && prevProps.location.hash !== hash) {
-      const element = document.querySelector<HTMLHeadingElement>(`h2[data-key=${hash.substr(1)}]`);
-      this.scrollToSubCategory(element);
+      const query = `[data-key=${hash.substr(1).replace(/[.#/]/g, '\\$&')}]`;
+      const element = document.querySelector<HTMLHeadingElement | HTMLLIElement>(query);
+      this.scrollToSubCategoryOrDefinition(element);
     }
   }
 
-  scrollToSubCategory = (element: HTMLHeadingElement | null) => {
+  scrollToSubCategoryOrDefinition = (element: HTMLHeadingElement | HTMLLIElement | null) => {
     if (element) {
       const { hash } = this.props.location;
       if (hash && hash.substr(1) === element.getAttribute('data-key')) {
@@ -106,7 +107,7 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
             <h2
               className="settings-sub-category-name"
               data-key={subCategory.key}
-              ref={this.scrollToSubCategory}>
+              ref={this.scrollToSubCategoryOrDefinition}>
               {subCategory.name}
             </h2>
             {subCategory.description != null && (
@@ -120,6 +121,7 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
             )}
             <DefinitionsList
               component={this.props.component}
+              scrollToDefinition={this.scrollToSubCategoryOrDefinition}
               settings={bySubCategory[subCategory.key]}
             />
             {this.renderEmailForm(subCategory.key)}

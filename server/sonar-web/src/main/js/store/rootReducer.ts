@@ -87,6 +87,10 @@ export function getGlobalSettingValue(state: Store, key: string) {
   return fromSettingsApp.getValue(state.settingsApp, key);
 }
 
+export function getSettingsAppAllDefinitions(state: Store) {
+  return fromSettingsApp.getAllDefinitions(state.settingsApp);
+}
+
 export function getSettingsAppDefinition(state: Store, key: string) {
   return fromSettingsApp.getDefinition(state.settingsApp, key);
 }

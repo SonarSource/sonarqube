@@ -14,6 +14,7 @@ exports[`should render correctly 1`] = `
       email
     </h2>
     <DefinitionsList
+      scrollToDefinition={[Function]}
       settings={
         Array [
           Object {
@@ -46,6 +47,7 @@ exports[`should render correctly 1`] = `
       qg
     </h2>
     <DefinitionsList
+      scrollToDefinition={[Function]}
       settings={
         Array [
           Object {
@@ -82,6 +84,7 @@ exports[`should render correctly: subcategory 1`] = `
       qg
     </h2>
     <DefinitionsList
+      scrollToDefinition={[Function]}
       settings={
         Array [
           Object {

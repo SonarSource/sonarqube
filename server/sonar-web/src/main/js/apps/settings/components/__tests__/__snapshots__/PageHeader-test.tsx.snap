@@ -1,32 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: default 1`] = `
-<header
-  className="top-bar-outer"
->
-  <div
-    className="top-bar"
-  >
-    <div
-      className="top-bar-inner bordered-bottom big-padded-top padded-bottom"
-    >
-      <h1
-        className="page-title"
-      >
-        settings.page
-      </h1>
-      <div
-        className="page-description spacer-top"
-      >
-        <InstanceMessage
-          message="settings.page.description"
-        />
-      </div>
-    </div>
-  </div>
-</header>
-`;
-
 exports[`should render correctly: for project 1`] = `
 <header
   className="top-bar-outer"
@@ -47,6 +20,36 @@ exports[`should render correctly: for project 1`] = `
       >
         project_settings.page.description
       </div>
+    </div>
+  </div>
+</header>
+`;
+
+exports[`should render correctly: global 1`] = `
+<header
+  className="top-bar-outer with-search"
+>
+  <div
+    className="top-bar"
+  >
+    <div
+      className="top-bar-inner bordered-bottom big-padded-top padded-bottom with-search"
+    >
+      <h1
+        className="page-title"
+      >
+        settings.page
+      </h1>
+      <div
+        className="page-description spacer-top"
+      >
+        <InstanceMessage
+          message="settings.page.description"
+        />
+      </div>
+      <withRouter(Connect(SettingsSearch))
+        className="big-spacer-top"
+      />
     </div>
   </div>
 </header>

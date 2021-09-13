@@ -23,7 +23,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import PageHeader, { PageHeaderProps } from '../PageHeader';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender()).toMatchSnapshot('global');
   expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('for project');
 });
 

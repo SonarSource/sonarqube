@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
+import SettingsSearch from './SettingsSearch';
 
 export interface PageHeaderProps {
   component?: T.Component;
@@ -35,11 +37,15 @@ export default function PageHeader({ component }: PageHeaderProps) {
   );
 
   return (
-    <header className="top-bar-outer">
+    <header className={classNames('top-bar-outer', { 'with-search': component === undefined })}>
       <div className="top-bar">
-        <div className="top-bar-inner bordered-bottom big-padded-top padded-bottom">
+        <div
+          className={classNames('top-bar-inner bordered-bottom big-padded-top padded-bottom', {
+            'with-search': component === undefined
+          })}>
           <h1 className="page-title">{title}</h1>
           <div className="page-description spacer-top">{description}</div>
+          {!component && <SettingsSearch className="big-spacer-top" />}
         </div>
       </div>
     </header>
