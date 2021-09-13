@@ -131,7 +131,7 @@ To set global permissions, log in as a System administrator and go to **[Adminis
 * **Administer System**: All administration functions for the instance: global configuration.
 * **Administer Quality Profiles**: Any action on Quality Profiles.
 * **Administer Quality Gates**: Any action on quality gates
-* **Execute Analysis**:  Access to all settings required to perform analysis and the ability to push analysis results to the SonarQube server. This includes private project settings and secured settings like passwords. 
+* **Execute Analysis**:  Access to all settings required to perform analysis and the ability to push analysis results to the SonarQube server. This includes private project settings but excludes secured settings like passwords.
 * **Create Projects**: Initialize the structure of a new project before its first analysis. This permission is also required when doing the very first analysis of a project that has not already been created via the GUI. * **
 * **Create Applications**: Create a new Application. * **
 * **Create Portfolios**: Create a new Portfolio. * **
@@ -149,7 +149,7 @@ Project visibility may be toggled between public or private. Making a project pr
 * **Administer Security Hotspots**: Change the status of a Security Hotspot.
 * **Administer**: Access project settings and perform administration tasks (users also need "Browse" permission).  
   By default, a user with this **Administer** permission can manage both configuration and permissions for the current project. To only allow project administrators to update the project configuration, go to **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security)** and disable the **Enable permission management for project administrators** property.
-* **Execute Analysis**: Access to all settings required to perform analysis and the ability to push analysis results to the SonarQube server. This includes private project settings and secured settings like passwords
+* **Execute Analysis**: Access to all settings required to perform analysis and the ability to push analysis results to the SonarQube server. This includes private project settings but excludes secured settings like passwords.
 
 Private projects have two additional permissions:
 * **Browse**: Access a project; browse its measures, issues, and Security Hotspots; perform some issue edits (confirm/resolve/reopen, assignment, comment); comment on or change the user assigned to a Security Hotspot.

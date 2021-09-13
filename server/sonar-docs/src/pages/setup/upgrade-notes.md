@@ -4,10 +4,13 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 9.1 Upgrade Notes  
-**Custom measures feature has been dropped**
+**Secured settings no longer available in web services and on the scanner side**  
+This change especially affects the analysis of SVN projects but also, possibly, the use of some 3rd-party plugins. Secured settings required to perform the analysis now need to be passed to the scanner as parameters. ([MMF-2407](https://jira.sonarsource.com/browse/MMF-2407)).
+
+**Custom measures feature has been dropped**  
 The custom measures feature, which was previously deprecated, has been removed. ([SONAR-10762](https://jira.sonarsource.com/browse/SONAR-10762)).
 
-**Deprecated WebAPI endpoints and parameters removal**
+**Deprecated WebAPI endpoints and parameters removed**  
 The WebAPI endpoints and parameters deprecated during the 7.X release cycle have been removed. For a complete list of removed endpoints and parameters see [SONAR-15313](https://jira.sonarsource.com/browse/SONAR-15313).
 
 ## Release 9.0 Upgrade Notes  

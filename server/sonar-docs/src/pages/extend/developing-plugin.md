@@ -334,7 +334,7 @@ public class ExamplePlugin implements Plugin {
 ```
 
 [[info]]
-| Values of the properties suffixed with `.secured` are not available to non-authorized users (anonymous and users without project or global administration rights). `.secured` is needed for passwords, for instance.
+| Values of the properties suffixed with `.secured` are not available to be read by any users. `.secured` is needed for passwords, for instance.
 
 The annotation [`@org.sonar.api.Property`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/Property.html) can also be used on an extension to declare a property, but org.sonar.api.config.PropertyDefinition is preferred.
 ```

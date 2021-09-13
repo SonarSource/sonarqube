@@ -42,6 +42,16 @@ If you get an error when blame is executed on a file, it may be a limitation or 
 
 Auto-detection of SVN during analysis will happen if there is a `.svn` folder somewhere in the parent hierarchy of the project root. Otherwise you can force the provider using `-Dsonar.scm.provider=svn` on the analysis command line.
 
+### Authentication
+In order to get blame information on your code you will need to supply authentication data to the scanner. You can do it by passing following parameters to it when starting an analysis:
+
+| Parameter Name        | Description |
+| --------------------- | ---------------------------------- |
+| `sonar.svn.username` | Username to be used for SVN server or SVN+SSH authentication |
+| `sonar.svn.password.secured` | Password to be used for SVN server or SVN+SSH authentication |
+| `sonar.svn.privateKeyPath` | Path to private key file. Can be used instead of password for SVN+SSH authentication |
+| `sonar.svn.passphrase.secured` | Optional passphrase of your private key file |
+
 ### Known issues
 If you get errors like:
 
