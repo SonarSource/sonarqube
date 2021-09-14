@@ -30,9 +30,11 @@ import org.sonar.api.server.ServerSide;
  * Export quality profile rules to a file
  *
  * @since 2.3
+ * @deprecated since 9.1. Web services should be used instead.
  */
 @ServerSide
 @ExtensionPoint
+@Deprecated
 public abstract class ProfileExporter {
 
   private String[] supportedLanguages = new String[0];

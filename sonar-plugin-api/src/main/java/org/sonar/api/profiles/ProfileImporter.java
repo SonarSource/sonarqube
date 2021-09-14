@@ -30,9 +30,11 @@ import org.sonar.api.utils.ValidationMessages;
  * Create a quality profile from an external rules file.
  *
  * @since 2.3
+ * @deprecated since 9.1. Web services should be used instead.
  */
 @ServerSide
 @ExtensionPoint
+@Deprecated
 public abstract class ProfileImporter {
 
   private String[] supportedLanguages = new String[0];
