@@ -487,6 +487,17 @@ public class BitbucketServerRestClientTest {
   }
 
   @Test
+  public void fail_validate_url_when_body_is_empty() {
+    server.enqueue(new MockResponse().setResponseCode(404).setBody(""));
+
+    String serverUrl = server.url("/").toString();
+    assertThatThrownBy(() -> underTest.validateUrl(serverUrl))
+      .isInstanceOf(BitbucketServerException.class)
+      .hasMessage("")
+      .extracting(e -> ((BitbucketServerException) e).getHttpStatus()).isEqualTo(404);
+  }
+
+  @Test
   public void fail_validate_url_when_validate_url_return_non_json_payload() {
     server.enqueue(new MockResponse().setResponseCode(400)
       .setBody("this is not a json payload"));

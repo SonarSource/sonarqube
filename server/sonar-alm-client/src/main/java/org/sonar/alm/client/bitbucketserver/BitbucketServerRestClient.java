@@ -168,7 +168,7 @@ public class BitbucketServerRestClient {
 
   protected static String getErrorMessage(ResponseBody body) throws IOException {
     String bodyString = body.string();
-    if (equals(MediaType.parse("application/json;charset=utf-8"), body.contentType())) {
+    if (equals(MediaType.parse("application/json;charset=utf-8"), body.contentType()) && !isNullOrEmpty(bodyString)) {
       try {
         return Stream.of(buildGson().fromJson(bodyString, Errors.class).errorData)
           .map(e -> e.exceptionName + " " + e.message)
