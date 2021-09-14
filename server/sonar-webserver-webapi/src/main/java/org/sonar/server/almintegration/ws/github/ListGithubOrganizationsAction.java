@@ -73,6 +73,7 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
       .setDescription("List GitHub organizations<br/>" +
         "Requires the 'Create Projects' permission")
       .setInternal(true)
+      .setResponseExample(getClass().getResource("example-list_github_organizations.json"))
       .setSince("8.4")
       .setHandler(this);
 

@@ -64,7 +64,8 @@ public class ListDefinitionsAction implements AlmSettingsWsAction {
       .setChangelog(new Change("8.2", "Field 'URL' added for GitLab definitions"),
         new Change("8.6", "Field 'URL' added for Azure definitions"),
         new Change("8.7", "Fields 'personalAccessToken', 'privateKey', and 'clientSecret' are no longer returned"))
-      .setHandler(this);
+      .setHandler(this)
+      .setResponseExample(getClass().getResource("example-list_definitions.json"));
   }
 
   @Override

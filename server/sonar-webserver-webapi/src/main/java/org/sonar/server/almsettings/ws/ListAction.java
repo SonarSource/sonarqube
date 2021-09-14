@@ -62,7 +62,7 @@ public class ListAction implements AlmSettingsWsAction {
       .setDescription("List ALM setting available for a given project, sorted by ALM key<br/>" +
         "Requires the 'Administer project' permission if the '" + PARAM_PROJECT + "' parameter is provided, requires the 'Create Projects' permission otherwise.")
       .setSince("8.1")
-      .setResponseExample(getClass().getResource("list-example.json"))
+      .setResponseExample(getClass().getResource("example-list.json"))
       .setHandler(this);
 
     action

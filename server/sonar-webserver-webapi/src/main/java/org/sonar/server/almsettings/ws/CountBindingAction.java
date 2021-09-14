@@ -50,7 +50,7 @@ public class CountBindingAction implements AlmSettingsWsAction {
       .setDescription("Count number of project bound to an ALM setting.<br/>" +
         "Requires the 'Administer System' permission")
       .setSince("8.1")
-      .setResponseExample(getClass().getResource("count_binding-example.json"))
+      .setResponseExample(getClass().getResource("example-count_binding.json"))
       .setHandler(this);
 
     action

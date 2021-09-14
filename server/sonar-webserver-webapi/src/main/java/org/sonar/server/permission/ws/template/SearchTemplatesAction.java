@@ -78,7 +78,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     context.createAction("search_templates")
       .setDescription("List permission templates.<br />" +
         "Requires the following permission: 'Administer System'.")
-      .setResponseExample(getClass().getResource("search_templates-example.json"))
+      .setResponseExample(getClass().getResource("search_templates-example-without-views.json"))
       .setSince("5.2")
       .addSearchQuery("defau", "permission template names")
       .setHandler(this);

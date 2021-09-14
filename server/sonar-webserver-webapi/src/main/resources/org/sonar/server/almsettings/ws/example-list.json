@@ -1,0 +1,9 @@
+{
+  "almSettings": [
+    {
+      "key": "gh1",
+      "alm": "github",
+      "url": "https://api.github.com"
+    }
+  ]
+}

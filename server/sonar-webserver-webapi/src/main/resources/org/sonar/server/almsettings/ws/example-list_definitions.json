@@ -1,0 +1,14 @@
+{
+  "github": [
+    {
+      "key": "gh1",
+      "url": "https://api.github.com",
+      "appId": "12345",
+      "clientId": "Iv1.12345c6789az"
+    }
+  ],
+  "azure": [ ],
+  "bitbucket": [ ],
+  "gitlab": [ ],
+  "bitbucketcloud": [ ]
+}

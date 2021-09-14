@@ -1,0 +1,1 @@
+{"paging":{"pageIndex":1,"pageSize":30,"total":3},"repositories":[{"id":1,"key":"org/repo1","name":"repo1","url":"https://github.com/org/repo1"},{"id":2,"key":"org/repo2","name":"repo2","url":"https://github.com/org/repo2"},{"id":3,"key":"org/repo3","name":"repo3","url":"https://github.com/org/repo3"}]}

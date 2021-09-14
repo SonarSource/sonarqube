@@ -51,6 +51,7 @@ public class GetGithubClientIdAction implements AlmIntegrationsWsAction {
       .setDescription("Get the client id of a Github ALM Integration.")
       .setInternal(true)
       .setSince("8.4")
+      .setResponseExample(getClass().getResource("example-get_github_client_id.json"))
       .setHandler(this);
 
     action.createParam(PARAM_ALM_SETTING)

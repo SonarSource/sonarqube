@@ -79,6 +79,7 @@ public class ListGithubRepositoriesAction implements AlmIntegrationsWsAction {
         "Requires the 'Create Projects' permission")
       .setInternal(true)
       .setSince("8.4")
+      .setResponseExample(getClass().getResource("example-list_github_repositories.json"))
       .setHandler(this);
 
     action.createParam(PARAM_ALM_SETTING)

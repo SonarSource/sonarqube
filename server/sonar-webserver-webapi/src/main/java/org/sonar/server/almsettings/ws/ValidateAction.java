@@ -74,6 +74,7 @@ public class ValidateAction implements AlmSettingsWsAction {
       .setDescription("Validate an ALM Setting by checking connectivity and permissions<br/>" +
         "Requires the 'Administer System' permission")
       .setSince("8.6")
+      .setResponseExample(getClass().getResource("example-validate.json"))
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
