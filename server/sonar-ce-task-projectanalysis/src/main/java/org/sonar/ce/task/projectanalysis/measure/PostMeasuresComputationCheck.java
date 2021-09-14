@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.Component;
 
 /**
  * Extension point that is called during processing of a task
@@ -53,6 +54,8 @@ public interface PostMeasuresComputationCheck {
      * Return the ncloc computed for the current analysis
      */
     int getNcloc();
+
+    Component getRoot();
 
   }
 }

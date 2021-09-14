@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
@@ -84,6 +85,10 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
       Metric nclocMetric = metricRepository.getByKey(CoreMetrics.NCLOC_KEY);
       Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(treeRootHolder.getRoot(), nclocMetric);
       return nclocMeasure.map(Measure::getIntValue).orElse(0);
+    }
+
+    @Override public Component getRoot() {
+      return treeRootHolder.getRoot();
     }
 
   }
