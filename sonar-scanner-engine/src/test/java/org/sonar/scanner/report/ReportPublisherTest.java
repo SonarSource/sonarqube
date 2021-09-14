@@ -71,16 +71,16 @@ public class ReportPublisherTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
-  ScanProperties properties = mock(ScanProperties.class);
-  DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
-  Server server = mock(Server.class);
-  InputModuleHierarchy moduleHierarchy = mock(InputModuleHierarchy.class);
-  DefaultInputModule root;
-  AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
-  BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
-  CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
-  ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
+  private GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
+  private ScanProperties properties = mock(ScanProperties.class);
+  private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private Server server = mock(Server.class);
+  private InputModuleHierarchy moduleHierarchy = mock(InputModuleHierarchy.class);
+  private DefaultInputModule root;
+  private AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
+  private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
+  private ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
     new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
 
   @Before
@@ -121,6 +121,18 @@ public class ReportPublisherTest {
   }
 
   @Test
+  public void upload_error_message() {
+    HttpException ex = new HttpException("url", 404, "{\"errors\":[{\"msg\":\"Organization with key 'MyOrg' does not exist\"}]}");
+    WsResponse response = mock(WsResponse.class);
+    when(response.failIfNotSuccessful()).thenThrow(ex);
+    when(wsClient.call(any(WsRequest.class))).thenThrow(new IllegalStateException("timeout"));
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Failed to upload report: timeout");
+    underTest.upload(reportTempFolder.newFile());
+  }
+
+  @Test
   public void parse_upload_error_message() {
     HttpException ex = new HttpException("url", 404, "{\"errors\":[{\"msg\":\"Organization with key 'MyOrg' does not exist\"}]}");
     WsResponse response = mock(WsResponse.class);
@@ -128,7 +140,7 @@ public class ReportPublisherTest {
     when(wsClient.call(any(WsRequest.class))).thenReturn(response);
 
     exception.expect(MessageException.class);
-    exception.expectMessage("Failed to upload report - Organization with key 'MyOrg' does not exist");
+    exception.expectMessage("Server failed to process report. Please check server logs: Organization with key 'MyOrg' does not exist");
     underTest.upload(reportTempFolder.newFile());
   }
 

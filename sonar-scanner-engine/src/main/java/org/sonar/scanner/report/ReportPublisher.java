@@ -202,11 +202,16 @@ public class ReportPublisher implements Startable {
     WsResponse response;
     try {
       post.setWriteTimeOutInMs(DEFAULT_WRITE_TIMEOUT);
-      response = wsClient.call(post).failIfNotSuccessful();
-    } catch (HttpException e) {
-      throw MessageException.of(String.format("Failed to upload report - %s", DefaultScannerWsClient.createErrorMessage(e)));
+      response = wsClient.call(post);
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to upload report: " + e.getMessage(), e);
     }
 
+    try {
+      response.failIfNotSuccessful();
+    } catch (HttpException e) {
+      throw MessageException.of(String.format("Server failed to process report. Please check server logs: %s", DefaultScannerWsClient.createErrorMessage(e)));
+    }
     try (InputStream protobuf = response.contentStream()) {
       return Ce.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
     } catch (Exception e) {
