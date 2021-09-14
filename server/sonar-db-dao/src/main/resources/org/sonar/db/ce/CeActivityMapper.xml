@@ -248,13 +248,13 @@
     and ca.is_last = ${_true}
   </select>
 
-  <sql id="hasAnyFailedIssueSyncTaskSql">
+  <sql id="hasAnyFailedOrCancelledIssueSyncTaskSql">
     select
     case when exists
     (
     select ca.uuid from ce_activity ca inner join project_branches pb on ca.component_uuid = pb.uuid
     where ca.task_type = 'ISSUE_SYNC'
-    and ca.status = 'FAILED'
+    and ca.status in ('FAILED', 'CANCELED')
     and pb.need_issue_sync = ${_true}
     )
     then 1
@@ -262,12 +262,12 @@
     end
   </sql>
 
-  <select id="hasAnyFailedIssueSyncTask" parameterType="map" resultType="short" >
-    <include refid="hasAnyFailedIssueSyncTaskSql"/>
+  <select id="hasAnyFailedOrCancelledIssueSyncTask" parameterType="map" resultType="short" >
+    <include refid="hasAnyFailedOrCancelledIssueSyncTaskSql"/>
   </select>
 
-  <select id="hasAnyFailedIssueSyncTask" parameterType="map" resultType="short" databaseId="oracle">
-    <include refid="hasAnyFailedIssueSyncTaskSql"/>
+  <select id="hasAnyFailedOrCancelledIssueSyncTask" parameterType="map" resultType="short" databaseId="oracle">
+    <include refid="hasAnyFailedOrCancelledIssueSyncTaskSql"/>
     from dual
   </select>
 

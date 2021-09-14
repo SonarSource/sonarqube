@@ -88,8 +88,8 @@ public class CeActivityDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectLastByComponentUuidAndTaskType(componentUuid, taskType));
   }
 
-  public boolean hasAnyFailedIssueSyncTask(DbSession dbSession) {
-    return mapper(dbSession).hasAnyFailedIssueSyncTask() > 0;
+  public boolean hasAnyFailedOrCancelledIssueSyncTask(DbSession dbSession) {
+    return mapper(dbSession).hasAnyFailedOrCancelledIssueSyncTask() > 0;
   }
 
   private static CeActivityMapper mapper(DbSession dbSession) {
