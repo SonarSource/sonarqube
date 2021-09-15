@@ -64,8 +64,13 @@ public class OAuthRestClient {
 
   public static <E> List<E> executePaginatedRequest(String request, OAuth20Service scribe, OAuth2AccessToken accessToken, Function<String, List<E>> function) {
     List<E> result = new ArrayList<>();
-    readPage(result, scribe, accessToken, request + "?per_page=" + DEFAULT_PAGE_SIZE, function);
+    readPage(result, scribe, accessToken, addPerPageQueryParameter(request, DEFAULT_PAGE_SIZE), function);
     return result;
+  }
+
+  public static String addPerPageQueryParameter(String request, int pageSize) {
+    String separator = request.contains("?") ? "&" : "?";
+    return request + separator + "per_page=" + pageSize;
   }
 
   private static <E> void readPage(List<E> result, OAuth20Service scribe, OAuth2AccessToken accessToken, String endPoint, Function<String, List<E>> function) {

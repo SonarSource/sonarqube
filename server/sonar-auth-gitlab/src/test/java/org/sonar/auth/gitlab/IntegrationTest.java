@@ -22,10 +22,10 @@ package org.sonar.auth.gitlab;
 import javax.servlet.http.HttpServletRequest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
@@ -48,18 +48,15 @@ public class IntegrationTest {
   private static final String ANY_CODE_VALUE = "ANY_CODE";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Rule
   public MockWebServer gitlab = new MockWebServer();
 
-  private MapSettings mapSettings = new MapSettings();
+  private final MapSettings mapSettings = new MapSettings();
 
-  private GitLabSettings gitLabSettings = new GitLabSettings(mapSettings.asConfig());
+  private final GitLabSettings gitLabSettings = new GitLabSettings(mapSettings.asConfig());
 
   private String gitLabUrl;
 
-  private GitLabIdentityProvider gitLabIdentityProvider = new GitLabIdentityProvider(gitLabSettings,
+  private final GitLabIdentityProvider gitLabIdentityProvider = new GitLabIdentityProvider(gitLabSettings,
     new GitLabRestClient(gitLabSettings),
     new ScribeGitLabOauth2Api(gitLabSettings));
 
@@ -102,7 +99,7 @@ public class IntegrationTest {
   }
 
   @Test
-  public void synchronize_groups() {
+  public void synchronize_groups() throws InterruptedException {
     mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
@@ -125,6 +122,9 @@ public class IntegrationTest {
     verify(callbackContext).authenticate(captor.capture());
     UserIdentity value = captor.getValue();
     assertThat(value.getGroups()).contains("group1", "group2");
+    assertThat(gitlab.takeRequest().getPath()).isEqualTo("/oauth/token");
+    assertThat(gitlab.takeRequest().getPath()).isEqualTo("/api/v4/user");
+    assertThat(gitlab.takeRequest().getPath()).isEqualTo("/api/v4/groups?min_access_level=10&per_page=100");
   }
 
   @Test
@@ -182,10 +182,9 @@ public class IntegrationTest {
         + " \"refresh_token\": \"8257e65c97202ed1726cf9571600918f3bffb2544b26e00a61df9897668c33a1\"\n" + "}"));
     gitlab.enqueue(new MockResponse().setResponseCode(404).setBody("empty"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to execute request '" + gitLabSettings.url() + "/api/v4/user'. HTTP code: 404, response: empty");
-
-    gitLabIdentityProvider.callback(callbackContext);
+    Assertions.assertThatThrownBy(() -> gitLabIdentityProvider.callback(callbackContext))
+      .hasMessage("Fail to execute request '" + gitLabSettings.url() + "/api/v4/user'. HTTP code: 404, response: empty")
+      .isInstanceOf((IllegalStateException.class));
   }
 
 }

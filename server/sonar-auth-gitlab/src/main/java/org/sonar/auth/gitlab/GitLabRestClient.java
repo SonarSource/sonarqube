@@ -46,6 +46,6 @@ public class GitLabRestClient {
   }
 
   List<GsonGroup> getGroups(OAuth20Service scribe, OAuth2AccessToken accessToken) {
-    return OAuthRestClient.executePaginatedRequest(settings.url() + API_SUFFIX + "/groups", scribe, accessToken, GsonGroup::parse);
+    return OAuthRestClient.executePaginatedRequest(settings.url() + API_SUFFIX + "/groups?min_access_level=10", scribe, accessToken, GsonGroup::parse);
   }
 }

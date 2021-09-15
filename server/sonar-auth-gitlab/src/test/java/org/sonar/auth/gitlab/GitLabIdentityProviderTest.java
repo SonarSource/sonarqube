@@ -19,6 +19,7 @@
  */
 package org.sonar.auth.gitlab;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,9 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GitLabIdentityProviderTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_identity_provider() {
@@ -106,9 +104,8 @@ public class GitLabIdentityProviderTest {
     OAuth2IdentityProvider.InitContext initContext = mock(OAuth2IdentityProvider.InitContext.class);
     when(initContext.getCallbackUrl()).thenReturn("http://server/callback");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("GitLab authentication is disabled");
-
-    gitLabIdentityProvider.init(initContext);
+    Assertions.assertThatThrownBy(() -> gitLabIdentityProvider.init(initContext))
+      .hasMessage("GitLab authentication is disabled")
+      .isInstanceOf(IllegalStateException.class);
   }
 }
