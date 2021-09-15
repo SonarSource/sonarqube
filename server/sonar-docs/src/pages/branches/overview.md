@@ -13,7 +13,7 @@ With Branch Analysis, you can ensure that you're maintaining consistent code qua
 
 This is the default branch and typically corresponds to what's being developed for your next release. This branch is usually known within a development team as "master" or "head" and is analyzed when no specific branch parameters are provided. SonarQube labels this branch as **Main Branch**, and, with Community Edition, this is the only branch you can analyze. 
 
-Adding projects by ALM copies the main branch name in SonarQube from the main branch name in your repository. See **ALM Integrations** in the documentation navigation for more information on adding your project from an ALM.
+Adding projects by DevOps Platform copies the main branch name in SonarQube from the main branch name in your repository. See **DevOps Platform Integrations** in the documentation navigation for more information on adding your project from an DevOps Platform.
 
 If you add your project manually, your main branch defaults to the name "master".
 
@@ -89,7 +89,7 @@ You can set a branch to **Keep when inactive** at the project level from from th
 
 ## Keeping your "master" branch history when upgrading from Community Edition to a commercial edition
 [[info]]
-| If you added a SonarQube project from an ALM instead of manually, the name of the main branch in SonarQube is copied from the name of the main branch in your repository, and you shouldn't have any branch history issues when upgrading to a commercial edition.
+| If you added a SonarQube project from an DevOps Platform instead of manually, the name of the main branch in SonarQube is copied from the name of the main branch in your repository, and you shouldn't have any branch history issues when upgrading to a commercial edition.
 
 In Community Edition, if you create a project manually, your analyzed branch is named "master" by default. 
 

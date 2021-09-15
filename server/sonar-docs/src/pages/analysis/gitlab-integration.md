@@ -30,7 +30,7 @@ Specify the following settings in your OAuth app:
 - **Redirect URI** – enter your SonarQube URL with the path `/oauth2/callback/gitlab`. For example, `https://sonarqube.mycompany.com/oauth2/callback/gitlab`.
 - **Scopes** – select **api** if you plan to enable group synchronization. Select **read_user** if you only plan to delegate authentication.
 
-After saving your application, GitLab takes you to the app's page. Here you find your **Application ID** and **Secret**. Keep these handy, open your SonarQube instance, and navigate to **Administration > Configuration > General Settings > ALM Integrations > GitLab > Authentication**. Set the following settings to finish setting up GitLab authentication:
+After saving your application, GitLab takes you to the app's page. Here you find your **Application ID** and **Secret**. Keep these handy, open your SonarQube instance, and navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations > GitLab > Authentication**. Set the following settings to finish setting up GitLab authentication:
 
 - **Enabled** – set to `true`.
 - **Application ID** – the Application ID is found on your GitLab app's page.
@@ -39,7 +39,7 @@ After saving your application, GitLab takes you to the app's page. Here you find
 On the login form, the new "Log in with GitLab" button allows users to connect with their GitLab accounts.
 
 ### GitLab group synchronization
-Enable **Synchronize user groups** at **Administration > Configuration > General Settings > ALM Integrations > GitLab** to associate GitLab groups with existing SonarQube groups of the same name. GitLab users inherit membership to subgroups from parent groups. 
+Enable **Synchronize user groups** at **Administration > Configuration > General Settings > DevOps Platform Integrations > GitLab** to associate GitLab groups with existing SonarQube groups of the same name. GitLab users inherit membership to subgroups from parent groups. 
 
 To synchronize a GitLab group or subgroup with a SonarQube group, name the SonarQube group with the full path of the GitLab group or subgroup URL. 
 
@@ -60,7 +60,7 @@ To set up the import of GitLab projects:
 1. Add a personal access token for importing repositories
 
 ### Setting your global settings
-To import your GitLab projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > ALM Integrations**, select the **GitLab** tab, and specify the following settings:
+To import your GitLab projects into SonarQube, you need to first set your global SonarQube settings. Navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations**, select the **GitLab** tab, and specify the following settings:
  
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitLab configuration at the project level. Use something succinct and easily recognizable.
 - **GitLab URL** – The GitLab API URL.
@@ -231,12 +231,12 @@ SonarQube can also report your Quality Gate status to GitLab merge requests for 
 | Because of the nature of a mono repository, SonarQube scanners might read all project names of your mono repository as identical. To avoid having multiple projects with the same name, you need to pass the `sonar.projectName` parameter to the scanner. For example, if you're using the Maven scanner, you would pass `mvn sonar:sonar -Dsonar.projectName=YourProjectName`.
 
 [[collapse]]
-| ## Configuring multiple ALM instances
-| SonarQube can report your Quality Gate status to multiple ALM instances. To do this, you need to create a configuration for each ALM instance and assign that configuration to the appropriate projects. 
+| ## Configuring multiple DevOps Platform instances
+| SonarQube can report your Quality Gate status to multiple DevOps Platform instances. To do this, you need to create a configuration for each DevOps Platform instance and assign that configuration to the appropriate projects. 
 |
-| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each DevOps Platform. 
 |
-| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each DevOps Platform. If you have multiple configurations of the same DevOps Platform connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
 | ## Linking issues

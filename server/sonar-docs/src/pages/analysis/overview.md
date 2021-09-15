@@ -14,7 +14,7 @@ Once the SonarQube platform has been installed, you're ready to install a scanne
 * anything else (CLI) - [SonarScanner](/analysis/scan/sonarscanner/)
 
 [[info]]
-| SonarQube integrations are supported for popular ALMs: GitHub Enterprise and GitHub.com, BitBucket Server, Azure Devops Server and Azure DevOps Services.
+| SonarQube integrations are supported for popular DevOps Platforms: GitHub Enterprise and GitHub.com, BitBucket Server, Azure Devops Server and Azure DevOps Services.
 
 [[warning]]
 | We do not recommend running an antivirus scanner on the machine where a SonarQube analysis runs, it could result in unpredictable behavior.
@@ -36,7 +36,7 @@ By default, only files that are recognized by your edition of SonarQube are load
 For example if you're using SonarQube Community Edition, which includes analysis of Java and JavaScript, but not C++, all `.java` and `.js` files would be loaded, but `.cpp` files would be ignored.
 
 ## What about branches and pull requests?
-_Developer Edition_ adds the ability to analyze your project's [branches](/branches/overview/) and [pull requests](/analysis/pull-request/) as well as the ability to automatically decorate pull requests in some ALM interfaces. 
+_Developer Edition_ adds the ability to analyze your project's [branches](/branches/overview/) and [pull requests](/analysis/pull-request/) as well as the ability to automatically report your pull request analysis to your DevOps Platform interface. 
 
 ## What happens during analysis?
 During analysis, data is requested from the server, the files provided to the analysis are analyzed, and the resulting data is sent back to the server at the end in the form of a report, which is then analyzed asynchronously server-side.

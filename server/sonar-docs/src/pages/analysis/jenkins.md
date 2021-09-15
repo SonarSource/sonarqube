@@ -10,7 +10,7 @@ SonarScanners running in Jenkins can automatically detect branches and Merge or 
 To run project analysis with Jenkins, you need to install and configure the following Jenkins plugins _in Jenkins_:
  
 - The SonarQube Scanner plugin.
-- The Branch Source plugin that corresponds to your ALM (Bitbucket Server, GitHub, or GitLab) if you're analyzing multibranch pipeline jobs in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above. 
+- The Branch Source plugin that corresponds to your DevOps Platform (Bitbucket Server, GitHub, or GitLab) if you're analyzing multibranch pipeline jobs in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above. 
 
 See the **Installing and Configuring your Jenkins plugins** section below for more information.
 
@@ -43,7 +43,7 @@ Click SonarQube Scanner below to expand instructions on installing and configuri
 ### Branch Source plugin
 _Required to analyze multibranch pipeline jobs in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) or above_
 
-Click your ALM below to expand the instructions on installing and configuring the Branch Source plugin.
+Click your DevOps Platform below to expand the instructions on installing and configuring the Branch Source plugin.
 
 [[collapse]]
 | ## BitBucket Server
@@ -90,9 +90,9 @@ Click your ALM below to expand the instructions on installing and configuring th
 You can easily configure and analyze your projects with Jenkins through the tutorial in SonarQube. 
 
 [[info]]
-| You need to set up SonarQube to import your repositories before accessing the tutorial. See the **ALM Integrations** in the left-side navigation of this documentation for more information.
+| You need to set up SonarQube to import your repositories before accessing the tutorial. See the **DevOps Platform Integrations** in the left-side navigation of this documentation for more information.
 |
-| A tutorial is currently available for all supported ALMs except Azure DevOps.
+| A tutorial is currently available for all supported DevOps Platforms except Azure DevOps.
 
 To access the tutorial:
 

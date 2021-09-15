@@ -22,4 +22,4 @@ The SonarScanner for Azure DevOps is compatible with:
 * Azure DevOps Services
 
 ## Analysis
-For information on setting up analysis with the SonarScanner for Azure DevOps, see the [Azure DevOps ALM integration](/analysis/azuredevops-integration/) page.
+For information on setting up analysis with the SonarScanner for Azure DevOps, see the [Azure DevOps DevOps Platform integration](/analysis/azuredevops-integration/) page.

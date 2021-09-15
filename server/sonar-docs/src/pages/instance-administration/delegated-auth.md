@@ -32,7 +32,7 @@ All the parameters required to activate and configure this feature are available
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.
 
 ## GitHub and GitLab Authentication
-You can delegate authentication to GitHub Enterprise and GitHub.com or GitLab Self-Managed and GitLab.com. See the corresponding ALM integration page for more information:
+You can delegate authentication to GitHub Enterprise and GitHub.com or GitLab Self-Managed and GitLab.com. See the corresponding DevOps Platform integration page for more information:
 - [GitHub Enterprise and GitHub.com](/analysis/github-integration/)
 - [GitLab Self-Managed and GitLab.com](/analysis/gitlab-integration/)
 

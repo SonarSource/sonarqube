@@ -16,12 +16,12 @@ With this integration, you'll be able to:
 Setting up the import of BitBucket Cloud repositories into SonarQube allows you to easily create SonarQube projects from your Bitbucket Cloud repositories. If you're using Developer Edition or above, this is also the first step in adding pull request decoration.
 
 [[info]]
-| To import your Bitbucket repositories into SonarQube, you can only have one global configuration of Bitbucket, including Bitbucket Server and Bitbucket Cloud. See the **Configuring multiple ALM instances** section below for more information.
+| To import your Bitbucket repositories into SonarQube, you can only have one global configuration of Bitbucket, including Bitbucket Server and Bitbucket Cloud. See the **Configuring multiple DevOps Platform instances** section below for more information.
 
 To set up the import of BitBucket Cloud repositories:
 
 1. Create an OAuth consumer.
-1. Set your global ALM integration settings.
+1. Set your global DevOps Platform integration settings.
 1. Add your Bitbucket username and an app password.
 
 ### Creating your OAuth consumer
@@ -32,8 +32,8 @@ SonarQube uses a dedicated [OAuth consumer](https://support.atlassian.com/bitbuc
 - **This is a private consumer** – Your OAuth consumer needs to be private. Make sure this check box is selected.
 - **Permissions** – Grant **Read** access for the **Pull requests** permission.
 
-### Setting your global ALM Integration settings
-To set your global ALM Integration settings, navigate to **Administration > ALM Integrations**, select the **Bitbucket** tab, and select **Bitbucket Cloud** as the variant you want to configure. From here, specify the following settings:
+### Setting your global DevOps Platform Integration settings
+To set your global DevOps Platform Integration settings, navigate to **Administration > DevOps Platform Integrations**, select the **Bitbucket** tab, and select **Bitbucket Cloud** as the variant you want to configure. From here, specify the following settings:
 
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your Bitbucket Cloud configuration at the project level. Use something succinct and easily recognizable.
 - **Workspace ID** – The workspace ID is part of your bitbucket cloud URL `https://bitbucket.org/{WORKSPACE-ID}/{repository-slug}`
@@ -302,12 +302,12 @@ SonarQube can also report your Quality Gate status to Bitbucket Cloud pull reque
 | Because of the nature of a mono repository, SonarQube scanners might read all project names of your mono repository as identical. To avoid having multiple projects with the same name, you need to pass the `sonar.projectName` parameter to the scanner. For example, if you're using the Maven scanner, you would pass `mvn sonar:sonar -Dsonar.projectName=YourProjectName`.
 
 [[collapse]]
-| ## Configuring multiple ALM instances
-| SonarQube can report your Quality Gate status to multiple ALM instances. To do this, you need to create a configuration for each ALM instance and assign that configuration to the appropriate projects. 
+| ## Configuring multiple DevOps Platform instances
+| SonarQube can report your Quality Gate status to multiple DevOps Platform instances. To do this, you need to create a configuration for each DevOps Platform instance and assign that configuration to the appropriate projects. 
 |
-| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each DevOps Platform. 
 |
-| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each DevOps Platform. If you have multiple configurations of the same DevOps Platform connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
 | ## Linking issues

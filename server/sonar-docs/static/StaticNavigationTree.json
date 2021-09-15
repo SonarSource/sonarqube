@@ -118,7 +118,7 @@
     ]
   },
   {
-    "title": "ALM Integration",
+    "title": "DevOps Platform Integration",
     "children": [
       "/analysis/github-integration/",
       "/analysis/gitlab-integration/",

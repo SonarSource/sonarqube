@@ -15,8 +15,8 @@ Pull Request analysis shows your Pull Request's Quality Gate and analysis in the
 
 Before analyzing your Pull Requests, make sure the Pull Request branch is checked out. Avoid any attempt at previewing the merge or actions involving your main branch.
 
-## Pull request decoration
-You can also add pull request decoration that shows the Pull Request analysis and Quality Gate directly in your ALM's interface. To set up pull request decoration, see the ALM integration page that corresponds with your ALM:
+## Report pull request status to your DevOps Platform
+You can also report the pull request analysis and Quality Gate status directly in your DevOps Platform's interface. To set up pull request decoration, see the DevOps Platform integration page that corresponds with your DevOps Platform:
 - [GitHub Enterprise and GitHub.com](/analysis/github-integration/)
 - [GitLab Self-Managed and GitLab.com](/analysis/gitlab-integration/)
 - [Bitbucket Server](/analysis/bitbucket-integration/)
@@ -43,6 +43,6 @@ The following parameters enable PR analysis.
 
 | Parameter Name        | Description |
 | --------------------- | ---------------------------------- |
-| `sonar.pullrequest.key` | Unique identifier of your Pull Request. Must correspond to the key of the Pull Request in your ALM.<br/> e.g.: `sonar.pullrequest.key=5` |
+| `sonar.pullrequest.key` | Unique identifier of your Pull Request. Must correspond to the key of the Pull Request in your DevOps Platform.<br/> e.g.: `sonar.pullrequest.key=5` |
 | `sonar.pullrequest.branch` | The name of the branch that contains the changes to be merged.<br/> e.g.: `sonar.pullrequest.branch=feature/my-new-feature` |
 | `sonar.pullrequest.base` | The branch into which the Pull Request will be merged. <br/> Default: master <br/> e.g.: `sonar.pullrequest.base=master` |

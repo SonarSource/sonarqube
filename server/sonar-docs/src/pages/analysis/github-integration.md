@@ -79,7 +79,7 @@ Next, you need to install your GitHub App in your organizations. See GitHub's do
 ### Step 3: Updating your SonarQube global settings with your GitHub App information
 After you've created and installed your GitHub App, update your global SonarQube settings to finish integration and allow for the import of GitHub projects.
 
-Navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub** and specify the following settings:
+Navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations > GitHub** and specify the following settings:
 
 - **Configuration Name** (Enterprise and Data Center Edition only) – The name used to identify your GitHub configuration at the project level. Use something succinct and easily recognizable.
 - **GitHub URL** – For example, `https://github.company.com/api/v3` for GitHub Enterprise or `https://api.github.com/` for GitHub.com.
@@ -303,7 +303,7 @@ Then, follow the steps in SonarQube to analyze your project. SonarQube automatic
 If you're creating your projects manually or adding Quality Gate reporting to an existing project, see the following section.
 
 ### Reporting your Quality Gate status in manually created or existing projects
-SonarQube can also report your Quality Gate status to GitHub pull requests and branches for existing and manually-created projects. After you've created and installed your GitHub App and updated your global ALM Integration settings as shown in the **Importing your GitHub repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > DevOps Platform Integration**: 
+SonarQube can also report your Quality Gate status to GitHub pull requests and branches for existing and manually-created projects. After you've created and installed your GitHub App and updated your global DevOps Platform Integration settings as shown in the **Importing your GitHub repositories into SonarQube** section above, set the following project settings at **Project Settings > General Settings > DevOps Platform Integration**: 
 
 - **Configuration name** – The configuration name that corresponds to your GitHub instance. 
 - **Repository identifier** – The path of your repository URL.
@@ -332,12 +332,12 @@ SonarQube can also report your Quality Gate status to GitHub pull requests and b
 | By default, **Enable analysis summary under the GitHub Conversation tab** is on and your pull request analysis will be shown under both the **Conversation** and **Checks** tabs in GitHub. When off, your pull request analysis summary is only shown under the **Checks** tab.
 
 [[collapse]]
-| ## Configuring multiple ALM instances
-| SonarQube can report your Quality Gate status to multiple ALM instances. To do this, you need to create a configuration for each ALM instance and assign that configuration to the appropriate projects. 
+| ## Configuring multiple DevOps Platform instances
+| SonarQube can report your Quality Gate status to multiple DevOps Platform instances. To do this, you need to create a configuration for each DevOps Platform instance and assign that configuration to the appropriate projects. 
 |
-| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
+| - As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each DevOps Platform. 
 |
-| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each ALM. If you have multiple configurations of the same ALM connected to SonarQube, you have to create projects manually.
+| - Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), you can create multiple configurations for each DevOps Platform. If you have multiple configurations of the same DevOps Platform connected to SonarQube, you have to create projects manually.
 
 [[collapse]]
 | ## Linking issues
@@ -351,7 +351,7 @@ To allow users to log in with GitHub credentials, use the GitHub App that you cr
 
 To update your global SonarQube settings:
 
-Navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub > GitHub Authentication** and update the following:
+Navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations > GitHub > GitHub Authentication** and update the following:
 
 1. **Enabled** – set the switch to `true`.
 1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.
@@ -367,7 +367,7 @@ If you want to use a dedicated app for GitHub authentication, you can create a G
 
 After creating your app, update your global SonarQube settings: 
 
-Navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub > GitHub Authentication** and update the following:
+Navigate to **Administration > Configuration > General Settings > DevOps Platform Integrations > GitHub > GitHub Authentication** and update the following:
 
 1. **Enabled** – set the switch to `true`.
 1. **Client ID** – the Client ID is found below the GitHub App ID on your GitHub App's page.

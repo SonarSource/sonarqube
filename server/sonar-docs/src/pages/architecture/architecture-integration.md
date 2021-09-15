@@ -17,7 +17,7 @@ The SonarQube Platform is made of 4 components:
 4. One or more SonarScanners running on your Build / Continuous Integration Servers to analyze projects
 
 ## Integration
-The following schema shows how SonarQube integrates with other ALM tools and where the various components of SonarQube are used.  
+The following schema shows how SonarQube integrates with other DevOps Platform tools and where the various components of SonarQube are used.  
 ![SonarQube Integration.](/images/architecture-integrate.png)
 
 1. Developers code in their IDEs and use [SonarLint](https://sonarlint.org) to run local analysis.

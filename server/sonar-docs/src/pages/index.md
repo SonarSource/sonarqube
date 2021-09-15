@@ -19,7 +19,7 @@ Otherwise, you can also find an overview and common scenarios below or navigate 
 
 In a typical development process:  
 
-1. Developers develop and merge code in an IDE (preferably using [SonarLint](https://www.sonarlint.org/) to receive immediate feedback in the editor) and check-in their code to their ALM.
+1. Developers develop and merge code in an IDE (preferably using [SonarLint](https://www.sonarlint.org/) to receive immediate feedback in the editor) and check-in their code to their DevOps Platform.
 1. An organization’s continuous integration (CI) tool checks out, builds, and runs unit tests, and an integrated SonarQube scanner analyzes the results.
 1. The scanner posts the results to the SonarQube server which provides feedback to developers through the SonarQube interface, email, in-IDE notifications (through SonarLint), and decoration on pull or merge requests (when using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and above).
 
@@ -41,7 +41,7 @@ Starting in [Developer Edition](https://redirect.sonarsource.com/editions/develo
 
 ### Analyzing pull requests
 
-Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can integrate SonarQube to be part of your pull or merge request process. Issuing a pull request can trigger a branch analysis and add pull request decoration to see your branch analysis directly in your ALM's interface in addition to the SonarQube interface. For more information, see the [Pull Request Analysis Overview](/analysis/pull-request/).
+Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can integrate SonarQube to be part of your pull or merge request process. Issuing a pull request can trigger a branch analysis and add pull request decoration to see your branch analysis directly in your DevOps Platforms's interface in addition to the SonarQube interface. For more information, see the [Pull Request Analysis Overview](/analysis/pull-request/).
 
 ## Writing Clean and Safe Code
 

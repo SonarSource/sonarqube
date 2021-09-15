@@ -32,6 +32,6 @@ For more information on Quality Gates and making sure your Quality Gate is enfor
 
 ## Pull Request Analysis
 
-You can use Pull Request analysis and decoration to make sure your code is meeting your standards before you merge. Pull Request analysis lets you see your Pull Request's Quality Gate in the SonarQube UI. You can then decorate your Pull Requests with SonarQube issues directly in your ALM's interface.
+You can use Pull Request analysis and decoration to make sure your code is meeting your standards before you merge. Pull Request analysis lets you see your Pull Request's Quality Gate in the SonarQube UI. You can then decorate your Pull Requests with SonarQube issues directly in your DevOps Platform's interface.
 
 For more information on setting up Pull Request analysis and decoration, see the [Pull Request](/analysis/pull-request/) documentation.
