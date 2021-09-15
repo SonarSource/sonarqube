@@ -57,6 +57,7 @@ export default class SearchResults extends React.PureComponent<Props> {
     const results = this.index
       .search(
         query
+          .replace(/[\^\-+:~*]/g, '')
           .split(/\s+/)
           .map(s => `${s}~1 ${s}*`)
           .join(' ')

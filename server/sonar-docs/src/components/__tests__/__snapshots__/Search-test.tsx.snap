@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should search 1`] = `
+<div
+  className="search-container"
+>
+  <input
+    aria-label="Search"
+    className="search-input"
+    onChange={[Function]}
+    placeholder="Search..."
+    type="search"
+    value="simply text+:"
+  />
+  <button
+    onClick={[Function]}
+    type="button"
+  >
+    <ClearIcon
+      size={8}
+    />
+  </button>
+</div>
+`;

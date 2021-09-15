@@ -3,43 +3,6 @@
 exports[`should search 1`] = `
 <Fragment>
   <SearchResultEntry
-    active={true}
-    key="foobar"
-    result={
-      Object {
-        "exactMatch": true,
-        "highlights": Object {
-          "text": Array [
-            Array [
-              111,
-              6,
-            ],
-            Array [
-              118,
-              4,
-            ],
-          ],
-          "title": Array [
-            Array [
-              23,
-              4,
-            ],
-          ],
-        },
-        "longestTerm": "simply",
-        "page": Object {
-          "content": "Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.",
-          "navTitle": undefined,
-          "relativeName": "foobar",
-          "text": "Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.",
-          "title": "Where does Foobar come from?",
-          "url": "/foobar",
-        },
-        "query": "simply text",
-      }
-    }
-  />
-  <SearchResultEntry
     active={false}
     key="lorem/origin"
     result={
@@ -63,7 +26,7 @@ exports[`should search 1`] = `
             ],
           ],
         },
-        "longestTerm": "simply",
+        "longestTerm": "",
         "page": Object {
           "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words.",
           "navTitle": undefined,
@@ -72,7 +35,44 @@ exports[`should search 1`] = `
           "title": "Where does it come from?",
           "url": "/lorem/origin",
         },
-        "query": "simply text",
+        "query": "si:+mply text",
+      }
+    }
+  />
+  <SearchResultEntry
+    active={true}
+    key="foobar"
+    result={
+      Object {
+        "exactMatch": false,
+        "highlights": Object {
+          "text": Array [
+            Array [
+              111,
+              6,
+            ],
+            Array [
+              118,
+              4,
+            ],
+          ],
+          "title": Array [
+            Array [
+              23,
+              4,
+            ],
+          ],
+        },
+        "longestTerm": "",
+        "page": Object {
+          "content": "Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.",
+          "navTitle": undefined,
+          "relativeName": "foobar",
+          "text": "Foobar is a universal variable understood to represent whatever is being discussed. Now we need some keywords: simply text.",
+          "title": "Where does Foobar come from?",
+          "url": "/foobar",
+        },
+        "query": "si:+mply text",
       }
     }
   />

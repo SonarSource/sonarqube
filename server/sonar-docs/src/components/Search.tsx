@@ -146,6 +146,7 @@ export default class Search extends React.PureComponent<Props, State> {
         value,
         this.index.search(
           value
+            .replace(/[\^\-+:~*]/g, '')
             .split(/\s+/)
             .map(s => `${s}~1 ${s}*`)
             .join(' ')
