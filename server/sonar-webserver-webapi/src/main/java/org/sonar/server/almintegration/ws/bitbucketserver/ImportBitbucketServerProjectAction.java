@@ -132,7 +132,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       return toCreateResponse(componentDto);
     }
   }
-  
+
   private String getDefaultBranchName(String pat, String projectKey, String repoSlug, String url) {
     BranchesList branches = bitbucketServerRestClient.getBranches(url, pat, projectKey, repoSlug);
     Optional<Branch> defaultBranch = branches.findDefaultBranch();
@@ -142,7 +142,7 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
   private ComponentDto createProject(DbSession dbSession, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     NewComponent newProject = newComponentBuilder()
-      .setKey(repo.getProject().getKey() + "_" + repo.getSlug())
+      .setKey(getProjectKey(repo))
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
@@ -150,7 +150,8 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
     String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
     String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
 
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName, p -> {});
+    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName, p -> {
+    });
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {
@@ -162,6 +163,11 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
       componentDto.name(), componentDto.getKey());
+  }
+
+  private static String getProjectKey(Repository repo) {
+    String key = repo.getProject().getKey() + "_" + repo.getSlug();
+    return key.replace("~", "");
   }
 
 }

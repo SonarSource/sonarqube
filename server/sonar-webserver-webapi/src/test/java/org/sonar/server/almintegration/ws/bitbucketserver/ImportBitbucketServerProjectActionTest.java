@@ -64,6 +64,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -132,6 +133,34 @@ public class ImportBitbucketServerProjectActionTest {
   }
 
   @Test
+  public void import_project_with_tilda() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    Project project = getGsonBBSProject();
+    project.setKey("~" + project.getKey());
+    Repository repo = getGsonBBSRepo(project);
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "~projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+
+    String key = project.getKey() + "_" + repo.getSlug();
+    assertThat(result.getKey()).isNotEqualTo(key);
+    assertThat(result.getKey()).isEqualTo(key.substring(1));
+  }
+
+  @Test
   public void fail_project_already_exist() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
@@ -150,7 +179,7 @@ public class ImportBitbucketServerProjectActionTest {
 
     when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
     when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
-    
+
     ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
       .setParam("projectKey", "projectKey")
