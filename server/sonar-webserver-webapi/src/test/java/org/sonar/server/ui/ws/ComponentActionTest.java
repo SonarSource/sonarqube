@@ -85,6 +85,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -187,6 +188,60 @@ public class ComponentActionTest {
       "  \"name\": \"Polop\",\n" +
       "  \"description\": \"test project\"\n" +
       "}\n");
+  }
+
+  @Test
+  public void return_favourite_for_subportfolio() {
+    db.qualityGates().createDefaultQualityGate();
+    ComponentDto portfolio = componentDbTester.insertPrivatePortfolio();
+    ComponentDto subportfolio = componentDbTester.insertComponent(newSubPortfolio(portfolio));
+    UserDto user = db.users().insertUser("obiwan");
+
+    // set favourite for sub portfolio
+    propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(subportfolio.uuid()).setUserUuid(user.getUuid()),
+      subportfolio.getKey(), subportfolio.name(), subportfolio.qualifier(), user.getLogin());
+
+    userSession.logIn(user).addProjectPermission(UserRole.USER, subportfolio);
+    init();
+
+    String json = ws.newRequest()
+      .setParam("component", subportfolio.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"key\": \"" + subportfolio.getDbKey() + "\"," +
+      "  \"isFavorite\": true," +
+      "  \"id\": \"" + subportfolio.uuid() + "\"," +
+      "  \"name\": \"" + subportfolio.name() + "\"" +
+      "}");
+  }
+
+  @Test
+  public void return_favourite_for_portfolio() {
+    db.qualityGates().createDefaultQualityGate();
+    ComponentDto portfolio = componentDbTester.insertPrivatePortfolio();
+    ComponentDto subportfolio = componentDbTester.insertComponent(newSubPortfolio(portfolio));
+    UserDto user = db.users().insertUser("obiwan");
+
+    // set favourite for sub portfolio
+    propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setComponentUuid(portfolio.uuid()).setUserUuid(user.getUuid()),
+      subportfolio.getKey(), portfolio.name(), portfolio.qualifier(), user.getLogin());
+
+    userSession.logIn(user).addProjectPermission(UserRole.USER, portfolio);
+    init();
+
+    String json = ws.newRequest()
+      .setParam("component", portfolio.getKey())
+      .execute()
+      .getInput();
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"key\": \"" + portfolio.getDbKey() + "\"," +
+      "  \"isFavorite\": true," +
+      "  \"id\": \"" + portfolio.uuid() + "\"," +
+      "  \"name\": \"" + portfolio.name() + "\"" +
+      "}");
   }
 
   @Test
@@ -683,12 +738,11 @@ public class ComponentActionTest {
 
   private ComponentDto insertProject() {
     db.qualityGates().createDefaultQualityGate();
-    return db.components().insertPrivateProject("abcd", p ->
-      p.setDbKey("polop")
-        .setName("Polop")
-        .setDescription("test project")
-        .setQualifier(Qualifiers.PROJECT)
-        .setScope(Scopes.PROJECT));
+    return db.components().insertPrivateProject("abcd", p -> p.setDbKey("polop")
+      .setName("Polop")
+      .setDescription("test project")
+      .setQualifier(Qualifiers.PROJECT)
+      .setScope(Scopes.PROJECT));
   }
 
   private void init(Page... pages) {
@@ -697,7 +751,7 @@ public class ComponentActionTest {
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
     CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
     when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
-    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{context -> {
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
       for (Page page : pages) {
         context.addPage(page);
       }
@@ -747,7 +801,7 @@ public class ComponentActionTest {
       .setAdmin(true)
       .build();
 
-    return new Page[]{page1, page2, adminPage};
+    return new Page[] {page1, page2, adminPage};
   }
 
   private void verifySuccess(String componentKey) {

@@ -33,6 +33,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -100,7 +101,7 @@ public class ComponentAction implements NavigationWsAction {
   private final Configuration config;
 
   public ComponentAction(DbClient dbClient, PageRepository pageRepository, ResourceTypes resourceTypes, UserSession userSession,
-                         ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, Configuration config) {
+    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, Configuration config) {
     this.dbClient = dbClient;
     this.pageRepository = pageRepository;
     this.resourceTypes = resourceTypes;
@@ -160,7 +161,7 @@ public class ComponentAction implements NavigationWsAction {
 
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        boolean isFavourite = isFavourite(session, rootProject);
+        boolean isFavourite = isFavourite(session, rootProject, component);
         writeComponent(json, component, analysis.orElse(null), isFavourite);
         writeProfiles(json, session, component);
         writeQualityGate(json, session, rootProject);
@@ -224,14 +225,18 @@ public class ComponentAction implements NavigationWsAction {
     }
   }
 
-  private boolean isFavourite(DbSession session, ComponentDto component) {
+  private boolean isFavourite(DbSession session, ComponentDto rootComponent, ComponentDto component) {
     PropertyQuery propertyQuery = PropertyQuery.builder()
       .setUserUuid(userSession.getUuid())
       .setKey("favourite")
-      .setComponentUuid(component.uuid())
+      .setComponentUuid(isSubview(component) ? component.uuid() : rootComponent.uuid())
       .build();
     List<PropertyDto> componentFavourites = dbClient.propertiesDao().selectByQuery(propertyQuery, session);
     return componentFavourites.size() == 1;
+  }
+
+  private static boolean isSubview(ComponentDto component) {
+    return Qualifiers.SUBVIEW.equals(component.qualifier()) && Scopes.PROJECT.equals(component.scope());
   }
 
   private void writeProfiles(JsonWriter json, DbSession dbSession, ComponentDto component) {
