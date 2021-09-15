@@ -255,7 +255,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
 
     const showSearch = searchResults !== undefined;
 
-    const hasNoFile = components.length === 0 && searchResults === undefined;
+    const hasComponents = components.length === 0 && searchResults === undefined;
 
     const shouldShowBreadcrumbs = breadcrumbs.length > 1 && !showSearch;
     const shouldShowComponentList =
@@ -280,7 +280,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
         />
         <A11ySkipTarget anchor="code_main" />
 
-        {!hasNoFile && (
+        {!hasComponents && (
           <Search
             branchLike={branchLike}
             component={component}
@@ -290,7 +290,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
         )}
 
         <div className="code-components">
-          {hasNoFile && (
+          {hasComponents && sourceViewer === undefined && (
             <div className="display-flex-center display-flex-column no-file">
               <span className="h1 text-muted">
                 {translate(
