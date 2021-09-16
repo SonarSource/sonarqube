@@ -109,18 +109,16 @@ public class GenericTestExecutionReportParser {
       checkElementName(fileCursor, "file");
       String filePath = mandatoryAttribute(fileCursor, "path");
       InputFile inputFile = context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(filePath));
-      if (inputFile == null) {
+      if (inputFile == null || inputFile.language() == null) {
         numberOfUnknownFiles++;
         if (numberOfUnknownFiles <= MAX_STORED_UNKNOWN_FILE_PATHS) {
           firstUnknownFiles.add(filePath);
         }
+        if (inputFile != null) {
+          LOG.debug("Skipping file '{}' in the generic test execution report because it doesn't have a known language", filePath);
+        }
         continue;
       }
-      checkState(
-        inputFile.language() != null,
-        "Line %s of report refers to a file with an unknown language: %s",
-        fileCursor.getCursorLocation().getLineNumber(),
-        filePath);
       checkState(
         inputFile.type() != InputFile.Type.MAIN,
         "Line %s of report refers to a file which is not configured as a test file: %s",

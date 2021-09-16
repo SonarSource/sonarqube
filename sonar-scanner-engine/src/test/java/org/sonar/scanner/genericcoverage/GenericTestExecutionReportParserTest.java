@@ -31,6 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.deprecated.test.DefaultTestCase;
 import org.sonar.scanner.deprecated.test.DefaultTestPlan;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
@@ -47,7 +48,8 @@ public class GenericTestExecutionReportParserTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
+  @Rule
+  public LogTester logs = new LogTester();
   private TestPlanBuilder testPlanBuilder;
   private DefaultInputFile fileWithBranches;
   private DefaultInputFile emptyFile;
@@ -65,6 +67,23 @@ public class GenericTestExecutionReportParserTest {
     testPlan = mockMutableTestPlan(testCase);
 
     when(testPlanBuilder.getTestPlan(any(InputFile.class))).thenReturn(testPlan);
+  }
+
+  @Test
+  public void file_without_language_should_be_skipped() throws Exception {
+    String filePath = "src/main/java/com/example/EmptyClass.java";
+    DefaultInputFile file = new TestInputFileBuilder(context.module().key(), filePath)
+      .setLanguage(null)
+      .setType(InputFile.Type.TEST)
+      .initMetadata("1\n2\n3\n4\n5\n6")
+      .build();
+    addFileToFs(file);
+    GenericTestExecutionReportParser parser = parseReportFile("unittest.xml");
+    assertThat(parser.numberOfMatchedFiles()).isZero();
+    assertThat(parser.numberOfUnknownFiles()).isEqualTo(2);
+    assertThat(parser.firstUnknownFiles()).hasSize(2);
+    assertThat(logs.logs())
+      .contains("Skipping file 'src/main/java/com/example/EmptyClass.java' in the generic test execution report because it doesn't have a known language");
   }
 
   @Test
