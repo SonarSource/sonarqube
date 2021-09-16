@@ -41,7 +41,7 @@ public class GroupPermissionNewValue extends PermissionNewValue {
     this(null, componentUuid, componentKey, componentName, role, groupUuid, groupName, qualifier, null);
   }
 
-  public GroupPermissionNewValue(GroupPermissionDto dto, String componentKey, String qualifier, PermissionTemplateDto permissionTemplate) {
+  public GroupPermissionNewValue(GroupPermissionDto dto, @Nullable String componentKey, @Nullable String qualifier, @Nullable PermissionTemplateDto permissionTemplate) {
     this(dto.getUuid(), dto.getComponentUuid(), componentKey, dto.getComponentName(), dto.getRole(), dto.getGroupUuid(), dto.getGroupName(), qualifier, permissionTemplate);
   }
 

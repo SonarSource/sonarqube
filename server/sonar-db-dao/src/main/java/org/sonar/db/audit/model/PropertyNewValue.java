@@ -48,7 +48,7 @@ public class PropertyNewValue extends NewValue {
   @Nullable
   private String qualifier;
 
-  public PropertyNewValue(UserPropertyDto userPropertyDto, String login) {
+  public PropertyNewValue(UserPropertyDto userPropertyDto, @Nullable String login) {
     this.propertyKey = userPropertyDto.getKey();
     this.userUuid = userPropertyDto.getUserUuid();
     this.userLogin = login;
