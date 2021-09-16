@@ -313,11 +313,11 @@ public class IssueMapperTest {
   }
 
   @Test
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_type_SECURITY_HOTSPOT() {
+  public void scrollClosedByComponentUuid_returns_closed_issues_of_type_SECURITY_HOTSPOT() {
     RuleType ruleType = randomSupportedRuleType();
     ComponentDto component = randomComponent();
     IssueDto securityHotspotIssue = insertNewClosedIssue(component, RuleType.SECURITY_HOTSPOT);
-    insertToClosedDiff(securityHotspotIssue);
+    IssueChangeDto hotspotChangedData = insertToClosedDiff(securityHotspotIssue);
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issue);
 
@@ -326,7 +326,9 @@ public class IssueMapperTest {
 
     assertThat(resultHandler.issues)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
-      .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
+      .containsOnly(
+        tuple(issue.getKey(), issueChange.getChangeData()),
+        tuple(securityHotspotIssue.getKey(), hotspotChangedData.getChangeData()));
   }
 
   @Test

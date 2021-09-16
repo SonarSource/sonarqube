@@ -228,7 +228,6 @@
       and i.status = 'CLOSED'
       and i.issue_close_date is not null
       and i.issue_close_date >= #{closeDateAfter,jdbcType=BIGINT}
-      and i.issue_type &lt;&gt; 4
     order by
       i.kee, ic.issue_change_creation_date desc
   </select>

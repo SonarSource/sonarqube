@@ -466,7 +466,7 @@ public class IssueWorkflowTest {
     issue.addChange(fieldDiffs);
   }
 
-  private static String emptyIfNull(@Nullable String newResolution) {
+  static String emptyIfNull(@Nullable String newResolution) {
     return newResolution == null ? "" : newResolution;
   }
 

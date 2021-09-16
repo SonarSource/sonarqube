@@ -46,6 +46,7 @@ import org.sonar.db.issue.IssueMapper;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -203,7 +204,7 @@ public class ComponentIssuesLoader {
 
   /**
    * Load closed issues for the specified Component, which have at least one line diff in changelog AND are
-   * neither hotspots nor manual vulnerabilities.
+   * not manual vulnerabilities.
    * <p>
    * Closed issues do not have a line number in DB (it is unset when the issue is closed), this method
    * returns {@link DefaultIssue} objects which line number is populated from the most recent diff logging
@@ -230,7 +231,7 @@ public class ComponentIssuesLoader {
   private static List<DefaultIssue> loadClosedIssues(DbSession dbSession, String componentUuid, long closeDateAfter) {
     ClosedIssuesResultHandler handler = new ClosedIssuesResultHandler();
     dbSession.getMapper(IssueMapper.class).scrollClosedByComponentUuid(componentUuid, closeDateAfter, handler);
-    return ImmutableList.copyOf(handler.issues);
+    return unmodifiableList(handler.issues);
   }
 
   private static class ClosedIssuesResultHandler implements ResultHandler<IssueDto> {

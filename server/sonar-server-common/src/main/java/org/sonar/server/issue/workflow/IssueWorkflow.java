@@ -283,6 +283,26 @@ public class IssueWorkflow implements Startable {
           IsNotHotspot.INSTANCE)
         .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
         .automatic()
+        .build())
+
+    // reopen closed hotspots
+      .transition(Transition.builder("automaticunclosetoreview")
+        .from(STATUS_CLOSED).to(STATUS_TO_REVIEW)
+        .conditions(
+          new PreviousStatusWas(STATUS_TO_REVIEW),
+          new HasResolution(RESOLUTION_REMOVED, RESOLUTION_FIXED),
+          IsHotspot.INSTANCE)
+        .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
+        .automatic()
+        .build())
+      .transition(Transition.builder("automaticunclosereviewed")
+        .from(STATUS_CLOSED).to(STATUS_REVIEWED)
+        .conditions(
+          new PreviousStatusWas(STATUS_REVIEWED),
+          new HasResolution(RESOLUTION_REMOVED, RESOLUTION_FIXED),
+          IsHotspot.INSTANCE)
+        .functions(RestoreResolutionFunction.INSTANCE, UnsetCloseDate.INSTANCE)
+        .automatic()
         .build());
   }
 
