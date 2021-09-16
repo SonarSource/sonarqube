@@ -17,16 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+@ParametersAreNonnullByDefault
+package org.sonar.db.portfolio;
 
-public class SvnProperties {
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public static final String USER_PROP_KEY = "sonar.svn.username";
-  public static final String PRIVATE_KEY_PATH_PROP_KEY = "sonar.svn.privateKeyPath";
-  public static final String PASSWORD_PROP_KEY = "sonar.svn.password.secured";
-  public static final String PASSPHRASE_PROP_KEY = "sonar.svn.passphrase.secured";
-
-  private SvnProperties() {
-    //private only
-  }
-}

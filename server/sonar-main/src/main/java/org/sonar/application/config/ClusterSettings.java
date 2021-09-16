@@ -136,13 +136,13 @@ public class ClusterSettings implements Consumer<Props> {
   }
 
   private Set<AddressAndPort> parseAndCheckHosts(Property property, String value) {
-    Set<AddressAndPort> res = parseHosts( value);
+    Set<AddressAndPort> res = parseHosts(value);
     checkValidHosts(property, res);
     return res;
   }
 
   private void checkValidHosts(Property property, Set<AddressAndPort> addressAndPorts) {
-   List<String> invalidHosts = addressAndPorts.stream()
+    List<String> invalidHosts = addressAndPorts.stream()
       .map(AddressAndPort::getHost)
       .filter(t -> !network.toInetAddress(t).isPresent())
       .sorted()
@@ -231,7 +231,9 @@ public class ClusterSettings implements Consumer<Props> {
   private static class AddressAndPort {
     private static final int NO_PORT = -1;
 
-    /** the host from setting, can be a hostname or an IP address */
+    /**
+     * the host from setting, can be a hostname or an IP address
+     */
     private final String host;
     private final int port;
 

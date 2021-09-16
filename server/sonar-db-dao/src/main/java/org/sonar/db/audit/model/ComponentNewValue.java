@@ -90,7 +90,7 @@ public class ComponentNewValue extends NewValue {
   }
 
   @CheckForNull
-  public boolean isPrivate() {
+  public Boolean isPrivate() {
     return isPrivate;
   }
 

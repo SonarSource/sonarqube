@@ -21,7 +21,6 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.PropertyFieldDefinition;
@@ -72,7 +70,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUEONEOF_NOT_SET;
 
@@ -935,13 +932,7 @@ public class ValuesActionTest {
 
   private WsActionTester newTester() {
     MapSettings settings = new MapSettings();
-    Configuration configuration = settings.asConfig();
-    return new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support, configuration));
+    return new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support));
   }
 
-  private WsActionTester newSonarCloudTester() {
-    MapSettings settings = new MapSettings().setProperty(SONARCLOUD_ENABLED.getKey(), "true");
-    Configuration configuration = settings.asConfig();
-    return new WsActionTester(new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, support, configuration));
-  }
 }

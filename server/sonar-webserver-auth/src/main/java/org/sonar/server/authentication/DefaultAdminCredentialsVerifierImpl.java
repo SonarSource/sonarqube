@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;

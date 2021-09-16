@@ -35,7 +35,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.Change;
@@ -60,7 +59,6 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.setting.ws.PropertySetExtractor.extractPropertySetKeys;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
@@ -81,16 +79,14 @@ public class ValuesAction implements SettingsWsAction {
   private final UserSession userSession;
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsWsSupport settingsWsSupport;
-  private final boolean isSonarCloud;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-    SettingsWsSupport settingsWsSupport, Configuration configuration) {
+    SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsWsSupport = settingsWsSupport;
-    this.isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   @Override

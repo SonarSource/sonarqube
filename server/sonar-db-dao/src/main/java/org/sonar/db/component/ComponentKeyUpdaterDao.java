@@ -156,10 +156,6 @@ public class ComponentKeyUpdaterDao implements Dao {
     }
   }
 
-  private static ComponentKeyUpdaterMapper mapper(DbSession dbSession) {
-    return dbSession.getMapper(ComponentKeyUpdaterMapper.class);
-  }
-
   public static void checkExistentKey(ComponentKeyUpdaterMapper mapper, String resourceKey) {
     if (mapper.countResourceByKey(resourceKey) > 0) {
       throw new IllegalArgumentException("Impossible to update key: a component with key \"" + resourceKey + "\" already exists.");
