@@ -22,7 +22,12 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { isCategoryDefinition } from '../apps/settings/utils';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
-import { SettingCategoryDefinition, SettingDefinition, SettingValue } from '../types/settings';
+import {
+  SettingCategoryDefinition,
+  SettingDefinition,
+  SettingValue,
+  SettingValueResponse
+} from '../types/settings';
 
 export function getDefinitions(component?: string): Promise<SettingCategoryDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
@@ -34,7 +39,10 @@ export function getDefinitions(component?: string): Promise<SettingCategoryDefin
 export function getValues(
   data: { keys: string; component?: string } & BranchParameters
 ): Promise<SettingValue[]> {
-  return getJSON('/api/settings/values', data).then(r => r.settings);
+  return getJSON('/api/settings/values', data).then((r: SettingValueResponse) => [
+    ...r.settings,
+    ...r.setSecuredSettings.map(key => ({ key }))
+  ]);
 }
 
 export function setSettingValue(

@@ -64,6 +64,11 @@ export interface SettingCategoryDefinition extends SettingDefinition {
   subCategory: string;
 }
 
+export interface SettingValueResponse {
+  settings: SettingValue[];
+  setSecuredSettings: string[];
+}
+
 export interface SettingValue {
   fieldValues?: Array<T.Dict<string>>;
   inherited?: boolean;
