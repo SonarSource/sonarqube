@@ -27,6 +27,6 @@ public class PurgePropertiesTest {
 
   @Test
   public void shouldGetExtensions() {
-    assertThat(PurgeProperties.all()).hasSize(6);
+    assertThat(PurgeProperties.all()).hasSize(7);
   }
 }
