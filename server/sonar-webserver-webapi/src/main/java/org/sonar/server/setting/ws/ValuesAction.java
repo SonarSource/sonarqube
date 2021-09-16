@@ -96,11 +96,12 @@ public class ValuesAction implements SettingsWsAction {
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "The settings from conf/sonar.properties are excluded from results.<br>" +
         "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>" +
-        "Secured settings are not returned by the endpoint.<br/>")
+        "Secured settings values are not returned by the endpoint.<br/>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setChangelog(
-        new Change("9.1", "The secured settings are no longer returned."),
+        new Change("9.1", "The secured settings values are no longer returned. Secured settings keys that have a value " +
+          "are now returned in setSecuredSettings array."),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings from conf/sonar.properties are excluded from results."))
       .setHandler(this);
