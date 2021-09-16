@@ -19,14 +19,13 @@
  */
 package org.sonar.server.es;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.server.es.IndexingListener.FAIL_ON_ERROR;
 
 public class FailOnErrorIndexingListenerTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void onFinish_must_throw_ISE_when_an_error_is_present() {
@@ -34,10 +33,10 @@ public class FailOnErrorIndexingListenerTest {
 
     indexingResult.incrementRequests();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unrecoverable indexation failures");
-
-    IndexingListener.FAIL_ON_ERROR.onFinish(indexingResult);
+    assertThatThrownBy(() -> FAIL_ON_ERROR.onFinish(indexingResult))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unrecoverable indexation failures: 1 errors among 1 requests. "
+        + "Check Elasticsearch logs for further details.");
   }
 
   @Test
@@ -47,6 +46,7 @@ public class FailOnErrorIndexingListenerTest {
     indexingResult.incrementRequests();
     indexingResult.incrementSuccess();
 
-    IndexingListener.FAIL_ON_ERROR.onFinish(indexingResult);
+    assertThatCode(() -> FAIL_ON_ERROR.onFinish(indexingResult))
+      .doesNotThrowAnyException();
   }
 }

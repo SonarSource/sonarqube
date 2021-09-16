@@ -21,6 +21,8 @@ package org.sonar.server.es;
 
 import java.util.List;
 
+import static java.lang.String.format;
+
 public interface IndexingListener {
 
   void onSuccess(List<DocId> docIds);
@@ -36,7 +38,10 @@ public interface IndexingListener {
     @Override
     public void onFinish(IndexingResult result) {
       if (result.getFailures() > 0) {
-        throw new IllegalStateException(String.format("Unrecoverable indexation failures: %d errors among %d requests", result.getFailures(), result.getTotal()));
+        throw new IllegalStateException(
+          format("Unrecoverable indexation failures: %d errors among %d requests. Check Elasticsearch logs for further details.",
+            result.getFailures(),
+            result.getTotal()));
       }
     }
   };
