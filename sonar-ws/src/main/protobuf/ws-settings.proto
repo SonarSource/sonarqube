@@ -87,6 +87,7 @@ enum Type {
 // Response of GET api/settings/values
 message ValuesWsResponse {
   repeated Setting settings = 1;
+  repeated string setSecuredSettings = 2;
 }
 
 message Setting {

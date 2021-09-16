@@ -28,5 +28,8 @@
       ],
       "inherited": false
     }
+  ],
+  "setSecuredSettings": [
+    "email.smtp_port.secured"
   ]
 }

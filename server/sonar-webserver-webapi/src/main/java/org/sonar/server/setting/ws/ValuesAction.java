@@ -95,11 +95,12 @@ public class ValuesAction implements SettingsWsAction {
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "The settings from conf/sonar.properties are excluded from results.<br>" +
-        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>")
+        "Requires 'Browse' or 'Execute Analysis' permission when a component is specified.<br/>" +
+        "Secured settings are not returned by the endpoint.<br/>")
       .setResponseExample(getClass().getResource("values-example.json"))
       .setSince("6.3")
       .setChangelog(
-        new Change("9.1", "The value of secured settings are no longer returned"),
+        new Change("9.1", "The secured settings are no longer returned."),
         new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)),
         new Change("7.1", "The settings from conf/sonar.properties are excluded from results."))
       .setHandler(this);
@@ -249,6 +250,12 @@ public class ValuesAction implements SettingsWsAction {
 
     private void processSettings() {
       settings.forEach(setting -> {
+        if (isSecured(setting.getKey())) {
+          if (!setting.isDefault()) {
+            valuesWsBuilder.addSetSecuredSettings(setting.getKey());
+          }
+          return;
+        }
         Settings.Setting.Builder valueBuilder = getOrCreateValueBuilder(keysToDisplayMap.get(setting.getKey()));
         setInherited(setting, valueBuilder);
         setValue(setting, valueBuilder);
@@ -269,9 +276,6 @@ public class ValuesAction implements SettingsWsAction {
     }
 
     private void setValue(Setting setting, Settings.Setting.Builder valueBuilder) {
-      if (isSecured(setting.getKey())) {
-        return;
-      }
       PropertyDefinition definition = setting.getDefinition();
       String value = setting.getValue();
       if (definition == null) {
