@@ -76,11 +76,13 @@ exports[`renders correctly: with links 1`] = `
         <div
           className="little-spacer-bottom"
         >
-          <a
+          <Link
             className="display-inline-flex-center link-with-icon"
-            href="http://link.tosome.place"
+            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
+            style={Object {}}
             target="_blank"
+            to="http://link.tosome.place"
           >
             <DetachIcon
               className="spacer-right"
@@ -89,21 +91,23 @@ exports[`renders correctly: with links 1`] = `
             <span>
               external link
             </span>
-          </a>
+          </Link>
         </div>
         <div
           className="little-spacer-bottom"
         >
-          <a
+          <Link
             className="display-inline-flex-center link-with-icon"
-            href="/documentation/guide"
+            onlyActiveOnIndex={false}
             rel="noopener noreferrer"
+            style={Object {}}
             target="_blank"
+            to="/documentation/guide"
           >
             <span>
               internal link
             </span>
-          </a>
+          </Link>
         </div>
         <div
           className="little-spacer-bottom"

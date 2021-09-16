@@ -58,14 +58,14 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
                       <span>{label}</span>
                     </Link>
                   ) : (
-                    <a
+                    <Link
                       className="display-inline-flex-center link-with-icon"
-                      href={href}
+                      to={href}
                       rel="noopener noreferrer"
                       target="_blank">
                       {isWebUri(href) && <DetachIcon size={14} className="spacer-right" />}
                       <span>{label}</span>
-                    </a>
+                    </Link>
                   )}
                 </div>
               ))}
