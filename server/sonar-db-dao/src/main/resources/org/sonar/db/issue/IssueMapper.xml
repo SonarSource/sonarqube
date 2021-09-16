@@ -363,11 +363,13 @@
 
   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
     where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
     order by i.issue_creation_date ASC
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
@@ -375,7 +377,8 @@
 
   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="mssql">
   	select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from
     (select
         row_number() over(order by i.issue_creation_date ASC) as row_number,
@@ -388,11 +391,13 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
   </select>
 
    <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="oracle">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from
 	  (select <include refid="issueColumnsInInnerQuery"/> from (
 	      select rownum as rn, t.* from (
@@ -409,6 +414,7 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
   </select>
 </mapper>
 

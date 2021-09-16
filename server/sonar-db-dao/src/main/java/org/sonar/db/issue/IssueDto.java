@@ -69,6 +69,7 @@ public final class IssueDto implements Serializable {
   private String resolution;
   private String checksum;
   private String assigneeUuid;
+  private String assigneeLogin;
   private String authorLogin;
   private String issueAttributes;
   private String securityStandards;
@@ -333,6 +334,16 @@ public final class IssueDto implements Serializable {
   public IssueDto setAssigneeUuid(@Nullable String s) {
     checkArgument(s == null || s.length() <= 255, "Value is too long for issue assigneeUuid: %s", s);
     this.assigneeUuid = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAssigneeLogin() {
+    return assigneeLogin;
+  }
+
+  public IssueDto setAssigneeLogin(@Nullable String s) {
+    this.assigneeLogin = s;
     return this;
   }
 
