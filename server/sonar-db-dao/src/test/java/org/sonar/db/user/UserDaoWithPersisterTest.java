@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
@@ -114,7 +115,9 @@ public class UserDaoWithPersisterTest {
       .containsExactly(updatedUser.getUuid(), updatedUser.getLogin(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.isActive(),
         updatedUser.getScmAccounts(), updatedUser.getExternalId(), updatedUser.getExternalLogin(), updatedUser.getExternalIdentityProvider(),
         updatedUser.isLocal(), updatedUser.isOnboarded(), updatedUser.isRoot(), updatedUser.getLastConnectionDate());
-    assertThat(newValue.toString()).contains("name");
+    assertThat(newValue.toString())
+      .contains("name")
+      .contains(DateUtils.formatDateTime(updatedUser.getLastConnectionDate()));
   }
 
   @Test

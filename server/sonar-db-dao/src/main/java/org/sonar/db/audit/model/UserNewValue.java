@@ -22,6 +22,7 @@ package org.sonar.db.audit.model;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Objects.requireNonNull;
@@ -162,7 +163,8 @@ public class UserNewValue extends NewValue {
     addField(sb, "\"local\": ", ObjectUtils.toString(this.local), false);
     addField(sb, "\"onboarded\": ", ObjectUtils.toString(this.onboarded), false);
     addField(sb, "\"root\": ", ObjectUtils.toString(this.root), false);
-    addField(sb, "\"lastConnectionDate\": ", ObjectUtils.toString(this.lastConnectionDate), false);
+    addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
+      "" : DateUtils.formatDateTime(this.lastConnectionDate), false);
     endString(sb);
     return sb.toString();
   }

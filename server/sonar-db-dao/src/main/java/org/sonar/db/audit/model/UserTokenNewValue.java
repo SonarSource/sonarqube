@@ -21,7 +21,7 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ObjectUtils;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 
@@ -89,7 +89,8 @@ public class UserTokenNewValue extends NewValue {
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"tokenName\": ", this.tokenName, true);
-    addField(sb, "\"lastConnectionDate\": ", ObjectUtils.toString(this.lastConnectionDate), false);
+    addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
+      "" : DateUtils.formatDateTime(this.lastConnectionDate), false);
     endString(sb);
     return sb.toString();
   }

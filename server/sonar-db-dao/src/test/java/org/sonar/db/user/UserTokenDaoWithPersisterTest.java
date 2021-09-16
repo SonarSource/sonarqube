@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -30,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserTokenNewValue;
 
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -53,7 +55,8 @@ public class UserTokenDaoWithPersisterTest {
 
   @Test
   public void insert_token_is_persisted() {
-    UserTokenDto userToken = newUserToken();
+    UserTokenDto userToken = newUserToken()
+      .setLastConnectionDate(nextLong());
     underTest.insert(db.getSession(), userToken, "login");
 
     verify(auditPersister).addUserToken(eq(db.getSession()), newValueCaptor.capture());
@@ -68,7 +71,9 @@ public class UserTokenDaoWithPersisterTest {
     assertThat(newValue)
       .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate)
       .containsExactly(userToken.getUuid(), userToken.getName(), userToken.getUserUuid(), userToken.getLastConnectionDate());
-    assertThat(newValue.toString()).contains("tokenUuid");
+    assertThat(newValue.toString())
+      .contains("tokenUuid")
+      .contains(DateUtils.formatDateTime(userToken.getLastConnectionDate()));
   }
 
   @Test
