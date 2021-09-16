@@ -20,9 +20,7 @@
 package org.sonar.server.security;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -140,6 +138,8 @@ public final class SecurityStandards {
     AUTH("auth", HIGH),
     INSECURE_CONF("insecure-conf", LOW),
     FILE_MANIPULATION("file-manipulation", LOW),
+    ENCRYPTION_OF_SENSITIVE_DATA("encrypt-data", LOW),
+    TRACEABILITY("traceability", LOW),
     OTHERS("others", LOW);
 
     private static final Map<String, SQCategory> SQ_CATEGORY_BY_KEY = stream(values()).collect(uniqueIndex(SQCategory::getKey));
@@ -165,26 +165,28 @@ public final class SecurityStandards {
   }
 
   public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<SQCategory, Set<String>>builder()
-    .put(SQCategory.BUFFER_OVERFLOW, ImmutableSet.of("119", "120", "131", "676", "788"))
-    .put(SQCategory.SQL_INJECTION, ImmutableSet.of("89", "564"))
-    .put(SQCategory.COMMAND_INJECTION, ImmutableSet.of("77", "78", "88", "214"))
-    .put(SQCategory.PATH_TRAVERSAL_INJECTION, ImmutableSet.of("22"))
-    .put(SQCategory.LDAP_INJECTION, ImmutableSet.of("90"))
-    .put(SQCategory.XPATH_INJECTION, ImmutableSet.of("643"))
-    .put(SQCategory.RCE, ImmutableSet.of("94", "95"))
-    .put(SQCategory.DOS, ImmutableSet.of("400", "624"))
-    .put(SQCategory.SSRF, ImmutableSet.of("918"))
-    .put(SQCategory.CSRF, ImmutableSet.of("352"))
-    .put(SQCategory.XSS, ImmutableSet.of("79", "80", "81", "82", "83", "84", "85", "86", "87"))
-    .put(SQCategory.LOG_INJECTION, ImmutableSet.of("117"))
-    .put(SQCategory.HTTP_RESPONSE_SPLITTING, ImmutableSet.of("113"))
-    .put(SQCategory.OPEN_REDIRECT, ImmutableSet.of("601"))
-    .put(SQCategory.XXE, ImmutableSet.of("611", "827"))
-    .put(SQCategory.OBJECT_INJECTION, ImmutableSet.of("134", "470", "502"))
-    .put(SQCategory.WEAK_CRYPTOGRAPHY, ImmutableSet.of("295", "297", "321", "322", "323", "324", "325", "326", "327", "328", "330", "780"))
-    .put(SQCategory.AUTH, ImmutableSet.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284"))
-    .put(SQCategory.INSECURE_CONF, ImmutableSet.of("102", "215", "311", "315", "346", "614", "489", "942"))
-    .put(SQCategory.FILE_MANIPULATION, ImmutableSet.of("97", "73"))
+    .put(SQCategory.BUFFER_OVERFLOW, Set.of("119", "120", "131", "676", "788"))
+    .put(SQCategory.SQL_INJECTION, Set.of("89", "564", "943"))
+    .put(SQCategory.COMMAND_INJECTION, Set.of("77", "78", "88", "214"))
+    .put(SQCategory.PATH_TRAVERSAL_INJECTION, Set.of("22"))
+    .put(SQCategory.LDAP_INJECTION, Set.of("90"))
+    .put(SQCategory.XPATH_INJECTION, Set.of("643"))
+    .put(SQCategory.RCE, Set.of("94", "95"))
+    .put(SQCategory.DOS, Set.of("400", "624"))
+    .put(SQCategory.SSRF, Set.of("918"))
+    .put(SQCategory.CSRF, Set.of("352"))
+    .put(SQCategory.XSS, Set.of("79", "80", "81", "82", "83", "84", "85", "86", "87"))
+    .put(SQCategory.LOG_INJECTION, Set.of("117"))
+    .put(SQCategory.HTTP_RESPONSE_SPLITTING, Set.of("113"))
+    .put(SQCategory.OPEN_REDIRECT, Set.of("601"))
+    .put(SQCategory.XXE, Set.of("611", "827"))
+    .put(SQCategory.OBJECT_INJECTION, Set.of("134", "470", "502"))
+    .put(SQCategory.WEAK_CRYPTOGRAPHY, Set.of("295", "297", "321", "322", "323", "324", "325", "326", "327", "328", "330", "780"))
+    .put(SQCategory.AUTH, Set.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284", "308", "732"))
+    .put(SQCategory.INSECURE_CONF, Set.of("102", "215", "346", "614", "489", "942"))
+    .put(SQCategory.FILE_MANIPULATION, Set.of("97", "73"))
+    .put(SQCategory.ENCRYPTION_OF_SENSITIVE_DATA, Set.of("311", "315", "319"))
+    .put(SQCategory.TRACEABILITY, Set.of("778"))
     .build();
   private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).collect(Collectors.toList()));
   public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));

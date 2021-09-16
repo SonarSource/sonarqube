@@ -3683,6 +3683,12 @@
     "file-manipulation": {
       "title": "File Manipulation"
     },
+    "encrypt-data": {
+      "title": "Encryption of Sensitive Data"
+    },
+    "traceability": {
+      "title": "Traceability"
+    },
     "others": {
       "title": "Others"
     }
