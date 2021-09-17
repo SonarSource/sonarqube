@@ -23,7 +23,10 @@ import * as React from 'react';
 import { mockPeriod } from '../../../../helpers/testMocks';
 import { ProjectLeakPeriodInfo } from '../ProjectLeakPeriodInfo';
 
-jest.mock('date-fns/difference_in_days', () => jest.fn().mockReturnValue(10));
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual('date-fns');
+  return { ...actual, differenceInDays: jest.fn().mockReturnValue(10) };
+});
 
 it('should render correctly for 10 days', () => {
   expect(shallowRender({ mode: 'days', parameter: '10' })).toMatchSnapshot();

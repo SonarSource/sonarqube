@@ -31,12 +31,14 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { hasGlobalPermission } from '../../../../helpers/users';
 import { DefaultPageSelector } from '../DefaultPageSelector';
 
-jest.mock('../AllProjectsContainer', () => ({
-  // eslint-disable-next-line
-  default: function AllProjectsContainer() {
-    return null;
-  }
-}));
+jest.mock(
+  '../AllProjectsContainer',
+  () =>
+    // eslint-disable-next-line
+    function AllProjectsContainer() {
+      return null;
+    }
+);
 
 jest.mock('../../../../helpers/storage', () => ({
   get: jest.fn().mockReturnValue(undefined)

@@ -26,11 +26,15 @@ import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import BranchAnalysisList from '../BranchAnalysisList';
 
-jest.mock('date-fns/start_of_day', () =>
-  jest.fn(() => ({
-    getTime: () => '1488322800000' // 2017-03-02
-  }))
-);
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual('date-fns');
+  return {
+    ...actual,
+    startOfDay: jest.fn(() => ({
+      getTime: () => '1488322800000' // 2017-03-02
+    }))
+  };
+});
 
 jest.mock('../../../../helpers/dates', () => ({
   parseDate: jest.fn().mockReturnValue('2017-03-02'),

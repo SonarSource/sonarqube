@@ -21,7 +21,7 @@
 import { Location } from 'history';
 import { pick } from 'lodash';
 import * as React from 'react';
-import { render } from 'react-dom';
+import ReactDom, { render } from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
@@ -68,6 +68,14 @@ import GlobalContainer from '../components/GlobalContainer';
 import { PageContext } from '../components/indexation/PageUnavailableDueToIndexation';
 import MigrationContainer from '../components/MigrationContainer';
 import getStore from './getStore';
+
+/*
+ * Expose dependencies to extensions
+ */
+function attachToGlobal() {
+  window.React = React;
+  window.ReactDOM = ReactDom;
+}
 
 function handleUpdate(this: { state: { location: Location } }) {
   const { action } = this.state.location;
@@ -249,6 +257,8 @@ export default function startReactApp(
   currentUser?: T.CurrentUser,
   appState?: T.AppState
 ) {
+  attachToGlobal();
+
   const el = document.getElementById('content');
 
   const history = getHistory();

@@ -44,11 +44,11 @@ Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, co
 `;
 
 // mock `remark` & co to work around the issue with cjs imports
-jest.mock('remark', () => ({ default: jest.requireActual('remark') }));
-jest.mock('remark-rehype', () => ({ default: jest.requireActual('remark-rehype') }));
-jest.mock('rehype-raw', () => ({ default: jest.requireActual('rehype-raw') }));
-jest.mock('rehype-react', () => ({ default: jest.requireActual('rehype-react') }));
-jest.mock('rehype-slug', () => ({ default: jest.requireActual('rehype-slug') }));
+jest.mock('remark', () => jest.requireActual('remark'));
+jest.mock('remark-rehype', () => jest.requireActual('remark-rehype'));
+jest.mock('rehype-raw', () => jest.requireActual('rehype-raw'));
+jest.mock('rehype-react', () => jest.requireActual('rehype-react'));
+jest.mock('rehype-slug', () => jest.requireActual('rehype-slug'));
 
 jest.mock('../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()

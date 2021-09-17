@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as differenceInDays from 'date-fns/difference_in_days';
+import { differenceInDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { InjectedIntlProps } from 'react-intl';
 import { LeakPeriodLegend } from '../LeakPeriodLegend';
 
-jest.mock('date-fns/difference_in_days', () => jest.fn().mockReturnValue(10));
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual('date-fns');
+  return { ...actual, differenceInDays: jest.fn().mockReturnValue(10) };
+});
 
 it('10 days', () => {
   expect(getWrapper({ mode: 'days', parameter: '10' })).toMatchSnapshot();

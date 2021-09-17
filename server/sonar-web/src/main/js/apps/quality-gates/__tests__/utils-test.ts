@@ -24,14 +24,12 @@ jest.mock('../../../store/rootReducer', () => ({
   getMetricByKey: (store: any, key: string) => store[key]
 }));
 
-jest.mock('../../../app/utils/getStore', () => ({
-  default: () => ({
-    getState: () => ({
-      bugs: mockMetric({ key: 'bugs', name: 'Bugs' }),
-      existing_metric: mockMetric(),
-      new_maintainability_rating: mockMetric(),
-      sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' })
-    })
+jest.mock('../../../app/utils/getStore', () => () => ({
+  getState: () => ({
+    bugs: mockMetric({ key: 'bugs', name: 'Bugs' }),
+    existing_metric: mockMetric(),
+    new_maintainability_rating: mockMetric(),
+    sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' })
   })
 }));
 

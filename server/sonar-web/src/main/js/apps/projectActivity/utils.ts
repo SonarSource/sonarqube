@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as startOfDay from 'date-fns/start_of_day';
+import { startOfDay } from 'date-fns';
 import { isEqual } from 'lodash';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
 import { parseDate } from '../../helpers/dates';

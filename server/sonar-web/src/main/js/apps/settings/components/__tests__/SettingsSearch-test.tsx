@@ -24,8 +24,8 @@ import { mockRouter } from '../../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import { SettingsSearch } from '../SettingsSearch';
 
-jest.mock('lunr', () => ({
-  default: jest.fn(() => ({
+jest.mock('lunr', () =>
+  jest.fn(() => ({
     search: jest.fn(() => [
       {
         ref: 'foo'
@@ -35,7 +35,7 @@ jest.mock('lunr', () => ({
       }
     ])
   }))
-}));
+);
 
 describe('instance', () => {
   const router = mockRouter();

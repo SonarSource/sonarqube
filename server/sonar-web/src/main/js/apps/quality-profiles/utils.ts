@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as differenceInYears from 'date-fns/difference_in_years';
+import { differenceInYears } from 'date-fns';
 import { sortBy } from 'lodash';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';

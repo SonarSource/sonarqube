@@ -28,26 +28,32 @@ import {
   LS_PROJECTS_VISUALIZATION
 } from '../AllProjects';
 
-jest.mock('../ProjectsList', () => ({
-  // eslint-disable-next-line
-  default: function ProjectsList() {
-    return null;
-  }
-}));
+jest.mock(
+  '../ProjectsList',
+  () =>
+    // eslint-disable-next-line
+    function ProjectsList() {
+      return null;
+    }
+);
 
-jest.mock('../PageHeader', () => ({
-  // eslint-disable-next-line
-  default: function PageHeader() {
-    return null;
-  }
-}));
+jest.mock(
+  '../PageHeader',
+  () =>
+    // eslint-disable-next-line
+    function PageHeader() {
+      return null;
+    }
+);
 
-jest.mock('../PageSidebar', () => ({
-  // eslint-disable-next-line
-  default: function PageSidebar() {
-    return null;
-  }
-}));
+jest.mock(
+  '../PageSidebar',
+  () =>
+    // eslint-disable-next-line
+    function PageSidebar() {
+      return null;
+    }
+);
 
 jest.mock('../../utils', () => {
   const utils = jest.requireActual('../../utils');

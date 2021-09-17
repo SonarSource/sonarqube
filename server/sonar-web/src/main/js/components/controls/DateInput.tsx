@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
-import * as addMonths from 'date-fns/add_months';
-import * as setMonth from 'date-fns/set_month';
-import * as setYear from 'date-fns/set_year';
-import * as subMonths from 'date-fns/sub_months';
+import classNames from 'classnames';
+import { addMonths, setMonth, setYear, subMonths } from 'date-fns';
 import { range } from 'lodash';
 import * as React from 'react';
 import { DayModifiers, Modifier, Modifiers } from 'react-day-picker';

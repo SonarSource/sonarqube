@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';

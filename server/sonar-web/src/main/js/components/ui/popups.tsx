@@ -20,7 +20,7 @@
 
 /* eslint-disable prefer-destructuring */
 
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';

@@ -23,13 +23,17 @@ import { MetricKey } from '../../../types/metrics';
 import { GraphType, Serie } from '../../../types/project-activity';
 import * as utils from '../utils';
 
-jest.mock('date-fns/start_of_day', () =>
-  jest.fn(date => {
-    const startDay = new Date(date);
-    startDay.setUTCHours(0, 0, 0, 0);
-    return startDay;
-  })
-);
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual('date-fns');
+  return {
+    ...actual,
+    startOfDay: jest.fn(date => {
+      const startDay = new Date(date);
+      startDay.setUTCHours(0, 0, 0, 0);
+      return startDay;
+    })
+  };
+});
 
 const HISTORY = [
   {

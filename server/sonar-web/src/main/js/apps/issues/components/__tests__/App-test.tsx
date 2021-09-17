@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import * as key from 'keymaster';
+import key from 'keymaster';
 import * as React from 'react';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { KeyCodes } from '../../../../helpers/keycodes';
@@ -57,9 +57,7 @@ jest.mock('../../../../helpers/pages', () => ({
   removeWhitePageClass: jest.fn()
 }));
 
-jest.mock('../../../../helpers/handleRequiredAuthentication', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 jest.mock('keymaster', () => {
   const key: any = (bindKey: string, _: string, callback: Function) => {

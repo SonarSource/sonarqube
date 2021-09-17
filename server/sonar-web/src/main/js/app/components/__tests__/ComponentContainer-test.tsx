@@ -75,9 +75,7 @@ jest.mock('../../../api/alm-settings', () => ({
 }));
 
 // mock this, because some of its children are using redux store
-jest.mock('../nav/component/ComponentNav', () => ({
-  default: () => null
-}));
+jest.mock('../nav/component/ComponentNav', () => () => null);
 
 const Inner = () => <div />;
 

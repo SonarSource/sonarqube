@@ -19,11 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { HttpStatus } from '../../../../helpers/request';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import MetaData from '../MetaData';
 import { mockMetaDataInformation } from '../mocks/update-center-metadata';
 import { MetaDataInformation } from '../update-center-metadata';
-import { HttpStatus } from '../../../../helpers/request';
 
 beforeAll(() => {
   window.fetch = jest.fn();

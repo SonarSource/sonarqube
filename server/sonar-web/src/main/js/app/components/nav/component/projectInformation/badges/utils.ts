@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
 import { getLocalizedMetricName } from '../../../../../../helpers/l10n';
 import { omitNil } from '../../../../../../helpers/request';
 import { getHostUrl, getPathUrlAsString, getProjectUrl } from '../../../../../../helpers/urls';
@@ -80,13 +79,13 @@ export function getBadgeUrl(
     case BadgeType.marketing:
       return `${getHostUrl()}/images/project_badges/sonarcloud-${color}.svg`;
     case BadgeType.qualityGate:
-      return `${getHostUrl()}/api/project_badges/quality_gate?${stringify(
+      return `${getHostUrl()}/api/project_badges/quality_gate?${new URLSearchParams(
         omitNil({ branch, project, pullRequest })
-      )}`;
+      ).toString()}`;
     case BadgeType.measure:
     default:
-      return `${getHostUrl()}/api/project_badges/measure?${stringify(
+      return `${getHostUrl()}/api/project_badges/measure?${new URLSearchParams(
         omitNil({ branch, project, metric, pullRequest })
-      )}`;
+      ).toString()}`;
   }
 }

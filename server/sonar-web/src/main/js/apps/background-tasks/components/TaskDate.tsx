@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as differenceInDays from 'date-fns/difference_in_days';
+import { differenceInDays } from 'date-fns';
 import * as React from 'react';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { isValidDate, parseDate } from '../../../helpers/dates';

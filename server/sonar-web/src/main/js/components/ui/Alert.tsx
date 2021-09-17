@@ -19,7 +19,7 @@
  */
 import { css } from '@emotion/core';
 import styled from '@emotion/styled';
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import * as React from 'react';
 import { colors, sizes } from '../../app/theme';
 import { translate } from '../../helpers/l10n';

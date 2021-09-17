@@ -119,7 +119,7 @@ export function serializeQuery(query: Query): T.RawQuery {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
-    author: query.author,
+    author: serializeStringArray(query.author),
     createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),

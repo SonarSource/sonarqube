@@ -23,9 +23,7 @@ import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuth
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { Account } from '../Account';
 
-jest.mock('../../../../helpers/handleRequiredAuthentication', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 it('should render correctly', () => {
   const wrapper = shallowRender();

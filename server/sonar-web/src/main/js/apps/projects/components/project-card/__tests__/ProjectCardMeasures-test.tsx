@@ -24,10 +24,9 @@ import { ComponentQualifier } from '../../../../../types/component';
 import { MetricKey } from '../../../../../types/metrics';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
-jest.mock(
-  'date-fns/difference_in_milliseconds',
-  () => () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
-);
+jest.mock('date-fns', () => ({
+  differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
+}));
 
 describe('Overall measures', () => {
   it('should be rendered properly', () => {

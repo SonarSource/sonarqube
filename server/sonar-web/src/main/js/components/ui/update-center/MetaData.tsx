@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { isSuccessStatus } from '../../../helpers/request';
 import './MetaData.css';
 import MetaDataVersions from './MetaDataVersions';
 import { MetaDataInformation } from './update-center-metadata';
-import { isSuccessStatus } from '../../../helpers/request';
 
 interface Props {
   updateCenterKey?: string;

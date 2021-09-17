@@ -21,7 +21,7 @@
 /* eslint-disable jsx-a11y/anchor-has-content */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import * as React from 'react';
 import DeferredSpinner from '../ui/DeferredSpinner';
 import './Checkbox.css';

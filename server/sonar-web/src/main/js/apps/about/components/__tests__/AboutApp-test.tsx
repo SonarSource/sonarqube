@@ -47,14 +47,16 @@ jest.mock('../../../../api/issues', () => ({
   })
 }));
 
-jest.mock('../../../../app/components/GlobalContainer', () => ({
-  default: class GlobalContainer extends React.Component {
-    static displayName = 'GlobalContainer';
-    render() {
-      return this.props.children;
+jest.mock(
+  '../../../../app/components/GlobalContainer',
+  () =>
+    class GlobalContainer extends React.Component {
+      static displayName = 'GlobalContainer';
+      render() {
+        return this.props.children;
+      }
     }
-  }
-}));
+);
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();

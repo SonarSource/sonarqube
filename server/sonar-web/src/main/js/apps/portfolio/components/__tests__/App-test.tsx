@@ -34,9 +34,7 @@ import { ComponentQualifier } from '../../../../types/component';
 import { App } from '../App';
 import UnsubscribeEmailModal from '../UnsubscribeEmailModal';
 
-jest.mock('../../../../helpers/handleRequiredAuthentication', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 jest.mock('../../../../api/measures', () => ({
   getMeasures: jest.fn().mockResolvedValue([])

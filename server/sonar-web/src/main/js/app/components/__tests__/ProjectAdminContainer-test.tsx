@@ -24,7 +24,7 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import ProjectAdminContainer from '../ProjectAdminContainer';
 
 jest.mock('../../utils/handleRequiredAuthorization', () => {
-  return { default: jest.fn() };
+  return jest.fn();
 });
 
 class ChildComponent extends React.Component {

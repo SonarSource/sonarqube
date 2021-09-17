@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
 import { omitNil } from '../helpers/request';
 import { Edition, EditionKey } from '../types/editions';
 import { SystemUpgrade } from '../types/system';
@@ -64,7 +63,7 @@ export function getEditionUrl(
   data: { serverId?: string; ncloc?: number; sourceEdition?: EditionKey }
 ) {
   let url = edition.homeUrl;
-  const query = stringify(omitNil(data));
+  const query = new URLSearchParams(omitNil(data)).toString();
   if (query) {
     url += '?' + query;
   }

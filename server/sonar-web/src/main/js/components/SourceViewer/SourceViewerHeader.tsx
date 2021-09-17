@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { ButtonIcon } from '../../components/controls/buttons';
@@ -126,10 +125,10 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
     } = this.props.sourceViewerFile;
     const unitTestsOrLines = q === ComponentQualifier.TestFile ? 'tests' : 'lines';
     const workspace = false;
-    const rawSourcesLink =
-      getBaseUrl() +
-      '/api/sources/raw?' +
-      stringify(omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) }));
+    const query = new URLSearchParams(
+      omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) })
+    ).toString();
+    const rawSourcesLink = `${getBaseUrl()}/api/sources/raw?${query}`;
 
     // TODO favorite
     return (

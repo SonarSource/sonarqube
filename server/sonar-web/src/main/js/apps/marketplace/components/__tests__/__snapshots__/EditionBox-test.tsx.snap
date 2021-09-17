@@ -4,7 +4,9 @@ exports[`should display the edition 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <DocMarkdownBlock />
+  <DocMarkdownBlock
+    content="test-file-stub"
+  />
   <div
     className="marketplace-edition-action spacer-top"
   >

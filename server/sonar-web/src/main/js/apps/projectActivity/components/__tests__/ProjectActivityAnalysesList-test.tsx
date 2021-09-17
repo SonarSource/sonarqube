@@ -25,10 +25,16 @@ import { mockParsedAnalysis } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
-jest.mock('date-fns/start_of_day', () => (date: Date) => {
-  const startDay = new Date(date);
-  startDay.setUTCHours(0, 0, 0, 0);
-  return startDay;
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual('date-fns');
+  return {
+    ...actual,
+    startOfDay: (date: Date) => {
+      const startDay = new Date(date);
+      startDay.setUTCHours(0, 0, 0, 0);
+      return startDay;
+    }
+  };
 });
 
 jest.mock('../../../../helpers/dates', () => {

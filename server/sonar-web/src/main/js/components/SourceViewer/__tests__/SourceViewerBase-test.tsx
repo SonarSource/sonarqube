@@ -26,9 +26,7 @@ import { waitAndUpdate } from '../../../helpers/testUtils';
 import defaultLoadIssues from '../helpers/loadIssues';
 import SourceViewerBase from '../SourceViewerBase';
 
-jest.mock('../helpers/loadIssues', () => ({
-  default: jest.fn().mockRejectedValue({})
-}));
+jest.mock('../helpers/loadIssues', () => jest.fn().mockRejectedValue({}));
 
 jest.mock('../../../api/components', () => ({
   getComponentForSourceViewer: jest.fn().mockRejectedValue(''),

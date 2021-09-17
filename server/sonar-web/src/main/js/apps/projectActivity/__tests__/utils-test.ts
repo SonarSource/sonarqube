@@ -22,13 +22,17 @@ import * as dates from '../../../helpers/dates';
 import { GraphType } from '../../../types/project-activity';
 import * as utils from '../utils';
 
-jest.mock('date-fns/start_of_day', () =>
-  jest.fn(date => {
-    const startDay = new Date(date);
-    startDay.setUTCHours(0, 0, 0, 0);
-    return startDay;
-  })
-);
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual('date-fns');
+  return {
+    ...actual,
+    startOfDay: jest.fn(date => {
+      const startDay = new Date(date);
+      startDay.setUTCHours(0, 0, 0, 0);
+      return startDay;
+    })
+  };
+});
 
 const ANALYSES = [
   {

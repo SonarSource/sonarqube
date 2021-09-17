@@ -21,9 +21,7 @@ import exposeLibraries from '../../app/components/extensions/exposeLibraries';
 import { getExtensionStart, installScript } from '../extensions';
 import { installExtensionsHandler } from '../extensionsHandler';
 
-jest.mock('../../app/components/extensions/exposeLibraries', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../app/components/extensions/exposeLibraries', () => jest.fn());
 
 beforeEach(() => {
   jest.clearAllMocks();

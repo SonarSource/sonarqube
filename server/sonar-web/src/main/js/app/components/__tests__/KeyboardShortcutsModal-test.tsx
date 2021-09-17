@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 import Modal from '../../../components/controls/Modal';
 import { mockEvent } from '../../../helpers/testMocks';
 import KeyboardShortcutsModal from '../KeyboardShortcutsModal';

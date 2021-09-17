@@ -46,12 +46,12 @@ Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, co
 
 jest.mock('remark', () => {
   const remark = jest.requireActual('remark');
-  return { default: remark };
+  return remark;
 });
 
 jest.mock('remark-react', () => {
   const remarkReact = jest.requireActual('remark-react');
-  return { default: remarkReact };
+  return remarkReact;
 });
 
 jest.mock('lodash', () => {

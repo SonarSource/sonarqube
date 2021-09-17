@@ -1,0 +1,57 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+const autoprefixer = require('autoprefixer');
+const postCssPlugin = require('esbuild-plugin-postcss2').default;
+const postCssCalc = require('postcss-calc');
+const postCssCustomProperties = require('postcss-custom-properties');
+const documentationPlugin = require('./esbuild-documentation-plugin');
+const { getCustomProperties } = require('./utils');
+
+module.exports = release => ({
+  entryPoints: ['src/main/js/app/index.ts'],
+  tsconfig: './tsconfig.json',
+  external: ['/images/*'],
+  loader: {
+    '.png': 'dataurl',
+    '.md': 'text'
+  },
+  define: {
+    'process.cwd': 'dummy_process_cwd'
+  },
+  inject: ['config/process-shim.js'],
+  bundle: true,
+  minify: release,
+  sourcemap: true,
+  target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
+  outfile: 'build/webapp/js/out.js',
+  plugins: [
+    postCssPlugin({
+      plugins: [
+        autoprefixer,
+        postCssCustomProperties({
+          importFrom: { customProperties: getCustomProperties() },
+          preserve: false
+        }),
+        postCssCalc
+      ]
+    }),
+    documentationPlugin()
+  ]
+});

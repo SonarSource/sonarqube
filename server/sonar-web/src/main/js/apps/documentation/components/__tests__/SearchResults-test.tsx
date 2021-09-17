@@ -22,8 +22,8 @@ import lunr from 'lunr';
 import * as React from 'react';
 import SearchResults from '../SearchResults';
 
-jest.mock('lunr', () => ({
-  default: jest.fn(() => ({
+jest.mock('lunr', () =>
+  jest.fn(() => ({
     search: jest.fn(() => [
       {
         ref: 'lorem/origin',
@@ -61,7 +61,7 @@ jest.mock('lunr', () => ({
       }
     ])
   }))
-}));
+);
 
 function createPage(title: string, relativeName: string, text = '') {
   return { relativeName, url: '/' + relativeName, title, navTitle: undefined, text, content: text };

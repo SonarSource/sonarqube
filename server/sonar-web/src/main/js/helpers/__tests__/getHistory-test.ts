@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as Router from 'react-router';
+import { browserHistory } from 'react-router';
 import getHistory from '../getHistory';
 
 it('should get browser history properly', () => {
   expect(getHistory()).not.toBeUndefined();
   expect(getHistory().getCurrentLocation().pathname).toBe('/');
   const pathname = '/foo/bar';
-  Router.browserHistory.push(pathname);
+  browserHistory.push(pathname);
   expect(getHistory().getCurrentLocation().pathname).toBe(pathname);
 });

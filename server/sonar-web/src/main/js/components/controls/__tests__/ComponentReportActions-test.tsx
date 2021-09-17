@@ -50,7 +50,7 @@ jest.mock('../../../helpers/system', () => ({
   getBaseUrl: jest.fn().mockReturnValue('baseUrl')
 }));
 
-jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({ default: jest.fn() }));
+jest.mock('../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
 
 beforeEach(jest.clearAllMocks);
 

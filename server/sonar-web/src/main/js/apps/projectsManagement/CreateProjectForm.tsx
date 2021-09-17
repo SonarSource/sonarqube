@@ -65,12 +65,12 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
   }
 
   componentDidUpdate() {
-    // wrap with `setImmediate` because of https://github.com/reactjs/react-modal/issues/338
-    setImmediate(() => {
+    // wrap with `setTimeout` because of https://github.com/reactjs/react-modal/issues/338
+    setTimeout(() => {
       if (this.closeButton) {
         this.closeButton.focus();
       }
-    });
+    }, 0);
   }
 
   componentWillUnmount() {

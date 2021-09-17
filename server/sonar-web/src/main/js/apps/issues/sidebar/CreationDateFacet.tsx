@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as isSameDay from 'date-fns/is_same_day';
+import { isSameDay } from 'date-fns';
 import { max } from 'lodash';
 import * as React from 'react';
 import { InjectedIntlProps, injectIntl } from 'react-intl';

@@ -21,17 +21,16 @@
 import { filterContent, ParsedContent } from '../../../helpers/markdown';
 import { mockDocumentationMarkdown } from '../../../helpers/testMocks';
 
-jest.mock('remark', () => ({
-  default: () => ({
-    parse: jest.fn().mockReturnValue({})
-  })
+jest.mock('remark', () => () => ({
+  parse: jest.fn().mockReturnValue({})
 }));
 
-jest.mock('unist-util-visit', () => ({
-  default: (_: any, cb: (node: { type: string; value: string }) => void) => {
+jest.mock(
+  'unist-util-visit',
+  () => (_: any, cb: (node: { type: string; value: string }) => void) => {
     cb({ type: 'text', value: 'Text content' });
   }
-}));
+);
 
 jest.mock('../../../helpers/markdown', () => {
   const markdown = jest.requireActual('../../../helpers/markdown');

@@ -17,22 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable no-console */
-process.env.NODE_ENV = 'production';
-
-const webpack = require('webpack');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const getConfigs = require('../config/webpack.config');
-
-const configs = getConfigs({ production: true, release: true });
-const config = configs.find(config => config.name === 'modern');
-const analyzerPort = process.env.PORT || 8888;
-
-config.plugins.push(new BundleAnalyzerPlugin({ analyzerPort }));
-
-webpack(config, err => {
-  if (err) {
-    console.log(err.message || err);
-    process.exit(1);
-  }
-});
+export function dummy_process_cwd() {
+  return '';
+}

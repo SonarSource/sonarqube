@@ -20,7 +20,7 @@
 import remark from 'remark';
 import visit from 'unist-util-visit';
 import { filterContent, ParsedContent, separateFrontMatter } from '../../helpers/markdown';
-import * as Docs from './documentation.directory-loader';
+import Docs from './documentation.directory-loader';
 import { DocumentationEntry, DocumentationEntryScope } from './utils';
 
 export default function getPages(

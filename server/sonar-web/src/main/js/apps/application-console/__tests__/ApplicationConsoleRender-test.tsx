@@ -26,9 +26,7 @@ import ApplicationConsoleAppRenderer, {
 } from '../ApplicationConsoleAppRenderer';
 import EditForm from '../EditForm';
 
-jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');

@@ -32,9 +32,7 @@ jest.mock('../../../../../api/security-hotspots', () => ({
   assignSecurityHotspot: jest.fn()
 }));
 
-jest.mock('../../../../../app/utils/addGlobalSuccessMessage', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

@@ -20,5 +20,5 @@
 const path = require('path');
 
 module.exports = {
-  root: path.resolve(__dirname, '../../../../../../sonar-docs/src/pages')
+  placeholder: true // doesn't matter, this is replaced by esbuild
 };

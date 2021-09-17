@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { changePassword } from '../../../../api/users';
 import { mockUser } from '../../../../helpers/testMocks';
 import PasswordForm from '../PasswordForm';
-import { changePassword } from '../../../../api/users';
 
 const password = 'new password asdf';
 

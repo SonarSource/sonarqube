@@ -25,9 +25,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { TutorialsApp, TutorialsAppProps } from '../TutorialsApp';
 
-jest.mock('../../../../helpers/handleRequiredAuthentication', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

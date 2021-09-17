@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
-import * as differenceInDays from 'date-fns/difference_in_days';
+import classNames from 'classnames';
+import { differenceInDays } from 'date-fns';
 import * as React from 'react';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';

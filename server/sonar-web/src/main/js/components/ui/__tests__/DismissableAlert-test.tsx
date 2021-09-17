@@ -19,7 +19,7 @@
  */
 
 import { shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import { save } from '../../../helpers/storage';
 import { click } from '../../../helpers/testUtils';

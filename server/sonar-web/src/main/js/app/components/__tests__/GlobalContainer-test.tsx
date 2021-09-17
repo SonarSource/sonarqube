@@ -29,7 +29,7 @@ jest.mock('../embed-docs-modal/SuggestionsProvider', () => {
     }
   }
 
-  return { default: SuggestionsProvider };
+  return SuggestionsProvider;
 });
 
 it('should render correctly', () => {

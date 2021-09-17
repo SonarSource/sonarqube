@@ -17,66 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const cssLoader = () => ({
-  loader: 'css-loader',
-  options: {
-    importLoaders: 1,
-    modules: 'global',
-    url: false
-  }
-});
-
-const customProperties = {};
-const parseCustomProperties = theme => {
-  Object.keys(theme).forEach(key => {
-    if (typeof theme[key] === 'object') {
-      parseCustomProperties(theme[key]);
-    } else if (typeof theme[key] === 'string') {
-      if (!customProperties[`--${key}`]) {
-        customProperties[`--${key}`] = theme[key];
-      } else {
-        console.error(
-          `Custom CSS property "${key}" already exists with value "${
-            customProperties[`--${key}`]
-          }".`
-        );
-        process.exit(1);
+/* eslint-disable no-console */
+function getCustomProperties() {
+  const customProperties = {};
+  const parseCustomProperties = theme => {
+    Object.keys(theme).forEach(key => {
+      if (typeof theme[key] === 'object') {
+        parseCustomProperties(theme[key]);
+      } else if (typeof theme[key] === 'string') {
+        if (!customProperties[`--${key}`]) {
+          customProperties[`--${key}`] = theme[key];
+        } else {
+          console.error(
+            `Custom CSS property "${key}" already exists with value "${
+              customProperties[`--${key}`]
+            }".`
+          );
+          process.exit(1);
+        }
       }
-    }
-  });
-};
-
-parseCustomProperties(require('../src/main/js/app/theme'));
-
-const postcssLoader = production => ({
-  loader: 'postcss-loader',
-  options: {
-    ident: 'postcss',
-    plugins: () => [
-      require('autoprefixer'),
-      require('postcss-custom-properties')({ importFrom: { customProperties }, preserve: false }),
-      require('postcss-calc'),
-      ...(production ? [require('cssnano')({ calc: false, svgo: false })] : [])
-    ]
-  }
-});
-
-const minifyParams = ({ production }) =>
-  production && {
-    removeComments: true,
-    collapseWhitespace: true,
-    removeRedundantAttributes: true,
-    useShortDoctype: true,
-    removeEmptyAttributes: true,
-    removeStyleLinkTypeAttributes: true,
-    keepClosingSlash: true,
-    minifyJS: true,
-    minifyCSS: true,
-    minifyURLs: true
+    });
   };
+  parseCustomProperties(require('../src/main/js/app/theme'));
+
+  return customProperties;
+}
 
 module.exports = {
-  cssLoader,
-  postcssLoader,
-  minifyParams
+  getCustomProperties
 };

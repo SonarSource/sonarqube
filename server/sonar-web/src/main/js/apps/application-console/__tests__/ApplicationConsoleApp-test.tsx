@@ -37,7 +37,7 @@ jest.mock('../../../api/application', () => ({
   editApplication: jest.fn().mockResolvedValue({})
 }));
 
-jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({ default: jest.fn() }));
+jest.mock('../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
 
 it('Should render correctly', async () => {
   expect(shallowRender()).toMatchSnapshot('Empty app');

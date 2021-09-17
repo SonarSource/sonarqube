@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import * as key from 'keymaster';
+import key from 'keymaster';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
 import SelectListItem from './SelectListItem';
@@ -71,11 +71,14 @@ export default class SelectList extends React.PureComponent<Props, State> {
 
     // sometimes there is a *focused* search field next to the SelectList component
     // we need to allow shortcuts in this case, but only for the used keys
-    (key as any).filter = (event: KeyboardEvent & { target: HTMLElement }) => {
-      const { tagName } = event.target || event.srcElement;
-      const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-      return [13, 38, 40].includes(event.keyCode) || !isInput;
-    };
+
+    Object.assign(key, {
+      filter: (event: KeyboardEvent & { target: HTMLElement }) => {
+        const { tagName } = event.target || event.srcElement;
+        const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+        return [13, 38, 40].includes(event.keyCode) || !isInput;
+      }
+    });
 
     key('down', this.currentKeyScope, () => {
       this.setState(this.selectNextElement);
@@ -102,7 +105,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
     if (this.currentKeyScope) {
       key.deleteScope(this.currentKeyScope);
     }
-    (key as any).filter = this.previousFilter;
+    Object.assign(key, { filter: this.previousFilter });
   };
 
   handleSelect = (item: string) => {

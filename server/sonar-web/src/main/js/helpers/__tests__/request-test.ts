@@ -36,7 +36,7 @@ import {
   requestTryAndRepeatUntil
 } from '../request';
 
-jest.mock('../handleRequiredAuthentication', () => ({ default: jest.fn() }));
+jest.mock('../handleRequiredAuthentication', () => jest.fn());
 
 const url = '/my-url';
 
@@ -186,6 +186,18 @@ describe('post', () => {
     );
     expect(response.json).not.toBeCalled();
     expect(response.text).not.toBeCalled();
+  });
+
+  it('should handle array values', async () => {
+    const response = mockResponse();
+    window.fetch = jest.fn().mockResolvedValue(response);
+    post(url, { dataArray: ['1', '2'] });
+    await new Promise(setImmediate);
+
+    expect(window.fetch).toBeCalledWith(
+      url,
+      expect.objectContaining({ body: 'dataArray=1&dataArray=2', method: 'POST' })
+    );
   });
 });
 

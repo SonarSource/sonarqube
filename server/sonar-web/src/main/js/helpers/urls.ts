@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isNil, omitBy, pick } from 'lodash';
-import { stringify } from 'querystring';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
@@ -333,9 +332,9 @@ export function getHostUrl(): string {
 }
 
 export function getPathUrlAsString(path: Location, internal = true): string {
-  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname}?${stringify(
+  return `${internal ? getBaseUrl() : getHostUrl()}${path.pathname}?${new URLSearchParams(
     omitBy(path.query, isNil)
-  )}`;
+  ).toString()}`;
 }
 
 export function getReturnUrl(location: { hash?: string; query?: { return_to?: string } }) {

@@ -23,9 +23,7 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import { mockIssue } from '../../../helpers/testMocks';
 import { updateIssue } from '../actions';
 
-jest.mock('../../../app/utils/throwGlobalError', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../app/utils/throwGlobalError', () => jest.fn());
 
 jest.mock('../../../helpers/issues', () => ({
   parseIssueFromResponse: jest.fn()

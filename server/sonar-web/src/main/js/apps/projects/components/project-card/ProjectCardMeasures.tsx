@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
-import * as difference from 'date-fns/difference_in_milliseconds';
+import classNames from 'classnames';
+import { differenceInMilliseconds } from 'date-fns';
 import * as React from 'react';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Measure from '../../../../components/measure/Measure';
@@ -164,7 +164,9 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
     );
   }
 
-  const newCodeTimespan = newCodeStartingDate ? difference(Date.now(), newCodeStartingDate) : 0;
+  const newCodeTimespan = newCodeStartingDate
+    ? differenceInMilliseconds(Date.now(), newCodeStartingDate)
+    : 0;
 
   const measureList = [
     ...renderRatings(props),

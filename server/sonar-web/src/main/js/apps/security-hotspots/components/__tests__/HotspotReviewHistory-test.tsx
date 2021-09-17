@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 import { Button, EditButton } from '../../../../components/controls/buttons';
 import Dropdown, { DropdownOverlay } from '../../../../components/controls/Dropdown';
 import Toggler from '../../../../components/controls/Toggler';

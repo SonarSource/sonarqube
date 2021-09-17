@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
+import classNames from 'classnames';
 import { bisector, extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime, ScaleTime } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';

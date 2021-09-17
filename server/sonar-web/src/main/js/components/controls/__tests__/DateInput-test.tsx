@@ -17,11 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as addDays from 'date-fns/add_days';
-import * as setMonth from 'date-fns/set_month';
-import * as setYear from 'date-fns/set_year';
-import * as subDays from 'date-fns/sub_days';
-import * as subMonths from 'date-fns/sub_months';
+import { addDays, setMonth, setYear, subDays, subMonths } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from '../../../helpers/dates';

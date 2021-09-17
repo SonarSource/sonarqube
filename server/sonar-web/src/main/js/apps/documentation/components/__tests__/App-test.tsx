@@ -28,28 +28,26 @@ import App from '../App';
 
 jest.mock('../../../../components/common/ScreenPositionHelper');
 
-jest.mock('Docs/../static/SonarQubeNavigationTree.json', () => ({
-  default: [
-    {
-      title: 'SonarQube',
-      children: [
-        '/lorem/ipsum/',
-        '/analysis/languages/csharp/',
-        {
-          title: 'Child category',
-          children: [
-            '/lorem/ipsum/dolor',
-            {
-              title: 'Grandchild category',
-              children: ['/lorem/ipsum/sit']
-            },
-            '/lorem/ipsum/amet'
-          ]
-        }
-      ]
-    }
-  ]
-}));
+jest.mock('Docs/../static/SonarQubeNavigationTree.json', () => [
+  {
+    title: 'SonarQube',
+    children: [
+      '/lorem/ipsum/',
+      '/analysis/languages/csharp/',
+      {
+        title: 'Child category',
+        children: [
+          '/lorem/ipsum/dolor',
+          {
+            title: 'Grandchild category',
+            children: ['/lorem/ipsum/sit']
+          },
+          '/lorem/ipsum/amet'
+        ]
+      }
+    ]
+  }
+]);
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
@@ -70,14 +68,12 @@ jest.mock('../../../../helpers/request', () => {
 
 jest.mock('../../pages', () => {
   const { mockDocumentationEntry } = jest.requireActual('../../../../helpers/testMocks');
-  return {
-    default: jest
-      .fn()
-      .mockReturnValue([
-        mockDocumentationEntry(),
-        mockDocumentationEntry({ url: '/analysis/languages/csharp/' })
-      ])
-  };
+  return jest
+    .fn()
+    .mockReturnValue([
+      mockDocumentationEntry(),
+      mockDocumentationEntry({ url: '/analysis/languages/csharp/' })
+    ]);
 });
 
 jest.mock('../../../../api/plugins', () => ({

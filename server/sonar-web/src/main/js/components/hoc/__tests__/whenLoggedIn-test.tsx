@@ -23,9 +23,7 @@ import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthent
 import { mockStore } from '../../../helpers/testMocks';
 import { whenLoggedIn } from '../whenLoggedIn';
 
-jest.mock('../../../helpers/handleRequiredAuthentication', () => ({
-  default: jest.fn()
-}));
+jest.mock('../../../helpers/handleRequiredAuthentication', () => jest.fn());
 
 class X extends React.Component {
   render() {
