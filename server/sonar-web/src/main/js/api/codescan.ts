@@ -27,10 +27,29 @@ export function getNotificationsForOrganization(key: string) {
   );
 }
 
-export function deleteIntegration(data: {
+export function deleteProject(data: {
   organizationId: string;
   projectKey: string;
   projectDelete?: boolean;
 }): Promise<void> {
-  return post('/_codescan/integrations/destroy', data);
+  return post('/_codescan/integrations/destroy', data)
+    .catch(throwGlobalError);
+}
+
+export function deleteBulkProjects(data: {
+  analyzedBefore?: string;
+  onProvisionedOnly?: boolean;
+  organization: string;
+  projects?: string;
+  q?: string;
+  qualifiers?: string;
+  visibility?: T.Visibility;
+}): Promise<void> {
+  return post('/_codescan/integrations/projects/bulk_delete', data)
+    .catch(throwGlobalError);
+}
+
+export function deleteOrganization(organizationId: string): Promise<void> {
+  return post('/_codescan/integrations/organizations/delete', { organizationId })
+    .catch(throwGlobalError);
 }

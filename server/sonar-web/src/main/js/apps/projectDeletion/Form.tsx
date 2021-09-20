@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { deleteIntegration } from '../../api/codescan';
+import { deleteProject } from '../../api/codescan';
 import { deletePortfolio } from '../../api/components';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { Router, withRouter } from '../../components/hoc/withRouter';
@@ -35,7 +35,7 @@ interface Props {
 export class Form extends React.PureComponent<Props> {
   handleDelete = async () => {
     const { component } = this.props;
-    component.qualifier === ComponentQualifier.Project ? await deleteIntegration({
+    component.qualifier === ComponentQualifier.Project ? await deleteProject({
       organizationId: component.organization,
       projectKey: component.key,
       projectDelete: true
