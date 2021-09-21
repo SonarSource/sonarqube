@@ -5,7 +5,7 @@ url: /analysis/pull-request/
 
 _Pull Request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
-You can see your Pull Requests in SonarQube from the Branches and Pull Requests dropdown menu of your project.  
+You can see your Pull Requests in SonarQube from the Branches and Pull Requests dropdown menu of your project.
 
 Pull Request analysis shows your Pull Request's Quality Gate and analysis in the SonarQube interface. This analysis shows new issues introduced by the Pull Request before merging with the target branch:
 
@@ -40,10 +40,19 @@ Pull request analyses on SonarQube are deleted automatically after 30 days with 
 
 ## Analysis parameters
 
-The following parameters enable PR analysis.
+The following parameters enable Pull Request analysis.
 
 [[info]]
-| Scanners running on Jenkins with the Branch Source plugin configured, GitLab CI/CD, Bitbucket Pipelines, Azure Pipelines, and Cirrus CI automatically detect these parameters, and you don't need to pass them manually.
+| Scanners can automatically detect Pull Request parameters when running on the following CI services:
+| * Azure Pipelines
+| * Bitbucket Pipelines
+| * Cirrus CI
+| * Codemagic
+| * GitHub Actions
+| * GitLab CI/CD
+| * Jenkins (with the Branch Source plugin configured)
+|
+| Manually setting Pull Request parameters overrides automatic detection.
 
 | Parameter Name        | Description |
 | --------------------- | ---------------------------------- |

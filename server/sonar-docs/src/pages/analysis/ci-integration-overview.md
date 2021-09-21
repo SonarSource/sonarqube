@@ -5,11 +5,6 @@ url: /analysis/ci-integration-overview/
 
 _Merge and Pull Request analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
-SonarScanners running in GitLab CI/CD, Azure Pipelines, Cirrus CI, Bitbucket Pipelines, and Jenkins with a Branch Source plugin configured can automatically detect branches and merge or pull requests by using environment variables set in the jobs.
-
-[[warning]]
-| Automatic configuration is disabled if any branch or pull request properties have been set manually.
-
 ## Failing a pipeline job when the Quality Gate fails
 You can ensure your code meets your quality standards by failing your pipeline job when your [Quality Gate](/user-guide/quality-gates/) fails.
 

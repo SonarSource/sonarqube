@@ -38,6 +38,18 @@ The branch Quality Gate lets you know if your branch is ready to be merged. Each
 
 A branch is created when the `sonar.branch.name` parameter is passed during analysis.
 
+[[info]]
+| Scanners can automatically detect branch parameters when running on the following CI services:
+| * Azure Pipelines
+| * Bitbucket Pipelines
+| * Cirrus CI
+| * Codemagic
+| * GitHub Actions
+| * GitLab CI/CD
+| * Jenkins (with the Branch Source plugin configured)
+|
+| Manually setting branch parameters overrides automatic detection.
+
 | Parameter Name        | Description |
 | --------------------- | ------------------------------------------------- |
 | `sonar.branch.name`   | Name of the branch (visible in the UI)
