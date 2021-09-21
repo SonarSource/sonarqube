@@ -459,7 +459,18 @@ public class SetActionTest {
       "    ],\n" +
       "    \"sanitizers\": [\n" +
       "      {\n" +
-      "        \"methodId\": \"str_replace\"\n" +
+      "        \"methodId\": \"str_replace\"," +
+      "        \"args\": [\n" +
+      "           0\n" +
+      "         ]\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"validators\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"is_valid\"," +
+      "        \"args\": [\n" +
+      "           1\n" +
+      "         ]\n" +
       "      }\n" +
       "    ],\n" +
       "    \"sinks\": [\n" +
@@ -514,6 +525,69 @@ public class SetActionTest {
     assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("S3649/sinks/0/methodId: expected type: String, found: Integer");
+  }
+
+  @Test
+  @UseDataProvider("securityJsonProperties")
+  public void fail_json_schema_validation_when_sanitizers_have_no_args(String securityPropertyKey) {
+    String security_custom_config = "{\n" +
+      "  \"S3649\": {\n" +
+      "    \"sources\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"sanitizers\": [\n" +
+      "       {\n" +
+      "         \"methodId\": \"SomeSanitizer\"\n" +
+      "       }\n" +
+      "    ]\n" +
+      "  }\n" +
+      "}";
+    definitions.addComponent(PropertyDefinition
+      .builder(securityPropertyKey)
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Provided JSON is invalid [#/S3649/sanitizers/0: #: only 1 subschema matches out of 2]");
+  }
+
+  @Test
+  @UseDataProvider("securityJsonProperties")
+  public void fail_json_schema_validation_when_validators_have_empty_args_array(String securityPropertyKey) {
+    String security_custom_config = "{\n" +
+      "  \"S3649\": {\n" +
+      "    \"sources\": [\n" +
+      "      {\n" +
+      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"validators\": [\n" +
+      "       {\n" +
+      "         \"methodId\": \"SomeValidator\",\n" +
+      "         \"args\": []\n" +
+      "       }\n" +
+      "    ]\n" +
+      "  }\n" +
+      "}";
+    definitions.addComponent(PropertyDefinition
+      .builder(securityPropertyKey)
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.JSON)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Provided JSON is invalid [#/S3649/validators/0: #: only 1 subschema matches out of 2]");
   }
 
   @Test

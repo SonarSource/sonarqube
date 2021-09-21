@@ -90,7 +90,10 @@ You can add the following elements to your custom configuration:
 
 * **Source** – Where you get user data. You should always consider user data tainted and vulnerable to injection attacks.
   Example: Calling `HttpServletRequest#getParam("foo")` will return tainted content
-* **Sanitizer** – Finds and removes malicious content from tainted data.
+* **Sanitizer** – Finds and removes malicious content from one or more potentially tainted arguments.
+  Example: `DatabaseUtils#sqlEscapeString(String str)` returns a modified version of `str` where characters used in an SQL injection attack are removed.    
+* **Validator** - Marks one or more arguments as safe from malicious content.
+  Example: `String#matches(String str)` can be used to verify that `str` does not contain any content which may be used in an injection attack. 
 * **Passthrough** – Allows you to keep track of tainted data sent to a library outside the current function. When you pass a tainted value to a library function outside the current function, SonarQube automatically assumes it's being passed to a sanitizer. If the tainted data isn't being passed to a sanitizer, you can set up a passthrough to keep track of the data.
 * **Sink** – A piece of code that can perform a security-sensitive task. Data should not contain any malicious content once it reaches a sink.
   Example: Running an SQL query with `java.sql.Statement#execute`
@@ -192,7 +195,18 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |     ],
 |     "sanitizers": [
 |       {
-|         "methodId": "my.package.StringUtils#stringReplace(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+|         "methodId": "my.package.StringUtils#stringReplace(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+|         "args": [
+|           2 
+|         ]
+|       }
+|     ],
+|     "validators": [
+|       {
+|         "methodId": "my.package.StringUtils#equals(Ljava/lang/String;)Z",
+|         "args": [
+|           1
+|         ]
 |       }
 |     ],
 |     "passthroughs": [
@@ -248,7 +262,8 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |
 | The `args` is the index of the parameter that can receive a tainted variable. Index starts:
 | * `1` for a function call. 
-| * `0` for a method call, index `0` being the current instance (`this`)
+| * `0` for a method call, index `0` being the current instance (`this`).
+| The `args` field must be a non-empty array of non-negative integers, and it is a mandatory field for sanitizers and validators.
 
 [[collapse]]
 | ## PHP JSON file example
@@ -263,7 +278,18 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |     ],
 |     "sanitizers": [
 |       {
-|         "methodId": "str_replace"
+|         "methodId": "str_replace",
+|         "args": [
+|           3
+|         ]
+|       }
+|     ],
+|     "validators": [
+|       {
+|         "methodId": "My\\Namespace\\Validator\\inArray::isValid",
+|         "args": [
+|           1
+|         ]
 |       }
 |     ],
 |     "passthroughs": [
@@ -319,7 +345,8 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |
 | The `args` is the index of the parameter that can receive a tainted variable. Index starts:
 | * `1` for a function call. 
-| * `0` for a method call, index `0` being the current instance (`this`)
+| * `0` for a method call, index `0` being the current instance (`this`).
+| The `args` field must be a non-empty array of non-negative integers, and it is a mandatory field for sanitizers and validators.
 
 [[collapse]]
 | ## C&#35; JSON file example
@@ -334,7 +361,18 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |     ],
 |     "sanitizers": [
 |       {
-|         "methodId": "My.Namespace.StringUtils.StringReplace(string, string)"
+|         "methodId": "My.Namespace.StringUtils.StringReplace(string, string)",
+|         "args": [
+|           0
+|         ]
+|       }
+|     ],
+|     "validators": [
+|       {
+|         "methodId": "My.Namespace.StringUtils.Regex.Matches(string)",
+|         "args": [
+|           0
+|         ]
 |       }
 |     ],
 |     "passthroughs": [
@@ -391,7 +429,8 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |
 | The `args` is the index of the parameter that can receive a tainted variable. Index starts:
 | * `1` for a function call. 
-| * `0` for a method call, index `0` being the current instance (`this`)
+| * `0` for a method call, index `0` being the current instance (`this`).
+| The `args` field must be a non-empty array of non-negative integers, and it is a mandatory field for sanitizers and validators.
 
 [[collapse]]
 | ## Python JSON file example
@@ -406,7 +445,18 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |     ],
 |     "sanitizers": [
 |       {
-|         "methodId": "str_replace"
+|         "methodId": "str_replace",
+|         "args": [
+|           1
+|         ]
+|       }
+|     ],
+|     "validators": [
+|       {
+|         "methodId": "my.namespace.regex.matches",
+|         "args": [
+|           1
+|         ]
 |       }
 |     ],
 |     "passthroughs": [
@@ -463,7 +513,8 @@ Your JSON file should include the rule you're adding a custom element to, the el
 |
 | The `args` is the index of the parameter that can receive a tainted variable. Index starts:
 | * `1` for a function call. 
-| * `0` for a method call, index `0` being the current instance (`this`)
+| * `0` for a method call, index `0` being the current instance (`this`).
+| The `args` field must be a non-empty array of non-negative integers, and it is a mandatory field for sanitizers and validators.
 
 ### (Deprecated) Customizing through analysis parameters
 
@@ -515,7 +566,18 @@ Configuration is provided using JSON files. Click the heading below to expand an
 |   ],
 |   "sanitizers": [
 |     {
-|       "methodId": "str_replace"
+|       "methodId": "str_replace",
+|       "args": [
+|         3
+|       ]
+|     }
+|   ],
+|   "validators": [
+|     {
+|      "methodId": "My\\Namespace\\Validator\\inArray::isValid",
+|      "args": [
+|         1
+|       ]
 |     }
 |   ],
 |  "passthroughs": [
@@ -553,7 +615,8 @@ Configuration is provided using JSON files. Click the heading below to expand an
 |
 | The `args` is the index of the parameter that can receive a tainted variable. Index starts:
 | * `1` for a function call. 
-| * `0` for a method call, index `0` being the current instance (`this`)  
+| * `0` for a method call, index `0` being the current instance (`this`)  .
+| The `args` field must be a non-empty array of non-negative integers, and it is a mandatory field for sanitizers and validators.
 
 ## Deactivating the core configuration
 

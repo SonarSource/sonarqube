@@ -18,8 +18,10 @@
         "args": {
           "type": "array",
           "items": {
-            "type": "integer"
-          }
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 1
         },
         "interval": {
           "$ref": "#/definitions/Interval"
@@ -41,6 +43,16 @@
         "methodId"
       ],
       "additionalProperties": false
+    },
+    "SanitizerOrValidator": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonConfiguration"
+        }
+      ],
+      "required": [
+        "args"
+      ]
     },
     "RuleConfiguration": {
       "type": "object",
@@ -66,7 +78,13 @@
         "sanitizers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/CommonConfiguration"
+            "$ref": "#/definitions/SanitizerOrValidator"
+          }
+        },
+        "validators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SanitizerOrValidator"
           }
         },
         "sinks": {
