@@ -13,7 +13,11 @@ Pull Request analysis shows your Pull Request's Quality Gate and analysis in the
 
 ## Prerequisites
 
-Before analyzing your Pull Requests, make sure the Pull Request branch is checked out. Avoid any attempt at previewing the merge or actions involving your main branch.
+Before analyzing your Pull Requests, make sure that:
+- The Pull Request source branch is checked out in the local repository.
+- The branch being targeted by the Pull Request is fetched and present in the local repository. 
+- The analysis is being run on a local repository with valid repository metadata (e.g. the .git or .svn folders have not been removed). 
+ Avoid any attempt at previewing the merge or actions involving your main branch.
 
 ## Report pull request status to your DevOps Platform
 You can also report the pull request analysis and Quality Gate status directly in your DevOps Platform's interface. To set up pull request decoration, see the DevOps Platform integration page that corresponds with your DevOps Platform:
