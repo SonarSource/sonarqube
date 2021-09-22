@@ -7,7 +7,8 @@ _This page applies to deploying SonarQube Data Center Edition on Kubernetes. For
 
 # Overview 
 
-[[info]] | Deploying and operating SonarQube Data Center Edition on Kubernetes is available starting SonarQube 9.1 and is currently in Beta status.
+[[info]]
+| Deploying and operating SonarQube Data Center Edition on Kubernetes is available starting SonarQube 9.1 and is currently in Beta status.
 
 You can find the SonarQube DCE Helm chart on [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube-dce).
 
