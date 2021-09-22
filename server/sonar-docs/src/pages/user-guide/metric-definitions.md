@@ -22,7 +22,7 @@ It is the Cyclomatic Complexity calculated based on the number of paths through 
 | VB.NET | The complexity gets incremented by one for: method or constructor declaration (Sub, Function), `AndAlso`, `Case`, `Continue`, `End`, `Error`, `Exit`, `If`, `Loop`, `On Error`, `GoTo`, `OrElse`, `Resume`, `Stop`, `Throw`, `Try`.
 
 **Cognitive Complexity** (`cognitive_complexity`)  
-How hard it is to understand the code's control flow. See [the Cognitive Complexity White Paper](https://www.sonarsource.com/resources/white-papers/cognitive-complexity.html) for a complete description of the mathematical model applied to compute this measure.
+How hard it is to understand the code's control flow. See [the Cognitive Complexity white paper](https://www.sonarsource.com/resources/white-papers/cognitive-complexity/) for a complete description of the mathematical model applied to compute this measure.
 
 ---
 ## Duplications
