@@ -21,6 +21,7 @@ package org.sonar.db.rule;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
@@ -44,6 +45,10 @@ public class RuleRepositoryDao implements Dao {
     return dbSession.getMapper(RuleRepositoryMapper.class).selectAll();
   }
 
+  public Set<String> selectAllKeys(DbSession dbSession) {
+    return dbSession.getMapper(RuleRepositoryMapper.class).selectAllKeys();
+  }
+
   /**
    * @return a non-null list ordered by key (as implemented by database, order may
    * depend on case sensitivity)
@@ -52,14 +57,18 @@ public class RuleRepositoryDao implements Dao {
     return dbSession.getMapper(RuleRepositoryMapper.class).selectByLanguage(language);
   }
 
-  public void insertOrUpdate(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
+  public void insert(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
     RuleRepositoryMapper mapper = dbSession.getMapper(RuleRepositoryMapper.class);
     long now = system2.now();
     for (RuleRepositoryDto dto : dtos) {
-      int updated = mapper.update(dto);
-      if (updated == 0) {
-        mapper.insert(dto, now);
-      }
+      mapper.insert(dto, now);
+    }
+  }
+
+  public void update(DbSession dbSession, Collection<RuleRepositoryDto> dtos) {
+    RuleRepositoryMapper mapper = dbSession.getMapper(RuleRepositoryMapper.class);
+    for (RuleRepositoryDto dto : dtos) {
+      mapper.update(dto);
     }
   }
 

@@ -302,7 +302,7 @@ public class RegisterRulesTest {
   public void delete_repositories_that_have_been_uninstalled() {
     RuleRepositoryDto repository = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     DbSession dbSession = db.getSession();
-    db.getDbClient().ruleRepositoryDao().insertOrUpdate(dbSession, singletonList(repository));
+    db.getDbClient().ruleRepositoryDao().insert(dbSession, singletonList(repository));
     dbSession.commit();
 
     execute(new FakeRepositoryV1());

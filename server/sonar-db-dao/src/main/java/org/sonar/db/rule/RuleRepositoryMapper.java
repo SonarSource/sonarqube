@@ -21,12 +21,15 @@ package org.sonar.db.rule;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
 public interface RuleRepositoryMapper {
 
   List<RuleRepositoryDto> selectAll();
+
+  Set<String> selectAllKeys();
 
   List<RuleRepositoryDto> selectByLanguage(@Param("language") String language);
 
@@ -35,7 +38,7 @@ public interface RuleRepositoryMapper {
 
   void insert(@Param("repository") RuleRepositoryDto repository, @Param("now") long now);
 
-  int update(@Param("repository") RuleRepositoryDto repository);
+  void update(@Param("repository") RuleRepositoryDto repository);
 
   void deleteIfKeyNotIn(@Param("keys") Collection<String> keys);
 }

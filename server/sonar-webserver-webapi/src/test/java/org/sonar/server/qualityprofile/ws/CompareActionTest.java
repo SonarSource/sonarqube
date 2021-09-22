@@ -234,7 +234,7 @@ public class CompareActionTest {
 
   private void createRepository(String repositoryKey, String repositoryLanguage, String repositoryName) {
     RuleRepositoryDto dto = new RuleRepositoryDto(repositoryKey, repositoryLanguage, repositoryName);
-    dbClient.ruleRepositoryDao().insertOrUpdate(session, singletonList(dto));
+    dbClient.ruleRepositoryDao().insert(session, singletonList(dto));
     session.commit();
   }
 }
