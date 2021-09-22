@@ -52,6 +52,7 @@ import org.sonar.scanner.ci.vendors.Bitrise;
 import org.sonar.scanner.ci.vendors.Buildkite;
 import org.sonar.scanner.ci.vendors.CircleCi;
 import org.sonar.scanner.ci.vendors.CirrusCi;
+import org.sonar.scanner.ci.vendors.CodeMagic;
 import org.sonar.scanner.ci.vendors.DroneCi;
 import org.sonar.scanner.ci.vendors.GithubActions;
 import org.sonar.scanner.ci.vendors.GitlabCi;
@@ -286,6 +287,7 @@ public class ProjectScanContainer extends ComponentContainer {
       CirrusCi.class,
       DroneCi.class,
       GithubActions.class,
+      CodeMagic.class,
       GitlabCi.class,
       Jenkins.class,
       SemaphoreCi.class,
