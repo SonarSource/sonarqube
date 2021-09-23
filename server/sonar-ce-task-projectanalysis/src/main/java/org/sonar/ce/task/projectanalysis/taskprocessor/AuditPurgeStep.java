@@ -19,15 +19,15 @@
  */
 package org.sonar.ce.task.projectanalysis.taskprocessor;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.audit.AuditDto;
 import org.sonar.db.property.PropertyDto;
+
+import static java.lang.String.format;
 
 public final class AuditPurgeStep implements ComputationStep {
   private static final Logger LOG = Loggers.get(AuditPurgeStep.class);
@@ -44,15 +44,12 @@ public final class AuditPurgeStep implements ComputationStep {
   public void execute(Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PropertyDto property = auditHousekeepingFrequencyHelper.getHouseKeepingFrequency(dbClient, dbSession);
-      long deleteBefore = auditHousekeepingFrequencyHelper.getThresholdDate(property.getValue());
-      Set<String> auditUuids = dbClient.auditDao()
-        .selectOlderThan(dbSession, deleteBefore)
-        .stream()
-        .map(AuditDto::getUuid)
-        .collect(Collectors.toSet());
-      LOG.info(String.format("%s audit logs to be deleted...", auditUuids.size()));
-      dbClient.auditDao().deleteByUuids(dbSession, auditUuids);
+      long threshold = auditHousekeepingFrequencyHelper.getThresholdDate(property.getValue());
+      Profiler profiler = Profiler.create(LOG).logTimeLast(true);
+      profiler.startInfo("Purge audit logs");
+      long deleted = dbClient.auditDao().deleteBefore(dbSession, threshold);
       dbSession.commit();
+      profiler.stopInfo(format("Purged %d audit logs", deleted));
     }
   }
 

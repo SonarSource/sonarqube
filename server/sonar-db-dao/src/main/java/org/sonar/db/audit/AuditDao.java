@@ -20,14 +20,12 @@
 package org.sonar.db.audit;
 
 import java.util.List;
-import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 
-import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 
 public class AuditDao implements Dao {
@@ -69,7 +67,8 @@ public class AuditDao implements Dao {
     return getMapper(dbSession).selectOlderThan(beforeTimestamp);
   }
 
-  public void deleteByUuids(DbSession dbSession, Set<String> uuids) {
-    executeLargeUpdates(uuids, getMapper(dbSession)::deleteByUuids);
+  public long deleteBefore(DbSession dbSession, long threshold) {
+    return getMapper(dbSession).purge(threshold);
   }
+
 }

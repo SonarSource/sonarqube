@@ -33,6 +33,5 @@ public interface AuditMapper {
 
   List<AuditDto> selectOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
 
-  void deleteByUuids(@Param("uuids") List<String> uuids);
-
+  long purge(long threshold);
 }

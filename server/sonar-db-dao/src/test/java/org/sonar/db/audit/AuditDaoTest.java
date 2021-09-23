@@ -20,8 +20,6 @@
 package org.sonar.db.audit;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -62,18 +60,25 @@ public class AuditDaoTest {
   }
 
   @Test
-  public void deleteIfBeforeSelectedDate_deleteTwoRows() {
-    prepareRowsWithDeterministicCreatedAt(3);
+  public void purge_has_limit() {
+    prepareRowsWithDeterministicCreatedAt(100_001);
+    long purged = testAuditDao.deleteBefore(dbSession, 200_000);
+    assertThat(purged).isEqualTo(100_000);
+    assertThat(db.countRowsOfTable(dbSession, "audits")).isEqualTo(1);
+    assertThat(testAuditDao.selectOlderThan(dbSession, 100_002))
+      .extracting(AuditDto::getCreatedAt)
+      .containsOnly(100_001L);
+  }
 
-    Set<String> auditUuids = testAuditDao.selectOlderThan(dbSession, 3)
-      .stream()
-      .map(AuditDto::getUuid)
-      .collect(Collectors.toSet());
-
-    testAuditDao.deleteByUuids(dbSession, auditUuids);
-
-    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 4, 1);
-    assertThat(auditDtos.size()).isEqualTo(1);
+  @Test
+  public void purge_with_threshold() {
+    prepareRowsWithDeterministicCreatedAt(100_000);
+    long purged = testAuditDao.deleteBefore(dbSession, 50_000);
+    assertThat(purged).isEqualTo(49_999);
+    assertThat(db.countRowsOfTable(dbSession, "audits")).isEqualTo(50_001);
+    assertThat(testAuditDao.selectOlderThan(dbSession, 100_000))
+      .hasSize(50_000)
+      .allMatch(a -> a.getCreatedAt() >= 50_000);
   }
 
   @Test
