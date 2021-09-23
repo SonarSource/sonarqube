@@ -187,6 +187,7 @@ import static org.apache.commons.lang.StringUtils.trim;
 @ServerSide
 @ComputeEngineSide
 @SonarLintSide
+@Deprecated
 public class RulesDefinitionXmlLoader {
 
   private static final String ELEMENT_RULES = "rules";

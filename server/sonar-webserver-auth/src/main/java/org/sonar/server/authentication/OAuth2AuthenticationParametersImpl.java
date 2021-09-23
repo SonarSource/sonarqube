@@ -52,11 +52,6 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
    */
   private static final String RETURN_TO_PARAMETER = "return_to";
 
-  /**
-   * This parameter is used to allow the update of login
-   */
-  private static final String ALLOW_LOGIN_UPDATE_PARAMETER = "allowUpdateLogin";
-
   private static final Type JSON_MAP_TYPE = new TypeToken<HashMap<String, String>>() {
   }.getType();
 

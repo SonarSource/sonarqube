@@ -238,7 +238,7 @@ public class PluginJarLoader {
     return list;
   }
 
-  private void failIfContainsIncompatiblePlugins(List<? extends PluginInfo> plugins) {
+  private static void failIfContainsIncompatiblePlugins(List<? extends PluginInfo> plugins) {
     List<String> incompatiblePlugins = plugins.stream()
       .filter(p -> FORBIDDEN_INCOMPATIBLE_PLUGINS.contains(p.getKey()))
       .map(p -> "'" + p.getKey() + "'")

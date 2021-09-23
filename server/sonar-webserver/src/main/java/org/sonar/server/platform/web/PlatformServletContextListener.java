@@ -53,7 +53,7 @@ public final class PlatformServletContextListener implements ServletContextListe
     }
   }
 
-  private void stopQuietly() {
+  private static void stopQuietly() {
     try {
       PlatformImpl.getInstance().doStop();
     } catch (Exception e) {

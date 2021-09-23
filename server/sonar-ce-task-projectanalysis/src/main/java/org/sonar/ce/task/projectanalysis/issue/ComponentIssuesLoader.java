@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.collect.ImmutableList;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;

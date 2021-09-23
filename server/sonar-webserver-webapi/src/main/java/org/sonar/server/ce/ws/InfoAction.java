@@ -65,7 +65,7 @@ public class InfoAction implements CeWsAction {
     WsUtils.writeProtobuf(builder.build(), request, response);
   }
 
-  private Ce.WorkersPauseStatus convert(CeQueue.WorkersPauseStatus status) {
+  private static Ce.WorkersPauseStatus convert(CeQueue.WorkersPauseStatus status) {
     switch (status) {
       case PAUSING:
         return Ce.WorkersPauseStatus.PAUSING;

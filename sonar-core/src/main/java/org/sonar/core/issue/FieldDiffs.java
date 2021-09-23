@@ -40,15 +40,15 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  */
 public class FieldDiffs implements Serializable {
   private static final String CHAR_TO_ESCAPE = "|,{}=:";
-
-  private String issueKey;
-  private String userUuid;
-  private Date creationDate;
   public static final String ASSIGNEE = "assignee";
   public static final String ENCODING_PREFIX = "{base64:";
   public static final String ENCODING_SUFFIX = "}";
 
   private final Map<String, Diff> diffs = new LinkedHashMap<>();
+
+  private String issueKey;
+  private String userUuid;
+  private Date creationDate;
 
   public Map<String, Diff> diffs() {
     if (diffs.containsKey(ASSIGNEE)) {

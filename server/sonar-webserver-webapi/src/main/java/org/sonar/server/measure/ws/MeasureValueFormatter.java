@@ -27,7 +27,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 public class MeasureValueFormatter {
-  private static final double DELTA = 0.000001d;
+  private static final double DELTA = 0.000001D;
 
   private MeasureValueFormatter() {
     // static methods
@@ -97,7 +97,7 @@ public class MeasureValueFormatter {
   }
 
   private static String formatBoolean(double value) {
-    return Math.abs(value - 1.0d) < DELTA ? "true" : "false";
+    return Math.abs(value - 1.0D) < DELTA ? "true" : "false";
   }
 
   private static String formatInteger(double value) {

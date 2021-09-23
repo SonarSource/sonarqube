@@ -60,7 +60,7 @@ public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
     json.endObject();
   }
 
-  private void writeAttribute(ProtobufSystemInfo.Attribute attribute, JsonWriter json) {
+  private static void writeAttribute(ProtobufSystemInfo.Attribute attribute, JsonWriter json) {
     switch (attribute.getValueCase()) {
       case BOOLEAN_VALUE:
         json.prop(attribute.getKey(), attribute.getBooleanValue());

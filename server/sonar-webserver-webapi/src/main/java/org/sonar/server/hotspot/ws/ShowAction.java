@@ -46,7 +46,6 @@ import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.rule.HotspotRuleDescription;
 import org.sonar.server.security.SecurityStandards;
-import org.sonar.server.text.MacroInterpreter;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.ShowWsResponse;
@@ -71,18 +70,15 @@ public class ShowAction implements HotspotsWsAction {
   private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
   private final IssueChangeWSSupport issueChangeSupport;
-  private final MacroInterpreter macroInterpreter;
 
-  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport,
-    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
-    UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport, MacroInterpreter macroInterpreter) {
+  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
+    UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
     this.issueChangeSupport = issueChangeSupport;
-    this.macroInterpreter = macroInterpreter;
   }
 
   @Override
@@ -158,7 +154,7 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
-  private void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
+  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(ruleDefinitionDto.getSecurityStandards());
     SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
 

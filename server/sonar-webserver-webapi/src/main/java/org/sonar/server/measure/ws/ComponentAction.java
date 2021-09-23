@@ -215,7 +215,7 @@ public class ComponentAction implements MeasuresWsAction {
     }
   }
 
-  private boolean isPR(@Nullable String pullRequest) {
+  private static boolean isPR(@Nullable String pullRequest) {
     return pullRequest != null;
   }
 

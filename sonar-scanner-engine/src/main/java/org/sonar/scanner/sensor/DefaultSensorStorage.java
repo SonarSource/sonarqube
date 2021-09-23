@@ -360,7 +360,7 @@ public class DefaultSensorStorage implements SensorStorage {
     void apply(Integer value, ScannerReport.LineCoverage.Builder builder);
   }
 
-  private void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
+  private static void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
     LineCoverageOperation op) {
     for (Map.Entry<Integer, Integer> lineMeasure : valueByLine.entrySet()) {
       int lineIdx = lineMeasure.getKey();

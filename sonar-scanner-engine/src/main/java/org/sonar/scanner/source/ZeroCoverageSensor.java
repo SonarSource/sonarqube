@@ -24,11 +24,11 @@ import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.scanner.sensor.ProjectSensor;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.report.ReportPublisher;
 
 @Phase(name = Phase.Name.POST)
@@ -53,9 +53,7 @@ public final class ZeroCoverageSensor implements ProjectSensor {
         continue;
       }
       if (!isCoverageAlreadyDefined(f)) {
-        ((DefaultInputFile) f).getExecutableLines().ifPresent(execLines -> {
-          storeZeroCoverageForEachExecutableLine(context, f, execLines);
-        });
+        ((DefaultInputFile) f).getExecutableLines().ifPresent(execLines -> storeZeroCoverageForEachExecutableLine(context, f, execLines));
       }
     }
   }

@@ -73,7 +73,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
     return ruleList;
   }
 
-  private String getUrl(String qualityProfileKey, int page, int pageSize) {
+  private static String getUrl(String qualityProfileKey, int page, int pageSize) {
     StringBuilder builder = new StringBuilder(1024);
     builder.append(RULES_SEARCH_URL);
     builder.append("&qprofile=").append(ScannerUtils.encodeForUrl(qualityProfileKey));

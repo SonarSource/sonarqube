@@ -32,10 +32,6 @@ import org.sonar.duplications.token.TokenChunker;
  * </p>
  */
 public final class JavaTokenProducer {
-
-  private JavaTokenProducer() {
-  }
-
   private static final String NORMALIZED_CHARACTER_LITERAL = "$CHARS";
   private static final String NORMALIZED_NUMERIC_LITERAL = "$NUMBER";
 
@@ -44,6 +40,9 @@ public final class JavaTokenProducer {
 
   private static final String FLOAT_SUFFIX = "[fFdD]";
   private static final String INT_SUFFIX = "[lL]";
+
+  private JavaTokenProducer() {
+  }
 
   public static TokenChunker build() {
     return TokenChunker.builder()

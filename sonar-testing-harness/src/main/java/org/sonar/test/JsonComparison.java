@@ -73,7 +73,7 @@ class JsonComparison {
     return compare(expectedJson, actualJson);
   }
 
-  private Object parse(String s) {
+  private static Object parse(String s) {
     try {
       JSONParser parser = new JSONParser();
       return parser.parse(s);
@@ -108,11 +108,11 @@ class JsonComparison {
     return compareBooleans((Boolean) expectedObject, (Boolean) actualObject);
   }
 
-  private boolean compareBooleans(Boolean expected, Boolean actual) {
+  private static boolean compareBooleans(Boolean expected, Boolean actual) {
     return expected.equals(actual);
   }
 
-  private boolean compareNumbers(Number expected, Number actual) {
+  private static boolean compareNumbers(Number expected, Number actual) {
     double d1 = expected.doubleValue();
     double d2 = actual.doubleValue();
     if (Double.compare(d1, d2) == 0) {

@@ -73,7 +73,7 @@ public class ResetPasswordFilterTest {
   public void redirect_if_reset_password_set() throws Exception {
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect(eq("/account/reset_password"));
+    verify(response).sendRedirect("/account/reset_password");
   }
 
   @Test
@@ -82,7 +82,7 @@ public class ResetPasswordFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect(eq("/sonarqube/account/reset_password"));
+    verify(response).sendRedirect("/sonarqube/account/reset_password");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class ResetPasswordFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect(eq("/sonarqube/account/reset_password"));
+    verify(response).sendRedirect("/sonarqube/account/reset_password");
   }
 
   @Test

@@ -112,7 +112,7 @@ public class ProjectDataLoader {
     }
   }
 
-  private void checkPermission(boolean hasScanPerm) {
+  private static void checkPermission(boolean hasScanPerm) {
     if (!hasScanPerm) {
       throw new ForbiddenException("You're not authorized to push analysis results to the SonarQube server. " +
         "Please contact your SonarQube administrator.");

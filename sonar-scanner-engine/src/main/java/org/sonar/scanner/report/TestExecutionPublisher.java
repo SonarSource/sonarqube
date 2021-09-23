@@ -81,7 +81,7 @@ public class TestExecutionPublisher implements ReportPublisherStep {
     appendMeasure(inputFile, writer, new DefaultMeasure<Integer>().forMetric(TEST_FAILURES).withValue((int) failedTests));
   }
 
-  private void appendMeasure(InputFile inputFile, ScannerReportWriter writer, DefaultMeasure measure) {
+  private static void appendMeasure(InputFile inputFile, ScannerReportWriter writer, DefaultMeasure measure) {
     writer.appendComponentMeasure(((DefaultInputComponent) inputFile).scannerId(), toReportMeasure(measure));
   }
 

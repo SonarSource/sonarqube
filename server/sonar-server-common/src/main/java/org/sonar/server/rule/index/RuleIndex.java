@@ -211,28 +211,25 @@ public class RuleIndex {
 
     // Build RuleBased contextual query
     BoolQueryBuilder qb = boolQuery();
-    String queryString = query.getQueryText();
 
-    if (queryString != null && !queryString.isEmpty()) {
-      BoolQueryBuilder textQuery = boolQuery();
-      JavaTokenizer.split(queryString)
-        .stream().map(token -> boolQuery().should(
-        matchQuery(
-          SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
-          StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20f))
-        .should(
-          matchPhraseQuery(
-            ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
-            token).boost(3f)))
-        .forEach(textQuery::must);
-      qb.should(textQuery.boost(20f));
-    }
+    BoolQueryBuilder textQuery = boolQuery();
+    JavaTokenizer.split(queryText)
+      .stream().map(token -> boolQuery().should(
+      matchQuery(
+        SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
+        StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20f))
+      .should(
+        matchPhraseQuery(
+          ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
+          token).boost(3F)))
+      .forEach(textQuery::must);
+    qb.should(textQuery.boost(20F));
 
     // Match and partial Match queries
     // Search by key uses the "sortable" sub-field as it requires to be case-insensitive (lower-case filtering)
-    qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_KEY), queryString).operator(Operator.AND).boost(30f));
-    qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_RULE_KEY), queryString).operator(Operator.AND).boost(15f));
-    qb.should(termQuery(FIELD_RULE_LANGUAGE, queryString, 3f));
+    qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_KEY), queryText).operator(Operator.AND).boost(30F));
+    qb.should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_RULE_RULE_KEY), queryText).operator(Operator.AND).boost(15F));
+    qb.should(termQuery(FIELD_RULE_LANGUAGE, queryText, 3F));
     return qb;
   }
 

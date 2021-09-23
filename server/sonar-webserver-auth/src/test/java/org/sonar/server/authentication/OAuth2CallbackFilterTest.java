@@ -168,7 +168,7 @@ public class OAuth2CallbackFilterTest {
     assertThat(authenticationException.getSource()).isEqualTo(Source.oauth2(identityProvider));
     assertThat(authenticationException.getLogin()).isNull();
     assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
-    verify(oAuthRedirection).delete(eq(request), eq(response));
+    verify(oAuthRedirection).delete(request, response);
 
     verify(response).addCookie(cookieArgumentCaptor.capture());
     Cookie cookie = cookieArgumentCaptor.getValue();
@@ -190,7 +190,7 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sonarqube/sessions/unauthorized");
-    verify(oAuthRedirection).delete(eq(request), eq(response));
+    verify(oAuthRedirection).delete(request, response);
   }
 
   @Test
@@ -203,7 +203,7 @@ public class OAuth2CallbackFilterTest {
 
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(logTester.logs(LoggerLevel.WARN)).containsExactlyInAnyOrder("Fail to callback authentication with 'failing'");
-    verify(oAuthRedirection).delete(eq(request), eq(response));
+    verify(oAuthRedirection).delete(request, response);
   }
 
   @Test

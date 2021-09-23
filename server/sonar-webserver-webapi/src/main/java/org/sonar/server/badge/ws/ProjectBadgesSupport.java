@@ -21,7 +21,6 @@ package org.sonar.server.badge.ws;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
@@ -40,12 +39,10 @@ public class ProjectBadgesSupport {
   private static final String PARAM_BRANCH = "branch";
 
   private final UserSession userSession;
-  private final DbClient dbClient;
   private final ComponentFinder componentFinder;
 
-  public ProjectBadgesSupport(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
+  public ProjectBadgesSupport(UserSession userSession, ComponentFinder componentFinder) {
     this.userSession = userSession;
-    this.dbClient = dbClient;
     this.componentFinder = componentFinder;
   }
 

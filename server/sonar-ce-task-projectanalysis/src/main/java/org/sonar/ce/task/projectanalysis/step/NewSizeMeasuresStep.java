@@ -215,8 +215,8 @@ public class NewSizeMeasuresStep implements ComputationStep {
       if (newLines.isSet() && newDuplicatedLines.isSet()) {
         int newLinesVariations = newLines.getValue();
         int newDuplicatedLinesVariations = newDuplicatedLines.getValue();
-        if (newLinesVariations > 0d) {
-          double density = Math.min(100d, 100d * newDuplicatedLinesVariations / newLinesVariations);
+        if (newLinesVariations > 0D) {
+          double density = Math.min(100D, 100D * newDuplicatedLinesVariations / newLinesVariations);
           return Optional.of(Measure.newMeasureBuilder().setVariation(density).createNoValue());
         }
       }

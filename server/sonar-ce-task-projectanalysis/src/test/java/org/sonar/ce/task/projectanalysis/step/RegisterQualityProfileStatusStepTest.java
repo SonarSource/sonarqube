@@ -107,7 +107,7 @@ public class RegisterQualityProfileStatusStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verify(qProfileStatusRepository).register(eq(qp.getQpKey()), eq(REMOVED));
+    verify(qProfileStatusRepository).register(qp.getQpKey(), REMOVED);
     verifyNoMoreInteractions(qProfileStatusRepository);
   }
 
@@ -120,8 +120,8 @@ public class RegisterQualityProfileStatusStepTest {
     mockRawQProfiles(ImmutableList.of(qp1, qp2));
     underTest.execute(new TestComputationStepContext());
 
-    verify(qProfileStatusRepository).register(eq(qp1.getQpKey()), eq(UNCHANGED));
-    verify(qProfileStatusRepository).register(eq(qp2.getQpKey()), eq(ADDED));
+    verify(qProfileStatusRepository).register(qp1.getQpKey(), UNCHANGED);
+    verify(qProfileStatusRepository).register(qp2.getQpKey(), ADDED);
     verifyNoMoreInteractions(qProfileStatusRepository);
   }
 
@@ -134,7 +134,7 @@ public class RegisterQualityProfileStatusStepTest {
     mockRawQProfiles(ImmutableList.of(qp2));
     underTest.execute(new TestComputationStepContext());
 
-    verify(qProfileStatusRepository).register(eq(qp2.getQpKey()), eq(UPDATED));
+    verify(qProfileStatusRepository).register(qp2.getQpKey(), UPDATED);
     verifyNoMoreInteractions(qProfileStatusRepository);
   }
 
@@ -146,7 +146,7 @@ public class RegisterQualityProfileStatusStepTest {
     mockRawQProfiles(ImmutableList.of(qp1));
     underTest.execute(new TestComputationStepContext());
 
-    verify(qProfileStatusRepository).register(eq(qp1.getQpKey()), eq(UNCHANGED));
+    verify(qProfileStatusRepository).register(qp1.getQpKey(), UNCHANGED);
     verifyNoMoreInteractions(qProfileStatusRepository);
   }
 

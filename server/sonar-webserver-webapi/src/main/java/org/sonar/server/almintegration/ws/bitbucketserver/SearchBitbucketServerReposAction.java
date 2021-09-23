@@ -57,9 +57,6 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchBitbucketServerReposAction implements AlmIntegrationsWsAction {
-
-  private static final Logger LOG = Loggers.get(SearchBitbucketServerReposAction.class);
-
   private static final String PARAM_ALM_SETTING = "almSetting";
   private static final String PARAM_REPO_NAME = "repositoryName";
   private static final String PARAM_PROJECT_NAME = "projectName";

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.ce.posttask;
 
-import java.util.Date;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ExtensionPoint;

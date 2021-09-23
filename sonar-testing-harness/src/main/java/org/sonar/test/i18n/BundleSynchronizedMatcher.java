@@ -105,7 +105,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     return details;
   }
 
-  private void print(String title, SortedMap<String, String> translations, StringBuilder to) {
+  private static void print(String title, SortedMap<String, String> translations, StringBuilder to) {
     if (!translations.isEmpty()) {
       to.append(title);
       for (Map.Entry<String, String> entry : translations.entrySet()) {

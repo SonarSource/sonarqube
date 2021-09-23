@@ -35,7 +35,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,7 +69,6 @@ import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -84,13 +82,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -99,7 +93,6 @@ import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 @RunWith(DataProviderRunner.class)
 public class ShowActionTest {
   private static final Random RANDOM = new Random();
-  private static final String INTERPRETED = "interpreted";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -109,20 +102,14 @@ public class ShowActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private final DbClient dbClient = dbTester.getDbClient();
-  private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final AvatarResolver avatarResolver = new AvatarResolverImpl();
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
   private final IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
   private final HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private final TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
-  private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport, macroInterpreter);
+  private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport);
   private final WsActionTester actionTester = new WsActionTester(underTest);
-
-  @Before
-  public void before() {
-    doReturn(INTERPRETED).when(macroInterpreter).interpret(anyString());
-  }
 
   @Test
   public void ws_is_public() {
@@ -419,8 +406,6 @@ public class ShowActionTest {
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
     assertThat(response.getRule().getRiskDescription()).isNullOrEmpty();
-
-    verifyNoInteractions(macroInterpreter);
   }
 
   @Test

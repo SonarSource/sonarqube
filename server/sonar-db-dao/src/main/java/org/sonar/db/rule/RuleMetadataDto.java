@@ -41,10 +41,6 @@ public class RuleMetadataDto {
   private String remediationBaseEffort;
   private String tags;
 
-  public RuleMetadataDto() {
-    // nothing to do here
-  }
-
   /**
    * Name of on ad hoc rule.
    * When {@link RuleDefinitionDto#isAdHoc} is true, this field should always be set
@@ -70,6 +66,10 @@ public class RuleMetadataDto {
 
   private long createdAt;
   private long updatedAt;
+
+  public RuleMetadataDto() {
+    // nothing to do here
+  }
 
   public String getRuleUuid() {
     return ruleUuid;

@@ -115,16 +115,6 @@ public class AlterColumnsBuilder {
     return sqls;
   }
 
-  private void addColumns(StringBuilder sql, String updateKeyword, String typePrefix, boolean addNotNullableProperty) {
-    for (Iterator<ColumnDef> columnDefIterator = columnDefs.iterator(); columnDefIterator.hasNext();) {
-      sql.append(updateKeyword);
-      addColumn(sql, columnDefIterator.next(), typePrefix, addNotNullableProperty);
-      if (columnDefIterator.hasNext()) {
-        sql.append(", ");
-      }
-    }
-  }
-
   private void addColumn(StringBuilder sql, ColumnDef columnDef, String typePrefix, boolean addNotNullableProperty) {
     sql.append(columnDef.getName())
       .append(" ")

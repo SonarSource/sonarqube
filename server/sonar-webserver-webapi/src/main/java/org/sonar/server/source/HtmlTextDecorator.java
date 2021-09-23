@@ -129,7 +129,7 @@ class HtmlTextDecorator {
     return to != null && to < currentLine;
   }
 
-  private char[] normalize(char currentChar) {
+  private static char[] normalize(char currentChar) {
     char[] normalizedChars;
     if (currentChar == HTML_OPENING) {
       normalizedChars = ENCODED_HTML_OPENING.toCharArray();
@@ -143,11 +143,11 @@ class HtmlTextDecorator {
     return normalizedChars;
   }
 
-  private boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {
+  private static boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {
     return charsReader.getCurrentValue() != CR_END_OF_LINE && charsReader.getCurrentValue() != LF_END_OF_LINE;
   }
 
-  private int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder dataHolder) {
+  private static int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder dataHolder) {
     int numberOfTagsToClose = 0;
 
     while (currentIndex == dataHolder.getCurrentClosingTagOffset()) {
@@ -157,7 +157,7 @@ class HtmlTextDecorator {
     return numberOfTagsToClose;
   }
 
-  private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder dataHolder) {
+  private static Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder dataHolder) {
     Collection<String> tagsToOpen = newArrayList();
     while (dataHolder.getCurrentOpeningTagEntry() != null && currentIndex == dataHolder.getCurrentOpeningTagEntry().getStartOffset()) {
       tagsToOpen.add(dataHolder.getCurrentOpeningTagEntry().getCssClass());
@@ -166,24 +166,24 @@ class HtmlTextDecorator {
     return tagsToOpen;
   }
 
-  private boolean shouldClosePendingTags(CharactersReader charactersReader) {
+  private static boolean shouldClosePendingTags(CharactersReader charactersReader) {
     return charactersReader.getCurrentValue() == CR_END_OF_LINE
       || (charactersReader.getCurrentValue() == LF_END_OF_LINE && charactersReader.getPreviousValue() != CR_END_OF_LINE)
       || (charactersReader.getCurrentValue() == CharactersReader.END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
   }
 
-  private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
+  private static boolean shouldReopenPendingTags(CharactersReader charactersReader) {
     return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
       || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
         && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
-  private boolean shouldStartNewLine(CharactersReader charactersReader) {
+  private static boolean shouldStartNewLine(CharactersReader charactersReader) {
     return charactersReader.getPreviousValue() == LF_END_OF_LINE
       || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
-  private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
+  private static void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
     StringBuilder decoratedText) {
     for (int i = 0; i < numberOfTagsToClose; i++) {
       injectClosingHtml(decoratedText);
@@ -191,7 +191,7 @@ class HtmlTextDecorator {
     }
   }
 
-  private void openNewTags(CharactersReader charactersReader, Collection<String> tagsToOpen,
+  private static void openNewTags(CharactersReader charactersReader, Collection<String> tagsToOpen,
     StringBuilder decoratedText) {
     for (String tagToOpen : tagsToOpen) {
       injectOpeningHtmlForRule(tagToOpen, decoratedText);
@@ -199,23 +199,23 @@ class HtmlTextDecorator {
     }
   }
 
-  private void closeCurrentSyntaxTags(CharactersReader charactersReader, StringBuilder decoratedText) {
+  private static void closeCurrentSyntaxTags(CharactersReader charactersReader, StringBuilder decoratedText) {
     for (int i = 0; i < charactersReader.getOpenTags().size(); i++) {
       injectClosingHtml(decoratedText);
     }
   }
 
-  private void reopenCurrentSyntaxTags(CharactersReader charactersReader, StringBuilder decoratedText) {
+  private static void reopenCurrentSyntaxTags(CharactersReader charactersReader, StringBuilder decoratedText) {
     for (String tags : charactersReader.getOpenTags()) {
       injectOpeningHtmlForRule(tags, decoratedText);
     }
   }
 
-  private void injectOpeningHtmlForRule(String textType, StringBuilder decoratedText) {
+  private static void injectOpeningHtmlForRule(String textType, StringBuilder decoratedText) {
     decoratedText.append("<span class=\"").append(textType).append("\">");
   }
 
-  private void injectClosingHtml(StringBuilder decoratedText) {
+  private static void injectClosingHtml(StringBuilder decoratedText) {
     decoratedText.append("</span>");
   }
 }

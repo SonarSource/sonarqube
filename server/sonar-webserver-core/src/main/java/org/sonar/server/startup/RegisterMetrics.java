@@ -124,7 +124,7 @@ public class RegisterMetrics implements Startable {
     return metricsToRegister;
   }
 
-  private void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
+  private static void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
     for (Metric metric : metrics.getMetrics()) {
       String metricKey = metric.getKey();
       if (CoreMetrics.getMetrics().contains(metric)) {

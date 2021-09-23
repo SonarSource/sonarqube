@@ -49,19 +49,19 @@ public class UpdateConflictResolver {
     resolveStatus(dbIssue, issue);
   }
 
-  private void resolveStatus(IssueDto dbIssue, DefaultIssue issue) {
+  private static void resolveStatus(IssueDto dbIssue, DefaultIssue issue) {
     issue.setStatus(dbIssue.getStatus());
   }
 
-  private void resolveResolution(IssueDto dbIssue, DefaultIssue issue) {
+  private static void resolveResolution(IssueDto dbIssue, DefaultIssue issue) {
     issue.setResolution(dbIssue.getResolution());
   }
 
-  private void resolveEffortToFix(IssueDto dbIssue, DefaultIssue issue) {
+  private static void resolveEffortToFix(IssueDto dbIssue, DefaultIssue issue) {
     issue.setGap(dbIssue.getGap());
   }
 
-  private void resolveSeverity(IssueDto dbIssue, DefaultIssue issue) {
+  private static void resolveSeverity(IssueDto dbIssue, DefaultIssue issue) {
     if (dbIssue.isManualSeverity()) {
       issue.setManualSeverity(true);
       issue.setSeverity(dbIssue.getSeverity());
@@ -69,7 +69,7 @@ public class UpdateConflictResolver {
     // else keep severity as declared in quality profile
   }
 
-  private void resolveAssignee(IssueDto dbIssue, DefaultIssue issue) {
+  private static void resolveAssignee(IssueDto dbIssue, DefaultIssue issue) {
     issue.setAssigneeUuid(dbIssue.getAssigneeUuid());
   }
 }

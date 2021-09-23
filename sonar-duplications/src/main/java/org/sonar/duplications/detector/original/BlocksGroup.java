@@ -30,17 +30,16 @@ import org.sonar.duplications.utils.FastStringComparator;
  * Set of {@link Block}s, which internally stored as a sorted list.
  */
 final class BlocksGroup {
+  final List<Block> blocks;
 
   /**
    * Factory method.
-   * 
+   *
    * @return new empty group
    */
   public static BlocksGroup empty() {
     return new BlocksGroup();
   }
-
-  protected final List<Block> blocks;
 
   private BlocksGroup() {
     this.blocks = new ArrayList<>();

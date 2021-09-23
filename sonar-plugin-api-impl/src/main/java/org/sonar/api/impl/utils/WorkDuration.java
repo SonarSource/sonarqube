@@ -110,7 +110,7 @@ public class WorkDuration implements Serializable {
    * For instance, 3 days and 4 hours will return 3.5 days (if hoursIndDay is 8).
    */
   public double toWorkingDays() {
-    return durationInMinutes / 60d / hoursInDay;
+    return durationInMinutes / 60D / hoursInDay;
   }
 
   /**

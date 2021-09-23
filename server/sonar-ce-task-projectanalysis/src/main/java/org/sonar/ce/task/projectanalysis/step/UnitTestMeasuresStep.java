@@ -118,8 +118,8 @@ public class UnitTestMeasuresStep implements ComputationStep {
         int tests = counter.testsCounter.getValue().get();
         int errors = counter.testsErrorsCounter.getValue().get();
         int failures = counter.testsFailuresCounter.getValue().get();
-        double density = (errors + failures) * 100d / tests;
-        return Optional.of(Measure.newMeasureBuilder().create(100d - density, decimalScale));
+        double density = (errors + failures) * 100D / tests;
+        return Optional.of(Measure.newMeasureBuilder().create(100D - density, decimalScale));
       }
       return Optional.empty();
     }

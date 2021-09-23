@@ -49,7 +49,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
     @Override
     public QueryBuilder getQuery(ComponentTextSearchQuery query) {
       return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldName()), query.getQueryText())
-        .boost(2.5f);
+        .boost(2.5F);
     }
   },
   PREFIX(CHANGE_ORDER_OF_RESULTS) {
@@ -73,7 +73,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
       }
       List<String> lowerCaseTokens = tokens.stream().map(t -> t.toLowerCase(Locale.ENGLISH)).collect(MoreCollectors.toList());
       BoolQueryBuilder queryBuilder = prefixAndPartialQuery(lowerCaseTokens, query.getFieldName(), SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER)
-        .boost(2f);
+        .boost(2F);
       return Stream.of(queryBuilder);
     }
   },
@@ -84,7 +84,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
       if (tokens.isEmpty()) {
         return Stream.empty();
       }
-      BoolQueryBuilder queryBuilder = boolQuery().boost(0.5f);
+      BoolQueryBuilder queryBuilder = boolQuery().boost(0.5F);
       tokens.stream()
         .map(text -> tokenQuery(text, query.getFieldName(), SEARCH_GRAMS_ANALYZER))
         .forEach(queryBuilder::must);
@@ -95,7 +95,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
     @Override
     public QueryBuilder getQuery(ComponentTextSearchQuery query) {
       return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldKey()), query.getQueryText())
-        .boost(50f);
+        .boost(50F);
     }
   },
   RECENTLY_BROWSED(CHANGE_ORDER_OF_RESULTS) {
@@ -105,7 +105,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
       if (recentlyBrowsedKeys.isEmpty()) {
         return Stream.empty();
       }
-      return Stream.of(termsQuery(query.getFieldKey(), recentlyBrowsedKeys).boost(100f));
+      return Stream.of(termsQuery(query.getFieldKey(), recentlyBrowsedKeys).boost(100F));
     }
   },
   FAVORITE(CHANGE_ORDER_OF_RESULTS) {
@@ -115,7 +115,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
       if (favoriteKeys.isEmpty()) {
         return Stream.empty();
       }
-      return Stream.of(termsQuery(query.getFieldKey(), favoriteKeys).boost(1000f));
+      return Stream.of(termsQuery(query.getFieldKey(), favoriteKeys).boost(1000F));
     }
   };
 

@@ -76,7 +76,7 @@ public class PluginClassloaderFactory {
   /**
    * A plugin can export some resources to other plugins
    */
-  private void exportResources(PluginClassLoaderDef def, ClassloaderBuilder builder, Collection<PluginClassLoaderDef> allPlugins) {
+  private static void exportResources(PluginClassLoaderDef def, ClassloaderBuilder builder, Collection<PluginClassLoaderDef> allPlugins) {
     // export the resources to all other plugins
     builder.setExportMask(def.getBasePluginKey(), def.getExportMask());
     for (PluginClassLoaderDef other : allPlugins) {
@@ -89,7 +89,7 @@ public class PluginClassloaderFactory {
   /**
    * Builds classloaders and verifies that all of them are correctly defined
    */
-  private Map<PluginClassLoaderDef, ClassLoader> build(Collection<PluginClassLoaderDef> defs, ClassloaderBuilder builder) {
+  private static Map<PluginClassLoaderDef, ClassLoader> build(Collection<PluginClassLoaderDef> defs, ClassloaderBuilder builder) {
     Map<PluginClassLoaderDef, ClassLoader> result = new HashMap<>();
     Map<String, ClassLoader> classloadersByBasePluginKey = builder.build();
     for (PluginClassLoaderDef def : defs) {

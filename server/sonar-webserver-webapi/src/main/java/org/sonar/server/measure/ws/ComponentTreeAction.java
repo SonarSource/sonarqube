@@ -158,7 +158,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private final ResourceTypes resourceTypes;
 
   public ComponentTreeAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, I18n i18n,
-                             ResourceTypes resourceTypes) {
+    ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -369,7 +369,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
-                                                          Map<String, ComponentDto> referenceComponentsByUuid) {
+    Map<String, ComponentDto> referenceComponentsByUuid) {
     Measures.Component.Builder wsComponent = componentDtoToWsComponent(component);
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
@@ -447,7 +447,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     }
   }
 
-  private boolean isPR(@Nullable String pullRequest) {
+  private static boolean isPR(@Nullable String pullRequest) {
     return pullRequest != null;
   }
 
@@ -502,7 +502,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private Table<String, MetricDto, ComponentTreeData.Measure> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent,
-                                                                                                     ComponentTreeQuery componentTreeQuery, List<ComponentDto> components, List<MetricDto> metrics) {
+    ComponentTreeQuery componentTreeQuery, List<ComponentDto> components, List<MetricDto> metrics) {
 
     Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
     MeasureTreeQuery measureQuery = MeasureTreeQuery.builder()
@@ -534,7 +534,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
    * </ul>
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<ComponentDto> components,
-                                              List<MetricDto> metrics) {
+    List<MetricDto> metrics) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(new MetricDtoToMetricDtoWithBestValue())
@@ -555,7 +555,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static List<ComponentDto> filterComponents(List<ComponentDto> components,
-                                                     Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeRequest wsRequest) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeRequest wsRequest) {
     if (!componentWithMeasuresOnly(wsRequest)) {
       return components;
     }
@@ -575,7 +575,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest, List<MetricDto> metrics,
-                                                   Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 

@@ -116,8 +116,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
     rule
       .setName("Failed unit tests should be fixed")
       .addTags("bug")
-      .setHtmlDescription(
-        "Test failures or errors generally indicate that regressions have been introduced. Those tests should be handled as soon as possible to reduce the cost to fix the corresponding regressions.")
+      .setHtmlDescription("Test failures or errors generally indicate that regressions have been introduced. "
+        + "Those tests should be handled as soon as possible to reduce the cost to fix the corresponding regressions.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
       .setGapDescription("number of failed tests")
       .setSeverity(Severity.MAJOR);

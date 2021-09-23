@@ -142,16 +142,4 @@ public class JdbcSettings implements Consumer<Props> {
       }
     }
   }
-
-  private static void checkRequiredParameter(String url, String val) {
-    if (!url.contains(val)) {
-      throw new MessageException(format("JDBC URL must have the property '%s'", val));
-    }
-  }
-
-  private void checkRecommendedParameter(String url, String val) {
-    if (!url.contains(val)) {
-      LoggerFactory.getLogger(getClass()).warn("JDBC URL is recommended to have the property '{}'", val);
-    }
-  }
 }

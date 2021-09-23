@@ -64,7 +64,7 @@ public class QualityGateActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new QualityGateAction(db.getDbClient(),
-      new ProjectBadgesSupport(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient(), null)),
+      new ProjectBadgesSupport(userSession, new ComponentFinder(db.getDbClient(), null)),
       new SvgGenerator(mapSettings.asConfig())));
 
   @Test

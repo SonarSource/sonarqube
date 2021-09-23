@@ -222,17 +222,4 @@ public final class ZipUtils {
   public interface ZipEntryFilter {
     boolean accept(ZipEntry entry);
   }
-
-  private static class ZipEntryFilterDelegate implements Predicate<ZipEntry> {
-    private final ZipEntryFilter delegate;
-
-    private ZipEntryFilterDelegate(ZipEntryFilter delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    public boolean test(ZipEntry zipEntry) {
-      return delegate.accept(zipEntry);
-    }
-  }
 }

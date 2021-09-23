@@ -112,7 +112,7 @@ class DecorationDataHolder {
     }
   }
 
-  private void insertAndPreserveOrder(OpeningHtmlTag newEntry, List<OpeningHtmlTag> openingHtmlTags) {
+  private static void insertAndPreserveOrder(OpeningHtmlTag newEntry, List<OpeningHtmlTag> openingHtmlTags) {
     int insertionIndex = 0;
     Iterator<OpeningHtmlTag> tagIterator = openingHtmlTags.iterator();
     while (tagIterator.hasNext() && tagIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
@@ -121,7 +121,7 @@ class DecorationDataHolder {
     openingHtmlTags.add(insertionIndex, newEntry);
   }
 
-  private void insertAndPreserveOrder(int newOffset, List<Integer> orderedOffsets) {
+  private static void insertAndPreserveOrder(int newOffset, List<Integer> orderedOffsets) {
     int insertionIndex = 0;
     Iterator<Integer> entriesIterator = orderedOffsets.iterator();
     while (entriesIterator.hasNext() && entriesIterator.next() <= newOffset) {

@@ -737,13 +737,12 @@ public class IssueIndex {
     AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
       RESOLUTIONS.getName(), RESOLUTIONS.getTopAggregationDef(), RESOLUTIONS.getNumberOfTerms(),
       NO_EXTRA_FILTER,
-      t -> {
+      t ->
         // add aggregation of type "missing" to return count of unresolved issues in the facet
         t.subAggregation(
           addEffortAggregationIfNeeded(query, AggregationBuilders
             .missing(RESOLUTIONS.getName() + FACET_SUFFIX_MISSING)
-            .field(RESOLUTIONS.getFieldName())));
-      });
+            .field(RESOLUTIONS.getFieldName()))));
     esRequest.aggregation(aggregation);
   }
 
@@ -862,12 +861,11 @@ public class IssueIndex {
         ASSIGNED_TO_ME.getTopAggregationDef(),
         ASSIGNED_TO_ME.getNumberOfTerms(),
         NO_EXTRA_FILTER,
-        t -> {
+        t ->
           // add sub-aggregation to return issue count for current user
           aggregationHelper.getSubAggregationHelper()
             .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
-            .ifPresent(t::subAggregation);
-        });
+            .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }
   }

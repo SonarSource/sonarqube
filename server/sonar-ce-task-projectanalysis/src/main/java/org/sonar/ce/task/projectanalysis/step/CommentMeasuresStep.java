@@ -108,8 +108,8 @@ public class CommentMeasuresStep implements ComputationStep {
           double nclocs = nclocsOpt.get().getIntValue();
           double comments = commentsOpt.get();
           double divisor = nclocs + comments;
-          if (divisor > 0d) {
-            double value = 100d * (comments / divisor);
+          if (divisor > 0D) {
+            double value = 100D * (comments / divisor);
             return Optional.of(Measure.newMeasureBuilder().create(value, context.getMetric().getDecimalScale()));
           }
         }
@@ -153,9 +153,9 @@ public class CommentMeasuresStep implements ComputationStep {
         && counter.getPublicUndocumentedApiValue().isPresent()) {
         double publicApis = counter.getPublicApiValue().get();
         double publicUndocumentedApis = counter.getPublicUndocumentedApiValue().get();
-        if (publicApis > 0d) {
+        if (publicApis > 0D) {
           double documentedAPI = publicApis - publicUndocumentedApis;
-          double value = 100d * (documentedAPI / publicApis);
+          double value = 100D * (documentedAPI / publicApis);
           return Optional.of(Measure.newMeasureBuilder().create(value, context.getMetric().getDecimalScale()));
         }
       }

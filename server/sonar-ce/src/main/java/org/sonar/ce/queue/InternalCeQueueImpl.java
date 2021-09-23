@@ -102,7 +102,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
     }
   }
 
-  private Optional<CeQueueDto> findPendingTask(String workerUuid, DbSession dbSession, CeQueueDao ceQueueDao, boolean excludeIndexationJob) {
+  private static Optional<CeQueueDto> findPendingTask(String workerUuid, DbSession dbSession, CeQueueDao ceQueueDao, boolean excludeIndexationJob) {
     // try to find tasks including indexation job & excluding app/portfolio
     // and if no match, try the opposite
     // when excludeIndexationJob is false, search first excluding indexation jobs and including app/portfolio, then the opposite

@@ -177,7 +177,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
       initUserAgent(userAgent, config);
     }
 
-    private void initProxy(AuthenticatorFacade system, Configuration config) {
+    private static void initProxy(AuthenticatorFacade system, Configuration config) {
       // register credentials
       Optional<String> login = config.get(HTTP_PROXY_USER);
       if (login.isPresent()) {

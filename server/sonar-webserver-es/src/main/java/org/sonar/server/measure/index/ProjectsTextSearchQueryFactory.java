@@ -61,14 +61,14 @@ class ProjectsTextSearchQueryFactory {
       @Override
       QueryBuilder getQuery(String queryText) {
         return matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), queryText)
-          .boost(2.5f);
+          .boost(2.5F);
       }
     },
     PREFIX {
       @Override
       QueryBuilder getQuery(String queryText) {
         return prefixAndPartialQuery(queryText, FIELD_NAME, FIELD_NAME)
-          .boost(2f);
+          .boost(2F);
       }
     },
     PREFIX_IGNORE_CASE {
@@ -76,7 +76,7 @@ class ProjectsTextSearchQueryFactory {
       QueryBuilder getQuery(String queryText) {
         String lowerCaseQueryText = queryText.toLowerCase(Locale.ENGLISH);
         return prefixAndPartialQuery(lowerCaseQueryText, SORTABLE_ANALYZER.subField(FIELD_NAME), FIELD_NAME)
-          .boost(3f);
+          .boost(3F);
       }
     },
     PARTIAL {
@@ -87,7 +87,7 @@ class ProjectsTextSearchQueryFactory {
           .map(text -> partialTermQuery(text, FIELD_NAME))
           .forEach(queryBuilder::must);
         return queryBuilder
-          .boost(0.5f);
+          .boost(0.5F);
       }
     },
     KEY {
@@ -95,7 +95,7 @@ class ProjectsTextSearchQueryFactory {
       QueryBuilder getQuery(String queryText) {
         return wildcardQuery(SORTABLE_ANALYZER.subField(FIELD_KEY), "*" + queryText + "*")
           .caseInsensitive(true)
-          .boost(50f);
+          .boost(50F);
       }
     };
 
