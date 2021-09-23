@@ -70,5 +70,6 @@ public class ProjectBranchesTest {
   public void isEmpty() {
     assertThat(underTest.isEmpty()).isFalse();
     assertThat(new ProjectBranches(Collections.emptyList()).isEmpty()).isTrue();
+    assertThat(new ProjectBranches(Collections.emptyList()).defaultBranchName()).isEqualTo("master");
   }
 }
