@@ -34,6 +34,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
+import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.gitlab.GitLabModule;
 import org.sonar.auth.ldap.LdapModule;
@@ -344,6 +345,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // authentication
       AuthenticationModule.class,
       AuthenticationWsModule.class,
+      BitbucketModule.class,
       GitHubModule.class,
       GitLabModule.class,
       LdapModule.class,

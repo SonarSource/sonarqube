@@ -12,6 +12,7 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'org.apache.tomcat.embed:tomcat-embed-core'
   compile project(':sonar-core')
+  compile project(':server:sonar-auth-bitbucket')
   compile project(':server:sonar-auth-github')
   compile project(':server:sonar-auth-gitlab')
   compile project(':server:sonar-auth-ldap')
