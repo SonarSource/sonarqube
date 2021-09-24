@@ -134,7 +134,7 @@ validate_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 6.5
-    memory: 16Gb
+    memory: 24Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   script:
