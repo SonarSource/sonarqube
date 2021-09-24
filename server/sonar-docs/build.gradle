@@ -98,10 +98,10 @@ clean.dependsOn(cleanYarn_run)
 }
 
 // Check for known vulnerabilities
-yarn_audit {
+task dependency_audit(type: Exec) {
   inputs.file('package.json')
   outputs.cacheIf { false }
-  args = ['--groups', 'dependencies', '--level', 'high']
+  commandLine 'yarn', 'npm', 'audit', '--environment', 'production', '--severity', 'high'
   ignoreExitValue = true
   dependsOn(yarn)
 }
