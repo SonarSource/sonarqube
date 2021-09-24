@@ -548,12 +548,6 @@ subprojects {
   if (file('package.json').exists()) {
     apply plugin: 'com.github.node-gradle.node'
 
-    node {
-      version = '14.17.5'
-      yarnVersion = '1.22.11'
-      download = true
-    }
-
     // the OWASP tool does not support yarn, and its yarn.lock files, so node modules
     // should be explicitly installed (yarn task) before running the audit
     // See https://github.com/jeremylong/DependencyCheck/issues/2393
