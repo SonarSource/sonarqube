@@ -171,7 +171,24 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @Test
-  public void take_largest_branches() {
+  public void take_largest_branch() {
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
+    db.measures().insertLiveMeasure(project, ncloc, m -> m.setValue(10d));
+    db.measures().insertLiveMeasure(branch1, ncloc, m -> m.setValue(20d));
+    db.measures().insertLiveMeasure(pr, ncloc, m -> m.setValue(15d));
+    projectMeasuresIndexer.indexAll();
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getNcloc()).isEqualTo(20L);
+  }
+
+  @Test
+  public void take_largest_branch_with_pr() {
     server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
     ComponentDto project = db.components().insertPublicProject();
@@ -184,7 +201,7 @@ public class TelemetryDataLoaderImplTest {
 
     TelemetryData data = communityUnderTest.load();
 
-    assertThat(data.getNcloc()).isEqualTo(20L);
+    assertThat(data.getNcloc()).isEqualTo(30L);
   }
 
   @Test

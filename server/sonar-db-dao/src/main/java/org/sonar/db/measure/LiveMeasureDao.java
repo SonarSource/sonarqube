@@ -28,7 +28,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.dialect.Dialect;
 
@@ -99,8 +98,7 @@ public class LiveMeasureDao implements Dao {
    * If Main Branch = 100 LOCs and the "largest branch" is 80 LOCs, I'm expecting to consider the value 100.
    */
   public long sumNclocOfBiggestBranch(DbSession dbSession, SumNclocDbQuery dbQuery) {
-    Long ncloc = mapper(dbSession).sumNclocOfBiggestBranch(
-      NCLOC_KEY, BranchType.BRANCH, dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
+    Long ncloc = mapper(dbSession).sumNclocOfBiggestBranch(NCLOC_KEY, dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
     return ncloc == null ? 0L : ncloc;
   }
 

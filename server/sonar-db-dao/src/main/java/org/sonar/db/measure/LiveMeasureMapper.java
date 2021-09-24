@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.db.component.BranchType;
 
 public interface LiveMeasureMapper {
 
@@ -57,7 +56,6 @@ public interface LiveMeasureMapper {
 
   Long sumNclocOfBiggestBranch(
     @Param("ncloc") String nclocKey,
-    @Param("branchType") BranchType branchType,
     @Param("private") Boolean privateProject,
     @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
 

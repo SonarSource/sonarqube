@@ -56,7 +56,7 @@
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc
       from live_measures lm
       inner join metrics m on m.uuid = lm.metric_uuid
-      inner join project_branches b on b.uuid = lm.component_uuid and b.branch_type = #{branchType, jdbcType=VARCHAR}
+      inner join project_branches b on b.uuid = lm.component_uuid
       inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
       <where>
         m.name = #{ncloc, jdbcType=VARCHAR}
