@@ -100,6 +100,10 @@ custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
     git fetch origin $CIRRUS_CHANGE_IN_REPO --depth=1
     git reset --hard $CIRRUS_CHANGE_IN_REPO
 
+profile_artifacts_template: &PROFILE_ARTIFACTS_TEMPLATE
+  profile_artifacts:
+    path: "**/build/reports/profile/**/*"
+
 build_task:
   <<: *YARN_CACHE_TEMPLATE
   only_if: >-
@@ -126,6 +130,8 @@ build_task:
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 validate_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
@@ -141,6 +147,8 @@ validate_task:
     - ./private/cirrus/cirrus-validate.sh postgres106
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 yarn_check-ci_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
@@ -152,9 +160,11 @@ yarn_check-ci_task:
     memory: 8Gb
   script: |
     ./private/cirrus/cirrus-env.sh YARN
-    gradle yarn_check-ci
+    gradle yarn_check-ci --profile
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 qa_task:
   <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
