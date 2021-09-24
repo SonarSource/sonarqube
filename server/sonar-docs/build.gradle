@@ -67,6 +67,10 @@ yarn_run {
   outputs.cacheIf { true }
   args = ['build']
 }
+build.dependsOn(yarn_run)
+
+avoidYarnInstallIfPossible(tasks, yarn, yarn_run);
+
 // To clean outputs outside of "build" directory:
 clean.dependsOn(cleanYarn_run)
 
@@ -97,12 +101,15 @@ clean.dependsOn(cleanYarn_run)
   dependsOn(yarn)
 }
 
+avoidYarnInstallIfPossible(tasks, yarn, tasks.getByName("yarn_validate-ci"));
+
 // Check for known vulnerabilities
 task dependency_audit(type: Exec) {
   inputs.file('package.json')
   outputs.cacheIf { false }
   commandLine 'yarn', 'npm', 'audit', '--environment', 'production', '--severity', 'high'
   ignoreExitValue = true
+
   dependsOn(yarn)
 }
 
