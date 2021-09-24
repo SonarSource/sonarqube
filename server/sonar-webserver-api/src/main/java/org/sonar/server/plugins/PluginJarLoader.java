@@ -57,8 +57,8 @@ public class PluginJarLoader {
   // List of plugins that are silently removed if installed
   private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport", "genericcoverage");
   // List of plugins that should prevent the server to finish its startup
-  private static final Set<String> FORBIDDEN_INCOMPATIBLE_PLUGINS = ImmutableSet
-    .of("sqale", "report", "views", "authgithub", "authgitlab", "authsaml", "ldap", "scmgit", "scmsvn");
+  private static final Set<String> FORBIDDEN_INCOMPATIBLE_PLUGINS = Set.of(
+    "sqale", "report", "views", "authgithub", "authgitlab", "authbitbucket", "authsaml", "ldap", "scmgit", "scmsvn");
 
   private static final String LOAD_ERROR_GENERIC_MESSAGE = "Startup failed: Plugins can't be loaded. See web logs for more information";
 
