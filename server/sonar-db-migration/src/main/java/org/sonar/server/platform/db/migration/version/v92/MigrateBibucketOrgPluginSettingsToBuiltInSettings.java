@@ -19,15 +19,23 @@
  */
 package org.sonar.server.platform.db.migration.version.v92;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
-public class DbVersion92 implements DbVersion {
+public class MigrateBibucketOrgPluginSettingsToBuiltInSettings extends DataChange {
+
+  public MigrateBibucketOrgPluginSettingsToBuiltInSettings(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6101, "Change size of column 'selection_expression' in 'Portfolios'", AlterSelectionExpressionInPortfoliosTable.class)
-      .add(6102, "Migrate Bitbucket.org authentication plugin settings to built-in authentication settings", MigrateBibucketOrgPluginSettingsToBuiltInSettings.class)
-    ;
+  protected void execute(Context context) throws SQLException {
+    Upsert upsert = context.prepareUpsert("update properties set prop_key = ? where prop_key = ?");
+    upsert.setString(1, "sonar.auth.bitbucket.workspaces");
+    upsert.setString(2, "sonar.auth.bitbucket.teams");
+    upsert.execute();
+    upsert.commit();
   }
 }

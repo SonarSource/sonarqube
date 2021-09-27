@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v92;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
 public class DbVersion92Test {
@@ -41,7 +41,7 @@ public class DbVersion92Test {
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 1);
+    verifyMigrationNotEmpty(underTest);
   }
 
 }
