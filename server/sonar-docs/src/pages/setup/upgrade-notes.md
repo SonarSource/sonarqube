@@ -3,6 +3,14 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.2 Upgrade Notes
+**Bitbucket Cloud authentication now embedded**
+Support for Bitbucket Cloud authentication is now embedded in SonarQube. If you're using the community plugin for Bitbucket Cloud authentication, you need to remove it before upgrading. 
+
+SonarQube reuses the settings from the plugin in the embedded implementation, so you do not need update them. The Teams restriction has been replaced with the Workspaces restriction. Your Team restriction settings will be migrated to Workspaces restriction settings automatically during upgrade. [MMF-2512](https://jira.sonarsource.com/browse/MMF-2512)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16959)
+
 ## Release 9.1 Upgrade Notes  
 **Secured settings no longer available in web services and on the scanner side**  
 This change especially affects the analysis of SVN projects but also, possibly, the use of some 3rd-party plugins. Secured settings required to perform the analysis now need to be passed to the scanner as parameters. ([MMF-2407](https://jira.sonarsource.com/browse/MMF-2407)).
@@ -12,6 +20,8 @@ The custom measures feature, which was previously deprecated, has been removed. 
 
 **Deprecated WebAPI endpoints and parameters removed**  
 The WebAPI endpoints and parameters deprecated during the 7.X release cycle have been removed. For a complete list of removed endpoints and parameters see [SONAR-15313](https://jira.sonarsource.com/browse/SONAR-15313).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16792)
 
 ## Release 9.0 Upgrade Notes  
 **Scanners require Java 11**  
