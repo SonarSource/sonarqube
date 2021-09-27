@@ -19,13 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { deletePortfolio, deleteProject } from '../../../api/components';
+import { deleteProject } from '../../../api/codescan';
+import { deletePortfolio } from '../../../api/components';
 import { mockRouter } from '../../../helpers/testMocks';
 import { Form } from '../Form';
 
 jest.mock('../../../api/components', () => ({
-  deleteProject: jest.fn().mockResolvedValue(undefined),
   deletePortfolio: jest.fn().mockResolvedValue(undefined)
+}));
+
+jest.mock('../../../api/codescan', () => ({
+  deleteProject: jest.fn().mockResolvedValue(undefined)
 }));
 
 beforeEach(() => {
@@ -33,24 +37,24 @@ beforeEach(() => {
 });
 
 it('should render', () => {
-  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
+  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK', organization: 'default' };
   const form = shallow(<Form component={component} router={mockRouter()} />);
   expect(form).toMatchSnapshot();
   expect(form.prop<Function>('children')({ onClick: jest.fn() })).toMatchSnapshot();
 });
 
 it('should delete project', async () => {
-  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
+  const component = { key: 'foo', name: 'Foo', qualifier: 'TRK', organization: 'default' };
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
-  expect(deleteProject).toBeCalledWith('foo');
+  expect(deleteProject).toBeCalledWith({ organizationId: 'default', projectKey: 'foo', projectDelete: true });
   await new Promise(setImmediate);
   expect(router.replace).toBeCalledWith('/');
 });
 
 it('should delete portfolio', async () => {
-  const component = { key: 'foo', name: 'Foo', qualifier: 'VW' };
+  const component = { key: 'foo', name: 'Foo', qualifier: 'VW', organization: 'default' };
   const router = mockRouter();
   const form = shallow(<Form component={component} router={router} />);
   form.prop<Function>('onConfirm')();
