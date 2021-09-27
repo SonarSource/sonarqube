@@ -19,6 +19,7 @@
  */
 import { Dispatch } from 'redux';
 import * as api from '../../api/organizations';
+import * as codescan from '../../api/codescan';
 import * as actions from '../../store/organizations';
 import { addGlobalSuccessMessage } from '../../store/globalMessages';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -34,7 +35,7 @@ export function updateOrganization(key: string, changes: T.OrganizationBase) {
 
 export function deleteOrganization(key: string) {
   return (dispatch: Dispatch<any>) => {
-    return api.deleteOrganization(key).then(() => {
+    return codescan.deleteOrganization(key).then(() => {
       dispatch(actions.deleteOrganization(key));
     });
   };

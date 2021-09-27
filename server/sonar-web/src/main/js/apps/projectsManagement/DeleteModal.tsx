@@ -23,7 +23,7 @@ import Modal from 'sonar-ui-common/components/controls/Modal';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { bulkDeleteProjects } from '../../api/components';
+import { deleteBulkProjects } from '../../api/codescan';
 
 export interface Props {
   analyzedBefore: Date | undefined;
@@ -68,7 +68,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
           qualifiers: this.props.qualifier,
           q: this.props.query || undefined
         };
-    bulkDeleteProjects(parameters).then(
+    deleteBulkProjects(parameters).then(
       () => {
         if (this.mounted) {
           this.props.onConfirm();
