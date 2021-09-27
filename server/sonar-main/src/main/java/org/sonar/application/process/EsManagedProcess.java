@@ -19,6 +19,7 @@
  */
 package org.sonar.application.process;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -38,15 +39,21 @@ import static org.sonar.application.process.EsManagedProcess.Status.YELLOW;
 public class EsManagedProcess extends AbstractManagedProcess {
   private static final Logger LOG = LoggerFactory.getLogger(EsManagedProcess.class);
   private static final int WAIT_FOR_UP_DELAY_IN_MILLIS = 100;
-  private static final int WAIT_FOR_UP_TIMEOUT = 10 * 60; /* 1min */
+  private static final Set<String> SUPPRESSED_ERROR_MESSAGES = Set.of("Connection refused", "Timeout connecting");
 
   private volatile boolean nodeOperational = false;
+  private final int waitForUpTimeout;
   private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
   private final EsConnector esConnector;
 
   public EsManagedProcess(Process process, ProcessId processId, EsConnector esConnector) {
+    this(process, processId, esConnector, 10 * 60);
+  }
+
+  EsManagedProcess(Process process, ProcessId processId, EsConnector esConnector, int waitForUpTimeout) {
     super(process, processId);
     this.esConnector = esConnector;
+    this.waitForUpTimeout = waitForUpTimeout;
   }
 
   @Override
@@ -81,7 +88,7 @@ public class EsManagedProcess extends AbstractManagedProcess {
         i++;
         status = checkStatus();
       }
-    } while (i < WAIT_FOR_UP_TIMEOUT);
+    } while (i < waitForUpTimeout);
     return status == YELLOW || status == GREEN;
   }
 
@@ -98,7 +105,7 @@ public class EsManagedProcess extends AbstractManagedProcess {
       }
       return KO;
     } catch (ElasticsearchException e) {
-      if (e.status() == RestStatus.INTERNAL_SERVER_ERROR  && e.getMessage().contains("Connection refused")) {
+      if (e.status() == RestStatus.INTERNAL_SERVER_ERROR && (SUPPRESSED_ERROR_MESSAGES.stream().anyMatch(s -> e.getMessage().contains(s)))) {
         return CONNECTION_REFUSED;
       } else {
         LOG.error("Failed to check status", e);
