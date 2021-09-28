@@ -154,6 +154,21 @@ public class JwtSerializerTest {
   }
 
   @Test
+  public void return_no_token_if_none_algorithm() {
+    setSecretKey(A_SECRET_KEY);
+    underTest.start();
+
+    String token = Jwts.builder()
+      .setId("123")
+      .setSubject(USER_LOGIN)
+      .setIssuedAt(new Date(system2.now()))
+      .setExpiration(addMinutes(new Date(), 20))
+      .compact();
+
+    assertThat(underTest.decode(token)).isEmpty();
+  }
+
+  @Test
   public void fail_to_decode_token_when_no_id() {
     setSecretKey(A_SECRET_KEY);
     underTest.start();
