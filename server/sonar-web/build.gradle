@@ -24,12 +24,8 @@ yarn_run {
   outputs.dir(webappDir)
   outputs.cacheIf { true }
   args = ['build-release']
-
-  dependsOn(yarn)
 }
 build.dependsOn(yarn_run)
-
-avoidYarnInstallIfPossible(tasks, yarn, yarn_run);
 
 "yarn_check-ci" {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
@@ -58,15 +54,12 @@ avoidYarnInstallIfPossible(tasks, yarn, yarn_run);
   dependsOn(yarn)
 }
 
-avoidYarnInstallIfPossible(tasks, yarn, tasks.getByName("yarn_validate-ci"));
-
 // Check for known vulnerabilities
 task dependency_audit(type: Exec) {
   inputs.file('package.json')
   outputs.cacheIf { false }
   commandLine 'yarn', 'npm', 'audit', '--environment', 'production', '--severity', 'high'
   ignoreExitValue = true
-
   dependsOn(yarn)
 }
 

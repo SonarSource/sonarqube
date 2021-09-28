@@ -666,36 +666,3 @@ dependencyUpdates {
     rejected
   }
 }
-
-// Hack to avoid unecessary yarn install.
-// This will create a avoidInstallTask task on which both installTask & runTask will depend.
-// installTask is disabled and will only be activated by avoidInstallTask when it is executed
-// Because it is set to share the same dependencies, avoidInstallTask will be executed only if
-// the runTask will be executed
-ext.avoidYarnInstallIfPossible = { taskList, installTask, runTask -> 
-  // Disable the yarn install task
-  installTask.enabled = false;
-
-  def avoidInstallTask = taskList.register('avoidInstallTask_' + runTask.name) {
-    // Copy all inputs and outputs
-    runTask.inputs.getFiles().each { fi -> 
-      if (fi.isDirectory()) inputs.dir(fi)
-      else inputs.file(fi)
-    }
-    runTask.outputs.getFiles().each { fi -> 
-      if (fi.isDirectory()) outputs.dir(fi)
-      else outputs.file(fi)
-    }
-
-    outputs.cacheIf { true }
-
-    // Activate the yarn install task
-    doLast {
-      installTask.enabled = true
-    }
-  }
-
-  runTask.dependsOn(installTask)
-  runTask.dependsOn(avoidInstallTask)
-  installTask.dependsOn(avoidInstallTask)
-}
