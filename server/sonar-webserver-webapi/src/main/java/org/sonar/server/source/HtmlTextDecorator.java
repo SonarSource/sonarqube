@@ -92,7 +92,7 @@ class HtmlTextDecorator {
     return decoratedHtmlLines;
   }
 
-  private void addCharToCurrentLine(CharactersReader charsReader, StringBuilder currentHtmlLine, DecorationDataHolder decorationDataHolder) {
+  private static void addCharToCurrentLine(CharactersReader charsReader, StringBuilder currentHtmlLine, DecorationDataHolder decorationDataHolder) {
     if (shouldStartNewLine(charsReader)) {
       if (shouldReopenPendingTags(charsReader)) {
         reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
