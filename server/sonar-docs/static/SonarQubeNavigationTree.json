@@ -104,6 +104,7 @@
     "children": [
       "/user-guide/concepts/",
       "/user-guide/clean-as-you-code/",
+      "/user-guide/connected-mode/",
       "/user-guide/metric-definitions/",
       "/user-guide/quality-gates/",
       {
@@ -129,7 +130,6 @@
       "/user-guide/activity-history/",
       "/user-guide/project-page/",
       "/user-guide/visualizations/",
-      "/user-guide/sonarlint-notifications/",
       "/user-guide/keyboard-shortcuts/"
     ]
   },
