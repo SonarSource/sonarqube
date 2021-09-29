@@ -1,9 +1,9 @@
 ---
-title: Jenkins
+title: Jenkins Integration
 url: /analysis/jenkins/
 ---
 
-SonarScanners running in Jenkins can automatically detect branches and Merge or Pull Requests in certain jobs. You don't need to explicitly pass the branch or Pull Request details.
+SonarScanners running in Jenkins can automatically detect branches and Merge or pull requests in certain jobs. You don't need to explicitly pass the branch or pull request details.
 
 ## Analysis Prerequisites
 
