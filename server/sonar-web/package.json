@@ -141,7 +141,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "build-release": "node scripts/build.js release",
+    "build-release": "yarn install --immutable && node scripts/build.js release",
     "test": "jest",
     "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
     "format-check": "prettier --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
@@ -149,9 +149,10 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn test --coverage --ci",
-    "check-ci": "yarn ts-check && yarn format-check",
-    "precommit": "yarn ts-check && lint-staged"
+    "validate-ci": "yarn install --immutable && yarn lint-report && yarn test --coverage --ci",
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
+    "precommit": "yarn ts-check && lint-staged",
+    "audit-ci": "yarn npm audit --environment production --severity high"
   },
   "engines": {
     "node": ">=8"

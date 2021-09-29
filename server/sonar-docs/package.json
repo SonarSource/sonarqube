@@ -64,7 +64,7 @@
     "unist-util-visit": "2.0.2"
   },
   "scripts": {
-    "build": "gatsby clean && gatsby build --prefix-paths",
+    "build": "yarn install --immutable && yarn gatsby clean && yarn gatsby build --prefix-paths",
     "develop": "gatsby develop",
     "graphql-types": "gql-gen --url http://localhost:8000/___graphql --template typescript --out ./src/@types/graphql-types.d.ts",
     "test": "jest",
@@ -74,8 +74,9 @@
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report.json src",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn lint-report && yarn test --coverage --ci --reporters=default --reporters=jest-junit",
-    "check-ci": "yarn ts-check && yarn format-check"
+    "validate-ci": "yarn install --immutable && yarn lint-report && yarn test --coverage --ci --reporters=default --reporters=jest-junit",
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
+    "audit-ci": "yarn npm audit --environment production --severity high"
   },
   "prettier": {
     "jsxBracketSameLine": true,

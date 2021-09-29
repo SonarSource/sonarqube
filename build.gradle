@@ -5,7 +5,6 @@ plugins {
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.13' apply false
   id 'com.jfrog.artifactory' version '4.21.0'
-  id 'com.github.node-gradle.node' version '3.1.0' apply false
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
   id 'org.owasp.dependencycheck' version '6.3.1'
@@ -543,15 +542,6 @@ subprojects {
       }
     }
     ide.dependsOn(['generateProto', 'generateTestProto'])
-  }
-
-  if (file('package.json').exists()) {
-    apply plugin: 'com.github.node-gradle.node'
-
-    // the OWASP tool does not support yarn, and its yarn.lock files, so node modules
-    // should be explicitly installed (yarn task) before running the audit
-    // See https://github.com/jeremylong/DependencyCheck/issues/2393
-    dependencyCheckAggregate.dependsOn(yarn)
   }
 
   if (official) {

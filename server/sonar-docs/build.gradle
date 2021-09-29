@@ -55,9 +55,8 @@ task extractAnalyzerDocFiles {
   }
 }
 
-yarn_run {
+task yarn_run(type: Exec) {
   def docsVersion = version.split("[.-]").take(2).join('.')
-  environment = [ GATSBY_DOCS_VERSION: docsVersion ]
   inputs.property('version', docsVersion)
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
   ['gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
@@ -65,12 +64,16 @@ yarn_run {
   }
   outputs.dir('public')
   outputs.cacheIf { true }
-  args = ['build']
+
+  environment += [ GATSBY_DOCS_VERSION: docsVersion ]
+  commandLine 'npm', 'run', 'build'
 }
+build.dependsOn(yarn_run)
+
 // To clean outputs outside of "build" directory:
 clean.dependsOn(cleanYarn_run)
 
-"yarn_check-ci" {
+tasks.register("yarn_check-ci", Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
     inputs.dir(it)
@@ -79,10 +82,10 @@ clean.dependsOn(cleanYarn_run)
     inputs.file(it)
   }
 
-  dependsOn(yarn)
+  commandLine 'npm', 'run', 'check-ci'
 }
 
-"yarn_validate-ci" {
+tasks.register("yarn_validate-ci", Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
     inputs.dir(it)
@@ -94,16 +97,16 @@ clean.dependsOn(cleanYarn_run)
   outputs.dir('coverage')
   outputs.cacheIf { true }
 
-  dependsOn(yarn)
+  commandLine 'npm', 'run', 'validate-ci'
 }
 
 // Check for known vulnerabilities
 task dependency_audit(type: Exec) {
   inputs.file('package.json')
   outputs.cacheIf { false }
-  commandLine 'yarn', 'npm', 'audit', '--environment', 'production', '--severity', 'high'
   ignoreExitValue = true
-  dependsOn(yarn)
+
+  commandLine 'npm', 'run', 'audit-ci'
 }
 
 task zip(type: Zip) {

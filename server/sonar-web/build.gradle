@@ -10,11 +10,9 @@ sonarqube {
   }
 }
 
-apply plugin: 'com.github.node-gradle.node'
-
 def webappDir = "${buildDir}/webapp"
 
-yarn_run {
+task yarn_run(type: Exec) {
   ['config', 'public', 'scripts', 'src', '../sonar-docs/src'].each {
     inputs.dir(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
@@ -23,23 +21,12 @@ yarn_run {
   }
   outputs.dir(webappDir)
   outputs.cacheIf { true }
-  args = ['build-release']
+
+  commandLine 'npm', 'run', 'build-release'
 }
 build.dependsOn(yarn_run)
 
-"yarn_check-ci" {
-  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
-  ['config', 'src'].each {
-    inputs.dir(it)
-  }
-  ['package.json', 'yarn.lock', 'tsconfig.json'].each {
-    inputs.file(it)
-  }
-
-  dependsOn(yarn)
-}
-
-"yarn_validate-ci" {
+tasks.register("yarn_validate-ci", Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js'].each {
     inputs.dir(it)
@@ -51,16 +38,28 @@ build.dependsOn(yarn_run)
   outputs.dir('coverage')
   outputs.cacheIf { true }
 
-  dependsOn(yarn)
+  commandLine 'npm', 'run', 'validate-ci'
+}
+
+tasks.register("yarn_check-ci", Exec) {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'src'].each {
+    inputs.dir(it)
+  }
+  ['package.json', 'yarn.lock', 'tsconfig.json'].each {
+    inputs.file(it)
+  }
+
+  commandLine 'npm', 'run', 'check-ci'
 }
 
 // Check for known vulnerabilities
 task dependency_audit(type: Exec) {
   inputs.file('package.json')
   outputs.cacheIf { false }
-  commandLine 'yarn', 'npm', 'audit', '--environment', 'production', '--severity', 'high'
   ignoreExitValue = true
-  dependsOn(yarn)
+  
+  commandLine 'npm', 'run', 'audit-ci'
 }
 
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "__mocks__")
