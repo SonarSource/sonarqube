@@ -2,7 +2,8 @@ language: java
 sudo: required
 install: true
 jdk: openjdk11
-node_js: '14.17.5'
+node_js:
+  - 14
 script: ./travis.sh
 dist: bionic
 
