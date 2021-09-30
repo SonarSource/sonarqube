@@ -1,5 +1,5 @@
 configurations {
-  testCompile.extendsFrom(compileOnly)
+  testImplementation.extendsFrom(compileOnly)
 }
 
 configureCompileJavaToVersion 8
@@ -31,7 +31,7 @@ jar {
     )
   }
   into('META-INF/lib') {
-    from configurations.compile
+    from configurations.compileClasspath
   }
 }
 

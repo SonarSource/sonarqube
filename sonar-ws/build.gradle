@@ -8,7 +8,7 @@ sonarqube {
 configureCompileJavaToVersion 8
 
 configurations {
-  testCompile.extendsFrom(compileOnly)
+  testImplementation.extendsFrom(compileOnly)
 }
 
 dependencies {

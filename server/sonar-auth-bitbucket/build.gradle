@@ -1,7 +1,7 @@
 description = 'SonarQube :: Authentication :: Bitbucket'
 
 configurations {
-    testCompile.extendsFrom compileOnly
+    testImplementation.extendsFrom compileOnly
 }
 
 dependencies {

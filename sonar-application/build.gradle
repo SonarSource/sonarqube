@@ -90,7 +90,7 @@ task downloadElasticSearch(type: Download) {
   finalizedBy verifyElasticSearchDownload
 }
 
-task zip(type: Zip, dependsOn: [configurations.compile, downloadElasticSearch, verifyElasticSearchDownload]) {
+task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElasticSearch, verifyElasticSearchDownload]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$project.version"
 
