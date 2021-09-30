@@ -1,7 +1,7 @@
 description = 'SonarQube :: Authentication :: SAML'
 
 configurations {
-    testCompile.extendsFrom compileOnly
+    testImplementation.extendsFrom compileOnly
 }
 
 ext {

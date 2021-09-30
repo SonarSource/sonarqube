@@ -33,10 +33,9 @@ dependencies {
   testCompile project(':sonar-plugin-api-impl')
 }
 
-sourceSets {
+configurations {
   // Make the compileOnly dependencies available when compiling/running tests
-  test.compileClasspath += configurations.compileOnly + configurations.shadow
-  test.runtimeClasspath += configurations.compileOnly + configurations.shadow
+  testImplementation.extendsFrom compileOnly
 }
 
 def on3Digits(version) {
@@ -54,7 +53,7 @@ processResources {
 }
 
 shadowJar {
-  configurations = [project.configurations.default]
+  configurations = [project.configurations.runtimeClasspath]
   minimize {
     exclude(project(':sonar-check-api'))
   }
