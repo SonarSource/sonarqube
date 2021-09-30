@@ -33,8 +33,8 @@ configurations {
 
 jar.enabled = false
 shadowJar {
-  baseName = 'sonar-application'
-  classifier = null
+  archiveBaseName = 'sonar-application'
+  archiveClassifier = null
   mergeServiceFiles()
   manifest {
     attributes('Main-Class': 'org.sonar.application.App')
