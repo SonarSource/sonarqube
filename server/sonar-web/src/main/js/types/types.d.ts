@@ -218,6 +218,7 @@ declare namespace T {
   export interface CurrentUser {
     isLoggedIn: boolean;
     permissions?: { global: string[] };
+    usingSonarLintConnectedMode?: boolean;
   }
 
   export interface CurrentUserSetting {

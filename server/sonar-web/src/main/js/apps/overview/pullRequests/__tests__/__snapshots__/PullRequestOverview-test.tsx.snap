@@ -53,6 +53,28 @@ exports[`should render correctly for a failed QG 1`] = `
           }
           level="ERROR"
         />
+        <Connect(withCurrentUser(SonarLintPromotion))
+          qgConditions={
+            Array [
+              Object {
+                "actual": "10",
+                "error": "1.0",
+                "level": "OK",
+                "metric": "new_bugs",
+                "op": "GT",
+                "period": 1,
+              },
+              Object {
+                "actual": "10",
+                "error": "1.0",
+                "level": "ERROR",
+                "metric": "new_code_smells",
+                "op": "GT",
+                "period": 1,
+              },
+            ]
+          }
+        />
       </div>
       <div
         className="pr-overview-failed-conditions big-spacer-right"
@@ -1401,6 +1423,9 @@ exports[`should render correctly for a passed QG 1`] = `
             }
           }
           level="OK"
+        />
+        <Connect(withCurrentUser(SonarLintPromotion))
+          qgConditions={Array []}
         />
       </div>
       <div

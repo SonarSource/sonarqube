@@ -23,7 +23,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { QualityGateConditions } from '../components/QualityGateConditions';
+import QualityGateConditions from '../components/QualityGateConditions';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;

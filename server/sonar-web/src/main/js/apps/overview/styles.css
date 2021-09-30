@@ -30,6 +30,11 @@
   border: 1px solid var(--barBorderColor);
 }
 
+.overview-quality-gate-sonar-lint-info {
+  padding: 8px 16px;
+  border: 1px solid var(--barBorderColor);
+}
+
 .overview-panel-title {
   text-transform: uppercase;
   font-weight: 600;
@@ -247,6 +252,10 @@
   width: 240px;
   min-height: 160px;
   color: var(--transparentWhite);
+}
+
+.pr-overview .overview-quality-gate-sonar-lint-info {
+  width: 207px;
 }
 
 .pr-pverview .overview-measures-row {

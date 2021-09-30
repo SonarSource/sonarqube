@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { flatMap } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { QualityGateStatus } from '../../../types/quality-gates';
+import SonarLintPromotion from '../components/SonarLintPromotion';
 import QualityGatePanelSection from './QualityGatePanelSection';
 
 export interface QualityGatePanelProps {
@@ -116,6 +118,9 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
           </>
         )}
       </div>
+      <SonarLintPromotion
+        qgConditions={flatMap(qgStatuses, qgStatus => qgStatus.failedConditions)}
+      />
     </div>
   );
 }

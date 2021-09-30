@@ -37,6 +37,7 @@ import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
 import MeasurementLabel from '../components/MeasurementLabel';
 import QualityGateConditions from '../components/QualityGateConditions';
+import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
 import { MeasurementType, PR_METRICS } from '../utils';
 import AfterMergeEstimate from './AfterMergeEstimate';
@@ -197,6 +198,8 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
                 />
               </h2>
               <LargeQualityGateBadge component={component} level={status} />
+
+              <SonarLintPromotion qgConditions={conditions} />
             </div>
 
             {failedConditions.length > 0 && (
