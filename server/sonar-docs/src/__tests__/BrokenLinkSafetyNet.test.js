@@ -72,16 +72,19 @@ it('should have valid links in trees files', () => {
 it('should have valid links in suggestions file', () => {
   const file = 'EmbedDocsSuggestions.json';
   const suggestions = JSON.parse(fs.readFileSync(path.join(rootPath, file), 'utf8'));
-  let hasErrors = false;
-  Object.keys(suggestions).forEach(key => {
-    suggestions[key].forEach(suggestion => {
+  const hasErrors = Object.keys(suggestions).some(key => {
+    return suggestions[key].some(suggestion => {
       if (!suggestion.link.startsWith('/documentation/')) {
-        console.log(`[${suggestion.link}] should starts with "/documentation/", in ${file}`);
-        hasErrors = true;
-      } else if (!urlExists(parsedFiles, suggestion.link.replace('/documentation', ''))) {
-        console.log(`[${suggestion.link}] is not a valid link, in ${file}`);
-        hasErrors = true;
+        console.log(
+          `[${suggestion.link}] should starts with "/documentation/" or be a valid url, in ${file}`
+        );
+        return true;
       }
+      if (!urlExists(parsedFiles, suggestion.link.replace('/documentation', ''))) {
+        console.log(`[${suggestion.link}] is not a valid link, in ${file}`);
+        return true;
+      }
+      return false;
     });
   });
   expect(hasErrors).toBe(false);

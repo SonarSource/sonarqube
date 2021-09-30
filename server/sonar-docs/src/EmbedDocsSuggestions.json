@@ -24,43 +24,9 @@
       "text": "Metric Definitions"
     }
   ],
-  "extension_billing": [
-    {
-      "link": "/documentation/sonarcloud-pricing/",
-      "text": "Pricing",
-      "scope": "sonarcloud"
-    }
-  ],
-  "global_permissions": [
-    {
-      "link": "/documentation/organizations/manage-team/",
-      "text": "Manage a Team",
-      "scope": "sonarcloud"
-    }
-  ],
+  "global_permissions": [],
   "issues": [],
   "marketplace": [],
-  "organization_members": [
-    {
-      "link": "/documentation/organizations/manage-team/",
-      "text": "Manage a Team",
-      "scope": "sonarcloud"
-    }
-  ],
-  "organization_projects": [
-    {
-      "link": "/documentation/organizations/manage-team/",
-      "text": "Manage a Team",
-      "scope": "sonarcloud"
-    }
-  ],
-  "organization_space": [
-    {
-      "link": "/documentation/organizations/overview/",
-      "text": "Organizations",
-      "scope": "sonarcloud"
-    }
-  ],
   "overview": [
     {
       "link": "/documentation/analysis/pull-request/",
@@ -73,6 +39,10 @@
     {
       "link": "/documentation/user-guide/clean-as-you-code/",
       "text": "Clean as You Code"
+    },
+    {
+      "link": "/documentation/user-guide/connected-mode/",
+      "text": "SonarLint connected mode"
     }
   ],
   "permission_templates": [],
@@ -101,20 +71,8 @@
       "text": "About Quality Profiles"
     }
   ],
-  "projects_management": [
-    {
-      "link": "/documentation/analysis/overview/",
-      "text": "Analyze a Project",
-      "scope": "sonarcloud"
-    }
-  ],
-  "projects": [
-    {
-      "link": "/documentation/analysis/overview/",
-      "text": "Analyze a Project",
-      "scope": "sonarcloud"
-    }
-  ],
+  "projects_management": [],
+  "projects": [],
   "pull_requests": [
     {
       "link": "/documentation/user-guide/clean-as-you-code/",
@@ -123,6 +81,10 @@
     {
       "link": "/documentation/analysis/pull-request/",
       "text": "Analyzing Pull Requests"
+    },
+    {
+      "link": "/documentation/user-guide/connected-mode/",
+      "text": "SonarLint connected mode"
     }
   ],
   "quality_gates": [
@@ -145,13 +107,7 @@
   ],
   "settings": [],
   "system_info": [],
-  "user_groups": [
-    {
-      "link": "/documentation/organizations/manage-team/",
-      "text": "Manage a Team",
-      "scope": "sonarcloud"
-    }
-  ],
+  "user_groups": [],
   "users": [],
   "webhooks": [
     {
