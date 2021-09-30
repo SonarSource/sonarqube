@@ -2,10 +2,11 @@ language: java
 sudo: required
 install: true
 jdk: openjdk11
-node_js:
-  - 14
 script: ./travis.sh
 dist: bionic
+
+before_install:
+  - nvm install 14
 
 branches:
   except:
