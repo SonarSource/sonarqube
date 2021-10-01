@@ -26,6 +26,7 @@ const esbuild = require('esbuild');
 const http = require('http');
 const httpProxy = require('http-proxy');
 const getConfig = require('../config/esbuild-config');
+const { getMessages } = require('./utils');
 
 const port = process.env.PORT || 3000;
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
@@ -33,6 +34,19 @@ const host = process.env.HOST || 'localhost';
 const proxyTarget = process.env.PROXY || 'http://localhost:9000';
 
 const config = getConfig(false);
+
+function handleL10n(res) {
+  getMessages()
+    .then(messages => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
+    })
+    .catch(e => {
+      console.error(e);
+      res.writeHead(500);
+      res.end(e);
+    });
+}
 
 function run() {
   console.log('starting...');
@@ -67,6 +81,8 @@ function run() {
         .createServer((req, res) => {
           if (req.url.match(/js\/out/)) {
             esbuildProxy.web(req, res);
+          } else if (req.url.match(/l10n\/index/)) {
+            handleL10n(res);
           } else {
             proxy.web(
               req,
