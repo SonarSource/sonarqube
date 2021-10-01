@@ -656,3 +656,16 @@ dependencyUpdates {
     rejected
   }
 }
+
+
+ext.osAdaptiveCommand = { commands ->
+    def newCommands = []
+    
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+      newCommands = ['cmd', '/c']
+    }
+
+    newCommands.addAll(commands)
+
+    return newCommands
+}

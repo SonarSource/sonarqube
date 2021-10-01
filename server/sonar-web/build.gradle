@@ -22,7 +22,7 @@ task yarn_run(type: Exec) {
   outputs.dir(webappDir)
   outputs.cacheIf { true }
 
-  commandLine 'npm', 'run', 'build-release'
+  commandLine osAdaptiveCommand(['npm', 'run', 'build-release'])
 }
 build.dependsOn(yarn_run)
 
@@ -38,7 +38,7 @@ tasks.register("yarn_validate-ci", Exec) {
   outputs.dir('coverage')
   outputs.cacheIf { true }
 
-  commandLine 'npm', 'run', 'validate-ci'
+  commandLine osAdaptiveCommand(['npm', 'run', 'validate-ci'])
 }
 
 tasks.register("yarn_check-ci", Exec) {
@@ -50,7 +50,7 @@ tasks.register("yarn_check-ci", Exec) {
     inputs.file(it)
   }
 
-  commandLine 'npm', 'run', 'check-ci'
+  commandLine osAdaptiveCommand(['npm', 'run', 'check-ci'])
 }
 
 // Check for known vulnerabilities
@@ -59,7 +59,7 @@ task dependency_audit(type: Exec) {
   outputs.cacheIf { false }
   ignoreExitValue = true
   
-  commandLine 'npm', 'run', 'audit-ci'
+  commandLine osAdaptiveCommand(['npm', 'run', 'audit-ci'])
 }
 
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "__mocks__")

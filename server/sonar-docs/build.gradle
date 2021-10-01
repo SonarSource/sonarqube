@@ -66,7 +66,7 @@ task yarn_run(type: Exec) {
   outputs.cacheIf { true }
 
   environment += [ GATSBY_DOCS_VERSION: docsVersion ]
-  commandLine 'npm', 'run', 'build'
+  commandLine osAdaptiveCommand(['npm', 'run', 'build'])
 }
 build.dependsOn(yarn_run)
 
@@ -82,7 +82,7 @@ tasks.register("yarn_check-ci", Exec) {
     inputs.file(it)
   }
 
-  commandLine 'npm', 'run', 'check-ci'
+  commandLine osAdaptiveCommand(['npm', 'run', 'check-ci'])
 }
 
 tasks.register("yarn_validate-ci", Exec) {
@@ -97,7 +97,7 @@ tasks.register("yarn_validate-ci", Exec) {
   outputs.dir('coverage')
   outputs.cacheIf { true }
 
-  commandLine 'npm', 'run', 'validate-ci'
+  commandLine osAdaptiveCommand(['npm', 'run', 'validate-ci'])
 }
 
 // Check for known vulnerabilities
@@ -106,7 +106,7 @@ task dependency_audit(type: Exec) {
   outputs.cacheIf { false }
   ignoreExitValue = true
 
-  commandLine 'npm', 'run', 'audit-ci'
+  commandLine osAdaptiveCommand(['npm', 'run', 'audit-ci'])
 }
 
 task zip(type: Zip) {
