@@ -113,8 +113,8 @@ build_task:
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 4
-    memory: 7Gb
+    cpu: 7.5
+    memory: 8Gb
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
