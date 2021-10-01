@@ -103,8 +103,8 @@ public class CurrentActionTest {
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getSettingsList)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", Collections.emptyList());
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getSettingsList, CurrentWsResponse::getUsingSonarLintConnectedMode)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", Collections.emptyList(), false);
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
@@ -225,6 +225,16 @@ public class CurrentActionTest {
   }
 
   @Test
+  public void handle_givenSonarLintUserInDatabase_returnSonarLintUserFromTheEndpoint() {
+    UserDto user = db.users().insertUser(u -> u.setLastSonarlintConnectionDate(System.currentTimeMillis()));
+    userSession.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getUsingSonarLintConnectedMode()).isTrue();
+  }
+
+  @Test
   public void test_definition() {
     WebService.Action definition = ws.getDef();
     assertThat(definition.key()).isEqualTo("current");
@@ -234,7 +244,7 @@ public class CurrentActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).isEmpty();
-    assertThat(definition.changelog()).hasSize(2);
+    assertThat(definition.changelog()).hasSize(3);
   }
 
   private CurrentWsResponse call() {

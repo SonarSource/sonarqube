@@ -86,7 +86,8 @@ public class CurrentAction implements UsersWsAction {
       .setResponseExample(getClass().getResource("current-example.json"))
       .setChangelog(
         new Change("6.5", "showOnboardingTutorial is now returned in the response"),
-        new Change("7.1", "'parameter' is replaced by 'component' and 'organization' in the response"));
+        new Change("7.1", "'parameter' is replaced by 'component' and 'organization' in the response"),
+        new Change("9.2", "boolean 'usingSonarLintConnectedMode' field is now returned in the response"));
   }
 
   @Override
@@ -119,7 +120,8 @@ public class CurrentAction implements UsersWsAction {
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setShowOnboardingTutorial(!user.isOnboarded())
-      .addAllSettings(loadUserSettings(dbSession, user));
+      .addAllSettings(loadUserSettings(dbSession, user))
+      .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);

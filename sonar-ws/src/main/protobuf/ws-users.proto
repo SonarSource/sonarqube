@@ -111,6 +111,7 @@ message CurrentWsResponse {
   optional string avatar = 12;
   optional Homepage homepage = 13;
   repeated Setting settings = 15;
+  optional bool usingSonarLintConnectedMode = 16;
 
   message Permissions {
     repeated string global = 1;
