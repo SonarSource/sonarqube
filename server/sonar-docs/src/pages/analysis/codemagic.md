@@ -6,13 +6,16 @@ url: /analysis/codemagic/
 SonarScanners running in Codemagic can automatically detect branches and merge or pull requests in certain jobs. You don't need to explicitly pass the branch or pull request details.
 
 ## Adding SonarQube scripts to your Codemagic .yml file
-To analyze your code when using Codemagic, you need to add the following scripts to your existing `codemagic.yaml` file:
+To analyze your code when using Codemagic:
+
+1. Add the following scripts to your existing `codemagic.yaml` file:
 
 ```
     scripts:   
       - |
-        # download and install SonarQube
+        # download and install the SonarScanner
         wget -O $FCI_BUILD_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-macosx.zip
+        # If running in a Linux environment, download https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip 
         unzip $FCI_BUILD_DIR/sonar-scanner.zip
         mv sonar-scanner-* sonar-scanner
       - |
@@ -23,7 +26,7 @@ To analyze your code when using Codemagic, you need to add the following scripts
         -Dsonar.host.url=SONARQUBE_URL \
 ```
 
-You also need to define `SONAR_TOKEN` as a Codemagic environment variable.
+2. Define `SONAR_TOKEN` as a Codemagic environment variable.
 
 ## Automatically detecting pull requests
 For SonarQube to automatically detect pull requests when using Codemagic, you need to add an event in the triggering section of your `codemagic.yaml` file as shown in the following snippet:
@@ -44,4 +47,3 @@ Caching the `.sonar` folder saves time on subsequent analyses. To do this, add t
       cache_paths:
         - ~/.sonar
 ```
-
