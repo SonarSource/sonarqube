@@ -629,13 +629,6 @@ subprojects {
   }
 }
 
-// by default, Yarn will update lock file if it is not up to date with "package.json"
-// using option "--immutable" will disable this behavior and "yarn install" will fail if lock file is out of date
-// all "yarn install" tasks should be executed with this option for reproducibility of builds
-// and to prevent developers from forgetting to update lock file when they update "package.json"
-def yarnInstallTasks = allprojects.findResults { it -> it.tasks.findByName('yarn') }
-yarnInstallTasks.each { it -> it.args = ['--immutable'] }
-
 // https://github.com/ben-manes/gradle-versions-plugin
 apply plugin: 'com.github.ben-manes.versions'
 dependencyUpdates {
