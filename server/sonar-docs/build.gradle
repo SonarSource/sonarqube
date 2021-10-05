@@ -109,6 +109,13 @@ task dependency_audit(type: Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'audit-ci'])
 }
 
+task dependencyCheckAggregate_prerequisites(type: Exec) {
+  // the OWASP tool does not support yarn and its yarn.lock files, so node modules
+  // should be explicitly installed (yarn install) before running the audit
+  // See https://github.com/jeremylong/DependencyCheck/issues/2393
+  commandLine osAdaptiveCommand(['yarn', 'install', '--immutable'])
+}
+
 task zip(type: Zip) {
   def archiveDir = "$version"
   duplicatesStrategy DuplicatesStrategy.EXCLUDE

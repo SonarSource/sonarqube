@@ -650,6 +650,12 @@ dependencyUpdates {
   }
 }
 
+gradle.projectsEvaluated { gradle ->
+  // Execute dependencyCheckAggregate prerequisites before the actual check
+  allprojects
+    .findResults { it -> it.tasks.findByName('dependencyCheckAggregate_prerequisites') }
+    .each { t -> dependencyCheckAggregate.dependsOn(t) }
+}
 
 ext.osAdaptiveCommand = { commands ->
     def newCommands = []

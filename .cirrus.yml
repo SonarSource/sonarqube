@@ -558,6 +558,7 @@ owasp_check_task:
            $CIRRUS_CRON == "weekly-latest" ||
            $CIRRUS_CRON == "weekly-lts" ||
            changesInclude('private/owasp/*.xml')
+  <<: *YARN_CACHE_TEMPLATE
   timeout_in: 30m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
