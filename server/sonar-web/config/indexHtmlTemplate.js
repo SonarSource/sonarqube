@@ -1,3 +1,23 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2021 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+module.exports = (cssHash, jsHash) => `
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,7 +40,7 @@
     <meta name="msapplication-TileImage" content="%WEB_CONTEXT%/mstile-512x512.png" />
     <title>%INSTANCE%</title>
 
-    <link rel="stylesheet" href="%WEB_CONTEXT%/js/out.css">
+    <link rel="stylesheet" href="%WEB_CONTEXT%/js/out${cssHash}.css">
 </head>
 
 <body>
@@ -38,7 +58,8 @@
         window.official = %OFFICIAL%;
     </script>
 
-    <script type="module" src="%WEB_CONTEXT%/js/out.js"></script>
+    <script type="module" src="%WEB_CONTEXT%/js/out${jsHash}.js"></script>
 </body>
 
 </html>
+`;

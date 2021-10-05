@@ -39,7 +39,7 @@ async function build() {
   console.log(chalk.cyan.bold(`Creating ${release ? 'optimized' : 'fast'} production build...`));
   console.log();
 
-  await esbuild.build(getConfig(release));
+  await esbuild.build(getConfig(release)).catch(() => process.exit(1));
 
   console.log(chalk.green.bold('Compiled successfully!'));
   console.log(chalk.cyan(Math.round(performance.now() - start), 'ms'));

@@ -22,26 +22,12 @@ const postCssPlugin = require('esbuild-plugin-postcss2').default;
 const postCssCalc = require('postcss-calc');
 const postCssCustomProperties = require('postcss-custom-properties');
 const documentationPlugin = require('./esbuild-documentation-plugin');
+const htmlPlugin = require('./esbuild-html-plugin');
+const htmlTemplate = require('./indexHtmlTemplate');
 const { getCustomProperties } = require('./utils');
 
-module.exports = release => ({
-  entryPoints: ['src/main/js/app/index.ts'],
-  tsconfig: './tsconfig.json',
-  external: ['/images/*'],
-  loader: {
-    '.png': 'dataurl',
-    '.md': 'text'
-  },
-  define: {
-    'process.cwd': 'dummy_process_cwd'
-  },
-  inject: ['config/process-shim.js'],
-  bundle: true,
-  minify: release,
-  sourcemap: true,
-  target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
-  outfile: 'build/webapp/js/out.js',
-  plugins: [
+module.exports = release => {
+  const plugins = [
     postCssPlugin({
       plugins: [
         autoprefixer,
@@ -53,5 +39,33 @@ module.exports = release => ({
       ]
     }),
     documentationPlugin()
-  ]
-});
+  ];
+
+  if (release) {
+    // Only create index.html from template when releasing
+    // The devserver will generate its own index file from the template
+    plugins.push(htmlPlugin());
+  }
+
+  return {
+    entryPoints: ['src/main/js/app/index.ts'],
+    tsconfig: './tsconfig.json',
+    external: ['/images/*'],
+    loader: {
+      '.png': 'dataurl',
+      '.md': 'text'
+    },
+    define: {
+      'process.cwd': 'dummy_process_cwd'
+    },
+    inject: ['config/process-shim.js'],
+    bundle: true,
+    minify: release,
+    metafile: true,
+    sourcemap: true,
+    target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
+    outdir: 'build/webapp/js',
+    entryNames: release ? 'out[hash]' : 'out',
+    plugins
+  };
+};

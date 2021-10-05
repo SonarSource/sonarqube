@@ -27,6 +27,10 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 const getConfig = require('../config/esbuild-config');
 const { getMessages } = require('./utils');
+const paths = require('../config/paths');
+
+const STATUS_OK = 200;
+const STATUS_ERROR = 500;
 
 const port = process.env.PORT || 3000;
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
@@ -38,14 +42,37 @@ const config = getConfig(false);
 function handleL10n(res) {
   getMessages()
     .then(messages => {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.writeHead(STATUS_OK, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
     })
     .catch(e => {
       console.error(e);
-      res.writeHead(500);
+      res.writeHead(STATUS_ERROR);
       res.end(e);
     });
+}
+
+function handleStaticFileRequest(req, res) {
+  fs.readFile(paths.appBuild + req.url, (err, data) => {
+    if (err) {
+      // Any unknown path should go to the index.html
+      const htmlTemplate = require('../config/indexHtmlTemplate');
+
+      // Replace hash placeholders as well as all the
+      // tags that are usually replaced by the server
+      const content = htmlTemplate('', '')
+        .replace(/%WEB_CONTEXT%/g, '')
+        .replace(/%SERVER_STATUS%/g, 'UP')
+        .replace(/%INSTANCE%/g, 'SonarQube')
+        .replace(/%OFFICIAL%/g, 'true');
+
+      res.writeHead(STATUS_OK);
+      res.end(content);
+    } else {
+      res.writeHead(STATUS_OK);
+      res.end(data);
+    }
+  });
 }
 
 function run() {
@@ -83,7 +110,11 @@ function run() {
             esbuildProxy.web(req, res);
           } else if (req.url.match(/l10n\/index/)) {
             handleL10n(res);
-          } else {
+          } else if (
+            req.url.includes('api/') ||
+            req.url.includes('images/') ||
+            req.url.includes('static/')
+          ) {
             proxy.web(
               req,
               res,
@@ -92,6 +123,8 @@ function run() {
               },
               e => console.error('req error', e)
             );
+          } else {
+            handleStaticFileRequest(req, res);
           }
         })
         .listen(port);
