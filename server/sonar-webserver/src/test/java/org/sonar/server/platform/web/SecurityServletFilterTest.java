@@ -90,6 +90,10 @@ public class SecurityServletFilterTest {
     verify(response).addHeader("X-Frame-Options", "SAMEORIGIN");
     verify(response).addHeader("X-XSS-Protection", "1; mode=block");
     verify(response).addHeader("X-Content-Type-Options", "nosniff");
+    verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    verify(response).addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+    verify(response).addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   @Test
@@ -101,6 +105,10 @@ public class SecurityServletFilterTest {
     verify(response, never()).addHeader(eq("X-Frame-Options"), anyString());
     verify(response).addHeader("X-XSS-Protection", "1; mode=block");
     verify(response).addHeader("X-Content-Type-Options", "nosniff");
+    verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    verify(response).addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+    verify(response).addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   @Test
@@ -115,6 +123,10 @@ public class SecurityServletFilterTest {
     verify(response, never()).addHeader(eq("X-Frame-Options"), anyString());
     verify(response).addHeader("X-XSS-Protection", "1; mode=block");
     verify(response).addHeader("X-Content-Type-Options", "nosniff");
+    verify(response).addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    verify(response).addHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    verify(response).addHeader("Permissions-Policy", "microphone=(), geolocation=(), fullscreen=(self)");
+    verify(response).addHeader("Content-Security-Policy", "upgrade-insecure-requests");
   }
 
   private static HttpServletRequest newRequest(String httpMethod, String path) {
