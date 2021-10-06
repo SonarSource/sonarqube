@@ -45,7 +45,8 @@ public interface Issue extends Serializable {
    * is truncated to 4_000 / 3 (maximum bytes per UTF-8 character)
    * = 1_333 characters.
    */
-  int MESSAGE_MAX_SIZE = 1_333;
+  /* Limit increased to allow detailed issue message*/
+  int MESSAGE_MAX_SIZE = 2700;
 
   /**
    * Default status when creating an issue.
