@@ -20,7 +20,12 @@
 
 package io.codescan.sonarqube.codescanhosted.scanner;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.MessageException;
@@ -44,9 +49,27 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
 
     private static final String BRANCH_TYPE = "sonar.branch.type";
 
+    private static final Set<String> BRANCH_ANALYSIS_PARAMETERS =
+            new HashSet<>(Collections.singletonList(ScannerProperties.BRANCH_NAME));
+
+    private static final Set<String> PULL_REQUEST_ANALYSIS_PARAMETERS = new HashSet<>(
+            Arrays.asList(ScannerProperties.PULL_REQUEST_BRANCH, ScannerProperties.PULL_REQUEST_KEY,
+                    ScannerProperties.PULL_REQUEST_BASE));
+
     @Override
     public BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches,
             ProjectPullRequests pullRequests) {
+
+        if (BRANCH_ANALYSIS_PARAMETERS.stream().anyMatch(projectSettings::containsKey)) {
+            return createBranchConfiguration(projectSettings, branches);
+        } else if (PULL_REQUEST_ANALYSIS_PARAMETERS.stream().anyMatch(projectSettings::containsKey)) {
+            return createPullRequestConfiguration(projectSettings, branches);
+        }
+
+        return new DefaultBranchConfiguration();
+    }
+
+    private BranchConfiguration createBranchConfiguration(Map<String, String> projectSettings, ProjectBranches branches) {
         String branchName = StringUtils.trimToNull(projectSettings.get(ScannerProperties.BRANCH_NAME));
         String branchTarget = StringUtils.trimToNull(projectSettings.get(ScannerProperties.BRANCH_TARGET));
         String targetScmBranch = branchTarget;
@@ -55,11 +78,6 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
         // No branch config. Use default settings.
         if (branchName == null && branchTarget == null) {
             return new DefaultBranchConfiguration();
-        }
-
-        String pullRequestKey = null;
-        if (branchType == BranchType.PULL_REQUEST) {
-            pullRequestKey = projectSettings.get(ScannerProperties.PULL_REQUEST_KEY);
         }
 
         // Else we are using branch feature... always need a branch name.
@@ -137,7 +155,24 @@ public class CodeScanBranchConfigurationLoader implements BranchConfigurationLoa
             branchType = BranchType.BRANCH;
             LOG.debug("sonar.branch.type set: {}", branchType);
         }
-        return new CodeScanBranchConfiguration(branchType, branchName, targetScmBranch, referenceBranchName, pullRequestKey);
+        return new CodeScanBranchConfiguration(branchType, branchName, targetScmBranch, referenceBranchName, null);
+    }
+
+    private static BranchConfiguration createPullRequestConfiguration(Map<String, String> projectSettings, ProjectBranches branches) {
+        String pullRequestKey = projectSettings.get(ScannerProperties.PULL_REQUEST_KEY);
+        String pullRequestBranch = projectSettings.get(ScannerProperties.PULL_REQUEST_BRANCH);
+        String pullRequestBase = projectSettings.get(ScannerProperties.PULL_REQUEST_BASE);
+
+        if (null == pullRequestBase || pullRequestBase.isEmpty()) {
+            return new CodeScanBranchConfiguration(BranchType.PULL_REQUEST, pullRequestBranch,
+                    branches.defaultBranchName(), branches.defaultBranchName(), pullRequestKey);
+        } else {
+            return new CodeScanBranchConfiguration(BranchType.PULL_REQUEST, pullRequestBranch,
+                    Optional.ofNullable(branches.get(pullRequestBase))
+                            .map(b -> pullRequestBase)
+                            .orElse(null),
+                    pullRequestBase, pullRequestKey);
+        }
     }
 
     private BranchType convertBranchType(String branchType) {

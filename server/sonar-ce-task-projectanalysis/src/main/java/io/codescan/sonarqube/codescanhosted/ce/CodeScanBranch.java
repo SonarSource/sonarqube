@@ -37,17 +37,19 @@ import org.sonar.db.component.ComponentDto;
 class CodeScanBranch implements Branch {
 
     private final String branchName;
-    private final String referenceBranchUuid;
-    private final String targetBranchName;
     private final BranchType branchType;
     private final boolean isMain;
+    private final String referenceBranchUuid;
+    private final String pullRequestKey;
+    private final String targetBranchName;
 
-    CodeScanBranch(final String branchName, @Nullable final String referenceBranchUuid, final BranchType branchType,
-            final boolean isMain, final String targetBranchName) {
+    CodeScanBranch(final String branchName, final BranchType branchType, final boolean isMain,
+            @Nullable final String referenceBranchUuid, final String pullRequestKey, final String targetBranchName) {
         this.branchName = branchName;
-        this.referenceBranchUuid = referenceBranchUuid;
         this.branchType = branchType;
         this.isMain = isMain;
+        this.referenceBranchUuid = referenceBranchUuid;
+        this.pullRequestKey = pullRequestKey;
         this.targetBranchName = targetBranchName;
 
         //kee is 255 long...
@@ -63,8 +65,16 @@ class CodeScanBranch implements Branch {
         }
     }
 
+    public String getName() {
+        return this.branchName;
+    }
+
     public BranchType getType() {
         return this.branchType;
+    }
+
+    public boolean isMain() {
+        return this.isMain;
     }
 
     @Override
@@ -73,43 +83,42 @@ class CodeScanBranch implements Branch {
     }
 
     @Override
+    public boolean supportsCrossProjectCpd() {
+        return isMain;
+    }
+
+    @Override
+    public String getPullRequestKey() {
+        if (BranchType.PULL_REQUEST != branchType) {
+            throw new IllegalStateException("Only a branch of type PULL_REQUEST can have a pull request ID");
+        }
+        return pullRequestKey;
+    }
+
+    @Override
     public String getTargetBranchName() {
         return targetBranchName;
     }
 
-    public boolean isMain() {
-        return this.isMain;
-    }
-
-    public String getName() {
-        return this.branchName;
-    }
-
-    public boolean supportsCrossProjectCpd() {
-        return this.isMain;
-    }
-
     public String generateKey(String projectKey, @javax.annotation.Nullable String fileOrDirPath) {
-        String key;
+        String effectiveKey;
         if (isEmpty(fileOrDirPath)) {
-            key = projectKey;
+            effectiveKey = projectKey;
         } else {
-            key = ComponentKeys.createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
+            effectiveKey = ComponentKeys.createEffectiveKey(projectKey, trimToNull(fileOrDirPath));
         }
-        return generateKey(key);
 
+        return generateKey(effectiveKey);
     }
 
     public String generateKey(String projectKey) {
         if (this.isMain) {
             return projectKey;
         }
+        if (BranchType.PULL_REQUEST == branchType) {
+            return ComponentDto.generatePullRequestKey(projectKey, pullRequestKey);
+        }
         return ComponentDto.generateBranchKey(projectKey, this.branchName);
-    }
-
-    @Override
-    public String getPullRequestKey() {
-        return null;
     }
 
     public String toString() {
