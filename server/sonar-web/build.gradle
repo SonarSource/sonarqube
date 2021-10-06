@@ -26,7 +26,7 @@ task yarn_run(type: Exec) {
 }
 build.dependsOn(yarn_run)
 
-tasks.register("yarn_validate-ci", Exec) {
+task "yarn_validate-ci"(type: Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js'].each {
     inputs.dir(it)
@@ -41,7 +41,7 @@ tasks.register("yarn_validate-ci", Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'validate-ci'])
 }
 
-tasks.register("yarn_check-ci", Exec) {
+task "yarn_check-ci"(type: Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
     inputs.dir(it)
