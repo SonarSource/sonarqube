@@ -21,7 +21,9 @@
 package io.codescan.sonarqube.codescanhosted.ce;
 
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchLoaderDelegate;
 import org.sonar.db.DbClient;
@@ -45,28 +47,63 @@ public class CodeScanBranchLoaderDelegate implements BranchLoaderDelegate {
         this.metadataHolder = metadataHolder;
     }
 
-    public void load(final ScannerReport.Metadata metadata) {
-        this.metadataHolder.setBranch(doload(metadata));
+    @Override
+    public void load(@Nonnull ScannerReport.Metadata metadata) {
+        Branch branch = load(metadata, metadataHolder.getProject());
+
+        metadataHolder.setBranch(branch);
+        metadataHolder.setPullRequestKey(metadata.getPullRequestKey());
     }
 
-    private CodeScanBranch doload(final ScannerReport.Metadata metadata) {
-        String referenceBranch = StringUtils.trimToNull(metadata.getReferenceBranchName());
-        String targetBranch = StringUtils.trimToNull(metadata.getTargetBranchName());
-
-        //get the branch name or default to master
+    private Branch load(final ScannerReport.Metadata metadata, Project project) {
+        String targetBranchName = StringUtils.trimToNull(metadata.getTargetBranchName());
         String branchName = StringUtils.trimToNull(metadata.getBranchName());
+        String projectUuid = StringUtils.trimToNull(project.getUuid());
+
+        // Get the branch name or default to master.
         if (branchName == null) {
-            String projectUuid = StringUtils.trimToNull(this.metadataHolder.getProject().getUuid());
             Optional<BranchDto> branchDto = findBranchByProjectUuid(projectUuid);
             if (branchDto.isPresent()) {
                 BranchDto dto = branchDto.get();
-                return new CodeScanBranch(dto.getKey(), null, dto.getBranchType(), dto.isMain(), null);
+                return new CodeScanBranch(dto.getKey(), dto.getBranchType(), dto.isMain(), null, null, targetBranchName);
             } else {
                 throw new IllegalStateException("Could not find main branch");
             }
-        }
+        } else {
+            String targetBranch = StringUtils.trimToNull(metadata.getReferenceBranchName());
+            ScannerReport.Metadata.BranchType branchType = metadata.getBranchType();
 
-        //find an existing target branch
+            if (ScannerReport.Metadata.BranchType.PULL_REQUEST == branchType) {
+                if (targetBranchName == null) {
+                    targetBranchName = targetBranch;
+                }
+                return createPullRequest(metadata, branchName, projectUuid, targetBranch, targetBranchName);
+            } else if (ScannerReport.Metadata.BranchType.BRANCH == branchType) {
+                return createBranch(metadata, branchName, projectUuid, targetBranch, targetBranchName);
+            } else {
+                throw new IllegalStateException(String.format("Invalid branch type '%s'", branchType.name()));
+            }
+        }
+    }
+
+    private Branch createPullRequest(ScannerReport.Metadata metadata, String branchName,
+            String projectUuid, String targetBranch, String targetBranchName) {
+        Optional<BranchDto> branchDto = findBranchByKey(projectUuid, targetBranch);
+        if (branchDto.isPresent()) {
+            String pullRequestKey = metadata.getPullRequestKey();
+
+            BranchDto dto = branchDto.get();
+            return new CodeScanBranch(branchName, BranchType.PULL_REQUEST, false, dto.getUuid(), pullRequestKey,
+                    targetBranchName);
+        } else {
+            throw new IllegalStateException(
+                    String.format("Could not find target branch '%s' in project", targetBranch));
+        }
+    }
+
+    private Branch createBranch(ScannerReport.Metadata metadata, String branchName, String projectUuid,
+            String referenceBranch, String targetBranchName) {
+        // Find an existing target branch.
         boolean isMain = false;
         BranchType branchType = this.convertBranchType(metadata.getBranchType());
         final Optional<BranchDto> branchDto = this.findBranchByKey(branchName);
@@ -84,15 +121,14 @@ public class CodeScanBranchLoaderDelegate implements BranchLoaderDelegate {
         //find the target branch...
         String referenceBranchUuid = null;
         if (referenceBranch != null) {
-            referenceBranchUuid = this.findReferenceBranchUuid(referenceBranch);
+            referenceBranchUuid = findReferenceBranchUuid(projectUuid, referenceBranch);
         } else if (branchType == BranchType.PULL_REQUEST) {
             throw new IllegalArgumentException(
                     String.format("Branch target for '%s' not set, so branch type should be BRANCH but is '%s'",
                             branchName, branchType));
         }
 
-        // Set the output branch...
-        return new CodeScanBranch(branchName, referenceBranchUuid, branchType, isMain, targetBranch);
+        return new CodeScanBranch(branchName, branchType, isMain, referenceBranchUuid, null, targetBranchName);
     }
 
     private BranchType convertBranchType(final ScannerReport.Metadata.BranchType branchType) {
@@ -107,9 +143,8 @@ public class CodeScanBranchLoaderDelegate implements BranchLoaderDelegate {
         }
     }
 
-    private String findReferenceBranchUuid(final String branchName) {
-        final Project project = this.metadataHolder.getProject();
-        final Optional<BranchDto> branch = this.findBranchByKey(project.getUuid(), branchName);
+    private String findReferenceBranchUuid(String projectUuid, String branchName) {
+        final Optional<BranchDto> branch = this.findBranchByKey(projectUuid, branchName);
         if (branch.isPresent()) {
             final BranchDto branchDto = branch.get();
             if (branchDto.getBranchType() == BranchType.BRANCH) {
