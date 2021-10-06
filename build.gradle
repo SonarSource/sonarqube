@@ -655,6 +655,15 @@ gradle.projectsEvaluated { gradle ->
   allprojects
     .findResults { it -> it.tasks.findByName('dependencyCheckAggregate_prerequisites') }
     .each { t -> dependencyCheckAggregate.dependsOn(t) }
+
+  // yarn_run tasks can't all run in parallel without yarn's global cache being populated
+  // this script add a dependency on all yarn_run tasks to the sonar-web yarn_run task
+  // this way we are sure that the yarn global cache is available and populated before running the
+  // rest of the yarn_run tasks in parrallel
+  def yarnRunTasks = allprojects.findResults { it -> it.tasks.findByName('yarn_run') }
+  def sonarWebyarnRunTask = yarnRunTasks.find { t -> t.project.name == 'sonar-web' }
+  yarnRunTasks.remove(sonarWebyarnRunTask)
+  yarnRunTasks.each { t -> t.mustRunAfter(sonarWebyarnRunTask) }
 }
 
 ext.osAdaptiveCommand = { commands ->
