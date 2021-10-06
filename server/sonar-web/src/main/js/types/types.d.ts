@@ -343,6 +343,7 @@ declare namespace T {
     effort?: string;
     externalRuleEngine?: string;
     fromExternalRule?: boolean;
+    quickFixAvailable?: boolean;
     key: string;
     flows: FlowLocation[][];
     fromHotspot: boolean;

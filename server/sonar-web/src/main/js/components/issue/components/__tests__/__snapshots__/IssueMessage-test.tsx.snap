@@ -2,7 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <div
-  className="issue-message break-word"
+  className="display-inline-flex-center issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -21,7 +21,7 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: is deprecated rule 1`] = `
 <div
-  className="issue-message break-word"
+  className="display-inline-flex-center issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -58,7 +58,7 @@ exports[`should render correctly: is deprecated rule 1`] = `
 
 exports[`should render correctly: is manual vulnerability 1`] = `
 <div
-  className="issue-message break-word"
+  className="display-inline-flex-center issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -86,7 +86,7 @@ exports[`should render correctly: is manual vulnerability 1`] = `
 
 exports[`should render correctly: is removed rule 1`] = `
 <div
-  className="issue-message break-word"
+  className="display-inline-flex-center issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -123,7 +123,7 @@ exports[`should render correctly: is removed rule 1`] = `
 
 exports[`should render correctly: with engine info 1`] = `
 <div
-  className="issue-message break-word"
+  className="display-inline-flex-center issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -151,7 +151,7 @@ exports[`should render correctly: with engine info 1`] = `
 
 exports[`should render correctly: with engine name 1`] = `
 <div
-  className="issue-message break-word"
+  className="display-inline-flex-center issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -174,5 +174,49 @@ exports[`should render correctly: with engine name 1`] = `
       JS
     </div>
   </Tooltip>
+</div>
+`;
+
+exports[`should render correctly: with quick fix 1`] = `
+<div
+  className="display-inline-flex-center issue-message break-word"
+>
+  <span
+    className="spacer-right"
+  >
+    Reduce the number of conditional operators (4) used in the expression
+  </span>
+  <Tooltip
+    mouseLeaveDelay={0.5}
+    overlay={
+      <FormattedMessage
+        defaultMessage="issue.quick_fix_available_with_sonarlint"
+        id="issue.quick_fix_available_with_sonarlint"
+        values={
+          Object {
+            "link": <a
+              href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              SonarLint
+            </a>,
+          }
+        }
+      />
+    }
+  >
+    <SonarLintIcon
+      className="spacer-right"
+      size={15}
+    />
+  </Tooltip>
+  <ButtonLink
+    aria-label="issue.why_this_issue.long"
+    className="issue-see-rule spacer-right text-baseline"
+    onClick={[Function]}
+  >
+    issue.why_this_issue
+  </ButtonLink>
 </div>
 `;

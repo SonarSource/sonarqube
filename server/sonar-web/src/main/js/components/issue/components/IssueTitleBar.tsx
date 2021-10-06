@@ -81,6 +81,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
               externalRulesRepoNames &&
               externalRulesRepoNames[issue.externalRuleEngine]
             }
+            quickFixAvailable={issue.quickFixAvailable}
             manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
             message={issue.message}
             onOpenRule={openRule}
