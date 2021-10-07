@@ -28,6 +28,7 @@ public class DbVersion92 implements DbVersion {
     registry
       .add(6101, "Change size of column 'selection_expression' in 'Portfolios'", AlterSelectionExpressionInPortfoliosTable.class)
       .add(6102, "Migrate Bitbucket.org authentication plugin settings to built-in authentication settings", MigrateBibucketOrgPluginSettingsToBuiltInSettings.class)
+      .add(6103, "Create column quick_fix_available in 'issues'", AddQuickFixAvailableColumnInIssuesTable.class)
     ;
   }
 }

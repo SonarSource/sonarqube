@@ -107,6 +107,7 @@ public class IssueDaoTest {
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
     assertThat(issue.isExternal()).isTrue();
+    assertThat(issue.isQuickFixAvailable()).isNull();
   }
 
   @Test
@@ -272,6 +273,38 @@ public class IssueDaoTest {
   }
 
   @Test
+  public void selectByKey_givenOneIssueWithQuickFix_selectOneIssueWithQuickFix() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
+      .setMessage("the message")
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID)
+      .setQuickFixAvailable(true));
+
+    IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+
+    assertThat(issue.getKee()).isEqualTo(ISSUE_KEY1);
+    assertThat(issue.isQuickFixAvailable()).isTrue();
+  }
+
+  @Test
+  public void selectByKey_givenOneIssueWithoutQuickFix_selectOneIssueWithoutQuickFix() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
+      .setMessage("the message")
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID)
+      .setQuickFixAvailable(false));
+
+    IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+
+    assertThat(issue.getKee()).isEqualTo(ISSUE_KEY1);
+    assertThat(issue.isQuickFixAvailable()).isFalse();
+  }
+
+  @Test
   public void selectGroupsOfComponentTreeOnLeak_on_file() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
@@ -434,13 +467,18 @@ public class IssueDaoTest {
     dto.setIssueCreationTime(1_450_000_000_000L);
     dto.setIssueUpdateTime(1_450_000_000_000L);
     dto.setIssueCloseTime(1_450_000_000_000L);
+    dto.setQuickFixAvailable(null);
     return dto;
   }
 
-  private void prepareTables() {
+  private void prepareIssuesComponent() {
     db.rules().insertRule(RULE.setIsExternal(true));
     ComponentDto projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
     db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setDbKey(FILE_KEY));
+  }
+
+  private void prepareTables() {
+    prepareIssuesComponent();
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
       .setRuleUuid(RULE.getUuid())

@@ -38,7 +38,8 @@
     p.path as filePath,
     root.kee as projectKey,
     i.project_uuid as projectUuid,
-    i.issue_type as type
+    i.issue_type as type,
+    i.quick_fix_available as quickFixAvailable
   </sql>
 
    <sql id="issueColumnsInInnerQuery">
@@ -97,7 +98,7 @@
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
     message, line, locations, gap, effort, status, tags,
     resolution, checksum, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type)
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -112,7 +113,8 @@
     #{issueAttributes,jdbcType=VARCHAR},
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
-    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER})
+    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
+    #{quickFixAvailable, jdbcType=BOOLEAN})
   </insert>
 
   <!--
