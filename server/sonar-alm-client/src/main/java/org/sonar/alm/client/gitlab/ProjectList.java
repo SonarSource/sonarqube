@@ -20,15 +20,17 @@
 package org.sonar.alm.client.gitlab;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class ProjectList {
 
   private final List<Project> projects;
   private final int pageNumber;
   private final int pageSize;
-  private final int total;
+  private final Integer total;
 
-  public ProjectList(List<Project> projects, int pageNumber, int pageSize, int total) {
+  public ProjectList(List<Project> projects, int pageNumber, int pageSize, @Nullable Integer total) {
     this.projects = projects;
     this.pageNumber = pageNumber;
     this.pageSize = pageSize;
@@ -47,7 +49,8 @@ public class ProjectList {
     return pageSize;
   }
 
-  public int getTotal() {
+  @CheckForNull
+  public Integer getTotal() {
     return total;
   }
 }

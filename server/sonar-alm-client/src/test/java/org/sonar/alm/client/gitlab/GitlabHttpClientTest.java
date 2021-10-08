@@ -244,6 +244,42 @@ public class GitlabHttpClientTest {
   }
 
   @Test
+  public void search_projects_dont_fail_if_no_x_total() throws InterruptedException {
+    MockResponse projects = new MockResponse()
+      .setResponseCode(200)
+      .setBody("[\n"
+        + "  {\n"
+        + "    \"id\": 1,\n"
+        + "    \"name\": \"SonarQube example 1\",\n"
+        + "    \"name_with_namespace\": \"SonarSource / SonarQube / SonarQube example 1\",\n"
+        + "    \"path\": \"sonarqube-example-1\",\n"
+        + "    \"path_with_namespace\": \"sonarsource/sonarqube/sonarqube-example-1\",\n"
+        + "    \"web_url\": \"https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1\"\n"
+        + "  }"
+        + "]");
+    projects.addHeader("X-Page", 1);
+    projects.addHeader("X-Per-Page", 10);
+    server.enqueue(projects);
+
+    ProjectList projectList = underTest.searchProjects(gitlabUrl, "pat", "example", 1, 10);
+
+    assertThat(projectList.getPageNumber()).isEqualTo(1);
+    assertThat(projectList.getPageSize()).isEqualTo(10);
+    assertThat(projectList.getTotal()).isNull();
+
+    assertThat(projectList.getProjects()).hasSize(1);
+    assertThat(projectList.getProjects()).extracting(
+      Project::getId, Project::getName, Project::getNameWithNamespace, Project::getPath, Project::getPathWithNamespace, Project::getWebUrl).containsExactly(
+      tuple(1L, "SonarQube example 1", "SonarSource / SonarQube / SonarQube example 1", "sonarqube-example-1", "sonarsource/sonarqube/sonarqube-example-1",
+        "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"));
+
+    RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
+    String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
+    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=example&page=1&per_page=10");
+    assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
+  }
+
+  @Test
   public void search_projects_with_case_insensitive_pagination_headers() throws InterruptedException {
     MockResponse projects1 = new MockResponse()
       .setResponseCode(200)

@@ -34,6 +34,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.logging.log4j.util.Strings;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -312,7 +313,8 @@ public class GitlabHttpClient {
       List<Project> projectList = Project.parseJsonArray(response.body().string());
       int returnedPageNumber = parseAndGetIntegerHeader(headers.get("X-Page"));
       int returnedPageSize = parseAndGetIntegerHeader(headers.get("X-Per-Page"));
-      int totalProjects = parseAndGetIntegerHeader(headers.get("X-Total"));
+      String xtotal = headers.get("X-Total");
+      Integer totalProjects = Strings.isEmpty(xtotal) ? null : parseAndGetIntegerHeader(xtotal);
       return new ProjectList(projectList, returnedPageNumber, returnedPageSize, totalProjects);
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to search projects. Got a non-json payload as result.");
