@@ -186,6 +186,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.2", "Response field 'quickFixAvailable' added"),
         new Change("9.1", "Deprecated parameters 'authors', 'facetMode' and 'moduleUuids' were dropped"),
         new Change("8.6", "Parameter 'timeZone' added"),
         new Change("8.5", "Facet 'fileUuids' is dropped in favour of the new facet 'files'" +

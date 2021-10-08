@@ -202,6 +202,10 @@ public class SearchResponseFormat {
     ofNullable(dto.getIssueCreationDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCreationDate);
     ofNullable(dto.getIssueUpdateDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setUpdateDate);
     ofNullable(dto.getIssueCloseDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCloseDate);
+
+    ofNullable(dto.isQuickFixAvailable())
+      .ifPresentOrElse(issueBuilder::setQuickFixAvailable, () -> issueBuilder.setQuickFixAvailable(false));
+
     issueBuilder.setScope(Qualifiers.UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
   }
 
