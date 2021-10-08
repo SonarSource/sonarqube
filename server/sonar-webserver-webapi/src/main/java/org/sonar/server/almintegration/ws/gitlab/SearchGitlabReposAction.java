@@ -123,13 +123,16 @@ public class SearchGitlabReposAction implements AlmIntegrationsWsAction {
         .map(project -> toGitlabRepository(project, sqProjectsKeyByGitlabProjectId))
         .collect(toList());
 
+      Paging.Builder pagingBuilder = Paging.newBuilder()
+        .setPageIndex(gitlabProjectList.getPageNumber())
+        .setPageSize(gitlabProjectList.getPageSize());
+      Integer gitlabProjectListTotal = gitlabProjectList.getTotal();
+      if (gitlabProjectListTotal != null) {
+        pagingBuilder.setTotal(gitlabProjectListTotal);
+      }
       return AlmIntegrations.SearchGitlabReposWsResponse.newBuilder()
         .addAllRepositories(gitlabRepositories)
-        .setPaging(Paging.newBuilder()
-          .setPageIndex(gitlabProjectList.getPageNumber())
-          .setPageSize(gitlabProjectList.getPageSize())
-          .setTotal(gitlabProjectList.getTotal())
-          .build())
+        .setPaging(pagingBuilder.build())
         .build();
     }
   }
