@@ -80,3 +80,9 @@ export interface QualityGateStatusCondition {
 export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCondition {
   measure: T.MeasureEnhanced;
 }
+
+export interface SearchPermissionsParameters {
+  qualityGate: string;
+  q?: string;
+  selected?: 'all' | 'selected' | 'deselected';
+}

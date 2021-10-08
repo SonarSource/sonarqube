@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockUser } from '../../../../helpers/testMocks';
+import PermissionItem from '../PermissionItem';
 
-export enum Permissions {
-  Admin = 'admin',
-  ProjectCreation = 'provisioning',
-  ApplicationCreation = 'applicationcreator',
-  QualityGateAdmin = 'gateadmin'
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
+
+function shallowRender() {
+  return shallow(<PermissionItem user={mockUser()} />);
 }

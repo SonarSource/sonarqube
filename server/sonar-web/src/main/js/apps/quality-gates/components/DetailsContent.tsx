@@ -19,12 +19,17 @@
  */
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { hasGlobalPermission } from '../../../helpers/users';
+import { Permissions } from '../../../types/permissions';
 import Conditions from './Conditions';
 import Projects from './Projects';
+import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
+  currentUser: T.CurrentUser;
   isDefault?: boolean;
   metrics: T.Dict<T.Metric>;
   onAddCondition: (condition: T.Condition) => void;
@@ -35,9 +40,11 @@ export interface DetailsContentProps {
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { isDefault, metrics, qualityGate, updatedConditionId } = props;
+  const { currentUser, isDefault, metrics, qualityGate, updatedConditionId } = props;
   const conditions = qualityGate.conditions || [];
-  const actions = qualityGate.actions || ({} as any);
+  const actions = qualityGate.actions || {};
+
+  const displayPermissions = hasGlobalPermission(currentUser, Permissions.QualityGateAdmin);
 
   return (
     <div className="layout-page-main-inner">
@@ -48,7 +55,7 @@ export function DetailsContent(props: DetailsContentProps) {
       )}
 
       <Conditions
-        canEdit={actions.manageConditions}
+        canEdit={Boolean(actions.manageConditions)}
         conditions={conditions}
         metrics={metrics}
         onAddCondition={props.onAddCondition}
@@ -58,31 +65,38 @@ export function DetailsContent(props: DetailsContentProps) {
         updatedConditionId={updatedConditionId}
       />
 
-      <div className="quality-gate-section" id="quality-gate-projects">
-        <header className="display-flex-center spacer-bottom">
-          <h3>{translate('quality_gates.projects')}</h3>
-          <HelpTooltip
-            className="spacer-left"
-            overlay={
-              <div className="big-padded-top big-padded-bottom">
-                {translate('quality_gates.projects.help')}
-              </div>
-            }
-          />
-        </header>
-        {isDefault ? (
-          translate('quality_gates.projects_for_default')
-        ) : (
-          <Projects
-            canEdit={actions.associateProjects}
-            // pass unique key to re-mount the component when the quality gate changes
-            key={qualityGate.id}
-            qualityGate={qualityGate}
-          />
+      <div className="display-flex-row huge-spacer-top">
+        <div className="quality-gate-section width-50 big-padded-right" id="quality-gate-projects">
+          <header className="display-flex-center spacer-bottom">
+            <h3>{translate('quality_gates.projects')}</h3>
+            <HelpTooltip
+              className="spacer-left"
+              overlay={
+                <div className="big-padded-top big-padded-bottom">
+                  {translate('quality_gates.projects.help')}
+                </div>
+              }
+            />
+          </header>
+          {isDefault ? (
+            translate('quality_gates.projects_for_default')
+          ) : (
+            <Projects
+              canEdit={actions.associateProjects}
+              // pass unique key to re-mount the component when the quality gate changes
+              key={qualityGate.id}
+              qualityGate={qualityGate}
+            />
+          )}
+        </div>
+        {displayPermissions && (
+          <div className="width-50 big-padded-left">
+            <QualityGatePermissions qualityGate={qualityGate} />
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-export default React.memo(DetailsContent);
+export default React.memo(withCurrentUser(DetailsContent));

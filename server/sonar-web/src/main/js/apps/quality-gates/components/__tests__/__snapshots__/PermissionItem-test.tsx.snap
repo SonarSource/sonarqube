@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="display-flex-row"
+>
+  <Connect(Avatar)
+    className="spacer-right"
+    name="John Doe"
+    size={32}
+  />
+  <div
+    className="overflow-hidden"
+  >
+    <strong>
+      John Doe
+    </strong>
+    <div
+      className="note"
+    >
+      john.doe
+    </div>
+  </div>
+</div>
+`;

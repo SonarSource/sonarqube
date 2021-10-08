@@ -1,10 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: is default 1`] = `
+exports[`should render correctly: Admin 1`] = `
 <div
   className="layout-page-main-inner"
 >
   <Connect(withAppState(Conditions))
+    canEdit={false}
     conditions={
       Array [
         Object {
@@ -35,27 +36,132 @@ exports[`should render correctly: is default 1`] = `
     }
   />
   <div
-    className="quality-gate-section"
-    id="quality-gate-projects"
+    className="display-flex-row huge-spacer-top"
   >
-    <header
-      className="display-flex-center spacer-bottom"
+    <div
+      className="quality-gate-section width-50 big-padded-right"
+      id="quality-gate-projects"
     >
-      <h3>
-        quality_gates.projects
-      </h3>
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <div
-            className="big-padded-top big-padded-bottom"
-          >
-            quality_gates.projects.help
-          </div>
+      <header
+        className="display-flex-center spacer-bottom"
+      >
+        <h3>
+          quality_gates.projects
+        </h3>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={
+            <div
+              className="big-padded-top big-padded-bottom"
+            >
+              quality_gates.projects.help
+            </div>
+          }
+        />
+      </header>
+      <Projects
+        key="1"
+        qualityGate={
+          Object {
+            "conditions": Array [
+              Object {
+                "error": "10",
+                "id": 1,
+                "metric": "coverage",
+                "op": "LT",
+              },
+            ],
+            "id": "1",
+            "name": "qualitygate",
+          }
         }
       />
-    </header>
-    quality_gates.projects_for_default
+    </div>
+    <div
+      className="width-50 big-padded-left"
+    >
+      <QualityGatePermissions
+        qualityGate={
+          Object {
+            "conditions": Array [
+              Object {
+                "error": "10",
+                "id": 1,
+                "metric": "coverage",
+                "op": "LT",
+              },
+            ],
+            "id": "1",
+            "name": "qualitygate",
+          }
+        }
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: is default 1`] = `
+<div
+  className="layout-page-main-inner"
+>
+  <Connect(withAppState(Conditions))
+    canEdit={false}
+    conditions={
+      Array [
+        Object {
+          "error": "10",
+          "id": 1,
+          "metric": "coverage",
+          "op": "LT",
+        },
+      ]
+    }
+    metrics={Object {}}
+    onAddCondition={[MockFunction]}
+    onRemoveCondition={[MockFunction]}
+    onSaveCondition={[MockFunction]}
+    qualityGate={
+      Object {
+        "conditions": Array [
+          Object {
+            "error": "10",
+            "id": 1,
+            "metric": "coverage",
+            "op": "LT",
+          },
+        ],
+        "id": "1",
+        "name": "qualitygate",
+      }
+    }
+  />
+  <div
+    className="display-flex-row huge-spacer-top"
+  >
+    <div
+      className="quality-gate-section width-50 big-padded-right"
+      id="quality-gate-projects"
+    >
+      <header
+        className="display-flex-center spacer-bottom"
+      >
+        <h3>
+          quality_gates.projects
+        </h3>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={
+            <div
+              className="big-padded-top big-padded-bottom"
+            >
+              quality_gates.projects.help
+            </div>
+          }
+        />
+      </header>
+      quality_gates.projects_for_default
+    </div>
   </div>
 </div>
 `;
@@ -71,6 +177,7 @@ exports[`should render correctly: is default, no conditions 1`] = `
     quality_gates.is_default_no_conditions
   </Alert>
   <Connect(withAppState(Conditions))
+    canEdit={false}
     conditions={Array []}
     metrics={Object {}}
     onAddCondition={[MockFunction]}
@@ -85,27 +192,31 @@ exports[`should render correctly: is default, no conditions 1`] = `
     }
   />
   <div
-    className="quality-gate-section"
-    id="quality-gate-projects"
+    className="display-flex-row huge-spacer-top"
   >
-    <header
-      className="display-flex-center spacer-bottom"
+    <div
+      className="quality-gate-section width-50 big-padded-right"
+      id="quality-gate-projects"
     >
-      <h3>
-        quality_gates.projects
-      </h3>
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <div
-            className="big-padded-top big-padded-bottom"
-          >
-            quality_gates.projects.help
-          </div>
-        }
-      />
-    </header>
-    quality_gates.projects_for_default
+      <header
+        className="display-flex-center spacer-bottom"
+      >
+        <h3>
+          quality_gates.projects
+        </h3>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={
+            <div
+              className="big-padded-top big-padded-bottom"
+            >
+              quality_gates.projects.help
+            </div>
+          }
+        />
+      </header>
+      quality_gates.projects_for_default
+    </div>
   </div>
 </div>
 `;
@@ -115,6 +226,7 @@ exports[`should render correctly: is not default 1`] = `
   className="layout-page-main-inner"
 >
   <Connect(withAppState(Conditions))
+    canEdit={false}
     conditions={
       Array [
         Object {
@@ -145,43 +257,47 @@ exports[`should render correctly: is not default 1`] = `
     }
   />
   <div
-    className="quality-gate-section"
-    id="quality-gate-projects"
+    className="display-flex-row huge-spacer-top"
   >
-    <header
-      className="display-flex-center spacer-bottom"
+    <div
+      className="quality-gate-section width-50 big-padded-right"
+      id="quality-gate-projects"
     >
-      <h3>
-        quality_gates.projects
-      </h3>
-      <HelpTooltip
-        className="spacer-left"
-        overlay={
-          <div
-            className="big-padded-top big-padded-bottom"
-          >
-            quality_gates.projects.help
-          </div>
+      <header
+        className="display-flex-center spacer-bottom"
+      >
+        <h3>
+          quality_gates.projects
+        </h3>
+        <HelpTooltip
+          className="spacer-left"
+          overlay={
+            <div
+              className="big-padded-top big-padded-bottom"
+            >
+              quality_gates.projects.help
+            </div>
+          }
+        />
+      </header>
+      <Projects
+        key="1"
+        qualityGate={
+          Object {
+            "conditions": Array [
+              Object {
+                "error": "10",
+                "id": 1,
+                "metric": "coverage",
+                "op": "LT",
+              },
+            ],
+            "id": "1",
+            "name": "qualitygate",
+          }
         }
       />
-    </header>
-    <Projects
-      key="1"
-      qualityGate={
-        Object {
-          "conditions": Array [
-            Object {
-              "error": "10",
-              "id": 1,
-              "metric": "coverage",
-              "op": "LT",
-            },
-          ],
-          "id": "1",
-          "name": "qualitygate",
-        }
-      }
-    />
+    </div>
   </div>
 </div>
 `;

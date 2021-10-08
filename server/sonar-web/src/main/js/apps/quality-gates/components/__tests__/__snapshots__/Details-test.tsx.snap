@@ -24,7 +24,7 @@ exports[`should render correctly: loaded 1`] = `
       refreshItem={[Function]}
       refreshList={[MockFunction]}
     />
-    <Memo(DetailsContent)
+    <Memo(Connect(withCurrentUser(DetailsContent)))
       isDefault={false}
       metrics={Object {}}
       onAddCondition={[Function]}

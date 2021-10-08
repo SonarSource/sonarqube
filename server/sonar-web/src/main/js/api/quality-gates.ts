@@ -20,7 +20,11 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
-import { QualityGateApplicationStatus, QualityGateProjectStatus } from '../types/quality-gates';
+import {
+  QualityGateApplicationStatus,
+  QualityGateProjectStatus,
+  SearchPermissionsParameters
+} from '../types/quality-gates';
 
 export function fetchQualityGates(): Promise<{
   actions: { create: boolean };
@@ -123,4 +127,8 @@ export function getQualityGateProjectStatus(
   return getJSON('/api/qualitygates/project_status', data)
     .then(r => r.projectStatus)
     .catch(throwGlobalError);
+}
+
+export function searchUsers(data: SearchPermissionsParameters): Promise<{ users: T.UserBase[] }> {
+  return getJSON('/api/qualitygates/search_users', data).catch(throwGlobalError);
 }

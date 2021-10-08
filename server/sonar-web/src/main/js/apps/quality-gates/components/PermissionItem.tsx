@@ -17,10 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
+import Avatar from '../../../components/ui/Avatar';
 
-export enum Permissions {
-  Admin = 'admin',
-  ProjectCreation = 'provisioning',
-  ApplicationCreation = 'applicationcreator',
-  QualityGateAdmin = 'gateadmin'
+interface Props {
+  user: T.UserBase;
+}
+
+export default function PermissionItem(props: Props) {
+  const { user } = props;
+
+  return (
+    <div className="display-flex-row">
+      <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={32} />
+
+      <div className="overflow-hidden">
+        <strong>{user.name}</strong>
+        <div className="note">{user.login}</div>
+      </div>
+    </div>
+  );
 }

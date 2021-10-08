@@ -19,31 +19,27 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { searchUsers } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import { mockCondition, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { DetailsContent, DetailsContentProps } from '../DetailsContent';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import QualityGatePermissions from '../QualityGatePermissions';
+
+jest.mock('../../../../api/quality-gates', () => ({
+  searchUsers: jest.fn().mockResolvedValue({ users: [] })
+}));
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('is not default');
-  expect(shallowRender({ isDefault: true })).toMatchSnapshot('is default');
-  expect(
-    shallowRender({ isDefault: true, qualityGate: mockQualityGate({ conditions: [] }) })
-  ).toMatchSnapshot('is default, no conditions');
-  expect(
-    shallowRender({ currentUser: mockLoggedInUser({ permissions: { global: ['gateadmin'] } }) })
-  ).toMatchSnapshot('Admin');
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<DetailsContentProps> = {}) {
-  return shallow(
-    <DetailsContent
-      currentUser={mockLoggedInUser()}
-      metrics={{}}
-      onAddCondition={jest.fn()}
-      onRemoveCondition={jest.fn()}
-      onSaveCondition={jest.fn()}
-      qualityGate={mockQualityGate({ conditions: [mockCondition()] })}
-      {...props}
-    />
-  );
+it('should fetch users', async () => {
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(searchUsers).toBeCalledWith({ qualityGate: '1', selected: 'selected' });
+});
+
+function shallowRender(overrides: Partial<QualityGatePermissions['props']> = {}) {
+  return shallow(<QualityGatePermissions qualityGate={mockQualityGate()} {...overrides} />);
 }
