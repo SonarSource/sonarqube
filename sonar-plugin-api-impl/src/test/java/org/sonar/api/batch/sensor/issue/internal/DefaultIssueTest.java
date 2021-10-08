@@ -26,16 +26,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
+import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -154,6 +152,22 @@ public class DefaultIssueTest {
     issue.save();
 
     verify(storage).store(issue);
+  }
+
+  @Test
+  public void default_issue_has_no_quickfix() {
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultIssue issue = new DefaultIssue(project, storage);
+
+    assertThat(issue.isQuickFixAvailable()).isFalse();
+  }
+
+  @Test
+  public void issue_can_have_quickfix() {
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultIssue issue = new DefaultIssue(project, storage).setQuickFixAvailable(true);
+
+    assertThat(issue.isQuickFixAvailable()).isTrue();
   }
 
 }

@@ -63,4 +63,10 @@ public interface Issue extends IIssue {
    */
   @Override
   List<Flow> flows();
+
+  /**
+   * Is there a QuickFix available in SonarLint for this issue
+   * @since 9.2
+   */
+  boolean isQuickFixAvailable();
 }

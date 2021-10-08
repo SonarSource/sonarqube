@@ -37,6 +37,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   private RuleKey ruleKey;
   private Double gap;
   private Severity overriddenSeverity;
+  private boolean quickFixAvailable = false;
 
   public DefaultIssue(DefaultInputProject project) {
     this(project, null);
@@ -66,6 +67,17 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   public DefaultIssue overrideSeverity(@Nullable Severity severity) {
     this.overriddenSeverity = severity;
     return this;
+  }
+
+  @Override
+  public DefaultIssue setQuickFixAvailable(boolean quickFixAvailable) {
+    this.quickFixAvailable = quickFixAvailable;
+    return this;
+  }
+
+  @Override
+  public boolean isQuickFixAvailable() {
+    return quickFixAvailable;
   }
 
   @Override
