@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualitygate.QualityGateUserPermissionsMapper">
+
+  <sql id="sqlColumns">
+    qup.uuid as "uuid",
+    qup.user_uuid as "userUuid",
+    qup.quality_gate_uuid as "qualityGateUuid"
+  </sql>
+
+  <select id="selectByQualityGateAndUser" parameterType="String" resultType="org.sonar.db.qualitygate.QualityGateUserPermissionsDto">
+    select
+    <include refid="sqlColumns"/>
+    from qgate_user_permissions qup
+    where
+    qup.user_uuid = #{userUuid}
+    and qup.quality_gate_uuid = #{qualityGateUuid}
+  </select>
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="map">
+    insert into qgate_user_permissions(
+    uuid,
+    user_uuid,
+    quality_gate_uuid,
+    created_at
+    ) values (
+    #{dto.uuid, jdbcType=VARCHAR},
+    #{dto.userUuid, jdbcType=VARCHAR},
+    #{dto.qualityGateUuid, jdbcType=VARCHAR},
+    #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+
+</mapper>
+

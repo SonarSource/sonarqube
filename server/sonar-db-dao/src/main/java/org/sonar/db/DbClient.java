@@ -65,6 +65,7 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
+import org.sonar.db.qualitygate.QualityGateUserPermissionsDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.DefaultQProfileDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
@@ -134,6 +135,7 @@ public class DbClient {
   private final PurgeDao purgeDao;
   private final QualityGateDao qualityGateDao;
   private final QualityGateConditionDao gateConditionDao;
+  private final QualityGateUserPermissionsDao qualityGateUserPermissionsDao;
   private final ProjectQgateAssociationDao projectQgateAssociationDao;
   private final DuplicationDao duplicationDao;
   private final NotificationQueueDao notificationQueueDao;
@@ -209,6 +211,7 @@ public class DbClient {
     eventComponentChangeDao = getDao(map, EventComponentChangeDao.class);
     purgeDao = getDao(map, PurgeDao.class);
     qualityGateDao = getDao(map, QualityGateDao.class);
+    qualityGateUserPermissionsDao = getDao(map, QualityGateUserPermissionsDao.class);
     gateConditionDao = getDao(map, QualityGateConditionDao.class);
     projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
     duplicationDao = getDao(map, DuplicationDao.class);
@@ -415,6 +418,10 @@ public class DbClient {
 
   public QualityGateConditionDao gateConditionDao() {
     return gateConditionDao;
+  }
+
+  public QualityGateUserPermissionsDao qualityGateUserPermissionDao() {
+    return qualityGateUserPermissionsDao;
   }
 
   public ProjectQgateAssociationDao projectQgateAssociationDao() {

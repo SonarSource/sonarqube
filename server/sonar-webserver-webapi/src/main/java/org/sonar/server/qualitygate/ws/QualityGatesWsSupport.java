@@ -86,6 +86,18 @@ public class QualityGatesWsSupport {
     userSession.checkPermission(ADMINISTER_QUALITY_GATES);
   }
 
+  void checkCanLimitedEdit(DbSession dbSession, QualityGateDto qualityGate) {
+    checkNotBuiltIn(qualityGate);
+    if (!userSession.hasPermission(ADMINISTER_QUALITY_GATES) && !userHasPermission(dbSession, qualityGate)) {
+      throw insufficientPrivilegesException();
+    }
+  }
+
+  boolean userHasPermission(DbSession dbSession, QualityGateDto qualityGate) {
+    return userSession.isLoggedIn() && dbClient.qualityGateUserPermissionDao().exists(dbSession, qualityGate.getUuid(), userSession.getUuid());
+  }
+
+
   void checkCanAdminProject(ProjectDto project) {
     if (userSession.hasPermission(ADMINISTER_QUALITY_GATES)
       || userSession.hasProjectPermission(ADMIN, project)) {

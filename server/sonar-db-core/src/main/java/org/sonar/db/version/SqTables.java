@@ -87,6 +87,7 @@ public final class SqTables {
     "qprofile_edit_groups",
     "qprofile_edit_users",
     "quality_gates",
+    "qgate_user_permissions",
     "qgate_group_permissions",
     "quality_gate_conditions",
     "saml_message_ids",
