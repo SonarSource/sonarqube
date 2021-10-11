@@ -73,6 +73,8 @@ message Issue {
   optional int64 selectedAt = 37;
 
   repeated Comment comments = 38;
+
+  optional bool quickFixAvailable = 39;
 }
 
 message Comment {

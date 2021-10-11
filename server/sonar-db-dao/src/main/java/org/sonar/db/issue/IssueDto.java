@@ -140,6 +140,7 @@ public final class IssueDto implements Serializable {
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
+      .setQuickFixAvailable(issue.isQuickFixAvailable())
 
       // technical dates
       .setCreatedAt(now)
@@ -186,6 +187,7 @@ public final class IssueDto implements Serializable {
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
+      .setQuickFixAvailable(issue.isQuickFixAvailable())
 
       // technical date
       .setUpdatedAt(now);
@@ -756,6 +758,7 @@ public final class IssueDto implements Serializable {
     issue.setSelectedAt(selectedAt);
     issue.setLocations(parseLocations());
     issue.setIsFromExternalRuleEngine(isExternal);
+    issue.setQuickFixAvailable(quickFixAvailable != null ? quickFixAvailable : false);
     return issue;
   }
 }

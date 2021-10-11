@@ -118,6 +118,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   // Date when issue was loaded from db (only when isNew=false)
   private Long selectedAt;
 
+  private boolean quickFixAvailable;
+
   @Override
   public String key() {
     return key;
@@ -510,6 +512,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setCurrentChangeWithoutAddChange(@Nullable FieldDiffs currentChange) {
     this.currentChange = currentChange;
+    return this;
+  }
+
+  public boolean isQuickFixAvailable() {
+    return quickFixAvailable;
+  }
+
+  public DefaultIssue setQuickFixAvailable(boolean quickFixAvailable) {
+    this.quickFixAvailable = quickFixAvailable;
     return this;
   }
 
