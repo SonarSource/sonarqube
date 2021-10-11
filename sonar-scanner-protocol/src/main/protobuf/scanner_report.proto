@@ -192,6 +192,7 @@ message Issue {
   // Will be identical to the first location of the first flow
   TextRange text_range = 6;
   repeated Flow flow = 7;
+  bool quickFixAvailable = 8;
 }
 
 message ExternalIssue {
