@@ -103,6 +103,13 @@ public class XooRulesDefinition implements RulesDefinition {
       .setDebtRemediationFunction(oneIssuePerLine.debtRemediationFunctions().linear("1min"))
       .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
+    NewRule oneQuickFixPerLine = repo.createRule(OneQuickFixPerLineSensor.RULE_KEY).setName("One Quick Fix Per Line")
+      .setHtmlDescription("Generate an issue with quick fix available on each line of a file. It requires the metric \"lines\".")
+      .setTags("line");
+    oneQuickFixPerLine
+      .setDebtRemediationFunction(oneQuickFixPerLine.debtRemediationFunctions().linear("1min"))
+      .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
+
     repo.createRule(OneIssueOnDirPerFileSensor.RULE_KEY).setName("One Issue On Dir Per File")
       .setHtmlDescription("Generate issues on directories");
 

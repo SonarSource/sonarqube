@@ -48,7 +48,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(22);
+    assertThat(repo.rules()).hasSize(23);
 
     RulesDefinition.Rule rule = repo.rule(OneIssuePerLineSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
@@ -64,7 +64,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(22);
+    assertThat(repo.rules()).hasSize(23);
 
     RulesDefinition.Rule rule = repo.rule(HotspotSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();

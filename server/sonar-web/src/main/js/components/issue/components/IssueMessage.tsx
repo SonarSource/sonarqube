@@ -72,7 +72,7 @@ export default function IssueMessage(props: IssueMessageProps) {
             />
           }
           mouseLeaveDelay={0.5}>
-          <SonarLintIcon className="spacer-right" size={15} />
+          <SonarLintIcon className="it__issues-sonarlint-quick-fix spacer-right" size={15} />
         </Tooltip>
       )}
       <ButtonLink

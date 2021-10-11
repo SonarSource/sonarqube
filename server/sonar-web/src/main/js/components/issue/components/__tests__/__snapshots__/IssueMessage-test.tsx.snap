@@ -207,7 +207,7 @@ exports[`should render correctly: with quick fix 1`] = `
     }
   >
     <SonarLintIcon
-      className="spacer-right"
+      className="it__issues-sonarlint-quick-fix spacer-right"
       size={15}
     />
   </Tooltip>
