@@ -122,6 +122,7 @@ public class IssuePublisher {
       builder.setGap(gap);
     }
     applyFlows(builder::addFlow, locationBuilder, textRangeBuilder, issue.flows());
+    builder.setQuickFixAvailable(issue.isQuickFixAvailable());
     return builder.build();
   }
 
