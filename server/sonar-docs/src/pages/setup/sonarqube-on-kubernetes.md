@@ -103,14 +103,13 @@ We try to provide a good default with the Helm chart, but there are some points 
 
 Currently only helm3 is supported.
 
-To install the Helm Chart from the [GitHub](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube) Repository, you can use the following commands:
+To install the Helm Chart from our Helm Repository, you can use the following commands:
 
 ```bash 
-git clone https://github.com/SonarSource/helm-chart-sonarqube.git
-cd helm-chart-sonarqube
-helm dependency update
-kubectl create namespace sonarqube
-helm upgrade --install -f values.yaml -n sonarqube sonarqube ./
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm repo update
+kubectl create namespace sonarqube-lts
+helm upgrade --install -n sonarqube-lts sonarqube sonarqube/sonarqube-lts
 ```
 
 ### Persistency 
