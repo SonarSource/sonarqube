@@ -44,7 +44,7 @@ class Landing extends React.PureComponent<StateProps & OwnProps & WithRouterProp
         this.props.router.replace('/projects');
       }
     } else {
-      this.props.router.replace('/about');
+      this.props.router.replace('/sessions/new');
     }
   }
 
