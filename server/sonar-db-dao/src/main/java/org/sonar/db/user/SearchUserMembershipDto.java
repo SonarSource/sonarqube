@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
+package org.sonar.db.user;
 
-public class UserMembershipDto {
+public class SearchUserMembershipDto {
 
   private String userUuid;
   // Set by MyBatis
   private String uuid;
 
+  public SearchUserMembershipDto() {
+    // Do nothing
+  }
+
   public String getUserUuid() {
     return userUuid;
   }
 
-  public UserMembershipDto setUserUuid(String userUuid) {
+  public SearchUserMembershipDto setUserUuid(String userUuid) {
     this.userUuid = userUuid;
     return this;
   }

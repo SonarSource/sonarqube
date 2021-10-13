@@ -23,14 +23,15 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
+import org.sonar.db.user.SearchUserMembershipDto;
 
 public interface QProfileEditUsersMapper {
 
   QProfileEditUsersDto selectByQProfileAndUser(@Param("qProfileUuid") String qProfileUuid, @Param("userUuid") String userUuid);
 
-  int countByQuery(@Param("query") SearchUsersQuery query);
+  int countByQuery(@Param("query") SearchQualityProfilePermissionQuery query);
 
-  List<UserMembershipDto> selectByQuery(@Param("query") SearchUsersQuery query, @Param("pagination") Pagination pagination);
+  List<SearchUserMembershipDto> selectByQuery(@Param("query") SearchQualityProfilePermissionQuery query, @Param("pagination") Pagination pagination);
 
   List<String> selectQProfileUuidsByUser(@Param("userUuid") String userUuid);
 

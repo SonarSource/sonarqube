@@ -182,6 +182,19 @@ message Actions {
   optional bool manageConditions = 6;
 }
 
+// WS api/qualitygates/search_users
+message SearchUsersResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional string avatar = 3;
+    optional bool selected = 4;
+  }
+}
+
 // WS api/qualitygates/search_groups
 message SearchGroupsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;

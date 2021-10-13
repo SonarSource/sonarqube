@@ -44,7 +44,8 @@ public class QualityGateWsModule extends Module {
       ProjectStatusAction.class,
       GetByProjectAction.class,
       AddGroupAction.class,
-      SearchGroupsAction.class
+      SearchGroupsAction.class,
+      SearchUsersAction.class
     );
   }
 }

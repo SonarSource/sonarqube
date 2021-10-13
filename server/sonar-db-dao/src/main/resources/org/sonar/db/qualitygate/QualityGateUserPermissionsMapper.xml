@@ -32,6 +32,65 @@
     )
   </insert>
 
+  <select id="countByQuery" resultType="int">
+    select count(u.uuid)
+    <include refid="sqlSelectByQuery"/>
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchUserMembershipDto">
+    SELECT u.uuid as userUuid, u.name as name, qup.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
+    ORDER BY u.name ASC
+    LIMIT #{pagination.pageSize,jdbcType=INTEGER}
+    OFFSET #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchUserMembershipDto"
+          databaseId="mssql">
+    select * from (
+    select row_number() over(order by u.name asc) as number,
+    u.uuid as userUuid, u.name as name, qup.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
+    ) as query
+    where
+    query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    order by query.name asc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchUserMembershipDto"
+          databaseId="oracle">
+    select * from (
+    select rownum as rn, t.* from (
+    select u.uuid as userUuid, u.name as name, qup.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
+    order by u.name ASC
+    ) t
+    ) t
+    where
+    t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    FROM users u
+    LEFT JOIN qgate_user_permissions qup ON qup.user_uuid=u.uuid AND
+    qup.quality_gate_uuid=#{query.qualityGateUuid, jdbcType=VARCHAR}
+    <where>
+      <choose>
+        <when test="query.getMembership() == 'IN'">
+          AND qup.uuid IS NOT NULL
+        </when>
+        <when test="query.getMembership() == 'OUT'">
+          AND qup.uuid IS NULL
+        </when>
+      </choose>
+      <if test="query.getQuery() != null">
+        AND (
+        lower(u.name) like #{query.querySqlLowercase} ESCAPE '/'
+        or u.login like #{query.querySql} ESCAPE '/')
+      </if>
+      AND u.active=${_true}
+    </where>
+  </sql>
 
 </mapper>
 

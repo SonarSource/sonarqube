@@ -32,6 +32,7 @@ public class QualityGatesWsParameters {
   public static final String ACTION_ADD_GROUP = "add_group";
   public static final String ACTION_ADD_USER = "add_user";
   public static final String ACTION_SEARCH_GROUPS = "search_groups";
+  public static final String ACTION_SEARCH_USERS = "search_users";
 
   public static final String PARAM_ANALYSIS_ID = "analysisId";
   public static final String PARAM_BRANCH = "branch";

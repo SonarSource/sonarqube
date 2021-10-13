@@ -19,38 +19,21 @@
  */
 package org.sonar.db.qualityprofile;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.sonar.db.user.SearchPermissionQuery;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
-public class SearchUsersQuery {
-
-  public static final String ANY = "ANY";
-  public static final String IN = "IN";
-  public static final String OUT = "OUT";
-  public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
+public class SearchQualityProfilePermissionQuery extends SearchPermissionQuery {
 
   private final String qProfileUuid;
-  private final String query;
-  private final String membership;
 
-  // for internal use in MyBatis
-  final String querySql;
-  final String querySqlLowercase;
-
-  private SearchUsersQuery(Builder builder) {
+  public SearchQualityProfilePermissionQuery(Builder builder) {
     this.qProfileUuid = builder.profile.getKee();
-    this.query = builder.query;
-    this.membership = builder.membership;
+    this.query = builder.getQuery();
+    this.membership = builder.getMembership();
     this.querySql = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER);
     this.querySqlLowercase = querySql == null ? null : querySql.toLowerCase(Locale.ENGLISH);
   }
@@ -59,52 +42,22 @@ public class SearchUsersQuery {
     return qProfileUuid;
   }
 
-  public String getMembership() {
-    return membership;
-  }
-
-  @CheckForNull
-  public String getQuery() {
-    return query;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
 
-  public static class Builder {
+  public static class Builder extends SearchPermissionQuery.Builder<Builder> {
     private QProfileDto profile;
-    private String query;
-    private String membership;
-
-    private Builder() {
-    }
 
     public Builder setProfile(QProfileDto profile) {
       this.profile = profile;
       return this;
     }
 
-    public Builder setMembership(@Nullable String membership) {
-      this.membership = membership;
-      return this;
-    }
-
-    public Builder setQuery(@Nullable String s) {
-      this.query = StringUtils.defaultIfBlank(s, null);
-      return this;
-    }
-
-    private void initMembership() {
-      membership = firstNonNull(membership, ANY);
-      checkArgument(AVAILABLE_MEMBERSHIPS.contains(membership),
-        "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIPS);
-    }
-
-    public SearchUsersQuery build() {
+    public SearchQualityProfilePermissionQuery build() {
       requireNonNull(profile, "Quality profile cant be null.");
       initMembership();
-      return new SearchUsersQuery(this);
+      return new SearchQualityProfilePermissionQuery(this);
     }
   }
 }

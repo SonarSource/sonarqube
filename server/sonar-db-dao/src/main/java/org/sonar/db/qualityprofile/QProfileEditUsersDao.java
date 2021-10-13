@@ -24,6 +24,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -41,15 +42,15 @@ public class QProfileEditUsersDao implements Dao {
     return mapper(dbSession).selectByQProfileAndUser(profile.getKee(), user.getUuid()) != null;
   }
 
-  public int countByQuery(DbSession dbSession, SearchUsersQuery query) {
+  public int countByQuery(DbSession dbSession, SearchQualityProfilePermissionQuery query) {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public List<UserMembershipDto> selectByQuery(DbSession dbSession, SearchUsersQuery query, Pagination pagination) {
+  public List<SearchUserMembershipDto> selectByQuery(DbSession dbSession, SearchQualityProfilePermissionQuery query, Pagination pagination) {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public List<String> selectQProfileUuidsByUser(DbSession dbSession,UserDto userDto) {
+  public List<String> selectQProfileUuidsByUser(DbSession dbSession, UserDto userDto) {
     return mapper(dbSession).selectQProfileUuidsByUser(userDto.getUuid());
   }
 

@@ -1,0 +1,21 @@
+{
+  "paging": {
+    "pageSize": 25,
+    "total": 2,
+    "pageIndex": 1
+  },
+  "users": [
+    {
+      "login": "admin",
+      "name": "Administrator",
+      "avatar": "59235f35e4763abb0b547bd093562f6e",
+      "selected": true
+    },
+    {
+      "login": "george.orwell",
+      "name": "George Orwell",
+      "avatar": "61a6fd6cba04e9394b35f349c9ca3380",
+      "selected": false
+    }
+  ]
+}

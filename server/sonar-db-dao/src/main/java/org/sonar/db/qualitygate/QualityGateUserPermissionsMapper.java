@@ -19,7 +19,11 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
+import org.sonar.db.user.SearchPermissionQuery;
+import org.sonar.db.user.SearchUserMembershipDto;
 
 public interface QualityGateUserPermissionsMapper {
 
@@ -27,4 +31,7 @@ public interface QualityGateUserPermissionsMapper {
 
   void insert(@Param("dto") QualityGateUserPermissionsDto dto, @Param("now") long now);
 
+  List<SearchUserMembershipDto> selectByQuery(@Param("query") SearchPermissionQuery query, @Param("pagination") Pagination pagination);
+
+  int countByQuery(@Param("query") SearchPermissionQuery query);
 }

@@ -34,10 +34,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.ANY;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.IN;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.OUT;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.builder;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.builder;
 
 public class QProfileEditGroupsDaoTest {
 

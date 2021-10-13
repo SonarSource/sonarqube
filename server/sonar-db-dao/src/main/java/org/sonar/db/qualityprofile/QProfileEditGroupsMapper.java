@@ -29,9 +29,9 @@ public interface QProfileEditGroupsMapper {
 
   List<QProfileEditGroupsDto> selectByQProfileAndGroups(@Param("qProfileUuid") String qProfileUuid, @Param("groupUuids") List<String> groupUuids);
 
-  int countByQuery(@Param("query") SearchQualityProfileGroupsQuery query);
+  int countByQuery(@Param("query") SearchQualityProfilePermissionQuery query);
 
-  List<SearchGroupMembershipDto> selectByQuery(@Param("query") SearchQualityProfileGroupsQuery query, @Param("pagination") Pagination pagination);
+  List<SearchGroupMembershipDto> selectByQuery(@Param("query") SearchQualityProfilePermissionQuery query, @Param("pagination") Pagination pagination);
 
   List<String> selectQProfileUuidsByGroups(@Param("groupUuids") List<String> groupUuids);
 

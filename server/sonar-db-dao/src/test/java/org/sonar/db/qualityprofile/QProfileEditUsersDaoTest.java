@@ -27,16 +27,17 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
+import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.qualityprofile.SearchUsersQuery.ANY;
-import static org.sonar.db.qualityprofile.SearchUsersQuery.IN;
-import static org.sonar.db.qualityprofile.SearchUsersQuery.OUT;
-import static org.sonar.db.qualityprofile.SearchUsersQuery.builder;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.builder;
 import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class QProfileEditUsersDaoTest {
@@ -103,24 +104,24 @@ public class QProfileEditUsersDaoTest {
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
-        .extracting(UserMembershipDto::getUserUuid, UserMembershipDto::isSelected)
+      .extracting(SearchUserMembershipDto::getUserUuid, SearchUserMembershipDto::isSelected)
         .containsExactlyInAnyOrder(
           tuple(user1.getUuid(), true),
           tuple(user2.getUuid(), true),
           tuple(user3.getUuid(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(IN).build(),
+        .setProfile(profile)
+        .setMembership(IN).build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserUuid, UserMembershipDto::isSelected)
+      .extracting(SearchUserMembershipDto::getUserUuid, SearchUserMembershipDto::isSelected)
         .containsExactlyInAnyOrder(tuple(user1.getUuid(), true), tuple(user2.getUuid(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(OUT).build(),
+        .setProfile(profile)
+        .setMembership(OUT).build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserUuid, UserMembershipDto::isSelected)
+      .extracting(SearchUserMembershipDto::getUserUuid, SearchUserMembershipDto::isSelected)
         .containsExactlyInAnyOrder(tuple(user3.getUuid(), false));
   }
 
@@ -135,27 +136,27 @@ public class QProfileEditUsersDaoTest {
     db.qualityProfiles().addUserPermission(profile, user3);
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(IN)
-      .setQuery("user2").build(),
+        .setProfile(profile)
+        .setMembership(IN)
+        .setQuery("user2").build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserUuid)
+      .extracting(SearchUserMembershipDto::getUserUuid)
         .containsExactlyInAnyOrder(user2.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(IN)
-      .setQuery("joh").build(),
+        .setProfile(profile)
+        .setMembership(IN)
+        .setQuery("joh").build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserUuid)
+      .extracting(SearchUserMembershipDto::getUserUuid)
         .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(IN)
-      .setQuery("Doe").build(),
+        .setProfile(profile)
+        .setMembership(IN)
+        .setQuery("Doe").build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserUuid)
+      .extracting(SearchUserMembershipDto::getUserUuid)
         .containsExactlyInAnyOrder(user1.getUuid(), user3.getUuid());
   }
 
@@ -169,27 +170,27 @@ public class QProfileEditUsersDaoTest {
     db.qualityProfiles().addUserPermission(profile, user2);
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(ANY)
-      .build(),
+        .setProfile(profile)
+        .setMembership(ANY)
+        .build(),
       Pagination.forPage(1).andSize(1)))
-        .extracting(UserMembershipDto::getUserUuid)
+      .extracting(SearchUserMembershipDto::getUserUuid)
         .containsExactly(user1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(ANY)
-      .build(),
+        .setProfile(profile)
+        .setMembership(ANY)
+        .build(),
       Pagination.forPage(3).andSize(1)))
-        .extracting(UserMembershipDto::getUserUuid)
+      .extracting(SearchUserMembershipDto::getUserUuid)
         .containsExactly(user3.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setProfile(profile)
-      .setMembership(ANY)
-      .build(),
+        .setProfile(profile)
+        .setMembership(ANY)
+        .build(),
       Pagination.forPage(1).andSize(10)))
-        .extracting(UserMembershipDto::getUserUuid)
+      .extracting(SearchUserMembershipDto::getUserUuid)
         .containsExactly(user1.getUuid(), user2.getUuid(), user3.getUuid());
   }
 

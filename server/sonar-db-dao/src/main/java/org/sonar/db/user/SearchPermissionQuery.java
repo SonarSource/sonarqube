@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 
-public abstract class SearchGroupsQuery {
+public abstract class SearchPermissionQuery {
 
   public static final String ANY = "ANY";
   public static final String IN = "IN";
@@ -38,6 +38,7 @@ public abstract class SearchGroupsQuery {
   protected String membership;
 
   // for internal use in MyBatis
+  protected String querySql;
   protected String querySqlLowercase;
 
   public String getMembership() {

@@ -35,10 +35,10 @@ import org.sonar.db.user.SearchGroupMembershipDto;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.qualitygate.SearchQualityGateGroupsQuery.builder;
-import static org.sonar.db.user.SearchGroupsQuery.ANY;
-import static org.sonar.db.user.SearchGroupsQuery.IN;
-import static org.sonar.db.user.SearchGroupsQuery.OUT;
+import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
+import static org.sonar.db.user.SearchPermissionQuery.ANY;
+import static org.sonar.db.user.SearchPermissionQuery.IN;
+import static org.sonar.db.user.SearchPermissionQuery.OUT;
 
 public class QualityGateGroupPermissionsDaoTest {
 

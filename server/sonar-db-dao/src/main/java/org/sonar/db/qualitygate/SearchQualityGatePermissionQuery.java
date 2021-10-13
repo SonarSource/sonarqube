@@ -20,20 +20,22 @@
 package org.sonar.db.qualitygate;
 
 import java.util.Locale;
-import org.sonar.db.user.SearchGroupsQuery;
+import org.sonar.db.user.SearchPermissionQuery;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
-public class SearchQualityGateGroupsQuery extends SearchGroupsQuery {
+public class SearchQualityGatePermissionQuery extends SearchPermissionQuery {
 
   private final String qualityGateUuid;
 
-  public SearchQualityGateGroupsQuery(Builder builder) {
+  public SearchQualityGatePermissionQuery(Builder builder) {
     this.qualityGateUuid = builder.qualityGate.getUuid();
     this.query = builder.getQuery();
     this.membership = builder.getMembership();
-    this.querySqlLowercase = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
+    this.querySql = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER);
+    this.querySqlLowercase = querySql == null ? null : querySql.toLowerCase(Locale.ENGLISH);
   }
 
   public String getQualityGateUuid() {
@@ -44,7 +46,7 @@ public class SearchQualityGateGroupsQuery extends SearchGroupsQuery {
     return new Builder();
   }
 
-  public static class Builder extends SearchGroupsQuery.Builder<Builder> {
+  public static class Builder extends SearchPermissionQuery.Builder<Builder> {
     private QualityGateDto qualityGate;
 
     public Builder setQualityGate(QualityGateDto qualityGate) {
@@ -52,9 +54,10 @@ public class SearchQualityGateGroupsQuery extends SearchGroupsQuery {
       return this;
     }
 
-    public SearchQualityGateGroupsQuery build() {
+    public SearchQualityGatePermissionQuery build() {
+      requireNonNull(qualityGate, "Quality gate cant be null.");
       initMembership();
-      return new SearchQualityGateGroupsQuery(this);
+      return new SearchQualityGatePermissionQuery(this);
     }
   }
 }

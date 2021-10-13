@@ -31,7 +31,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery;
+import org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
 import org.sonarqube.ws.Common;
@@ -48,10 +48,10 @@ import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.ANY;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.IN;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.OUT;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.builder;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
+import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.builder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_GROUPS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -108,7 +108,7 @@ public class SearchGroupsAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, wsRequest.getQualityProfile(), wsRequest.getLanguage());
       wsSupport.checkCanEdit(dbSession, profile);
 
-      SearchQualityProfileGroupsQuery query = builder()
+      SearchQualityProfilePermissionQuery query = builder()
         .setProfile(profile)
         .setQuery(wsRequest.getQuery())
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))

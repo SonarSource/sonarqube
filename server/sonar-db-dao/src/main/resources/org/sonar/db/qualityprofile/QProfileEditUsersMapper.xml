@@ -23,7 +23,7 @@
     <include refid="sqlSelectByQuery" />
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.UserMembershipDto">
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchUserMembershipDto">
     SELECT u.uuid as userUuid, u.name as name, qeu.uuid as uuid
     <include refid="sqlSelectByQuery"/>
     ORDER BY u.name ASC
@@ -31,24 +31,26 @@
     OFFSET #{pagination.offset,jdbcType=INTEGER}
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.UserMembershipDto" databaseId="mssql">
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchUserMembershipDto"
+          databaseId="mssql">
     select * from (
     select row_number() over(order by u.name asc) as number,
-      u.uuid as userUuid, u.name as name, qeu.uuid as uuid
-      <include refid="sqlSelectByQuery" />
+    u.uuid as userUuid, u.name as name, qeu.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
     ) as query
     where
     query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
     order by query.name asc
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.UserMembershipDto" databaseId="oracle">
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchUserMembershipDto"
+          databaseId="oracle">
     select * from (
-      select rownum as rn, t.* from (
-        select u.uuid as userUuid, u.name as name, qeu.uuid as uuid
-        <include refid="sqlSelectByQuery"/>
-        order by u.name ASC
-      ) t
+    select rownum as rn, t.* from (
+    select u.uuid as userUuid, u.name as name, qeu.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
+    order by u.name ASC
+    ) t
     ) t
     where
     t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}

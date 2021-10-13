@@ -27,7 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
-import org.sonar.db.user.SearchGroupsQuery;
+import org.sonar.db.user.SearchPermissionQuery;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -61,11 +61,11 @@ public class QualityGateGroupPermissionsDao implements Dao {
     return dbSession.getMapper(QualityGateGroupPermissionsMapper.class);
   }
 
-  public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination) {
+  public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchPermissionQuery query, Pagination pagination) {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public int countByQuery(DbSession dbSession, SearchGroupsQuery query) {
+  public int countByQuery(DbSession dbSession, SearchPermissionQuery query) {
     return mapper(dbSession).countByQuery(query);
   }
 }

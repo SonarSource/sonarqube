@@ -51,11 +51,11 @@ public class QProfileEditGroupsDao implements Dao {
       .isEmpty();
   }
 
-  public int countByQuery(DbSession dbSession, SearchQualityProfileGroupsQuery query) {
+  public int countByQuery(DbSession dbSession, SearchQualityProfilePermissionQuery query) {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchQualityProfileGroupsQuery query, Pagination pagination) {
+  public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchQualityProfilePermissionQuery query, Pagination pagination) {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 

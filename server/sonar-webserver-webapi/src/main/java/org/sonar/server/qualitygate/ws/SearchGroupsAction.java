@@ -28,9 +28,9 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.user.SearchGroupMembershipDto;
-import org.sonar.db.user.SearchGroupsQuery;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.SearchGroupMembershipDto;
+import org.sonar.db.user.SearchPermissionQuery;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualitygates;
 
@@ -44,10 +44,10 @@ import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.db.qualitygate.SearchQualityGateGroupsQuery.builder;
-import static org.sonar.db.user.SearchGroupsQuery.ANY;
-import static org.sonar.db.user.SearchGroupsQuery.IN;
-import static org.sonar.db.user.SearchGroupsQuery.OUT;
+import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
+import static org.sonar.db.user.SearchPermissionQuery.ANY;
+import static org.sonar.db.user.SearchPermissionQuery.IN;
+import static org.sonar.db.user.SearchPermissionQuery.OUT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SEARCH_GROUPS;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -95,7 +95,7 @@ public class SearchGroupsAction implements QualityGatesWsAction {
       QualityGateDto gate = wsSupport.getByName(dbSession, wsRequest.getQualityGate());
       wsSupport.checkCanLimitedEdit(dbSession, gate);
 
-      SearchGroupsQuery query = builder()
+      SearchPermissionQuery query = builder()
         .setQualityGate(gate)
         .setQuery(wsRequest.getQuery())
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))
