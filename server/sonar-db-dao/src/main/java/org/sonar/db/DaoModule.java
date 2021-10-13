@@ -67,6 +67,7 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
+import org.sonar.db.qualitygate.QualityGateGroupPermissionsDao;
 import org.sonar.db.qualitygate.QualityGateUserPermissionsDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.DefaultQProfileDao;
@@ -147,6 +148,7 @@ public class DaoModule extends Module {
     QProfileEditUsersDao.class,
     QualityGateConditionDao.class,
     QualityGateDao.class,
+    QualityGateGroupPermissionsDao.class,
     QualityGateUserPermissionsDao.class,
     QualityProfileDao.class,
     QualityProfileExportDao.class,

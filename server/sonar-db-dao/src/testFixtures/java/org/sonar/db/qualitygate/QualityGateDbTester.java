@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -102,6 +103,15 @@ public class QualityGateDbTester {
 
   public Optional<String> selectQGateUuidByComponentUuid(String componentUuid) {
     return dbClient.projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, componentUuid);
+  }
+
+  public void addGroupPermission(QualityGateDto qualityGateDto, GroupDto group) {
+    dbClient.qualityGateGroupPermissionsDao().insert(dbSession, new QualityGateGroupPermissionsDto()
+      .setUuid(Uuids.createFast())
+      .setGroupUuid(group.getUuid())
+      .setQualityGateUuid(qualityGateDto.getUuid())
+    );
+    dbSession.commit();
   }
 
   public void addUserPermission(QualityGateDto qualityGateDto, UserDto user) {

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualitygate.QualityGateGroupPermissionsMapper">
+
+  <sql id="sqlColumns">
+    qggp.uuid as "uuid",
+    qggp.group_uuid as "groupUuid",
+    qggp.quality_gate_uuid as "qualityGateUuid"
+  </sql>
+
+  <select id="selectByQualityGateAndGroup" parameterType="String" resultType="org.sonar.db.qualitygate.QualityGateGroupPermissionsDto">
+    select
+    <include refid="sqlColumns"/>
+    from qgate_group_permissions qggp
+    where
+    qggp.group_uuid = #{groupUuid}
+    and qggp.quality_gate_uuid = #{qualityGateUuid}
+  </select>
+
+  <select id="selectByQualityGateAndGroups" parameterType="map" resultType="org.sonar.db.qualitygate.QualityGateGroupPermissionsDto">
+    select
+    <include refid="sqlColumns"/>
+    from qgate_group_permissions qggp
+    where
+    <foreach collection="groupUuids" open="(" close=")" item="groupUuid" separator=" or ">
+      qggp.group_uuid = #{groupUuid, jdbcType=VARCHAR}
+    </foreach>
+    and qggp.quality_gate_uuid = #{qualityGateUuid, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="map">
+    insert into qgate_group_permissions(
+    uuid,
+    group_uuid,
+    quality_gate_uuid,
+    created_at
+    ) values (
+    #{dto.uuid, jdbcType=VARCHAR},
+    #{dto.groupUuid, jdbcType=VARCHAR},
+    #{dto.qualityGateUuid, jdbcType=VARCHAR},
+    #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+</mapper>

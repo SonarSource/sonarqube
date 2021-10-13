@@ -115,6 +115,7 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationMapper;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateConditionMapper;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.qualitygate.QualityGateGroupPermissionsMapper;
 import org.sonar.db.qualitygate.QualityGateUserPermissionsMapper;
 import org.sonar.db.qualitygate.QualityGateMapper;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -279,6 +280,7 @@ public class MyBatis implements Startable {
       QProfileEditUsersMapper.class,
       QualityGateConditionMapper.class,
       QualityGateMapper.class,
+      QualityGateGroupPermissionsMapper.class,
       QualityGateUserPermissionsMapper.class,
       QualityProfileMapper.class,
       QualityProfileExportMapper.class,

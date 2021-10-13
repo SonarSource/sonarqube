@@ -88,9 +88,15 @@ public class QualityGatesWsSupport {
 
   void checkCanLimitedEdit(DbSession dbSession, QualityGateDto qualityGate) {
     checkNotBuiltIn(qualityGate);
-    if (!userSession.hasPermission(ADMINISTER_QUALITY_GATES) && !userHasPermission(dbSession, qualityGate)) {
+    if (!userSession.hasPermission(ADMINISTER_QUALITY_GATES)
+      && !userHasPermission(dbSession, qualityGate)
+      && !userHasGroupPermission(dbSession, qualityGate)) {
       throw insufficientPrivilegesException();
     }
+  }
+
+  boolean userHasGroupPermission(DbSession dbSession, QualityGateDto qualityGate) {
+    return userSession.isLoggedIn() && dbClient.qualityGateGroupPermissionsDao().exists(dbSession, qualityGate, userSession.getGroups());
   }
 
   boolean userHasPermission(DbSession dbSession, QualityGateDto qualityGate) {

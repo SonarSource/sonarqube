@@ -17,33 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualitygate.ws;
+package org.sonar.db.qualitygate;
 
-import org.sonar.core.platform.Module;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
-public class QualityGateWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AddUserAction.class,
-      QualityGatesWsSupport.class,
-      QualityGatesWs.class,
-      ListAction.class,
-      SearchAction.class,
-      ShowAction.class,
-      CreateAction.class,
-      RenameAction.class,
-      CopyAction.class,
-      DestroyAction.class,
-      SetAsDefaultAction.class,
-      SelectAction.class,
-      DeselectAction.class,
-      CreateConditionAction.class,
-      DeleteConditionAction.class,
-      UpdateConditionAction.class,
-      ProjectStatusAction.class,
-      GetByProjectAction.class,
-      AddGroupAction.class
-    );
-  }
+public interface QualityGateGroupPermissionsMapper {
+
+  QualityGateGroupPermissionsDto selectByQualityGateAndGroup(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuid") String groupUuid);
+
+  List<QualityGateGroupPermissionsDto> selectByQualityGateAndGroups(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuids") List<String> groupUuids);
+
+  void insert(@Param("dto") QualityGateGroupPermissionsDto dto, @Param("now") long now);
 }
