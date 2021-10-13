@@ -120,8 +120,6 @@
     "postcss-calc": "7.0.2",
     "postcss-custom-properties": "9.1.1",
     "prettier": "1.19.1",
-    "react-dev-utils": "5.0.1",
-    "react-error-overlay": "1.0.7",
     "react-test-renderer": "16.13.0",
     "remark": "11.0.2",
     "remark-react": "7",
