@@ -21,12 +21,12 @@ package org.sonar.server.platform.db.migration.version.v92;
 
 import org.sonar.db.Database;
 
-public class CreateQGateUserPermissionsTable extends CreateQGatePermissionsTable {
-  private static final String TABLE_NAME = "qgate_user_permissions";
-  private static final String QUALITY_GATE_UUID_INDEX = "quality_gate_uuid_idx";
-  private static final String COLUMN_NAME = "user_uuid";
+public class CreateQGateGroupPermissionsTable extends CreateQGatePermissionsTable {
+  private static final String TABLE_NAME = "qgate_group_permissions";
+  private static final String QUALITY_GATE_UUID_INDEX = "qg_groups_uuid_idx";
+  private static final String COLUMN_NAME = "group_uuid";
 
-  public CreateQGateUserPermissionsTable(Database db) {
+  public CreateQGateGroupPermissionsTable(Database db) {
     super(db, TABLE_NAME, QUALITY_GATE_UUID_INDEX, COLUMN_NAME);
   }
 }
