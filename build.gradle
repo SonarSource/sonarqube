@@ -60,6 +60,15 @@ dependencyCheck {
 }
 
 allprojects {
+    
+    tasks.withType(Test).configureEach {
+        forkEvery = 200
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.fork = true
+    }
+
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
 
