@@ -86,3 +86,8 @@ export interface SearchPermissionsParameters {
   q?: string;
   selected?: 'all' | 'selected' | 'deselected';
 }
+
+export interface AddDeleteUserPermissionsParameters {
+  qualityGate: string;
+  userLogin: string;
+}

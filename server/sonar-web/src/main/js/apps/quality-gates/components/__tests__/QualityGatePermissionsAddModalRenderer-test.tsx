@@ -19,29 +19,34 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import { mockUser } from '../../../../helpers/testMocks';
-import QualityGatePermissionsRenderer, {
-  QualityGatePermissionsRendererProps
-} from '../QualityGatePermissionsRenderer';
+import { mockUserBase } from '../../../../helpers/mocks/users';
+import QualityGatePermissionsAddModalRenderer, {
+  QualityGatePermissionsAddModalRendererProps
+} from '../QualityGatePermissionsAddModalRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('with users');
-  expect(shallowRender({ users: [] })).toMatchSnapshot('with no users');
-  expect(shallowRender({ showAddModal: true })).toMatchSnapshot('show modal');
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ query: 'a' })).toMatchSnapshot('short query');
+  expect(shallowRender({ selection: mockUserBase() })).toMatchSnapshot('selection');
+  expect(shallowRender({ selection: mockUserBase(), submitting: true })).toMatchSnapshot(
+    'submitting'
+  );
+  expect(shallowRender({ query: 'ab', searchResults: [mockUserBase()] })).toMatchSnapshot(
+    'query and results'
+  );
 });
 
-function shallowRender(overrides: Partial<QualityGatePermissionsRendererProps> = {}) {
+function shallowRender(overrides: Partial<QualityGatePermissionsAddModalRendererProps> = {}) {
   return shallow(
-    <QualityGatePermissionsRenderer
-      addingUser={false}
+    <QualityGatePermissionsAddModalRenderer
       loading={false}
-      onClickAddPermission={jest.fn()}
-      onCloseAddPermission={jest.fn()}
-      onSubmitAddPermission={jest.fn()}
-      qualityGate={mockQualityGate()}
-      showAddModal={false}
-      users={[mockUser()]}
+      onClose={jest.fn()}
+      onInputChange={jest.fn()}
+      onSelection={jest.fn()}
+      onSubmit={jest.fn()}
+      query=""
+      searchResults={[]}
+      submitting={false}
       {...overrides}
     />
   );

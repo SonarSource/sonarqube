@@ -1,5 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly: show modal 1`] = `
+<div>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.permissions
+    </h3>
+  </header>
+  <p
+    className="spacer-bottom"
+  >
+    quality_gates.permissions.help
+  </p>
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul>
+        <li
+          className="spacer-top"
+          key="john.doe"
+        >
+          <PermissionItem
+            user={
+              Object {
+                "active": true,
+                "local": true,
+                "login": "john.doe",
+                "name": "John Doe",
+              }
+            }
+          />
+        </li>
+      </ul>
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    quality_gates.permissions.grant
+  </Button>
+  <QualityGatePermissionsAddModal
+    onClose={[MockFunction]}
+    onSubmit={[MockFunction]}
+    qualityGate={
+      Object {
+        "id": "1",
+        "name": "qualitygate",
+      }
+    }
+    submitting={false}
+  />
+</div>
+`;
+
 exports[`should render correctly: with no users 1`] = `
 <div>
   <header
@@ -14,11 +71,19 @@ exports[`should render correctly: with no users 1`] = `
   >
     quality_gates.permissions.help
   </p>
-  <DeferredSpinner
-    loading={false}
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul />
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
   >
-    <ul />
-  </DeferredSpinner>
+    quality_gates.permissions.grant
+  </Button>
 </div>
 `;
 
@@ -36,26 +101,34 @@ exports[`should render correctly: with users 1`] = `
   >
     quality_gates.permissions.help
   </p>
-  <DeferredSpinner
-    loading={false}
-  >
-    <ul>
-      <li
-        className="spacer-top"
-        key="john.doe"
-      >
-        <PermissionItem
-          user={
-            Object {
-              "active": true,
-              "local": true,
-              "login": "john.doe",
-              "name": "John Doe",
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul>
+        <li
+          className="spacer-top"
+          key="john.doe"
+        >
+          <PermissionItem
+            user={
+              Object {
+                "active": true,
+                "local": true,
+                "login": "john.doe",
+                "name": "John Doe",
+              }
             }
-          }
-        />
-      </li>
-    </ul>
-  </DeferredSpinner>
+          />
+        </li>
+      </ul>
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    quality_gates.permissions.grant
+  </Button>
 </div>
 `;

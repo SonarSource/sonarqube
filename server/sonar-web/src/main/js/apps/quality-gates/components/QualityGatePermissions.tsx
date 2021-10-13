@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import * as React from 'react';
-import { searchUsers } from '../../../api/quality-gates';
+import { addUser, searchUsers } from '../../../api/quality-gates';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
 
 interface Props {
@@ -26,14 +27,18 @@ interface Props {
 }
 
 interface State {
+  addingUser: boolean;
   loading: boolean;
+  showAddModal: boolean;
   users: T.UserBase[];
 }
 
 export default class QualityGatePermissions extends React.Component<Props, State> {
   mounted = false;
   state: State = {
+    addingUser: false,
     loading: true,
+    showAddModal: false,
     users: []
   };
 
@@ -69,8 +74,50 @@ export default class QualityGatePermissions extends React.Component<Props, State
     }
   };
 
+  handleCloseAddPermission = () => {
+    this.setState({ showAddModal: false });
+  };
+
+  handleClickAddPermission = () => {
+    this.setState({ showAddModal: true });
+  };
+
+  handleSubmitAddPermission = async (user: T.UserBase) => {
+    const { qualityGate } = this.props;
+    this.setState({ addingUser: true });
+
+    let error = false;
+    try {
+      await addUser({ qualityGate: qualityGate.id, userLogin: user.login });
+    } catch (_) {
+      error = true;
+    }
+
+    if (this.mounted) {
+      this.setState(({ users }) => {
+        return {
+          addingUser: false,
+          showAddModal: error,
+          users: sortBy(users.concat(user), ['name'])
+        };
+      });
+    }
+  };
+
   render() {
-    const { loading, users } = this.state;
-    return <QualityGatePermissionsRenderer loading={loading} users={users} />;
+    const { qualityGate } = this.props;
+    const { addingUser, loading, showAddModal, users } = this.state;
+    return (
+      <QualityGatePermissionsRenderer
+        addingUser={addingUser}
+        loading={loading}
+        onClickAddPermission={this.handleClickAddPermission}
+        onCloseAddPermission={this.handleCloseAddPermission}
+        onSubmitAddPermission={this.handleSubmitAddPermission}
+        qualityGate={qualityGate}
+        showAddModal={showAddModal}
+        users={users}
+      />
+    );
   }
 }

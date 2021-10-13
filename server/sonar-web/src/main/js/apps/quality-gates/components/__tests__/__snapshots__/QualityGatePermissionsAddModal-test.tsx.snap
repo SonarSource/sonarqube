@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<QualityGatePermissionsAddModalRenderer
+  loading={false}
+  onClose={[MockFunction]}
+  onInputChange={[Function]}
+  onSelection={[Function]}
+  onSubmit={[Function]}
+  query=""
+  searchResults={Array []}
+  submitting={false}
+/>
+`;
+
+exports[`should render correctly: submitting 1`] = `
+<QualityGatePermissionsAddModalRenderer
+  loading={false}
+  onClose={[MockFunction]}
+  onInputChange={[Function]}
+  onSelection={[Function]}
+  onSubmit={[Function]}
+  query=""
+  searchResults={Array []}
+  submitting={true}
+/>
+`;

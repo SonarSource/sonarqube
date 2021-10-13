@@ -18,17 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Button } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import PermissionItem from './PermissionItem';
+import QualityGatePermissionsAddModal from './QualityGatePermissionsAddModal';
 
 export interface QualityGatePermissionsRendererProps {
+  addingUser: boolean;
   loading: boolean;
+  onClickAddPermission: () => void;
+  onCloseAddPermission: () => void;
+  onSubmitAddPermission: (user: T.UserBase) => void;
+  qualityGate: T.QualityGate;
+  showAddModal: boolean;
   users: T.UserBase[];
 }
 
 export default function QualityGatePermissionsRenderer(props: QualityGatePermissionsRendererProps) {
-  const { loading, users } = props;
+  const { addingUser, loading, qualityGate, showAddModal, users } = props;
 
   return (
     <div>
@@ -36,15 +44,30 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
         <h3>{translate('quality_gates.permissions')}</h3>
       </header>
       <p className="spacer-bottom">{translate('quality_gates.permissions.help')}</p>
-      <DeferredSpinner loading={loading}>
-        <ul>
-          {users.map(user => (
-            <li key={user.login} className="spacer-top">
-              <PermissionItem user={user} />
-            </li>
-          ))}
-        </ul>
-      </DeferredSpinner>
+      <div>
+        <DeferredSpinner loading={loading}>
+          <ul>
+            {users.map(user => (
+              <li key={user.login} className="spacer-top">
+                <PermissionItem user={user} />
+              </li>
+            ))}
+          </ul>
+        </DeferredSpinner>
+      </div>
+
+      <Button className="big-spacer-top" onClick={props.onClickAddPermission}>
+        {translate('quality_gates.permissions.grant')}
+      </Button>
+
+      {showAddModal && (
+        <QualityGatePermissionsAddModal
+          qualityGate={qualityGate}
+          onClose={props.onCloseAddPermission}
+          onSubmit={props.onSubmitAddPermission}
+          submitting={addingUser}
+        />
+      )}
     </div>
   );
 }

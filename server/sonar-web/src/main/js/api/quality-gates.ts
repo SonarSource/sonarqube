@@ -21,6 +21,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
+  AddDeleteUserPermissionsParameters,
   QualityGateApplicationStatus,
   QualityGateProjectStatus,
   SearchPermissionsParameters
@@ -127,6 +128,10 @@ export function getQualityGateProjectStatus(
   return getJSON('/api/qualitygates/project_status', data)
     .then(r => r.projectStatus)
     .catch(throwGlobalError);
+}
+
+export function addUser(data: AddDeleteUserPermissionsParameters) {
+  return post('/api/qualitygates/add_user', data).catch(throwGlobalError);
 }
 
 export function searchUsers(data: SearchPermissionsParameters): Promise<{ users: T.UserBase[] }> {
