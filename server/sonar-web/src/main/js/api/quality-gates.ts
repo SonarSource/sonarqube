@@ -134,6 +134,10 @@ export function addUser(data: AddDeleteUserPermissionsParameters) {
   return post('/api/qualitygates/add_user', data).catch(throwGlobalError);
 }
 
+export function removeUser(data: AddDeleteUserPermissionsParameters) {
+  return post('/api/qualitygates/remove_user', data).catch(throwGlobalError);
+}
+
 export function searchUsers(data: SearchPermissionsParameters): Promise<{ users: T.UserBase[] }> {
   return getJSON('/api/qualitygates/search_users', data).catch(throwGlobalError);
 }

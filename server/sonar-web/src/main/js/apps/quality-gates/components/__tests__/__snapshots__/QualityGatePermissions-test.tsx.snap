@@ -2,10 +2,12 @@
 
 exports[`should render correctly 1`] = `
 <QualityGatePermissionsRenderer
-  addingUser={false}
   loading={true}
   onClickAddPermission={[Function]}
+  onClickDeletePermission={[Function]}
   onCloseAddPermission={[Function]}
+  onCloseDeletePermission={[Function]}
+  onConfirmDeletePermission={[Function]}
   onSubmitAddPermission={[Function]}
   qualityGate={
     Object {
@@ -14,6 +16,7 @@ exports[`should render correctly 1`] = `
     }
   }
   showAddModal={false}
+  submitting={false}
   users={Array []}
 />
 `;

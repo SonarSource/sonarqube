@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Select from '../../../../components/controls/Select';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import QualityGatePermissionsAddModalRenderer, {
   QualityGatePermissionsAddModalRendererProps
@@ -34,6 +35,14 @@ it('should render correctly', () => {
   expect(shallowRender({ query: 'ab', searchResults: [mockUserBase()] })).toMatchSnapshot(
     'query and results'
   );
+});
+
+it('should render options correctly', () => {
+  const wrapper = shallowRender();
+
+  const { optionRenderer = () => null } = wrapper.find(Select).props();
+
+  expect(optionRenderer({ avatar: 'avatar', name: 'name', login: 'login' })).toMatchSnapshot();
 });
 
 function shallowRender(overrides: Partial<QualityGatePermissionsAddModalRendererProps> = {}) {

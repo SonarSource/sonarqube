@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <div
-  className="display-flex-row"
+  className="display-flex-center permission-list-item padded"
 >
   <Connect(Avatar)
     className="spacer-right"
@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
     size={32}
   />
   <div
-    className="overflow-hidden"
+    className="overflow-hidden flex-1"
   >
     <strong>
       John Doe
@@ -21,5 +21,8 @@ exports[`should render correctly 1`] = `
       john.doe
     </div>
   </div>
+  <DeleteButton
+    onClick={[Function]}
+  />
 </div>
 `;

@@ -37,3 +37,7 @@
   padding-left: var(--gridSize);
   font-style: normal;
 }
+
+.quality-gate-permissions .permission-list-item:hover {
+  background-color: var(--rowHoverHighlight);
+}

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { searchUsers } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../../../helpers/mocks/users';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import QualityGatePermissionsAddModal from '../QualityGatePermissionsAddModal';
 
 jest.mock('../../../../api/quality-gates', () => ({
@@ -32,6 +32,7 @@ jest.mock('../../../../api/quality-gates', () => ({
 beforeEach(() => {
   jest.clearAllMocks();
 });
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
@@ -53,6 +54,45 @@ it('should fetch users', async () => {
 
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().searchResults).toHaveLength(1);
+});
+
+it('should handle input change', () => {
+  const wrapper = shallowRender();
+
+  wrapper.instance().handleSearch = jest.fn();
+  const { handleSearch } = wrapper.instance();
+
+  wrapper.instance().handleInputChange('a');
+
+  expect(wrapper.state().query).toBe('a');
+  expect(handleSearch).not.toBeCalled();
+
+  const query = 'query';
+  wrapper.instance().handleInputChange(query);
+
+  expect(wrapper.state().query).toBe(query);
+  expect(handleSearch).toBeCalledWith(query);
+});
+
+it('should handleSelection', () => {
+  const wrapper = shallowRender();
+  const selection = mockUserBase();
+  wrapper.instance().handleSelection(selection);
+  expect(wrapper.state().selection).toBe(selection);
+});
+
+it('should handleSubmit', () => {
+  const onSubmit = jest.fn();
+  const wrapper = shallowRender({ onSubmit });
+
+  wrapper.instance().handleSubmit(mockEvent());
+
+  expect(onSubmit).not.toBeCalled();
+
+  const selection = mockUserBase();
+  wrapper.setState({ selection });
+  wrapper.instance().handleSubmit(mockEvent());
+  expect(onSubmit).toBeCalledWith(selection);
 });
 
 function shallowRender(overrides: Partial<QualityGatePermissionsAddModal['props']> = {}) {

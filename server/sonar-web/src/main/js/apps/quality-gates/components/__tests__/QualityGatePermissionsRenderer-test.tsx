@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
+import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockUser } from '../../../../helpers/testMocks';
 import QualityGatePermissionsRenderer, {
   QualityGatePermissionsRendererProps
@@ -28,19 +29,25 @@ import QualityGatePermissionsRenderer, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('with users');
   expect(shallowRender({ users: [] })).toMatchSnapshot('with no users');
-  expect(shallowRender({ showAddModal: true })).toMatchSnapshot('show modal');
+  expect(shallowRender({ showAddModal: true })).toMatchSnapshot('show add modal');
+  expect(shallowRender({ userPermissionToDelete: mockUserBase() })).toMatchSnapshot(
+    'show remove modal'
+  );
 });
 
 function shallowRender(overrides: Partial<QualityGatePermissionsRendererProps> = {}) {
   return shallow(
     <QualityGatePermissionsRenderer
-      addingUser={false}
       loading={false}
       onClickAddPermission={jest.fn()}
       onCloseAddPermission={jest.fn()}
       onSubmitAddPermission={jest.fn()}
+      onCloseDeletePermission={jest.fn()}
+      onClickDeletePermission={jest.fn()}
+      onConfirmDeletePermission={jest.fn()}
       qualityGate={mockQualityGate()}
       showAddModal={false}
+      submitting={false}
       users={[mockUser()]}
       {...overrides}
     />

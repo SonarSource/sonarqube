@@ -27,5 +27,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender() {
-  return shallow(<PermissionItem user={mockUser()} />);
+  return shallow(<PermissionItem onClickDelete={jest.fn()} user={mockUser()} />);
 }

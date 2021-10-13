@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { DeleteButton } from '../../../components/controls/buttons';
 import Avatar from '../../../components/ui/Avatar';
 
 interface Props {
+  onClickDelete: (user: T.UserBase) => void;
   user: T.UserBase;
 }
 
@@ -28,13 +30,15 @@ export default function PermissionItem(props: Props) {
   const { user } = props;
 
   return (
-    <div className="display-flex-row">
+    <div className="display-flex-center permission-list-item padded">
       <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={32} />
 
-      <div className="overflow-hidden">
+      <div className="overflow-hidden flex-1">
         <strong>{user.name}</strong>
         <div className="note">{user.login}</div>
       </div>
+
+      <DeleteButton onClick={() => props.onClickDelete(user)} />
     </div>
   );
 }

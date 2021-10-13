@@ -18,28 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
+import ConfirmModal from '../../../components/controls/ConfirmModal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import PermissionItem from './PermissionItem';
 import QualityGatePermissionsAddModal from './QualityGatePermissionsAddModal';
 
 export interface QualityGatePermissionsRendererProps {
-  addingUser: boolean;
   loading: boolean;
   onClickAddPermission: () => void;
   onCloseAddPermission: () => void;
   onSubmitAddPermission: (user: T.UserBase) => void;
+  onCloseDeletePermission: () => void;
+  onConfirmDeletePermission: (user: T.UserBase) => void;
+  onClickDeletePermission: (user: T.UserBase) => void;
   qualityGate: T.QualityGate;
   showAddModal: boolean;
+  submitting: boolean;
+  userPermissionToDelete?: T.UserBase;
   users: T.UserBase[];
 }
 
 export default function QualityGatePermissionsRenderer(props: QualityGatePermissionsRendererProps) {
-  const { addingUser, loading, qualityGate, showAddModal, users } = props;
+  const { loading, qualityGate, showAddModal, submitting, userPermissionToDelete, users } = props;
 
   return (
-    <div>
+    <div className="quality-gate-permissions">
       <header className="display-flex-center spacer-bottom">
         <h3>{translate('quality_gates.permissions')}</h3>
       </header>
@@ -48,8 +54,8 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
         <DeferredSpinner loading={loading}>
           <ul>
             {users.map(user => (
-              <li key={user.login} className="spacer-top">
-                <PermissionItem user={user} />
+              <li key={user.login}>
+                <PermissionItem onClickDelete={props.onClickDeletePermission} user={user} />
               </li>
             ))}
           </ul>
@@ -65,8 +71,26 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
           qualityGate={qualityGate}
           onClose={props.onCloseAddPermission}
           onSubmit={props.onSubmitAddPermission}
-          submitting={addingUser}
+          submitting={submitting}
         />
+      )}
+
+      {userPermissionToDelete && (
+        <ConfirmModal
+          header={translate('users.remove')}
+          confirmButtonText={translate('remove')}
+          isDestructive={true}
+          confirmData={userPermissionToDelete}
+          onClose={props.onCloseDeletePermission}
+          onConfirm={props.onConfirmDeletePermission}>
+          <FormattedMessage
+            defaultMessage={translate('users.remove.confirmation')}
+            id="users.remove.confirmation"
+            values={{
+              user: <strong>{userPermissionToDelete.name}</strong>
+            }}
+          />
+        </ConfirmModal>
       )}
     </div>
   );

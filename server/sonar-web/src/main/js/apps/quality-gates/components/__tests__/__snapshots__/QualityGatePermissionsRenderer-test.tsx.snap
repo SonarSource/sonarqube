@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: show modal 1`] = `
-<div>
+exports[`should render correctly: show add modal 1`] = `
+<div
+  className="quality-gate-permissions"
+>
   <header
     className="display-flex-center spacer-bottom"
   >
@@ -20,10 +22,10 @@ exports[`should render correctly: show modal 1`] = `
     >
       <ul>
         <li
-          className="spacer-top"
           key="john.doe"
         >
           <PermissionItem
+            onClickDelete={[MockFunction]}
             user={
               Object {
                 "active": true,
@@ -57,8 +59,80 @@ exports[`should render correctly: show modal 1`] = `
 </div>
 `;
 
+exports[`should render correctly: show remove modal 1`] = `
+<div
+  className="quality-gate-permissions"
+>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.permissions
+    </h3>
+  </header>
+  <p
+    className="spacer-bottom"
+  >
+    quality_gates.permissions.help
+  </p>
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul>
+        <li
+          key="john.doe"
+        >
+          <PermissionItem
+            onClickDelete={[MockFunction]}
+            user={
+              Object {
+                "active": true,
+                "local": true,
+                "login": "john.doe",
+                "name": "John Doe",
+              }
+            }
+          />
+        </li>
+      </ul>
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    quality_gates.permissions.grant
+  </Button>
+  <ConfirmModal
+    confirmButtonText="remove"
+    confirmData={
+      Object {
+        "login": "userlogin",
+      }
+    }
+    header="users.remove"
+    isDestructive={true}
+    onClose={[MockFunction]}
+    onConfirm={[MockFunction]}
+  >
+    <FormattedMessage
+      defaultMessage="users.remove.confirmation"
+      id="users.remove.confirmation"
+      values={
+        Object {
+          "user": <strong />,
+        }
+      }
+    />
+  </ConfirmModal>
+</div>
+`;
+
 exports[`should render correctly: with no users 1`] = `
-<div>
+<div
+  className="quality-gate-permissions"
+>
   <header
     className="display-flex-center spacer-bottom"
   >
@@ -88,7 +162,9 @@ exports[`should render correctly: with no users 1`] = `
 `;
 
 exports[`should render correctly: with users 1`] = `
-<div>
+<div
+  className="quality-gate-permissions"
+>
   <header
     className="display-flex-center spacer-bottom"
   >
@@ -107,10 +183,10 @@ exports[`should render correctly: with users 1`] = `
     >
       <ul>
         <li
-          className="spacer-top"
           key="john.doe"
         >
           <PermissionItem
+            onClickDelete={[MockFunction]}
             user={
               Object {
                 "active": true,

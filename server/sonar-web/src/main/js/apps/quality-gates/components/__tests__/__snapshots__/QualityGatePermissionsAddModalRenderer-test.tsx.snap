@@ -314,3 +314,23 @@ exports[`should render correctly: submitting 1`] = `
   </form>
 </Modal>
 `;
+
+exports[`should render options correctly 1`] = `
+<React.Fragment>
+  <Connect(Avatar)
+    hash="avatar"
+    name="name"
+    size={16}
+  />
+  <strong
+    className="spacer-left"
+  >
+    name
+  </strong>
+  <span
+    className="note little-spacer-left"
+  >
+    login
+  </span>
+</React.Fragment>
+`;

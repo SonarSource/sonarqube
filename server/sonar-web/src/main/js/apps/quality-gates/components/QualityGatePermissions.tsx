@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { addUser, searchUsers } from '../../../api/quality-gates';
+import { addUser, removeUser, searchUsers } from '../../../api/quality-gates';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
 
 interface Props {
@@ -27,16 +27,17 @@ interface Props {
 }
 
 interface State {
-  addingUser: boolean;
+  submitting: boolean;
   loading: boolean;
   showAddModal: boolean;
+  userPermissionToDelete?: T.UserBase;
   users: T.UserBase[];
 }
 
 export default class QualityGatePermissions extends React.Component<Props, State> {
   mounted = false;
   state: State = {
-    addingUser: false,
+    submitting: false,
     loading: true,
     showAddModal: false,
     users: []
@@ -84,38 +85,67 @@ export default class QualityGatePermissions extends React.Component<Props, State
 
   handleSubmitAddPermission = async (user: T.UserBase) => {
     const { qualityGate } = this.props;
-    this.setState({ addingUser: true });
+    this.setState({ submitting: true });
 
     let error = false;
     try {
       await addUser({ qualityGate: qualityGate.id, userLogin: user.login });
-    } catch (_) {
+    } catch {
       error = true;
     }
 
     if (this.mounted) {
       this.setState(({ users }) => {
         return {
-          addingUser: false,
+          submitting: false,
           showAddModal: error,
-          users: sortBy(users.concat(user), ['name'])
+          users: sortBy(users.concat(user), u => u.name)
         };
       });
     }
   };
 
+  handleCloseDeletePermission = () => {
+    this.setState({ userPermissionToDelete: undefined });
+  };
+
+  handleClickDeletePermission = (userPermissionToDelete?: T.UserBase) => {
+    this.setState({ userPermissionToDelete });
+  };
+
+  handleConfirmDeletePermission = async (user: T.UserBase) => {
+    const { qualityGate } = this.props;
+
+    let error = false;
+    try {
+      await removeUser({ qualityGate: qualityGate.id, userLogin: user.login });
+    } catch {
+      error = true;
+    }
+
+    if (this.mounted && !error) {
+      this.setState(({ users }) => ({
+        users: users.filter(u => u.login !== user.login)
+      }));
+    }
+  };
+
   render() {
     const { qualityGate } = this.props;
-    const { addingUser, loading, showAddModal, users } = this.state;
+    const { submitting, loading, showAddModal, userPermissionToDelete, users } = this.state;
     return (
       <QualityGatePermissionsRenderer
-        addingUser={addingUser}
         loading={loading}
         onClickAddPermission={this.handleClickAddPermission}
         onCloseAddPermission={this.handleCloseAddPermission}
         onSubmitAddPermission={this.handleSubmitAddPermission}
+        onCloseDeletePermission={this.handleCloseDeletePermission}
+        onClickDeletePermission={this.handleClickDeletePermission}
+        onConfirmDeletePermission={this.handleConfirmDeletePermission}
         qualityGate={qualityGate}
         showAddModal={showAddModal}
+        submitting={submitting}
+        userPermissionToDelete={userPermissionToDelete}
         users={users}
       />
     );
