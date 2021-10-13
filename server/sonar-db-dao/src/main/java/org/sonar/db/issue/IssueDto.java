@@ -758,7 +758,7 @@ public final class IssueDto implements Serializable {
     issue.setSelectedAt(selectedAt);
     issue.setLocations(parseLocations());
     issue.setIsFromExternalRuleEngine(isExternal);
-    issue.setQuickFixAvailable(quickFixAvailable != null ? quickFixAvailable : false);
+    issue.setQuickFixAvailable(quickFixAvailable != null && quickFixAvailable);
     return issue;
   }
 }

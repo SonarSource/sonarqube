@@ -221,4 +221,17 @@ public class DefaultIssueTest {
 
     assertThat(issue.changes()).isEmpty();
   }
+
+  @Test
+  public void isQuickFixAvailable_givenQuickFixAvailable_returnTrue() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+
+    defaultIssue.setQuickFixAvailable(true);
+
+    assertThat(defaultIssue.isQuickFixAvailable()).isTrue();
+
+    defaultIssue.setQuickFixAvailable(false);
+
+    assertThat(defaultIssue.isQuickFixAvailable()).isFalse();
+  }
 }

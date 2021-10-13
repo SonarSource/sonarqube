@@ -19,14 +19,18 @@
  */
 package org.sonar.db.issue;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -148,5 +152,103 @@ public class IssueDtoTest {
 
     dto.setTagsString("");
     assertThat(dto.getTags()).isEmpty();
+  }
+
+  @Test
+  public void toDtoForComputationInsert_givenDefaultIssueWithAllFields_returnFullIssueDto() {
+    long now = System.currentTimeMillis();
+    Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    DefaultIssue defaultIssue = createExampleDefaultIssue(dateNow);
+
+    IssueDto issueDto = IssueDto.toDtoForComputationInsert(defaultIssue, "ruleUuid", now);
+
+    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).
+      containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
+
+    assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
+      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt, IssueDto::getCreatedAt)
+      .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now, now);
+
+    assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
+      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+      .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
+
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), "admin");
+
+    assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
+      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getModuleUuid,
+      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getIssueAttributes,
+      IssueDto::getRuleUuid)
+      .containsExactly(true, "123", "123", true, "123", "componentKey", "moduleUuid",
+        "path/to/module/uuid", "123", "projectKey", "key=value", "ruleUuid");
+
+    assertThat(issueDto.isQuickFixAvailable()).isTrue();
+
+  }
+
+  @Test
+  public void toDtoForUpdate_givenDefaultIssueWithAllFields_returnFullIssueDto() {
+    long now = System.currentTimeMillis();
+    Date dateNow = Date.from(new Date(now).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    DefaultIssue defaultIssue = createExampleDefaultIssue(dateNow);
+
+    IssueDto issueDto = IssueDto.toDtoForUpdate(defaultIssue, now);
+
+    assertThat(issueDto).extracting(IssueDto::getKey, IssueDto::getType, IssueDto::getRuleKey).
+      containsExactly("key", RuleType.BUG.getDbConstant(), RuleKey.of("repo", "rule"));
+
+    assertThat(issueDto).extracting(IssueDto::getIssueCreationDate, IssueDto::getIssueCloseDate,
+      IssueDto::getIssueUpdateDate, IssueDto::getSelectedAt, IssueDto::getUpdatedAt)
+      .containsExactly(dateNow, dateNow, dateNow, dateNow.getTime(), now);
+
+    assertThat(issueDto).extracting(IssueDto::getLine, IssueDto::getMessage,
+      IssueDto::getGap, IssueDto::getEffort, IssueDto::getResolution, IssueDto::getStatus, IssueDto::getSeverity)
+      .containsExactly(1, "message", 1.0, 1L, Issue.RESOLUTION_FALSE_POSITIVE, Issue.STATUS_CLOSED, "BLOCKER");
+
+    assertThat(issueDto).extracting(IssueDto::getTags, IssueDto::getAuthorLogin)
+      .containsExactly(Set.of("todo"), "admin");
+
+    assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
+      IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getModuleUuid,
+      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getIssueAttributes)
+      .containsExactly(true, "123", "123", true, "123", "componentKey", "moduleUuid",
+        "path/to/module/uuid", "123", "projectKey", "key=value");
+
+    assertThat(issueDto.isQuickFixAvailable()).isTrue();
+
+  }
+
+  private DefaultIssue createExampleDefaultIssue(Date dateNow) {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setKey("key")
+      .setType(RuleType.BUG)
+      .setLine(1)
+      .setMessage("message")
+      .setGap(1.0)
+      .setEffort(Duration.create(1))
+      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setSeverity("BLOCKER")
+      .setManualSeverity(true)
+      .setChecksum("123")
+      .setAssigneeUuid("123")
+      .setRuleKey(RuleKey.of("repo", "rule"))
+      .setIsFromExternalRuleEngine(true)
+      .setTags(List.of("todo"))
+      .setComponentUuid("123")
+      .setComponentKey("componentKey")
+      .setModuleUuid("moduleUuid")
+      .setModuleUuidPath("path/to/module/uuid")
+      .setProjectUuid("123")
+      .setProjectKey("projectKey")
+      .setAttribute("key", "value")
+      .setAuthorLogin("admin")
+      .setCreationDate(dateNow)
+      .setCloseDate(dateNow)
+      .setUpdateDate(dateNow)
+      .setSelectedAt(dateNow.getTime())
+      .setQuickFixAvailable(true);
+    return defaultIssue;
   }
 }

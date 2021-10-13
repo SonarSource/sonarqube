@@ -124,6 +124,7 @@ public class TrackerRawInputFactoryTest {
       .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
       .setGap(3.14)
+      .setQuickFixAvailable(true)
       .build();
     reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -138,6 +139,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.gap()).isEqualTo(3.14);
     assertThat(issue.message()).isEqualTo("the message");
+    assertThat(issue.isQuickFixAvailable()).isTrue();
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
