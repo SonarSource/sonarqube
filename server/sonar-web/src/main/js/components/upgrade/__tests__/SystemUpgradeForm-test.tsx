@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { EditionKey } from '../../../../../types/editions';
+import { EditionKey } from '../../../types/editions';
 import { SystemUpgradeForm } from '../SystemUpgradeForm';
 
 const UPGRADES = [

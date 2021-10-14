@@ -8,53 +8,8 @@ exports[`should render correctly 1`] = `
     variant="info"
   >
     system.new_version_available
-    <Button
-      className="spacer-left"
-      onClick={[Function]}
-    >
-      learn_more
-    </Button>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly 2`] = `
-<div
-  className="page-notifs"
->
-  <Alert
-    variant="info"
-  >
-    system.new_version_available
-    <Button
-      className="spacer-left"
-      onClick={[Function]}
-    >
-      learn_more
-    </Button>
-  </Alert>
-  <Connect(withAppState(SystemUpgradeForm))
-    onClose={[Function]}
-    systemUpgrades={
-      Array [
-        Array [
-          Object {
-            "changeLogUrl": "changelogurl",
-            "description": "Version 6.4 description",
-            "downloadUrl": "downloadurl",
-            "plugins": Object {},
-            "releaseDate": "2017-06-02",
-            "version": "6.4",
-          },
-          Object {
-            "changeLogUrl": "changelogurl",
-            "description": "Version 6.3 description",
-            "downloadUrl": "downloadurl",
-            "plugins": Object {},
-            "releaseDate": "2017-05-02",
-            "version": "6.3",
-          },
-        ],
+    <SystemUpgradeButton
+      systemUpgrades={
         Array [
           Object {
             "changeLogUrl": "changelogurl",
@@ -66,6 +21,22 @@ exports[`should render correctly 2`] = `
           },
           Object {
             "changeLogUrl": "changelogurl",
+            "description": "Version 5.6.5 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-03-01",
+            "version": "5.6.5",
+          },
+          Object {
+            "changeLogUrl": "changelogurl",
+            "description": "Version 6.3 description",
+            "downloadUrl": "downloadurl",
+            "plugins": Object {},
+            "releaseDate": "2017-05-02",
+            "version": "6.3",
+          },
+          Object {
+            "changeLogUrl": "changelogurl",
             "description": "Version 5.6.6 description",
             "downloadUrl": "downloadurl",
             "plugins": Object {},
@@ -74,15 +45,15 @@ exports[`should render correctly 2`] = `
           },
           Object {
             "changeLogUrl": "changelogurl",
-            "description": "Version 5.6.5 description",
+            "description": "Version 6.4 description",
             "downloadUrl": "downloadurl",
             "plugins": Object {},
-            "releaseDate": "2017-03-01",
-            "version": "5.6.5",
+            "releaseDate": "2017-06-02",
+            "version": "6.4",
           },
-        ],
-      ]
-    }
-  />
+        ]
+      }
+    />
+  </Alert>
 </div>
 `;

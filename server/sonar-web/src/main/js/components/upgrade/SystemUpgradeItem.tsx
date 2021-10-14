@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DateFormatter from '../../../../components/intl/DateFormatter';
 import {
   getEdition,
   getEditionDownloadFilename,
   getEditionDownloadUrl
-} from '../../../../helpers/editions';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { EditionKey } from '../../../../types/editions';
-import { SystemUpgrade } from '../../../../types/system';
+} from '../../helpers/editions';
+import { translate, translateWithParameters } from '../../helpers/l10n';
+import { EditionKey } from '../../types/editions';
+import { SystemUpgrade } from '../../types/system';
+import DateFormatter from '../intl/DateFormatter';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
 export interface SystemUpgradeItemProps {

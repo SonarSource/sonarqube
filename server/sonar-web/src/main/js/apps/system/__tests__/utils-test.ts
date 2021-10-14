@@ -19,7 +19,6 @@
  */
 
 import { mockClusterSysInfo, mockStandaloneSysInfo } from '../../../helpers/testMocks';
-import { SystemUpgrade } from '../../../types/system';
 import * as u from '../utils';
 
 describe('parseQuery', () => {
@@ -70,54 +69,6 @@ describe('getSystemLogsLevel', () => {
       )
     ).toBe('INFO');
     expect(u.getSystemLogsLevel({} as T.SysInfoStandalone)).toBe('INFO');
-  });
-});
-
-describe('sortUpgrades', () => {
-  it('should sort correctly versions', () => {
-    expect(
-      u.sortUpgrades([
-        { version: '5.4.2' },
-        { version: '5.10' },
-        { version: '5.1' },
-        { version: '5.4' }
-      ] as SystemUpgrade[])
-    ).toEqual([{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]);
-    expect(
-      u.sortUpgrades([
-        { version: '5.10' },
-        { version: '5.1.2' },
-        { version: '6.0' },
-        { version: '6.9' }
-      ] as SystemUpgrade[])
-    ).toEqual([{ version: '6.9' }, { version: '6.0' }, { version: '5.10' }, { version: '5.1.2' }]);
-  });
-});
-
-describe('groupUpgrades', () => {
-  it('should group correctly', () => {
-    expect(
-      u.groupUpgrades([
-        { version: '5.10' },
-        { version: '5.4.2' },
-        { version: '5.4' },
-        { version: '5.1' }
-      ] as SystemUpgrade[])
-    ).toEqual([
-      [{ version: '5.10' }, { version: '5.4.2' }, { version: '5.4' }, { version: '5.1' }]
-    ]);
-    expect(
-      u.groupUpgrades([
-        { version: '6.9' },
-        { version: '6.7' },
-        { version: '6.0' },
-        { version: '5.10' },
-        { version: '5.4.2' }
-      ] as SystemUpgrade[])
-    ).toEqual([
-      [{ version: '6.9' }, { version: '6.7' }, { version: '6.0' }],
-      [{ version: '5.10' }, { version: '5.4.2' }]
-    ]);
   });
 });
 

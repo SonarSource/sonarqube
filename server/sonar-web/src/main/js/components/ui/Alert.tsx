@@ -30,7 +30,7 @@ import InfoIcon from '../icons/InfoIcon';
 import DeferredSpinner from './DeferredSpinner';
 
 type AlertDisplay = 'banner' | 'inline' | 'block';
-type AlertVariant = 'error' | 'warning' | 'success' | 'info' | 'loading';
+export type AlertVariant = 'error' | 'warning' | 'success' | 'info' | 'loading';
 
 export interface AlertProps {
   display?: AlertDisplay;

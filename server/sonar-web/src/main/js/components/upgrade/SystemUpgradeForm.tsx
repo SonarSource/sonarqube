@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ResetButtonLink } from '../../../../components/controls/buttons';
-import Modal from '../../../../components/controls/Modal';
-import { withAppState } from '../../../../components/hoc/withAppState';
-import { translate } from '../../../../helpers/l10n';
-import { EditionKey } from '../../../../types/editions';
-import { SystemUpgrade } from '../../../../types/system';
+import { translate } from '../../helpers/l10n';
+import { EditionKey } from '../../types/editions';
+import { SystemUpgrade } from '../../types/system';
+import { ResetButtonLink } from '../controls/buttons';
+import Modal from '../controls/Modal';
+import { withAppState } from '../hoc/withAppState';
 import SystemUpgradeItem from './SystemUpgradeItem';
 
 interface Props {

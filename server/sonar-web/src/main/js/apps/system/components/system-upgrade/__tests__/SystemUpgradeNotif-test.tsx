@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../../../api/system';
-import { click, waitAndUpdate } from '../../../../../helpers/testUtils';
+import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import SystemUpgradeNotif from '../SystemUpgradeNotif';
 
 jest.mock('../../../../../api/system', () => ({
@@ -82,9 +82,6 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
   expect(getSystemUpgrades).toHaveBeenCalled();
 
-  expect(wrapper).toMatchSnapshot();
-
-  click(wrapper.find('Button'));
   expect(wrapper).toMatchSnapshot();
 });
 

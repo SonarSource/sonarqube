@@ -28,6 +28,7 @@ import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import GlobalNav from './nav/global/GlobalNav';
 import StartupModal from './StartupModal';
+import UpdateNotification from './update-notification/UpdateNotification';
 
 export interface Props {
   children: React.ReactNode;
@@ -52,6 +53,7 @@ export default function GlobalContainer(props: Props) {
                     <GlobalNav location={props.location} />
                     <GlobalMessagesContainer />
                     <IndexationNotification />
+                    <UpdateNotification />
                     {props.children}
                   </IndexationContextProvider>
                 </Workspace>

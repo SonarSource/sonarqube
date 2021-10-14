@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from '../../../../../helpers/testUtils';
+import { click } from '../../../helpers/testUtils';
 import SystemUpgradeIntermediate from '../SystemUpgradeIntermediate';
 
 const UPGRADES = [

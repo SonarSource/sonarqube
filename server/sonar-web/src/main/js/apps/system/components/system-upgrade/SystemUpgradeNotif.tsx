@@ -19,21 +19,18 @@
  */
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../../api/system';
-import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
+import SystemUpgradeButton from '../../../../components/upgrade/SystemUpgradeButton';
 import { translate } from '../../../../helpers/l10n';
 import { SystemUpgrade } from '../../../../types/system';
-import { groupUpgrades, sortUpgrades } from '../../utils';
-import SystemUpgradeForm from './SystemUpgradeForm';
 
 interface State {
-  systemUpgrades: SystemUpgrade[][];
-  openSystemUpgradeForm: boolean;
+  systemUpgrades: SystemUpgrade[];
 }
 
 export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
   mounted = false;
-  state: State = { openSystemUpgradeForm: false, systemUpgrades: [] };
+  state: State = { systemUpgrades: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -48,19 +45,11 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
     getSystemUpgrades().then(
       ({ upgrades }) => {
         if (this.mounted) {
-          this.setState({ systemUpgrades: groupUpgrades(sortUpgrades(upgrades)) });
+          this.setState({ systemUpgrades: upgrades });
         }
       },
       () => {}
     );
-
-  handleOpenSystemUpgradeForm = () => {
-    this.setState({ openSystemUpgradeForm: true });
-  };
-
-  handleCloseSystemUpgradeForm = () => {
-    this.setState({ openSystemUpgradeForm: false });
-  };
 
   render() {
     const { systemUpgrades } = this.state;
@@ -73,16 +62,8 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
       <div className="page-notifs">
         <Alert variant="info">
           {translate('system.new_version_available')}
-          <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>
-            {translate('learn_more')}
-          </Button>
+          <SystemUpgradeButton systemUpgrades={systemUpgrades} />
         </Alert>
-        {this.state.openSystemUpgradeForm && (
-          <SystemUpgradeForm
-            onClose={this.handleCloseSystemUpgradeForm}
-            systemUpgrades={systemUpgrades}
-          />
-        )}
       </div>
     );
   }

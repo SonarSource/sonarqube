@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ButtonLink } from '../../../../components/controls/buttons';
-import DropdownIcon from '../../../../components/icons/DropdownIcon';
-import DateFormatter from '../../../../components/intl/DateFormatter';
-import { translate } from '../../../../helpers/l10n';
-import { SystemUpgrade } from '../../../../types/system';
+import { translate } from '../../helpers/l10n';
+import { SystemUpgrade } from '../../types/system';
+import { ButtonLink } from '../controls/buttons';
+import DropdownIcon from '../icons/DropdownIcon';
+import DateFormatter from '../intl/DateFormatter';
 
 interface Props {
   className?: string;

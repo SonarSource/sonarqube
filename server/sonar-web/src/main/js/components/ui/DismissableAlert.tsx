@@ -45,25 +45,25 @@ export default function DismissableAlert(props: DismissableAlertProps) {
   }, [alertKey]);
 
   const hideAlert = () => {
+    window.dispatchEvent(new Event('resize'));
     save(DISMISSED_ALERT_STORAGE_KEY, 'true', alertKey);
   };
 
   return !show ? null : (
-    <Alert
-      className={classNames(`dismissable-alert-${display}`, className)}
-      display={display}
-      variant={variant}>
-      <div className="display-flex-center dismissable-alert-content">
-        <div className="flex-1">{children}</div>
-        <ButtonIcon
-          aria-label={translate('alert.dismiss')}
-          onClick={() => {
-            hideAlert();
-            setShow(false);
-          }}>
-          <ClearIcon size={12} thin={true} />
-        </ButtonIcon>
-      </div>
-    </Alert>
+    <div className={classNames('dismissable-alert-wrapper', className)}>
+      <Alert className={`dismissable-alert-${display}`} display={display} variant={variant}>
+        <div className="display-flex-center dismissable-alert-content">
+          <div className="flex-1">{children}</div>
+          <ButtonIcon
+            aria-label={translate('alert.dismiss')}
+            onClick={() => {
+              hideAlert();
+              setShow(false);
+            }}>
+            <ClearIcon size={12} thin={true} />
+          </ButtonIcon>
+        </div>
+      </Alert>
+    </div>
   );
 }
