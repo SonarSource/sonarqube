@@ -164,7 +164,7 @@ public class UserNewValue extends NewValue {
     addField(sb, "\"onboarded\": ", ObjectUtils.toString(this.onboarded), false);
     addField(sb, "\"root\": ", ObjectUtils.toString(this.root), false);
     addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
-      "" : DateUtils.formatDateTime(this.lastConnectionDate), false);
+      "" : DateUtils.formatDateTime(this.lastConnectionDate), true);
     endString(sb);
     return sb.toString();
   }
