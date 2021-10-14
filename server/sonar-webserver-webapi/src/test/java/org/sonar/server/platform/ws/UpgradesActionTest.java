@@ -48,6 +48,7 @@ public class UpgradesActionTest {
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
+  private Sonar sonar = mock(Sonar.class);
   private UpgradesAction underTest = new UpgradesAction(updateCenterFactory);
 
   private WsActionTester tester = new WsActionTester(underTest);
@@ -90,6 +91,7 @@ public class UpgradesActionTest {
   @Before
   public void wireMocks() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
+    when(updateCenter.getSonar()).thenReturn(sonar);
     when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
   }
 
@@ -124,6 +126,7 @@ public class UpgradesActionTest {
   @Test
   public void verify_JSON_response_against_example() {
     SonarUpdate sonarUpdate = createSonar_51_update();
+    when(sonar.getLtsRelease()).thenReturn(new Release(sonar, Version.create("8.9.2")));
     when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
 
     TestResponse response = tester.newRequest().execute();

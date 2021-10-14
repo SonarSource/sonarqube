@@ -32,6 +32,7 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.Version;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
@@ -44,6 +45,7 @@ public class UpgradesAction implements SystemWsAction {
   private static final boolean DO_NOT_FORCE_REFRESH = false;
 
   private static final String ARRAY_UPGRADES = "upgrades";
+  private static final String PROPERTY_UPDATE_CENTER_LTS = "latestLTS";
   private static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
   private static final String PROPERTY_VERSION = "version";
   private static final String PROPERTY_DESCRIPTION = "description";
@@ -111,6 +113,12 @@ public class UpgradesAction implements SystemWsAction {
     Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
     writeUpgrades(jsonWriter, updateCenter);
     if (updateCenter.isPresent()) {
+      Release ltsRelease = updateCenter.get().getSonar().getLtsRelease();
+      if (ltsRelease != null) {
+        Version ltsVersion = ltsRelease.getVersion();
+        String latestLTS = String.format("%s.%s", ltsVersion.getMajor(), ltsVersion.getMinor());
+        jsonWriter.prop(PROPERTY_UPDATE_CENTER_LTS, latestLTS);
+      }
       jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.get().getDate());
     }
 
