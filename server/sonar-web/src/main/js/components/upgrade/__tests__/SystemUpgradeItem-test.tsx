@@ -24,7 +24,8 @@ import SystemUpgradeItem, { SystemUpgradeItemProps } from '../SystemUpgradeItem'
 
 it('should display correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ isLatestVersion: false })).toMatchSnapshot();
+  expect(shallowRender({ isLTSVersion: true })).toMatchSnapshot();
+  expect(shallowRender({ isPatch: true })).toMatchSnapshot();
   expect(shallowRender({ edition: EditionKey.developer })).toMatchSnapshot();
   expect(shallowRender({ edition: EditionKey.enterprise })).toMatchSnapshot();
   expect(shallowRender({ edition: EditionKey.datacenter })).toMatchSnapshot();
@@ -76,7 +77,8 @@ function shallowRender(props: Partial<SystemUpgradeItemProps> = {}) {
           downloadDeveloperUrl: 'http://download.url/developer'
         }
       ]}
-      isLatestVersion={true}
+      isPatch={false}
+      isLTSVersion={false}
       {...props}
     />
   );

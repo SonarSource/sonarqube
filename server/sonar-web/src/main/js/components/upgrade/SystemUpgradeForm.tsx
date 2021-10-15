@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { filter, flatMap, isEmpty, negate } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
@@ -24,39 +25,73 @@ import { SystemUpgrade } from '../../types/system';
 import { ResetButtonLink } from '../controls/buttons';
 import Modal from '../controls/Modal';
 import { withAppState } from '../hoc/withAppState';
+import { Alert, AlertVariant } from '../ui/Alert';
 import SystemUpgradeItem from './SystemUpgradeItem';
+import { UpdateUseCase } from './utils';
 
 interface Props {
-  appState: Pick<T.AppState, 'edition'>;
+  appState: Pick<T.AppState, 'edition' | 'version'>;
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
+  latestLTS: string;
+  updateUseCase?: UpdateUseCase;
 }
+
+const MAP_ALERT: { [key in UpdateUseCase]?: AlertVariant } = {
+  [UpdateUseCase.NewPatch]: 'warning',
+  [UpdateUseCase.PreLTS]: 'warning',
+  [UpdateUseCase.PreviousLTS]: 'error'
+};
 
 interface State {
   upgrading: boolean;
 }
 
 export class SystemUpgradeForm extends React.PureComponent<Props, State> {
+  versionParser = /^(\d+)\.(\d+)(\.(\d+))?/;
   state: State = { upgrading: false };
 
   render() {
     const { upgrading } = this.state;
-    const { appState, systemUpgrades } = this.props;
+    const { appState, systemUpgrades, latestLTS, updateUseCase } = this.props;
+    let systemUpgradesWithPatch = systemUpgrades;
+    const alertVariant = updateUseCase ? MAP_ALERT[updateUseCase] : undefined;
     const header = translate('system.system_upgrade');
+    const parsedVersion = this.versionParser.exec(appState.version);
+    let patches: SystemUpgrade[] = [];
+    if (updateUseCase === UpdateUseCase.NewPatch && parsedVersion !== null) {
+      const [, major, minor] = parsedVersion;
+      const majoMinorVersion = `${major}.${minor}`;
+      patches = flatMap(systemUpgrades, upgrades =>
+        filter(upgrades, upgrade => upgrade.version.startsWith(majoMinorVersion))
+      );
+      systemUpgradesWithPatch = systemUpgrades
+        .map(upgrades => upgrades.filter(upgrade => !upgrade.version.startsWith(majoMinorVersion)))
+        .filter(negate(isEmpty));
+      systemUpgradesWithPatch.push(patches);
+    }
+
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>
+
         <div className="modal-body">
-          {systemUpgrades.map((upgrades, idx) => (
+          {alertVariant && updateUseCase && (
+            <Alert variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
+              {translate('admin_notification.update', updateUseCase)}
+            </Alert>
+          )}
+          {systemUpgradesWithPatch.map(upgrades => (
             <SystemUpgradeItem
               edition={
                 appState.edition as EditionKey /* TODO: Fix once AppState is no longer ambiant. */
               }
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
-              isLatestVersion={idx === 0}
+              isPatch={upgrades === patches}
+              isLTSVersion={upgrades.some(upgrade => upgrade.version.startsWith(latestLTS))}
             />
           ))}
         </div>

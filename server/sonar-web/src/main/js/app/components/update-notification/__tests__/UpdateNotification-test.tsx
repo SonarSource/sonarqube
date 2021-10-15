@@ -30,13 +30,25 @@ import { UpdateNotification } from '../UpdateNotification';
 jest.mock('../../../../api/system', () => {
   const { mockUpgrades } = jest.requireActual('../../../../helpers/mocks/system-upgrades');
   return {
-    getSystemUpgrades: jest.fn().mockResolvedValue({ upgrades: [mockUpgrades()], latestLTS: '8.9' })
+    getSystemUpgrades: jest
+      .fn()
+      .mockResolvedValue({ upgrades: [mockUpgrades({ version: '9.1' })], latestLTS: '8.9' })
   };
 });
 
 function formatDate(date: Date): string {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
 }
+
+it('should render correctly', async () => {
+  const wrapper = shallowRender({
+    appState: mockAppState({ version: '9.0' }),
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('default');
+  expect(wrapper.setProps({ currentUser: mockCurrentUser() })).toMatchSnapshot('anonymous user');
+});
 
 it('should not show prompt when not admin', async () => {
   //As anonymous

@@ -26,7 +26,7 @@ import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { AlertVariant } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
-import { sortUpgrades } from '../../../components/upgrade/utils';
+import { sortUpgrades, UpdateUseCase } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
@@ -39,18 +39,11 @@ type GroupedSystemUpdate = {
   [x: string]: T.Dict<SystemUpgrade[]>;
 };
 
-enum UseCase {
-  NewMinorVersion = 'new_minor_version',
-  NewPatch = 'new_patch',
-  PreLTS = 'pre_lts',
-  PreviousLTS = 'previous_lts'
-}
-
 const MAP_VARIANT: T.Dict<AlertVariant> = {
-  [UseCase.NewMinorVersion]: 'info',
-  [UseCase.NewPatch]: 'warning',
-  [UseCase.PreLTS]: 'warning',
-  [UseCase.PreviousLTS]: 'error'
+  [UpdateUseCase.NewMinorVersion]: 'info',
+  [UpdateUseCase.NewPatch]: 'warning',
+  [UpdateUseCase.PreLTS]: 'warning',
+  [UpdateUseCase.PreviousLTS]: 'error'
 };
 
 interface Props {
@@ -60,7 +53,7 @@ interface Props {
 
 interface State {
   dismissKey: string;
-  useCase: UseCase;
+  useCase: UpdateUseCase;
   systemUpgrades: SystemUpgrade[];
   canSeeNotification: boolean;
 }
@@ -75,7 +68,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       dismissKey: '',
       systemUpgrades: [],
       canSeeNotification: false,
-      useCase: UseCase.NewMinorVersion
+      useCase: UpdateUseCase.NewMinorVersion
     };
     this.fetchSystemUpgradeInformation();
   }
@@ -185,16 +178,16 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
         })
     );
 
-    let useCase = UseCase.NewMinorVersion;
+    let useCase = UpdateUseCase.NewMinorVersion;
 
     if (this.isPreviousLTSUpdate(parsedVersion, latestLTS, systemUpgrades)) {
-      useCase = UseCase.PreviousLTS;
+      useCase = UpdateUseCase.PreviousLTS;
     } else if (this.isPreLTSUpdate(parsedVersion, latestLTS)) {
-      useCase = UseCase.PreLTS;
+      useCase = UpdateUseCase.PreLTS;
     } else if (this.isPatchUpdate(parsedVersion, systemUpgrades)) {
-      useCase = UseCase.NewPatch;
+      useCase = UpdateUseCase.NewPatch;
     } else if (this.isMinorUpdate(parsedVersion, systemUpgrades)) {
-      useCase = UseCase.NewMinorVersion;
+      useCase = UpdateUseCase.NewMinorVersion;
     }
 
     const latest = [...upgrades].sort(
@@ -230,9 +223,9 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       <DismissableAlert
         alertKey={dismissKey}
         variant={MAP_VARIANT[useCase]}
-        className="promote-update-notification">
+        className={`promote-update-notification it__upgrade-prompt-${useCase}`}>
         {translate('admin_notification.update', useCase)}
-        <SystemUpgradeButton systemUpgrades={systemUpgrades} />
+        <SystemUpgradeButton systemUpgrades={systemUpgrades} updateUseCase={useCase} />
       </DismissableAlert>
     );
   }

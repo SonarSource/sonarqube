@@ -32,25 +32,30 @@ import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
 export interface SystemUpgradeItemProps {
   edition: EditionKey | undefined;
-  isLatestVersion: boolean;
+  isLTSVersion: boolean;
+  isPatch: boolean;
   systemUpgrades: SystemUpgrade[];
 }
 
 export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
-  const { edition, isLatestVersion, systemUpgrades } = props;
+  const { edition, isPatch, isLTSVersion, systemUpgrades } = props;
   const lastUpgrade = systemUpgrades[0];
   const downloadUrl = getEditionDownloadUrl(
     getEdition(edition || EditionKey.community),
     lastUpgrade
   );
+  let header = translate('system.latest_version');
+  if (isLTSVersion) {
+    header = translate('system.lts_version');
+  } else if (isPatch) {
+    header = translate('system.latest_patch');
+  }
 
   return (
-    <div className="system-upgrade-version">
+    <div className="system-upgrade-version it__upgrade-list-item">
       <h3 className="h1 spacer-bottom">
-        <strong>
-          {isLatestVersion ? translate('system.latest_version') : translate('system.lts_version')}
-        </strong>
-        {isLatestVersion && (
+        <strong>{header}</strong>
+        {!isLTSVersion && (
           <a
             className="spacer-left medium"
             href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"

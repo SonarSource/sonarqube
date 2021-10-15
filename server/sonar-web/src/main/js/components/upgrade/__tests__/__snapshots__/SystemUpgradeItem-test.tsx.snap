@@ -2,7 +2,7 @@
 
 exports[`should display correctly 1`] = `
 <div
-  className="system-upgrade-version"
+  className="system-upgrade-version it__upgrade-list-item"
 >
   <h3
     className="h1 spacer-bottom"
@@ -105,7 +105,7 @@ exports[`should display correctly 1`] = `
 
 exports[`should display correctly 2`] = `
 <div
-  className="system-upgrade-version"
+  className="system-upgrade-version it__upgrade-list-item"
 >
   <h3
     className="h1 spacer-bottom"
@@ -199,6 +199,109 @@ exports[`should display correctly 2`] = `
 `;
 
 exports[`should display correctly 3`] = `
+<div
+  className="system-upgrade-version it__upgrade-list-item"
+>
+  <h3
+    className="h1 spacer-bottom"
+  >
+    <strong>
+      system.latest_patch
+    </strong>
+    <a
+      className="spacer-left medium"
+      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      system.see_whats_new
+    </a>
+  </h3>
+  <p>
+    <FormattedMessage
+      defaultMessage="system.version_is_availble"
+      id="system.version_is_availble"
+      values={
+        Object {
+          "version": <b>
+            SonarQube 
+            5.6.7
+          </b>,
+        }
+      }
+    />
+  </p>
+  <p
+    className="spacer-top"
+  >
+    Version 5.6.7 description
+  </p>
+  <div
+    className="big-spacer-top"
+  >
+    <DateFormatter
+      date="2017-03-01"
+      long={true}
+    >
+      <Component />
+    </DateFormatter>
+    <a
+      className="spacer-left"
+      href="http://changelog.url/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      system.release_notes
+    </a>
+  </div>
+  <SystemUpgradeIntermediate
+    className="spacer-top"
+    upgrades={
+      Array [
+        Object {
+          "changeLogUrl": "http://changelog.url/",
+          "description": "Version 5.6.6 description",
+          "downloadDeveloperUrl": "http://download.url/developer",
+          "downloadUrl": "http://download.url/community",
+          "releaseDate": "2017-04-02",
+          "version": "5.6.6",
+        },
+        Object {
+          "changeLogUrl": "http://changelog.url/",
+          "description": "Version 5.6.5 description",
+          "downloadDeveloperUrl": "http://download.url/developer",
+          "downloadUrl": "http://download.url/community",
+          "releaseDate": "2017-03-01",
+          "version": "5.6.5",
+        },
+      ]
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <a
+      className="button"
+      download="http://download.url/community"
+      href="http://download.url/community"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      system.download_x.5.6.7
+    </a>
+    <a
+      className="spacer-left"
+      href="https://redirect.sonarsource.com/doc/upgrading.html"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      system.how_to_upgrade
+    </a>
+  </div>
+</div>
+`;
+
+exports[`should display correctly 4`] = `
 <div
   className="system-upgrade-version"
 >
@@ -301,9 +404,9 @@ exports[`should display correctly 3`] = `
 </div>
 `;
 
-exports[`should display correctly 4`] = `
+exports[`should display correctly 5`] = `
 <div
-  className="system-upgrade-version"
+  className="system-upgrade-version it__upgrade-list-item"
 >
   <h3
     className="h1 spacer-bottom"
@@ -404,9 +507,9 @@ exports[`should display correctly 4`] = `
 </div>
 `;
 
-exports[`should display correctly 5`] = `
+exports[`should display correctly 6`] = `
 <div
-  className="system-upgrade-version"
+  className="system-upgrade-version it__upgrade-list-item"
 >
   <h3
     className="h1 spacer-bottom"
@@ -507,9 +610,9 @@ exports[`should display correctly 5`] = `
 </div>
 `;
 
-exports[`should display correctly 6`] = `
+exports[`should display correctly 7`] = `
 <div
-  className="system-upgrade-version"
+  className="system-upgrade-version it__upgrade-list-item"
 >
   <h3
     className="h1 spacer-bottom"

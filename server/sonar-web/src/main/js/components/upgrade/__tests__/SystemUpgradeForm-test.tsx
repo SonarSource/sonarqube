@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { EditionKey } from '../../../types/editions';
 import { SystemUpgradeForm } from '../SystemUpgradeForm';
+import { UpdateUseCase } from '../utils';
 
 const UPGRADES = [
   [
@@ -69,14 +70,19 @@ const UPGRADES = [
   ]
 ];
 
-it('should display correctly', () => {
-  expect(
-    shallow(
-      <SystemUpgradeForm
-        appState={{ edition: EditionKey.community }}
-        onClose={jest.fn()}
-        systemUpgrades={UPGRADES}
-      />
-    )
-  ).toMatchSnapshot();
-});
+it.each([...Object.values(UpdateUseCase), undefined])(
+  'should display correctly for %s',
+  updateUseCase => {
+    expect(
+      shallow(
+        <SystemUpgradeForm
+          appState={{ edition: EditionKey.community, version: '5.6.3' }}
+          onClose={jest.fn()}
+          systemUpgrades={UPGRADES}
+          latestLTS="9.1"
+          updateUseCase={updateUseCase}
+        />
+      )
+    ).toMatchSnapshot();
+  }
+);

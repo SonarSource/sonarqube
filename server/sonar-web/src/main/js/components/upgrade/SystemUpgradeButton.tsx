@@ -22,10 +22,11 @@ import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
 import { Button } from '../controls/buttons';
 import SystemUpgradeForm from './SystemUpgradeForm';
-import { groupUpgrades, sortUpgrades } from './utils';
+import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
 interface Props {
   systemUpgrades: SystemUpgrade[];
+  updateUseCase?: UpdateUseCase;
 }
 
 interface State {
@@ -44,7 +45,7 @@ export default class SystemUpgradeButton extends React.PureComponent<Props, Stat
   };
 
   render() {
-    const { systemUpgrades } = this.props;
+    const { systemUpgrades, updateUseCase } = this.props;
     const { openSystemUpgradeForm } = this.state;
     return (
       <>
@@ -55,6 +56,7 @@ export default class SystemUpgradeButton extends React.PureComponent<Props, Stat
           <SystemUpgradeForm
             onClose={this.handleCloseSystemUpgradeForm}
             systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
+            updateUseCase={updateUseCase}
           />
         )}
       </>
