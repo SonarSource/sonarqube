@@ -159,6 +159,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
         count={projects.length}
         loadMore={props.onLoadMore}
         loading={loadingMore}
+        pageSize={projectsPaging.pageSize}
         total={projectsPaging.total}
       />
     </div>

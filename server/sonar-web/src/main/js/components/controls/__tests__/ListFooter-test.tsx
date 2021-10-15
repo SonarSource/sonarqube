@@ -34,7 +34,24 @@ it('should render correctly', () => {
     'empty if no loadMore nor reload props'
   );
   expect(shallowRender({ count: 5 })).toMatchSnapshot('empty if everything is loaded');
+  expect(shallowRender({ total: undefined })).toMatchSnapshot('total undefined');
+  expect(shallowRender({ total: undefined, count: 60, pageSize: 30 })).toMatchSnapshot(
+    'force show load more button if count % pageSize is 0, and total is undefined'
+  );
 });
+
+it.each([
+  [undefined, 60, 30, true],
+  [undefined, 45, 30, false],
+  [undefined, 60, undefined, false],
+  [60, 60, 30, false]
+])(
+  'handle showing load more button based on total, count and pageSize',
+  (total, count, pageSize, expected) => {
+    const wrapper = shallowRender({ total, count, pageSize });
+    expect(wrapper.find(Button).exists()).toBe(expected);
+  }
+);
 
 it('should properly call loadMore', () => {
   const loadMore = jest.fn();

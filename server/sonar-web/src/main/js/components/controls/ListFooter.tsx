@@ -30,14 +30,21 @@ export interface ListFooterProps {
   loading?: boolean;
   loadMore?: () => void;
   needReload?: boolean;
+  pageSize?: number;
   reload?: () => void;
   ready?: boolean;
   total?: number;
 }
 
 export default function ListFooter(props: ListFooterProps) {
-  const { className, count, loading, needReload, total, ready = true } = props;
-  const hasMore = total && total > count;
+  const { className, count, loading, needReload, total, pageSize, ready = true } = props;
+
+  let hasMore = false;
+  if (total !== undefined) {
+    hasMore = total > count;
+  } else if (pageSize !== undefined) {
+    hasMore = count % pageSize === 0;
+  }
 
   let button;
   if (needReload && props.reload) {
@@ -61,11 +68,13 @@ export default function ListFooter(props: ListFooterProps) {
   return (
     <footer
       className={classNames('spacer-top note text-center', { 'new-loading': !ready }, className)}>
-      {translateWithParameters(
-        'x_of_y_shown',
-        formatMeasure(count, 'INT', null),
-        formatMeasure(total, 'INT', null)
-      )}
+      {total !== undefined
+        ? translateWithParameters(
+            'x_of_y_shown',
+            formatMeasure(count, 'INT', null),
+            formatMeasure(total, 'INT', null)
+          )
+        : translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
       {button}
       {loading && <DeferredSpinner className="text-bottom spacer-left position-absolute" />}
     </footer>
