@@ -21,7 +21,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
@@ -30,6 +29,7 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import ListFooter from '../../../components/controls/ListFooter';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GitlabProject } from '../../../types/alm-integration';
 import { ComponentQualifier } from '../../../types/component';
@@ -159,6 +159,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
         count={projects.length}
         loadMore={props.onLoadMore}
         loading={loadingMore}
+        pageSize={projectsPaging.pageSize}
         total={projectsPaging.total}
       />
     </div>

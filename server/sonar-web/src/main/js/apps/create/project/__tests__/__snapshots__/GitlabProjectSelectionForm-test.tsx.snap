@@ -137,6 +137,7 @@ exports[`should render correctly: importing 1`] = `
     count={2}
     loadMore={[MockFunction]}
     loading={false}
+    pageSize={30}
     total={2}
   />
 </div>
@@ -194,6 +195,7 @@ exports[`should render correctly: no projects when searching 1`] = `
     count={0}
     loadMore={[MockFunction]}
     loading={false}
+    pageSize={30}
     total={0}
   />
 </div>
@@ -336,6 +338,7 @@ exports[`should render correctly: projects 1`] = `
     count={2}
     loadMore={[MockFunction]}
     loading={false}
+    pageSize={30}
     total={2}
   />
 </div>
