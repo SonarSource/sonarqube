@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import LanguageDistributionContainer from '../../../components/charts/LanguageDistributionContainer';
+import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Tooltip from '../../../components/controls/Tooltip';
 import HistoryIcon from '../../../components/icons/HistoryIcon';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
@@ -82,11 +82,7 @@ export default function MeasureHeader(props: Props) {
         secondaryMeasure.metric === 'ncloc_language_distribution' &&
         secondaryMeasure.value !== undefined && (
           <div className="measure-details-secondary">
-            <LanguageDistributionContainer
-              alignTicks={true}
-              distribution={secondaryMeasure.value}
-              width={260}
-            />
+            <LanguageDistribution distribution={secondaryMeasure.value} />
           </div>
         )}
     </div>

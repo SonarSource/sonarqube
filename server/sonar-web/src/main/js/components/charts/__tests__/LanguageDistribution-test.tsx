@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import LanguageDistribution from '../LanguageDistribution';
+import { LanguageDistribution } from '../LanguageDistribution';
 
 it('renders', () => {
   expect(
@@ -27,7 +27,6 @@ it('renders', () => {
       <LanguageDistribution
         distribution="java=1734;js=845;cpp=73;<null>=15"
         languages={{ java: { key: 'java', name: 'Java' }, js: { key: 'js', name: 'JavaScript' } }}
-        width={100}
       />
     )
   ).toMatchSnapshot();

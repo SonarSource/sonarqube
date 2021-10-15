@@ -19,7 +19,7 @@ exports[`renders 1`] = `
       80,
     ]
   }
-  width={100}
+  width={260}
   yTicks={
     Array [
       "Java",
