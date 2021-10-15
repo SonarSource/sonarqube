@@ -4,10 +4,10 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 9.2 Upgrade Notes
-**Bitbucket Cloud authentication now embedded**
-Support for Bitbucket Cloud authentication is now embedded in SonarQube. If you're using the community plugin for Bitbucket Cloud authentication, you need to remove it before upgrading. 
+**Bitbucket Cloud authentication now built-in**  
+Support for Bitbucket Cloud authentication is now built-in. If you were using the Bitbucket Cloud authentication plugin before, you need to remove it from SonarQube before upgrading.
 
-SonarQube reuses the settings from the plugin in the embedded implementation, so you do not need update them. The Teams restriction has been replaced with the Workspaces restriction. Your Team restriction settings will be migrated to Workspaces restriction settings automatically during upgrade. [MMF-2512](https://jira.sonarsource.com/browse/MMF-2512)).
+SonarQube uses the same settings as the plugin, so you do not need to update them. The Teams restriction has been replaced with the Workspaces restriction and is migrated accordingly. ([MMF-2512](https://jira.sonarsource.com/browse/MMF-2512)).
 
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16959)
 
