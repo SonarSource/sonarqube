@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.SearchGroupMembershipDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -33,10 +34,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.qualityprofile.SearchGroupsQuery.ANY;
-import static org.sonar.db.qualityprofile.SearchGroupsQuery.IN;
-import static org.sonar.db.qualityprofile.SearchGroupsQuery.OUT;
-import static org.sonar.db.qualityprofile.SearchGroupsQuery.builder;
+import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.ANY;
+import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.IN;
+import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.OUT;
+import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.builder;
 
 public class QProfileEditGroupsDaoTest {
 
@@ -103,7 +104,7 @@ public class QProfileEditGroupsDaoTest {
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
+      .extracting(SearchGroupMembershipDto::getGroupUuid, SearchGroupMembershipDto::isSelected)
       .containsExactlyInAnyOrder(
         tuple(group1.getUuid(), true),
         tuple(group2.getUuid(), true),
@@ -113,14 +114,14 @@ public class QProfileEditGroupsDaoTest {
         .setProfile(profile)
         .setMembership(IN).build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
+      .extracting(SearchGroupMembershipDto::getGroupUuid, SearchGroupMembershipDto::isSelected)
       .containsExactlyInAnyOrder(tuple(group1.getUuid(), true), tuple(group2.getUuid(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
         .setMembership(OUT).build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
+      .extracting(SearchGroupMembershipDto::getGroupUuid, SearchGroupMembershipDto::isSelected)
       .containsExactlyInAnyOrder(tuple(group3.getUuid(), false));
   }
 
@@ -139,7 +140,7 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(IN)
         .setQuery("project").build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupUuid)
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
       .containsExactlyInAnyOrder(group1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
@@ -147,7 +148,7 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(IN)
         .setQuery("UserS").build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupUuid)
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
       .containsExactlyInAnyOrder(group1.getUuid(), group2.getUuid());
   }
 
@@ -165,7 +166,7 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(1)))
-      .extracting(GroupMembershipDto::getGroupUuid)
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
       .containsExactly(group1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
@@ -173,7 +174,7 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(3).andSize(1)))
-      .extracting(GroupMembershipDto::getGroupUuid)
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
       .containsExactly(group3.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
@@ -181,7 +182,7 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(10)))
-      .extracting(GroupMembershipDto::getGroupUuid)
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
       .containsExactly(group1.getUuid(), group2.getUuid(), group3.getUuid());
   }
 

@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
+package org.sonar.db.user;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -28,33 +26,19 @@ import org.apache.commons.lang.StringUtils;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.DaoUtils.buildLikeValue;
-import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
-public class SearchGroupsQuery {
+public abstract class SearchGroupsQuery {
 
   public static final String ANY = "ANY";
   public static final String IN = "IN";
   public static final String OUT = "OUT";
-  public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
+  public static final Set<String> AVAILABLE_MEMBERSHIPS = Set.of(ANY, IN, OUT);
 
-  private final String qProfileUuid;
-  private final String query;
-  private final String membership;
+  protected String query;
+  protected String membership;
 
   // for internal use in MyBatis
-  final String querySqlLowercase;
-
-  private SearchGroupsQuery(Builder builder) {
-    this.qProfileUuid = builder.profile.getKee();
-    this.query = builder.query;
-    this.membership = builder.membership;
-    this.querySqlLowercase = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
-  }
-
-  public String getQProfileUuid() {
-    return qProfileUuid;
-  }
+  protected String querySqlLowercase;
 
   public String getMembership() {
     return membership;
@@ -65,42 +49,37 @@ public class SearchGroupsQuery {
     return query;
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-    private QProfileDto profile;
+  public abstract static class Builder<T extends Builder<T>> {
     private String query;
     private String membership;
 
-    private Builder() {
+    public String getQuery(){
+      return query;
     }
 
-    public Builder setProfile(QProfileDto profile) {
-      this.profile = profile;
-      return this;
-    }
-
-    public Builder setMembership(@Nullable String membership) {
-      this.membership = membership;
-      return this;
-    }
-
-    public Builder setQuery(@Nullable String s) {
+    public T setQuery(@Nullable String s) {
       this.query = StringUtils.defaultIfBlank(s, null);
-      return this;
+      return self();
     }
 
-    private void initMembership() {
+    public String getMembership(){
+      return membership;
+    }
+
+    public T setMembership(@Nullable String membership) {
+      this.membership = membership;
+      return self();
+    }
+
+    public void initMembership() {
       membership = firstNonNull(membership, ANY);
       checkArgument(AVAILABLE_MEMBERSHIPS.contains(membership),
         "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIPS);
     }
 
-    public SearchGroupsQuery build() {
-      initMembership();
-      return new SearchGroupsQuery(this);
+    @SuppressWarnings("unchecked")
+    final T self() {
+      return (T) this;
     }
   }
 }

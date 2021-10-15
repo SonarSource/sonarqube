@@ -20,10 +20,14 @@
 package org.sonar.db.qualitygate;
 
 import java.util.Collection;
+import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.SearchGroupMembershipDto;
+import org.sonar.db.user.SearchGroupsQuery;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -55,5 +59,13 @@ public class QualityGateGroupPermissionsDao implements Dao {
 
   private static QualityGateGroupPermissionsMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(QualityGateGroupPermissionsMapper.class);
+  }
+
+  public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination) {
+    return mapper(dbSession).selectByQuery(query, pagination);
+  }
+
+  public int countByQuery(DbSession dbSession, SearchGroupsQuery query) {
+    return mapper(dbSession).countByQuery(query);
   }
 }

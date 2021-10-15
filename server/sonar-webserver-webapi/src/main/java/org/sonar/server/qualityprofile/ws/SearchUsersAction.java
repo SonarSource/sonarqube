@@ -109,7 +109,7 @@ public class SearchUsersAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchUsersRequest wsRequest = buildRequest(request);
+    SearchQualityProfileUsersRequest wsRequest = buildRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, wsRequest.getQualityProfile(), wsRequest.getLanguage());
       wsSupport.checkCanEdit(dbSession, profile);
@@ -134,8 +134,8 @@ public class SearchUsersAction implements QProfileWsAction {
     }
   }
 
-  private static SearchUsersRequest buildRequest(Request request) {
-    return SearchUsersRequest.builder()
+  private static SearchQualityProfileUsersRequest buildRequest(Request request) {
+    return SearchQualityProfileUsersRequest.builder()
       .setQualityProfile(request.mandatoryParam(PARAM_QUALITY_PROFILE))
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
       .setQuery(request.param(TEXT_QUERY))
@@ -155,7 +155,7 @@ public class SearchUsersAction implements QProfileWsAction {
       .build();
   }
 
-  private static Common.Paging buildPaging(SearchUsersRequest wsRequest, int total) {
+  private static Common.Paging buildPaging(SearchQualityProfileUsersRequest wsRequest, int total) {
     return Common.Paging.newBuilder()
       .setPageIndex(wsRequest.getPage())
       .setPageSize(wsRequest.getPageSize())

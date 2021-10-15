@@ -17,25 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.qualitygate.ws;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery;
-import org.sonar.db.user.GroupDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
+import org.sonar.db.user.SearchGroupsQuery;
+import org.sonar.db.user.GroupDto;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualitygates;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -46,40 +43,36 @@ import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.ANY;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.IN;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.OUT;
-import static org.sonar.db.qualityprofile.SearchQualityProfileGroupsQuery.builder;
+import static org.sonar.db.qualitygate.SearchQualityGateGroupsQuery.builder;
+import static org.sonar.db.user.SearchGroupsQuery.ANY;
+import static org.sonar.db.user.SearchGroupsQuery.IN;
+import static org.sonar.db.user.SearchGroupsQuery.OUT;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SEARCH_GROUPS;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_GROUPS;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
-public class SearchGroupsAction implements QProfileWsAction {
+public class SearchGroupsAction implements QualityGatesWsAction {
 
   private static final Map<WebService.SelectionMode, String> MEMBERSHIP = Map.of(WebService.SelectionMode.SELECTED, IN, DESELECTED, OUT, ALL, ANY);
 
   private final DbClient dbClient;
-  private final QProfileWsSupport wsSupport;
-  private final Languages languages;
+  private final QualityGatesWsSupport wsSupport;
 
-  public SearchGroupsAction(DbClient dbClient, QProfileWsSupport wsSupport, Languages languages) {
+  public SearchGroupsAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
-    this.languages = languages;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
       .createAction(ACTION_SEARCH_GROUPS)
-      .setDescription("List the groups that are allowed to edit a Quality Profile.<br>" +
+      .setDescription("List the groups that are allowed to edit a Quality Gate.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
-        "  <li>'Administer Quality Profiles'</li>" +
-        "  <li>Edit right on the specified quality profile</li>" +
+        "  <li>'Administer Quality Gates'</li>" +
+        "  <li>Edit right on the specified quality gate</li>" +
         "</ul>")
       .setHandler(this)
       .setInternal(true)
@@ -87,41 +80,35 @@ public class SearchGroupsAction implements QProfileWsAction {
       .addSearchQuery("sonar", "group names")
       .addPagingParams(25)
       .setResponseExample(getClass().getResource("search_groups-example.json"))
-      .setSince("6.6");
+      .setSince("9.2");
 
-    action.createParam(PARAM_QUALITY_PROFILE)
-      .setDescription("Quality Profile name")
+    action.createParam(PARAM_GATE_NAME)
+      .setDescription("Quality Gate name")
       .setRequired(true)
-      .setExampleValue("Recommended quality profile");
-
-    action
-      .createParam(PARAM_LANGUAGE)
-      .setDescription("Quality profile language")
-      .setRequired(true)
-      .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
+      .setExampleValue("SonarSource Way");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchQualityProfileUsersRequest wsRequest = buildRequest(request);
+    SearchQualityGateUsersRequest wsRequest = buildRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QProfileDto profile = wsSupport.getProfile(dbSession, wsRequest.getQualityProfile(), wsRequest.getLanguage());
-      wsSupport.checkCanEdit(dbSession, profile);
+      QualityGateDto gate = wsSupport.getByName(dbSession, wsRequest.getQualityGate());
+      wsSupport.checkCanLimitedEdit(dbSession, gate);
 
-      SearchQualityProfileGroupsQuery query = builder()
-        .setProfile(profile)
+      SearchGroupsQuery query = builder()
+        .setQualityGate(gate)
         .setQuery(wsRequest.getQuery())
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))
         .build();
-      int total = dbClient.qProfileEditGroupsDao().countByQuery(dbSession, query);
-      List<SearchGroupMembershipDto> groupMemberships = dbClient.qProfileEditGroupsDao().selectByQuery(dbSession, query,
+      int total = dbClient.qualityGateGroupPermissionsDao().countByQuery(dbSession, query);
+      List<SearchGroupMembershipDto> groupMemberships = dbClient.qualityGateGroupPermissionsDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
       Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
-        groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(MoreCollectors.toList()))
+          groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(MoreCollectors.toList()))
         .stream()
         .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
       writeProtobuf(
-        Qualityprofiles.SearchGroupsResponse.newBuilder()
+        Qualitygates.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsByUuid.get(groupsMembership.getGroupUuid()), groupsMembership.isSelected()))
             .collect(toList()))
@@ -130,10 +117,9 @@ public class SearchGroupsAction implements QProfileWsAction {
     }
   }
 
-  private static SearchQualityProfileUsersRequest buildRequest(Request request) {
-    return SearchQualityProfileUsersRequest.builder()
-      .setQualityProfile(request.mandatoryParam(PARAM_QUALITY_PROFILE))
-      .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
+  private static SearchQualityGateUsersRequest buildRequest(Request request) {
+    return SearchQualityGateUsersRequest.builder()
+      .setQualityGate(request.mandatoryParam(PARAM_GATE_NAME))
       .setQuery(request.param(TEXT_QUERY))
       .setSelected(request.mandatoryParam(SELECTED))
       .setPage(request.mandatoryParamAsInt(PAGE))
@@ -141,19 +127,20 @@ public class SearchGroupsAction implements QProfileWsAction {
       .build();
   }
 
-  private static Qualityprofiles.SearchGroupsResponse.Group toGroup(GroupDto group, boolean isSelected) {
-    Qualityprofiles.SearchGroupsResponse.Group.Builder builder = Qualityprofiles.SearchGroupsResponse.Group.newBuilder()
+  private static Qualitygates.SearchGroupsResponse.Group toGroup(GroupDto group, boolean isSelected) {
+    Qualitygates.SearchGroupsResponse.Group.Builder builder = Qualitygates.SearchGroupsResponse.Group.newBuilder()
       .setName(group.getName())
       .setSelected(isSelected);
     ofNullable(group.getDescription()).ifPresent(builder::setDescription);
     return builder.build();
   }
 
-  private static Common.Paging buildPaging(SearchQualityProfileUsersRequest wsRequest, int total) {
+  private static Common.Paging buildPaging(SearchQualityGateUsersRequest wsRequest, int total) {
     return Common.Paging.newBuilder()
       .setPageIndex(wsRequest.getPage())
       .setPageSize(wsRequest.getPageSize())
       .setTotal(total)
       .build();
   }
+
 }

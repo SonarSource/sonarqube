@@ -21,6 +21,9 @@ package org.sonar.db.qualitygate;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
+import org.sonar.db.user.SearchGroupMembershipDto;
+import org.sonar.db.user.SearchGroupsQuery;
 
 public interface QualityGateGroupPermissionsMapper {
 
@@ -29,4 +32,8 @@ public interface QualityGateGroupPermissionsMapper {
   List<QualityGateGroupPermissionsDto> selectByQualityGateAndGroups(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuids") List<String> groupUuids);
 
   void insert(@Param("dto") QualityGateGroupPermissionsDto dto, @Param("now") long now);
+
+  List<SearchGroupMembershipDto> selectByQuery(@Param("query") SearchGroupsQuery query, @Param("pagination") Pagination pagination);
+
+  int countByQuery(@Param("query") SearchGroupsQuery query);
 }

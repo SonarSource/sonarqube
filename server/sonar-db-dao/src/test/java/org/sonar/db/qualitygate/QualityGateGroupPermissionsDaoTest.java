@@ -27,11 +27,18 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
+import org.sonar.db.user.SearchGroupMembershipDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.db.qualitygate.SearchQualityGateGroupsQuery.builder;
+import static org.sonar.db.user.SearchGroupsQuery.ANY;
+import static org.sonar.db.user.SearchGroupsQuery.IN;
+import static org.sonar.db.user.SearchGroupsQuery.OUT;
 
 public class QualityGateGroupPermissionsDaoTest {
 
@@ -68,6 +75,131 @@ public class QualityGateGroupPermissionsDaoTest {
   @Test
   public void existsReturnsFalseWhenQGEditGroupsDoesNotExist() {
     assertThat(underTest.exists(dbSession, randomAlphabetic(5), randomAlphabetic(5))).isFalse();
+  }
+
+  @Test
+  public void countByQuery() {
+    QualityGateDto qualityGateDto = insertQualityGate();
+    GroupDto group1 = dbTester.users().insertGroup();
+    GroupDto group2 = dbTester.users().insertGroup();
+    GroupDto group3 = dbTester.users().insertGroup();
+
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group1.getUuid());
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group2.getUuid());
+
+    assertThat(underTest.exists(dbSession, qualityGateDto, List.of(group1, group2))).isTrue();
+
+    assertThat(underTest.countByQuery(dbSession, builder()
+      .setQualityGate(qualityGateDto)
+      .setMembership(ANY).build()))
+      .isEqualTo(3);
+
+    assertThat(underTest.countByQuery(dbSession, builder()
+      .setQualityGate(qualityGateDto)
+      .setMembership(IN).build()))
+      .isEqualTo(2);
+
+    assertThat(underTest.countByQuery(dbSession, builder()
+      .setQualityGate(qualityGateDto)
+      .setMembership(OUT).build()))
+      .isEqualTo(1);
+  }
+
+  @Test
+  public void selectByQuery() {
+    QualityGateDto qualityGateDto = insertQualityGate();
+    GroupDto group1 = dbTester.users().insertGroup();
+    GroupDto group2 = dbTester.users().insertGroup();
+    GroupDto group3 = dbTester.users().insertGroup();
+
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group1.getUuid());
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group2.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+      .setQualityGate(qualityGateDto)
+      .setMembership(ANY).build(), Pagination.all()))
+      .extracting(SearchGroupMembershipDto::getGroupUuid, SearchGroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(
+        tuple(group1.getUuid(), true),
+        tuple(group2.getUuid(), true),
+        tuple(group3.getUuid(), false));
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(IN).build(),
+      Pagination.all()))
+      .extracting(SearchGroupMembershipDto::getGroupUuid, SearchGroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group1.getUuid(), true), tuple(group2.getUuid(), true));
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(OUT).build(),
+      Pagination.all()))
+      .extracting(SearchGroupMembershipDto::getGroupUuid, SearchGroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group3.getUuid(), false));
+  }
+
+  @Test
+  public void selectByQuery_search_by_name() {
+    QualityGateDto qualityGateDto = insertQualityGate();
+    GroupDto group1 = dbTester.users().insertGroup("sonar-users-project");
+    GroupDto group2 = dbTester.users().insertGroup("sonar-users-qprofile");
+    GroupDto group3 = dbTester.users().insertGroup("sonar-admin");
+
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group1.getUuid());
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group2.getUuid());
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group3.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(IN)
+        .setQuery("project").build(),
+      Pagination.all()))
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
+      .containsExactlyInAnyOrder(group1.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(IN)
+        .setQuery("UserS").build(),
+      Pagination.all()))
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
+      .containsExactlyInAnyOrder(group1.getUuid(), group2.getUuid());
+  }
+
+  @Test
+  public void selectByQuery_with_paging() {
+    QualityGateDto qualityGateDto = insertQualityGate();
+    GroupDto group1 = dbTester.users().insertGroup("group1");
+    GroupDto group2 = dbTester.users().insertGroup("group2");
+    GroupDto group3 = dbTester.users().insertGroup("group3");
+
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group1.getUuid());
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group2.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(ANY)
+        .build(),
+      Pagination.forPage(1).andSize(1)))
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
+      .containsExactly(group1.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(ANY)
+        .build(),
+      Pagination.forPage(3).andSize(1)))
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
+      .containsExactly(group3.getUuid());
+
+    assertThat(underTest.selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGateDto)
+        .setMembership(ANY)
+        .build(),
+      Pagination.forPage(1).andSize(10)))
+      .extracting(SearchGroupMembershipDto::getGroupUuid)
+      .containsExactly(group1.getUuid(), group2.getUuid(), group3.getUuid());
   }
 
   private QualityGateDto insertQualityGate() {

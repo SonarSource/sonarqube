@@ -29,6 +29,60 @@
     and qggp.quality_gate_uuid = #{qualityGateUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchGroupMembershipDto">
+    SELECT g.uuid as groupUuid, g.name as name, qggp.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
+    ORDER BY g.name ASC
+    LIMIT #{pagination.pageSize,jdbcType=INTEGER}
+    OFFSET #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchGroupMembershipDto" databaseId="mssql">
+    select * from (
+    select row_number() over(order by g.name asc) as number,
+      g.uuid as groupUuid, g.name as name, qggp.uuid as uuid
+      <include refid="sqlSelectByQuery" />
+    ) as query
+    where
+    query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    order by query.name asc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.user.SearchGroupMembershipDto" databaseId="oracle">
+    select * from (
+      select rownum as rn, t.* from (
+        select g.uuid as groupUuid, g.name as name, qggp.uuid as uuid
+        <include refid="sqlSelectByQuery"/>
+        order by g.name ASC
+      ) t
+    ) t
+    where
+    t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+  </select>
+
+   <select id="countByQuery" resultType="int">
+    select count(g.uuid)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    FROM groups g
+    LEFT JOIN qgate_group_permissions qggp ON qggp.group_uuid=g.uuid AND qggp.quality_gate_uuid=#{query.qualityGateUuid, jdbcType=VARCHAR}
+    <where>
+      <choose>
+        <when test="query.getMembership() == 'IN'">
+          AND qggp.uuid IS NOT NULL
+        </when>
+        <when test="query.getMembership() == 'OUT'">
+          AND qggp.uuid IS NULL
+        </when>
+      </choose>
+      <if test="query.getQuery() != null">
+        AND (LOWER(g.name) LIKE #{query.querySqlLowercase} ESCAPE '/')
+      </if>
+    </where>
+  </sql>
+
   <insert id="insert" useGeneratedKeys="false" parameterType="map">
     insert into qgate_group_permissions(
     uuid,

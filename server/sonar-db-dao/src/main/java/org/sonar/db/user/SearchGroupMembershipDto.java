@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
+package org.sonar.db.user;
 
-public class GroupMembershipDto {
+public class SearchGroupMembershipDto {
 
   private String groupUuid;
   // Set by MyBatis
@@ -29,7 +29,7 @@ public class GroupMembershipDto {
     return groupUuid;
   }
 
-  public GroupMembershipDto setGroupUuid(String groupUuid) {
+  public SearchGroupMembershipDto setGroupUuid(String groupUuid) {
     this.groupUuid = groupUuid;
     return this;
   }

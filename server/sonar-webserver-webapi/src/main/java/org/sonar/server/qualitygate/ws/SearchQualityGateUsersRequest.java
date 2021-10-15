@@ -19,18 +19,37 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.user.ws.SearchUsersRequest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+class SearchQualityGateUsersRequest extends SearchUsersRequest {
+  private String qualityGate;
 
-public class QualityGateWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new QualityGateWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 20);
+  private SearchQualityGateUsersRequest(Builder builder) {
+    this.qualityGate = builder.qualityGate;
+    this.selected = builder.getSelected();
+    this.query = builder.getQuery();
+    this.page = builder.getPage();
+    this.pageSize = builder.getPageSize();
   }
 
+  public String getQualityGate() {
+    return qualityGate;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder extends SearchUsersRequest.Builder<Builder> {
+    private String qualityGate;
+
+    public Builder setQualityGate(String qualityGate) {
+      this.qualityGate = qualityGate;
+      return this;
+    }
+
+    public SearchQualityGateUsersRequest build() {
+      return new SearchQualityGateUsersRequest(this);
+    }
+  }
 }

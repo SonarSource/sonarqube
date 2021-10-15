@@ -19,24 +19,19 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.sonar.server.user.ws.SearchUsersRequest;
 
-class SearchUsersRequest {
+class SearchQualityProfileUsersRequest extends SearchUsersRequest {
   private String qualityProfile;
   private String language;
-  private String selected;
-  private String query;
-  private Integer page;
-  private Integer pageSize;
 
-  private SearchUsersRequest(Builder builder) {
+  private SearchQualityProfileUsersRequest(Builder builder) {
     this.qualityProfile = builder.qualityProfile;
     this.language = builder.language;
-    this.selected = builder.selected;
-    this.query = builder.query;
-    this.page = builder.page;
-    this.pageSize = builder.pageSize;
+    this.selected = builder.getSelected();
+    this.query = builder.getQuery();
+    this.page = builder.getPage();
+    this.pageSize = builder.getPageSize();
   }
 
   public String getQualityProfile() {
@@ -47,34 +42,13 @@ class SearchUsersRequest {
     return language;
   }
 
-  @CheckForNull
-  public String getQuery() {
-    return query;
-  }
-
-  public String getSelected() {
-    return selected;
-  }
-
-  public Integer getPage() {
-    return page;
-  }
-
-  public Integer getPageSize() {
-    return pageSize;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
 
-  public static class Builder {
+  public static class Builder extends SearchUsersRequest.Builder<Builder> {
     private String qualityProfile;
     private String language;
-    private String selected;
-    private String query;
-    private Integer page;
-    private Integer pageSize;
 
     public Builder setQualityProfile(String qualityProfile) {
       this.qualityProfile = qualityProfile;
@@ -86,28 +60,8 @@ class SearchUsersRequest {
       return this;
     }
 
-    public Builder setSelected(String selected) {
-      this.selected = selected;
-      return this;
-    }
-
-    public Builder setQuery(@Nullable String query) {
-      this.query = query;
-      return this;
-    }
-
-    public Builder setPage(Integer page) {
-      this.page = page;
-      return this;
-    }
-
-    public Builder setPageSize(Integer pageSize) {
-      this.pageSize = pageSize;
-      return this;
-    }
-
-    public SearchUsersRequest build() {
-      return new SearchUsersRequest(this);
+    public SearchQualityProfileUsersRequest build() {
+      return new SearchQualityProfileUsersRequest(this);
     }
   }
 }
