@@ -116,7 +116,7 @@ public class BitbucketSettings {
         .build(),
       PropertyDefinition.builder(WORKSPACE_ALLOWED_LIST)
         .name("Workspaces")
-        .description("Only members of at least one of these workspace will be able to authenticate. Keep empty to disable workspace restriction.")
+        .description("Only members of at least one of these workspace will be able to authenticate. Keep empty to disable workspace restriction. You can use either the workspace name, or the workspace slug (ex: https://bitbucket.org/{workspace-slug}).")
         .category(CoreProperties.CATEGORY_ALM_INTEGRATION)
         .subCategory(SUBCATEGORY)
         .multiValues(true)
