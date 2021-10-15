@@ -22,6 +22,8 @@ import * as React from 'react';
 import { withScrollTo } from '../../../components/hoc/withScrollTo';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
+import { MetricType } from '../../../types/metrics';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentName from './ComponentName';
 import ComponentPin from './ComponentPin';
@@ -52,7 +54,9 @@ export class Component extends React.PureComponent<Props> {
       selected = false
     } = this.props;
 
-    const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
+    const isFile =
+      component.qualifier === ComponentQualifier.File ||
+      component.qualifier === ComponentQualifier.TestFile;
 
     return (
       <tr className={classNames({ selected })}>
@@ -75,27 +79,29 @@ export class Component extends React.PureComponent<Props> {
           </td>
         )}
         <td className="code-name-cell">
-          {hasBaseComponent && <div className="code-child-component-icon" />}
-          <ComponentName
-            branchLike={branchLike}
-            canBrowse={canBrowse}
-            component={component}
-            previous={previous}
-            rootComponent={rootComponent}
-          />
+          <div className="display-flex-center">
+            {hasBaseComponent && <div className="code-child-component-icon" />}
+            <ComponentName
+              branchLike={branchLike}
+              canBrowse={canBrowse}
+              component={component}
+              previous={previous}
+              rootComponent={rootComponent}
+            />
+          </div>
         </td>
 
         {metrics.map(metric => (
           <td
             className={classNames('thin', {
-              'text-center': metric.type === 'RATING',
-              'nowrap text-right': metric.type !== 'RATING'
+              'text-center': metric.type === MetricType.Rating,
+              'nowrap text-right': metric.type !== MetricType.Rating
             })}
             key={metric.key}>
             <div
               className={classNames({
-                'code-components-rating-cell': metric.type === 'RATING',
-                'code-components-cell': metric.type !== 'RATING'
+                'code-components-rating-cell': metric.type === MetricType.Rating,
+                'code-components-cell': metric.type !== MetricType.Rating
               })}>
               <ComponentMeasure component={component} metric={metric} />
             </div>

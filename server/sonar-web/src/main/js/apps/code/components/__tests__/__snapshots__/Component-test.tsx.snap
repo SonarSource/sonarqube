@@ -13,40 +13,44 @@ exports[`should render correctly 1`] = `
   <td
     className="code-name-cell"
   >
-    <ComponentName
-      canBrowse={false}
-      component={
-        Object {
-          "key": "bar",
-          "measures": Array [
-            Object {
-              "metric": "bugs",
-              "value": "12",
-            },
-            Object {
-              "metric": "vulnerabilities",
-              "value": "1",
-            },
-          ],
-          "name": "Bar",
-          "qualifier": "TRK",
+    <div
+      className="display-flex-center"
+    >
+      <ComponentName
+        canBrowse={false}
+        component={
+          Object {
+            "key": "bar",
+            "measures": Array [
+              Object {
+                "metric": "bugs",
+                "value": "12",
+              },
+              Object {
+                "metric": "vulnerabilities",
+                "value": "1",
+              },
+            ],
+            "name": "Bar",
+            "qualifier": "TRK",
+          }
         }
-      }
-      rootComponent={
-        Object {
-          "key": "foo",
-          "measures": Array [
-            Object {
-              "bestValue": false,
-              "metric": "bugs",
-              "value": "12",
-            },
-          ],
-          "name": "Foo",
-          "qualifier": "TRK",
+        rootComponent={
+          Object {
+            "key": "foo",
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "metric": "bugs",
+                "value": "12",
+              },
+            ],
+            "name": "Foo",
+            "qualifier": "TRK",
+          }
         }
-      }
-    />
+      />
+    </div>
   </td>
   <td
     className="thin nowrap text-right"
@@ -147,38 +151,42 @@ exports[`should render correctly for a file 1`] = `
   <td
     className="code-name-cell"
   >
-    <ComponentName
-      canBrowse={false}
-      component={
-        Object {
-          "key": "foo:src/index.tsx",
-          "measures": Array [
-            Object {
-              "bestValue": false,
-              "metric": "bugs",
-              "value": "1",
-            },
-          ],
-          "name": "index.tsx",
-          "path": "src/index.tsx",
-          "qualifier": "FIL",
+    <div
+      className="display-flex-center"
+    >
+      <ComponentName
+        canBrowse={false}
+        component={
+          Object {
+            "key": "foo:src/index.tsx",
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "metric": "bugs",
+                "value": "1",
+              },
+            ],
+            "name": "index.tsx",
+            "path": "src/index.tsx",
+            "qualifier": "FIL",
+          }
         }
-      }
-      rootComponent={
-        Object {
-          "key": "foo",
-          "measures": Array [
-            Object {
-              "bestValue": false,
-              "metric": "bugs",
-              "value": "12",
-            },
-          ],
-          "name": "Foo",
-          "qualifier": "TRK",
+        rootComponent={
+          Object {
+            "key": "foo",
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "metric": "bugs",
+                "value": "12",
+              },
+            ],
+            "name": "Foo",
+            "qualifier": "TRK",
+          }
         }
-      }
-    />
+      />
+    </div>
   </td>
   <td
     className="thin nowrap text-right"
@@ -268,42 +276,46 @@ exports[`should render correctly: with base component 1`] = `
     className="code-name-cell"
   >
     <div
-      className="code-child-component-icon"
-    />
-    <ComponentName
-      canBrowse={false}
-      component={
-        Object {
-          "key": "bar",
-          "measures": Array [
-            Object {
-              "metric": "bugs",
-              "value": "12",
-            },
-            Object {
-              "metric": "vulnerabilities",
-              "value": "1",
-            },
-          ],
-          "name": "Bar",
-          "qualifier": "TRK",
+      className="display-flex-center"
+    >
+      <div
+        className="code-child-component-icon"
+      />
+      <ComponentName
+        canBrowse={false}
+        component={
+          Object {
+            "key": "bar",
+            "measures": Array [
+              Object {
+                "metric": "bugs",
+                "value": "12",
+              },
+              Object {
+                "metric": "vulnerabilities",
+                "value": "1",
+              },
+            ],
+            "name": "Bar",
+            "qualifier": "TRK",
+          }
         }
-      }
-      rootComponent={
-        Object {
-          "key": "foo",
-          "measures": Array [
-            Object {
-              "bestValue": false,
-              "metric": "bugs",
-              "value": "12",
-            },
-          ],
-          "name": "Foo",
-          "qualifier": "TRK",
+        rootComponent={
+          Object {
+            "key": "foo",
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "metric": "bugs",
+                "value": "12",
+              },
+            ],
+            "name": "Foo",
+            "qualifier": "TRK",
+          }
         }
-      }
-    />
+      />
+    </div>
   </td>
   <td
     className="thin nowrap text-right"

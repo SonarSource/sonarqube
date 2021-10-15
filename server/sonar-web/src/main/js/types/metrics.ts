@@ -146,6 +146,16 @@ export enum MetricKey {
   wont_fix_issues = 'wont_fix_issues'
 }
 
+export enum MetricType {
+  Rating = 'RATING',
+  Percent = 'PERCENT',
+  Integer = 'INT',
+  Level = 'LEVEL',
+  ShortInteger = 'SHORT_INT',
+  ShortWorkDuration = 'SHORT_WORK_DUR',
+  Data = 'DATA'
+}
+
 export function isMetricKey(key: string): key is MetricKey {
   return (Object.values(MetricKey) as string[]).includes(key);
 }
