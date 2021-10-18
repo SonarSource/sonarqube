@@ -203,6 +203,25 @@ public class QualityGateGroupPermissionsDaoTest {
   }
 
   @Test
+  public void deleteByGroup() {
+    QualityGateDto qualityGateDto1 = insertQualityGate();
+    QualityGateDto qualityGateDto2 = insertQualityGate();
+    QualityGateDto qualityGateDto3 = insertQualityGate();
+
+    GroupDto group1 = dbTester.users().insertGroup();
+    GroupDto group2 = dbTester.users().insertGroup();
+    dbTester.qualityGates().addGroupPermission(qualityGateDto1, group1);
+    dbTester.qualityGates().addGroupPermission(qualityGateDto2, group2);
+    dbTester.qualityGates().addGroupPermission(qualityGateDto3, group1);
+
+    underTest.deleteByGroup(dbSession, group1);
+
+    assertThat(underTest.exists(dbSession, qualityGateDto1, group1)).isFalse();
+    assertThat(underTest.exists(dbSession, qualityGateDto2, group2)).isTrue();
+    assertThat(underTest.exists(dbSession, qualityGateDto3, group1)).isFalse();
+  }
+
+  @Test
   public void deleteByQProfileAndGroup() {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group = dbTester.users().insertGroup();

@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -180,6 +181,22 @@ public class DeleteActionTest {
       .execute();
 
     assertThat(db.countRowsOfTable("qprofile_edit_groups")).isZero();
+  }
+
+  @Test
+  public void delete_qgate_permissions() {
+    addAdmin();
+    insertDefaultGroup();
+    GroupDto group = db.users().insertGroup();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().addGroupPermission(qualityGate, group);
+    loginAsAdmin();
+
+    newRequest()
+      .setParam("id", group.getUuid())
+      .execute();
+
+    assertThat(db.countRowsOfTable("qgate_group_permissions")).isZero();
   }
 
   @Test

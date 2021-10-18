@@ -69,6 +69,10 @@ public class QualityGateGroupPermissionsDao implements Dao {
     return mapper(dbSession).countByQuery(query);
   }
 
+  public void deleteByGroup(DbSession dbSession, GroupDto group) {
+    mapper(dbSession).deleteByGroup(group.getUuid());
+  }
+
   public void deleteByQualityGateAndGroup(DbSession dbSession, QualityGateDto qualityGate, GroupDto group) {
     mapper(dbSession).delete(qualityGate.getUuid(), group.getUuid());
   }
