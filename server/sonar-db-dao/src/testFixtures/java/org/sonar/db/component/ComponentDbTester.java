@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -298,6 +299,12 @@ public class ComponentDbTester {
     for (ProjectDto project : projects) {
       dbClient.portfolioDao().addProject(dbSession, portfolioDto.getUuid(), project.getUuid());
     }
+    db.commit();
+  }
+
+  public void addPortfolioProjectBranch(PortfolioDto portfolio, ProjectDto project, String branchKey) {
+    PortfolioProjectDto portfolioProject = dbClient.portfolioDao().selectPortfolioProjectOrFail(dbSession, portfolio.getUuid(), project.getUuid());
+    dbClient.portfolioDao().addBranch(db.getSession(), portfolioProject.getUuid(), branchKey);
     db.commit();
   }
 

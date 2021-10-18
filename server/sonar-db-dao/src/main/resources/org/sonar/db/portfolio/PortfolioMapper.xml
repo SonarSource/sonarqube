@@ -2,19 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.portfolio.PortfolioMapper">
 
-    <sql id="portfolioColumns">
-      p.uuid as uuid,
-      p.kee as kee,
-      p.name as name,
-      p.description as description,
-      p.private as isPrivate,
-      p.root_uuid as rootUuid,
-      p.parent_uuid as parentUuid,
-      p.selection_mode as selectionMode,
-      p.selection_expression as selectionExpression,
-      p.created_at as createdAt,
-      p.updated_at as updatedAt
-    </sql>
+  <sql id="portfolioColumns">
+    p.uuid as uuid,
+    p.kee as kee,
+    p.name as name,
+    p.description as description,
+    p.private as isPrivate,
+    p.branch_name as branchName,
+    p.root_uuid as rootUuid,
+    p.parent_uuid as parentUuid,
+    p.selection_mode as selectionMode,
+    p.selection_expression as selectionExpression,
+    p.created_at as createdAt,
+    p.updated_at as updatedAt
+  </sql>
 
   <sql id="projectColumns">
     p.uuid as uuid,
@@ -27,6 +28,24 @@
     p.created_at as createdAt,
     p.updated_at as updatedAt
   </sql>
+
+  <sql id="portfolioProjectColumns">
+    pp.uuid as portfolioProject_uuid,
+    pp.project_uuid as projectUuid,
+    pp.portfolio_uuid as portfolioUuid,
+    pf.kee as portfolioKey,
+    pp.project_uuid as projectUuid,
+    p.kee as projectKey,
+    pp.created_at as createdAt,
+    ppb.branch_key as branchKey
+  </sql>
+
+  <resultMap id="portfolioProjectResult" type="PortfolioProject" autoMapping="true">
+    <id property="uuid" column="portfolioProject_uuid" />
+    <collection property="branchKeys" ofType="string">
+      <result column="branchKey" />
+    </collection>
+  </resultMap>
 
   <select id="selectByUuid" parameterType="String" resultType="Portfolio">
     SELECT
@@ -80,38 +99,54 @@
       p.parent_uuid is null
   </select>
 
-   <select id="selectProjects" resultType="Project">
+  <select id="selectPortfolioProjectBranches" resultType="string">
+    SELECT ppb.branch_key
+    FROM portfolio_proj_branches ppb
+    WHERE ppb.portfolio_project_uuid = #{id}
+  </select>
+
+   <select id="selectPortfolioProjects" resultMap="portfolioProjectResult">
      SELECT
-     <include refid="projectColumns"/>
+      <include refid="portfolioProjectColumns"/>
      FROM portfolio_projects pp
      INNER JOIN projects p on p.uuid = pp.project_uuid
+     INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
+     LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
      WHERE
       pp.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllPortfolioProjects" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
-    SELECT
-       pp.uuid,
-       pp.project_uuid as projectUuid,
-       pp.portfolio_uuid as portfolioUuid,
-       pp.project_uuid as projectUuid,
-       pp.created_at as createdAt
-    FROM portfolio_projects pp
-    INNER JOIN projects p on p.uuid = pp.project_uuid
+     <select id="selectPortfolioProject" resultMap="portfolioProjectResult">
+     SELECT
+      <include refid="portfolioProjectColumns"/>
+     FROM portfolio_projects pp
+     INNER JOIN projects p on p.uuid = pp.project_uuid
+     INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
+     LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
+     WHERE
+      pp.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+      and pp.project_uuid=#{projectUuid,jdbcType=VARCHAR}
+
   </select>
 
-  <select id="selectAllProjectsInHierarchy" resultType="org.sonar.db.portfolio.PortfolioProjectDto">
+  <select id="selectAllPortfolioProjects" resultMap="portfolioProjectResult">
     SELECT
-      pp.uuid,
-      pp.project_uuid as projectUuid,
-      pp.portfolio_uuid as portfolioUuid,
-      pp.project_uuid as projectUuid,
-      pp.created_at as createdAt
+      <include refid="portfolioProjectColumns"/>
     FROM portfolio_projects pp
-       INNER JOIN portfolios p
-       ON pp.portfolio_uuid = p.uuid
+    INNER JOIN projects p on p.uuid = pp.project_uuid
+    INNER JOIN portfolios pf on pf.uuid = pp.portfolio_uuid
+    LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
+  </select>
+
+  <select id="selectAllProjectsInHierarchy" resultMap="portfolioProjectResult">
+    SELECT
+      <include refid="portfolioProjectColumns"/>
+    FROM portfolio_projects pp
+       INNER JOIN projects p on p.uuid = pp.project_uuid
+       INNER JOIN portfolios pf on pp.portfolio_uuid = pf.uuid
+       LEFT OUTER JOIN portfolio_proj_branches ppb on pp.uuid = ppb.portfolio_project_uuid
     where
-       p.root_uuid = #{rootUuid,jdbcType=VARCHAR}
+       pf.root_uuid = #{rootUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectReferenceUuids" resultType="String">
@@ -192,6 +227,7 @@
       private,
       root_uuid,
       parent_uuid,
+      branch_name,
       selection_mode,
       selection_expression,
       created_at,
@@ -205,6 +241,7 @@
     #{isPrivate,jdbcType=BOOLEAN},
     #{rootUuid,jdbcType=VARCHAR},
     #{parentUuid,jdbcType=VARCHAR},
+    #{branchName,jdbcType=VARCHAR},
     #{selectionMode,jdbcType=VARCHAR},
     #{selectionExpression,jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT},
@@ -276,6 +313,12 @@
   </delete>
 
   <delete id="deleteProjectsByPortfolioUuids" parameterType="String">
+    delete from portfolio_proj_branches
+    where portfolio_project_uuid in
+      (select uuid from portfolio_projects
+      where portfolio_uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>);
+
     DELETE FROM portfolio_projects WHERE portfolio_uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </delete>
@@ -289,7 +332,8 @@
   </delete>
 
   <delete id="deleteAllProjects" parameterType="String">
-    DELETE FROM portfolio_projects
+    DELETE FROM portfolio_projects;
+    DELETE FROM portfolio_proj_branches
   </delete>
 
   <insert id="insertReference" parameterType="PortfolioReference">
@@ -321,18 +365,28 @@
   </delete>
 
   <delete id="deleteProjects" parameterType="String">
+    delete from portfolio_proj_branches
+    where portfolio_project_uuid =
+      (select uuid from portfolio_projects
+      where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR});
+
     delete from portfolio_projects
     where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
   </delete>
 
-    <delete id="deleteProject" parameterType="map">
+  <delete id="deleteProject" parameterType="map">
+    delete from portfolio_proj_branches
+    where portfolio_project_uuid =
+      (select uuid from portfolio_projects
+      where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+      and project_uuid = #{projectUuid,jdbcType=VARCHAR});
+
     delete from portfolio_projects
     where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-      and
-      project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-    <insert id="insertProject" parameterType="PortfolioProject">
+  <insert id="insertProject" parameterType="map">
     INSERT INTO portfolio_projects (
       uuid,
       portfolio_uuid,
@@ -347,6 +401,30 @@
     )
   </insert>
 
+  <insert id="insertBranch" parameterType="map">
+    INSERT INTO portfolio_proj_branches (
+      uuid,
+      portfolio_project_uuid,
+      branch_key,
+      created_at
+    )
+    VALUES (
+      #{uuid,jdbcType=VARCHAR},
+      #{portfolioProjectUuid,jdbcType=VARCHAR},
+      #{branchKey,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteBranch" parameterType="map">
+    delete from portfolio_proj_branches
+    where portfolio_project_uuid =
+      (select uuid from portfolio_projects
+      where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+      and project_uuid = #{projectUuid,jdbcType=VARCHAR})
+      and branch_key = #{branchKey,jdbcType=VARCHAR}
+  </delete>
+
   <update id="update" parameterType="Portfolio">
     update portfolios set
     name = #{name,jdbcType=VARCHAR},
@@ -354,6 +432,7 @@
     selection_mode = #{selectionMode,jdbcType=VARCHAR},
     selection_expression = #{selectionExpression,jdbcType=VARCHAR},
     parent_uuid = #{parentUuid,jdbcType=VARCHAR},
+    branch_name = #{branchName,jdbcType=VARCHAR},
     root_uuid = #{rootUuid,jdbcType=VARCHAR},
     updated_at = #{updatedAt,jdbcType=BIGINT}
     where

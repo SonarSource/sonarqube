@@ -31,8 +31,8 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptySet;
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -153,13 +153,18 @@ public class PortfolioDaoTest {
 
   @Test
   public void delete() {
+    ProjectDto proj1 = db.components().insertPrivateProjectDto("proj1");
+    ProjectDto app1 = db.components().insertPrivateApplicationDto();
+
     PortfolioDto p1 = db.components().insertPrivatePortfolioDto("p1");
     PortfolioDto p2 = db.components().insertPrivatePortfolioDto("p2");
     PortfolioDto p3 = db.components().insertPrivatePortfolioDto("p3");
     PortfolioDto p4 = db.components().insertPrivatePortfolioDto("p4");
 
-    portfolioDao.addProject(session, "p1", "proj1");
-    portfolioDao.addProject(session, "p2", "proj1");
+    db.components().addPortfolioProject(p1, proj1);
+    db.components().addPortfolioProject(p2, proj1);
+    db.components().addPortfolioProjectBranch(p1, proj1, "branch1");
+    db.components().addPortfolioProjectBranch(p2, proj1, "branch2");
 
     portfolioDao.addReference(session, "p1", "app1");
     portfolioDao.addReference(session, "p2", "app1");
@@ -168,6 +173,8 @@ public class PortfolioDaoTest {
     portfolioDao.delete(session, p1);
     portfolioDao.delete(session, p3);
 
+    assertThat(db.select(session, "select branch_key from portfolio_proj_branches")).extracting(m -> m.values().iterator().next())
+      .containsOnly("branch2");
     assertThat(db.select(session, "select uuid from portfolios")).extracting(m -> m.values().iterator().next())
       .containsOnly("p2", "p4");
     assertThat(db.select(session, "select portfolio_uuid from portfolio_references")).extracting(m -> m.values().iterator().next())
@@ -207,16 +214,6 @@ public class PortfolioDaoTest {
       .extracting("name", "key", "uuid", "description", "private", "rootUuid", "parentUuid", "selectionMode", "selectionExpression")
       .containsExactly("newName", "KEY_name", "name", "newDesc", true, "root", "parent", "newMode", "newExp");
     verify(audit).updateComponent(any(), any());
-
-  }
-
-  @Test
-  public void selectKeysByUuids() {
-    PortfolioDto root = db.components().insertPrivatePortfolioDto();
-    PortfolioDto child1 = addPortfolio(root);
-
-    assertThat(portfolioDao.selectKeysByUuids(session, Set.of(root.getUuid(), child1.getUuid())))
-      .containsOnly(entry(root.getUuid(), root.getKey()), entry(child1.getUuid(), child1.getKey()));
   }
 
   @Test
@@ -253,7 +250,7 @@ public class PortfolioDaoTest {
 
   @Test
   public void add_and_select_references() {
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isEmpty();
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
     portfolioDao.addReference(session, "portfolio1", "app1");
     portfolioDao.addReference(session, "portfolio1", "app2");
     portfolioDao.addReference(session, "portfolio2", "app3");
@@ -378,17 +375,21 @@ public class PortfolioDaoTest {
 
   @Test
   public void insert_and_select_projects() {
-    db.components().insertPrivateProject("project1");
-    db.components().insertPrivateProject("project2");
+    PortfolioDto portfolio1 = db.components().insertPublicPortfolioDto();
+    PortfolioDto portfolio2 = db.components().insertPublicPortfolioDto();
+    PortfolioDto portfolio3 = db.components().insertPublicPortfolioDto();
 
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isEmpty();
-    portfolioDao.addProject(session, "portfolio1", "project1");
-    portfolioDao.addProject(session, "portfolio1", "project2");
-    portfolioDao.addProject(session, "portfolio2", "project2");
+    ProjectDto project1 = db.components().insertPrivateProjectDto("project1");
+    ProjectDto project2 = db.components().insertPrivateProjectDto("project2");
+
+    assertThat(portfolioDao.selectPortfolioProjects(session, portfolio1.getUuid())).isEmpty();
+    db.components().addPortfolioProject(portfolio1, project1);
+    db.components().addPortfolioProject(portfolio1, project2);
+    db.components().addPortfolioProject(portfolio2, project2);
     db.commit();
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).extracting(ProjectDto::getUuid).containsOnly("project1", "project2");
-    assertThat(portfolioDao.selectProjects(session, "portfolio2")).extracting(ProjectDto::getUuid).containsOnly("project2");
-    assertThat(portfolioDao.selectProjects(session, "portfolio3")).isEmpty();
+    assertThat(portfolioDao.selectPortfolioProjects(session, portfolio1.getUuid())).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project1", "project2");
+    assertThat(portfolioDao.selectPortfolioProjects(session, portfolio2.getUuid())).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project2");
+    assertThat(portfolioDao.selectPortfolioProjects(session, portfolio3.getUuid())).isEmpty();
 
     assertThat(db.countRowsOfTable("portfolio_projects")).isEqualTo(3);
     assertThat(db.select(session, "select created_at from portfolio_projects"))
@@ -398,56 +399,91 @@ public class PortfolioDaoTest {
 
   @Test
   public void delete_projects() {
-    db.components().insertPrivateProject("project1");
-    db.components().insertPrivateProject("project2");
+    db.components().insertPrivatePortfolioDto("portfolio1");
+    db.components().insertPrivatePortfolioDto("portfolio2");
 
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isEmpty();
+    db.components().insertPrivateProjectDto("project1");
+    db.components().insertPrivateProjectDto("project2");
+
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
     portfolioDao.addProject(session, "portfolio1", "project1");
     portfolioDao.addProject(session, "portfolio1", "project2");
     portfolioDao.addProject(session, "portfolio2", "project2");
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isNotEmpty();
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isNotEmpty();
 
     portfolioDao.deleteProjects(session, "portfolio1");
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isEmpty();
-    assertThat(portfolioDao.selectProjects(session, "portfolio2")).extracting(ProjectDto::getUuid).containsOnly("project2");
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio2")).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project2");
+  }
+
+  @Test
+  public void add_and_delete_selected_branches() {
+    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
+    ProjectDto project1 = db.components().insertPrivateProjectDto("project1");
+    db.components().addPortfolioProject(portfolio1, project1);
+
+    assertThat(db.countRowsOfTable(db.getSession(), "portfolio_proj_branches")).isZero();
+    assertThat(portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid()).getBranchKeys()).isEmpty();
+
+    db.components().addPortfolioProjectBranch(portfolio1, project1, "branch1");
+    assertThat(db.countRowsOfTable(db.getSession(), "portfolio_proj_branches")).isOne();
+    PortfolioProjectDto portfolioProject = portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid());
+    assertThat(portfolioProject.getBranchKeys()).containsOnly("branch1");
+
+    portfolioDao.deleteBranch(db.getSession(), portfolio1.getUuid(), project1.getUuid(), "branch1");
+    assertThat(db.countRowsOfTable(db.getSession(), "portfolio_proj_branches")).isZero();
+    assertThat(portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid()).getBranchKeys()).isEmpty();
+  }
+
+  @Test
+  public void delete_nonexisting_branch_doesnt_fail() {
+    DbSession session = db.getSession();
+    assertThatCode(() -> portfolioDao.deleteBranch(session, "nonexisting1", "nonexisting2", "branch1"))
+      .doesNotThrowAnyException();
   }
 
   @Test
   public void delete_project() {
-    db.components().insertPrivateProject("project1");
-    db.components().insertPrivateProject("project2");
+    db.components().insertPrivatePortfolioDto("portfolio1");
+    db.components().insertPrivatePortfolioDto("portfolio2");
 
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isEmpty();
+    db.components().insertPrivateProjectDto("project1");
+    db.components().insertPrivateProjectDto("project2");
+
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
     portfolioDao.addProject(session, "portfolio1", "project1");
     portfolioDao.addProject(session, "portfolio1", "project2");
     portfolioDao.addProject(session, "portfolio2", "project2");
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).isNotEmpty();
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isNotEmpty();
 
     portfolioDao.deleteProject(session, "portfolio1", "project2");
-    assertThat(portfolioDao.selectProjects(session, "portfolio1")).extracting(ProjectDto::getUuid).containsOnly("project1");
-    assertThat(portfolioDao.selectProjects(session, "portfolio2")).extracting(ProjectDto::getUuid).containsOnly("project2");
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project1");
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio2")).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project2");
   }
 
   @Test
   public void selectAllProjectsInHierarchy() {
-    db.components().insertPrivateProject("p1");
-    db.components().insertPrivateProject("p2");
-    db.components().insertPrivateProject("p3");
-    db.components().insertPrivateProject("p4");
+    ProjectDto p1 = db.components().insertPrivateProjectDto("p1");
+    ProjectDto p2 = db.components().insertPrivateProjectDto("p2");
+    ProjectDto p3 = db.components().insertPrivateProjectDto("p3");
+    ProjectDto p4 = db.components().insertPrivateProjectDto("p4");
 
     PortfolioDto root = db.components().insertPrivatePortfolioDto("root");
     PortfolioDto child1 = addPortfolio(root, "child1");
     PortfolioDto child11 = addPortfolio(child1, "child11");
     PortfolioDto root2 = db.components().insertPrivatePortfolioDto("root2");
 
-    portfolioDao.addProject(session, root.getUuid(), "p1");
-    portfolioDao.addProject(session, child1.getUuid(), "p2");
-    portfolioDao.addProject(session, child11.getUuid(), "p3");
-    portfolioDao.addProject(session, root2.getUuid(), "p4");
+    db.components().addPortfolioProject(root, p1);
+    db.components().addPortfolioProject(child1, p2);
+    db.components().addPortfolioProject(child11, p3);
+    db.components().addPortfolioProject(root2, p4);
+
+    db.components().addPortfolioProjectBranch(root, p1, "branch1");
     session.commit();
 
     assertThat(portfolioDao.selectAllProjectsInHierarchy(session, root.getUuid()))
-      .extracting(PortfolioProjectDto::getProjectUuid).containsExactly("p1", "p2", "p3");
+      .extracting(PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchKeys)
+      .containsExactlyInAnyOrder(tuple("p1", Set.of("branch1")), tuple("p2", emptySet()), tuple("p3", emptySet()));
     assertThat(portfolioDao.selectAllProjectsInHierarchy(session, "nonexisting")).isEmpty();
   }
 
@@ -463,14 +499,18 @@ public class PortfolioDaoTest {
     PortfolioDto child11 = addPortfolio(child1);
     PortfolioDto root2 = db.components().insertPrivatePortfolioDto();
 
-    portfolioDao.addProject(session, root.getUuid(), "p1");
+    String portfolioProjectUuid = portfolioDao.addProject(session, root.getUuid(), "p1");
     portfolioDao.addProject(session, child1.getUuid(), "p2");
     portfolioDao.addProject(session, child11.getUuid(), "p3");
     portfolioDao.addProject(session, root2.getUuid(), "p4");
+    portfolioDao.addBranch(session, portfolioProjectUuid, "branch1");
+
     assertThat(db.countRowsOfTable(session, "portfolio_projects")).isEqualTo(4);
+    assertThat(db.countRowsOfTable(session, "portfolio_proj_branches")).isOne();
 
     portfolioDao.deleteAllProjects(session);
     assertThat(db.countRowsOfTable(session, "portfolio_projects")).isZero();
+    assertThat(db.countRowsOfTable(session, "portfolio_proj_branches")).isZero();
   }
 
   private PortfolioDto addPortfolio(PortfolioDto parent) {

@@ -203,7 +203,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Portfolio", PortfolioDto.class);
     confBuilder.loadAlias("PortfolioProject", PortfolioProjectDto.class);
     confBuilder.loadAlias("PortfolioReference", PortfolioReferenceDto.class);
-
     confBuilder.loadAlias("PrIssue", PrIssueDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);

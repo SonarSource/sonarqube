@@ -19,10 +19,15 @@
  */
 package org.sonar.db.portfolio;
 
+import java.util.Set;
+
 public class PortfolioProjectDto {
   private String uuid;
   private String portfolioUuid;
+  private String portfolioKey;
   private String projectUuid;
+  private String projectKey;
+  private Set<String> branchKeys;
   private long createdAt;
 
   public String getUuid() {
@@ -59,5 +64,31 @@ public class PortfolioProjectDto {
   public PortfolioProjectDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
     return this;
+  }
+
+  public String getPortfolioKey() {
+    return portfolioKey;
+  }
+
+  public PortfolioProjectDto setPortfolioKey(String portfolioKey) {
+    this.portfolioKey = portfolioKey;
+    return this;
+  }
+
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public PortfolioProjectDto setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
+  public Set<String> getBranchKeys() {
+    return branchKeys;
+  }
+
+  public void setBranchKeys(Set<String> branchKeys) {
+    this.branchKeys = branchKeys;
   }
 }

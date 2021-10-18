@@ -19,12 +19,9 @@
  */
 package org.sonar.db.portfolio;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -32,9 +29,9 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
-import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -50,6 +47,9 @@ public class PortfolioDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
+  /*
+   * Select portfolios
+   */
   public List<PortfolioDto> selectAllRoots(DbSession dbSession) {
     return mapper(dbSession).selectAllRoots();
   }
@@ -81,6 +81,9 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectByUuids(uuids);
   }
 
+  /*
+   * Modify portfolios
+   */
   public void insert(DbSession dbSession, PortfolioDto portfolio) {
     checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
     mapper(dbSession).insert(portfolio);
@@ -106,20 +109,9 @@ public class PortfolioDao implements Dao {
     auditPersister.updateComponent(dbSession, toComponentNewValue(portfolio));
   }
 
-  private static ComponentNewValue toComponentNewValue(PortfolioDto portfolio) {
-    return new ComponentNewValue(portfolio.getUuid(), portfolio.getName(), portfolio.getKey(), portfolio.isPrivate(),
-      portfolio.getDescription(), qualifier(portfolio));
-  }
-
-  private static String qualifier(PortfolioDto portfolioDto) {
-    return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
-  }
-
-  public Map<String, String> selectKeysByUuids(DbSession dbSession, Collection<String> uuids) {
-    return executeLargeInputs(uuids, uuids1 -> mapper(dbSession).selectByUuids(uuids1)).stream()
-      .collect(Collectors.toMap(PortfolioDto::getUuid, PortfolioDto::getKey));
-  }
-
+  /*
+   * Portfolio references
+   */
   public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
     mapper(dbSession).insertReference(new PortfolioReferenceDto()
       .setUuid(uuidFactory.create())
@@ -168,8 +160,11 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectReference(portfolioUuid, referenceKey);
   }
 
-  public List<ProjectDto> selectProjects(DbSession dbSession, String portfolioUuid) {
-    return mapper(dbSession).selectProjects(portfolioUuid);
+  /*
+   * Manual selection of projects
+   */
+  public List<PortfolioProjectDto> selectPortfolioProjects(DbSession dbSession, String portfolioUuid) {
+    return mapper(dbSession).selectPortfolioProjects(portfolioUuid);
   }
 
   public List<PortfolioProjectDto> selectAllProjectsInHierarchy(DbSession dbSession, String rootUuid) {
@@ -180,12 +175,15 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectAllPortfolioProjects();
   }
 
-  public void addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
-    mapper(dbSession).insertProject(new PortfolioProjectDto()
-      .setUuid(uuidFactory.create())
-      .setPortfolioUuid(portfolioUuid)
-      .setProjectUuid(projectUuid)
-      .setCreatedAt(system2.now()));
+  public PortfolioProjectDto selectPortfolioProjectOrFail(DbSession dbSession, String portfolioUuid, String projectUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectPortfolioProject(portfolioUuid, projectUuid)).orElseThrow(() ->
+      new IllegalArgumentException(format("Project '%s' not selected in portfolio '%s'", projectUuid, portfolioUuid)));
+  }
+
+  public String addProject(DbSession dbSession, String portfolioUuid, String projectUuid) {
+    String uuid = uuidFactory.create();
+    mapper(dbSession).insertProject(uuid, portfolioUuid, projectUuid, system2.now());
+    return uuid;
   }
 
   public void deleteProjects(DbSession dbSession, String portfolioUuid) {
@@ -200,8 +198,30 @@ public class PortfolioDao implements Dao {
     mapper(dbSession).deleteAllProjects();
   }
 
+  public Set<String> selectBranches(DbSession dbSession, String portfolioProjectUuid) {
+    return mapper(dbSession).selectBranches(portfolioProjectUuid);
+  }
+
+  public void addBranch(DbSession dbSession, String portfolioProjectUuid, String branchKey) {
+    mapper(dbSession).insertBranch(uuidFactory.create(), portfolioProjectUuid, branchKey, system2.now());
+  }
+
+  public void deleteBranch(DbSession dbSession, String portfolioUuid, String projectUuid, String branchKey) {
+    mapper(dbSession).deleteBranch(portfolioUuid, projectUuid, branchKey);
+  }
+
+  /*
+   * Utils
+   */
   private static PortfolioMapper mapper(DbSession session) {
     return session.getMapper(PortfolioMapper.class);
   }
 
+  private static ComponentNewValue toComponentNewValue(PortfolioDto portfolio) {
+    return new ComponentNewValue(portfolio.getUuid(), portfolio.isPrivate(), portfolio.getName(), portfolio.getKey(), portfolio.getDescription(), qualifier(portfolio));
+  }
+
+  private static String qualifier(PortfolioDto portfolioDto) {
+    return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
+  }
 }

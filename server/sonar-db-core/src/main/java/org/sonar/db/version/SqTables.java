@@ -74,6 +74,7 @@ public final class SqTables {
     "plugins",
     "portfolios",
     "portfolio_projects",
+    "portfolio_proj_branches",
     "portfolio_references",
     "projects",
     "project_alm_settings",

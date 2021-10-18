@@ -24,13 +24,12 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.project.ProjectDto;
 
 public interface PortfolioMapper {
   @CheckForNull
   PortfolioDto selectByKey(String key);
 
-  List<PortfolioDto> selectByKeys(@Param("keys")List<String> keys);
+  List<PortfolioDto> selectByKeys(@Param("keys") List<String> keys);
 
   @CheckForNull
   PortfolioDto selectByUuid(String uuid);
@@ -47,7 +46,7 @@ public interface PortfolioMapper {
 
   void insertReference(PortfolioReferenceDto portfolioReference);
 
-  void insertProject(PortfolioProjectDto portfolioProject);
+  void insertProject(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("createdAt") long createdAt);
 
   List<PortfolioDto> selectTree(String portfolioUuid);
 
@@ -55,7 +54,9 @@ public interface PortfolioMapper {
 
   List<PortfolioDto> selectReferencers(String referenceUuid);
 
-  List<ProjectDto> selectProjects(String portfolioUuid);
+  List<PortfolioProjectDto> selectPortfolioProjects(String portfolioUuid);
+
+  PortfolioProjectDto selectPortfolioProject(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid);
 
   List<ReferenceDto> selectAllReferencesToPortfolios();
 
@@ -93,5 +94,12 @@ public interface PortfolioMapper {
 
   List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
 
+  void deleteBranch(@Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchKey") String branchKey);
 
+  void deleteBranch(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("branchKey") String branchKey);
+
+  void insertBranch(@Param("uuid") String uuid, @Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchKey") String branchKey,
+    @Param("createdAt") long createdAt);
+
+  Set<String> selectBranches(String portfolioProjectUuid);
 }
