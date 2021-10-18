@@ -77,5 +77,9 @@ public class GitLabSettingsTest {
     assertThat(config.syncUserGroups()).isFalse();
     settings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, true);
     assertThat(config.syncUserGroups()).isTrue();
+
+    assertThat(config.syncUserGroupsParentLevel()).isFalse();
+    settings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL, true);
+    assertThat(config.syncUserGroupsParentLevel()).isTrue();
   }
 }

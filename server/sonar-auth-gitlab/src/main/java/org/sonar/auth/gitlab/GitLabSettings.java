@@ -38,6 +38,7 @@ public class GitLabSettings {
   public static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
   public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
+  public static final String GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL = "sonar.auth.gitlab.groupsSyncAtParentLevel";
 
   private static final String CATEGORY = CoreProperties.CATEGORY_ALM_INTEGRATION;
   private static final String SUBCATEGORY = "gitlab";
@@ -74,6 +75,10 @@ public class GitLabSettings {
 
   public boolean syncUserGroups() {
     return configuration.getBoolean(GITLAB_AUTH_SYNC_USER_GROUPS).orElse(false);
+  }
+
+  public boolean syncUserGroupsParentLevel() {
+    return configuration.getBoolean(GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL).orElse(false);
   }
 
   static List<PropertyDefinition> definitions() {
@@ -129,6 +134,15 @@ public class GitLabSettings {
         .type(PropertyType.BOOLEAN)
         .defaultValue(valueOf(false))
         .index(6)
+        .build()),
+      PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS)
+        .name("Synchronize user groups at parent level")
+        .description("If enabled, users will be associated to all parents group of his access (if it exists)")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(PropertyType.BOOLEAN)
+        .defaultValue(valueOf(false))
+        .index(7)
         .build());
   }
 }
