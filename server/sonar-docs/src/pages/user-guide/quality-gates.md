@@ -21,6 +21,11 @@ Ideally, all projects will use the same quality gate, but that's not always prac
 
 Which is why you can define as many quality gates as you need. You can access the **[Quality Gates](/#sonarqube#/quality_gates)** page from the top menu. From here you can define and manage your Quality Gates.
 
+## Quality Gate permissions
+By default, only users with the global **Administer Quality Gates** permission can edit Quality Gates. This is set at **Administration > Security > Global Permissions**.
+
+SonarQube also allows users with the global **Administer Quality Gates** permission to give an expert or group of experts permission to manage a specific Quality Gate. These experts only have permission for that Quality Gate, not all Quality Gates. Grant permissions to specific Quality Gate on the Quality Gate's page (**Quality Gates > [Quality Gate name]**) under the **Permissions** heading by clicking the **Grant permissions to more users** button.
+
 ## Use the best Quality Gate configuration
 
 The "Sonar way" Quality Gate is provided by SonarSource, activated by default, and considered as built-in and read-only. This Quality Gate represents the best way to implement the [Clean as You Code](/user-guide/clean-as-you-code/) concept by focusing on new code. With each SonarQube release, we automatically adjust this default quality gate according to SonarQube's capabilities.

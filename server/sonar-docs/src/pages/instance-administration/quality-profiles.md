@@ -26,11 +26,9 @@ The **Sonar way** Quality Profiles are a good starting point as you begin analyz
 
 ## Quality Profile permissions
 
-By default, only users with the **Administer Quality Profiles** permission can edit Quality Profiles. This is set at **Administration > Security > Global Permissions**.
+By default, only users with the global **Administer Quality Profiles** permission can edit Quality Profiles. This is set at **Administration > Security > Global Permissions**.
 
-SonarQube also lets you to grant permission to users or groups for specific Quality Profiles, so you can delegate profile management to a group of experts for that language.  These users or groups only have permissions for that specific profile, not all Quality Profiles.
-
-A user with the **Administer Quality Profiles** permission or individual edit rights for a specific Quality Profile can grant permissions on Quality Profile pages (**Quality Profiles > [ Profile Name ]**) under the **Permissions** heading.
+SonarQube also allows users with the global **Administer Quality Profiles** permission to give an expert or group of experts permission to manage a specific Quality Profile. These experts only have permission for that Quality Profile, not all Quality Profiles. Grant permissions to specific Quality Profiles on the Quality Profile's page (**Quality Profiles > [Quality Profile name]**) under the **Permissions** heading by clicking the **Grant permissions to more users** button.
 
 ## Copying a Quality Profile
 Copying a profile works well when you need to make a few changes to a built-in profile. When you copy a profile, you start off with all of the activated rules from the profile you copied from. From here, you can activate or deactivate rules to fit your needs. After copying a profile, your new profile won't inherit any changes made to the original profile.
