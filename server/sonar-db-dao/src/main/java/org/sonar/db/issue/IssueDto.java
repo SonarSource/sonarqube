@@ -76,7 +76,7 @@ public final class IssueDto implements Serializable {
   private byte[] locations;
   private long createdAt;
   private long updatedAt;
-  private Boolean quickFixAvailable;
+  private boolean quickFixAvailable;
 
   // functional dates stored as Long
   private Long issueCreationDate;
@@ -693,12 +693,11 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  @CheckForNull
-  public Boolean isQuickFixAvailable() {
+  public boolean isQuickFixAvailable() {
     return quickFixAvailable;
   }
 
-  public IssueDto setQuickFixAvailable(@Nullable Boolean quickFixAvailable) {
+  public IssueDto setQuickFixAvailable(boolean quickFixAvailable) {
     this.quickFixAvailable = quickFixAvailable;
     return this;
   }
@@ -758,7 +757,7 @@ public final class IssueDto implements Serializable {
     issue.setSelectedAt(selectedAt);
     issue.setLocations(parseLocations());
     issue.setIsFromExternalRuleEngine(isExternal);
-    issue.setQuickFixAvailable(quickFixAvailable != null && quickFixAvailable);
+    issue.setQuickFixAvailable(quickFixAvailable);
     return issue;
   }
 }

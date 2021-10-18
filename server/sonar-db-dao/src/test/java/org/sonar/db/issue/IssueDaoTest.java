@@ -46,6 +46,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -107,7 +108,7 @@ public class IssueDaoTest {
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
     assertThat(issue.isExternal()).isTrue();
-    assertThat(issue.isQuickFixAvailable()).isNull();
+    assertFalse(issue.isQuickFixAvailable());
   }
 
   @Test
@@ -467,7 +468,6 @@ public class IssueDaoTest {
     dto.setIssueCreationTime(1_450_000_000_000L);
     dto.setIssueUpdateTime(1_450_000_000_000L);
     dto.setIssueCloseTime(1_450_000_000_000L);
-    dto.setQuickFixAvailable(null);
     return dto;
   }
 
