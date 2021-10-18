@@ -303,7 +303,7 @@ exports[`should display correctly 3`] = `
 
 exports[`should display correctly 4`] = `
 <div
-  className="system-upgrade-version"
+  className="system-upgrade-version it__upgrade-list-item"
 >
   <h3
     className="h1 spacer-bottom"

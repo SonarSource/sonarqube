@@ -54,6 +54,7 @@ interface Props {
 interface State {
   dismissKey: string;
   useCase: UpdateUseCase;
+  latestLTS: string;
   systemUpgrades: SystemUpgrade[];
   canSeeNotification: boolean;
 }
@@ -67,6 +68,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
     this.state = {
       dismissKey: '',
       systemUpgrades: [],
+      latestLTS: '',
       canSeeNotification: false,
       useCase: UpdateUseCase.NewMinorVersion
     };
@@ -200,6 +202,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
 
     if (this.mounted) {
       this.setState({
+        latestLTS,
         useCase,
         dismissKey,
         systemUpgrades: upgrades,
@@ -215,7 +218,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { systemUpgrades, canSeeNotification, useCase, dismissKey } = this.state;
+    const { latestLTS, systemUpgrades, canSeeNotification, useCase, dismissKey } = this.state;
     if (!canSeeNotification) {
       return null;
     }
@@ -225,7 +228,11 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
         variant={MAP_VARIANT[useCase]}
         className={`promote-update-notification it__upgrade-prompt-${useCase}`}>
         {translate('admin_notification.update', useCase)}
-        <SystemUpgradeButton systemUpgrades={systemUpgrades} updateUseCase={useCase} />
+        <SystemUpgradeButton
+          systemUpgrades={systemUpgrades}
+          updateUseCase={useCase}
+          latestLTS={latestLTS}
+        />
       </DismissableAlert>
     );
   }

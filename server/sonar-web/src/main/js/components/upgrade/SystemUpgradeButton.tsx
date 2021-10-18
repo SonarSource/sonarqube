@@ -25,6 +25,7 @@ import SystemUpgradeForm from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
 interface Props {
+  latestLTS: string;
   systemUpgrades: SystemUpgrade[];
   updateUseCase?: UpdateUseCase;
 }
@@ -45,7 +46,7 @@ export default class SystemUpgradeButton extends React.PureComponent<Props, Stat
   };
 
   render() {
-    const { systemUpgrades, updateUseCase } = this.props;
+    const { latestLTS, systemUpgrades, updateUseCase } = this.props;
     const { openSystemUpgradeForm } = this.state;
     return (
       <>
@@ -56,6 +57,7 @@ export default class SystemUpgradeButton extends React.PureComponent<Props, Stat
           <SystemUpgradeForm
             onClose={this.handleCloseSystemUpgradeForm}
             systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
+            latestLTS={latestLTS}
             updateUseCase={updateUseCase}
           />
         )}

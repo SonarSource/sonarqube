@@ -25,12 +25,13 @@ import { translate } from '../../../../helpers/l10n';
 import { SystemUpgrade } from '../../../../types/system';
 
 interface State {
+  latestLTS: string;
   systemUpgrades: SystemUpgrade[];
 }
 
 export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
   mounted = false;
-  state: State = { systemUpgrades: [] };
+  state: State = { systemUpgrades: [], latestLTS: '' };
 
   componentDidMount() {
     this.mounted = true;
@@ -43,16 +44,16 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
 
   fetchSystemUpgrade = () =>
     getSystemUpgrades().then(
-      ({ upgrades }) => {
+      ({ upgrades, latestLTS }) => {
         if (this.mounted) {
-          this.setState({ systemUpgrades: upgrades });
+          this.setState({ latestLTS, systemUpgrades: upgrades });
         }
       },
       () => {}
     );
 
   render() {
-    const { systemUpgrades } = this.state;
+    const { systemUpgrades, latestLTS } = this.state;
 
     if (systemUpgrades.length <= 0) {
       return null;
@@ -62,7 +63,7 @@ export default class SystemUpgradeNotif extends React.PureComponent<{}, State> {
       <div className="page-notifs">
         <Alert variant="info">
           {translate('system.new_version_available')}
-          <SystemUpgradeButton systemUpgrades={systemUpgrades} />
+          <SystemUpgradeButton systemUpgrades={systemUpgrades} latestLTS={latestLTS} />
         </Alert>
       </div>
     );
