@@ -2,6 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <QualityGatePermissionsRenderer
+  groups={Array []}
   loading={true}
   onClickAddPermission={[Function]}
   onClickDeletePermission={[Function]}

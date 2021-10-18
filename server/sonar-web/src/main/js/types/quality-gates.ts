@@ -82,12 +82,25 @@ export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCon
 }
 
 export interface SearchPermissionsParameters {
-  qualityGate: string;
+  gateName: string;
   q?: string;
   selected?: 'all' | 'selected' | 'deselected';
 }
 
 export interface AddDeleteUserPermissionsParameters {
-  qualityGate: string;
-  userLogin: string;
+  gateName: string;
+  login: string;
+}
+
+export interface AddDeleteGroupPermissionsParameters {
+  gateName: string;
+  groupName: string;
+}
+
+export interface Group {
+  name: string;
+}
+
+export function isUser(item: T.UserBase | Group): item is T.UserBase {
+  return item && (item as T.UserBase).login !== undefined;
 }

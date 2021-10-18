@@ -19,7 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { addUser, removeUser, searchUsers } from '../../../../api/quality-gates';
+import {
+  addGroup,
+  addUser,
+  removeGroup,
+  removeUser,
+  searchGroups,
+  searchUsers
+} from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
@@ -28,7 +35,10 @@ import QualityGatePermissions from '../QualityGatePermissions';
 jest.mock('../../../../api/quality-gates', () => ({
   addUser: jest.fn().mockResolvedValue(undefined),
   removeUser: jest.fn().mockResolvedValue(undefined),
-  searchUsers: jest.fn().mockResolvedValue({ users: [] })
+  searchUsers: jest.fn().mockResolvedValue({ users: [] }),
+  addGroup: jest.fn().mockResolvedValue(undefined),
+  removeGroup: jest.fn().mockResolvedValue(undefined),
+  searchGroups: jest.fn().mockResolvedValue({ groups: [] })
 }));
 
 beforeEach(() => {
@@ -39,20 +49,32 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should fetch users', async () => {
+it('should fetch users and groups', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(searchUsers).toBeCalledWith({ qualityGate: '1', selected: 'selected' });
+  expect(searchUsers).toBeCalledWith({ gateName: 'qualitygate', selected: 'selected' });
+  expect(searchGroups).toBeCalledWith({ gateName: 'qualitygate', selected: 'selected' });
 });
 
-it('should fetch users on update', async () => {
+it('should handle errors when fetching users and groups', async () => {
+  (searchUsers as jest.Mock).mockRejectedValueOnce('nope');
+  (searchGroups as jest.Mock).mockRejectedValueOnce('nope');
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().groups).toHaveLength(0);
+  expect(wrapper.state().users).toHaveLength(0);
+});
+
+it('should fetch users and groups on update', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
   (searchUsers as jest.Mock).mockClear();
 
-  wrapper.setProps({ qualityGate: mockQualityGate({ id: '2' }) });
-  expect(searchUsers).toBeCalledWith({ qualityGate: '2', selected: 'selected' });
+  wrapper.setProps({ qualityGate: mockQualityGate({ id: '2', name: 'qg2' }) });
+  expect(searchUsers).toBeCalledWith({ gateName: 'qg2', selected: 'selected' });
 });
 
 it('should handleCloseAddPermission', () => {
@@ -69,23 +91,48 @@ it('should handleClickAddPermission', () => {
   expect(wrapper.state().showAddModal).toBe(true);
 });
 
-it('should handleSubmitAddPermission', async () => {
+it('should handleSubmitAddPermission for a user', async () => {
   const wrapper = shallowRender();
 
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().users).toHaveLength(0);
+  expect(wrapper.state().groups).toHaveLength(0);
 
   wrapper.instance().handleSubmitAddPermission(mockUserBase({ login: 'user1', name: 'User One' }));
   expect(wrapper.state().submitting).toBe(true);
 
-  expect(addUser).toBeCalledWith({ qualityGate: '1', userLogin: 'user1' });
+  expect(addUser).toBeCalledWith({ gateName: 'qualitygate', login: 'user1' });
+  expect(addGroup).not.toBeCalled();
 
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().submitting).toBe(false);
   expect(wrapper.state().showAddModal).toBe(false);
   expect(wrapper.state().users).toHaveLength(1);
+  expect(wrapper.state().groups).toHaveLength(0);
+});
+
+it('should handleSubmitAddPermission for a group', async () => {
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().users).toHaveLength(0);
+  expect(wrapper.state().groups).toHaveLength(0);
+
+  wrapper.instance().handleSubmitAddPermission({ name: 'group' });
+  expect(wrapper.state().submitting).toBe(true);
+
+  expect(addUser).not.toBeCalled();
+  expect(addGroup).toBeCalledWith({ gateName: 'qualitygate', groupName: 'group' });
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().submitting).toBe(false);
+  expect(wrapper.state().showAddModal).toBe(false);
+  expect(wrapper.state().users).toHaveLength(0);
+  expect(wrapper.state().groups).toHaveLength(1);
 });
 
 it('should handleSubmitAddPermission if it returns an error', async () => {
@@ -96,51 +143,81 @@ it('should handleSubmitAddPermission if it returns an error', async () => {
 
   expect(wrapper.state().users).toHaveLength(0);
 
+  wrapper.setState({ showAddModal: true });
   wrapper.instance().handleSubmitAddPermission(mockUserBase({ login: 'user1', name: 'User One' }));
   expect(wrapper.state().submitting).toBe(true);
 
-  expect(addUser).toBeCalledWith({ qualityGate: '1', userLogin: 'user1' });
+  expect(addUser).toBeCalledWith({ gateName: 'qualitygate', login: 'user1' });
 
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().submitting).toBe(false);
   expect(wrapper.state().showAddModal).toBe(true);
-  expect(wrapper.state().users).toHaveLength(1);
+  expect(wrapper.state().users).toHaveLength(0);
 });
 
 it('should handleCloseDeletePermission', () => {
   const wrapper = shallowRender();
-  wrapper.setState({ userPermissionToDelete: mockUserBase() });
+  wrapper.setState({ permissionToDelete: mockUserBase() });
   wrapper.instance().handleCloseDeletePermission();
-  expect(wrapper.state().userPermissionToDelete).toBeUndefined();
+  expect(wrapper.state().permissionToDelete).toBeUndefined();
 });
 
 it('should handleClickDeletePermission', () => {
   const user = mockUserBase();
 
   const wrapper = shallowRender();
-  wrapper.setState({ userPermissionToDelete: undefined });
+  wrapper.setState({ permissionToDelete: undefined });
   wrapper.instance().handleClickDeletePermission(user);
-  expect(wrapper.state().userPermissionToDelete).toBe(user);
+  expect(wrapper.state().permissionToDelete).toBe(user);
 });
 
-it('should handleConfirmDeletePermission', async () => {
+it('should handleConfirmDeletePermission for a user', async () => {
   const deleteThisUser = mockUserBase();
+  const deleteThisGroup = { name: 'deletableGroup' };
   (searchUsers as jest.Mock).mockResolvedValueOnce({ users: [deleteThisUser] });
+  (searchGroups as jest.Mock).mockResolvedValueOnce({ groups: [deleteThisGroup] });
   const wrapper = shallowRender();
 
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().users).toHaveLength(1);
+  expect(wrapper.state().groups).toHaveLength(1);
 
   wrapper.instance().handleConfirmDeletePermission(deleteThisUser);
 
-  expect(removeUser).toBeCalledWith({ qualityGate: '1', userLogin: deleteThisUser.login });
+  expect(removeUser).toBeCalledWith({ gateName: 'qualitygate', login: deleteThisUser.login });
+  expect(removeGroup).not.toBeCalled();
 
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().userPermissionToDelete).toBeUndefined();
+  expect(wrapper.state().permissionToDelete).toBeUndefined();
   expect(wrapper.state().users).toHaveLength(0);
+  expect(wrapper.state().groups).toHaveLength(1);
+});
+
+it('should handleConfirmDeletePermission for a group', async () => {
+  const deleteThisUser = mockUserBase();
+  const deleteThisGroup = { name: 'deletableGroup' };
+  (searchUsers as jest.Mock).mockResolvedValueOnce({ users: [deleteThisUser] });
+  (searchGroups as jest.Mock).mockResolvedValueOnce({ groups: [deleteThisGroup] });
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().users).toHaveLength(1);
+  expect(wrapper.state().groups).toHaveLength(1);
+
+  wrapper.instance().handleConfirmDeletePermission(deleteThisGroup);
+
+  expect(removeUser).not.toBeCalled();
+  expect(removeGroup).toBeCalledWith({ gateName: 'qualitygate', groupName: deleteThisGroup.name });
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().permissionToDelete).toBeUndefined();
+  expect(wrapper.state().users).toHaveLength(1);
+  expect(wrapper.state().groups).toHaveLength(0);
 });
 
 it('should handleConfirmDeletePermission if it returns an error', async () => {
@@ -155,11 +232,11 @@ it('should handleConfirmDeletePermission if it returns an error', async () => {
 
   wrapper.instance().handleConfirmDeletePermission(deleteThisUser);
 
-  expect(removeUser).toBeCalledWith({ qualityGate: '1', userLogin: deleteThisUser.login });
+  expect(removeUser).toBeCalledWith({ gateName: 'qualitygate', login: deleteThisUser.login });
 
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().userPermissionToDelete).toBeUndefined();
+  expect(wrapper.state().permissionToDelete).toBeUndefined();
   expect(wrapper.state().users).toHaveLength(1);
 });
 

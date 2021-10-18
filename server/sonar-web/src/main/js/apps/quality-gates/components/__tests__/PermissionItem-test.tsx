@@ -20,12 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockUser } from '../../../../helpers/testMocks';
-import PermissionItem from '../PermissionItem';
+import PermissionItem, { PermissionItemProps } from '../PermissionItem';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('user');
+  expect(shallowRender({ item: { name: 'groupname' } })).toMatchSnapshot('group');
 });
 
-function shallowRender() {
-  return shallow(<PermissionItem onClickDelete={jest.fn()} user={mockUser()} />);
+function shallowRender(overrides: Partial<PermissionItemProps> = {}) {
+  return shallow(<PermissionItem onClickDelete={jest.fn()} item={mockUser()} {...overrides} />);
 }

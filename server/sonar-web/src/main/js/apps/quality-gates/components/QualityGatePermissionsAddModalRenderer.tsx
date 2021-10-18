@@ -21,22 +21,24 @@ import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
+import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Group, isUser } from '../../../types/quality-gates';
 
 export interface QualityGatePermissionsAddModalRendererProps {
   onClose: () => void;
   onInputChange: (query: string) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
-  onSelection: (selection: T.UserBase) => void;
+  onSelection: (selection: T.UserBase | Group) => void;
   submitting: boolean;
   loading: boolean;
   query: string;
-  searchResults: T.UserBase[];
-  selection?: T.UserBase;
+  searchResults: Array<T.UserBase | Group>;
+  selection?: T.UserBase | Group;
 }
 
-type Option = T.UserBase & { value: string };
+type Option = (T.UserBase | Group) & { value: string };
 
 export default function QualityGatePermissionsAddModalRenderer(
   props: QualityGatePermissionsAddModalRendererProps
@@ -68,7 +70,7 @@ export default function QualityGatePermissionsAddModalRenderer(
               onChange={props.onSelection}
               onInputChange={props.onInputChange}
               optionRenderer={optionRenderer}
-              options={searchResults.map(r => ({ ...r, value: r.login }))}
+              options={searchResults.map(r => ({ ...r, value: isUser(r) ? r.login : r.name }))}
               placeholder=""
               searchable={true}
               value={selection}
@@ -89,9 +91,13 @@ export default function QualityGatePermissionsAddModalRenderer(
 function optionRenderer(option: Option) {
   return (
     <>
-      <Avatar hash={option.avatar} name={option.name} size={16} />
+      {isUser(option) ? (
+        <Avatar hash={option.avatar} name={option.name} size={16} />
+      ) : (
+        <GroupIcon size={16} />
+      )}
       <strong className="spacer-left">{option.name}</strong>
-      <span className="note little-spacer-left">{option.login}</span>
+      {isUser(option) && <span className="note little-spacer-left">{option.login}</span>}
     </>
   );
 }

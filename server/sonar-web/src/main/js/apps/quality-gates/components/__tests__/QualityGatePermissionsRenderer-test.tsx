@@ -27,17 +27,24 @@ import QualityGatePermissionsRenderer, {
 } from '../QualityGatePermissionsRenderer';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('with users');
+  expect(shallowRender()).toMatchSnapshot('with users and groups');
   expect(shallowRender({ users: [] })).toMatchSnapshot('with no users');
+  expect(shallowRender({ groups: [] })).toMatchSnapshot('with no groups');
+  expect(shallowRender({ groups: [], users: [] })).toMatchSnapshot('with no users or groups');
   expect(shallowRender({ showAddModal: true })).toMatchSnapshot('show add modal');
-  expect(shallowRender({ userPermissionToDelete: mockUserBase() })).toMatchSnapshot(
-    'show remove modal'
+  expect(shallowRender({ permissionToDelete: mockUserBase() })).toMatchSnapshot(
+    'show remove modal for user'
+  );
+
+  expect(shallowRender({ permissionToDelete: { name: 'deletable group' } })).toMatchSnapshot(
+    'show remove modal for group'
   );
 });
 
 function shallowRender(overrides: Partial<QualityGatePermissionsRendererProps> = {}) {
   return shallow(
     <QualityGatePermissionsRenderer
+      groups={[{ name: 'group' }]}
       loading={false}
       onClickAddPermission={jest.fn()}
       onCloseAddPermission={jest.fn()}

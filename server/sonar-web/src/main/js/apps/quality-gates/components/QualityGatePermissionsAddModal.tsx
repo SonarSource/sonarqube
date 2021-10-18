@@ -19,12 +19,13 @@
  */
 import { debounce } from 'lodash';
 import * as React from 'react';
-import { searchUsers } from '../../../api/quality-gates';
+import { searchGroups, searchUsers } from '../../../api/quality-gates';
+import { Group, SearchPermissionsParameters } from '../../../types/quality-gates';
 import QualityGatePermissionsAddModalRenderer from './QualityGatePermissionsAddModalRenderer';
 
 interface Props {
   onClose: () => void;
-  onSubmit: (selectedUser: T.UserBase) => void;
+  onSubmit: (selection: T.UserBase | Group) => void;
   qualityGate: T.QualityGate;
   submitting: boolean;
 }
@@ -32,8 +33,8 @@ interface Props {
 interface State {
   loading: boolean;
   query?: string;
-  searchResults: T.UserBase[];
-  selection?: T.UserBase;
+  searchResults: Array<T.UserBase | Group>;
+  selection?: T.UserBase | Group;
 }
 
 const DEBOUNCE_DELAY = 250;
@@ -58,21 +59,29 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     this.mounted = false;
   }
 
-  handleSearch = (query: string) => {
+  handleSearch = async (query: string) => {
     const { qualityGate } = this.props;
     this.setState({ loading: true });
-    searchUsers({ qualityGate: qualityGate.id, q: query, selected: 'deselected' }).then(
-      result => {
-        if (this.mounted) {
-          this.setState({ loading: false, searchResults: result.users });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+
+    const queryParams: SearchPermissionsParameters = {
+      gateName: qualityGate.name,
+      q: query,
+      selected: 'deselected'
+    };
+
+    try {
+      const [{ users }, { groups }] = await Promise.all([
+        searchUsers(queryParams),
+        searchGroups(queryParams)
+      ]);
+      if (this.mounted) {
+        this.setState({ loading: false, searchResults: [...users, ...groups] });
       }
-    );
+    } catch {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    }
   };
 
   handleInputChange = (query: string) => {
@@ -82,7 +91,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     }
   };
 
-  handleSelection = (selection: T.UserBase) => {
+  handleSelection = (selection: T.UserBase | Group) => {
     this.setState({ selection });
   };
 

@@ -23,39 +23,52 @@ import { Button } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { Group, isUser } from '../../../types/quality-gates';
 import PermissionItem from './PermissionItem';
 import QualityGatePermissionsAddModal from './QualityGatePermissionsAddModal';
 
 export interface QualityGatePermissionsRendererProps {
+  groups: Group[];
   loading: boolean;
   onClickAddPermission: () => void;
   onCloseAddPermission: () => void;
-  onSubmitAddPermission: (user: T.UserBase) => void;
+  onSubmitAddPermission: (item: T.UserBase | Group) => void;
   onCloseDeletePermission: () => void;
-  onConfirmDeletePermission: (user: T.UserBase) => void;
-  onClickDeletePermission: (user: T.UserBase) => void;
+  onConfirmDeletePermission: (item: T.UserBase | Group) => void;
+  onClickDeletePermission: (item: T.UserBase | Group) => void;
+  permissionToDelete?: T.UserBase | Group;
   qualityGate: T.QualityGate;
   showAddModal: boolean;
   submitting: boolean;
-  userPermissionToDelete?: T.UserBase;
   users: T.UserBase[];
 }
 
 export default function QualityGatePermissionsRenderer(props: QualityGatePermissionsRendererProps) {
-  const { loading, qualityGate, showAddModal, submitting, userPermissionToDelete, users } = props;
+  const {
+    groups,
+    loading,
+    permissionToDelete,
+    qualityGate,
+    showAddModal,
+    submitting,
+    users
+  } = props;
 
   return (
     <div className="quality-gate-permissions">
-      <header className="display-flex-center spacer-bottom">
-        <h3>{translate('quality_gates.permissions')}</h3>
-      </header>
+      <h3 className="spacer-bottom">{translate('quality_gates.permissions')}</h3>
       <p className="spacer-bottom">{translate('quality_gates.permissions.help')}</p>
       <div>
         <DeferredSpinner loading={loading}>
           <ul>
             {users.map(user => (
               <li key={user.login}>
-                <PermissionItem onClickDelete={props.onClickDeletePermission} user={user} />
+                <PermissionItem onClickDelete={props.onClickDeletePermission} item={user} />
+              </li>
+            ))}
+            {groups.map(group => (
+              <li key={group.name}>
+                <PermissionItem onClickDelete={props.onClickDeletePermission} item={group} />
               </li>
             ))}
           </ul>
@@ -75,19 +88,25 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
         />
       )}
 
-      {userPermissionToDelete && (
+      {permissionToDelete && (
         <ConfirmModal
-          header={translate('users.remove')}
+          header={
+            isUser(permissionToDelete) ? translate('users.remove') : translate('groups.remove')
+          }
           confirmButtonText={translate('remove')}
           isDestructive={true}
-          confirmData={userPermissionToDelete}
+          confirmData={permissionToDelete}
           onClose={props.onCloseDeletePermission}
           onConfirm={props.onConfirmDeletePermission}>
           <FormattedMessage
-            defaultMessage={translate('users.remove.confirmation')}
-            id="users.remove.confirmation"
+            defaultMessage={
+              isUser(permissionToDelete)
+                ? translate('users.remove.confirmation')
+                : translate('groups.remove.confirmation')
+            }
+            id="remove.confirmation"
             values={{
-              user: <strong>{userPermissionToDelete.name}</strong>
+              user: <strong>{permissionToDelete.name}</strong>
             }}
           />
         </ConfirmModal>

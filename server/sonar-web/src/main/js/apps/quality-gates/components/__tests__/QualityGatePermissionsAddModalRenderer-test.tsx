@@ -32,9 +32,9 @@ it('should render correctly', () => {
   expect(shallowRender({ selection: mockUserBase(), submitting: true })).toMatchSnapshot(
     'submitting'
   );
-  expect(shallowRender({ query: 'ab', searchResults: [mockUserBase()] })).toMatchSnapshot(
-    'query and results'
-  );
+  expect(
+    shallowRender({ query: 'ab', searchResults: [mockUserBase(), { name: 'group name' }] })
+  ).toMatchSnapshot('query and results');
 });
 
 it('should render options correctly', () => {
@@ -42,7 +42,8 @@ it('should render options correctly', () => {
 
   const { optionRenderer = () => null } = wrapper.find(Select).props();
 
-  expect(optionRenderer({ avatar: 'avatar', name: 'name', login: 'login' })).toMatchSnapshot();
+  expect(optionRenderer({ avatar: 'A', name: 'name', login: 'login' })).toMatchSnapshot('user');
+  expect(optionRenderer({ name: 'group name' })).toMatchSnapshot('group');
 });
 
 function shallowRender(overrides: Partial<QualityGatePermissionsAddModalRendererProps> = {}) {

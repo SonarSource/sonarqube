@@ -19,14 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { searchUsers } from '../../../../api/quality-gates';
+import { searchGroups, searchUsers } from '../../../../api/quality-gates';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
 import QualityGatePermissionsAddModal from '../QualityGatePermissionsAddModal';
 
 jest.mock('../../../../api/quality-gates', () => ({
-  searchUsers: jest.fn().mockResolvedValue({ users: [] })
+  searchUsers: jest.fn().mockResolvedValue({ users: [] }),
+  searchGroups: jest.fn().mockResolvedValue({ groups: [] })
 }));
 
 beforeEach(() => {
@@ -34,12 +35,12 @@ beforeEach(() => {
 });
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
+  expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should fetch users', async () => {
+it('should fetch users and groups', async () => {
   (searchUsers as jest.Mock).mockResolvedValueOnce({ users: [mockUserBase()] });
+  (searchGroups as jest.Mock).mockResolvedValueOnce({ groups: [{ name: 'group' }] });
 
   const wrapper = shallowRender();
 
@@ -48,12 +49,17 @@ it('should fetch users', async () => {
   wrapper.instance().handleSearch(query);
 
   expect(wrapper.state().loading).toBe(true);
-  expect(searchUsers).toBeCalledWith({ qualityGate: '1', q: query, selected: 'deselected' });
+  expect(searchUsers).toBeCalledWith({ gateName: 'qualitygate', q: query, selected: 'deselected' });
+  expect(searchGroups).toBeCalledWith({
+    gateName: 'qualitygate',
+    q: query,
+    selected: 'deselected'
+  });
 
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().loading).toBe(false);
-  expect(wrapper.state().searchResults).toHaveLength(1);
+  expect(wrapper.state().searchResults).toHaveLength(2);
 });
 
 it('should handle input change', () => {

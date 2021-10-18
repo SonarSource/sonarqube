@@ -19,7 +19,15 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { addUser, removeUser, searchUsers } from '../../../api/quality-gates';
+import {
+  addGroup,
+  addUser,
+  removeGroup,
+  removeUser,
+  searchGroups,
+  searchUsers
+} from '../../../api/quality-gates';
+import { Group, isUser, SearchPermissionsParameters } from '../../../types/quality-gates';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
 
 interface Props {
@@ -27,16 +35,18 @@ interface Props {
 }
 
 interface State {
+  groups: Group[];
   submitting: boolean;
   loading: boolean;
   showAddModal: boolean;
-  userPermissionToDelete?: T.UserBase;
+  permissionToDelete?: T.UserBase | Group;
   users: T.UserBase[];
 }
 
 export default class QualityGatePermissions extends React.Component<Props, State> {
   mounted = false;
   state: State = {
+    groups: [],
     submitting: false,
     loading: true,
     showAddModal: false,
@@ -63,15 +73,17 @@ export default class QualityGatePermissions extends React.Component<Props, State
     const { qualityGate } = this.props;
     this.setState({ loading: true });
 
-    const { users } = await searchUsers({
-      qualityGate: qualityGate.id,
+    const params: SearchPermissionsParameters = {
+      gateName: qualityGate.name,
       selected: 'selected'
-    }).catch(() => ({
-      users: []
-    }));
+    };
+    const [{ users }, { groups }] = await Promise.all([
+      searchUsers(params).catch(() => ({ users: [] })),
+      searchGroups(params).catch(() => ({ groups: [] }))
+    ]);
 
     if (this.mounted) {
-      this.setState({ loading: false, users });
+      this.setState({ groups, loading: false, users });
     }
   };
 
@@ -83,58 +95,83 @@ export default class QualityGatePermissions extends React.Component<Props, State
     this.setState({ showAddModal: true });
   };
 
-  handleSubmitAddPermission = async (user: T.UserBase) => {
+  handleSubmitAddPermission = async (item: T.UserBase | Group) => {
     const { qualityGate } = this.props;
     this.setState({ submitting: true });
 
     let error = false;
     try {
-      await addUser({ qualityGate: qualityGate.id, userLogin: user.login });
-    } catch {
-      error = true;
-    }
-
-    if (this.mounted) {
-      this.setState(({ users }) => {
-        return {
-          submitting: false,
-          showAddModal: error,
-          users: sortBy(users.concat(user), u => u.name)
-        };
-      });
-    }
-  };
-
-  handleCloseDeletePermission = () => {
-    this.setState({ userPermissionToDelete: undefined });
-  };
-
-  handleClickDeletePermission = (userPermissionToDelete?: T.UserBase) => {
-    this.setState({ userPermissionToDelete });
-  };
-
-  handleConfirmDeletePermission = async (user: T.UserBase) => {
-    const { qualityGate } = this.props;
-
-    let error = false;
-    try {
-      await removeUser({ qualityGate: qualityGate.id, userLogin: user.login });
+      if (isUser(item)) {
+        await addUser({ gateName: qualityGate.name, login: item.login });
+      } else {
+        await addGroup({ gateName: qualityGate.name, groupName: item.name });
+      }
     } catch {
       error = true;
     }
 
     if (this.mounted && !error) {
-      this.setState(({ users }) => ({
-        users: users.filter(u => u.login !== user.login)
-      }));
+      if (isUser(item)) {
+        this.setState(({ users }) => ({
+          showAddModal: false,
+          users: sortBy(users.concat(item), u => u.name)
+        }));
+      } else {
+        this.setState(({ groups }) => ({
+          showAddModal: false,
+          groups: sortBy(groups.concat(item), g => g.name)
+        }));
+      }
+    }
+
+    if (this.mounted) {
+      this.setState({
+        submitting: false
+      });
+    }
+  };
+
+  handleCloseDeletePermission = () => {
+    this.setState({ permissionToDelete: undefined });
+  };
+
+  handleClickDeletePermission = (permissionToDelete?: T.UserBase | Group) => {
+    this.setState({ permissionToDelete });
+  };
+
+  handleConfirmDeletePermission = async (item: T.UserBase | Group) => {
+    const { qualityGate } = this.props;
+
+    let error = false;
+    try {
+      if (isUser(item)) {
+        await removeUser({ gateName: qualityGate.name, login: item.login });
+      } else {
+        await removeGroup({ gateName: qualityGate.name, groupName: item.name });
+      }
+    } catch {
+      error = true;
+    }
+
+    if (this.mounted && !error) {
+      if (isUser(item)) {
+        this.setState(({ users }) => ({
+          users: users.filter(u => u.login !== item.login)
+        }));
+      } else {
+        this.setState(({ groups }) => ({
+          groups: groups.filter(g => g.name !== item.name)
+        }));
+      }
     }
   };
 
   render() {
     const { qualityGate } = this.props;
-    const { submitting, loading, showAddModal, userPermissionToDelete, users } = this.state;
+    const { groups, submitting, loading, showAddModal, permissionToDelete, users } = this.state;
     return (
       <QualityGatePermissionsRenderer
+        groups={groups}
         loading={loading}
         onClickAddPermission={this.handleClickAddPermission}
         onCloseAddPermission={this.handleCloseAddPermission}
@@ -142,10 +179,10 @@ export default class QualityGatePermissions extends React.Component<Props, State
         onCloseDeletePermission={this.handleCloseDeletePermission}
         onClickDeletePermission={this.handleClickDeletePermission}
         onConfirmDeletePermission={this.handleConfirmDeletePermission}
+        permissionToDelete={permissionToDelete}
         qualityGate={qualityGate}
         showAddModal={showAddModal}
         submitting={submitting}
-        userPermissionToDelete={userPermissionToDelete}
         users={users}
       />
     );

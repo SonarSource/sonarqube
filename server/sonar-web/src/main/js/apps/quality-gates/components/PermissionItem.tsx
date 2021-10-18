@@ -19,26 +19,32 @@
  */
 import * as React from 'react';
 import { DeleteButton } from '../../../components/controls/buttons';
+import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
+import { Group, isUser } from '../../../types/quality-gates';
 
-interface Props {
-  onClickDelete: (user: T.UserBase) => void;
-  user: T.UserBase;
+export interface PermissionItemProps {
+  onClickDelete: (item: T.UserBase | Group) => void;
+  item: T.UserBase | Group;
 }
 
-export default function PermissionItem(props: Props) {
-  const { user } = props;
+export default function PermissionItem(props: PermissionItemProps) {
+  const { item } = props;
 
   return (
     <div className="display-flex-center permission-list-item padded">
-      <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={32} />
+      {isUser(item) ? (
+        <Avatar className="spacer-right" hash={item.avatar} name={item.name} size={32} />
+      ) : (
+        <GroupIcon className="pull-left spacer-right" size={32} />
+      )}
 
       <div className="overflow-hidden flex-1">
-        <strong>{user.name}</strong>
-        <div className="note">{user.login}</div>
+        <strong>{item.name}</strong>
+        {isUser(item) && <div className="note">{item.login}</div>}
       </div>
 
-      <DeleteButton onClick={() => props.onClickDelete(user)} />
+      <DeleteButton onClick={() => props.onClickDelete(item)} />
     </div>
   );
 }

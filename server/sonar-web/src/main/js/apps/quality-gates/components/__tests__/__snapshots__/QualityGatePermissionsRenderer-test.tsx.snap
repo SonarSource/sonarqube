@@ -4,13 +4,11 @@ exports[`should render correctly: show add modal 1`] = `
 <div
   className="quality-gate-permissions"
 >
-  <header
-    className="display-flex-center spacer-bottom"
+  <h3
+    className="spacer-bottom"
   >
-    <h3>
-      quality_gates.permissions
-    </h3>
-  </header>
+    quality_gates.permissions
+  </h3>
   <p
     className="spacer-bottom"
   >
@@ -25,8 +23,7 @@ exports[`should render correctly: show add modal 1`] = `
           key="john.doe"
         >
           <PermissionItem
-            onClickDelete={[MockFunction]}
-            user={
+            item={
               Object {
                 "active": true,
                 "local": true,
@@ -34,6 +31,19 @@ exports[`should render correctly: show add modal 1`] = `
                 "name": "John Doe",
               }
             }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+        <li
+          key="group"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "name": "group",
+              }
+            }
+            onClickDelete={[MockFunction]}
           />
         </li>
       </ul>
@@ -59,17 +69,15 @@ exports[`should render correctly: show add modal 1`] = `
 </div>
 `;
 
-exports[`should render correctly: show remove modal 1`] = `
+exports[`should render correctly: show remove modal for group 1`] = `
 <div
   className="quality-gate-permissions"
 >
-  <header
-    className="display-flex-center spacer-bottom"
+  <h3
+    className="spacer-bottom"
   >
-    <h3>
-      quality_gates.permissions
-    </h3>
-  </header>
+    quality_gates.permissions
+  </h3>
   <p
     className="spacer-bottom"
   >
@@ -84,8 +92,7 @@ exports[`should render correctly: show remove modal 1`] = `
           key="john.doe"
         >
           <PermissionItem
-            onClickDelete={[MockFunction]}
-            user={
+            item={
               Object {
                 "active": true,
                 "local": true,
@@ -93,6 +100,101 @@ exports[`should render correctly: show remove modal 1`] = `
                 "name": "John Doe",
               }
             }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+        <li
+          key="group"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "name": "group",
+              }
+            }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+      </ul>
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    quality_gates.permissions.grant
+  </Button>
+  <ConfirmModal
+    confirmButtonText="remove"
+    confirmData={
+      Object {
+        "name": "deletable group",
+      }
+    }
+    header="groups.remove"
+    isDestructive={true}
+    onClose={[MockFunction]}
+    onConfirm={[MockFunction]}
+  >
+    <FormattedMessage
+      defaultMessage="groups.remove.confirmation"
+      id="remove.confirmation"
+      values={
+        Object {
+          "user": <strong>
+            deletable group
+          </strong>,
+        }
+      }
+    />
+  </ConfirmModal>
+</div>
+`;
+
+exports[`should render correctly: show remove modal for user 1`] = `
+<div
+  className="quality-gate-permissions"
+>
+  <h3
+    className="spacer-bottom"
+  >
+    quality_gates.permissions
+  </h3>
+  <p
+    className="spacer-bottom"
+  >
+    quality_gates.permissions.help
+  </p>
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul>
+        <li
+          key="john.doe"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "active": true,
+                "local": true,
+                "login": "john.doe",
+                "name": "John Doe",
+              }
+            }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+        <li
+          key="group"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "name": "group",
+              }
+            }
+            onClickDelete={[MockFunction]}
           />
         </li>
       </ul>
@@ -118,7 +220,7 @@ exports[`should render correctly: show remove modal 1`] = `
   >
     <FormattedMessage
       defaultMessage="users.remove.confirmation"
-      id="users.remove.confirmation"
+      id="remove.confirmation"
       values={
         Object {
           "user": <strong />,
@@ -129,17 +231,104 @@ exports[`should render correctly: show remove modal 1`] = `
 </div>
 `;
 
+exports[`should render correctly: with no groups 1`] = `
+<div
+  className="quality-gate-permissions"
+>
+  <h3
+    className="spacer-bottom"
+  >
+    quality_gates.permissions
+  </h3>
+  <p
+    className="spacer-bottom"
+  >
+    quality_gates.permissions.help
+  </p>
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul>
+        <li
+          key="john.doe"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "active": true,
+                "local": true,
+                "login": "john.doe",
+                "name": "John Doe",
+              }
+            }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+      </ul>
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    quality_gates.permissions.grant
+  </Button>
+</div>
+`;
+
 exports[`should render correctly: with no users 1`] = `
 <div
   className="quality-gate-permissions"
 >
-  <header
-    className="display-flex-center spacer-bottom"
+  <h3
+    className="spacer-bottom"
   >
-    <h3>
-      quality_gates.permissions
-    </h3>
-  </header>
+    quality_gates.permissions
+  </h3>
+  <p
+    className="spacer-bottom"
+  >
+    quality_gates.permissions.help
+  </p>
+  <div>
+    <DeferredSpinner
+      loading={false}
+    >
+      <ul>
+        <li
+          key="group"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "name": "group",
+              }
+            }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+      </ul>
+    </DeferredSpinner>
+  </div>
+  <Button
+    className="big-spacer-top"
+    onClick={[MockFunction]}
+  >
+    quality_gates.permissions.grant
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: with no users or groups 1`] = `
+<div
+  className="quality-gate-permissions"
+>
+  <h3
+    className="spacer-bottom"
+  >
+    quality_gates.permissions
+  </h3>
   <p
     className="spacer-bottom"
   >
@@ -161,17 +350,15 @@ exports[`should render correctly: with no users 1`] = `
 </div>
 `;
 
-exports[`should render correctly: with users 1`] = `
+exports[`should render correctly: with users and groups 1`] = `
 <div
   className="quality-gate-permissions"
 >
-  <header
-    className="display-flex-center spacer-bottom"
+  <h3
+    className="spacer-bottom"
   >
-    <h3>
-      quality_gates.permissions
-    </h3>
-  </header>
+    quality_gates.permissions
+  </h3>
   <p
     className="spacer-bottom"
   >
@@ -186,8 +373,7 @@ exports[`should render correctly: with users 1`] = `
           key="john.doe"
         >
           <PermissionItem
-            onClickDelete={[MockFunction]}
-            user={
+            item={
               Object {
                 "active": true,
                 "local": true,
@@ -195,6 +381,19 @@ exports[`should render correctly: with users 1`] = `
                 "name": "John Doe",
               }
             }
+            onClickDelete={[MockFunction]}
+          />
+        </li>
+        <li
+          key="group"
+        >
+          <PermissionItem
+            item={
+              Object {
+                "name": "group",
+              }
+            }
+            onClickDelete={[MockFunction]}
           />
         </li>
       </ul>

@@ -21,7 +21,9 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
+  AddDeleteGroupPermissionsParameters,
   AddDeleteUserPermissionsParameters,
+  Group,
   QualityGateApplicationStatus,
   QualityGateProjectStatus,
   SearchPermissionsParameters
@@ -140,4 +142,16 @@ export function removeUser(data: AddDeleteUserPermissionsParameters) {
 
 export function searchUsers(data: SearchPermissionsParameters): Promise<{ users: T.UserBase[] }> {
   return getJSON('/api/qualitygates/search_users', data).catch(throwGlobalError);
+}
+
+export function addGroup(data: AddDeleteGroupPermissionsParameters) {
+  return post('/api/qualitygates/add_group', data).catch(throwGlobalError);
+}
+
+export function removeGroup(data: AddDeleteGroupPermissionsParameters) {
+  return post('/api/qualitygates/remove_group', data).catch(throwGlobalError);
+}
+
+export function searchGroups(data: SearchPermissionsParameters): Promise<{ groups: Group[] }> {
+  return getJSON('/api/qualitygates/search_groups', data).catch(throwGlobalError);
 }

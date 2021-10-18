@@ -99,6 +99,10 @@ exports[`should render correctly: query and results 1`] = `
                 "login": "userlogin",
                 "value": "userlogin",
               },
+              Object {
+                "name": "group name",
+                "value": "group name",
+              },
             ]
           }
           placeholder=""
@@ -315,10 +319,23 @@ exports[`should render correctly: submitting 1`] = `
 </Modal>
 `;
 
-exports[`should render options correctly 1`] = `
+exports[`should render options correctly: group 1`] = `
+<React.Fragment>
+  <GroupIcon
+    size={16}
+  />
+  <strong
+    className="spacer-left"
+  >
+    group name
+  </strong>
+</React.Fragment>
+`;
+
+exports[`should render options correctly: user 1`] = `
 <React.Fragment>
   <Connect(Avatar)
-    hash="avatar"
+    hash="A"
     name="name"
     size={16}
   />
