@@ -68,6 +68,7 @@ public class EsJvmOptionsTest {
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
         "-Djava.locale.providers=COMPAT",
+        "-Dcom.redhat.fips=false",
         "-Des.enforce.bootstrap.checks=true");
   }
 
@@ -149,6 +150,7 @@ public class EsJvmOptionsTest {
         "-Dlog4j.shutdownHookEnabled=false\n" +
         "-Dlog4j2.disable.jmx=true\n" +
         "-Djava.locale.providers=COMPAT\n" +
+        "-Dcom.redhat.fips=false\n" +
         "-Des.enforce.bootstrap.checks=true\n" +
         "-foo\n" +
         "-bar");

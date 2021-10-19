@@ -126,6 +126,8 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
      * parsing will break in an incompatible way for some date patterns and locales.
      */
     res.put("-Djava.locale.providers=", "COMPAT");
+    // disable FIPS mode for the JVM so SonarQube can use certain algorithms
+    res.put("-Dcom.redhat.fips=", "false");
   }
 
   public void writeToJvmOptionFile(File file) {
