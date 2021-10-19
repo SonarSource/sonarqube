@@ -25,27 +25,28 @@ public class QualityGateWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      AddGroupAction.class,
       AddUserAction.class,
-      QualityGatesWsSupport.class,
-      QualityGatesWs.class,
-      ListAction.class,
-      SearchAction.class,
-      ShowAction.class,
-      CreateAction.class,
-      RenameAction.class,
       CopyAction.class,
-      DestroyAction.class,
-      SetAsDefaultAction.class,
-      SelectAction.class,
-      DeselectAction.class,
+      CreateAction.class,
       CreateConditionAction.class,
       DeleteConditionAction.class,
-      UpdateConditionAction.class,
-      ProjectStatusAction.class,
+      DeselectAction.class,
+      DestroyAction.class,
       GetByProjectAction.class,
-      AddGroupAction.class,
+      ListAction.class,
+      ProjectStatusAction.class,
+      QualityGatesWs.class,
+      QualityGatesWsSupport.class,
+      RemoveGroupAction.class,
+      RenameAction.class,
+      SearchAction.class,
       SearchGroupsAction.class,
-      SearchUsersAction.class
+      SearchUsersAction.class,
+      SelectAction.class,
+      SetAsDefaultAction.class,
+      ShowAction.class,
+      UpdateConditionAction.class
     );
   }
 }

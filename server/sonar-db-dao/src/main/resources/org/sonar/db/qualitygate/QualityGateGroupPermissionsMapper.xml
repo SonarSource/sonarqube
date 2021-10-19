@@ -97,4 +97,10 @@
     )
   </insert>
 
+  <delete id="delete">
+    delete from qgate_group_permissions
+    where quality_gate_uuid = #{qualityGateUuid, jdbcType=VARCHAR}
+    and group_uuid = #{groupUuid, jdbcType=VARCHAR}
+  </delete>
+
 </mapper>

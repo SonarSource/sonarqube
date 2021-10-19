@@ -202,6 +202,19 @@ public class QualityGateGroupPermissionsDaoTest {
       .containsExactly(group1.getUuid(), group2.getUuid(), group3.getUuid());
   }
 
+  @Test
+  public void deleteByQProfileAndGroup() {
+    QualityGateDto qualityGateDto = insertQualityGate();
+    GroupDto group = dbTester.users().insertGroup();
+    insertQualityGateGroupPermission(qualityGateDto.getUuid(), group.getUuid());
+
+    assertThat(underTest.exists(dbSession, qualityGateDto, group)).isTrue();
+
+    underTest.deleteByQualityGateAndGroup(dbSession, qualityGateDto, group);
+
+    assertThat(underTest.exists(dbSession, qualityGateDto, group)).isFalse();
+  }
+
   private QualityGateDto insertQualityGate() {
     QualityGateDto qg = new QualityGateDto()
       .setUuid(randomAlphabetic(5))

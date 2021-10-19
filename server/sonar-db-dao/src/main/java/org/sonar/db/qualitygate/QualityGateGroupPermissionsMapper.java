@@ -36,4 +36,7 @@ public interface QualityGateGroupPermissionsMapper {
   List<SearchGroupMembershipDto> selectByQuery(@Param("query") SearchPermissionQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") SearchPermissionQuery query);
+
+  void delete(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuid") String groupUuid);
+
 }

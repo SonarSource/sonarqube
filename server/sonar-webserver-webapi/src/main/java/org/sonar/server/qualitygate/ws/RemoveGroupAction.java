@@ -20,28 +20,24 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.qualitygate.QualityGateGroupPermissionsDto;
 import org.sonar.db.user.GroupDto;
 
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_ADD_GROUP;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_REMOVE_GROUP;
 
-public class AddGroupAction extends AbstractGroupAction {
-  private final UuidFactory uuidFactory;
+public class RemoveGroupAction extends AbstractGroupAction {
 
-  public AddGroupAction(DbClient dbClient, UuidFactory uuidFactory, QualityGatesWsSupport wsSupport) {
+  public RemoveGroupAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     super(dbClient, wsSupport);
-    this.uuidFactory = uuidFactory;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
-      .createAction(ACTION_ADD_GROUP)
-      .setDescription("Allow a group of users to edit a Quality Gate.<br>" +
+      .createAction(ACTION_REMOVE_GROUP)
+      .setDescription("Remove the ability from a group to edit a Quality Gate.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer Quality Gates'</li>" +
@@ -57,15 +53,10 @@ public class AddGroupAction extends AbstractGroupAction {
 
   @Override
   protected void apply(DbSession dbSession, QualityGateDto qualityGate, GroupDto group) {
-    if (dbClient.qualityGateGroupPermissionsDao().exists(dbSession, qualityGate, group)) {
+    if (!dbClient.qualityGateGroupPermissionsDao().exists(dbSession, qualityGate, group)) {
       return;
     }
-    dbClient.qualityGateGroupPermissionsDao().insert(dbSession,
-      new QualityGateGroupPermissionsDto()
-        .setUuid(uuidFactory.create())
-        .setGroupUuid(group.getUuid())
-        .setQualityGateUuid(qualityGate.getUuid()));
+    dbClient.qualityGateGroupPermissionsDao().deleteByQualityGateAndGroup(dbSession, qualityGate, group);
     dbSession.commit();
   }
-
 }
