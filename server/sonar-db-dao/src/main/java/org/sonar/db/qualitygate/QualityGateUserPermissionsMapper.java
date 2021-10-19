@@ -35,6 +35,8 @@ public interface QualityGateUserPermissionsMapper {
 
   int countByQuery(@Param("query") SearchPermissionQuery query);
 
+  void delete(@Param("qualityGateUuid") String qualityGateUuid, @Param("userUuid") String userUuid);
+
   void deleteByUser(@Param("userUuid") String userUuid);
 
   void deleteByQualityGate(@Param("qualityGateUuid") String qualityGateUuid);

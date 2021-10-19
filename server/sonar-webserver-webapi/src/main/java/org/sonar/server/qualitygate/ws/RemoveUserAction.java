@@ -20,29 +20,24 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.qualitygate.QualityGateUserPermissionsDto;
 import org.sonar.db.user.UserDto;
 
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_ADD_USER;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_REMOVE_USER;
 
-public class AddUserAction extends AbstractUserAction {
+public class RemoveUserAction extends AbstractUserAction {
 
-  private final UuidFactory uuidFactory;
-
-  public AddUserAction(DbClient dbClient, UuidFactory uuidFactory, QualityGatesWsSupport wsSupport) {
+  public RemoveUserAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     super(dbClient, wsSupport);
-    this.uuidFactory = uuidFactory;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
-      .createAction(ACTION_ADD_USER)
-      .setDescription("Allow a user to edit a Quality Gate.<br>" +
+      .createAction(ACTION_REMOVE_USER)
+      .setDescription("Remove the ability from an user to edit a Quality Gate.<br>" +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer Quality Gates'</li>" +
@@ -58,15 +53,10 @@ public class AddUserAction extends AbstractUserAction {
 
   @Override
   protected void apply(DbSession dbSession, QualityGateDto qualityGate, UserDto user) {
-    if (dbClient.qualityGateUserPermissionDao().exists(dbSession, qualityGate, user)) {
+    if (!dbClient.qualityGateUserPermissionDao().exists(dbSession, qualityGate, user)) {
       return;
     }
-    dbClient.qualityGateUserPermissionDao().insert(dbSession,
-      new QualityGateUserPermissionsDto()
-        .setUuid(uuidFactory.create())
-        .setUserUuid(user.getUuid())
-        .setQualityGateUuid(qualityGate.getUuid()));
+    dbClient.qualityGateUserPermissionDao().deleteByQualityGateAndUser(dbSession, qualityGate, user);
     dbSession.commit();
   }
-
 }

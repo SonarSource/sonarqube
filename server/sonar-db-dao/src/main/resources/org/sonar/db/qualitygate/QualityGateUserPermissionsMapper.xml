@@ -92,6 +92,12 @@
     </where>
   </sql>
 
+  <delete id="delete">
+    delete from qgate_user_permissions
+    where quality_gate_uuid = #{qualityGateUuid}
+    and user_uuid = #{userUuid}
+  </delete>
+
   <delete id="deleteByUser">
     delete from qgate_user_permissions
     where user_uuid = #{userUuid}
