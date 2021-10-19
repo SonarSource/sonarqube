@@ -64,6 +64,10 @@ public class QualityGateUserPermissionsDao implements Dao {
     return mapper(dbSession).countByQuery(query);
   }
 
+  public void deleteByQualityGate(DbSession dbSession, QualityGateDto qualityGate) {
+    mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
+  }
+
   private static QualityGateUserPermissionsMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(QualityGateUserPermissionsMapper.class);
   }

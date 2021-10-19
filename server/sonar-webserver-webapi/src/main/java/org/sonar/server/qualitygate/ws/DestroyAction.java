@@ -91,6 +91,8 @@ public class DestroyAction implements QualityGatesWsAction {
       wsSupport.checkCanEdit(qualityGate);
 
       dbClient.projectQgateAssociationDao().deleteByQGateUuid(dbSession, qualityGate.getUuid());
+      dbClient.qualityGateGroupPermissionsDao().deleteByQualityGate(dbSession, qualityGate);
+      dbClient.qualityGateUserPermissionDao().deleteByQualityGate(dbSession, qualityGate);
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
       dbSession.commit();
       response.noContent();

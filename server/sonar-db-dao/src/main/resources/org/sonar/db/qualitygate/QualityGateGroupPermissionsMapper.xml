@@ -103,9 +103,14 @@
     and group_uuid = #{groupUuid, jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByGroup" parameterType="map">
+  <delete id="deleteByGroup">
     delete from qgate_group_permissions
     where group_uuid = #{groupUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByQualityGate">
+    delete from qgate_group_permissions
+    where quality_gate_uuid = #{qualityGateUuid, jdbcType=VARCHAR}
   </delete>
 
 </mapper>

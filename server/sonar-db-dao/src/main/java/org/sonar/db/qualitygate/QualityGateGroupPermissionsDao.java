@@ -57,10 +57,6 @@ public class QualityGateGroupPermissionsDao implements Dao {
     mapper(dbSession).insert(dto, system2.now());
   }
 
-  private static QualityGateGroupPermissionsMapper mapper(DbSession dbSession) {
-    return dbSession.getMapper(QualityGateGroupPermissionsMapper.class);
-  }
-
   public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchPermissionQuery query, Pagination pagination) {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
@@ -75,5 +71,13 @@ public class QualityGateGroupPermissionsDao implements Dao {
 
   public void deleteByQualityGateAndGroup(DbSession dbSession, QualityGateDto qualityGate, GroupDto group) {
     mapper(dbSession).delete(qualityGate.getUuid(), group.getUuid());
+  }
+
+  public void deleteByQualityGate(DbSession dbSession, QualityGateDto qualityGate) {
+    mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
+  }
+
+  private static QualityGateGroupPermissionsMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(QualityGateGroupPermissionsMapper.class);
   }
 }

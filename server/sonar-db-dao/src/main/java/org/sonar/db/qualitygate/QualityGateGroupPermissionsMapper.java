@@ -41,4 +41,6 @@ public interface QualityGateGroupPermissionsMapper {
 
   void delete(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuid") String groupUuid);
 
+  void deleteByQualityGate(@Param("qualityGateUuid") String qualityGateUuid);
+
 }

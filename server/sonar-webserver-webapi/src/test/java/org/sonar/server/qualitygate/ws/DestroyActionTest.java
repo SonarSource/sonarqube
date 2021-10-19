@@ -27,8 +27,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -43,6 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
+import static org.sonar.db.user.SearchPermissionQuery.IN;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 
 public class DestroyActionTest {
@@ -110,6 +115,50 @@ public class DestroyActionTest {
     assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj1.getUuid()))
       .isEmpty();
     assertThat(db.getDbClient().projectQgateAssociationDao().selectQGateUuidByProjectUuid(dbSession, prj2.getUuid()))
+      .isEmpty();
+  }
+
+  @Test
+  public void delete_quality_gate_and_any_associated_group_permissions() {
+    db.qualityGates().createDefaultQualityGate();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+
+    db.qualityGates().addGroupPermission(qualityGate, group1);
+    db.qualityGates().addGroupPermission(qualityGate, group2);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
+      .execute();
+
+    assertThat(db.getDbClient().qualityGateGroupPermissionsDao().selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGate)
+        .setMembership(IN).build(),
+      Pagination.all()))
+      .isEmpty();
+  }
+
+  @Test
+  public void delete_quality_gate_and_any_associated_user_permissions() {
+    db.qualityGates().createDefaultQualityGate();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+
+    db.qualityGates().addUserPermission(qualityGate, user1);
+    db.qualityGates().addUserPermission(qualityGate, user2);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
+      .execute();
+
+    assertThat(db.getDbClient().qualityGateUserPermissionDao().selectByQuery(dbSession, builder()
+        .setQualityGate(qualityGate)
+        .setMembership(IN).build(),
+      Pagination.all()))
       .isEmpty();
   }
 

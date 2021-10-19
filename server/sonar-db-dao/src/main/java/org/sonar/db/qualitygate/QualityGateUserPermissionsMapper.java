@@ -34,4 +34,7 @@ public interface QualityGateUserPermissionsMapper {
   List<SearchUserMembershipDto> selectByQuery(@Param("query") SearchPermissionQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") SearchPermissionQuery query);
+
+  void deleteByQualityGate(@Param("qualityGateUuid") String qualityGateUuid);
+
 }
