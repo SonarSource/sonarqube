@@ -19,8 +19,10 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -36,6 +38,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserOrganizationGroup;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionService;
@@ -44,7 +47,6 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
-import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -57,6 +59,7 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.Users.CurrentWsResponse.OrganizationGroup;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
@@ -114,14 +117,13 @@ public class CurrentAction implements UsersWsAction {
   private CurrentWsResponse toWsResponse(DbSession dbSession, String userLogin) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     checkState(user != null, "User login '%s' cannot be found", userLogin);
-    Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin);
-
+    List<UserOrganizationGroup> orgGroups = dbClient.groupMembershipDao().selectGroupsAndOrganizationsByLogin(dbSession, userLogin);
     CurrentWsResponse.Builder builder = newBuilder()
       .setIsLoggedIn(true)
       .setLogin(user.getLogin())
       .setName(user.getName())
       .setLocal(user.isLocal())
-      .addAllGroups(groups)
+      .addAllOrgGroups(toWsOrganizationGroups(orgGroups))
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
@@ -132,6 +134,33 @@ public class CurrentAction implements UsersWsAction {
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);
     ofNullable(user.getExternalIdentityProvider()).ifPresent(builder::setExternalProvider);
     return builder.build();
+  }
+
+  private List<OrganizationGroup> toWsOrganizationGroups(List<UserOrganizationGroup> userOrgGroups) {
+    Map<String, List<String>> aggregateGroupsMap = new HashMap<>();
+    for (UserOrganizationGroup userOrgGrp : userOrgGroups) {
+      aggregateGroupsMap.computeIfAbsent(userOrgGrp.organizationKey(),
+        k -> {
+          List<String> groups = new ArrayList<>();
+          // The first item in the list of groups per org is organizationName.
+          // It is added to help in the computation of result.
+          groups.add(userOrgGrp.organizationName());
+          return groups;
+        })
+        .add(userOrgGrp.groupName());
+    }
+    List<OrganizationGroup> result = new ArrayList<>();
+    for (String orgKey : aggregateGroupsMap.keySet()) {
+      OrganizationGroup.Builder orgGroupBuilder = OrganizationGroup.newBuilder()
+        .setOrganizationKey(orgKey)
+        .setOrganizationName(aggregateGroupsMap.get(orgKey).get(0));
+      // Remove the org name from the groups list.
+      aggregateGroupsMap.get(orgKey).remove(0);
+      String groupsAsString = String.join(", ", aggregateGroupsMap.get(orgKey));
+      orgGroupBuilder.setOrganizationGroups(groupsAsString);
+      result.add(orgGroupBuilder.build());
+    }
+    return result;
   }
 
   private List<String> getGlobalPermissions() {

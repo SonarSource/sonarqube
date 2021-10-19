@@ -22,6 +22,7 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import UserExternalIdentity from './UserExternalIdentity';
+import { Link } from 'react-router';
 
 export interface ProfileProps {
   currentUser: T.LoggedInUser;
@@ -35,7 +36,7 @@ export function Profile({ currentUser }: ProfileProps) {
       <div className="boxed-group">
         {renderLogin()}
         {renderEmail()}
-        {renderUserGroups()}
+        {renderOrganizationGroups()}
         {renderScmAccounts()}
       </div>
     </div>
@@ -74,21 +75,43 @@ export function Profile({ currentUser }: ProfileProps) {
     );
   }
 
-  function renderUserGroups() {
-    if (!currentUser.groups || currentUser.groups.length === 0) {
+  function renderOrganizationGroups() {
+    if (!currentUser.orgGroups || currentUser.orgGroups.length === 0) {
       return null;
     }
 
     return (
       <div className="boxed-group-inner">
         <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
-        <ul id="groups">
-          {currentUser.groups.map(group => (
-            <li className="little-spacer-bottom" key={group} title={group}>
-              {group}
-            </li>
-          ))}
-        </ul>
+        <table className="data zebra zebra-hover" id="organization-group-table">
+          <thead>
+            <tr>
+              <th className="nowrap width-20">
+                {translate('my_account.organizations')}
+              </th>
+              <th className="nowrap width-80">
+                {translate('my_profile.groups')}
+              </th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {currentUser.orgGroups.map(orgGroup => (
+              <tr>
+                <td className="width-20">
+                    <Link to={`/organizations/${orgGroup.organizationKey}/groups`}>
+                      <strong>{orgGroup.organizationName}</strong>
+                    </Link>
+                </td>
+                <td className="width-80">
+                  <span >
+                    {orgGroup.organizationGroups}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   }

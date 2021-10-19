@@ -75,6 +75,15 @@
     ORDER BY u.login, g.name, g.created_at
   </select>
 
+  <select id="selectGroupsAndOrganizationsByLogin" parameterType="String" resultType="org.sonar.db.user.UserOrganizationGroup">
+    SELECT  g.name as groupName, o.name as organizationName, o.kee as organizationKey
+    FROM groups g
+    INNER JOIN groups_users gu ON g.uuid=gu.group_uuid
+    AND gu.user_uuid=(select uuid from users u <where>u.login = #{login}</where>)
+    INNER JOIN organizations o ON g.organization_uuid=o.uuid
+    ORDER BY o.created_at DESC
+  </select>
+
   <sql id="userCommonClauses">
     FROM users u
     LEFT JOIN groups_users gu ON gu.user_uuid=u.uuid AND gu.group_uuid=#{groupUuid}
