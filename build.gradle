@@ -337,10 +337,10 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.12.1') {
+      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.13.4') {
         exclude 'commons-logging:commons-logging'
       }
-      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.12.1'
+      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.13.4'
       dependency 'org.elasticsearch:mocksocket:1.0'
       //analysis-common need to stay at 7.10.2 as it hasn't been published to mvn central
       dependency 'org.codelibs.elasticsearch.module:analysis-common:7.10.2'
