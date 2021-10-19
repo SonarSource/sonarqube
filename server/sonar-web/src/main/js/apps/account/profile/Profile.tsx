@@ -92,7 +92,6 @@ export function Profile({ currentUser }: ProfileProps) {
               <th className="nowrap width-80">
                 {translate('my_profile.groups')}
               </th>
-              <th />
             </tr>
           </thead>
           <tbody>
