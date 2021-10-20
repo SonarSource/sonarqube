@@ -22,6 +22,7 @@
     "copy": true,
     "associateProjects": true,
     "delete": true,
-    "manageConditions": true
+    "manageConditions": true,
+    "delegate": true
   }
 }

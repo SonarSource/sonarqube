@@ -180,6 +180,7 @@ message Actions {
   optional bool associateProjects = 4;
   optional bool delete = 5;
   optional bool manageConditions = 6;
+  optional bool delegate = 7;
 }
 
 // WS api/qualitygates/search_users

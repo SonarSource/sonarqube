@@ -29,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -197,6 +198,40 @@ public class ShowActionTest {
     assertThat(actions.getCopy()).isFalse();
     assertThat(actions.getSetAsDefault()).isFalse();
     assertThat(actions.getAssociateProjects()).isFalse();
+  }
+
+  @Test
+  public void actions_when_delegate_quality_gate_administer() {
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way - Without Coverage"));
+    UserDto user = db.users().insertUser();
+    db.qualityGates().addUserPermission(defaultQualityGate, user);
+    db.qualityGates().addUserPermission(otherQualityGate, user);
+    userSession.logIn(user);
+    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", defaultQualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getActions())
+      .extracting(
+        Actions::getRename, Actions::getDelete, Actions::getManageConditions,
+        Actions::getCopy, Actions::getSetAsDefault, Actions::getAssociateProjects, Actions::getDelegate)
+      .containsExactlyInAnyOrder(
+        false, false, true, false, false, false, true);
+
+    response = ws.newRequest()
+      .setParam("name", otherQualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getActions())
+      .extracting(
+        Actions::getRename, Actions::getDelete, Actions::getManageConditions,
+        Actions::getCopy, Actions::getSetAsDefault, Actions::getAssociateProjects, Actions::getDelegate)
+      .containsExactlyInAnyOrder(
+        false, false, true, false, false, false, true);
+
   }
 
   @Test

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -124,11 +125,37 @@ public class ListActionTest {
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getName,
         qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),
-        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
+        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects(),
+        qp -> qp.getActions().getDelegate())
       .containsExactlyInAnyOrder(
-        tuple(defaultQualityGate.getName(), true, false, true, true, false, false),
-        tuple(builtInQualityGate.getName(), false, false, false, true, true, true),
-        tuple(otherQualityGate.getName(), true, true, true, true, true, true));
+        tuple(defaultQualityGate.getName(), true, false, true, true, false, false, true),
+        tuple(builtInQualityGate.getName(), false, false, false, true, true, true, false),
+        tuple(otherQualityGate.getName(), true, true, true, true, true, true, true));
+  }
+
+  @Test
+  public void actions_with_quality_gate_delegate_permission() {
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way"));
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way - Without Coverage"));
+    UserDto user = db.users().insertUser();
+    db.qualityGates().addUserPermission(defaultQualityGate, user);
+    db.qualityGates().addUserPermission(otherQualityGate, user);
+    userSession.logIn(user);
+    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getActions())
+      .extracting(ListWsResponse.RootActions::getCreate)
+      .isEqualTo(false);
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getName,
+        qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),
+        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects(),
+        qp -> qp.getActions().getDelegate())
+      .containsExactlyInAnyOrder(
+        tuple(defaultQualityGate.getName(), false, false, true, false, false, false, true),
+        tuple(otherQualityGate.getName(), false, false, true, false, false, false, true));
   }
 
   @Test
@@ -146,10 +173,11 @@ public class ListActionTest {
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getName,
         qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),
-        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
+        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects(),
+        qp -> qp.getActions().getDelegate())
       .containsExactlyInAnyOrder(
-        tuple(defaultQualityGate.getName(), false, false, false, false, false, false),
-        tuple(otherQualityGate.getName(), false, false, false, false, false, false));
+        tuple(defaultQualityGate.getName(), false, false, false, false, false, false, false),
+        tuple(otherQualityGate.getName(), false, false, false, false, false, false, false));
   }
 
   @Test

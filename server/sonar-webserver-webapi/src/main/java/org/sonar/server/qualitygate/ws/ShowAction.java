@@ -94,7 +94,7 @@ public class ShowAction implements QualityGatesWsAction {
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession);
-      writeProtobuf(buildResponse(qualityGate, defaultQualityGate, conditions, metricsByUuid), request, response);
+      writeProtobuf(buildResponse(dbSession, qualityGate, defaultQualityGate, conditions, metricsByUuid), request, response);
     }
   }
 
@@ -119,8 +119,8 @@ public class ShowAction implements QualityGatesWsAction {
       .collect(uniqueIndex(MetricDto::getUuid));
   }
 
-  private ShowWsResponse buildResponse(QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
-    Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid) {
+  private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
+                                       Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getUuid())
       .setName(qualityGate.getName())
@@ -128,7 +128,7 @@ public class ShowAction implements QualityGatesWsAction {
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
         .collect(toList()))
-      .setActions(wsSupport.getActions(qualityGate, defaultQualityGate))
+      .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
       .build();
   }
 

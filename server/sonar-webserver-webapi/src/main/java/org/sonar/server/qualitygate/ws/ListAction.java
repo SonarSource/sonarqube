@@ -69,11 +69,11 @@ public class ListAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto defaultQualityGate = finder.getDefault(dbSession);
       Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession);
-      writeProtobuf(buildResponse(qualityGates, defaultQualityGate), request, response);
+      writeProtobuf(buildResponse(dbSession, qualityGates, defaultQualityGate), request, response);
     }
   }
 
-  private ListWsResponse buildResponse(Collection<QualityGateDto> qualityGates, @Nullable QualityGateDto defaultQualityGate) {
+  private ListWsResponse buildResponse(DbSession dbSession, Collection<QualityGateDto> qualityGates, @Nullable QualityGateDto defaultQualityGate) {
     String defaultUuid = defaultQualityGate == null ? null : defaultQualityGate.getUuid();
     ListWsResponse.Builder builder = ListWsResponse.newBuilder()
       .setActions(ListWsResponse.RootActions.newBuilder().setCreate(wsSupport.isQualityGateAdmin()))
@@ -83,7 +83,7 @@ public class ListAction implements QualityGatesWsAction {
           .setName(qualityGate.getName())
           .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
           .setIsBuiltIn(qualityGate.isBuiltIn())
-          .setActions(wsSupport.getActions(qualityGate, defaultQualityGate))
+          .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
           .build())
         .collect(toList()));
     ofNullable(defaultUuid).ifPresent(builder::setDefault);

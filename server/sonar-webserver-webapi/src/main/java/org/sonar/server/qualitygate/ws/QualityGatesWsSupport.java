@@ -67,17 +67,19 @@ public class QualityGatesWsSupport {
     return userSession.hasPermission(ADMINISTER_QUALITY_GATES);
   }
 
-  Qualitygates.Actions getActions(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
+  Qualitygates.Actions getActions(DbSession dbSession, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
     boolean isDefault = defaultQualityGate != null && Objects.equals(defaultQualityGate.getUuid(), qualityGate.getUuid());
     boolean isBuiltIn = qualityGate.isBuiltIn();
     boolean isQualityGateAdmin = isQualityGateAdmin();
+    boolean canLimitedEdit = isQualityGateAdmin || hasLimitedPermission(dbSession, qualityGate);
     return Qualitygates.Actions.newBuilder()
       .setCopy(isQualityGateAdmin)
       .setRename(!isBuiltIn && isQualityGateAdmin)
-      .setManageConditions(!isBuiltIn && isQualityGateAdmin)
+      .setManageConditions(!isBuiltIn && canLimitedEdit)
       .setDelete(!isDefault && !isBuiltIn && isQualityGateAdmin)
       .setSetAsDefault(!isDefault && isQualityGateAdmin)
       .setAssociateProjects(!isDefault && isQualityGateAdmin)
+      .setDelegate(!isBuiltIn && canLimitedEdit)
       .build();
   }
 
@@ -89,10 +91,13 @@ public class QualityGatesWsSupport {
   void checkCanLimitedEdit(DbSession dbSession, QualityGateDto qualityGate) {
     checkNotBuiltIn(qualityGate);
     if (!userSession.hasPermission(ADMINISTER_QUALITY_GATES)
-      && !userHasPermission(dbSession, qualityGate)
-      && !userHasGroupPermission(dbSession, qualityGate)) {
+      && !hasLimitedPermission(dbSession, qualityGate)) {
       throw insufficientPrivilegesException();
     }
+  }
+
+  boolean hasLimitedPermission(DbSession dbSession, QualityGateDto qualityGate) {
+    return userHasPermission(dbSession, qualityGate) || userHasGroupPermission(dbSession, qualityGate);
   }
 
   boolean userHasGroupPermission(DbSession dbSession, QualityGateDto qualityGate) {
