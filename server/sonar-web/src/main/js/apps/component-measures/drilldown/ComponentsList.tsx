@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
@@ -31,7 +32,7 @@ interface Props {
   metric: T.Metric;
   metrics: T.Dict<T.Metric>;
   rootComponent: T.ComponentMeasure;
-  selectedComponent?: string;
+  selectedComponent?: T.ComponentMeasureEnhanced;
   view: MeasurePageView;
 }
 
@@ -63,8 +64,11 @@ export default function ComponentsList({ components, metric, metrics, ...props }
         {components.map(component => (
           <ComponentsListRow
             component={component}
-            isSelected={component.key === props.selectedComponent}
-            key={component.key}
+            isSelected={
+              getComponentMeasureUniqueKey(component) ===
+              getComponentMeasureUniqueKey(props.selectedComponent)
+            }
+            key={getComponentMeasureUniqueKey(component)}
             metric={metric}
             otherMetrics={otherMetrics}
             {...props}

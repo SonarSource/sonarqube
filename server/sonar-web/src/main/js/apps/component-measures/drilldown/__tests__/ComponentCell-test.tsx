@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { Link } from 'react-router';
 import {
   mockComponentMeasure,
   mockComponentMeasureEnhanced
@@ -32,89 +32,123 @@ import ComponentCell, { ComponentCellProps } from '../ComponentCell';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(
-    shallowRender({
-      rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application })
-    })
-  ).toMatchSnapshot('root component is application, component is on main branch');
-  expect(
-    shallowRender({
-      rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application }),
-      component: mockComponentMeasureEnhanced({ branch: 'develop' })
-    })
-  ).toMatchSnapshot('root component is application, component has branch');
-  expect(
-    shallowRender({ component: mockComponentMeasureEnhanced({ refKey: 'project-key' }) })
-  ).toMatchSnapshot('ref project component');
-  expect(
-    shallowRender(
-      {
-        component: mockComponentMeasureEnhanced({
-          refKey: 'project-key',
-          qualifier: ComponentQualifier.Project
-        }),
-        branchLike: mockBranch()
-      },
-      MetricKey.releasability_rating
-    )
-  ).toMatchSnapshot('ref project component, releasability metric');
-  expect(
-    shallowRender(
-      {
-        component: mockComponentMeasureEnhanced({
-          refKey: 'app-key',
-          qualifier: ComponentQualifier.Application
-        }),
-        branchLike: mockBranch()
-      },
-      MetricKey.projects
-    )
-  ).toMatchSnapshot('ref application component, projects');
-  expect(
-    shallowRender(
-      {
-        component: mockComponentMeasureEnhanced({
-          refKey: 'project-key',
-          qualifier: ComponentQualifier.Project
-        }),
-        branchLike: mockBranch()
-      },
-      MetricKey.projects
-    )
-  ).toMatchSnapshot('ref project component, projects');
-  expect(
-    shallowRender(
-      {
-        component: mockComponentMeasureEnhanced({
-          refKey: 'app-key',
-          qualifier: ComponentQualifier.Application
-        }),
-        branchLike: mockPullRequest()
-      },
-      MetricKey.alert_status
-    )
-  ).toMatchSnapshot('ref application component, alert_status metric');
-  expect(
-    shallowRender(
-      {
-        component: mockComponentMeasureEnhanced({
-          refKey: 'vw-key',
-          qualifier: ComponentQualifier.Portfolio
-        }),
-        branchLike: mockPullRequest()
-      },
-      MetricKey.alert_status
-    )
-  ).toMatchSnapshot('ref portfolio component, alert_status metric');
+});
+
+it.each([
+  [ComponentQualifier.Project, undefined],
+  [ComponentQualifier.Project, 'develop'],
+  [ComponentQualifier.Application, undefined],
+  [ComponentQualifier.Application, 'develop'],
+  [ComponentQualifier.Portfolio, undefined],
+  [ComponentQualifier.Portfolio, 'develop']
+])(
+  'should render correctly for a "%s" root component and a component with branch "%s"',
+  (rootComponentQualifier: ComponentQualifier, componentBranch: string | undefined) => {
+    expect(
+      shallowRender({
+        rootComponent: mockComponentMeasure(false, { qualifier: rootComponentQualifier }),
+        component: mockComponentMeasureEnhanced({ branch: componentBranch })
+      })
+    ).toMatchSnapshot();
+  }
+);
+
+it('should properly deal with key and refKey', () => {
   expect(
     shallowRender({
       component: mockComponentMeasureEnhanced({
-        key: 'svw-bar',
-        qualifier: ComponentQualifier.SubPortfolio
+        qualifier: ComponentQualifier.SubPortfolio,
+        refKey: 'port-key'
       })
     })
-  ).toMatchSnapshot('sub-portfolio component');
+      .find(Link)
+      .props().to
+  ).toEqual(expect.objectContaining({ query: expect.objectContaining({ id: 'port-key' }) }));
+
+  expect(
+    shallowRender()
+      .find(Link)
+      .props().to
+  ).toEqual(
+    expect.objectContaining({
+      query: expect.objectContaining({ id: 'foo', selected: 'foo:src/index.tsx' })
+    })
+  );
 });
+
+it.each([
+  [
+    ComponentQualifier.File,
+    MetricKey.bugs,
+    expect.objectContaining({
+      pathname: '/component_measures',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ],
+  [
+    ComponentQualifier.Directory,
+    MetricKey.bugs,
+    expect.objectContaining({
+      pathname: '/component_measures',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ],
+  [
+    ComponentQualifier.Project,
+    MetricKey.projects,
+    expect.objectContaining({
+      pathname: '/dashboard',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ],
+  [
+    ComponentQualifier.Application,
+    MetricKey.releasability_rating,
+    expect.objectContaining({
+      pathname: '/dashboard',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ],
+  [
+    ComponentQualifier.Project,
+    MetricKey.releasability_rating,
+    expect.objectContaining({
+      pathname: '/dashboard',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ],
+  [
+    ComponentQualifier.Application,
+    MetricKey.alert_status,
+    expect.objectContaining({
+      pathname: '/dashboard',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ],
+  [
+    ComponentQualifier.Project,
+    MetricKey.alert_status,
+    expect.objectContaining({
+      pathname: '/dashboard',
+      query: expect.objectContaining({ branch: 'develop' })
+    })
+  ]
+])(
+  'should display the proper link path for %s component qualifier and %s metric key',
+  (componentQualifier: ComponentQualifier, metricKey: MetricKey, expectedTo: any) => {
+    const wrapper = shallowRender(
+      {
+        component: mockComponentMeasureEnhanced({
+          qualifier: componentQualifier,
+          branch: 'develop'
+        })
+      },
+      metricKey
+    );
+
+    expect(wrapper.find(Link).props().to).toEqual(expectedTo);
+  }
+);
 
 function shallowRender(overrides: Partial<ComponentCellProps> = {}, metricKey = MetricKey.bugs) {
   const metric = mockMetric({ key: metricKey });

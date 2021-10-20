@@ -10,9 +10,14 @@ exports[`renders 1`] = `
     qualifier="FIL"
   />
   <span
-    title="proj-name"
+    title="proj-name - test-branch"
   >
     proj-name
+     - 
+    <BranchIcon />
+    <span>
+      test-branch
+    </span>
     <span
       className="slash-separator"
     />
@@ -35,9 +40,14 @@ exports[`renders with sub-project 1`] = `
     qualifier="FIL"
   />
   <span
-    title="proj-name"
+    title="proj-name - test-branch"
   >
     proj-name
+     - 
+    <BranchIcon />
+    <span>
+      test-branch
+    </span>
     <span
       className="slash-separator"
     />

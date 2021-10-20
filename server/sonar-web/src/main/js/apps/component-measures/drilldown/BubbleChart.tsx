@@ -30,6 +30,7 @@ import {
 } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
+import { isProject } from '../../../types/component';
 import {
   BUBBLES_FETCH_LIMIT,
   getBubbleMetrics,
@@ -46,7 +47,7 @@ interface Props {
   domain: string;
   metrics: T.Dict<T.Metric>;
   paging?: T.Paging;
-  updateSelected: (component: string) => void;
+  updateSelected: (component: T.ComponentMeasureIntern) => void;
 }
 
 interface State {
@@ -67,16 +68,18 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
   };
 
   getTooltip(
-    componentName: string,
+    component: T.ComponentMeasureEnhanced,
     values: { x: number; y: number; size: number; colors?: Array<number | undefined> },
     metrics: { x: T.Metric; y: T.Metric; size: T.Metric; colors?: T.Metric[] }
   ) {
     const inner = [
-      componentName,
+      [component.name, isProject(component.qualifier) ? component.branch : undefined]
+        .filter(s => !!s)
+        .join(' / '),
       `${metrics.x.name}: ${formatMeasure(values.x, metrics.x.type)}`,
       `${metrics.y.name}: ${formatMeasure(values.y, metrics.y.type)}`,
       `${metrics.size.name}: ${formatMeasure(values.size, metrics.size.type)}`
-    ];
+    ].filter(s => !!s);
     const { colors: valuesColors } = values;
     const { colors: metricColors } = metrics;
     if (valuesColors && metricColors) {
@@ -106,7 +109,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
   };
 
   handleBubbleClick = (component: T.ComponentMeasureEnhanced) =>
-    this.props.updateSelected(component.refKey || component.key);
+    this.props.updateSelected(component);
 
   getDescription(domain: string) {
     const description = `component_measures.overview.${domain}.description`;
@@ -144,7 +147,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
           size,
           color: colorRating !== undefined ? RATING_COLORS[colorRating - 1] : undefined,
           data: component,
-          tooltip: this.getTooltip(component.name, { x, y, size, colors }, metrics)
+          tooltip: this.getTooltip(component, { x, y, size, colors }, metrics)
         };
       })
       .filter(isDefined);

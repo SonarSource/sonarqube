@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import WorstProjects from '../WorstProjects';
 
 it('renders', () => {
@@ -33,7 +34,19 @@ it('renders', () => {
         ncloc: '200'
       },
       name: 'Foo',
-      qualifier: 'SVW'
+      qualifier: ComponentQualifier.SubPortfolio
+    },
+    {
+      key: 'foo_app',
+      measures: {
+        releasability_rating: '3',
+        reliability_rating: '2',
+        security_rating: '1',
+        sqale_rating: '4',
+        ncloc: '200'
+      },
+      name: 'Foo',
+      qualifier: ComponentQualifier.Application
     },
     {
       key: 'bar',
@@ -45,7 +58,21 @@ it('renders', () => {
         ncloc: '100'
       },
       name: 'Bar',
-      qualifier: 'TRK',
+      qualifier: ComponentQualifier.Project,
+      refKey: 'barbar',
+      branch: 'branch-1'
+    },
+    {
+      key: 'bar',
+      measures: {
+        alert_status: 'ERROR',
+        reliability_rating: '2',
+        security_rating: '1',
+        sqale_rating: '4',
+        ncloc: '100'
+      },
+      name: 'Bar',
+      qualifier: ComponentQualifier.Project,
       refKey: 'barbar'
     },
     {
@@ -58,7 +85,7 @@ it('renders', () => {
         ncloc: '150'
       },
       name: 'Baz',
-      qualifier: 'TRK',
+      qualifier: ComponentQualifier.Project,
       refKey: 'bazbaz'
     }
   ];

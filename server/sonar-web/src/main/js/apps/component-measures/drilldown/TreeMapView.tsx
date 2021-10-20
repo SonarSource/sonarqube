@@ -25,6 +25,7 @@ import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
 import TreeMap, { TreeMapItem } from '../../../components/charts/TreeMap';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
@@ -35,7 +36,7 @@ import EmptyResult from './EmptyResult';
 interface Props {
   branchLike?: BranchLike;
   components: T.ComponentMeasureEnhanced[];
-  handleSelect: (component: string) => void;
+  handleSelect: (component: T.ComponentMeasureIntern) => void;
   metric: T.Metric;
 }
 
@@ -88,18 +89,19 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
           color: colorValue ? (colorScale as Function)(colorValue) : undefined,
           gradient: !colorValue ? NA_GRADIENT : undefined,
           icon: <QualifierIcon fill={colors.baseFontColor} qualifier={component.qualifier} />,
-          key: component.refKey || component.key,
-          label: component.name,
+          key: getComponentMeasureUniqueKey(component) ?? '',
+          label: [component.name, component.branch].filter(s => !!s).join(' / '),
           size: sizeValue,
           measureValue: colorValue,
           metric,
           tooltip: this.getTooltip({
             colorMetric: metric,
             colorValue,
-            componentName: component.name,
+            component,
             sizeMetric: sizeMeasure.metric,
             sizeValue
-          })
+          }),
+          component
         };
       })
       .filter(isDefined);
@@ -134,13 +136,13 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
   getTooltip = ({
     colorMetric,
     colorValue,
-    componentName,
+    component,
     sizeMetric,
     sizeValue
   }: {
     colorMetric: T.Metric;
     colorValue?: string;
-    componentName: string;
+    component: T.ComponentMeasureEnhanced;
     sizeMetric: T.Metric;
     sizeValue: number;
   }) => {
@@ -148,7 +150,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
       colorMetric && colorValue !== undefined ? formatMeasure(colorValue, colorMetric.type) : '—';
     return (
       <div className="text-left">
-        {componentName}
+        {[component.name, component.branch].filter(s => !!s).join(' / ')}
         <br />
         {`${getLocalizedMetricName(sizeMetric)}: ${formatMeasure(sizeValue, sizeMetric.type)}`}
         <br />

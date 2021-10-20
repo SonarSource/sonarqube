@@ -229,8 +229,8 @@ public final class CoreMetrics {
   /**
    * @since 3.0
    */
-  public static final Metric<Integer> PROJECTS = new Metric.Builder(PROJECTS_KEY, "Projects", Metric.ValueType.INT)
-    .setDescription("Number of projects")
+  public static final Metric<Integer> PROJECTS = new Metric.Builder(PROJECTS_KEY, "Project branches", Metric.ValueType.INT)
+    .setDescription("Number of project branches")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)

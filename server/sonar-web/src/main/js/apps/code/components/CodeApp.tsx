@@ -217,7 +217,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
     const { branchLike, component: rootComponent } = this.props;
 
     if (component.refKey) {
-      this.props.router.push(getProjectUrl(component.refKey));
+      this.props.router.push(getProjectUrl(component.refKey, component.branch));
     } else {
       this.props.router.push(getCodeUrl(rootComponent.key, branchLike, component.key));
     }

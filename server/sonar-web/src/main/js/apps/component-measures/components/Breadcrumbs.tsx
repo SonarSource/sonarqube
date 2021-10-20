@@ -29,7 +29,7 @@ interface Props {
   branchLike?: BranchLike;
   className?: string;
   component: T.ComponentMeasure;
-  handleSelect: (component: string) => void;
+  handleSelect: (component: T.ComponentMeasureIntern) => void;
   rootComponent: T.ComponentMeasure;
 }
 
@@ -66,7 +66,7 @@ export default class Breadcrumbs extends React.PureComponent<Props, State> {
       const { breadcrumbs } = this.state;
       if (breadcrumbs.length > 1) {
         const idx = this.props.backToFirst ? 0 : breadcrumbs.length - 2;
-        this.props.handleSelect(breadcrumbs[idx].key);
+        this.props.handleSelect(breadcrumbs[idx]);
       }
       return false;
     });

@@ -23,13 +23,10 @@ import { Link } from 'react-router';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { fillBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { splitPath } from '../../../helpers/path';
-import {
-  getBranchLikeUrl,
-  getComponentDrilldownUrlWithSelection,
-  getProjectUrl
-} from '../../../helpers/urls';
+import { getComponentDrilldownUrlWithSelection, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import {
   ComponentQualifier,
@@ -67,33 +64,29 @@ export default function ComponentCell(props: ComponentCellProps) {
   }
 
   let path: LocationDescriptor;
-  if (component.refKey) {
-    if (
-      !isPortfolioLike(component.qualifier) &&
-      ([MetricKey.releasability_rating, MetricKey.alert_status] as string[]).includes(metric.key)
-    ) {
-      path = isApplication(component.qualifier)
-        ? getProjectUrl(component.refKey, component.branch)
-        : getBranchLikeUrl(component.refKey, branchLike);
-    } else if (isProject(component.qualifier) && metric.key === MetricKey.projects) {
-      path = getBranchLikeUrl(component.refKey, branchLike);
-    } else {
-      path = getComponentDrilldownUrlWithSelection(
-        component.refKey,
-        '',
-        metric.key,
-        branchLike,
-        view
-      );
-    }
-  } else {
-    path = getComponentDrilldownUrlWithSelection(
-      rootComponent.key,
-      component.key,
-      metric.key,
-      branchLike,
-      view
-    );
+  const targetKey = component.refKey || rootComponent.key;
+  const selectionKey = component.refKey ? '' : component.key;
+
+  // drilldown by default
+  path = getComponentDrilldownUrlWithSelection(
+    targetKey,
+    selectionKey,
+    metric.key,
+    component.branch ? fillBranchLike(component.branch) : branchLike,
+    view
+  );
+
+  // This metric doesn't exist for project
+  if (metric.key === MetricKey.projects && isProject(component.qualifier)) {
+    path = getProjectUrl(targetKey, component.branch);
+  }
+
+  // Those metric doesn't exist for application and project
+  if (
+    ([MetricKey.releasability_rating, MetricKey.alert_status] as string[]).includes(metric.key) &&
+    (isApplication(component.qualifier) || isProject(component.qualifier))
+  ) {
+    path = getProjectUrl(targetKey, component.branch);
   }
 
   return (
@@ -112,7 +105,7 @@ export default function ComponentCell(props: ComponentCellProps) {
             <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
             {head.length > 0 && <span className="note">{head}/</span>}
             <span>{tail}</span>
-            {isApplication(rootComponent.qualifier) &&
+            {(isApplication(rootComponent.qualifier) || isPortfolioLike(rootComponent.qualifier)) &&
               (component.branch ? (
                 <>
                   <BranchIcon className="spacer-left little-spacer-right" />

@@ -23,7 +23,8 @@ import { getComponentShow } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { isViewType, Query } from '../utils';
+import { isView } from '../../../types/component';
+import { Query } from '../utils';
 import MeasureOverview from './MeasureOverview';
 
 interface Props {
@@ -102,12 +103,12 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
     }
   };
 
-  updateSelected = (component: string) => {
-    if (this.state.component && isViewType(this.state.component)) {
-      this.props.router.push(getProjectUrl(component));
+  updateSelected = (component: T.ComponentMeasureIntern) => {
+    if (this.state.component && isView(this.state.component.qualifier)) {
+      this.props.router.push(getProjectUrl(component.refKey || component.key, component.branch));
     } else {
       this.props.updateQuery({
-        selected: component !== this.props.rootComponent.key ? component : undefined
+        selected: component.key !== this.props.rootComponent.key ? component.key : undefined
       });
     }
   };

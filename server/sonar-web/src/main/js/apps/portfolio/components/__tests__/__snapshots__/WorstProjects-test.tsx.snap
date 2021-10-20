@@ -47,28 +47,37 @@ exports[`renders 1`] = `
     </thead>
     <tbody>
       <tr
-        key="foo"
+        key="foo_app"
       >
         <td>
-          <Link
-            className="link-with-icon"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/portfolio",
-                "query": Object {
-                  "id": "foo",
-                },
-              }
-            }
+          <span
+            className="display-flex-center"
           >
             <QualifierIcon
-              qualifier="SVW"
+              className="spacer-right"
+              qualifier="APP"
             />
-             
-            Foo
-          </Link>
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "foo_app",
+                  },
+                }
+              }
+            >
+              Foo
+            </Link>
+            <span
+              className="spacer-left badge"
+            >
+              branches.main_branch
+            </span>
+          </span>
         </td>
         <td
           className="text-center"
@@ -143,28 +152,248 @@ exports[`renders 1`] = `
         </td>
       </tr>
       <tr
+        key="foo"
+      >
+        <td>
+          <span
+            className="display-flex-center"
+          >
+            <QualifierIcon
+              className="spacer-right"
+              qualifier="SVW"
+            />
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/portfolio",
+                  "query": Object {
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              Foo
+            </Link>
+          </span>
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="releasability_rating"
+            metricType="RATING"
+            value="3"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="reliability_rating"
+            metricType="RATING"
+            value="2"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="security_rating"
+            metricType="RATING"
+            value="1"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="security_review_rating"
+            metricType="RATING"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="sqale_rating"
+            metricType="RATING"
+            value="4"
+          />
+        </td>
+        <td
+          className="text-right"
+        >
+          <span
+            className="note"
+          >
+            <Measure
+              metricKey="ncloc"
+              metricType="SHORT_INT"
+              value="200"
+            />
+          </span>
+          <svg
+            className="spacer-left"
+            height="16"
+            width="50"
+          >
+            <rect
+              className="bar-chart-bar"
+              fill="#4b9fd5"
+              height="10"
+              width={50}
+              x="0"
+              y="3"
+            />
+          </svg>
+        </td>
+      </tr>
+      <tr
+        key="bar/branch-1"
+      >
+        <td>
+          <span
+            className="display-flex-center"
+          >
+            <QualifierIcon
+              className="spacer-right"
+              qualifier="TRK"
+            />
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": "branch-1",
+                    "id": "barbar",
+                  },
+                }
+              }
+            >
+              Bar
+            </Link>
+            <span
+              className="spacer-left"
+            >
+              <BranchIcon
+                className="little-spacer-right"
+              />
+              <span
+                className="note"
+              >
+                branch-1
+              </span>
+            </span>
+          </span>
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="alert_status"
+            metricType="LEVEL"
+            value="ERROR"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="reliability_rating"
+            metricType="RATING"
+            value="2"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="security_rating"
+            metricType="RATING"
+            value="1"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="security_review_rating"
+            metricType="RATING"
+          />
+        </td>
+        <td
+          className="text-center"
+        >
+          <Measure
+            metricKey="sqale_rating"
+            metricType="RATING"
+            value="4"
+          />
+        </td>
+        <td
+          className="text-right"
+        >
+          <span
+            className="note"
+          >
+            <Measure
+              metricKey="ncloc"
+              metricType="SHORT_INT"
+              value="100"
+            />
+          </span>
+          <svg
+            className="spacer-left"
+            height="16"
+            width="50"
+          >
+            <rect
+              className="bar-chart-bar"
+              fill="#4b9fd5"
+              height="10"
+              width={25}
+              x="0"
+              y="3"
+            />
+          </svg>
+        </td>
+      </tr>
+      <tr
         key="bar"
       >
         <td>
-          <Link
-            className="link-with-icon"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/dashboard",
-                "query": Object {
-                  "id": "barbar",
-                },
-              }
-            }
+          <span
+            className="display-flex-center"
           >
             <QualifierIcon
+              className="spacer-right"
               qualifier="TRK"
             />
-             
-            Bar
-          </Link>
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "barbar",
+                  },
+                }
+              }
+            >
+              Bar
+            </Link>
+            <span
+              className="spacer-left badge"
+            >
+              branches.main_branch
+            </span>
+          </span>
         </td>
         <td
           className="text-center"
@@ -242,25 +471,34 @@ exports[`renders 1`] = `
         key="baz"
       >
         <td>
-          <Link
-            className="link-with-icon"
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/dashboard",
-                "query": Object {
-                  "id": "bazbaz",
-                },
-              }
-            }
+          <span
+            className="display-flex-center"
           >
             <QualifierIcon
+              className="spacer-right"
               qualifier="TRK"
             />
-             
-            Baz
-          </Link>
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bazbaz",
+                  },
+                }
+              }
+            >
+              Baz
+            </Link>
+            <span
+              className="spacer-left badge"
+            >
+              branches.main_branch
+            </span>
+          </span>
         </td>
         <td
           className="text-center"

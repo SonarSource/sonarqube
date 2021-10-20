@@ -38,7 +38,7 @@ export default function Effort({ component, effort, metricKey }: Props) {
         defaultMessage={translate('portfolio.x_in_y')}
         id="portfolio.x_in_y"
         values={{
-          projects: (
+          project_branches: (
             <Link
               to={getComponentDrilldownUrl({
                 componentKey: component,
@@ -53,8 +53,8 @@ export default function Effort({ component, effort, metricKey }: Props) {
                   value={String(effort.projects)}
                 />
                 {effort.projects === 1
-                  ? translate('project_singular')
-                  : translate('project_plural')}
+                  ? translate('portfolio.project_branch')
+                  : translate('portfolio.project_branches')}
               </span>
             </Link>
           ),

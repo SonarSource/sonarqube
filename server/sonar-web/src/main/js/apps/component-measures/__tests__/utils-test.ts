@@ -196,31 +196,3 @@ describe('extract measure', () => {
     });
   });
 });
-
-describe('Component classification', () => {
-  const componentBuilder = (qual: ComponentQualifier): T.ComponentMeasure => {
-    return {
-      qualifier: qual,
-      key: '1',
-      name: 'TEST'
-    };
-  };
-
-  it('should be file type', () => {
-    [ComponentQualifier.File, ComponentQualifier.TestFile].forEach(qual => {
-      const component = componentBuilder(qual);
-      expect(utils.isFileType(component)).toBe(true);
-    });
-  });
-
-  it('should be view type', () => {
-    [
-      ComponentQualifier.Portfolio,
-      ComponentQualifier.SubPortfolio,
-      ComponentQualifier.Application
-    ].forEach(qual => {
-      const component = componentBuilder(qual);
-      expect(utils.isViewType(component)).toBe(true);
-    });
-  });
-});

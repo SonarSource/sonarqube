@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponentMeasure } from '../../../../helpers/mocks/component';
+import { ComponentQualifier } from '../../../../types/component';
 import ComponentName, { getTooltip, mostCommonPrefix, Props } from '../ComponentName';
 
 describe('#getTooltip', () => {
@@ -79,7 +80,7 @@ describe('#ComponentName', () => {
         component: mockComponentMeasure(false, {
           branch: 'foo',
           refKey: 'src/main/ts/app',
-          qualifier: 'TRK'
+          qualifier: ComponentQualifier.Project
         })
       })
     ).toMatchSnapshot();
@@ -88,9 +89,19 @@ describe('#ComponentName', () => {
         component: mockComponentMeasure(false, {
           branch: 'foo',
           refKey: 'src/main/ts/app',
-          qualifier: 'TRK'
+          qualifier: ComponentQualifier.Project
         }),
-        rootComponent: mockComponentMeasure(false, { qualifier: 'APP' })
+        rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Application })
+      })
+    ).toMatchSnapshot();
+
+    expect(
+      shallowRender({
+        component: mockComponentMeasure(false, {
+          refKey: 'src/main/ts/app',
+          qualifier: ComponentQualifier.Project
+        }),
+        rootComponent: mockComponentMeasure(false, { qualifier: ComponentQualifier.Portfolio })
       })
     ).toMatchSnapshot();
   });

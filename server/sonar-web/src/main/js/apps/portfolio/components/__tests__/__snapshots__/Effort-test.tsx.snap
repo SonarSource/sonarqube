@@ -9,7 +9,7 @@ exports[`renders 1`] = `
     id="portfolio.x_in_y"
     values={
       Object {
-        "projects": <Link
+        "project_branches": <Link
           onlyActiveOnIndex={false}
           style={Object {}}
           to={
@@ -30,7 +30,7 @@ exports[`renders 1`] = `
               metricType="SHORT_INT"
               value="3"
             />
-            project_plural
+            portfolio.project_branches
           </span>
         </Link>,
         "rating": <Rating

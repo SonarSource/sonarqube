@@ -19,19 +19,33 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
+import { mockComponentMeasureEnhanced } from '../../../helpers/mocks/component';
 import TreeMap from '../TreeMap';
 import TreeMapRect from '../TreeMapRect';
 
 it('should render correctly', () => {
   const items = [
-    { key: '1', size: 10, color: '#777', label: 'SonarQube :: Server' },
-    { key: '2', size: 30, color: '#777', label: 'SonarQube :: Web' },
+    {
+      key: '1',
+      size: 10,
+      color: '#777',
+      label: 'SonarQube :: Server',
+      component: mockComponentMeasureEnhanced()
+    },
+    {
+      key: '2',
+      size: 30,
+      color: '#777',
+      label: 'SonarQube :: Web',
+      component: mockComponentMeasureEnhanced()
+    },
     {
       key: '3',
       size: 20,
       gradient: '#777',
       label: 'SonarQube :: Search',
-      metric: { key: 'coverage', type: 'PERCENT' }
+      metric: { key: 'coverage', type: 'PERCENT' },
+      component: mockComponentMeasureEnhanced()
     }
   ];
   const onRectClick = jest.fn();
@@ -49,5 +63,5 @@ it('should render correctly', () => {
   expect(event.stopPropagation).toHaveBeenCalled();
 
   (rects.first().instance() as TreeMapRect).handleRectClick();
-  expect(onRectClick).toHaveBeenCalledWith('2');
+  expect(onRectClick).toHaveBeenCalledWith(expect.objectContaining({ key: 'foo' }));
 });

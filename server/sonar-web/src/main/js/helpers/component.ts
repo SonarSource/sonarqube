@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface SubComponent {
-  key: string;
-  measures: T.Dict<string | undefined>;
-  name: string;
-  refKey?: string;
-  qualifier: string;
-  branch?: string;
+
+export function getComponentMeasureUniqueKey(
+  component?: T.ComponentMeasure | T.ComponentMeasureEnhanced
+) {
+  return component ? [component.key, component.branch].filter(s => !!s).join('/') : undefined;
 }

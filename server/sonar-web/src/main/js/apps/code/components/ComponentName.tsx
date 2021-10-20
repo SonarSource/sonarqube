@@ -26,14 +26,16 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 
 export function getTooltip(component: T.ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
+
   if (isFile && component.path) {
     return component.path + '\n\n' + component.key;
-  } else {
-    return component.name + '\n\n' + component.key;
   }
+
+  return [component.name, component.key, component.branch].filter(s => !!s).join('\n\n');
 }
 
 export function mostCommonPrefix(strings: string[]) {
@@ -82,8 +84,12 @@ export default function ComponentName({
 
   let inner = null;
 
-  if (component.refKey && component.qualifier !== 'SVW') {
-    const branch = rootComponent.qualifier === 'APP' ? component.branch : undefined;
+  if (component.refKey && component.qualifier !== ComponentQualifier.SubPortfolio) {
+    const branch = [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
+      rootComponent.qualifier as ComponentQualifier
+    )
+      ? component.branch
+      : undefined;
     inner = (
       <Link className="link-with-icon" to={getProjectUrl(component.refKey, branch)}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
@@ -107,7 +113,14 @@ export default function ComponentName({
     );
   }
 
-  if (rootComponent.qualifier === 'APP') {
+  if (
+    [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
+      rootComponent.qualifier as ComponentQualifier
+    ) &&
+    [ComponentQualifier.Application, ComponentQualifier.Project].includes(
+      component.qualifier as ComponentQualifier
+    )
+  ) {
     return (
       <span className="max-width-100 display-inline-flex-center">
         <span className="text-ellipsis" title={getTooltip(component)}>

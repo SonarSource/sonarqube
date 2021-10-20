@@ -25,14 +25,9 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import { isFile } from '../../../types/component';
 import BubbleChart from '../drilldown/BubbleChart';
-import {
-  BUBBLES_FETCH_LIMIT,
-  enhanceComponent,
-  getBubbleMetrics,
-  hasFullMeasures,
-  isFileType
-} from '../utils';
+import { BUBBLES_FETCH_LIMIT, enhanceComponent, getBubbleMetrics, hasFullMeasures } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import LeakPeriodLegend from './LeakPeriodLegend';
 import MeasureContentHeader from './MeasureContentHeader';
@@ -48,7 +43,7 @@ interface Props {
   onIssueChange?: (issue: T.Issue) => void;
   rootComponent: T.ComponentMeasure;
   updateLoading: (param: T.Dict<boolean>) => void;
-  updateSelected: (component: string) => void;
+  updateSelected: (component: T.ComponentMeasureIntern) => void;
 }
 
 interface State {
@@ -82,7 +77,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
 
   fetchComponents = () => {
     const { branchLike, component, domain, metrics } = this.props;
-    if (isFileType(component)) {
+    if (isFile(component.qualifier)) {
       this.setState({ components: [], paging: undefined });
       return;
     }
@@ -120,7 +115,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
     const { branchLike, component, domain, metrics } = this.props;
     const { paging } = this.state;
 
-    if (isFileType(component)) {
+    if (isFile(component.qualifier)) {
       return (
         <div className="measure-details-viewer">
           <SourceViewer

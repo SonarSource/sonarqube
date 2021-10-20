@@ -20,6 +20,7 @@
 import key from 'keymaster';
 import * as React from 'react';
 import PageActions from '../../components/ui/PageActions';
+import { getComponentMeasureUniqueKey } from '../../helpers/component';
 import { getWrappedDisplayName } from './utils';
 
 export interface WithKeyboardNavigationProps {
@@ -72,7 +73,12 @@ export default function withKeyboardNavigation<P>(
 
     getCurrentIndex = () => {
       const { selected, components = [] } = this.props;
-      return selected ? components.findIndex(component => component.key === selected.key) : -1;
+      return selected
+        ? components.findIndex(
+            component =>
+              getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
+          )
+        : -1;
     };
 
     skipIfFile = (handler: () => void) => {

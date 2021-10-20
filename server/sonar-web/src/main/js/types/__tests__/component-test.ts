@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface SubComponent {
-  key: string;
-  measures: T.Dict<string | undefined>;
-  name: string;
-  refKey?: string;
-  qualifier: string;
-  branch?: string;
-}
+
+import {
+  ComponentQualifier,
+  isApplication,
+  isFile,
+  isPortfolioLike,
+  isProject,
+  isView
+} from '../component';
+
+it.each([[isFile], [isView], [isProject], [isApplication], [isPortfolioLike]])(
+  '%p should work properly',
+  (utilityMethod: (componentQualifier: ComponentQualifier) => void) => {
+    const results = Object.values(ComponentQualifier).reduce(
+      (prev, qualifier) => ({ ...prev, [qualifier]: utilityMethod(qualifier) }),
+      {}
+    );
+    expect(results).toMatchSnapshot();
+  }
+);

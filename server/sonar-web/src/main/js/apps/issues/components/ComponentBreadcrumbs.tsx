@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import BranchIcon from '../../../components/icons/BranchIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
+import { ComponentQualifier } from '../../../types/component';
 import { getSelectedLocation } from '../utils';
 
 interface Props {
@@ -36,11 +38,22 @@ export default function ComponentBreadcrumbs({
   selectedFlowIndex,
   selectedLocationIndex
 }: Props) {
-  const displayProject = !component || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
-  const displaySubProject = !component || !['BRC', 'DIR'].includes(component.qualifier);
+  const displayProject =
+    !component ||
+    ![
+      ComponentQualifier.Project,
+      ComponentQualifier.SubProject,
+      ComponentQualifier.Directory
+    ].includes(component.qualifier as ComponentQualifier);
+  const displaySubProject =
+    !component ||
+    ![ComponentQualifier.SubProject, ComponentQualifier.Directory].includes(
+      component.qualifier as ComponentQualifier
+    );
 
   const selectedLocation = getSelectedLocation(issue, selectedFlowIndex, selectedLocationIndex);
   const componentName = selectedLocation ? selectedLocation.componentName : issue.componentLongName;
+  const projectName = [issue.projectName, issue.branch].filter(s => !!s).join(' - ');
 
   return (
     <div
@@ -52,8 +65,15 @@ export default function ComponentBreadcrumbs({
       <QualifierIcon className="spacer-right" qualifier={issue.componentQualifier} />
 
       {displayProject && (
-        <span title={issue.projectName}>
+        <span title={projectName}>
           {limitComponentName(issue.projectName)}
+          {issue.branch && (
+            <>
+              {' - '}
+              <BranchIcon />
+              <span>{issue.branch}</span>
+            </>
+          )}
           <span className="slash-separator" />
         </span>
       )}

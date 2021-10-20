@@ -167,7 +167,7 @@ declare namespace T {
     name: string;
   }
 
-  interface ComponentMeasureIntern {
+  export interface ComponentMeasureIntern {
     branch?: string;
     description?: string;
     isFavorite?: boolean;

@@ -87,7 +87,10 @@ export default class ListItem extends React.PureComponent<Props> {
   render() {
     const { branchLike, component, issue, previousIssue } = this.props;
 
-    const displayComponent = !previousIssue || previousIssue.component !== issue.component;
+    const displayComponent =
+      !previousIssue ||
+      previousIssue.component !== issue.component ||
+      previousIssue.branch !== issue.branch;
 
     return (
       <li className="issues-workspace-list-item">

@@ -26,7 +26,7 @@ exports[`should render correctly 1`] = `
     rating="3"
   />
   <h3>
-    portfolio.lowest_rated_projects
+    portfolio.lowest_rated_project_branches
   </h3>
   <Effort
     component="foo"
@@ -84,7 +84,7 @@ exports[`should render correctly for releasability 1`] = `
     rating="2"
   />
   <h3>
-    portfolio.lowest_rated_projects
+    portfolio.lowest_rated_project_branches
   </h3>
   <div
     className="portfolio-effort"
@@ -109,7 +109,7 @@ exports[`should render correctly for releasability 1`] = `
           metricType="SHORT_INT"
           value={5}
         />
-        project_plural
+        portfolio.project_branches
       </span>
     </Link>
     <Level
@@ -165,7 +165,7 @@ exports[`should render correctly for releasability 2`] = `
     rating="2"
   />
   <h3>
-    portfolio.lowest_rated_projects
+    portfolio.lowest_rated_project_branches
   </h3>
   <div
     className="portfolio-effort"
@@ -190,7 +190,7 @@ exports[`should render correctly for releasability 2`] = `
           metricType="SHORT_INT"
           value={1}
         />
-        project_singular
+        portfolio.project_branch
       </span>
     </Link>
     <Level

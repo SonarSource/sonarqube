@@ -115,59 +115,34 @@ foo:src/index.tsx"
 
 exports[`#ComponentName should render correctly for files 4`] = `
 <span
-  className="max-width-100 display-inline-flex-center"
->
-  <span
-    className="text-ellipsis"
-    title="src/index.tsx
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="src/index.tsx
 
 foo:src/index.tsx"
-  >
-    <span>
-      <QualifierIcon
-        qualifier="FIL"
-      />
-       
-      index.tsx
-    </span>
-  </span>
-  <span
-    className="spacer-left badge flex-1"
-  >
-    branches.main_branch
+>
+  <span>
+    <QualifierIcon
+      qualifier="FIL"
+    />
+     
+    index.tsx
   </span>
 </span>
 `;
 
 exports[`#ComponentName should render correctly for files 5`] = `
 <span
-  className="max-width-100 display-inline-flex-center"
->
-  <span
-    className="text-ellipsis"
-    title="src/index.tsx
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="src/index.tsx
 
 foo:src/index.tsx"
-  >
-    <span>
-      <QualifierIcon
-        qualifier="FIL"
-      />
-       
-      index.tsx
-    </span>
-  </span>
-  <span
-    className="text-ellipsis spacer-left"
-  >
-    <BranchIcon
-      className="little-spacer-right"
+>
+  <span>
+    <QualifierIcon
+      qualifier="FIL"
     />
-    <span
-      className="note"
-    >
-      foo
-    </span>
+     
+    index.tsx
   </span>
 </span>
 `;
@@ -176,6 +151,8 @@ exports[`#ComponentName should render correctly for refs 1`] = `
 <span
   className="max-width-100 display-inline-block text-ellipsis"
   title="Foo
+
+foo
 
 foo"
 >
@@ -211,6 +188,8 @@ exports[`#ComponentName should render correctly for refs 2`] = `
   <span
     className="text-ellipsis"
     title="Foo
+
+foo
 
 foo"
   >
@@ -248,6 +227,47 @@ foo"
     >
       foo
     </span>
+  </span>
+</span>
+`;
+
+exports[`#ComponentName should render correctly for refs 3`] = `
+<span
+  className="max-width-100 display-inline-flex-center"
+>
+  <span
+    className="text-ellipsis"
+    title="Foo
+
+foo"
+  >
+    <Link
+      className="link-with-icon"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "branch": undefined,
+            "id": "src/main/ts/app",
+          },
+        }
+      }
+    >
+      <QualifierIcon
+        qualifier="TRK"
+      />
+       
+      <span>
+        Foo
+      </span>
+    </Link>
+  </span>
+  <span
+    className="spacer-left badge flex-1"
+  >
+    branches.main_branch
   </span>
 </span>
 `;

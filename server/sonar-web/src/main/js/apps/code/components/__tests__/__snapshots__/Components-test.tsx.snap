@@ -7,6 +7,7 @@ exports[`renders correctly 1`] = `
   <ComponentsHeader
     baseComponent={
       Object {
+        "branch": "develop",
         "key": "foo",
         "name": "Foo",
         "qualifier": "TRK",
@@ -20,6 +21,7 @@ exports[`renders correctly 1`] = `
     }
     rootComponent={
       Object {
+        "branch": "develop",
         "key": "foo",
         "name": "Foo",
         "qualifier": "TRK",
@@ -31,6 +33,7 @@ exports[`renders correctly 1`] = `
       canBePinned={true}
       component={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
@@ -50,6 +53,7 @@ exports[`renders correctly 1`] = `
       }
       rootComponent={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
@@ -79,13 +83,14 @@ exports[`renders correctly 1`] = `
       canBrowse={true}
       component={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
         }
       }
       hasBaseComponent={true}
-      key="foo"
+      key="foo/develop"
       metrics={
         Array [
           Object {
@@ -98,6 +103,7 @@ exports[`renders correctly 1`] = `
       }
       rootComponent={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
@@ -127,16 +133,18 @@ exports[`renders correctly for a search 1`] = `
       canBrowse={true}
       component={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
         }
       }
       hasBaseComponent={false}
-      key="foo"
+      key="foo/develop"
       metrics={Array []}
       rootComponent={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
@@ -164,6 +172,7 @@ exports[`renders correctly for leak 1`] = `
   <ComponentsHeader
     baseComponent={
       Object {
+        "branch": "develop",
         "key": "foo",
         "name": "Foo",
         "qualifier": "TRK",
@@ -177,6 +186,7 @@ exports[`renders correctly for leak 1`] = `
     }
     rootComponent={
       Object {
+        "branch": "develop",
         "key": "foo",
         "name": "Foo",
         "qualifier": "TRK",
@@ -196,6 +206,7 @@ exports[`renders correctly for leak 1`] = `
       canBePinned={true}
       component={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
@@ -215,6 +226,7 @@ exports[`renders correctly for leak 1`] = `
       }
       rootComponent={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
@@ -252,13 +264,14 @@ exports[`renders correctly for leak 1`] = `
       canBrowse={true}
       component={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",
         }
       }
       hasBaseComponent={true}
-      key="foo"
+      key="foo/develop"
       metrics={
         Array [
           Object {
@@ -271,6 +284,7 @@ exports[`renders correctly for leak 1`] = `
       }
       rootComponent={
         Object {
+          "branch": "develop",
           "key": "foo",
           "name": "Foo",
           "qualifier": "TRK",

@@ -25,18 +25,20 @@ import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
+import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { isFile, isView } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
-import { enhanceComponent, isFileType, isViewType, Query } from '../utils';
+import { enhanceComponent, Query } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import MeasureContentHeader from './MeasureContentHeader';
 import MeasureHeader from './MeasureHeader';
@@ -63,7 +65,7 @@ interface State {
   metric?: T.Metric;
   paging?: T.Paging;
   secondaryMeasure?: T.Measure;
-  selected?: string;
+  selectedComponent?: T.ComponentMeasureIntern;
 }
 
 export default class MeasureContent extends React.PureComponent<Props, State> {
@@ -125,15 +127,21 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
           measure => measure.metric !== this.props.requestedMetric.key
         );
 
-        this.setState(({ selected }) => ({
+        this.setState(({ selectedComponent }) => ({
           baseComponent: tree.baseComponent,
           components,
           measure,
           metric,
           paging: tree.paging,
           secondaryMeasure,
-          selected:
-            components.length > 0 && components.find(c => c.key === selected) ? selected : undefined
+          selectedComponent:
+            components.length > 0 &&
+            components.find(
+              c =>
+                getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(selectedComponent)
+            )
+              ? selectedComponent
+              : undefined
         }));
       }
     });
@@ -223,34 +231,39 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     this.props.updateQuery({ view });
   };
 
-  onOpenComponent = (componentKey: string) => {
-    if (isViewType(this.props.rootComponent)) {
-      const component = this.state.components.find(
-        component => component.refKey === componentKey || component.key === componentKey
+  onOpenComponent = (component: T.ComponentMeasureIntern) => {
+    if (isView(this.props.rootComponent.qualifier)) {
+      const comp = this.state.components.find(
+        c =>
+          c.refKey === component.key ||
+          getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(component)
       );
-      if (component && component.refKey !== undefined) {
-        if (this.props.view === 'treemap') {
-          this.props.router.push(getProjectUrl(componentKey));
-        }
-        return;
+
+      if (comp) {
+        this.props.router.push(getProjectUrl(comp.refKey || comp.key, component.branch));
       }
+
+      return;
     }
-    this.setState(state => ({ selected: state.baseComponent!.key }));
-    this.updateSelected(componentKey);
+
+    this.setState(state => ({ selectedComponent: state.baseComponent }));
+    this.updateSelected(component.key);
     if (this.container) {
       this.container.focus();
     }
   };
 
-  onSelectComponent = (componentKey: string) => {
-    this.setState({ selected: componentKey });
+  onSelectComponent = (component: T.ComponentMeasureIntern) => {
+    this.setState({ selectedComponent: component });
   };
 
   getSelectedIndex = () => {
-    const componentKey = isFileType(this.state.baseComponent!)
-      ? this.state.baseComponent!.key
-      : this.state.selected;
-    const index = this.state.components.findIndex(component => component.key === componentKey);
+    const componentKey = isFile(this.state.baseComponent?.qualifier)
+      ? getComponentMeasureUniqueKey(this.state.baseComponent)
+      : getComponentMeasureUniqueKey(this.state.selectedComponent);
+    const index = this.state.components.findIndex(
+      component => getComponentMeasureUniqueKey(component) === componentKey
+    );
     return index !== -1 ? index : undefined;
   };
 
@@ -281,20 +294,24 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
           paging={this.state.paging}
           rootComponent={this.props.rootComponent}
           selectedIdx={selectedIdx}
-          selectedKey={selectedIdx !== undefined ? this.state.selected : undefined}
+          selectedComponent={
+            selectedIdx !== undefined
+              ? (this.state.selectedComponent as T.ComponentMeasureEnhanced)
+              : undefined
+          }
           view={view}
         />
       );
-    } else {
-      return (
-        <TreeMapView
-          branchLike={this.props.branchLike}
-          components={this.state.components}
-          handleSelect={this.onOpenComponent}
-          metric={metric}
-        />
-      );
     }
+
+    return (
+      <TreeMapView
+        branchLike={this.props.branchLike}
+        components={this.state.components}
+        handleSelect={this.onOpenComponent}
+        metric={metric}
+      />
+    );
   }
 
   render() {
@@ -307,7 +324,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
     const measureValue =
       measure && (isDiffMetric(measure.metric) ? measure.period?.value : measure.value);
-    const isFile = isFileType(baseComponent);
+    const isFileComponent = isFile(baseComponent.qualifier);
     const selectedIdx = this.getSelectedIndex();
 
     return (
@@ -330,7 +347,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                 }
                 right={
                   <div className="display-flex-center">
-                    {!isFile && metric && (
+                    {!isFileComponent && metric && (
                       <>
                         <div>{translate('component_measures.view_as')}</div>
                         <MeasureViewSelect
@@ -368,7 +385,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             metric={metric}
             secondaryMeasure={secondaryMeasure}
           />
-          {isFile ? (
+          {isFileComponent ? (
             <div className="measure-details-viewer">
               <SourceViewer
                 branchLike={branchLike}

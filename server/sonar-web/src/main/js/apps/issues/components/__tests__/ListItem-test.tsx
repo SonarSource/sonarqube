@@ -17,28 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue } from '../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../types/component';
-import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
+import ListItem from '../ListItem';
 
-const baseIssue = mockIssue(false, {
-  component: 'comp',
-  componentLongName: 'comp-name',
-  componentQualifier: ComponentQualifier.File,
-  project: 'proj',
-  projectName: 'proj-name',
-  branch: 'test-branch'
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
 
-it('renders', () => {
-  expect(
-    shallow(<ComponentBreadcrumbs component={undefined} issue={baseIssue} />)
-  ).toMatchSnapshot();
-});
-
-it('renders with sub-project', () => {
-  const issue = { ...baseIssue, subProject: 'sub-proj', subProjectName: 'sub-proj-name' };
-  expect(shallow(<ComponentBreadcrumbs component={undefined} issue={issue} />)).toMatchSnapshot();
-});
+function shallowRender(props: Partial<ListItem['props']> = {}) {
+  return shallow<ListItem>(
+    <ListItem
+      branchLike={mockBranch()}
+      checked={false}
+      component={mockComponent()}
+      issue={mockIssue()}
+      onChange={jest.fn()}
+      onCheck={jest.fn()}
+      onClick={jest.fn()}
+      onFilterChange={jest.fn()}
+      onPopupToggle={jest.fn()}
+      openPopup={undefined}
+      previousIssue={mockIssue(false, { branch: 'branch-8.7' })}
+      selected={false}
+      {...props}
+    />
+  );
+}

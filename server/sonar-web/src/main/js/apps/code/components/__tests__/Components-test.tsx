@@ -20,10 +20,16 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { ComponentQualifier } from '../../../../types/component';
 import { Components } from '../Components';
 
-const COMPONENT = { key: 'foo', name: 'Foo', qualifier: 'TRK' };
-const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: 'VW' };
+const COMPONENT = {
+  key: 'foo',
+  name: 'Foo',
+  qualifier: ComponentQualifier.Project,
+  branch: 'develop'
+};
+const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: ComponentQualifier.Portfolio };
 const METRICS = { coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' } };
 const BRANCH = mockBranch({ name: 'feature' });
 

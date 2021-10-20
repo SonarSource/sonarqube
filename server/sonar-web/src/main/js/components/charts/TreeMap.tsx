@@ -35,6 +35,7 @@ export interface TreeMapItem {
   metric?: { key: string; type: string };
   size: number;
   tooltip?: React.ReactNode;
+  component: T.ComponentMeasureEnhanced;
 }
 
 interface HierarchicalTreemapItem extends TreeMapItem {
@@ -44,7 +45,7 @@ interface HierarchicalTreemapItem extends TreeMapItem {
 interface Props {
   height: number;
   items: TreeMapItem[];
-  onRectangleClick?: (item: string) => void;
+  onRectangleClick?: (item: T.ComponentMeasureEnhanced) => void;
   width: number;
 }
 
@@ -62,6 +63,12 @@ export default class TreeMap extends React.PureComponent<Props> {
     const prefixTokens = prefix.split(/[\s\\/]/);
     const lastPrefixPart = prefixTokens[prefixTokens.length - 1];
     return prefix.substr(0, prefix.length - lastPrefixPart.length);
+  };
+
+  handleClick = (component: T.ComponentMeasureEnhanced) => {
+    if (this.props.onRectangleClick) {
+      this.props.onRectangleClick(component);
+    }
   };
 
   render() {
@@ -90,7 +97,7 @@ export default class TreeMap extends React.PureComponent<Props> {
               key={node.data.key}
               label={node.data.label}
               link={node.data.link}
-              onClick={this.props.onRectangleClick}
+              onClick={() => this.handleClick(node.data.component)}
               placement={node.x0 === 0 || node.x1 < halfWidth ? 'right' : 'left'}
               prefix={prefix}
               value={

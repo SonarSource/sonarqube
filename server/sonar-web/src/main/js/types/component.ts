@@ -79,3 +79,17 @@ export function isProject(
 ): componentQualifier is ComponentQualifier.Project {
   return componentQualifier === ComponentQualifier.Project;
 }
+
+export function isFile(componentQualifier?: string | ComponentQualifier): boolean {
+  return [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
+    componentQualifier as ComponentQualifier
+  );
+}
+
+export function isView(componentQualifier?: string | ComponentQualifier): boolean {
+  return [
+    ComponentQualifier.Portfolio,
+    ComponentQualifier.SubPortfolio,
+    ComponentQualifier.Application
+  ].includes(componentQualifier as ComponentQualifier);
+}

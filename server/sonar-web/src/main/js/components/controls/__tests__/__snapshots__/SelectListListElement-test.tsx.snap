@@ -6,13 +6,13 @@ exports[`should display a loader when checking 1`] = `
 >
   <Checkbox
     checked={false}
-    className="select-list-list-checkbox"
+    className="select-list-list-checkbox display-flex-center"
     loading={false}
     onCheck={[Function]}
     thirdState={false}
   >
     <span
-      className="little-spacer-left"
+      className="little-spacer-left flex-1"
     >
       foo
     </span>
@@ -26,13 +26,13 @@ exports[`should display a loader when checking 2`] = `
 >
   <Checkbox
     checked={false}
-    className="select-list-list-checkbox"
+    className="select-list-list-checkbox display-flex-center"
     loading={true}
     onCheck={[Function]}
     thirdState={false}
   >
     <span
-      className="little-spacer-left"
+      className="little-spacer-left flex-1"
     >
       foo
     </span>

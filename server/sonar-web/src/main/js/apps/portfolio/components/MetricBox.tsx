@@ -73,7 +73,7 @@ export default function MetricBox({ component, measures, metricKey }: MetricBoxP
       {metricKey === 'releasability'
         ? Number(effort) > 0 && (
             <>
-              <h3>{translate('portfolio.lowest_rated_projects')}</h3>
+              <h3>{translate('portfolio.lowest_rated_project_branches')}</h3>
               <div className="portfolio-effort">
                 <Link
                   to={getComponentDrilldownUrl({
@@ -88,8 +88,8 @@ export default function MetricBox({ component, measures, metricKey }: MetricBoxP
                       value={effort}
                     />
                     {Number(effort) === 1
-                      ? translate('project_singular')
-                      : translate('project_plural')}
+                      ? translate('portfolio.project_branch')
+                      : translate('portfolio.project_branches')}
                   </span>
                 </Link>
                 <Level
@@ -107,7 +107,7 @@ export default function MetricBox({ component, measures, metricKey }: MetricBoxP
           )
         : effort && (
             <>
-              <h3>{translate('portfolio.lowest_rated_projects')}</h3>
+              <h3>{translate('portfolio.lowest_rated_project_branches')}</h3>
               <Effort component={component} effort={effort} metricKey={keys.rating} />
             </>
           )}

@@ -75,7 +75,8 @@ import {
   getBranchLikeQuery,
   isBranch,
   isMainBranch,
-  isPullRequest
+  isPullRequest,
+  sortBranches
 } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import * as measures from '../../../helpers/measures';
@@ -138,6 +139,7 @@ const exposeLibraries = () => {
         isBranch,
         isMainBranch,
         isPullRequest,
+        sortBranches,
         getStandards,
         renderCWECategory,
         renderOwaspTop10Category,

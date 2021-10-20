@@ -25,14 +25,14 @@ interface Props {
   canBrowse: boolean;
   component: T.ComponentMeasure;
   isLast: boolean;
-  handleSelect: (component: string) => void;
+  handleSelect: (component: T.ComponentMeasureIntern) => void;
 }
 
 export default class Breadcrumb extends React.PureComponent<Props> {
   handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
-    this.props.handleSelect(this.props.component.key);
+    this.props.handleSelect(this.props.component);
   };
 
   render() {

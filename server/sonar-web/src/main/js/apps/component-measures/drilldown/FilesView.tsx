@@ -35,14 +35,14 @@ interface Props {
   components: T.ComponentMeasureEnhanced[];
   defaultShowBestMeasures: boolean;
   fetchMore: () => void;
-  handleSelect: (component: string) => void;
-  handleOpen: (component: string) => void;
+  handleSelect: (component: T.ComponentMeasureEnhanced) => void;
+  handleOpen: (component: T.ComponentMeasureEnhanced) => void;
   loadingMore: boolean;
   metric: T.Metric;
   metrics: T.Dict<T.Metric>;
   paging?: T.Paging;
   rootComponent: T.ComponentMeasure;
-  selectedKey?: string;
+  selectedComponent?: T.ComponentMeasureEnhanced;
   selectedIdx?: number;
   view: MeasurePageView;
 }
@@ -65,13 +65,16 @@ export default class FilesView extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.attachShortcuts();
-    if (this.props.selectedKey !== undefined) {
+    if (this.props.selectedComponent !== undefined) {
       this.scrollToElement();
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.selectedKey !== undefined && prevProps.selectedKey !== this.props.selectedKey) {
+    if (
+      this.props.selectedComponent &&
+      prevProps.selectedComponent !== this.props.selectedComponent
+    ) {
       this.scrollToElement();
     }
     if (prevProps.metric.key !== this.props.metric.key || prevProps.view !== this.props.view) {
@@ -128,8 +131,8 @@ export default class FilesView extends React.PureComponent<Props, State> {
   };
 
   openSelected = () => {
-    if (this.props.selectedKey !== undefined) {
-      this.props.handleOpen(this.props.selectedKey);
+    if (this.props.selectedComponent !== undefined) {
+      this.props.handleOpen(this.props.selectedComponent);
     }
   };
 
@@ -137,9 +140,9 @@ export default class FilesView extends React.PureComponent<Props, State> {
     const { selectedIdx } = this.props;
     const visibleComponents = this.getVisibleComponents();
     if (selectedIdx !== undefined && selectedIdx > 0) {
-      this.props.handleSelect(visibleComponents[selectedIdx - 1].key);
+      this.props.handleSelect(visibleComponents[selectedIdx - 1]);
     } else {
-      this.props.handleSelect(visibleComponents[visibleComponents.length - 1].key);
+      this.props.handleSelect(visibleComponents[visibleComponents.length - 1]);
     }
   };
 
@@ -147,9 +150,9 @@ export default class FilesView extends React.PureComponent<Props, State> {
     const { selectedIdx } = this.props;
     const visibleComponents = this.getVisibleComponents();
     if (selectedIdx !== undefined && selectedIdx < visibleComponents.length - 1) {
-      this.props.handleSelect(visibleComponents[selectedIdx + 1].key);
+      this.props.handleSelect(visibleComponents[selectedIdx + 1]);
     } else {
-      this.props.handleSelect(visibleComponents[0].key);
+      this.props.handleSelect(visibleComponents[0]);
     }
   };
 
@@ -174,7 +177,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
           metric={this.props.metric}
           metrics={this.props.metrics}
           rootComponent={this.props.rootComponent}
-          selectedComponent={this.props.selectedKey}
+          selectedComponent={this.props.selectedComponent}
           view={this.props.view}
         />
         {hidingBestMeasures && this.props.paging && (

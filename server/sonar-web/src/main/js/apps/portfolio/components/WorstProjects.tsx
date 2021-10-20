@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { max } from 'lodash';
+import { max, sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { colors } from '../../../app/theme';
+import BranchIcon from '../../../components/icons/BranchIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import Measure from '../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -47,6 +48,13 @@ export default function WorstProjects({ component, subComponents, total }: Props
   ) as number;
 
   const projectsPageUrl = { pathname: '/code', query: { id: component } };
+
+  const subCompList = sortBy(
+    subComponents,
+    c => c.qualifier,
+    c => c.name.toLowerCase(),
+    c => c.branch?.toLowerCase()
+  );
 
   return (
     <div className="panel panel-white portfolio-sub-components" id="portfolio-sub-components">
@@ -75,26 +83,39 @@ export default function WorstProjects({ component, subComponents, total }: Props
           </tr>
         </thead>
         <tbody>
-          {subComponents.map(component => (
-            <tr key={component.key}>
+          {subCompList.map(comp => (
+            <tr key={[comp.key, comp.branch].filter(s => !!s).join('/')}>
               <td>
-                <Link
-                  className="link-with-icon"
-                  to={getComponentOverviewUrl(
-                    component.refKey || component.key,
-                    component.qualifier
-                  )}>
-                  <QualifierIcon qualifier={component.qualifier} /> {component.name}
-                </Link>
+                <span className="display-flex-center">
+                  <QualifierIcon className="spacer-right" qualifier={comp.qualifier} />
+                  <Link
+                    to={getComponentOverviewUrl(comp.refKey || comp.key, comp.qualifier, {
+                      branch: comp.branch
+                    })}>
+                    {comp.name}
+                  </Link>
+
+                  {[ComponentQualifier.Application, ComponentQualifier.Project].includes(
+                    comp.qualifier as ComponentQualifier
+                  ) &&
+                    (comp.branch ? (
+                      <span className="spacer-left">
+                        <BranchIcon className="little-spacer-right" />
+                        <span className="note">{comp.branch}</span>
+                      </span>
+                    ) : (
+                      <span className="spacer-left badge">{translate('branches.main_branch')}</span>
+                    ))}
+                </span>
               </td>
-              {component.qualifier === ComponentQualifier.Project
-                ? renderCell(component.measures, 'alert_status', 'LEVEL')
-                : renderCell(component.measures, 'releasability_rating', 'RATING')}
-              {renderCell(component.measures, 'reliability_rating', 'RATING')}
-              {renderCell(component.measures, 'security_rating', 'RATING')}
-              {renderCell(component.measures, 'security_review_rating', 'RATING')}
-              {renderCell(component.measures, 'sqale_rating', 'RATING')}
-              {renderNcloc(component.measures, maxLoc)}
+              {comp.qualifier === ComponentQualifier.Project
+                ? renderCell(comp.measures, 'alert_status', 'LEVEL')
+                : renderCell(comp.measures, 'releasability_rating', 'RATING')}
+              {renderCell(comp.measures, 'reliability_rating', 'RATING')}
+              {renderCell(comp.measures, 'security_rating', 'RATING')}
+              {renderCell(comp.measures, 'security_review_rating', 'RATING')}
+              {renderCell(comp.measures, 'sqale_rating', 'RATING')}
+              {renderNcloc(comp.measures, maxLoc)}
             </tr>
           ))}
         </tbody>

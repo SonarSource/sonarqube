@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { intersection } from 'lodash';
+import { intersection, sortBy } from 'lodash';
 import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
+import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { BranchLike } from '../../../types/branch-like';
 import { getCodeMetrics } from '../utils';
 import Component from './Component';
@@ -82,18 +83,26 @@ export class Components extends React.PureComponent<Props> {
           )}
 
           {components.length ? (
-            components.map((component, index, list) => (
+            sortBy(
+              components,
+              c => c.qualifier,
+              c => c.name.toLowerCase(),
+              c => c.branch?.toLowerCase()
+            ).map((component, index, list) => (
               <Component
                 branchLike={branchLike}
                 canBePinned={canBePinned}
                 canBrowse={true}
                 component={component}
                 hasBaseComponent={baseComponent !== undefined}
-                key={component.key}
+                key={getComponentMeasureUniqueKey(component)}
                 metrics={metrics}
                 previous={index > 0 ? list[index - 1] : undefined}
                 rootComponent={rootComponent}
-                selected={selected && component.key === selected.key}
+                selected={
+                  selected &&
+                  getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
+                }
               />
             ))
           ) : (

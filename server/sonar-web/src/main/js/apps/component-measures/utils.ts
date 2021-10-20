@@ -105,20 +105,6 @@ export function enhanceComponent(
   return { ...component, value, leak, measures: enhancedMeasures };
 }
 
-export function isFileType(component: { qualifier: string | ComponentQualifier }): boolean {
-  return [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
-    component.qualifier as ComponentQualifier
-  );
-}
-
-export function isViewType(component: T.ComponentMeasure): boolean {
-  return [
-    ComponentQualifier.Portfolio,
-    ComponentQualifier.SubPortfolio,
-    ComponentQualifier.Application
-  ].includes(component.qualifier as ComponentQualifier);
-}
-
 export function isSecurityReviewMetric(metricKey: MetricKey | string): boolean {
   return [
     MetricKey.security_hotspots,
