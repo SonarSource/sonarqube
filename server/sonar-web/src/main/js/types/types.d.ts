@@ -621,6 +621,7 @@ declare namespace T {
     actions?: {
       associateProjects?: boolean;
       copy?: boolean;
+      delegate?: boolean;
       delete?: boolean;
       manageConditions?: boolean;
       rename?: boolean;

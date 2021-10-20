@@ -19,17 +19,13 @@
  */
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import { hasGlobalPermission } from '../../../helpers/users';
-import { Permissions } from '../../../types/permissions';
 import Conditions from './Conditions';
 import Projects from './Projects';
 import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
-  currentUser: T.CurrentUser;
   isDefault?: boolean;
   metrics: T.Dict<T.Metric>;
   onAddCondition: (condition: T.Condition) => void;
@@ -40,11 +36,9 @@ export interface DetailsContentProps {
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { currentUser, isDefault, metrics, qualityGate, updatedConditionId } = props;
+  const { isDefault, metrics, qualityGate, updatedConditionId } = props;
   const conditions = qualityGate.conditions || [];
   const actions = qualityGate.actions || {};
-
-  const displayPermissions = hasGlobalPermission(currentUser, Permissions.QualityGateAdmin);
 
   return (
     <div className="layout-page-main-inner">
@@ -89,7 +83,7 @@ export function DetailsContent(props: DetailsContentProps) {
             />
           )}
         </div>
-        {displayPermissions && (
+        {actions.delegate && (
           <div className="width-50 big-padded-left">
             <QualityGatePermissions qualityGate={qualityGate} />
           </div>
@@ -99,4 +93,4 @@ export function DetailsContent(props: DetailsContentProps) {
   );
 }
 
-export default React.memo(withCurrentUser(DetailsContent));
+export default React.memo(DetailsContent);

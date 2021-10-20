@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import { mockCondition, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockCondition } from '../../../../helpers/testMocks';
 import { DetailsContent, DetailsContentProps } from '../DetailsContent';
 
 it('should render correctly', () => {
@@ -30,14 +30,15 @@ it('should render correctly', () => {
     shallowRender({ isDefault: true, qualityGate: mockQualityGate({ conditions: [] }) })
   ).toMatchSnapshot('is default, no conditions');
   expect(
-    shallowRender({ currentUser: mockLoggedInUser({ permissions: { global: ['gateadmin'] } }) })
+    shallowRender({
+      qualityGate: mockQualityGate({ actions: { delegate: true } })
+    })
   ).toMatchSnapshot('Admin');
 });
 
 function shallowRender(props: Partial<DetailsContentProps> = {}) {
   return shallow(
     <DetailsContent
-      currentUser={mockLoggedInUser()}
       metrics={{}}
       onAddCondition={jest.fn()}
       onRemoveCondition={jest.fn()}

@@ -6,30 +6,16 @@ exports[`should render correctly: Admin 1`] = `
 >
   <Connect(withAppState(Conditions))
     canEdit={false}
-    conditions={
-      Array [
-        Object {
-          "error": "10",
-          "id": 1,
-          "metric": "coverage",
-          "op": "LT",
-        },
-      ]
-    }
+    conditions={Array []}
     metrics={Object {}}
     onAddCondition={[MockFunction]}
     onRemoveCondition={[MockFunction]}
     onSaveCondition={[MockFunction]}
     qualityGate={
       Object {
-        "conditions": Array [
-          Object {
-            "error": "10",
-            "id": 1,
-            "metric": "coverage",
-            "op": "LT",
-          },
-        ],
+        "actions": Object {
+          "delegate": true,
+        },
         "id": "1",
         "name": "qualitygate",
       }
@@ -63,14 +49,9 @@ exports[`should render correctly: Admin 1`] = `
         key="1"
         qualityGate={
           Object {
-            "conditions": Array [
-              Object {
-                "error": "10",
-                "id": 1,
-                "metric": "coverage",
-                "op": "LT",
-              },
-            ],
+            "actions": Object {
+              "delegate": true,
+            },
             "id": "1",
             "name": "qualitygate",
           }
@@ -83,14 +64,9 @@ exports[`should render correctly: Admin 1`] = `
       <QualityGatePermissions
         qualityGate={
           Object {
-            "conditions": Array [
-              Object {
-                "error": "10",
-                "id": 1,
-                "metric": "coverage",
-                "op": "LT",
-              },
-            ],
+            "actions": Object {
+              "delegate": true,
+            },
             "id": "1",
             "name": "qualitygate",
           }
