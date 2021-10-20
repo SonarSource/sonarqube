@@ -38,6 +38,7 @@ import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SessionTokenDto;
@@ -89,7 +90,7 @@ public class DeactivateActionTest {
   private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession, new UserJsonWriter(userSession)));
 
   @Test
-  public void deactivate_user_and_delete_his_related_data() {
+  public void deactivate_user_and_delete_their_related_data() {
     createAdminUser();
     UserDto user = db.users().insertUser(u -> u
       .setLogin("ada.lovelace")
@@ -110,7 +111,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_group_membership() {
+  public void deactivate_user_deletes_their_group_membership() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -124,7 +125,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_tokens() {
+  public void deactivate_user_deletes_their_tokens() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -138,13 +139,13 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_properties() {
+  public void deactivate_user_deletes_their_properties() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     db.properties().insertProperty(newUserPropertyDto(user), null, null, null, user.getLogin());
-    db.properties().insertProperty(newUserPropertyDto(user), null,null, null,  user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user), null, null, null, user.getLogin());
     db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()), project.getKey(),
       project.name(), project.qualifier(), user.getLogin());
 
@@ -155,7 +156,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_permissions() {
+  public void deactivate_user_deletes_their_permissions() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -172,7 +173,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_permission_templates() {
+  public void deactivate_user_deletes_their_permission_templates() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -190,7 +191,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_qprofiles_permissions() {
+  public void deactivate_user_deletes_their_qprofiles_permissions() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -203,7 +204,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_default_assignee_settings() {
+  public void deactivate_user_deletes_their_default_assignee_settings() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -223,7 +224,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_user_settings() {
+  public void deactivate_user_deletes_their_user_settings() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -239,7 +240,21 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_alm_pat() {
+  public void deactivate_user_deletes_their_qgate_permissions() {
+    createAdminUser();
+    logInAsSystemAdministrator();
+    UserDto user = db.users().insertUser();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().addUserPermission(qualityGate, user);
+    assertThat(db.countRowsOfTable("qgate_user_permissions")).isEqualTo(1);
+
+    deactivate(user.getLogin());
+
+    assertThat(db.countRowsOfTable("qgate_user_permissions")).isZero();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_alm_pat() {
     createAdminUser();
     logInAsSystemAdministrator();
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
@@ -255,7 +270,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_session_tokens() {
+  public void deactivate_user_deletes_their_session_tokens() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
@@ -272,7 +287,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_his_dismissed_messages() {
+  public void deactivate_user_deletes_their_dismissed_messages() {
     createAdminUser();
     logInAsSystemAdministrator();
     ProjectDto project1 = db.components().insertPrivateProjectDto();

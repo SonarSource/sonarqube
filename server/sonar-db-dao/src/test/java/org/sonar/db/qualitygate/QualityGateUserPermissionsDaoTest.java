@@ -208,6 +208,25 @@ public class QualityGateUserPermissionsDaoTest {
   }
 
   @Test
+  public void deleteByUser() {
+    QualityGateDto qualityGateDto1 = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGateDto2 = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGateDto3 = db.qualityGates().insertQualityGate();
+
+    UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
+    UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
+    db.qualityGates().addUserPermission(qualityGateDto1, user1);
+    db.qualityGates().addUserPermission(qualityGateDto2, user2);
+    db.qualityGates().addUserPermission(qualityGateDto3, user1);
+
+    underTest.deleteByUser(dbSession, user1);
+
+    assertThat(underTest.exists(dbSession, qualityGateDto1, user1)).isFalse();
+    assertThat(underTest.exists(dbSession, qualityGateDto2, user2)).isTrue();
+    assertThat(underTest.exists(dbSession, qualityGateDto3, user1)).isFalse();
+  }
+
+  @Test
   public void deleteByQualityGate() {
     QualityGateDto qualityGateDto1 = qualityGateDbTester.insertQualityGate();
     QualityGateDto qualityGateDto2 = qualityGateDbTester.insertQualityGate();

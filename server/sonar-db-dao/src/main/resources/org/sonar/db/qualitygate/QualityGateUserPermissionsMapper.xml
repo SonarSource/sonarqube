@@ -92,6 +92,11 @@
     </where>
   </sql>
 
+  <delete id="deleteByUser">
+    delete from qgate_user_permissions
+    where user_uuid = #{userUuid}
+  </delete>
+
   <delete id="deleteByQualityGate">
     delete from qgate_user_permissions
     where quality_gate_uuid = #{qualityGateUuid, jdbcType=VARCHAR}

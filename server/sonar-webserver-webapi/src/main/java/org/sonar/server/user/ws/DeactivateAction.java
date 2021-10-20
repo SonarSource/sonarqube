@@ -96,6 +96,7 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.almPatDao().deleteByUser(dbSession, user);
       dbClient.sessionTokensDao().deleteByUser(dbSession, user);
       dbClient.userDismissedMessagesDao().deleteByUser(dbSession, user);
+      dbClient.qualityGateUserPermissionDao().deleteByUser(dbSession, user);
       dbClient.userDao().deactivateUser(dbSession, user);
       userIndexer.commitAndIndex(dbSession, user);
     }
