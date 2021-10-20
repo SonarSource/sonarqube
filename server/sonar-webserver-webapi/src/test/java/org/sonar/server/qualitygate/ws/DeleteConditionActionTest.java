@@ -28,6 +28,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -93,6 +95,39 @@ public class DeleteConditionActionTest {
       .execute();
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+  }
+
+  @Test
+  public void user_with_permission_can_call_endpoint() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric();
+    QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
+    UserDto user = db.users().insertUser();
+    db.qualityGates().addUserPermission(qualityGate, user);
+    userSession.logIn(user);
+
+    TestResponse response = ws.newRequest()
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+  }
+
+  @Test
+  public void user_with_group_permission_can_call_endpoint() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric();
+    QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.qualityGates().addGroupPermission(qualityGate, group);
+    userSession.logIn(user).setGroups(group);
+
+    TestResponse response = ws.newRequest()
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
   }
 
   @Test

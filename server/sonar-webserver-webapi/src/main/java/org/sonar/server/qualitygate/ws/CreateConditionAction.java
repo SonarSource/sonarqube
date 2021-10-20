@@ -100,7 +100,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
       } else {
         qualityGate = wsSupport.getByName(dbSession, gateName);
       }
-      wsSupport.checkCanEdit(qualityGate);
+      wsSupport.checkCanLimitedEdit(dbSession, qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getUuid())

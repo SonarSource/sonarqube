@@ -34,12 +34,15 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
@@ -109,6 +112,45 @@ public class UpdateConditionActionTest {
     assertThat(response.getMetric()).isEqualTo(metric.getKey());
     assertThat(response.getOp()).isEqualTo("LT");
     assertThat(response.getError()).isEqualTo("45");
+  }
+
+  @Test
+  public void user_with_permission_can_call_endpoint() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = insertMetric();
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
+    UserDto user = db.users().insertUser();
+    db.qualityGates().addUserPermission(qualityGate, user);
+    userSession.logIn(user);
+
+    TestResponse response = ws.newRequest()
+      .setParam(PARAM_ID, condition.getUuid())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "LT")
+      .setParam(PARAM_ERROR, "45")
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(200);
+  }
+
+  @Test
+  public void user_with_group_permission_can_call_endpoint() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = insertMetric();
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.qualityGates().addGroupPermission(qualityGate, group);
+    userSession.logIn(user).setGroups(group);
+
+    TestResponse response = ws.newRequest()
+      .setParam(PARAM_ID, condition.getUuid())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "LT")
+      .setParam(PARAM_ERROR, "45")
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(200);
   }
 
   @Test
@@ -243,7 +285,7 @@ public class UpdateConditionActionTest {
 
   @DataProvider
   public static Object[][] update_invalid_operators_and_direction() {
-    return new Object[][] {
+    return new Object[][]{
       {"GT", "LT", -1},
       {"LT", "GT", 1},
     };
