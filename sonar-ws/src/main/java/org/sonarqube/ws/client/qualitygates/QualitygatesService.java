@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.qualitygates;
 
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
@@ -281,5 +282,105 @@ public class QualitygatesService extends BaseService {
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp()),
       UpdateConditionResponse.parser());
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/add_user">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public void addUser(AddUserRequest request) {
+    call(
+      new PostRequest(path("add_user"))
+        .setParam("login", request.getLogin())
+        .setParam("gateName", request.getQualityGate())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/search_users">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public Qualitygates.SearchUsersResponse searchUsers(SearchUsersRequest request) {
+    return call(
+      new GetRequest(path("search_users"))
+        .setParam("p", request.getP())
+        .setParam("ps", request.getPs())
+        .setParam("q", request.getQ())
+        .setParam("gateName", request.getQualityGate())
+        .setParam("selected", request.getSelected()),
+      Qualitygates.SearchUsersResponse.parser());
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/remove_user">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public void removeUser(RemoveUserRequest request) {
+    call(
+      new PostRequest(path("remove_user"))
+        .setParam("login", request.getLogin())
+        .setParam("gateName", request.getQualityGate())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/add_group">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public void addGroup(AddGroupRequest request) {
+    call(
+      new PostRequest(path("add_group"))
+        .setParam("groupName", request.getGroup())
+        .setParam("gateName", request.getQualityGate())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/search_groups">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public Qualitygates.SearchGroupsResponse searchGroups(SearchGroupsRequest request) {
+    return call(
+      new GetRequest(path("search_groups"))
+        .setParam("p", request.getP())
+        .setParam("ps", request.getPs())
+        .setParam("q", request.getQ())
+        .setParam("gateName", request.getQualityGate())
+        .setParam("selected", request.getSelected()),
+      Qualitygates.SearchGroupsResponse.parser());
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/remove_group">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public void removeGroup(RemoveGroupRequest request) {
+    call(
+      new PostRequest(path("remove_group"))
+        .setParam("groupName", request.getGroup())
+        .setParam("gateName", request.getQualityGate())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
   }
 }
