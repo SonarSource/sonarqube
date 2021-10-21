@@ -41,6 +41,7 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
 
 public class IntegrationTest {
@@ -101,6 +102,7 @@ public class IntegrationTest {
   @Test
   public void synchronize_groups() throws InterruptedException {
     mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
+    mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL, "false");
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
@@ -130,6 +132,7 @@ public class IntegrationTest {
   @Test
   public void synchronize_groups_on_many_pages() {
     mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
+    mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL, "false");
     OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
