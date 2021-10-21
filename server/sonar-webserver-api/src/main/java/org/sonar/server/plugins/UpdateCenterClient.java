@@ -47,14 +47,22 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
     defaultValue = "https://update.sonarsource.org/update-center.properties",
     name = "Update Center URL",
     category = "Update Center",
-    project = false,
+    // hidden from UI
+    global = false),
+  @Property(
+    key = UpdateCenterClient.CACHE_TTL_PROPERTY,
+    defaultValue = "3600000",
+    name = "Update Center cache time-to-live in milliseconds",
+    category = "Update Center",
     // hidden from UI
     global = false)
 })
 public class UpdateCenterClient {
 
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
-  public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
+  public static final String CACHE_TTL_PROPERTY = "sonar.updatecenter.cache.ttl";
+
+  private final long periodInMilliseconds;
 
   private final URI uri;
   private final UriReader uriReader;
@@ -66,6 +74,7 @@ public class UpdateCenterClient {
     this.uriReader = uriReader;
     this.uri = new URI(config.get(URL_PROPERTY).get());
     this.isActivated = config.getBoolean(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey()).get();
+    this.periodInMilliseconds = Long.parseLong(config.get(CACHE_TTL_PROPERTY).get());
     Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
@@ -90,7 +99,7 @@ public class UpdateCenterClient {
   }
 
   private boolean needsRefresh() {
-    return lastRefreshDate + PERIOD_IN_MILLISECONDS < System.currentTimeMillis();
+    return lastRefreshDate + periodInMilliseconds < System.currentTimeMillis();
   }
 
   private UpdateCenter init() {

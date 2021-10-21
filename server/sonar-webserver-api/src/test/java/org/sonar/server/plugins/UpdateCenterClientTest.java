@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 public class UpdateCenterClientTest {
 
   private static final String BASE_URL = "https://update.sonarsource.org";
+  private static final String DEFAULT_CACHE_TTL = "3600000";
   private UriReader reader = mock(UriReader.class);
   private MapSettings settings = new MapSettings();
   private UpdateCenterClient underTest;
@@ -51,6 +52,7 @@ public class UpdateCenterClientTest {
     reader = mock(UriReader.class);
     settings.setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
     settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), true);
+    settings.setProperty(UpdateCenterClient.CACHE_TTL_PROPERTY, DEFAULT_CACHE_TTL);
     underTest = new UpdateCenterClient(reader, settings.asConfig());
   }
 
