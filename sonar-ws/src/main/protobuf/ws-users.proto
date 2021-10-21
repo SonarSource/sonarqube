@@ -105,12 +105,13 @@ message CurrentWsResponse {
   optional string externalIdentity = 6;
   optional string externalProvider = 7;
   repeated string scmAccounts = 8;
-  repeated OrganizationGroup orgGroups = 9;
+  repeated string groups = 9;
   optional Permissions permissions = 10;
   optional bool showOnboardingTutorial = 11;
   optional string avatar = 12;
   optional Homepage homepage = 13;
   repeated Setting settings = 15;
+  repeated OrganizationGroup orgGroups = 16;
 
   message OrganizationGroup {
     optional string organizationKey=1;

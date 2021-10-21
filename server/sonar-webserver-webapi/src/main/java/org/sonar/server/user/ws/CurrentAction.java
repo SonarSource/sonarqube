@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -117,12 +119,14 @@ public class CurrentAction implements UsersWsAction {
   private CurrentWsResponse toWsResponse(DbSession dbSession, String userLogin) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     checkState(user != null, "User login '%s' cannot be found", userLogin);
+    Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin);
     List<UserOrganizationGroup> orgGroups = dbClient.groupMembershipDao().selectGroupsAndOrganizationsByLogin(dbSession, userLogin);
     CurrentWsResponse.Builder builder = newBuilder()
       .setIsLoggedIn(true)
       .setLogin(user.getLogin())
       .setName(user.getName())
       .setLocal(user.isLocal())
+      .addAllGroups(groups)
       .addAllOrgGroups(toWsOrganizationGroups(orgGroups))
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
