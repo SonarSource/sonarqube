@@ -135,7 +135,7 @@ public class GitLabSettings {
         .defaultValue(valueOf(false))
         .index(6)
         .build(),
-      PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS)
+      PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS_PARENT_LEVEL)
         .name("Synchronize user groups at parent level")
         .description("If enabled, users will be associated to all parents group of his access (if it exists)")
         .category(CATEGORY)
