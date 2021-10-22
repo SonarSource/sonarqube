@@ -1,6 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-apply plugin: 'com.github.johnrengelman.shadow'
+plugins {
+  id "com.github.hierynomus.license-report"
+  id "com.github.johnrengelman.shadow"
+}
 
 sonarqube {
   properties {
@@ -26,6 +29,8 @@ configurations {
   bundledPlugin {
     transitive = false
   }
+
+  appLicenses.extendsFrom(compile, web, scanner, jsw, jdbc_mssql, jdbc_postgresql, jdbc_h2)
 }
 
 jar.enabled = false
@@ -66,11 +71,18 @@ dependencies {
 // declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
 apply from: 'bundled_plugins.gradle'
 
-task zip(type: Zip, dependsOn: [configurations.compile]) {
+downloadLicenses {
+    dependencyConfiguration = 'appLicenses'
+}
+
+task zip(type: Zip, dependsOn: [configurations.compile, tasks.downloadLicenses]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$version"
 
   into("${archiveDir}/") {
+    from(tasks.downloadLicenses.outputs) {
+      include 'dependency-license.json'
+    }
     from file('src/main/assembly')
       exclude 'conf/sonar.properties'
       exclude 'conf/wrapper.conf'

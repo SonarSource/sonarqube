@@ -2,6 +2,7 @@ plugins {
   // Ordered alphabeticly
   id 'com.github.ben-manes.versions' version '0.33.0'
   id 'com.github.hierynomus.license' version '0.15.0'
+  id "com.github.hierynomus.license-report" version"0.15.0" apply false
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.13' apply false
   id 'com.jfrog.artifactory' version '4.21.0'
