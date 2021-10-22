@@ -183,7 +183,7 @@ public class ChangedLinesPublisherTest {
   }
 
   private void assertNotPublished() {
-    assertThat(temp.getRoot().list()).isEmpty();
+    assertThat(temp.getRoot()).isEmptyDirectory();
   }
 
 }

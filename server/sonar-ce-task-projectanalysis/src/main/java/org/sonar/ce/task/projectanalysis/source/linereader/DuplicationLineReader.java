@@ -87,7 +87,7 @@ public class DuplicationLineReader implements LineReader {
     for (Duplication duplication : duplications) {
       duplicatedBlock.add(duplication.getOriginal());
       Arrays.stream(duplication.getDuplicates())
-        .filter(d -> d instanceof InnerDuplicate)
+        .filter(InnerDuplicate.class::isInstance)
         .forEach(duplicate -> duplicatedBlock.add(duplicate.getTextBlock()));
     }
     return duplicatedBlock;

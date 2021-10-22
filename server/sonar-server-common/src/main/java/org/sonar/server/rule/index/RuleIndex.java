@@ -217,7 +217,7 @@ public class RuleIndex {
       .stream().map(token -> boolQuery().should(
       matchQuery(
         SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
-        StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20f))
+        StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20F))
       .should(
         matchPhraseQuery(
           ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),

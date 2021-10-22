@@ -126,8 +126,8 @@ public class DuplicationMeasures {
         blocks++;
         addLines(duplication.getOriginal(), duplicatedLineNumbers);
         InnerDuplicate[] innerDuplicates = Arrays.stream(duplication.getDuplicates())
-          .filter(x -> x instanceof InnerDuplicate)
-          .map(d -> (InnerDuplicate) d)
+          .filter(InnerDuplicate.class::isInstance)
+          .map(InnerDuplicate.class::cast)
           .toArray(InnerDuplicate[]::new);
 
         for (InnerDuplicate innerDuplicate : innerDuplicates) {

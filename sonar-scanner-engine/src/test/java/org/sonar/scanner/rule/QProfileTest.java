@@ -30,13 +30,14 @@ public class QProfileTest {
     QProfile q2 = new QProfile("k1", "name2", null, null);
     QProfile q3 = new QProfile("k3", "name3", null, null);
 
-    assertThat(q1).isEqualTo(q2);
-    assertThat(q1).isNotEqualTo(q3);
+    assertThat(q1)
+      .isEqualTo(q2)
+      .isNotEqualTo(q3)
+      .isNotEqualTo(null)
+      .isNotEqualTo("str");
     assertThat(q2).isNotEqualTo(q3);
-    assertThat(q1).isNotEqualTo(null);
-    assertThat(q1).isNotEqualTo("str");
 
-    assertThat(q1.hashCode()).isEqualTo(q2.hashCode());
+    assertThat(q1).hasSameHashCodeAs(q2);
     assertThat(q1.hashCode()).isNotEqualTo(q3.hashCode());
     assertThat(q2.hashCode()).isNotEqualTo(q3.hashCode());
   }

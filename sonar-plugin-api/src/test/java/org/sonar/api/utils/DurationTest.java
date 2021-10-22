@@ -134,8 +134,8 @@ public class DurationTest {
     assertThat(durationWithDifferentValue).isNotEqualTo(duration);
     assertThat(duration).isNotEqualTo(null);
 
-    assertThat(duration.hashCode()).isEqualTo(duration.hashCode());
-    assertThat(durationWithSameValue.hashCode()).isEqualTo(duration.hashCode());
+    assertThat(duration).hasSameHashCodeAs(duration);
+    assertThat(durationWithSameValue).hasSameHashCodeAs(duration);
     assertThat(durationWithDifferentValue.hashCode()).isNotEqualTo(duration.hashCode());
   }
 

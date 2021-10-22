@@ -39,13 +39,14 @@ import org.sonar.server.util.GlobalLockManager;
 import static org.sonar.api.measures.Metric.Level.WARN;
 
 /**
- * This class is regularly checking the number of projects in warning state, in order to not return the "Warning" value in the quality gate facet of the Projects page when there are no more projects in warning.
+ * This class is regularly checking the number of projects in warning state, in order to not return the "Warning" value
+ * in the quality gate facet of the Projects page when there are no more projects in warning.
  *
  * @see <a href="https://jira.sonarsource.com/browse/SONAR-12140">SONAR-12140</a> for more information
  */
 public class ProjectsInWarningDaemon implements Startable {
 
-  final static String PROJECTS_IN_WARNING_INTERNAL_PROPERTY = "projectsInWarning";
+  static final String PROJECTS_IN_WARNING_INTERNAL_PROPERTY = "projectsInWarning";
 
   private static final Logger LOG = Loggers.get(ProjectsInWarningDaemon.class);
 

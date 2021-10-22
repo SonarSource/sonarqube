@@ -208,7 +208,7 @@ public class TestInputFileBuilder {
   }
 
   public TestInputFileBuilder initMetadata(String content) {
-    AnalysisWarnings analysisWarnings = (warning) -> {};
+    AnalysisWarnings analysisWarnings = warning -> {};
     return setMetadata(new FileMetadata(analysisWarnings).readMetadata(new StringReader(content)));
   }
 

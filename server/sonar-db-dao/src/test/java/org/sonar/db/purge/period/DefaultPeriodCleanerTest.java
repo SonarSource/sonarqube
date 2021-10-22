@@ -33,7 +33,6 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -57,9 +56,9 @@ public class DefaultPeriodCleanerTest {
 
     InOrder inOrder = Mockito.inOrder(dao, filter1, filter2);
     inOrder.verify(filter1).log();
-    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of("u999")));
+    inOrder.verify(dao, times(1)).deleteAnalyses(session, profiler, ImmutableList.of("u999"));
     inOrder.verify(filter2).log();
-    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of("u456")));
+    inOrder.verify(dao, times(1)).deleteAnalyses(session, profiler, ImmutableList.of("u456"));
     inOrder.verifyNoMoreInteractions();
   }
 

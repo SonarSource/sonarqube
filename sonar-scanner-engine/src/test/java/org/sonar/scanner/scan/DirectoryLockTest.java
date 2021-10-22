@@ -42,7 +42,7 @@ public class DirectoryLockTest {
 
   @Test
   public void tryLock() {
-    assertThat(temp.getRoot().list()).isEmpty();
+    assertThat(temp.getRoot()).isEmptyDirectory();
     lock.tryLock();
     assertThat(temp.getRoot().toPath().resolve(".sonar_lock")).exists();
     lock.unlock();

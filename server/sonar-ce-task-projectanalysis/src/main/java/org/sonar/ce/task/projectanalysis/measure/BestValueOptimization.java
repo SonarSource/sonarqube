@@ -67,7 +67,7 @@ public class BestValueOptimization implements Predicate<Measure> {
   }
 
   private static boolean isVariationEmptyOrBestValue(double variation, Double bestValue) {
-    return compare(variation, 0d) == 0 || compare(variation, bestValue) == 0;
+    return compare(variation, 0D) == 0 || compare(variation, bestValue) == 0;
   }
 
   private static boolean isBestValue(Measure measure, Double bestValue) {

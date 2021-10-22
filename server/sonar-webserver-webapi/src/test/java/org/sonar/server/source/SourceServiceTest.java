@@ -67,7 +67,7 @@ public class SourceServiceTest {
   public void get_range_of_lines() {
     Set<Integer> lineNumbers = new HashSet<>(Arrays.asList(1, 5, 6));
     Optional<Iterable<DbFileSources.Line>> linesOpt = underTest.getLines(dbTester.getSession(), FILE_UUID, lineNumbers);
-    assertThat(linesOpt.isPresent()).isTrue();
+    assertThat(linesOpt).isPresent();
     List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());
     assertThat(lines).hasSize(3);
     assertThat(lines.get(0).getLine()).isEqualTo(1);

@@ -68,10 +68,10 @@ public class SecurityReviewRatingTest {
   @Test
   public void compute_percent() {
     assertThat(computePercent(0, 0)).isEmpty();
-    assertThat(computePercent(0, 10).get()).isEqualTo(100.0);
-    assertThat(computePercent(1, 3).get()).isEqualTo(75.0);
+    assertThat(computePercent(0, 10)).contains(100.0);
+    assertThat(computePercent(1, 3)).contains(75.0);
     assertThat(computePercent(3, 4).get()).isEqualTo(57.14, DOUBLE_OFFSET);
-    assertThat(computePercent(10, 10).get()).isEqualTo(50.0);
-    assertThat(computePercent(10, 0).get()).isEqualTo(0.0);
+    assertThat(computePercent(10, 10)).contains(50.0);
+    assertThat(computePercent(10, 0)).contains(0.0);
   }
 }

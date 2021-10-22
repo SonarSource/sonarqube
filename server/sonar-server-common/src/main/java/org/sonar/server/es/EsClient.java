@@ -92,11 +92,10 @@ import static org.sonar.server.es.EsRequestDetails.computeDetailsAsString;
  * with context) and profiling of requests.
  */
 public class EsClient implements Closeable {
+  public static final Logger LOGGER = Loggers.get("es");
   private static final String ES_USERNAME = "elastic";
   private final RestHighLevelClient restHighLevelClient;
   private final Gson gson;
-
-  public static final Logger LOGGER = Loggers.get("es");
 
   public EsClient(HttpHost... hosts) {
     this(new MinimalRestHighLevelClient(null, hosts));
@@ -274,6 +273,10 @@ public class EsClient implements Closeable {
       super(buildHttpClient(searchPassword, hosts));
     }
 
+    MinimalRestHighLevelClient(RestClient restClient) {
+      super(restClient, RestClient::close, Lists.newArrayList());
+    }
+
     @NotNull
     private static RestClientBuilder buildHttpClient(@Nullable String searchPassword,
       HttpHost[] hosts) {
@@ -296,9 +299,6 @@ public class EsClient implements Closeable {
       return provider;
     }
 
-    MinimalRestHighLevelClient(RestClient restClient) {
-      super(restClient, RestClient::close, Lists.newArrayList());
-    }
   }
 
   <R> R execute(EsRequestExecutor<R> executor) {

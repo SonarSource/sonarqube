@@ -126,12 +126,12 @@ public class TomcatContextsTest {
   public void root_context_path_must_be_blank() {
     props.setProperty("sonar.web.context", "/");
 
-    assertThat(TomcatContexts.getContextPath(new Props(props))).isEqualTo("");
+    assertThat(TomcatContexts.getContextPath(new Props(props))).isEmpty();
   }
 
   @Test
   public void default_context_path_is_root() {
     String context = TomcatContexts.getContextPath(new Props(new Properties()));
-    assertThat(context).isEqualTo("");
+    assertThat(context).isEmpty();
   }
 }

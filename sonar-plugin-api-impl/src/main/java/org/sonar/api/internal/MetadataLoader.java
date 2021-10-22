@@ -22,6 +22,7 @@ package org.sonar.api.internal;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Scanner;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.System2;
@@ -68,7 +69,7 @@ public class MetadataLoader {
   }
 
   static SonarEdition parseEdition(String edition) {
-    String str = trimToEmpty(edition.toUpperCase());
+    String str = trimToEmpty(edition.toUpperCase(Locale.ENGLISH));
     try {
       return SonarEdition.valueOf(str);
     } catch (IllegalArgumentException e) {

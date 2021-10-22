@@ -34,6 +34,7 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
  * </p>
  */
 public class AlwaysIncreasingSystem2 extends System2 {
+  private static final Random rnd = new Random();
   private final AtomicLong now;
   private final long increment;
 
@@ -66,6 +67,6 @@ public class AlwaysIncreasingSystem2 extends System2 {
   }
 
   private static long randomInitialValue() {
-    return Math.abs(new Random().nextInt(2_000_000));
+    return Math.abs(rnd.nextInt(2_000_000));
   }
 }

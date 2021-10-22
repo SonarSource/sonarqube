@@ -149,7 +149,7 @@ public class NewEffortAggregator extends IssueVisitor {
     private boolean isEmpty = true;
 
     void add(long newEffort) {
-      double previous = MoreObjects.firstNonNull(this.newEffort, 0d);
+      double previous = MoreObjects.firstNonNull(this.newEffort, 0D);
       this.newEffort = previous + newEffort;
       isEmpty = false;
     }

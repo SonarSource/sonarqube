@@ -87,8 +87,8 @@ public class MetricImplTest {
 
   @Test
   public void all_fields_are_displayed_in_toString() {
-    assertThat(new MetricImpl(SOME_UUID, SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT, 1, 951d, true, false).toString())
-      .isEqualTo("MetricImpl{uuid=uuid, key=key, name=name, type=FLOAT, bestValue=951.0, bestValueOptimized=true, deleteHistoricalData=false}");
+    assertThat(new MetricImpl(SOME_UUID, SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT, 1, 951d, true, false))
+      .hasToString("MetricImpl{uuid=uuid, key=key, name=name, type=FLOAT, bestValue=951.0, bestValueOptimized=true, deleteHistoricalData=false}");
 
   }
 }

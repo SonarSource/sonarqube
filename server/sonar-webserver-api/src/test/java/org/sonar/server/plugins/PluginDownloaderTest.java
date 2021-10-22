@@ -196,7 +196,7 @@ public class PluginDownloaderTest {
     pluginDownloader.start();
     pluginDownloader.download("foo", create("1.0"));
     verify(httpDownloader, never()).download(any(URI.class), any(File.class));
-    assertThat(noDownloadedFiles()).isGreaterThan(0);
+    assertThat(noDownloadedFiles()).isPositive();
   }
 
   @Test
@@ -270,7 +270,7 @@ public class PluginDownloaderTest {
     file2.createNewFile();
 
     pluginDownloader.start();
-    assertThat(noDownloadedFiles()).isGreaterThan(0);
+    assertThat(noDownloadedFiles()).isPositive();
     pluginDownloader.cancelDownloads();
     assertThat(noDownloadedFiles()).isZero();
   }

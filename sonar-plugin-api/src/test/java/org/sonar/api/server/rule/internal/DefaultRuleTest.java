@@ -80,6 +80,6 @@ public class DefaultRuleTest {
     DefaultNewRule rule = new DefaultNewRule("plugin", "repo", "key");
     DefaultRule defaultRule = new DefaultRule(repo, rule);
 
-    assertThat(defaultRule.toString()).isEqualTo("[repository=repo, key=key]");
+    assertThat(defaultRule).hasToString("[repository=repo, key=key]");
   }
 }

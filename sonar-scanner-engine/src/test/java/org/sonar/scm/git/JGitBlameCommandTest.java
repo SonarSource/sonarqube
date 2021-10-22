@@ -322,7 +322,7 @@ public class JGitBlameCommandTest {
       .matches(s -> s.contains("This git repository references another local repository which is not well supported"));
 
     // contains commits referenced from the old clone and commits in the new clone
-    assertThat(output.blame.keySet()).contains(inputFile);
+    assertThat(output.blame).containsKey(inputFile);
     assertThat(output.blame.get(inputFile).stream().map(BlameLine::revision))
       .containsOnly("6b3aab35a3ea32c1636fee56f996e677653c48ea", "843c7c30d7ebd9a479e8f1daead91036c75cbc4e", "0d269c1acfb8e6d4d33f3c43041eb87e0df0f5e7");
     verifyZeroInteractions(analysisWarnings);

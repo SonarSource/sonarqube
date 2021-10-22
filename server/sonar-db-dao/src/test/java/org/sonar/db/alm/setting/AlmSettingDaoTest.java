@@ -182,7 +182,7 @@ public class AlmSettingDaoTest {
 
     underTest.delete(dbSession, almSettingDto);
 
-    assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey()).isPresent()).isFalse();
+    assertThat(underTest.selectByKey(dbSession, almSettingDto.getKey())).isNotPresent();
   }
 
 }

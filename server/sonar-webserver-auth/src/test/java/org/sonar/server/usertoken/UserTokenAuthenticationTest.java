@@ -62,7 +62,7 @@ public class UserTokenAuthenticationTest {
     Optional<String> login = underTest.authenticate(token);
 
     assertThat(login.isPresent()).isTrue();
-    assertThat(login.get()).isEqualTo(user1.getUuid());
+    assertThat(login).contains(user1.getUuid());
     verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
   }
 

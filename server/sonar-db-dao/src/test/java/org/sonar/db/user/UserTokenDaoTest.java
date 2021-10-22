@@ -134,7 +134,7 @@ public class UserTokenDaoTest {
 
     Map<String, Integer> result = underTest.countTokensByUsers(dbSession, singletonList(user));
 
-    assertThat(result.get(user.getUuid())).isEqualTo(2);
+    assertThat(result).containsEntry(user.getUuid(), 2);
     assertThat(result.get("unknown-user_uuid")).isNull();
   }
 }

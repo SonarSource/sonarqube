@@ -62,7 +62,7 @@ public class DebtRatingGrid {
   private static EnumMap<Rating, Bounds> buildRatingBounds(double[] gridValues) {
     checkState(gridValues.length == 4, "Rating grid should contains 4 values");
     EnumMap<Rating, Bounds> ratingBounds = new EnumMap<>(Rating.class);
-    ratingBounds.put(A, new Bounds(0d, gridValues[0]));
+    ratingBounds.put(A, new Bounds(0D, gridValues[0]));
     ratingBounds.put(B, new Bounds(gridValues[0], gridValues[1]));
     ratingBounds.put(C, new Bounds(gridValues[1], gridValues[2]));
     ratingBounds.put(D, new Bounds(gridValues[2], gridValues[3]));

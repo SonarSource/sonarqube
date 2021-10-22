@@ -40,18 +40,17 @@ import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLi
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class PersistProjectLinksStep implements ComputationStep {
+  private static final Map<ComponentLinkType, String> typesConverter = ImmutableMap.of(
+    ComponentLinkType.HOME, ProjectLinkDto.TYPE_HOME_PAGE,
+    ComponentLinkType.SCM, ProjectLinkDto.TYPE_SOURCES,
+    ComponentLinkType.CI, ProjectLinkDto.TYPE_CI,
+    ComponentLinkType.ISSUE, ProjectLinkDto.TYPE_ISSUE_TRACKER);
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final UuidFactory uuidFactory;
-
-  private static final Map<ComponentLinkType, String> typesConverter = ImmutableMap.of(
-    ComponentLinkType.HOME, ProjectLinkDto.TYPE_HOME_PAGE,
-    ComponentLinkType.SCM, ProjectLinkDto.TYPE_SOURCES,
-    ComponentLinkType.CI, ProjectLinkDto.TYPE_CI,
-    ComponentLinkType.ISSUE, ProjectLinkDto.TYPE_ISSUE_TRACKER);
 
   public PersistProjectLinksStep(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, TreeRootHolder treeRootHolder,
     BatchReportReader reportReader, UuidFactory uuidFactory) {

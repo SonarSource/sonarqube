@@ -52,7 +52,7 @@ public class SessionTokensDaoTest {
 
     Optional<SessionTokenDto> result = underTest.selectByUuid(dbSession, dto.getUuid());
 
-    assertThat(result.isPresent());
+    assertThat(result).isPresent();
     assertThat(result.get().getUserUuid()).isEqualTo("ABCD");
     assertThat(result.get().getExpirationDate()).isEqualTo(15_000_000_000L);
     assertThat(result.get().getCreatedAt()).isEqualTo(NOW);
@@ -72,7 +72,7 @@ public class SessionTokensDaoTest {
 
     Optional<SessionTokenDto> result = underTest.selectByUuid(dbSession, dto.getUuid());
 
-    assertThat(result.isPresent());
+    assertThat(result).isPresent();
     assertThat(result.get().getUuid()).isNotEqualTo("SHOULD_NOT_BE_USED");
     assertThat(result.get().getCreatedAt()).isEqualTo(NOW);
     assertThat(result.get().getUpdatedAt()).isEqualTo(NOW);

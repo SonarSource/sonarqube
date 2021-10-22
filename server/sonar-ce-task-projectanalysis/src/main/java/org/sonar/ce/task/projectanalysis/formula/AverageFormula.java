@@ -49,7 +49,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
     if (mainValueOptional.isPresent() && byValueOptional.isPresent()) {
       double mainValue = mainValueOptional.get();
       double byValue = byValueOptional.get();
-      if (byValue > 0d) {
+      if (byValue > 0D) {
         return Optional.of(Measure.newMeasureBuilder().create(mainValue / byValue, context.getMetric().getDecimalScale()));
       }
     }
@@ -101,8 +101,8 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
 
     private boolean initialized = false;
 
-    private double mainValue = 0d;
-    private double byValue = 0d;
+    private double mainValue = 0D;
+    private double byValue = 0D;
 
     @Override
     public void aggregate(AverageCounter counter) {

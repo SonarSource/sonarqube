@@ -83,7 +83,7 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setIntValue(HITS_METRIC_KEY, 3, 0);
     fileLineMeasures.save();
 
-    assertThat(fileLineMeasures.toString()).isEqualTo("DefaultFileLinesContext{{hits={1=2, 3=0}}}");
+    assertThat(fileLineMeasures).hasToString("DefaultFileLinesContext{{hits={1=2, 3=0}}}");
 
     ArgumentCaptor<DefaultMeasure> captor = ArgumentCaptor.forClass(DefaultMeasure.class);
     verify(sensorStorage).store(captor.capture());

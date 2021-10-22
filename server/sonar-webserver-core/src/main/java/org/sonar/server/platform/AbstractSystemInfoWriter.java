@@ -51,7 +51,7 @@ public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
       .forEach(section -> writeSection(section, json));
   }
 
-  private void writeSection(ProtobufSystemInfo.Section section, JsonWriter json) {
+  private static void writeSection(ProtobufSystemInfo.Section section, JsonWriter json) {
     json.name(section.getName());
     json.beginObject();
     for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {

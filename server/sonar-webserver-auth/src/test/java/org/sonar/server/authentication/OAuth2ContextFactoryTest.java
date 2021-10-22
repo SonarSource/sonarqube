@@ -209,7 +209,7 @@ public class OAuth2ContextFactoryTest {
 
     callback.redirectToRequestedPage();
 
-    verify(oAuthParameters).delete(eq(request), eq(response));
+    verify(oAuthParameters).delete(request, response);
   }
 
   private OAuth2IdentityProvider.InitContext newInitContext() {

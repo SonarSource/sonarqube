@@ -63,7 +63,7 @@ public class LdapAutodiscoveryTest {
     assertThat(new LdapSrvRecord("http://foo:389", 1, 1)).isEqualTo(new LdapSrvRecord("http://foo:389", 2, 0));
     assertThat(new LdapSrvRecord("http://foo:389", 1, 1)).isNotEqualTo(new LdapSrvRecord("http://foo:388", 1, 1));
 
-    assertThat(new LdapSrvRecord("http://foo:389", 1, 1).hashCode()).isEqualTo(new LdapSrvRecord("http://foo:389", 1, 1).hashCode());
+    assertThat(new LdapSrvRecord("http://foo:389", 1, 1)).hasSameHashCodeAs(new LdapSrvRecord("http://foo:389", 1, 1).hashCode());
   }
 
   @Test
@@ -74,7 +74,7 @@ public class LdapAutodiscoveryTest {
     NamingEnumeration namingEnumeration = mock(NamingEnumeration.class);
 
     when(context.getAttributes(Mockito.anyString(), Mockito.anyObject())).thenReturn(attributes);
-    when(attributes.get(Mockito.eq("srv"))).thenReturn(attribute);
+    when(attributes.get("srv")).thenReturn(attribute);
     when(attribute.getAll()).thenReturn(namingEnumeration);
     when(namingEnumeration.hasMore()).thenReturn(true, true, true, true, true, false);
     when(namingEnumeration.next())

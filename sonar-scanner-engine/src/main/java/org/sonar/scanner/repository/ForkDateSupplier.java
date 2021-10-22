@@ -26,14 +26,13 @@ import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonarqube.ws.NewCodePeriods;
 
 public class ForkDateSupplier {
-  private static final Logger LOG = Loggers.get(ChangedLinesPublisher.class);
+  private static final Logger LOG = Loggers.get(ForkDateSupplier.class);
   private static final String LOG_MSG_WS = "Load New Code definition";
 
   private final NewCodePeriodLoader newCodePeriodLoader;

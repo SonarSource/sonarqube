@@ -102,7 +102,7 @@ public class RuleDaoTest {
     assertThat(underTest.selectDefinitionByKey(db.getSession(), RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
 
     Optional<RuleDefinitionDto> reloaded = underTest.selectDefinitionByKey(db.getSession(), rule.getKey());
-    assertThat(reloaded.isPresent()).isTrue();
+    assertThat(reloaded).isPresent();
   }
 
   @Test

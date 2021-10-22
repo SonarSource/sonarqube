@@ -91,7 +91,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.getTags()).containsOnly("tag1", "tag2", "tag3");
-    assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effort().toMinutes()).isPositive();
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
   }
 

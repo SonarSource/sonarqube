@@ -63,7 +63,7 @@ public class HotspotRuleDescriptionTest {
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
-    assertThat(result.getRisk().get()).isEqualTo(description);
+    assertThat(result.getRisk()).contains(description);
     assertThat(result.getVulnerable()).isEmpty();
     assertThat(result.getFixIt()).isEmpty();
   }
@@ -85,8 +85,8 @@ public class HotspotRuleDescriptionTest {
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
     assertThat(result.getRisk()).isEmpty();
-    assertThat(result.getVulnerable().get()).isEqualTo(ASKATRISK);
-    assertThat(result.getFixIt().get()).isEqualTo(RECOMMENTEDCODINGPRACTICE);
+    assertThat(result.getVulnerable()).contains(ASKATRISK);
+    assertThat(result.getFixIt()).contains(RECOMMENTEDCODINGPRACTICE);
   }
 
   @Test
@@ -95,9 +95,9 @@ public class HotspotRuleDescriptionTest {
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
-    assertThat(result.getRisk().get()).isEqualTo(DESCRIPTION);
+    assertThat(result.getRisk()).contains(DESCRIPTION);
     assertThat(result.getVulnerable()).isEmpty();
-    assertThat(result.getFixIt().get()).isEqualTo(RECOMMENTEDCODINGPRACTICE);
+    assertThat(result.getFixIt()).contains(RECOMMENTEDCODINGPRACTICE);
   }
 
   @Test
@@ -106,8 +106,8 @@ public class HotspotRuleDescriptionTest {
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
-    assertThat(result.getRisk().get()).isEqualTo(DESCRIPTION);
-    assertThat(result.getVulnerable().get()).isEqualTo(ASKATRISK);
+    assertThat(result.getRisk()).contains(DESCRIPTION);
+    assertThat(result.getVulnerable()).contains(ASKATRISK);
     assertThat(result.getFixIt()).isEmpty();
   }
 
@@ -117,9 +117,9 @@ public class HotspotRuleDescriptionTest {
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
-    assertThat(result.getRisk().get()).isEqualTo(DESCRIPTION);
-    assertThat(result.getVulnerable().get()).isEqualTo(NONCOMPLIANTCODE);
-    assertThat(result.getFixIt().get()).isEqualTo(COMPLIANTCODE);
+    assertThat(result.getRisk()).contains(DESCRIPTION);
+    assertThat(result.getVulnerable()).contains(NONCOMPLIANTCODE);
+    assertThat(result.getFixIt()).contains(COMPLIANTCODE);
   }
 
   @Test
@@ -128,10 +128,10 @@ public class HotspotRuleDescriptionTest {
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
-    assertThat(result.getRisk().get()).isEqualTo(DESCRIPTION);
+    assertThat(result.getRisk()).contains(DESCRIPTION);
 
-    assertThat(result.getVulnerable().get()).isEqualTo(NONCOMPLIANTCODE);
-    assertThat(result.getFixIt().get()).isEqualTo(RECOMMENTEDCODINGPRACTICE + SEE);
+    assertThat(result.getVulnerable()).contains(NONCOMPLIANTCODE);
+    assertThat(result.getFixIt()).contains(RECOMMENTEDCODINGPRACTICE + SEE);
 
   }
 
@@ -141,9 +141,9 @@ public class HotspotRuleDescriptionTest {
 
     HotspotRuleDescription result = HotspotRuleDescription.from(dto);
 
-    assertThat(result.getRisk().get()).isEqualTo(DESCRIPTION);
-    assertThat(result.getVulnerable().get()).isEqualTo(ASKATRISK + SENSITIVECODE);
-    assertThat(result.getFixIt().get()).isEqualTo(RECOMMENTEDCODINGPRACTICE + SEE);
+    assertThat(result.getRisk()).contains(DESCRIPTION);
+    assertThat(result.getVulnerable()).contains(ASKATRISK + SENSITIVECODE);
+    assertThat(result.getFixIt()).contains(RECOMMENTEDCODINGPRACTICE + SEE);
   }
 
   @Test

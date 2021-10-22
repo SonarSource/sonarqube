@@ -37,7 +37,7 @@ import org.sonar.scanner.externalissue.ReportParser.Location;
 import org.sonar.scanner.externalissue.ReportParser.Report;
 
 public class ExternalIssueImporter {
-  private static final Logger LOG = Loggers.get(ExternalIssuesImportSensor.class);
+  private static final Logger LOG = Loggers.get(ExternalIssueImporter.class);
   private static final int MAX_UNKNOWN_FILE_PATHS_TO_PRINT = 5;
 
   private final SensorContext context;

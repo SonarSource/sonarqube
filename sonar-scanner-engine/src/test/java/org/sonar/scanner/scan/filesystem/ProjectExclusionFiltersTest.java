@@ -118,7 +118,7 @@ public class ProjectExclusionFiltersTest {
 
   @Test
   public void trim_pattern() {
-    assertThat(ProjectExclusionFilters.prepareMainExclusions(new String[] {"   **/*Dao.java   "}, new String[0])[0].toString()).isEqualTo("**/*Dao.java");
+    assertThat(ProjectExclusionFilters.prepareMainExclusions(new String[] {"   **/*Dao.java   "}, new String[0])[0]).hasToString("**/*Dao.java");
   }
 
 }

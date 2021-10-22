@@ -59,21 +59,20 @@ public class ProjectTest {
     Project project1 = new Project("U1", "K1", "N1", null, emptyList());
     Project project2 = new Project("U1", "K1", "N1", "D1", emptyList());
 
-    assertThat(project1).isEqualTo(project1);
-    assertThat(project1).isNotEqualTo(null);
-    assertThat(project1).isNotEqualTo(new Object());
-    assertThat(project1).isEqualTo(new Project("U1", "K1", "N1", null, emptyList()));
-    assertThat(project1).isNotEqualTo(new Project("U1", "K2", "N1", null, emptyList()));
-    assertThat(project1).isNotEqualTo(new Project("U1", "K1", "N2", null, emptyList()));
-    assertThat(project1).isEqualTo(project2);
+    assertThat(project1).isEqualTo(project1)
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object())
+      .isEqualTo(new Project("U1", "K1", "N1", null, emptyList()))
+      .isNotEqualTo(new Project("U1", "K2", "N1", null, emptyList()))
+      .isNotEqualTo(new Project("U1", "K1", "N2", null, emptyList()))
+      .isEqualTo(project2);
 
-    assertThat(project1.hashCode()).isEqualTo(project1.hashCode());
-    assertThat(project1.hashCode()).isNotEqualTo(null);
+    assertThat(project1).hasSameHashCodeAs(project1);
     assertThat(project1.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(project1.hashCode()).isEqualTo(new Project("U1", "K1", "N1", null, emptyList()).hashCode());
+    assertThat(project1).hasSameHashCodeAs(new Project("U1", "K1", "N1", null, emptyList()));
     assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K2", "N1", null, emptyList()).hashCode());
     assertThat(project1.hashCode()).isNotEqualTo(new Project("U1", "K1", "N2", null, emptyList()).hashCode());
-    assertThat(project1.hashCode()).isEqualTo(project2.hashCode());
+    assertThat(project1).hasSameHashCodeAs(project2);
   }
 
 }

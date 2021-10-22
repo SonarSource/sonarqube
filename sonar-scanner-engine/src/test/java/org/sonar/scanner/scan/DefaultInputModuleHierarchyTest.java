@@ -102,7 +102,7 @@ public class DefaultInputModuleHierarchyTest {
 
     moduleHierarchy = new DefaultInputModuleHierarchy(root, parents);
 
-    assertThat(moduleHierarchy.relativePathToRoot(root)).isEqualTo("");
+    assertThat(moduleHierarchy.relativePathToRoot(root)).isEmpty();
     assertThat(moduleHierarchy.relativePathToRoot(mod1)).isEqualTo("mod1");
     assertThat(moduleHierarchy.relativePathToRoot(mod2)).isEqualTo("mod2");
     assertThat(moduleHierarchy.relativePathToRoot(mod3)).isNull();

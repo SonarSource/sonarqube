@@ -67,8 +67,8 @@ public class GsonTeamTest {
 
   @Test
   public void should_have_no_arg_constructor() {
-    assertThat(new GsonTeam().getId()).isEqualTo("");
-    assertThat(new GsonTeam.GsonOrganization().getLogin()).isEqualTo("");
+    assertThat(new GsonTeam().getId()).isEmpty();
+    assertThat(new GsonTeam.GsonOrganization().getLogin()).isEmpty();
   }
 
 }

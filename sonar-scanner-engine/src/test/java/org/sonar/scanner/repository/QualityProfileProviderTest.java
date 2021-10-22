@@ -32,7 +32,6 @@ import org.sonar.scanner.rule.QualityProfiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -72,12 +71,12 @@ public class QualityProfileProviderTest {
 
   @Test
   public void testProfileProp() {
-    when(loader.load(eq("project"))).thenReturn(response);
+    when(loader.load("project")).thenReturn(response);
 
     QualityProfiles qps = qualityProfileProvider.provide(loader, props);
     assertResponse(qps);
 
-    verify(loader).load(eq("project"));
+    verify(loader).load("project");
     verifyNoMoreInteractions(loader);
   }
 

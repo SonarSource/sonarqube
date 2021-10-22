@@ -244,7 +244,7 @@ public class CredentialsLocalAuthentication {
         .setSalt(saltStr);
     }
 
-    private String hash(byte[] salt, String password, int iterations) {
+    private static String hash(byte[] salt, String password, int iterations) {
       try {
         SecretKeyFactory skf = SecretKeyFactory.getInstance(ALGORITHM);
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LEN);

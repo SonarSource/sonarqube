@@ -96,7 +96,7 @@ public class MeasureToMeasureDto {
   private static Double valueAsDouble(Measure measure) {
     switch (measure.getValueType()) {
       case BOOLEAN:
-        return measure.getBooleanValue() ? 1.0d : 0.0d;
+        return measure.getBooleanValue() ? 1.0D : 0.0D;
       case INT:
         return (double) measure.getIntValue();
       case LONG:

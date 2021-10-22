@@ -50,7 +50,7 @@ public final class CoverageUtils {
   static double getMeasureVariations(CounterInitializationContext counterContext, String metricKey) {
     Optional<Measure> measure = counterContext.getMeasure(metricKey);
     if (!measure.isPresent() || !measure.get().hasVariation()) {
-      return 0d;
+      return 0D;
     }
     return measure.get().getVariation();
   }

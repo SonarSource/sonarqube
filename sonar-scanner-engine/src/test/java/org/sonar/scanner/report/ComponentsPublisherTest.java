@@ -193,7 +193,7 @@ public class ComponentsPublisherTest {
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
-    assertThat(rootProtobuf.getName()).isEqualTo("");
+    assertThat(rootProtobuf.getName()).isEmpty();
     assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
     assertThat(rootProtobuf.getLinkCount()).isZero();
   }

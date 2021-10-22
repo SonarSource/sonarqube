@@ -119,7 +119,7 @@ public class JwtHttpHandlerTest {
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
     JwtSerializer.JwtSession token = jwtArgumentCaptor.getValue();
-    assertThat(token.getProperties().get("xsrfToken")).isEqualTo(CSRF_STATE);
+    assertThat(token.getProperties()).containsEntry("xsrfToken", CSRF_STATE);
   }
 
   @Test
@@ -200,7 +200,7 @@ public class JwtHttpHandlerTest {
     Claims claims = createToken(sessionToken, NOW);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
+    assertThat(underTest.validateToken(request, response)).isPresent();
 
     verify(jwtSerializer, never()).encode(any(JwtSerializer.JwtSession.class));
   }
@@ -215,7 +215,7 @@ public class JwtHttpHandlerTest {
     claims.put("lastRefreshTime", SIX_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
+    assertThat(underTest.validateToken(request, response)).isPresent();
 
     verify(jwtSerializer).refresh(any(Claims.class), eq(NOW + 3 * 24 * 60 * 60 * 1000L));
     assertThat(dbClient.sessionTokensDao().selectByUuid(dbSession, sessionToken.getUuid()).get().getExpirationDate())
@@ -233,7 +233,7 @@ public class JwtHttpHandlerTest {
     claims.put("lastRefreshTime", FOUR_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
+    assertThat(underTest.validateToken(request, response)).isPresent();
 
     verify(jwtSerializer, never()).refresh(any(Claims.class), anyInt());
   }
@@ -248,7 +248,7 @@ public class JwtHttpHandlerTest {
     claims.put("lastRefreshTime", FOUR_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -259,7 +259,7 @@ public class JwtHttpHandlerTest {
     Claims claims = createToken(sessionToken, NOW);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -268,7 +268,7 @@ public class JwtHttpHandlerTest {
 
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -276,7 +276,7 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verifyNoInteractions(httpSession, jwtSerializer);
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -286,7 +286,7 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verifyNoInteractions(httpSession, jwtSerializer);
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -314,7 +314,7 @@ public class JwtHttpHandlerTest {
 
     underTest.validateToken(request, response);
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -330,7 +330,7 @@ public class JwtHttpHandlerTest {
 
     underTest.validateToken(request, response);
 
-    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+    assertThat(underTest.validateToken(request, response)).isEmpty();
   }
 
   @Test
@@ -394,7 +394,7 @@ public class JwtHttpHandlerTest {
   private void verifyToken(JwtSerializer.JwtSession token, UserDto user, long expectedExpirationDuration, long expectedRefreshTime) {
     assertThat(token.getExpirationTime()).isEqualTo(NOW + expectedExpirationDuration * 1000L);
     assertThat(token.getUserLogin()).isEqualTo(user.getUuid());
-    assertThat(token.getProperties().get("lastRefreshTime")).isEqualTo(expectedRefreshTime);
+    assertThat(token.getProperties()).containsEntry("lastRefreshTime", expectedRefreshTime);
   }
 
   private Optional<Cookie> findCookie(String name) {

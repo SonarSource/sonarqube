@@ -54,7 +54,7 @@ public class SkipOnboardingTutorialActionTest {
     call();
 
     UserDto userDto = selectUser(user.getLogin());
-    assertThat(userDto.isOnboarded()).isEqualTo(true);
+    assertThat(userDto.isOnboarded()).isTrue();
   }
 
   @Test
@@ -66,7 +66,7 @@ public class SkipOnboardingTutorialActionTest {
     call();
 
     UserDto userDto = selectUser(user.getLogin());
-    assertThat(userDto.isOnboarded()).isEqualTo(true);
+    assertThat(userDto.isOnboarded()).isTrue();
     assertThat(userDto.getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
 

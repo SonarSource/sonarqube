@@ -133,7 +133,7 @@ public class InitFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(auth2AuthenticationParameters).init(eq(request), eq(response));
+    verify(auth2AuthenticationParameters).init(request, response);
   }
 
   @Test
@@ -143,7 +143,7 @@ public class InitFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(auth2AuthenticationParameters, never()).init(eq(request), eq(response));
+    verify(auth2AuthenticationParameters, never()).init(request, response);
   }
 
   @Test
@@ -263,7 +263,7 @@ public class InitFilterTest {
   }
 
   private void verifyDeleteAuthCookie() {
-    verify(auth2AuthenticationParameters).delete(eq(request), eq(response));
+    verify(auth2AuthenticationParameters).delete(request, response);
   }
 
   private static class FailWithUnauthorizedExceptionIdProvider extends FakeBasicIdentityProvider {

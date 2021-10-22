@@ -123,8 +123,8 @@ public class QGChangeEventTest {
   public void overrides_toString() {
     QGChangeEvent underTest = new QGChangeEvent(project, branch, analysis, configuration, previousStatus, supplier);
 
-    assertThat(underTest.toString())
-      .isEqualTo("QGChangeEvent{project=bar:foo, branch=BRANCH:bar:doh:zop, analysis=pto:8999999765" +
+    assertThat(underTest)
+      .hasToString("QGChangeEvent{project=bar:foo, branch=BRANCH:bar:doh:zop, analysis=pto:8999999765" +
         ", projectConfiguration=" + configuration.toString() +
         ", previousStatus=" + previousStatus +
         ", qualityGateSupplier=" + supplier + "}");

@@ -399,7 +399,7 @@ public class MeasureRepositoryImplTest {
     Map<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);
 
     assertThat(rawMeasures.keySet()).hasSize(2);
-    assertThat(rawMeasures.get(METRIC_KEY_1)).isEqualTo(addedMeasure);
+    assertThat(rawMeasures).containsEntry(METRIC_KEY_1, addedMeasure);
     assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).isEqualTo("some value");
   }
 

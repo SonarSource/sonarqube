@@ -43,8 +43,6 @@ public class HighlightingLineReader implements LineReader {
 
   private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
 
-  private ReadError readError = null;
-
   private static final Map<HighlightingType, String> cssClassByType = ImmutableMap.<HighlightingType, String>builder()
     .put(HighlightingType.ANNOTATION, "a")
     .put(HighlightingType.CONSTANT, "c")
@@ -60,7 +58,7 @@ public class HighlightingLineReader implements LineReader {
   private final Iterator<ScannerReport.SyntaxHighlightingRule> lineHighlightingIterator;
   private final RangeOffsetConverter rangeOffsetConverter;
   private final List<ScannerReport.SyntaxHighlightingRule> highlightingList;
-
+  private ReadError readError = null;
   private ScannerReport.SyntaxHighlightingRule currentItem;
 
   public HighlightingLineReader(Component file, Iterator<ScannerReport.SyntaxHighlightingRule> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {

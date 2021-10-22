@@ -47,7 +47,7 @@ public class ProjectDefinitionTest {
     ProjectDefinition def = ProjectDefinition.create();
     def.setProjectVersion(null);
     assertThat(def.getVersion()).isEqualTo("not provided");
-    assertThat(def.getOriginalVersion()).isEqualTo("");
+    assertThat(def.getOriginalVersion()).isEmpty();
   }
 
   @Test

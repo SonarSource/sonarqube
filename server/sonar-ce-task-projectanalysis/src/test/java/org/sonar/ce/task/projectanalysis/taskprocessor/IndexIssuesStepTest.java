@@ -32,7 +32,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -81,7 +80,7 @@ public class IndexIssuesStepTest {
 
     underTest.execute(() -> null);
 
-    verify(issueIndexer, times(1)).indexOnAnalysis(eq(BRANCH_UUID));
+    verify(issueIndexer, times(1)).indexOnAnalysis(BRANCH_UUID);
     Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
     assertThat(branch.get().isNeedIssueSync()).isFalse();
   }
@@ -99,7 +98,7 @@ public class IndexIssuesStepTest {
 
     underTest.execute(() -> null);
 
-    verify(issueIndexer, times(0)).indexOnAnalysis(eq(BRANCH_UUID));
+    verify(issueIndexer, times(0)).indexOnAnalysis(BRANCH_UUID);
   }
 
   @Test

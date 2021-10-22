@@ -104,7 +104,7 @@ public class SnapshotDaoTest {
     assertThat(result.getCreatedAt()).isEqualTo(1403042400000L);
     assertThat(result.getRevision()).isEqualTo("sha1");
 
-    assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST")).isNotPresent();
   }
 
   @Test
