@@ -54,6 +54,7 @@
         ]
       },
       "/analysis/coverage/",
+      "/analysis/generic-test/",
       {
         "title": "Importing External Issues",
         "children": [
@@ -62,7 +63,6 @@
 		]
       },
       "/analysis/background-tasks/",
-      "/analysis/generic-test/",
 	  "/analysis/pull-request/",
       {
         "title": "Branches",
