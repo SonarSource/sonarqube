@@ -1,6 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
+  id "com.github.hierynomus.license-report"
   id "com.github.johnrengelman.shadow"
   id "de.undercouch.download"
 }
@@ -29,6 +30,8 @@ configurations {
   bundledPlugin {
     transitive = false
   }
+
+  appLicenses.extendsFrom(compile, web, scanner, jsw, jdbc_mssql, jdbc_postgresql, jdbc_h2)
 }
 
 jar.enabled = false
@@ -90,11 +93,18 @@ task downloadElasticSearch(type: Download) {
   finalizedBy verifyElasticSearchDownload
 }
 
-task zip(type: Zip, dependsOn: [configurations.compileClasspath, downloadElasticSearch, verifyElasticSearchDownload]) {
+downloadLicenses {
+  dependencyConfiguration = 'appLicenses'
+}
+
+task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadLicenses, downloadElasticSearch, verifyElasticSearchDownload]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$project.version"
 
   into("${archiveDir}/") {
+    from(tasks.downloadLicenses.outputs) {
+      include 'dependency-license.json'
+    }
     from(file('src/main/assembly')) {
       exclude 'conf/sonar.properties'
       exclude 'conf/wrapper.conf'
