@@ -100,8 +100,9 @@ If you need to revert to the previous version of SonarQube, the high-level rollb
 4. Start your SonarQube instance or cluster.
  
 ## Changing your edition
+You can move to a different SonarQube edition (for example, moving from Community Edition to a commercial edition) while you're upgrading your version. Just use the appropriate edition file or Docker image tag in the upgrade instructions above.
 
-If you're moving to a different edition within the same version of SonarQube (for example, from Community Edition to a commercial edition), the steps are exactly the same as above without needing to navigate to `http://yourSonarQubeServerURL/setup` or reanalyze your projects.
+If you want to move to a different edition without upgrading your SonarQube version, the steps are exactly the same as in the upgrading instructions above without needing to navigate to `http://yourSonarQubeServerURL/setup` or reanalyze your projects. 
 
 ## Migrating from a ZIP file instance to a Docker instance
 To migrate from the ZIP file to Docker:
