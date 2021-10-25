@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
@@ -82,6 +84,20 @@ task zip(type: Zip, dependsOn: [configurations.compile, tasks.downloadLicenses])
   into("${archiveDir}/") {
     from(tasks.downloadLicenses.outputs) {
       include 'dependency-license.json'
+      eachFile { jsonFile ->
+        def json = new JsonSlurper().parse(jsonFile.file)
+        json.dependencies.each { dependency ->
+          if (dependency.licenses.size() > 1) {
+            def idx = dependency.licenses.findIndexOf { it.name == "Elastic License 2.0" }
+            if (idx >= 0) {
+              dependency.licenses = [dependency.licenses[idx]]
+            }
+          }
+        }
+        json.dependencies.sort { it.name }
+        def jsonText = JsonOutput.toJson(json)
+        jsonFile.file.text = JsonOutput.prettyPrint(jsonText)
+      }
     }
     from file('src/main/assembly')
       exclude 'conf/sonar.properties'
@@ -141,7 +157,7 @@ task zip(type: Zip, dependsOn: [configurations.compile, tasks.downloadLicenses])
             'sqversion': version
     ])
   }
-  
+
   into("${archiveDir}/elasticsearch/") {
     from file('src/main/assembly/elasticsearch-patch')
       include 'bin/elasticsearch'
