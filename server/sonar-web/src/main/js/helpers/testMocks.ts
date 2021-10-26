@@ -23,6 +23,8 @@ import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { DumpStatus, DumpTask } from '../types/project-dump';
+import { TaskStatuses } from '../types/tasks';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
@@ -753,5 +755,25 @@ export function mockPaging(overrides: Partial<T.Paging> = {}): T.Paging {
     pageSize: 100,
     total: 1000,
     ...overrides
+  };
+}
+
+export function mockDumpTask(props: Partial<DumpTask> = {}): DumpTask {
+  return {
+    status: TaskStatuses.Success,
+    startedAt: '2020-03-12T12:20:20Z',
+    submittedAt: '2020-03-12T12:15:20Z',
+    executedAt: '2020-03-12T12:22:20Z',
+    ...props
+  };
+}
+
+export function mockDumpStatus(props: Partial<DumpStatus> = {}): DumpStatus {
+  return {
+    canBeExported: true,
+    canBeImported: true,
+    dumpToImport: '',
+    exportedDump: '',
+    ...props
   };
 }

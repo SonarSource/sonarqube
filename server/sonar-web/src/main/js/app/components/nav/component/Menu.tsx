@@ -293,6 +293,7 @@ export class Menu extends React.PureComponent<Props> {
       this.renderConsoleAppLink(query, isApplication),
       this.renderReportSettingsLink(query, isApplication),
       ...this.renderAdminExtensions(query, isApplication),
+      this.renderImportExportLink(query),
       this.renderProfilesLink(query),
       this.renderQualityGateLink(query),
       this.renderLinksLink(query),
@@ -398,6 +399,16 @@ export class Menu extends React.PureComponent<Props> {
       <li key="report-settings">
         <Link activeClassName="active" to={{ pathname: '/application/settings', query }}>
           {translate('application_settings.report')}
+        </Link>
+      </li>
+    );
+  };
+
+  renderImportExportLink = (query: Query) => {
+    return (
+      <li key="import-export">
+        <Link activeClassName="active" to={{ pathname: '/project/import_export', query }}>
+          {translate('project_dump.page')}
         </Link>
       </li>
     );

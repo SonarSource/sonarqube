@@ -356,6 +356,24 @@ exports[`should work for a branch 1`] = `
               style={Object {}}
               to={
                 Object {
+                  "pathname": "/project/import_export",
+                  "query": Object {
+                    "branch": "release",
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              project_dump.page
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
                   "pathname": "/project/webhooks",
                   "query": Object {
                     "branch": "release",
@@ -726,6 +744,23 @@ exports[`should work for all qualifiers 1`] = `
               style={Object {}}
               to={
                 Object {
+                  "pathname": "/project/import_export",
+                  "query": Object {
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              project_dump.page
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
                   "pathname": "/project/webhooks",
                   "query": Object {
                     "id": "foo",
@@ -874,6 +909,23 @@ exports[`should work for all qualifiers 2`] = `
               style={Object {}}
               to={
                 Object {
+                  "pathname": "/project/import_export",
+                  "query": Object {
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              project_dump.page
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
                   "pathname": "/project/deletion",
                   "query": Object {
                     "id": "foo",
@@ -978,7 +1030,37 @@ exports[`should work for all qualifiers 3`] = `
       />
     </li>
   </NavBarTabs>
-  <NavBarTabs />
+  <NavBarTabs>
+    <Dropdown
+      data-test="administration"
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/import_export",
+                  "query": Object {
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              project_dump.page
+            </Link>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
+  </NavBarTabs>
 </div>
 `;
 
@@ -1103,6 +1185,23 @@ exports[`should work for all qualifiers 4`] = `
               }
             >
               application_console.page
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/import_export",
+                  "query": Object {
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              project_dump.page
             </Link>
           </li>
           <li>
@@ -1509,6 +1608,23 @@ exports[`should work with extensions 2`] = `
           style={Object {}}
           to={
             Object {
+              "pathname": "/project/import_export",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_dump.page
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
               "pathname": "/project/webhooks",
               "query": Object {
                 "id": "foo",
@@ -1687,6 +1803,23 @@ exports[`should work with multiple extensions 2`] = `
           }
         >
           Bar
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/import_export",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          project_dump.page
         </Link>
       </li>
       <li>

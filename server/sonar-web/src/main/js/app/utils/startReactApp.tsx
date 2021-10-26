@@ -47,6 +47,7 @@ import portfolioRoutes from '../../apps/portfolio/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectBaselineRoutes from '../../apps/projectBaseline/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
+import projectDumpRoutes from '../../apps/projectDump/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
 import projectsRoutes from '../../apps/projects/routes';
@@ -206,6 +207,7 @@ function renderComponentRoutes() {
         <RouteWithChildRoutes path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
         <RouteWithChildRoutes path="project/baseline" childRoutes={projectBaselineRoutes} />
         <RouteWithChildRoutes path="project/branches" childRoutes={projectBranchesRoutes} />
+        <RouteWithChildRoutes path="project/import_export" childRoutes={projectDumpRoutes} />
         <RouteWithChildRoutes path="project/settings" childRoutes={settingsRoutes} />
         <RouteWithChildRoutes path="project_roles" childRoutes={projectPermissionsRoutes} />
         <RouteWithChildRoutes path="application/console" childRoutes={applicationConsoleRoutes} />

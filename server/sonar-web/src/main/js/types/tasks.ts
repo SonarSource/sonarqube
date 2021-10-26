@@ -21,7 +21,9 @@ export enum TaskTypes {
   Report = 'REPORT',
   IssueSync = 'ISSUE_SYNC',
   AppRefresh = 'APP_REFRESH',
-  ViewRefresh = 'VIEW_REFRESH'
+  ViewRefresh = 'VIEW_REFRESH',
+  ProjectExport = 'PROJECT_EXPORT',
+  ProjectImport = 'PROJECT_IMPORT'
 }
 
 export enum TaskStatuses {
