@@ -352,7 +352,7 @@ public class GitScmProvider extends ScmProvider {
       }
       RevCommit base = walk.parseCommit(next);
       walk.dispose();
-      LOG.debug("Merge base sha1: {}", base.getName());
+      LOG.info("Merge base sha1: {}", base.getName());
       return Optional.of(base);
     }
   }
