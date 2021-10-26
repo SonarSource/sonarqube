@@ -147,13 +147,11 @@ export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) 
       className={classNames('alert', className)}
       isInline={isInline}
       role="alert"
+      aria-label={translate('alert.tooltip', variant)}
       variantInfo={variantInfo}
       {...domProps}>
       <StyledAlertInner isBanner={isBanner}>
-        <StyledAlertIcon
-          aria-label={translate('alert.tooltip', variant)}
-          isBanner={isBanner}
-          variantInfo={variantInfo}>
+        <StyledAlertIcon isBanner={isBanner} variantInfo={variantInfo}>
           {variantInfo.icon}
         </StyledAlertIcon>
         <StyledAlertContent className="alert-content">{props.children}</StyledAlertContent>

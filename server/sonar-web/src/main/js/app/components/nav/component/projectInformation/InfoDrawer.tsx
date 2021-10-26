@@ -22,6 +22,7 @@ import * as React from 'react';
 import { ClearButton } from '../../../../../components/controls/buttons';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
+import { translate } from '../../../../../helpers/l10n';
 import './InfoDrawer.css';
 
 export interface InfoDrawerProps {
@@ -39,7 +40,7 @@ export default function InfoDrawer(props: InfoDrawerProps) {
       className={classNames('info-drawer info-drawer-pane', { open: displayed })}
       style={{ top }}>
       <div className="close-button">
-        <ClearButton onClick={onClose} />
+        <ClearButton aria-label={translate('close')} onClick={onClose} />
       </div>
       {displayed && (
         <EscKeydownHandler onKeydown={onClose}>

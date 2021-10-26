@@ -13,6 +13,7 @@ exports[`should render correctly: default 1`] = `
     className="close-button"
   >
     <ClearButton
+      aria-label="close"
       onClick={[MockFunction]}
     />
   </div>
@@ -32,6 +33,7 @@ exports[`should render correctly: displayed 1`] = `
     className="close-button"
   >
     <ClearButton
+      aria-label="close"
       onClick={[MockFunction]}
     />
   </div>
