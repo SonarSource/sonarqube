@@ -64,6 +64,7 @@ import org.sonar.server.branch.BranchFeatureProxyImpl;
 import org.sonar.server.branch.pr.ws.PullRequestWsModule;
 import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
+import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -507,6 +508,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // ALM settings
       AlmSettingsWsModule.class,
+
+      // Project export
+      ProjectExportWsModule.class,
 
       // Branch
       BranchFeatureProxyImpl.class,
