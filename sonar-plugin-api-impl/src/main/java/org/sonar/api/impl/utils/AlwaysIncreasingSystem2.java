@@ -19,7 +19,7 @@
  */
 package org.sonar.api.impl.utils;
 
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import org.sonar.api.utils.System2;
@@ -34,7 +34,7 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
  * </p>
  */
 public class AlwaysIncreasingSystem2 extends System2 {
-  private static final Random rnd = new Random();
+  private static final SecureRandom rnd = new SecureRandom();
   private final AtomicLong now;
   private final long increment;
 

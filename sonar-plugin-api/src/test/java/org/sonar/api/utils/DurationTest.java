@@ -129,12 +129,12 @@ public class DurationTest {
     Duration durationWithSameValue = Duration.create(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
     Duration durationWithDifferentValue = Duration.create(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES);
 
-    assertThat(duration).isEqualTo(duration);
-    assertThat(durationWithSameValue).isEqualTo(duration);
-    assertThat(durationWithDifferentValue).isNotEqualTo(duration);
-    assertThat(duration).isNotEqualTo(null);
-
-    assertThat(duration).hasSameHashCodeAs(duration);
+    assertThat(duration)
+      .isEqualTo(duration)
+      .isEqualTo(durationWithSameValue)
+      .isNotEqualTo(durationWithDifferentValue)
+      .isNotEqualTo(null)
+      .hasSameHashCodeAs(duration);
     assertThat(durationWithSameValue).hasSameHashCodeAs(duration);
     assertThat(durationWithDifferentValue.hashCode()).isNotEqualTo(duration.hashCode());
   }
