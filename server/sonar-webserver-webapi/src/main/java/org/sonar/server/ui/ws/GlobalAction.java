@@ -20,6 +20,7 @@
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
+import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -54,6 +56,8 @@ import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_WIDTH_PX;
+import static org.sonar.core.platform.EditionProvider.Edition.DATACENTER;
+import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_HOMEPAGE_URL;
 import static org.sonar.process.ProcessProperties.Property.SONAR_ANALYTICS_GTM_TRACKING_ID;
@@ -146,6 +150,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeBranchSupport(json);
       writeInstanceUsesDefaultAdminCredentials(json);
       writeMultipleAlmEnabled(json);
+      writeProjectImportFeature(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
       writeNeedIssueSync(json);
       json.prop("standalone", webServer.isStandalone());
@@ -210,6 +215,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeMultipleAlmEnabled(JsonWriter json) {
     json.prop("multipleAlmEnabled", multipleAlmFeatureProvider.enabled());
+  }
+
+  private void writeProjectImportFeature(JsonWriter json) {
+    EditionProvider.Edition edition = editionProvider.get().orElse(null);
+    boolean isEnabled = Arrays.asList(ENTERPRISE, DATACENTER).contains(edition);
+    json.prop("projectImportFeatureEnabled", isEnabled);
   }
 
   private void writeNeedIssueSync(JsonWriter json) {
