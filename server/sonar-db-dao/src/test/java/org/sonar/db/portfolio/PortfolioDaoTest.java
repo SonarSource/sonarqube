@@ -173,7 +173,7 @@ public class PortfolioDaoTest {
     portfolioDao.delete(session, p1);
     portfolioDao.delete(session, p3);
 
-    assertThat(db.select(session, "select branch_key from portfolio_proj_branches")).extracting(m -> m.values().iterator().next())
+    assertThat(db.select(session, "select branch_uuid from portfolio_proj_branches")).extracting(m -> m.values().iterator().next())
       .containsOnly("branch2");
     assertThat(db.select(session, "select uuid from portfolios")).extracting(m -> m.values().iterator().next())
       .containsOnly("p2", "p4");
@@ -423,16 +423,16 @@ public class PortfolioDaoTest {
     db.components().addPortfolioProject(portfolio1, project1);
 
     assertThat(db.countRowsOfTable(db.getSession(), "portfolio_proj_branches")).isZero();
-    assertThat(portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid()).getBranchKeys()).isEmpty();
+    assertThat(portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid()).getBranchUuids()).isEmpty();
 
     db.components().addPortfolioProjectBranch(portfolio1, project1, "branch1");
     assertThat(db.countRowsOfTable(db.getSession(), "portfolio_proj_branches")).isOne();
     PortfolioProjectDto portfolioProject = portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid());
-    assertThat(portfolioProject.getBranchKeys()).containsOnly("branch1");
+    assertThat(portfolioProject.getBranchUuids()).containsOnly("branch1");
 
     portfolioDao.deleteBranch(db.getSession(), portfolio1.getUuid(), project1.getUuid(), "branch1");
     assertThat(db.countRowsOfTable(db.getSession(), "portfolio_proj_branches")).isZero();
-    assertThat(portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid()).getBranchKeys()).isEmpty();
+    assertThat(portfolioDao.selectPortfolioProjectOrFail(db.getSession(), portfolio1.getUuid(), project1.getUuid()).getBranchUuids()).isEmpty();
   }
 
   @Test
@@ -482,7 +482,7 @@ public class PortfolioDaoTest {
     session.commit();
 
     assertThat(portfolioDao.selectAllProjectsInHierarchy(session, root.getUuid()))
-      .extracting(PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchKeys)
+      .extracting(PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
       .containsExactlyInAnyOrder(tuple("p1", Set.of("branch1")), tuple("p2", emptySet()), tuple("p3", emptySet()));
     assertThat(portfolioDao.selectAllProjectsInHierarchy(session, "nonexisting")).isEmpty();
   }

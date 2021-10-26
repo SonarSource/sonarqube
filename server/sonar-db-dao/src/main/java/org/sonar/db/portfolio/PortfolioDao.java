@@ -202,12 +202,12 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectBranches(portfolioProjectUuid);
   }
 
-  public void addBranch(DbSession dbSession, String portfolioProjectUuid, String branchKey) {
-    mapper(dbSession).insertBranch(uuidFactory.create(), portfolioProjectUuid, branchKey, system2.now());
+  public void addBranch(DbSession dbSession, String portfolioProjectUuid, String branchUuid) {
+    mapper(dbSession).insertBranch(uuidFactory.create(), portfolioProjectUuid, branchUuid, system2.now());
   }
 
-  public void deleteBranch(DbSession dbSession, String portfolioUuid, String projectUuid, String branchKey) {
-    mapper(dbSession).deleteBranch(portfolioUuid, projectUuid, branchKey);
+  public void deleteBranch(DbSession dbSession, String portfolioUuid, String projectUuid, String branchUuid) {
+    mapper(dbSession).deleteBranch(portfolioUuid, projectUuid, branchUuid);
   }
 
   /*

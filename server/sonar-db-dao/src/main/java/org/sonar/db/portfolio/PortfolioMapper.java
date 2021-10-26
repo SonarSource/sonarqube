@@ -94,11 +94,11 @@ public interface PortfolioMapper {
 
   List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
 
-  void deleteBranch(@Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchKey") String branchKey);
+  void deleteBranch(@Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchUuid") String branchUuid);
 
-  void deleteBranch(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("branchKey") String branchKey);
+  void deleteBranch(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 
-  void insertBranch(@Param("uuid") String uuid, @Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchKey") String branchKey,
+  void insertBranch(@Param("uuid") String uuid, @Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchUuid") String branchUuid,
     @Param("createdAt") long createdAt);
 
   Set<String> selectBranches(String portfolioProjectUuid);

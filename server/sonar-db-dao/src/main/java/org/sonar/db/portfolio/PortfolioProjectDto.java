@@ -27,7 +27,7 @@ public class PortfolioProjectDto {
   private String portfolioKey;
   private String projectUuid;
   private String projectKey;
-  private Set<String> branchKeys;
+  private Set<String> branchUuids;
   private long createdAt;
 
   public String getUuid() {
@@ -84,11 +84,11 @@ public class PortfolioProjectDto {
     return this;
   }
 
-  public Set<String> getBranchKeys() {
-    return branchKeys;
+  public Set<String> getBranchUuids() {
+    return branchUuids;
   }
 
-  public void setBranchKeys(Set<String> branchKeys) {
-    this.branchKeys = branchKeys;
+  public void setBranchUuids(Set<String> branchUuids) {
+    this.branchUuids = branchUuids;
   }
 }

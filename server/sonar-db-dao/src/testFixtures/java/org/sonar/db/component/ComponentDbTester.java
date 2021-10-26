@@ -302,9 +302,17 @@ public class ComponentDbTester {
     db.commit();
   }
 
-  public void addPortfolioProjectBranch(PortfolioDto portfolio, ProjectDto project, String branchKey) {
-    PortfolioProjectDto portfolioProject = dbClient.portfolioDao().selectPortfolioProjectOrFail(dbSession, portfolio.getUuid(), project.getUuid());
-    dbClient.portfolioDao().addBranch(db.getSession(), portfolioProject.getUuid(), branchKey);
+  public void addPortfolioProjectBranch(PortfolioDto portfolio, ProjectDto project, String branchUuid) {
+    addPortfolioProjectBranch(portfolio, project.getUuid(), branchUuid);
+  }
+
+  public void addPortfolioProjectBranch(PortfolioDto portfolio, String projectUuid, String branchUuid) {
+    addPortfolioProjectBranch(portfolio.getUuid(), projectUuid, branchUuid);
+  }
+
+  public void addPortfolioProjectBranch(String portfolioUuid, String projectUuid, String branchUuid) {
+    PortfolioProjectDto portfolioProject = dbClient.portfolioDao().selectPortfolioProjectOrFail(dbSession, portfolioUuid, projectUuid);
+    dbClient.portfolioDao().addBranch(db.getSession(), portfolioProject.getUuid(), branchUuid);
     db.commit();
   }
 

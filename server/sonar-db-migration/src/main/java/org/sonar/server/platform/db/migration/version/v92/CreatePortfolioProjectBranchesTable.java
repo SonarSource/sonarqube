@@ -30,7 +30,7 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_S
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreatePortfolioProjectBranchesTable extends DdlChange {
-  private final static String TABLE_NAME = "portfolio_proj_branches";
+  private static final String TABLE_NAME = "portfolio_proj_branches";
 
   public CreatePortfolioProjectBranchesTable(Database db) {
     super(db);
@@ -42,7 +42,7 @@ public class CreatePortfolioProjectBranchesTable extends DdlChange {
       context.execute(new CreateTableBuilder(getDialect(), TABLE_NAME)
         .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
         .addColumn(newVarcharColumnDefBuilder().setColumnName("portfolio_project_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("branch_key").setIsNullable(false).setLimit(255).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("branch_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
         .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
         .build());
     }

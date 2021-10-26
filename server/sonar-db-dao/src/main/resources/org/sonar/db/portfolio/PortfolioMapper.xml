@@ -37,13 +37,13 @@
     pp.project_uuid as projectUuid,
     p.kee as projectKey,
     pp.created_at as createdAt,
-    ppb.branch_key as branchKey
+    ppb.branch_uuid as branchUuid
   </sql>
 
   <resultMap id="portfolioProjectResult" type="PortfolioProject" autoMapping="true">
     <id property="uuid" column="portfolioProject_uuid" />
-    <collection property="branchKeys" ofType="string">
-      <result column="branchKey" />
+    <collection property="branchUuids" ofType="string">
+      <result column="branchUuid" />
     </collection>
   </resultMap>
 
@@ -100,7 +100,7 @@
   </select>
 
   <select id="selectPortfolioProjectBranches" resultType="string">
-    SELECT ppb.branch_key
+    SELECT ppb.branch_uuid
     FROM portfolio_proj_branches ppb
     WHERE ppb.portfolio_project_uuid = #{id}
   </select>
@@ -405,13 +405,13 @@
     INSERT INTO portfolio_proj_branches (
       uuid,
       portfolio_project_uuid,
-      branch_key,
+      branch_uuid,
       created_at
     )
     VALUES (
       #{uuid,jdbcType=VARCHAR},
       #{portfolioProjectUuid,jdbcType=VARCHAR},
-      #{branchKey,jdbcType=VARCHAR},
+      #{branchUuid,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT}
     )
   </insert>
@@ -422,7 +422,7 @@
       (select uuid from portfolio_projects
       where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
       and project_uuid = #{projectUuid,jdbcType=VARCHAR})
-      and branch_key = #{branchKey,jdbcType=VARCHAR}
+      and branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
 
   <update id="update" parameterType="Portfolio">
