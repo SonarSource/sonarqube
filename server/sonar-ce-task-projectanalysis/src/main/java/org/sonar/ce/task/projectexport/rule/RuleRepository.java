@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.rule;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import java.util.Collection;
+import org.sonar.api.rule.RuleKey;
 
-  private CeTaskTypes() {
-    // only statics
-  }
+/**
+ * This repository is responsible to register ids for {@link RuleKey}s and keeping track of them so that it can return
+ * all of them in {@link #getAll()}.
+ */
+public interface RuleRepository {
+
+  /**
+   * Register the specified ref for the specified ruleKey and return it's representing {@link Rule} object.
+   *
+   * @throws IllegalArgumentException if the specified ruleKey is not the same as the one already in the repository (if any)
+   */
+  Rule register(String ref, RuleKey ruleKey);
+
+  Collection<Rule> getAll();
 
 }

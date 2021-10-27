@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+package org.sonar.ce.task.projectexport.projectdump;
+
+option java_package = "com.sonarsource.governance.projectdump.protobuf";
+option optimize_for = SPEED;
+
+// single message in metadata.pb
+message Metadata {
+  string project_key = 1;
+  // all component uuids are kept in the target environment, except for the project
+  // as it has already been provisioned with a different uuid.
+  string project_uuid = 2;
+  string sonarqube_version = 3;
+  int64 dump_date = 4;
+}
+
+// Stream of components stored in file components.pb, including project.
+// Components are ordered by id, so that parents are
+// always located before children.
+message Component {
+  int64 ref = 1;
+  string key = 2;
+  string name = 3;
+  string description = 4;
+  string scope = 5;
+  string qualifier = 6;
+  string language = 7;
+  string long_name = 8;
+  string path = 9;
+  string uuid = 10;
+  string uuid_path = 12;
+  string module_uuid = 13;
+  string module_uuid_path = 14;
+  string deprecated_key = 15;
+  string project_uuid = 16;
+  string main_branch_project_uuid = 17;
+}
+
+message Branch {
+  int64 ref = 1;
+  string uuid = 2;
+  string project_uuid = 3;
+  string kee = 4;
+  string branch_type = 5;
+  string merge_branch_uuid = 6;
+}
+
+// Stream of analyses stored in file analyses.pb, including project.
+// Only analyses with status 'P' (processed) are exported. They are ordered
+// by build_date, so that parents are always located before children.
+message Analysis {
+  int64 component_ref = 2;
+  int64 date = 3;
+  string projectVersion = 4;
+  string period1_mode = 5;
+  string period1_param = 6;
+  int64 period1_date = 7;
+  string uuid = 8;
+  string buildString = 9;
+}
+
+message Metric {
+  int32 ref = 1;
+  string key = 2;
+  string name = 3;
+}
+
+message Measure {
+  int64 component_ref = 1;
+  string analysis_uuid = 2;
+  int32 metric_ref = 3;
+  DoubleValue double_value = 4;
+  string text_value = 5;
+  string alert_status = 6;
+  string alert_text = 7;
+  DoubleValue variation1 = 8;
+}
+
+message LiveMeasure {
+  int64 component_ref = 1;
+  int32 metric_ref = 2;
+  DoubleValue double_value = 3;
+  string text_value = 4;
+  DoubleValue variation = 5;
+}
+
+message DoubleValue {
+  double value = 1;
+}
+
+// Stream of issues stored in file issues.pb
+// only issues which status is not 'CLOSED' are exported
+// rule_ref field refers to the ref of the Rule message
+message Issue {
+  string uuid = 1;
+  int64 component_ref = 2;
+  int32 type = 4;
+
+  string message = 5;
+
+  int32 line = 6;
+  string checksum = 7;
+  bytes locations = 8;
+
+  string status = 9;
+  string resolution = 10;
+  string severity = 11;
+  bool manual_severity = 12;
+  double gap = 13;
+  int64 effort = 14;
+
+  string assignee = 15;
+  string author = 16;
+
+  string tags = 17;
+  string attributes = 18;
+  // issue dates
+  int64 issue_created_at = 19;
+  int64 issue_updated_at = 20;
+  int64 issue_closed_at = 21;
+  string project_uuid = 22;
+  string rule_ref = 23;
+}
+
+// Stream of issues changelog stored in file issues_changelog.pb
+// only changes of issues present in the dump are exported
+message IssueChange {
+  string key = 1;
+  string issue_uuid = 2;
+  string project_uuid = 3;
+  string change_type = 4;
+  string change_data = 5;
+  string user_uuid = 6;
+  int64 created_at = 7;
+}
+
+// Stream of rules is stored in file rules.pb
+// field ref is a unique rule identifier, internal to the dump.
+message Rule {
+  string key = 2;
+  string repository = 3;
+  string ref = 4;
+}
+
+// Stream of ad hoc rules is stored in file ad_hoc_rules.pb
+// field ref is a unique rule identifier, internal to the dump, starting with 1.
+message AdHocRule {
+
+  message RuleMetadata {
+    string ad_hoc_name = 2;
+    string ad_hoc_description = 3;
+    string ad_hoc_severity = 4;
+    int32 ad_hoc_type = 5;
+  }
+
+  string ref = 10;
+  string plugin_key = 2;
+  string plugin_rule_key = 3;
+  string plugin_name = 4;
+  string name = 5;
+  string status = 6;
+  int32 type = 7;
+  string scope = 8;
+  RuleMetadata metadata = 9;
+}
+
+// stream of messages in settings.pb
+message Setting {
+  string key = 1;
+  string value = 2;
+  int64 component_ref = 3;
+}
+
+// links specified on the project, and only on the project (not on modules
+// nor other components)
+message Link {
+  string type = 1;
+  string name = 2;
+  string href = 3;
+  string uuid = 4;
+  int64 component_ref = 5;
+}
+
+message Event {
+  string name = 1;
+  string analysis_uuid = 2;
+  int64 component_ref = 3;
+  string category = 4;
+  string description = 5;
+  string data = 6;
+  int64 date = 7;
+  string uuid = 8;
+}
+
+message Plugin {
+  string key = 1;
+  string name = 2;
+  string version = 3;
+}
+
+// Stream of line hashes of each Component of type FILE in the dump
+// only lines hashes of source file of type SOURCE are exported
+message LineHashes {
+  int64 component_ref = 1;
+  string hashes = 2;
+  string project_uuid = 3;
+}
+
+message NewCodePeriod {
+  string uuid = 1;
+  string project_uuid = 2;
+  string branch_uuid = 3;
+  string type = 4;
+  string value = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}

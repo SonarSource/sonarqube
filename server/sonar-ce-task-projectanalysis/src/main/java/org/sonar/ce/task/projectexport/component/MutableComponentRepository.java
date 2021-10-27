@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.component;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
-
-  private CeTaskTypes() {
-    // only statics
-  }
-
+public interface MutableComponentRepository extends ComponentRepository {
+  /**
+   * Adds the reference of a Component (designated by it's uuid) to the repository and keep tracks of whether
+   * specified uuid is one of a File.
+   *
+   * @throws IllegalArgumentException if the specified uuid is already registered with another ref in the repository.
+   * @throws IllegalArgumentException if the specified uuid is already registered with another File flag
+   */
+  void register(long ref, String uuid, boolean file);
 }

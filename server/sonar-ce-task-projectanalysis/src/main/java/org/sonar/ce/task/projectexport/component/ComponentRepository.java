@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.component;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import java.util.Set;
 
-  private CeTaskTypes() {
-    // only statics
-  }
+/**
+ * Holds the references of components which are present in the dump.
+ */
+public interface ComponentRepository {
 
+  /**
+   * @throws IllegalStateException if there is no ref for the specified Uuid in the repository
+   */
+  long getRef(String uuid);
+
+  /**
+   * Uuids of the components of type FILE (ie. Qualifiers = {@link org.sonar.api.resources.Qualifiers#FILE}) known to
+   * the repository.
+   */
+  Set<String> getFileUuids();
 }

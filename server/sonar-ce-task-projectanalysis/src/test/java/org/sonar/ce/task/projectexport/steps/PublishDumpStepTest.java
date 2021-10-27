@@ -17,17 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.steps;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import org.junit.Test;
+import org.sonar.ce.task.step.TestComputationStepContext;
 
-  private CeTaskTypes() {
-    // only statics
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class PublishDumpStepTest {
+  DumpWriter dumpWriter = mock(DumpWriter.class);
+  PublishDumpStep underTest = new PublishDumpStep(dumpWriter);
+
+  @Test
+  public void archives_dump() {
+    underTest.execute(new TestComputationStepContext());
+    verify(dumpWriter).publish();
   }
 
+  @Test
+  public void getDescription_is_defined() {
+    assertThat(underTest.getDescription()).isEqualTo("Publish dump file");
+  }
 }

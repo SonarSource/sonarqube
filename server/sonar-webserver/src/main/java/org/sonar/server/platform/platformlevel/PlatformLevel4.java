@@ -43,6 +43,7 @@ import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotif
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
+import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
@@ -531,6 +532,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ReportTaskProcessor.class,
       IssueSyncTaskProcessor.class,
       AuditPurgeTaskProcessor.class,
+      ProjectExportTaskProcessor.class,
 
       // SonarSource editions
       PlatformEditionProvider.class,

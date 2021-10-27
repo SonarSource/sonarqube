@@ -17,17 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.steps;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import org.sonar.ce.task.step.ComputationStep;
 
-  private CeTaskTypes() {
-    // only statics
+/**
+ * Zips the dump  file and makes it available to users.
+ */
+public class PublishDumpStep implements ComputationStep {
+
+  private final DumpWriter dumpWriter;
+
+  public PublishDumpStep(DumpWriter dumpWriter) {
+    this.dumpWriter = dumpWriter;
   }
 
+  @Override
+  public void execute(Context context) {
+    dumpWriter.publish();
+  }
+
+  @Override
+  public String getDescription() {
+    return "Publish dump file";
+  }
 }

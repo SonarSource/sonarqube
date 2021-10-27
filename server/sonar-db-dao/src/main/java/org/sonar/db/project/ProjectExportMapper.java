@@ -17,17 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.db.project;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.property.PropertyDto;
 
-  private CeTaskTypes() {
-    // only statics
-  }
+public interface ProjectExportMapper {
 
+  List<BranchDto> selectBranchesForExport(@Param("projectUuid") String projectUuid);
+
+  List<PropertyDto> selectPropertiesForExport(@Param("projectUuid") String projectUuid);
+
+  List<ProjectLinkDto> selectLinksForExport(@Param("projectUuid") String projectUuid);
+
+  List<NewCodePeriodDto> selectNewCodePeriodsForExport(@Param("projectUuid") String projectUuid);
 }

@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.task.projectexport;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
-
-  private CeTaskTypes() {
-    // only statics
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

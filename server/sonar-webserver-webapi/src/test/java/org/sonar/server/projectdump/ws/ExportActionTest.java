@@ -27,6 +27,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.UserDto;
@@ -151,7 +152,7 @@ public class ExportActionTest {
   private CeTask createResponseExampleTask() {
     CeTask.Component component = new CeTask.Component(project.uuid(), project.getDbKey(), project.name());
     return new CeTask.Builder()
-      .setType("PROJECT_EXPORT") // TODO replace with the definitive enum
+      .setType(CeTaskTypes.PROJECT_EXPORT)
       .setUuid(TASK_ID)
       .setComponent(component)
       .setMainComponent(component)

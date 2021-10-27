@@ -101,6 +101,7 @@ import org.sonar.db.portfolio.PortfolioMapper;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.portfolio.PortfolioReferenceDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.project.ProjectMapper;
 import org.sonar.db.property.InternalComponentPropertiesMapper;
 import org.sonar.db.property.InternalComponentPropertyDto;
@@ -271,6 +272,7 @@ public class MyBatis implements Startable {
       ProjectAlmSettingMapper.class,
       ProjectLinkMapper.class,
       ProjectMapper.class,
+      ProjectExportMapper.class,
       ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,

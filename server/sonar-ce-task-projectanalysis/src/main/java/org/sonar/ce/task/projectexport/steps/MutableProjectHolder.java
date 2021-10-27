@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.steps;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import java.util.List;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectDto;
 
-  private CeTaskTypes() {
-    // only statics
-  }
+public interface MutableProjectHolder extends ProjectHolder {
 
+  void setProjectDto(ProjectDto dto);
+
+  void setBranches(List<BranchDto> branches);
 }

@@ -17,17 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.ce.task.projectexport.steps;
 
-public final class CeTaskTypes {
-  
-  public static final String AUDIT_PURGE = "AUDIT_PURGE";
-  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
-  public static final String REPORT = "REPORT";
-  public static final String PROJECT_EXPORT = "PROJECT_EXPORT";
+import org.junit.Test;
 
-  private CeTaskTypes() {
-    // only statics
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+
+public class MutableMetricRepositoryImplTest {
+
+  MutableMetricRepository underTest = new MutableMetricRepositoryImpl();
+
+  @Test
+  public void add_ref() {
+    underTest.add("10");
+    underTest.add("12");
+
+    assertThat(underTest.getRefByUuid().entrySet()).containsOnly(entry("10", 0), entry("12", 1));
   }
 
+  @Test
+  public void add_multiple_times_the_same_ref() {
+    underTest.add("10");
+    underTest.add("10");
+
+    assertThat(underTest.getRefByUuid().entrySet()).containsExactly(entry("10", 0));
+  }
+
+  @Test
+  public void getAll_returns_empty_set() {
+    assertThat(underTest.getRefByUuid()).isEmpty();
+  }
 }

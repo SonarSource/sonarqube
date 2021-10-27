@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis;
 
 import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
+import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.core.platform.Module;
 
@@ -31,6 +32,7 @@ public class ProjectAnalysisTaskModule extends Module {
       // task
       ContainerFactoryImpl.class,
       ComputationStepExecutor.class,
-      ReportTaskProcessor.class);
+      ReportTaskProcessor.class,
+      ProjectExportTaskProcessor.class);
   }
 }

@@ -26,6 +26,7 @@ import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -52,7 +53,7 @@ public class ExportSubmitterImpl implements ExportSubmitter {
 
       CeTaskSubmit submit = ceQueue.prepareSubmit()
         .setComponent(fromDto(project.get()))
-        .setType("PROJECT_EXPORT")
+        .setType(CeTaskTypes.PROJECT_EXPORT)
         .setSubmitterUuid(submitterUuid)
         .setCharacteristics(emptyMap())
         .build();

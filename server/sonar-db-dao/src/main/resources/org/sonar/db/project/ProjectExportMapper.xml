@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.project.ProjectExportMapper">
+
+    <select id="selectBranchesForExport" parameterType="string" resultType="org.sonar.db.component.BranchDto">
+        select
+        pb.uuid,
+        pb.project_uuid as "projectUuid",
+        pb.kee,
+        pb.branch_type as "branchType",
+        pb.merge_branch_uuid as "mergeBranchUuid"
+        from project_branches pb
+        where pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type = 'BRANCH' and pb.exclude_from_purge = ${_true}
+    </select>
+
+    <select id="selectPropertiesForExport" parameterType="string" resultType="ScrapProperty">
+        select
+        p.prop_key as "key",
+        p.is_empty as empty,
+        p.text_value as textValue,
+        p.clob_value as clobValue,
+        p.component_uuid as componentUuid,
+        p.user_uuid as userUuid
+        from properties p
+        join components pr on p.component_uuid=pr.uuid
+        join project_branches pb on pb.uuid = pr.uuid
+        where p.user_uuid is null and pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
+    </select>
+
+    <select id="selectLinksForExport" parameterType="string" resultType="org.sonar.db.component.ProjectLinkDto">
+        select
+        p.uuid,
+        p.project_uuid as "projectUuid",
+        p.link_type as "type",
+        p.name as name,
+        p.href as href,
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt"
+        from project_links p
+        join components proj on proj.uuid = p.project_uuid
+        join project_branches pb on pb.uuid = proj.uuid
+        where pb.project_uuid=#{projectUuid,jdbcType=VARCHAR} and pb.branch_type='BRANCH' and pb.exclude_from_purge = ${_true}
+        order by p.uuid
+    </select>
+
+    <select id="selectNewCodePeriodsForExport" parameterType="string" resultType="org.sonar.db.newcodeperiod.NewCodePeriodDto">
+    SELECT
+        ncp.uuid,
+        ncp.project_uuid as projectUuid,
+        ncp.branch_uuid as branchUuid,
+        ncp.type,
+        ncp.value,
+        ncp.updated_at as updatedAt,
+        ncp.created_at as createdAt
+    FROM new_code_periods ncp
+    LEFT JOIN project_branches pb on pb.uuid = ncp.branch_uuid
+    WHERE ncp.project_uuid=#{projectUuid, jdbcType=VARCHAR} AND
+        (ncp.branch_uuid is null OR (pb.branch_type='BRANCH' AND pb.exclude_from_purge=${_true}))
+    </select>
+
+</mapper>

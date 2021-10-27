@@ -19,6 +19,7 @@
  */
 package org.sonar.server.projectdump.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.server.ce.projectdump.ExportSubmitter;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -45,13 +46,13 @@ public class ExportAction implements ProjectDumpAction {
   @Override
   public void define(WebService.NewController newController) {
     WebService.NewAction newAction = newController.createAction(ACTION_KEY)
-      .setDescription("Triggers project dump so that the project can be copied to another SonarQube server " +
-        "(see " + ProjectDumpWs.CONTROLLER_PATH + "/import ). " +
-        "Requires the 'Administer' permission. " +
-        "This feature is provided by the Governance plugin.")
+      .setDescription("Triggers project dump so that the project can be imported to another SonarQube server " +
+        "(see " + ProjectDumpWs.CONTROLLER_PATH + "/import, available in Enterprise Edition). " +
+        "Requires the 'Administer' permission.")
       .setSince("1.0")
       .setPost(true)
       .setHandler(this)
+      .setChangelog(new Change("9.2", "Moved from Enterprise Edition to Community Edition"))
       .setResponseExample(getClass().getResource("example-export.json"));
     newAction.createParam(PARAMETER_PROJECT_KEY)
       .setRequired(true)
