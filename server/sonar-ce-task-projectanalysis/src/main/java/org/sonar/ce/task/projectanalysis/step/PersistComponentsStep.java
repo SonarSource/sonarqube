@@ -165,7 +165,7 @@ public class PersistComponentsStep implements ComputationStep {
       super(
         CrawlerDepthLimit.LEAVES,
         PRE_ORDER,
-        new SimpleStackElementFactory<ComponentDtoHolder>() {
+        new SimpleStackElementFactory<>() {
           @Override
           public ComponentDtoHolder createForAny(Component component) {
             return new ComponentDtoHolder();
@@ -191,42 +191,37 @@ public class PersistComponentsStep implements ComputationStep {
     @Override
     public void visitProject(Component project, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForProject(project);
-      path.current().setDto(persistAndPopulateCache(project, dto));
+      path.current().setDto(persistComponent(dto));
     }
 
     @Override
     public void visitDirectory(Component directory, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForDirectory(directory, path);
-      path.current().setDto(persistAndPopulateCache(directory, dto));
+      path.current().setDto(persistComponent(dto));
     }
 
     @Override
     public void visitFile(Component file, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForFile(file, path);
-      persistAndPopulateCache(file, dto);
+      persistComponent(dto);
     }
 
     @Override
     public void visitView(Component view, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForView(view);
-      path.current().setDto(persistAndPopulateCache(view, dto));
+      path.current().setDto(persistComponent(dto));
     }
 
     @Override
     public void visitSubView(Component subView, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForSubView(subView, path);
-      path.current().setDto(persistAndPopulateCache(subView, dto));
+      path.current().setDto(persistComponent(dto));
     }
 
     @Override
     public void visitProjectView(Component projectView, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForProjectView(projectView, path);
-      persistAndPopulateCache(projectView, dto);
-    }
-
-    private ComponentDto persistAndPopulateCache(Component component, ComponentDto dto) {
-      ComponentDto projectDto = persistComponent(dto);
-      return projectDto;
+      persistComponent(dto);
     }
 
     private ComponentDto persistComponent(ComponentDto componentDto) {

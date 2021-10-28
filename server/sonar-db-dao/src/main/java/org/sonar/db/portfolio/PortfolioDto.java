@@ -33,7 +33,7 @@ public class PortfolioDto {
   private String name;
   private String description;
   private boolean isPrivate = false;
-  private String branchName;
+  private String branchKey;
 
   private String rootUuid;
   private String parentUuid;
@@ -71,12 +71,12 @@ public class PortfolioDto {
   }
 
   @CheckForNull
-  public String getBranchName() {
-    return branchName;
+  public String getBranchKey() {
+    return branchKey;
   }
 
-  public void setBranchName(@Nullable String branchName) {
-    this.branchName = branchName;
+  public void setBranchKey(@Nullable String branchKey) {
+    this.branchKey = branchKey;
   }
 
   public String getSelectionMode() {

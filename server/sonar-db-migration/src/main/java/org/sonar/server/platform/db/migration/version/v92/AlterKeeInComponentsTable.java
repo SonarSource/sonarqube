@@ -19,30 +19,31 @@
  */
 package org.sonar.server.platform.db.migration.version.v92;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddBranchToPortfolios extends DdlChange {
-  private static final String TABLE_NAME = "portfolios";
-  private static final String COLUMN_NAME = "branch_key";
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-  public AddBranchToPortfolios(Database db) {
+public class AlterKeeInComponentsTable extends DdlChange {
+  private static final String TABLE = "components";
+
+  private static final VarcharColumnDef columnDefinition = newVarcharColumnDefBuilder()
+    .setColumnName("kee")
+    .setIsNullable(true)
+    .setLimit(1000)
+    .build();
+
+  public AlterKeeInComponentsTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    try (Connection c = getDatabase().getDataSource().getConnection()) {
-      if (!DatabaseUtils.tableColumnExists(c, TABLE_NAME, COLUMN_NAME)) {
-        context.execute(new AddColumnsBuilder(getDialect(), TABLE_NAME)
-          .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder().setColumnName(COLUMN_NAME).setIsNullable(true).setLimit(255).build())
-          .build());
-      }
-    }
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE)
+      .updateColumn(columnDefinition)
+      .build());
   }
 }

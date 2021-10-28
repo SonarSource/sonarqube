@@ -27,7 +27,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class SearchRequest {
-  private List<String> actionPlans;
   private List<String> additionalFields;
   private Boolean asc;
   private Boolean assigned;
@@ -69,16 +68,6 @@ public class SearchRequest {
 
   public SearchRequest() {
     // nothing to do here
-  }
-
-  @CheckForNull
-  public List<String> getActionPlans() {
-    return actionPlans;
-  }
-
-  public SearchRequest setActionPlans(@Nullable List<String> actionPlans) {
-    this.actionPlans = actionPlans;
-    return this;
   }
 
   @CheckForNull

@@ -20,32 +20,34 @@
 package org.sonar.server.platform.db.migration.version.v92;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddBranchToPortfoliosTest {
-  private static final String TABLE_NAME = "portfolios";
-  private static final String COLUMN_NAME = "branch_key";
+import static java.sql.Types.VARCHAR;
+
+public class AlterKeeInComponentsTableTest {
+  private final String TABLE = "components";
+  private final String COLUMN = "kee";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddBranchToPortfoliosTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AlterKeeInComponentsTableTest.class, "schema.sql");
 
-  private final AddBranchToPortfolios underTest = new AddBranchToPortfolios(db.database());
+  private final DdlChange underTest = new AlterKeeInComponentsTable(db.database());
 
   @Test
-  public void migration_should_add_column() throws SQLException {
-    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
+  public void selection_expression_column_is_altered() throws SQLException {
     underTest.execute();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 255, true);
+
+    db.assertColumnDefinition(TABLE, COLUMN, VARCHAR, 1000, true);
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
-    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
+  public void migration_is_reentrant() throws SQLException {
     underTest.execute();
     underTest.execute();
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 255, true);
+
+    db.assertColumnDefinition(TABLE, COLUMN, VARCHAR, 1000, true);
   }
 }

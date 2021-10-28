@@ -536,7 +536,6 @@ public class IssueIndex {
     if (onApplicationBranch) {
       allFilters.addFilter("__view", new SimpleFieldFilterScope("view"), createViewFilter(singletonList(query.branchUuid())));
     } else {
-      allFilters.addFilter("__is_main_branch", new SimpleFieldFilterScope(FIELD_ISSUE_IS_MAIN_BRANCH), createTermFilter(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(true)));
       allFilters.addFilter("__view", new SimpleFieldFilterScope("view"), createViewFilter(viewUuids));
     }
   }

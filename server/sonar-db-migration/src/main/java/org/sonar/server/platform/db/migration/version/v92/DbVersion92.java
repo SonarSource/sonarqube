@@ -33,8 +33,10 @@ public class DbVersion92 implements DbVersion {
       .add(6105, "Create qgate_group_permissions Table", CreateQGateGroupPermissionsTable.class)
       .add(6106, "Create column sonarlint_ad_seen in 'users'", AddSonarlintAdSeenColumnInUsersTable.class)
       .add(6107, "Upsert value of sonarlint_ad_seen in 'users'", UpsertSonarlintAdSeenValue.class)
-      .add(6108, "Create table 'portfolio_proj_branches'", CreatePortfolioProjectBranchesTable.class)
-      .add(6109, "Add column 'branch_name' to table 'portfolios'", AddBranchToPortfolios.class)
+      .add(6108, "Change size of column 'kee' in 'components'", AlterKeeInComponentsTable.class)
+      .add(6109, "Create table 'portfolio_proj_branches'", CreatePortfolioProjectBranchesTable.class)
+      .add(6110, "Add column 'branch_key' to table 'portfolios'", AddBranchToPortfolios.class)
+      .add(6111, "Change size of column 'kee' in 'components'", AlterKeeInComponentsTable.class)
     ;
   }
 }
