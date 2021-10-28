@@ -30,6 +30,8 @@ public class DbVersion92 implements DbVersion {
       .add(6102, "Migrate Bitbucket.org authentication plugin settings to built-in authentication settings", MigrateBibucketOrgPluginSettingsToBuiltInSettings.class)
       .add(6103, "Create column quick_fix_available in 'issues'", AddQuickFixAvailableColumnInIssuesTable.class)
       .add(6104, "Create qgate_user_permissions Table", CreateQGateUserPermissionsTable.class)
-      .add(6105, "Create qgate_group_permissions Table", CreateQGateGroupPermissionsTable.class);
+      .add(6105, "Create qgate_group_permissions Table", CreateQGateGroupPermissionsTable.class)
+      .add(6106, "Create column sonarlint_ad_seen in 'users'", AddSonarlintAdSeenColumnInUsersTable.class)
+      .add(6107, "Upsert value of sonarlint_ad_seen in 'users'", UpsertSonarlintAdSeenValue.class);
   }
 }
