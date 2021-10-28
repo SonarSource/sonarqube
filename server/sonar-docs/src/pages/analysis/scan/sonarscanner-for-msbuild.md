@@ -176,6 +176,8 @@ Parameter|Description
 `/v:<version>`|[recommended] Specifies the version of your project.
 `/d:sonar.login=<token> or <username>`| [recommended] Specifies the [authentication token](/user-guide/user-token/) or username used to authenticate with to {instance}. If this argument is added to the begin step, it must also be added to the end step.
 `/d:sonar.password=<password>`|[optional] Specifies the password for the {instance} username in the `sonar.login` argument. This argument is not needed if you use authentication token. If this argument is added to the begin step, it must also be added on the end step.
+`/d:sonar.clientcert.path=<ClientCertificatePath>`|[optional] Specifies the path to a client certificate used to access {instance}. The certificate must be password protected.
+`/d:sonar.clientcert.password=<ClientCertificatePassword>`|[optional] Specifies the password for the client certificate used to access {instance}. Required if a client certificate is used.
 `/d:sonar.verbose=true`|[optional] Sets the logging verbosity to detailed. Add this argument before sending logs for troubleshooting.
 `/d:sonar.dotnet.excludeTestProjects=true`|[optional] Excludes Test Projects from analysis. Add this argument to improve build performance when issues should not be detected in Test Projects.
 `/d:<analysis-parameter>=<value>`|[optional] Specifies an additional {instance} [analysis parameter](/analysis/analysis-parameters/), you can add this argument multiple times.
@@ -199,10 +201,20 @@ The end step is executed when you add the "end" command line argument. It cleans
 
 There are only two additional arguments that are allowed for the end step:
 
+<!-- sonarcloud -->
 Parameter|Description
 ---|---
 `/d:sonar.login=<token> or <username>`| This argument is required if it was added to the begin step.
 `/d:sonar.password=<password>`| This argument is required if it was added to the begin step and you are not using an authentication token.
+<!-- /sonarcloud -->
+
+<!-- sonarqube -->
+Parameter|Description
+---|---
+`/d:sonar.login=<token> or <username>`| This argument is required if it was added to the begin step.
+`/d:sonar.password=<password>`| This argument is required if it was added to the begin step and you are not using an authentication token.
+`/d:sonar.clientcert.password=<ClientCertificatePassword>`|This argument is required if it was added to the begin step. Specifies the password for the client certificate used to access {instance}.
+<!-- /sonarqube -->
 
 ### Known Limitations
 
@@ -303,7 +315,7 @@ SONAR_SCANNER_OPTS = "-Dhttp.proxyHost=yourProxyHost -Dhttp.proxyPort=yourProxyP
 ```
 Where _yourProxyHost_ and _yourProxyPort_ are the hostname and the port of your proxy server. There are additional proxy settings for HTTPS, authentication and exclusions that could be passed to the Java VM. For more information see the following article: https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html.
 
-`HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY` will be automatically recognized and use to make call against {instance}. The Scanner for .NET makes HTTP calls, independant from the settings above concerning the Java VM, to fetch the Quality Profile and other useful settings for the "end" step.
+You also need to set the appropriate proxy environment variables used by .NET. `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY` are all supported. You can find more details [here](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient.defaultproxy?view=net-5.0).
 
 ## Known issues
 
