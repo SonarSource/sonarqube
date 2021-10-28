@@ -105,14 +105,14 @@
   ],
   "projects_management": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360010098632-Getting-Started-with-CodeScan-Cloud",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/getting-started-with-codescan-cloud",
       "text": "Get Started with CodeScan Cloud",
       "scope": "sonarcloud"
     }
   ],
   "projects": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360010098632-Getting-Started-with-CodeScan-Cloud",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/getting-started-with-codescan-cloud",
       "text": "Get Started with CodeScan Cloud",
       "scope": "sonarcloud"
     }

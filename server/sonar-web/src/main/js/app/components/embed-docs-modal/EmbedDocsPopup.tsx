@@ -25,12 +25,27 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { isSonarCloud } from '../../../helpers/system';
 import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionsContext } from './SuggestionsContext';
+import Modal from 'sonar-ui-common/components/controls/Modal';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
 
 interface Props {
   onClose: () => void;
 }
 
-export default class EmbedDocsPopup extends React.PureComponent<Props> {
+type State = { reseting: boolean };
+
+export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
+
+  state: State = { reseting: false };
+
+  handleClosePopup = () => {
+    this.setState({ reseting: false });
+  };
+
+  handleResetPopup = () => {
+    this.setState({ reseting: true });
+  };
+
   renderTitle(text: string) {
     return <li className="menu-header">{text}</li>;
   }
@@ -69,6 +84,19 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     );
   }
 
+  renderAboutCodescan(link: string, icon: string, text: string) {
+    return (
+      <Modal className="abs-width-auto" onRequestClose={this.handleClosePopup} contentLabel={''}>
+        <a href={link} rel="noopener noreferrer" target="_blank">
+          <img alt={text} src={`${getBaseUrl()}/images/${icon}`} />
+        </a>
+        <span className="cross-button">
+          <ClearButton onClick={this.handleClosePopup} />
+        </span>
+      </Modal>
+    );
+  }
+
   renderSonarCloudLinks() {
     return (
       <>
@@ -80,6 +108,16 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             target="_blank">
             {translate('embed_docs.get_help')}
           </a>
+        </li>
+        <li>
+          <a onClick={this.handleResetPopup}>
+          {translate('embed_docs.about_codescan')}
+          </a>
+          {this.state.reseting && this.renderAboutCodescan(
+            'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
+            'embed-doc/codescan-version.png',
+            translate('embed_docs.codescan_version')
+          )}
         </li>
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
@@ -113,6 +151,16 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             {translate('embed_docs.get_help')}
           </a>
         </li>
+        <li>
+          <a onClick={this.handleResetPopup}>
+          {translate('embed_docs.about_codescan')}
+          </a>
+          {this.state.reseting && this.renderAboutCodescan(
+            'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
+            'embed-doc/codescan-version.png',
+            translate('embed_docs.codescan_version')
+          )}
+        </li>
         <li className="divider" />
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
@@ -139,7 +187,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <ul className="menu abs-width-240">
           <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
           <li>
-            <Link onClick={this.props.onClose} target="_blank" to="http://docs.codescan.io">
+            <Link onClick={this.props.onClose} target="_blank" to="https://knowledgebase.autorabit.com/codescan/docs">
               {translate('embed_docs.documentation')}
             </Link>
           </li>
