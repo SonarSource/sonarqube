@@ -329,6 +329,10 @@ th.huge-spacer-right {
   width: 10% !important;
 }
 
+.abs-width-auto {
+  width: auto !important;
+}
+
 .abs-width-150 {
   width: 150px !important;
 }
