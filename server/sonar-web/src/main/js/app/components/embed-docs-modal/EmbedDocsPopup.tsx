@@ -114,7 +114,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
           {translate('embed_docs.about_codescan')}
           </a>
           {this.state.reseting && this.renderAboutCodescan(
-            'https://knowledgebase.autorabit.com//codescan/docs/codescan-release-notes',
+            'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
             'embed-doc/codescan-version.png',
             translate('embed_docs.codescan_version')
           )}
@@ -156,7 +156,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
           {translate('embed_docs.about_codescan')}
           </a>
           {this.state.reseting && this.renderAboutCodescan(
-            'https://knowledgebase.autorabit.com//codescan/docs/codescan-release-notes',
+            'https://knowledgebase.autorabit.com/codescan/docs/codescan-release-notes',
             'embed-doc/codescan-version.png',
             translate('embed_docs.codescan_version')
           )}
@@ -187,7 +187,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
         <ul className="menu abs-width-240">
           <SuggestionsContext.Consumer>{this.renderSuggestions}</SuggestionsContext.Consumer>
           <li>
-            <Link onClick={this.props.onClose} target="_blank" to="http://docs.codescan.io">
+            <Link onClick={this.props.onClose} target="_blank" to="https://knowledgebase.autorabit.com/codescan/docs">
               {translate('embed_docs.documentation')}
             </Link>
           </li>
