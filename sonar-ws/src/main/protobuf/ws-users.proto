@@ -112,6 +112,7 @@ message CurrentWsResponse {
   optional Homepage homepage = 13;
   repeated Setting settings = 15;
   optional bool usingSonarLintConnectedMode = 16;
+  optional bool sonarLintAdSeen = 17;
 
   message Permissions {
     repeated string global = 1;

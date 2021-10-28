@@ -24,6 +24,7 @@
         u.homepage_parameter as "homepageParameter",
         u.last_connection_date as "lastConnectionDate",
         u.last_sonarlint_connection as "lastSonarlintConnectionDate",
+        u.sonarlint_ad_seen as "sonarlintAdSeen",
         u.created_at as "createdAt",
         u.updated_at as "updatedAt"
     </sql>
@@ -231,6 +232,7 @@
         is_root,
         onboarded,
         last_sonarlint_connection,
+        sonarlint_ad_seen,
         reset_password,
         homepage_type,
         homepage_parameter,
@@ -253,6 +255,7 @@
         #{user.root,jdbcType=BOOLEAN},
         #{user.onboarded,jdbcType=BOOLEAN},
         #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
+        #{user.sonarlintAdSeen,jdbcType=BOOLEAN},
         #{user.resetPassword,jdbcType=BOOLEAN},
         #{user.homepageType,jdbcType=VARCHAR},
         #{user.homepageParameter,jdbcType=VARCHAR},
@@ -281,6 +284,7 @@
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
         last_connection_date = #{user.lastConnectionDate,jdbcType=BIGINT},
         last_sonarlint_connection = #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
+        sonarlint_ad_seen = #{user.sonarlintAdSeen,jdbcType=BOOLEAN},
         updated_at = #{user.updatedAt,jdbcType=BIGINT}
         where
         uuid = #{user.uuid, jdbcType=VARCHAR}

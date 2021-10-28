@@ -11,6 +11,7 @@
   "scmAccounts": ["obiwan:github", "obiwan:bitbucket"],
   "groups": ["Jedi", "Rebel"],
   "usingSonarLintConnectedMode": false,
+  "sonarLintAdSeen": false,
   "permissions": {
     "global": ["profileadmin", "scan"]
   },

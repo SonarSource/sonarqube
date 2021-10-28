@@ -55,6 +55,7 @@ public class UserDto implements UserId {
   private boolean root = false;
   private boolean onboarded = false;
   private boolean resetPassword = false;
+  private boolean sonarlintAdSeen = false;
 
   /**
    * Date of the last time the user has accessed to the server.
@@ -275,6 +276,15 @@ public class UserDto implements UserId {
 
   public UserDto setResetPassword(boolean resetPassword) {
     this.resetPassword = resetPassword;
+    return this;
+  }
+
+  public boolean isSonarlintAdSeen() {
+    return sonarlintAdSeen;
+  }
+
+  public UserDto setSonarlintAdSeen(boolean sonarlintAdSeen) {
+    this.sonarlintAdSeen = sonarlintAdSeen;
     return this;
   }
 

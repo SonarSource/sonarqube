@@ -103,8 +103,9 @@ public class CurrentActionTest {
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getSettingsList, CurrentWsResponse::getUsingSonarLintConnectedMode)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", Collections.emptyList(), false);
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getSettingsList,
+        CurrentWsResponse::getUsingSonarLintConnectedMode, CurrentWsResponse::getSonarLintAdSeen)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", Collections.emptyList(), false, false);
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
@@ -232,6 +233,16 @@ public class CurrentActionTest {
     CurrentWsResponse response = call();
 
     assertThat(response.getUsingSonarLintConnectedMode()).isTrue();
+  }
+
+  @Test
+  public void handle_givenSonarLintAdSeenUserInDatabase_returnSonarLintAdSeenUserFromTheEndpoint() {
+    UserDto user = db.users().insertUser(u -> u.setSonarlintAdSeen(true));
+    userSession.logIn(user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getSonarLintAdSeen()).isTrue();
   }
 
   @Test
