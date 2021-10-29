@@ -398,7 +398,7 @@ public class PortfolioDaoTest {
   }
 
   @Test
-  public void delete_projects() {
+  public void deleteProjects_deletes_selected_projects_and_branches() {
     db.components().insertPrivatePortfolioDto("portfolio1");
     db.components().insertPrivatePortfolioDto("portfolio2");
 
@@ -406,14 +406,40 @@ public class PortfolioDaoTest {
     db.components().insertPrivateProjectDto("project2");
 
     assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
-    portfolioDao.addProject(session, "portfolio1", "project1");
+    String uuid = portfolioDao.addProject(session, "portfolio1", "project1");
+    portfolioDao.addBranch(session, uuid, "project1Branch");
     portfolioDao.addProject(session, "portfolio1", "project2");
     portfolioDao.addProject(session, "portfolio2", "project2");
+
+    session.commit();
     assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isNotEmpty();
+    assertThat(db.countRowsOfTable("portfolio_proj_branches")).isOne();
 
     portfolioDao.deleteProjects(session, "portfolio1");
+    session.commit();
     assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
     assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio2")).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project2");
+    assertThat(db.countRowsOfTable("portfolio_proj_branches")).isZero();
+  }
+
+  @Test
+  public void deleteProject_deletes_selected_branches() {
+    db.components().insertPrivatePortfolioDto("portfolio1");
+
+    db.components().insertPrivateProjectDto("project1");
+    db.components().insertPrivateProjectDto("project2");
+
+    String uuid1 = portfolioDao.addProject(session, "portfolio1", "project1");
+    portfolioDao.addBranch(session, uuid1, "project1Branch");
+    String uuid2 = portfolioDao.addProject(session, "portfolio1", "project2");
+    portfolioDao.addBranch(session, uuid2, "project2Branch");
+    session.commit();
+    assertThat(db.countRowsOfTable("portfolio_proj_branches")).isEqualTo(2);
+
+    portfolioDao.deleteProject(session, "portfolio1", "project2");
+    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1"))
+      .extracting(PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
+      .containsOnly(tuple("project1", Set.of("project1Branch")));
   }
 
   @Test
@@ -440,25 +466,6 @@ public class PortfolioDaoTest {
     DbSession session = db.getSession();
     assertThatCode(() -> portfolioDao.deleteBranch(session, "nonexisting1", "nonexisting2", "branch1"))
       .doesNotThrowAnyException();
-  }
-
-  @Test
-  public void delete_project() {
-    db.components().insertPrivatePortfolioDto("portfolio1");
-    db.components().insertPrivatePortfolioDto("portfolio2");
-
-    db.components().insertPrivateProjectDto("project1");
-    db.components().insertPrivateProjectDto("project2");
-
-    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
-    portfolioDao.addProject(session, "portfolio1", "project1");
-    portfolioDao.addProject(session, "portfolio1", "project2");
-    portfolioDao.addProject(session, "portfolio2", "project2");
-    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isNotEmpty();
-
-    portfolioDao.deleteProject(session, "portfolio1", "project2");
-    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project1");
-    assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio2")).extracting(PortfolioProjectDto::getProjectUuid).containsOnly("project2");
   }
 
   @Test

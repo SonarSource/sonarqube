@@ -25,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -55,6 +56,8 @@ import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -651,24 +654,44 @@ public class PurgeCommandsTest {
   }
 
   @Test
-  public void deleteProjectInPortfolios_deletes_project_from_portfolios() {
-    var portfolio1 = dbTester.components().insertPrivatePortfolio();
-    var portfolio2 = dbTester.components().insertPrivatePortfolio();
+  public void deleteProjectInPortfolios_deletes_project_and_branch_from_portfolios() {
+    var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
+    var portfolio2 = dbTester.components().insertPrivatePortfolioDto();
     dbTester.components().insertPrivatePortfolio();
-
     ProjectDto project = dbTester.components().insertPrivateProjectDto();
     ProjectDto anotherProject = dbTester.components().insertPrivateProjectDto();
 
-    dbTester.components().addPortfolioProject(portfolio1, project.getUuid(), anotherProject.getUuid());
-    dbTester.components().addPortfolioProject(portfolio2, project.getUuid());
+    dbTester.components().addPortfolioProject(portfolio1, project, anotherProject);
+    dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");
+    dbTester.components().addPortfolioProjectBranch(portfolio1, anotherProject, "anotherProjectBranch");
+
+    dbTester.components().addPortfolioProject(portfolio2, project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
 
     purgeCommands.deleteProjectInPortfolios(project.getUuid());
 
     assertThat(dbTester.getDbClient().portfolioDao().selectAllPortfolioProjects(dbTester.getSession()))
-      .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid)
-      .containsExactlyInAnyOrder(tuple(portfolio1.uuid(), anotherProject.getUuid()));
+      .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
+      .containsExactlyInAnyOrder(tuple(portfolio1.getUuid(), anotherProject.getUuid(), singleton("anotherProjectBranch")));
+  }
+
+  @Test
+  public void deleteProjectInPortfolios_deletes_branch_from_portfolios_if_root_is_branch() {
+    var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
+    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+
+    dbTester.components().addPortfolioProject(portfolio1, project);
+    dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");
+    dbTester.components().addPortfolioProjectBranch(portfolio1, project, "anotherBranch");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+
+    purgeCommands.deleteProjectInPortfolios("projectBranch");
+
+    assertThat(dbTester.getDbClient().portfolioDao().selectAllPortfolioProjects(dbTester.getSession()))
+      .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
+      .containsExactlyInAnyOrder(tuple(portfolio1.getUuid(), project.getUuid(), Set.of("anotherBranch")));
   }
 
   private void addPermissions(ComponentDto root) {

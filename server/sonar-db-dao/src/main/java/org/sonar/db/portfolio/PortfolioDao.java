@@ -91,12 +91,14 @@ public class PortfolioDao implements Dao {
   }
 
   public void delete(DbSession dbSession, PortfolioDto portfolio) {
-    mapper(dbSession).deletePortfoliosByUuids(singleton(portfolio.getUuid()));
     mapper(dbSession).deleteReferencesByPortfolioOrReferenceUuids(singleton(portfolio.getUuid()));
-    mapper(dbSession).deleteProjectsByPortfolioUuids(singleton(portfolio.getUuid()));
+    mapper(dbSession).deletePortfolio(portfolio.getUuid());
     auditPersister.deleteComponent(dbSession, toComponentNewValue(portfolio));
   }
 
+  /**
+   * Does NOT delete related references and project/branch selections!
+   */
   public void deleteAllDescendantPortfolios(DbSession dbSession, String rootUuid) {
     // not audited but it's part of DefineWs
     mapper(dbSession).deleteAllDescendantPortfolios(rootUuid);
@@ -196,10 +198,6 @@ public class PortfolioDao implements Dao {
 
   public void deleteAllProjects(DbSession dbSession) {
     mapper(dbSession).deleteAllProjects();
-  }
-
-  public Set<String> selectBranches(DbSession dbSession, String portfolioProjectUuid) {
-    return mapper(dbSession).selectBranches(portfolioProjectUuid);
   }
 
   public void addBranch(DbSession dbSession, String portfolioProjectUuid, String branchUuid) {

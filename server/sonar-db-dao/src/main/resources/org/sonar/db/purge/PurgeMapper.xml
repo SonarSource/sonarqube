@@ -325,35 +325,40 @@
   <delete id="deleteApplicationProjectsByApplicationUuid" parameterType="map">
     DELETE
     FROM app_projects
-    where
+    WHERE
       application_uuid=#{applicationUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteApplicationBranchProjectBranchesByApplicationUuid" parameterType="map">
     DELETE
     FROM app_branch_project_branch
-    where
+    WHERE
       application_uuid=#{applicationUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteApplicationBranchProjects" parameterType="String">
     DELETE
     FROM app_branch_project_branch
-    where
+    WHERE
       application_branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteApplicationBranchProjectBranchesByProjectBranchUuid" parameterType="String">
     DELETE
     FROM app_branch_project_branch
-    where project_branch_uuid=#{projectBranchUuid,jdbcType=VARCHAR}
+    WHERE project_branch_uuid=#{projectBranchUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deletePortfolioProjectsByProjectUuid" parameterType="map">
     DELETE
     FROM portfolio_projects
-    WHERE
-    project_uuid=#{projectUuid,jdbcType=VARCHAR}
+    WHERE project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deletePortfolioProjectBranchesByBranchUuid" parameterType="map">
+    DELETE FROM portfolio_proj_branches
+    WHERE portfolio_project_uuid IN (SELECT uuid FROM portfolio_projects WHERE project_uuid = #{branchUuid,jdbcType=VARCHAR})
+    OR branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteIssueChangesFromIssueKeys" parameterType="map">

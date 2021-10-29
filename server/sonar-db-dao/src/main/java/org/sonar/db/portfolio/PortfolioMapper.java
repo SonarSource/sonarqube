@@ -36,13 +36,9 @@ public interface PortfolioMapper {
 
   void insert(PortfolioDto portfolio);
 
-  void deleteByUuids(@Param("uuids") Set<String> uuids);
-
-  void deletePortfoliosByUuids(@Param("uuids") Set<String> uuids);
+  void deletePortfolio(@Param("uuid") String uuid);
 
   void deleteReferencesByPortfolioOrReferenceUuids(@Param("uuids") Set<String> uuids);
-
-  void deleteProjectsByPortfolioUuids(@Param("uuids") Set<String> uuids);
 
   void insertReference(PortfolioReferenceDto portfolioReference);
 
@@ -94,12 +90,8 @@ public interface PortfolioMapper {
 
   List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
 
-  void deleteBranch(@Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchUuid") String branchUuid);
-
   void deleteBranch(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 
   void insertBranch(@Param("uuid") String uuid, @Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchUuid") String branchUuid,
     @Param("createdAt") long createdAt);
-
-  Set<String> selectBranches(String portfolioProjectUuid);
 }

@@ -78,7 +78,7 @@ public class PurgeDao implements Dao {
 
   private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
     Optional<Date> maxDate = conf.maxLiveDateOfInactiveBranches();
-    if (!maxDate.isPresent()) {
+    if (maxDate.isEmpty()) {
       // not available if branch plugin is not installed
       return;
     }

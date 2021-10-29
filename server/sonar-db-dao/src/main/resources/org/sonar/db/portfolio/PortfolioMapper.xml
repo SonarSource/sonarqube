@@ -249,12 +249,6 @@
     )
   </insert>
 
-  <delete id="delete" parameterType="String">
-    DELETE FROM portfolios WHERE uuid = #{portfolioUuid,jdbcType=VARCHAR};
-    DELETE FROM portfolio_references WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR};
-    DELETE FROM portfolio_projects WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR};
-  </delete>
-
   <select id="selectAllReferencesToPortfolios" resultType="org.sonar.db.portfolio.ReferenceDto">
     SELECT
       source.uuid as sourceUuid,
@@ -300,26 +294,20 @@
     AND source.root_uuid = #{rootUuid,jdbcType=VARCHAR})
   </select>
 
-  <delete id="deletePortfoliosByUuids" parameterType="String">
-    DELETE FROM portfolios WHERE uuid in
-    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
+  <delete id="deletePortfolio" parameterType="String">
+    DELETE FROM portfolio_proj_branches
+    WHERE portfolio_project_uuid in (select uuid FROM portfolio_projects WHERE portfolio_uuid = #{uuid,jdbcType=VARCHAR});
+
+    DELETE FROM portfolio_projects
+    WHERE portfolio_uuid = #{uuid,jdbcType=VARCHAR};
+
+    DELETE FROM portfolios WHERE uuid = #{uuid,jdbcType=VARCHAR};
   </delete>
 
   <delete id="deleteReferencesByPortfolioOrReferenceUuids" parameterType="String">
     DELETE FROM portfolio_references WHERE portfolio_uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
     OR reference_uuid in
-    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
-  </delete>
-
-  <delete id="deleteProjectsByPortfolioUuids" parameterType="String">
-    delete from portfolio_proj_branches
-    where portfolio_project_uuid in
-      (select uuid from portfolio_projects
-      where portfolio_uuid in
-    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>);
-
-    DELETE FROM portfolio_projects WHERE portfolio_uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid,jdbcType=VARCHAR}</foreach>
   </delete>
 
@@ -356,34 +344,34 @@
       <include refid="portfolioColumns"/>
     FROM portfolios p
     INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
-    where pr.reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
+    WHERE pr.reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
   </select>
 
   <delete id="deleteReferencesTo" parameterType="String">
-    delete from portfolio_references
-    where reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
+    DELETE FROM portfolio_references
+    WHERE reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteProjects" parameterType="String">
-    delete from portfolio_proj_branches
-    where portfolio_project_uuid =
-      (select uuid from portfolio_projects
-      where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR});
+    DELETE FROM portfolio_proj_branches
+    WHERE portfolio_project_uuid in
+      (SELECT uuid FROM portfolio_projects
+      WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR});
 
-    delete from portfolio_projects
-    where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    DELETE FROM portfolio_projects
+    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteProject" parameterType="map">
-    delete from portfolio_proj_branches
-    where portfolio_project_uuid =
-      (select uuid from portfolio_projects
-      where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-      and project_uuid = #{projectUuid,jdbcType=VARCHAR});
+    DELETE FROM portfolio_proj_branches
+    WHERE portfolio_project_uuid =
+      (SELECT uuid FROM portfolio_projects
+      WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+      AND project_uuid = #{projectUuid,jdbcType=VARCHAR});
 
-    delete from portfolio_projects
-    where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-      and project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    DELETE FROM portfolio_projects
+    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+      AND project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <insert id="insertProject" parameterType="map">
@@ -417,16 +405,16 @@
   </insert>
 
   <delete id="deleteBranch" parameterType="map">
-    delete from portfolio_proj_branches
-    where portfolio_project_uuid =
-      (select uuid from portfolio_projects
-      where portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-      and project_uuid = #{projectUuid,jdbcType=VARCHAR})
-      and branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+    DELETE FROM portfolio_proj_branches
+    WHERE portfolio_project_uuid =
+      (SELECT uuid FROM portfolio_projects
+      WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+      AND project_uuid = #{projectUuid,jdbcType=VARCHAR})
+      AND branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
 
   <update id="update" parameterType="Portfolio">
-    update portfolios set
+    UPDATE portfolios SET
     name = #{name,jdbcType=VARCHAR},
     description = #{description,jdbcType=VARCHAR},
     selection_mode = #{selectionMode,jdbcType=VARCHAR},
@@ -435,7 +423,7 @@
     branch_key = #{branchKey,jdbcType=VARCHAR},
     root_uuid = #{rootUuid,jdbcType=VARCHAR},
     updated_at = #{updatedAt,jdbcType=BIGINT}
-    where
+    WHERE
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 </mapper>
