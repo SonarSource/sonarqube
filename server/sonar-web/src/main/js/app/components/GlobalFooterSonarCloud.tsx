@@ -21,13 +21,7 @@ import * as getYear from 'date-fns/get_year';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-interface Props {
-  sonarqubeVersion?: string;
-}
-
-export default function GlobalFooterSonarCloud({
-  sonarqubeVersion
-}: Props) {
+export default function GlobalFooterSonarCloud() {
   return (
     <div className="page-footer page-container" id="footer">
       <div>
@@ -43,7 +37,7 @@ export default function GlobalFooterSonarCloud({
 
       <ul className="page-footer-menu">
         <li className="page-footer-menu-item">
-        	Version { sonarqubeVersion }
+        	Version {translate('footer.codescan_version')}
         </li>
         <li className="page-footer-menu-item">
         	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/tos/">{translate('footer.terms')}</a>
@@ -61,7 +55,7 @@ export default function GlobalFooterSonarCloud({
         	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/contact/">{translate('footer.help')}</a>
         </li>
         <li className="page-footer-menu-item">
-        	<a rel="noopener noreferrer" target="_blank" href="https://www.codescan.io/cloud/getting-started/">{translate('footer.about')}</a>
+        	<a rel="noopener noreferrer" target="_blank" href="https://knowledgebase.autorabit.com/codescan/docs/getting-started-with-codescan-cloud">{translate('footer.about')}</a>
         </li>
       </ul>
     </div>

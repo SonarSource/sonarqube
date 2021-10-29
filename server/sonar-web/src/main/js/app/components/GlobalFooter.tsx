@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import { getEdition } from '../../helpers/editions';
 import { isSonarCloud } from '../../helpers/system';
@@ -38,11 +38,10 @@ interface Props {
 export default function GlobalFooter({
   hideLoggedInInfo,
   productionDatabase,
-  sonarqubeEdition,
-  sonarqubeVersion
+  sonarqubeEdition
 }: Props) {
   if (isSonarCloud()) {
-    return <GlobalFooterSonarCloud sonarqubeVersion={sonarqubeVersion}/>;
+    return <GlobalFooterSonarCloud/>;
   }
 
   const currentEdition = sonarqubeEdition && getEdition(sonarqubeEdition);
@@ -64,9 +63,9 @@ export default function GlobalFooter({
         {!hideLoggedInInfo && currentEdition && (
           <li className="page-footer-menu-item">{currentEdition.name}</li>
         )}
-        {!hideLoggedInInfo && sonarqubeVersion && (
+        {!hideLoggedInInfo && (
           <li className="page-footer-menu-item">
-            {translateWithParameters('footer.version_x', sonarqubeVersion)}
+            Version {translate('footer.codescan_version')}
           </li>
         )}
         <li className="page-footer-menu-item">
