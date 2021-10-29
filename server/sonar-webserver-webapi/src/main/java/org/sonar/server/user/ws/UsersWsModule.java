@@ -38,6 +38,7 @@ public class UsersWsModule extends Module {
       UpdateAction.class,
       UpdateLoginAction.class,
       DeactivateAction.class,
+      DismissSonarlintAdAction.class,
       ChangePasswordAction.class,
       CurrentAction.class,
       SearchAction.class,

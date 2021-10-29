@@ -174,9 +174,16 @@
 
     <update id="updateSonarlintLastConnectionDate" parameterType="map">
         update users set
-          last_sonarlint_connection =  #{now, jdbcType=BIGINT}
+        last_sonarlint_connection = #{now, jdbcType=BIGINT}
         where
-          login = #{login, jdbcType=VARCHAR}
+        login = #{login, jdbcType=VARCHAR}
+    </update>
+
+    <update id="dismissSonarlintAd" parameterType="map">
+        update users set
+        sonarlint_ad_seen = true
+        where
+        login = #{login, jdbcType=VARCHAR}
     </update>
 
     <update id="deactivateUser" parameterType="map">

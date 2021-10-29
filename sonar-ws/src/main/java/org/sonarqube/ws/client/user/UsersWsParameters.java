@@ -30,6 +30,7 @@ public class UsersWsParameters {
   public static final String ACTION_SKIP_ONBOARDING_TUTORIAL = "skip_onboarding_tutorial";
   public static final String ACTION_CURRENT = "current";
   public static final String ACTION_UPDATE_IDENTITY_PROVIDER = "update_identity_provider";
+  public static final String ACTION_DISMISS_SONARLINT_AD = "dismiss_sonarlint_ad";
 
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_PASSWORD = "password";

@@ -129,6 +129,10 @@ public class UserDao implements Dao {
     mapper(session).updateSonarlintLastConnectionDate(login, system2.now());
   }
 
+  public void dismissSonarlintAd(DbSession session, String login) {
+    mapper(session).dismissSonarlintAd(login);
+  }
+
   public void setRoot(DbSession session, String login, boolean root) {
     mapper(session).setRoot(login, root, system2.now());
   }
