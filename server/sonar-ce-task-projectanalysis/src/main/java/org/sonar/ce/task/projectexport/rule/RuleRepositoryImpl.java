@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectexport.rule;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 
@@ -52,7 +52,7 @@ public class RuleRepositoryImpl implements RuleRepository {
 
   @Override
   public Collection<Rule> getAll() {
-    return ImmutableList.copyOf(rulesByUuid.values());
+    return List.copyOf(rulesByUuid.values());
   }
 
 }
