@@ -41,6 +41,7 @@ public class RuleForIndexingDto {
   private String templateRuleKey;
   private String templateRepository;
   private String internalKey;
+  private String organizationUuid;
   private String language;
   private boolean isExternal;
   private int type;
@@ -105,6 +106,10 @@ public class RuleForIndexingDto {
 
   public String getInternalKey() {
     return internalKey;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   public String getLanguage() {

@@ -273,6 +273,7 @@
       t.plugin_rule_key as "templateRuleKey",
       t.plugin_name as "templateRepository",
       r.plugin_config_key as "internalKey",
+      r.organization_uuid  as "organizationUuid",
       r.language as "language",
       r.rule_type as "type",
       r.created_at as "createdAt",

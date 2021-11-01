@@ -73,6 +73,7 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -102,6 +103,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_IS_TEMP
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_LANGUAGE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_NAME;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_ORGANIZATION_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_RULE_KEY;
@@ -256,6 +258,11 @@ public class RuleIndex {
       boolQuery().mustNot(
         QueryBuilders.termQuery(FIELD_RULE_STATUS,
           RuleStatus.REMOVED.toString())));
+
+    filters.put(FIELD_RULE_ORGANIZATION_UUID,
+            boolQuery()
+                    .should(boolQuery().mustNot(existsQuery(FIELD_RULE_ORGANIZATION_UUID)))
+                    .should(QueryBuilders.termQuery(FIELD_RULE_ORGANIZATION_UUID, query.getOrganization().getUuid())));
 
     if (StringUtils.isNotEmpty(query.getInternalKey())) {
       filters.put(FIELD_RULE_INTERNAL_KEY,
