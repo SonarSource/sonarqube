@@ -217,6 +217,11 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  public RuleDoc setOrganizationUuid(@Nullable String organizationUuid) {
+    setField(RuleIndexDefinition.FIELD_RULE_ORGANIZATION_UUID, organizationUuid);
+    return this;
+  }
+
   public boolean isTemplate() {
     return getField(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE);
   }
@@ -286,6 +291,7 @@ public class RuleDoc extends BaseDoc {
       .setSeverity(dto.getSeverityAsString())
       .setStatus(dto.getStatus().toString())
       .setType(dto.getTypeAsRuleType())
+      .setOrganizationUuid(dto.getOrganizationUuid())
       .setCreatedAt(dto.getCreatedAt())
       .setUpdatedAt(dto.getUpdatedAt());
 
