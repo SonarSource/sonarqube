@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: adAlreadySeen 1`] = `""`;
+
+exports[`should render correctly: anonymous 1`] = `""`;
+
+exports[`should render correctly: loggedIn 1`] = `
+<div
+  className="toaster display-flex-center big-padded"
+>
+  <div
+    className="toaster-icon spacer-right"
+  >
+    <img
+      alt="SonarQube + SonarLint"
+      src="/images/sq-sl.png"
+    />
+  </div>
+  <div
+    className="toaster-content flex-1 padded-left padded-right"
+  >
+    <span
+      className="toaster-title text-bold medium"
+    >
+      promotion.sonarlint.title
+    </span>
+    <p
+      className="spacer-top"
+    >
+      promotion.sonarlint.content
+    </p>
+  </div>
+  <div
+    className="toaster-actions spacer-left padded-left"
+  >
+    <a
+      className="button"
+      href="https://www.sonarqube.org/sonarlint/"
+      rel="noreferrer"
+      target="_blank"
+    >
+      learn_more
+    </a>
+  </div>
+</div>
+`;

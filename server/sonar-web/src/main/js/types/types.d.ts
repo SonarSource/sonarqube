@@ -443,6 +443,7 @@ declare namespace T {
     local?: boolean;
     scmAccounts: string[];
     settings?: CurrentUserSetting[];
+    sonarLintAdSeen?: boolean;
   }
 
   export interface Measure extends MeasureIntern {

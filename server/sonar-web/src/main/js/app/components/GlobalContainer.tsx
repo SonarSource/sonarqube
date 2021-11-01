@@ -28,6 +28,7 @@ import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import GlobalNav from './nav/global/GlobalNav';
 import StartupModal from './StartupModal';
+import PromotionNotification from './promotion-notification/PromotionNotification';
 import UpdateNotification from './update-notification/UpdateNotification';
 
 export interface Props {
@@ -58,6 +59,7 @@ export default function GlobalContainer(props: Props) {
                   </IndexationContextProvider>
                 </Workspace>
               </div>
+              <PromotionNotification />
             </div>
             {footer}
           </div>

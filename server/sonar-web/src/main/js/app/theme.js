@@ -120,6 +120,11 @@ module.exports = {
     // code/pre
     codeBackground: '#e6e6e6',
 
+    //promotion
+    darkBackground: '#292929',
+    darkBackgroundSeparator: '#413b3b',
+    darkBackgroundFontColor: '#f6f8fa',
+
     // sonarcloud
     sonarcloudOrange500: '#fd6a00',
     sonarcloudOrange600: '#e26003',
