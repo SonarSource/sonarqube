@@ -26,13 +26,15 @@ import { ActionType } from './utils/actions';
 const enum Actions {
   ReceiveCurrentUser = 'RECEIVE_CURRENT_USER',
   SetCurrentUserSetting = 'SET_CURRENT_USER_SETTING',
-  SetHomePageAction = 'SET_HOMEPAGE'
+  SetHomePageAction = 'SET_HOMEPAGE',
+  SetSonarlintAd = 'SET_SONARLINT_AD'
 }
 
 type Action =
   | ActionType<typeof receiveCurrentUser, Actions.ReceiveCurrentUser>
   | ActionType<typeof setCurrentUserSettingAction, Actions.SetCurrentUserSetting>
-  | ActionType<typeof setHomePageAction, Actions.SetHomePageAction>;
+  | ActionType<typeof setHomePageAction, Actions.SetHomePageAction>
+  | ActionType<typeof setSonarlintAd, Actions.SetSonarlintAd>;
 
 export interface State {
   usersByLogin: T.Dict<any>;
@@ -50,6 +52,10 @@ export function setHomePageAction(homepage: T.HomePage) {
 
 export function setCurrentUserSettingAction(setting: T.CurrentUserSetting) {
   return { type: Actions.SetCurrentUserSetting, setting };
+}
+
+export function setSonarlintAd() {
+  return { type: Actions.SetSonarlintAd };
 }
 
 export function setHomePage(homepage: T.HomePage) {
@@ -116,6 +122,9 @@ function currentUser(
       settings = [action.setting];
     }
     return { ...state, settings } as T.LoggedInUser;
+  }
+  if (action.type === Actions.SetSonarlintAd && isLoggedIn(state)) {
+    return { ...state, sonarLintAdSeen: true } as T.LoggedInUser;
   }
   return state;
 }

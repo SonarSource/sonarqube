@@ -19,6 +19,7 @@
  */
 
 import { mockCurrentUser, mockLoggedInUser, mockUser } from '../../helpers/testMocks';
+import { isLoggedIn } from '../../helpers/users';
 import reducer, {
   getCurrentUser,
   getCurrentUserSetting,
@@ -27,6 +28,7 @@ import reducer, {
   receiveCurrentUser,
   setCurrentUserSettingAction,
   setHomePageAction,
+  setSonarlintAd,
   State
 } from '../users';
 
@@ -75,6 +77,14 @@ describe('reducer and actions', () => {
         currentUser: { ...currentUser, settings: [setting3, setting2] } as T.LoggedInUser
       })
     );
+  });
+
+  it('should allow to set the sonarLintAdSeen flag', () => {
+    const currentUser = mockLoggedInUser();
+    const initialState: State = createState({ currentUser });
+
+    const newState = reducer(initialState, setSonarlintAd());
+    expect(isLoggedIn(newState.currentUser) && newState.currentUser.sonarLintAdSeen).toBe(true);
   });
 });
 

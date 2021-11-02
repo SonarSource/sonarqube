@@ -37,7 +37,7 @@ exports[`should render correctly 1`] = `
               </Connect(withAppState(IndexationContextProvider))>
             </Workspace>
           </div>
-          <Connect(withCurrentUser(PromotionNotification)) />
+          <Connect(Connect(withCurrentUser(PromotionNotification))) />
         </div>
         <Connect(GlobalFooter) />
       </div>

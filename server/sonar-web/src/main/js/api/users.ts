@@ -97,3 +97,7 @@ export function setHomePage(homepage: T.HomePage): Promise<void | Response> {
 export function setUserSetting(setting: T.CurrentUserSetting): Promise<void | Response> {
   return post('/api/users/set_setting', setting).catch(throwGlobalError);
 }
+
+export function dismissSonarlintAd(): Promise<void | Response> {
+  return post('/api/users/dismiss_sonarlint_ad').catch(throwGlobalError);
+}
