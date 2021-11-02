@@ -34,6 +34,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,7 +56,7 @@ public class LogsActionTest {
   public void values_of_process_parameter_are_names_of_processes() {
     Set<String> values = actionTester.getDef().param("process").possibleValues();
     // values are lower-case and alphabetically ordered
-    assertThat(values).containsExactly("app", "ce", "es", "web");
+    assertThat(values).containsExactly("access", "app", "ce", "es", "web");
   }
 
   @Test
@@ -96,42 +97,18 @@ public class LogsActionTest {
   }
 
   @Test
-  public void get_ce_logs() throws IOException {
+  public void download_logs() throws IOException {
     logInAsSystemAdministrator();
 
     createAllLogsFiles();
 
-    TestResponse response = actionTester.newRequest()
-      .setParam("process", "ce")
-      .execute();
-    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
-    assertThat(response.getInput()).isEqualTo("{ce}");
-  }
-
-  @Test
-  public void get_es_logs() throws IOException {
-    logInAsSystemAdministrator();
-
-    createAllLogsFiles();
-
-    TestResponse response = actionTester.newRequest()
-      .setParam("process", "es")
-      .execute();
-    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
-    assertThat(response.getInput()).isEqualTo("{es}");
-  }
-
-  @Test
-  public void get_web_logs() throws IOException {
-    logInAsSystemAdministrator();
-
-    createAllLogsFiles();
-
-    TestResponse response = actionTester.newRequest()
-      .setParam("process", "web")
-      .execute();
-    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
-    assertThat(response.getInput()).isEqualTo("{web}");
+    asList("ce", "es", "web", "access").forEach(process -> {
+      TestResponse response = actionTester.newRequest()
+        .setParam("process", process)
+        .execute();
+      assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+      assertThat(response.getInput()).isEqualTo("{" + process + "}");
+    });
   }
 
   @Test
@@ -166,6 +143,7 @@ public class LogsActionTest {
 
   private File createAllLogsFiles() throws IOException {
     File dir = createLogsDir();
+    FileUtils.write(new File(dir, "access.log"), "{access}");
     FileUtils.write(new File(dir, "sonar.log"), "{app}");
     FileUtils.write(new File(dir, "ce.log"), "{ce}");
     FileUtils.write(new File(dir, "es.log"), "{es}");

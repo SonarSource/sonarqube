@@ -137,6 +137,16 @@ export default class PageActions extends React.PureComponent<Props, State> {
                     Web Server
                   </a>
                 </li>
+                <li>
+                  <a
+                    download="sonarqube_access.log"
+                    href={logsUrl + '?process=access'}
+                    id="access-logs-link"
+                    rel="noopener noreferrer"
+                    target="_blank">
+                    Access Logs
+                  </a>
+                </li>
               </ul>
             }>
             <Button>

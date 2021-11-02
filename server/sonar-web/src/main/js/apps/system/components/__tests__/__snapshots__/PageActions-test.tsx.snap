@@ -72,6 +72,17 @@ exports[`should render correctly 1`] = `
             Web Server
           </a>
         </li>
+        <li>
+          <a
+            download="sonarqube_access.log"
+            href="/api/system/logs?process=access"
+            id="access-logs-link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Access Logs
+          </a>
+        </li>
       </ul>
     }
   >
@@ -148,6 +159,17 @@ exports[`should render correctly 2`] = `
           target="_blank"
         >
           Web Server
+        </a>
+      </li>
+      <li>
+        <a
+          download="sonarqube_access.log"
+          href="/api/system/logs?process=access"
+          id="access-logs-link"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Access Logs
         </a>
       </li>
     </ul>

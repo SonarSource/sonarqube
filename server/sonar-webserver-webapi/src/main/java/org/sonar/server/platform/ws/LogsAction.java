@@ -32,17 +32,18 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessId;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 public class LogsAction implements SystemWsAction {
 
   private static final String PROCESS_PROPERTY = "process";
+  private static final String ACCESS_LOG = "access";
 
   private final UserSession userSession;
   private final ServerLogging serverLogging;
@@ -54,6 +55,10 @@ public class LogsAction implements SystemWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
+    var values = stream(ProcessId.values()).map(ProcessId::getKey).collect(toList());
+    values.add(ACCESS_LOG);
+    values.sort(String::compareTo);
+
     WebService.NewAction action = controller.createAction("logs")
       .setDescription("Get system logs in plain-text format. Requires system administration permission.")
       .setResponseExample(getClass().getResource("logs-example.log"))
@@ -62,10 +67,7 @@ public class LogsAction implements SystemWsAction {
 
     action
       .createParam(PROCESS_PROPERTY)
-      .setPossibleValues(stream(ProcessId.values())
-        .map(ProcessId::getKey)
-        .sorted()
-        .collect(MoreCollectors.toList(ProcessId.values().length)))
+      .setPossibleValues(values)
       .setDefaultValue(ProcessId.APP.getKey())
       .setSince("6.2")
       .setDescription("Process to get logs from");
@@ -76,13 +78,13 @@ public class LogsAction implements SystemWsAction {
     userSession.checkIsSystemAdministrator();
 
     String processKey = wsRequest.mandatoryParam(PROCESS_PROPERTY);
-    ProcessId processId = ProcessId.fromKey(processKey);
+    String filePrefix = ACCESS_LOG.equals(processKey) ? ACCESS_LOG : ProcessId.fromKey(processKey).getLogFilenamePrefix();
 
     File logsDir = serverLogging.getLogsDir();
 
     try (Stream<Path> stream = Files.list(Paths.get(logsDir.getPath()))) {
       Optional<Path> path = stream
-        .filter(p -> p.getFileName().toString().contains(processId.getLogFilenamePrefix())
+        .filter(p -> p.getFileName().toString().contains(filePrefix)
           && p.getFileName().toString().endsWith(".log"))
         .max(Comparator.comparing(Path::toString));
 
