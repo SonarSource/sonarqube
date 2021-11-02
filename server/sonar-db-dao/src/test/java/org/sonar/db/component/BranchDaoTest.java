@@ -23,10 +23,12 @@ import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -460,6 +462,40 @@ public class BranchDaoTest {
 
     // select a branch on another project with same branch name
     assertThat(underTest.selectByPullRequestKey(dbSession, "U3", pullRequestId)).isEmpty();
+  }
+
+  @Test
+  public void selectByKeys() {
+    BranchDto mainBranch = new BranchDto()
+      .setProjectUuid("U1")
+      .setUuid("U1")
+      .setBranchType(BranchType.BRANCH)
+      .setKey("master");
+    underTest.insert(dbSession, mainBranch);
+
+    BranchDto featureBranch = new BranchDto()
+      .setProjectUuid("U1")
+      .setUuid("U2")
+      .setBranchType(BranchType.BRANCH)
+      .setKey("feature1");
+    underTest.insert(dbSession, featureBranch);
+
+    String pullRequestId = "123";
+    BranchDto pullRequest = new BranchDto()
+      .setProjectUuid("U1")
+      .setUuid("U3")
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setKey(pullRequestId)
+      .setMergeBranchUuid("U4");
+    underTest.insert(dbSession, pullRequest);
+
+    assertThat(underTest.selectByKeys(dbSession, "U1", Collections.emptySet()))
+      .isEmpty();
+
+    List<BranchDto> loaded = underTest.selectByKeys(dbSession, "U1", Set.of(mainBranch.getKey(), featureBranch.getKey()));
+    assertThat(loaded)
+      .extracting(BranchDto::getUuid)
+      .containsExactlyInAnyOrder(mainBranch.getUuid(), featureBranch.getUuid());
   }
 
   @Test

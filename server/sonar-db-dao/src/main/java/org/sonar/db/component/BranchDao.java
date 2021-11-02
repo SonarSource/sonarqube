@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -79,6 +80,13 @@ public class BranchDao implements Dao {
 
   private static Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, String key, BranchType branchType) {
     return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, key, branchType));
+  }
+
+  public List<BranchDto> selectByKeys(DbSession dbSession, String projectUuid, Set<String> branchKeys) {
+    if (branchKeys.isEmpty()) {
+      return emptyList();
+    }
+    return executeLargeInputs(branchKeys, partition -> mapper(dbSession).selectByKeys(projectUuid, branchKeys));
   }
 
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {

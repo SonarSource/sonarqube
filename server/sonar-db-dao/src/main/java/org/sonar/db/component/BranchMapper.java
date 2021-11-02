@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
@@ -39,6 +40,8 @@ public interface BranchMapper {
     @Param("now") long now);
 
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("branchType") BranchType branchType);
+
+  List<BranchDto> selectByKeys(@Param("projectUuid") String projectUuid, @Param("keys") Set<String> branchKeys);
 
   BranchDto selectByUuid(@Param("uuid") String uuid);
 
