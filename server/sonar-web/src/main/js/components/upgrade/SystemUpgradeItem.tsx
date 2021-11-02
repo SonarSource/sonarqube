@@ -55,7 +55,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
     <div className="system-upgrade-version it__upgrade-list-item">
       <h3 className="h1 spacer-bottom">
         <strong>{header}</strong>
-        {!isLTSVersion && (
+        {!isPatch && (
           <a
             className="spacer-left medium"
             href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"

@@ -54,7 +54,7 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
   render() {
     const { upgrading } = this.state;
     const { appState, systemUpgrades, latestLTS, updateUseCase } = this.props;
-    let systemUpgradesWithPatch = systemUpgrades;
+    let systemUpgradesWithPatch: SystemUpgrade[][] = [];
     const alertVariant = updateUseCase ? MAP_ALERT[updateUseCase] : undefined;
     const header = translate('system.system_upgrade');
     const parsedVersion = this.versionParser.exec(appState.version);
@@ -69,6 +69,14 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
         .map(upgrades => upgrades.filter(upgrade => !upgrade.version.startsWith(majoMinorVersion)))
         .filter(negate(isEmpty));
       systemUpgradesWithPatch.push(patches);
+    } else {
+      let untilLTS = false;
+      for (const upgrades of systemUpgrades) {
+        if (untilLTS === false) {
+          systemUpgradesWithPatch.push(upgrades);
+          untilLTS = upgrades.some(upgrade => upgrade.version.startsWith(latestLTS));
+        }
+      }
     }
 
     return (

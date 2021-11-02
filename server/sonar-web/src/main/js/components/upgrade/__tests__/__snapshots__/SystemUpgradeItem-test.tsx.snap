@@ -113,6 +113,14 @@ exports[`should display correctly 2`] = `
     <strong>
       system.lts_version
     </strong>
+    <a
+      className="spacer-left medium"
+      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      system.see_whats_new
+    </a>
   </h3>
   <p>
     <FormattedMessage
@@ -208,14 +216,6 @@ exports[`should display correctly 3`] = `
     <strong>
       system.latest_patch
     </strong>
-    <a
-      className="spacer-left medium"
-      href="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      system.see_whats_new
-    </a>
   </h3>
   <p>
     <FormattedMessage
