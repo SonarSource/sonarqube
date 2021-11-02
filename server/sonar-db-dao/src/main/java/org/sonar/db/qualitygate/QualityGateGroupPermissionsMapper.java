@@ -37,10 +37,10 @@ public interface QualityGateGroupPermissionsMapper {
 
   int countByQuery(@Param("query") SearchPermissionQuery query);
 
-  void deleteByGroup(@Param("groupUuid") String groupUuid);
+  int deleteByGroup(@Param("groupUuid") String groupUuid);
 
-  void delete(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuid") String groupUuid);
+  int delete(@Param("qualityGateUuid") String qualityGateUuid, @Param("groupUuid") String groupUuid);
 
-  void deleteByQualityGate(@Param("qualityGateUuid") String qualityGateUuid);
+  int deleteByQualityGate(@Param("qualityGateUuid") String qualityGateUuid);
 
 }

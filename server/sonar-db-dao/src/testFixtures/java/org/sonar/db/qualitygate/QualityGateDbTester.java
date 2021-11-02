@@ -107,19 +107,22 @@ public class QualityGateDbTester {
 
   public void addGroupPermission(QualityGateDto qualityGateDto, GroupDto group) {
     dbClient.qualityGateGroupPermissionsDao().insert(dbSession, new QualityGateGroupPermissionsDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(group.getUuid())
-      .setQualityGateUuid(qualityGateDto.getUuid())
+        .setUuid(Uuids.createFast())
+        .setGroupUuid(group.getUuid())
+        .setQualityGateUuid(qualityGateDto.getUuid()),
+      qualityGateDto.getName(),
+      group.getName()
     );
     dbSession.commit();
   }
 
   public void addUserPermission(QualityGateDto qualityGateDto, UserDto user) {
     dbClient.qualityGateUserPermissionDao().insert(dbSession, new QualityGateUserPermissionsDto()
-      .setUuid(Uuids.createFast())
-      .setUserUuid(user.getUuid())
-      .setQualityGateUuid(qualityGateDto.getUuid())
-    );
+        .setUuid(Uuids.createFast())
+        .setUserUuid(user.getUuid())
+        .setQualityGateUuid(qualityGateDto.getUuid()),
+      qualityGateDto.getName(),
+      user.getLogin());
     dbSession.commit();
   }
 }

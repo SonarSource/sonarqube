@@ -65,7 +65,7 @@ public class AddUserAction extends AbstractUserAction {
       new QualityGateUserPermissionsDto()
         .setUuid(uuidFactory.create())
         .setUserUuid(user.getUuid())
-        .setQualityGateUuid(qualityGate.getUuid()));
+        .setQualityGateUuid(qualityGate.getUuid()), qualityGate.getName(), user.getLogin());
     dbSession.commit();
   }
 

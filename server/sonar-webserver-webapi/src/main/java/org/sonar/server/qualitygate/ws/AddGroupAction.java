@@ -64,7 +64,9 @@ public class AddGroupAction extends AbstractGroupAction {
       new QualityGateGroupPermissionsDto()
         .setUuid(uuidFactory.create())
         .setGroupUuid(group.getUuid())
-        .setQualityGateUuid(qualityGate.getUuid()));
+        .setQualityGateUuid(qualityGate.getUuid()),
+      qualityGate.getName(),
+      group.getName());
     dbSession.commit();
   }
 

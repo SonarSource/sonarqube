@@ -21,24 +21,33 @@ package org.sonar.db.qualitygate;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserEditorNewValue;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
 import static org.sonar.db.user.SearchPermissionQuery.ANY;
 import static org.sonar.db.user.SearchPermissionQuery.IN;
 import static org.sonar.db.user.SearchPermissionQuery.OUT;
 
 public class QualityGateUserPermissionsDaoTest {
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
+
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final DbSession dbSession = db.getSession();
   private final UserDbTester userDbTester = new UserDbTester(db);
@@ -50,8 +59,17 @@ public class QualityGateUserPermissionsDaoTest {
     UserDto user = userDbTester.insertUser();
     QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate();
     QualityGateUserPermissionsDto qualityGateUserPermissions = new QualityGateUserPermissionsDto("uuid", user.getUuid(), qualityGate.getUuid());
-    underTest.insert(dbSession, qualityGateUserPermissions);
+    underTest.insert(dbSession, qualityGateUserPermissions, qualityGate.getName(), user.getLogin());
     dbSession.commit();
+
+    verify(auditPersister).addQualityGateEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityGateName, UserEditorNewValue::getQualityGateUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(qualityGate.getName(), qualityGate.getUuid(), user.getLogin(), user.getUuid());
+    assertThat(newValue.toString()).contains("\"qualityGateName\"").contains("\"userLogin\"");
 
     QualityGateUserPermissionsDto fromDB = underTest.selectByQualityGateAndUser(dbSession, qualityGate.getUuid(), user.getUuid());
     assertThat(fromDB.getQualityGateUuid()).isEqualTo(qualityGate.getUuid());
@@ -65,7 +83,7 @@ public class QualityGateUserPermissionsDaoTest {
     UserDto user2 = userDbTester.insertUser();
     QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate();
     QualityGateUserPermissionsDto qualityGateUserPermissions = new QualityGateUserPermissionsDto("uuid", user1.getUuid(), qualityGate.getUuid());
-    underTest.insert(dbSession, qualityGateUserPermissions);
+    underTest.insert(dbSession, qualityGateUserPermissions, qualityGate.getName(), user1.getLogin());
     dbSession.commit();
 
     assertThat(underTest.exists(dbSession, qualityGate.getUuid(), user1.getUuid())).isTrue();
@@ -217,6 +235,15 @@ public class QualityGateUserPermissionsDaoTest {
 
     underTest.deleteByQualityGateAndUser(dbSession, qualityGate, user);
 
+    verify(auditPersister).deleteQualityGateEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityGateName, UserEditorNewValue::getQualityGateUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(qualityGate.getName(), qualityGate.getUuid(), user.getLogin(), user.getUuid());
+    assertThat(newValue.toString()).contains("\"qualityGateName\"").contains("\"userLogin\"");
+
     assertThat(underTest.exists(dbSession, qualityGate, user)).isFalse();
   }
 
@@ -233,6 +260,15 @@ public class QualityGateUserPermissionsDaoTest {
     db.qualityGates().addUserPermission(qualityGateDto3, user1);
 
     underTest.deleteByUser(dbSession, user1);
+
+    verify(auditPersister).deleteQualityGateEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityGateName, UserEditorNewValue::getQualityGateUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(null, null, user1.getLogin(), user1.getUuid());
+    assertThat(newValue.toString()).doesNotContain("\"qualityGateName\"").contains("\"userLogin\"");
 
     assertThat(underTest.exists(dbSession, qualityGateDto1, user1)).isFalse();
     assertThat(underTest.exists(dbSession, qualityGateDto2, user2)).isTrue();
@@ -253,6 +289,15 @@ public class QualityGateUserPermissionsDaoTest {
     db.qualityGates().addUserPermission(qualityGateDto3, user3);
 
     underTest.deleteByQualityGate(dbSession, qualityGateDto1);
+
+    verify(auditPersister).deleteQualityGateEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityGateName, UserEditorNewValue::getQualityGateUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(qualityGateDto1.getName(), qualityGateDto1.getUuid(), null, null);
+    assertThat(newValue.toString()).contains("\"qualityGateName\"").doesNotContain("\"userLogin\"");
 
     assertThat(underTest.exists(dbSession, qualityGateDto1, user1)).isFalse();
     assertThat(underTest.exists(dbSession, qualityGateDto2, user2)).isTrue();

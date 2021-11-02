@@ -25,6 +25,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserEditorNewValue;
 import org.sonar.db.user.SearchPermissionQuery;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
@@ -32,9 +34,11 @@ import org.sonar.db.user.UserDto;
 public class QualityGateUserPermissionsDao implements Dao {
 
   private final System2 system2;
+  private final AuditPersister auditPersister;
 
-  public QualityGateUserPermissionsDao(System2 system2) {
+  public QualityGateUserPermissionsDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
+    this.auditPersister = auditPersister;
   }
 
   public boolean exists(DbSession dbSession, QualityGateDto qualityGate, UserDto user) {
@@ -52,8 +56,9 @@ public class QualityGateUserPermissionsDao implements Dao {
     return mapper(dbSession).selectByQualityGateAndUser(qualityGateUuid, userUuid);
   }
 
-  public void insert(DbSession dbSession, QualityGateUserPermissionsDto dto) {
+  public void insert(DbSession dbSession, QualityGateUserPermissionsDto dto, String qualityGateName, String userLogin) {
     mapper(dbSession).insert(dto, system2.now());
+    auditPersister.addQualityGateEditor(dbSession, new UserEditorNewValue(dto, qualityGateName, userLogin));
   }
 
   public List<SearchUserMembershipDto> selectByQuery(DbSession dbSession, SearchPermissionQuery query, Pagination pagination) {
@@ -65,15 +70,27 @@ public class QualityGateUserPermissionsDao implements Dao {
   }
 
   public void deleteByQualityGateAndUser(DbSession dbSession, QualityGateDto qualityGate, UserDto user) {
-    mapper(dbSession).delete(qualityGate.getUuid(), user.getUuid());
+    int deletedRows = mapper(dbSession).delete(qualityGate.getUuid(), user.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityGateEditor(dbSession, new UserEditorNewValue(qualityGate, user));
+    }
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
-    mapper(dbSession).deleteByUser(user.getUuid());
+    int deletedRows = mapper(dbSession).deleteByUser(user.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityGateEditor(dbSession, new UserEditorNewValue(user));
+    }
   }
 
   public void deleteByQualityGate(DbSession dbSession, QualityGateDto qualityGate) {
-    mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
+    int deletedRows = mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityGateEditor(dbSession, new UserEditorNewValue(qualityGate));
+    }
   }
 
   private static QualityGateUserPermissionsMapper mapper(DbSession dbSession) {

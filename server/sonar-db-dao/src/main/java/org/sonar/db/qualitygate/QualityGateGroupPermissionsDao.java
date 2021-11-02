@@ -25,6 +25,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.GroupEditorNewValue;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
 import org.sonar.db.user.SearchPermissionQuery;
@@ -34,9 +36,11 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class QualityGateGroupPermissionsDao implements Dao {
   private final System2 system2;
+  private final AuditPersister auditPersister;
 
-  public QualityGateGroupPermissionsDao(System2 system2) {
+  public QualityGateGroupPermissionsDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
+    this.auditPersister = auditPersister;
   }
 
   public boolean exists(DbSession dbSession, QualityGateDto qualityGate, GroupDto group) {
@@ -53,8 +57,9 @@ public class QualityGateGroupPermissionsDao implements Dao {
       .isEmpty();
   }
 
-  public void insert(DbSession dbSession, QualityGateGroupPermissionsDto dto) {
+  public void insert(DbSession dbSession, QualityGateGroupPermissionsDto dto, String qualityGateName, String groupName) {
     mapper(dbSession).insert(dto, system2.now());
+    auditPersister.addQualityGateEditor(dbSession, new GroupEditorNewValue(dto, qualityGateName, groupName));
   }
 
   public List<SearchGroupMembershipDto> selectByQuery(DbSession dbSession, SearchPermissionQuery query, Pagination pagination) {
@@ -66,15 +71,27 @@ public class QualityGateGroupPermissionsDao implements Dao {
   }
 
   public void deleteByGroup(DbSession dbSession, GroupDto group) {
-    mapper(dbSession).deleteByGroup(group.getUuid());
+    int deletedRows = mapper(dbSession).deleteByGroup(group.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityGateEditor(dbSession, new GroupEditorNewValue(group));
+    }
   }
 
   public void deleteByQualityGateAndGroup(DbSession dbSession, QualityGateDto qualityGate, GroupDto group) {
-    mapper(dbSession).delete(qualityGate.getUuid(), group.getUuid());
+    int deletedRows = mapper(dbSession).delete(qualityGate.getUuid(), group.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityGateEditor(dbSession, new GroupEditorNewValue(qualityGate, group));
+    }
   }
 
   public void deleteByQualityGate(DbSession dbSession, QualityGateDto qualityGate) {
-    mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
+    int deletedRows = mapper(dbSession).deleteByQualityGate(qualityGate.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityGateEditor(dbSession, new GroupEditorNewValue(qualityGate));
+    }
   }
 
   private static QualityGateGroupPermissionsMapper mapper(DbSession dbSession) {
