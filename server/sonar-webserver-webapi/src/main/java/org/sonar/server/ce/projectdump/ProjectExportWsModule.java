@@ -23,6 +23,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.projectdump.ws.ExportAction;
 import org.sonar.server.projectdump.ws.ProjectDumpWs;
 import org.sonar.server.projectdump.ws.ProjectDumpWsSupport;
+import org.sonar.server.projectdump.ws.StatusAction;
 
 public class ProjectExportWsModule extends Module {
   @Override
@@ -31,7 +32,8 @@ public class ProjectExportWsModule extends Module {
       ProjectDumpWsSupport.class,
       ProjectDumpWs.class,
       ExportAction.class,
-      ExportSubmitterImpl.class
+      ExportSubmitterImpl.class,
+      StatusAction.class
     );
 
   }

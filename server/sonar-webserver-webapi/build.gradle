@@ -19,7 +19,6 @@ dependencies {
   compile project(':server:sonar-alm-client')
   compile project(':sonar-scanner-protocol')
 
-
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
 

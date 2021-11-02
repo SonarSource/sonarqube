@@ -48,7 +48,6 @@ public class ProjectExportDumpFSImpl implements ProjectExportDumpFS, Startable {
 
   @Override
   public void start() {
-    Files2.FILES2.createDir(importDir);
     Files2.FILES2.createDir(exportDir);
   }
 

@@ -49,7 +49,6 @@ public class ProjectImportDumpFSImpl implements ProjectImportDumpFS, Startable {
   @Override
   public void start() {
     Files2.FILES2.createDir(importDir);
-    Files2.FILES2.createDir(exportDir);
   }
 
   @Override

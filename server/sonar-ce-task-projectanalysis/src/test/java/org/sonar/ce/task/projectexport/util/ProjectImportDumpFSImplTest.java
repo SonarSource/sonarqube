@@ -66,7 +66,6 @@ public class ProjectImportDumpFSImplTest {
 
     assertThat(dataDir).exists().isDirectory();
     assertThat(importDir).exists().isDirectory();
-    assertThat(exportDir).exists().isDirectory();
   }
 
   @Test
