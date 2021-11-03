@@ -73,13 +73,13 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
   renderDeleteModal = (props: ChildrenProps) => (
     <div>
       <header className="modal-head">
-        <h2>{translate('users.remove')}</h2>
+        <h2>{translate('quality_profiles.permissions.remove.user')}</h2>
       </header>
 
       <div className="modal-body">
         <FormattedMessage
-          defaultMessage={translate('users.remove.confirmation')}
-          id="users.remove.confirmation"
+          defaultMessage={translate('quality_profiles.permissions.remove.user.confirmation')}
+          id="quality_profiles.permissions.remove.user.confirmation"
           values={{
             user: <strong>{this.props.user.name}</strong>
           }}
@@ -116,7 +116,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
 
         {this.state.deleteModal && (
           <SimpleModal
-            header={translate('users.remove')}
+            header={translate('quality_profiles.permissions.remove.user')}
             onClose={this.handleDeleteModalClose}
             onSubmit={this.handleDelete}>
             {this.renderDeleteModal}

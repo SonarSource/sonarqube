@@ -131,13 +131,13 @@ exports[`should render correctly: show remove modal for group 1`] = `
         "name": "deletable group",
       }
     }
-    header="groups.remove"
+    header="quality_gates.permissions.remove.group"
     isDestructive={true}
     onClose={[MockFunction]}
     onConfirm={[MockFunction]}
   >
     <FormattedMessage
-      defaultMessage="groups.remove.confirmation"
+      defaultMessage="quality_gates.permissions.remove.group.confirmation"
       id="remove.confirmation"
       values={
         Object {
@@ -213,13 +213,13 @@ exports[`should render correctly: show remove modal for user 1`] = `
         "login": "userlogin",
       }
     }
-    header="users.remove"
+    header="quality_gates.permissions.remove.user"
     isDestructive={true}
     onClose={[MockFunction]}
     onConfirm={[MockFunction]}
   >
     <FormattedMessage
-      defaultMessage="users.remove.confirmation"
+      defaultMessage="quality_gates.permissions.remove.user.confirmation"
       id="remove.confirmation"
       values={
         Object {

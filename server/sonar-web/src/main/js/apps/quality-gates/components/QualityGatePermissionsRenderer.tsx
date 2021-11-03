@@ -91,7 +91,9 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
       {permissionToDelete && (
         <ConfirmModal
           header={
-            isUser(permissionToDelete) ? translate('users.remove') : translate('groups.remove')
+            isUser(permissionToDelete)
+              ? translate('quality_gates.permissions.remove.user')
+              : translate('quality_gates.permissions.remove.group')
           }
           confirmButtonText={translate('remove')}
           isDestructive={true}
@@ -101,8 +103,8 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
           <FormattedMessage
             defaultMessage={
               isUser(permissionToDelete)
-                ? translate('users.remove.confirmation')
-                : translate('groups.remove.confirmation')
+                ? translate('quality_gates.permissions.remove.user.confirmation')
+                : translate('quality_gates.permissions.remove.group.confirmation')
             }
             id="remove.confirmation"
             values={{
