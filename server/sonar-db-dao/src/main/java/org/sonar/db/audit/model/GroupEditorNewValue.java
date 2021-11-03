@@ -23,6 +23,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualitygate.QualityGateGroupPermissionsDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QProfileEditGroupsDto;
 import org.sonar.db.user.GroupDto;
 
 public class GroupEditorNewValue extends AbstractEditorNewValue {
@@ -55,6 +57,25 @@ public class GroupEditorNewValue extends AbstractEditorNewValue {
     this.groupName = groupDto.getName();
   }
 
+  public GroupEditorNewValue(QProfileEditGroupsDto qProfileEditGroupsDto, String qualityProfileName, String groupName) {
+    this.qualityProfileUuid = qProfileEditGroupsDto.getQProfileUuid();
+    this.qualityProfileName = qualityProfileName;
+    this.groupUuid = qProfileEditGroupsDto.getGroupUuid();
+    this.groupName = groupName;
+  }
+
+  public GroupEditorNewValue(QProfileDto qualityProfileDto, GroupDto groupDto) {
+    this.qualityProfileUuid = qualityProfileDto.getKee();
+    this.qualityProfileName = qualityProfileDto.getName();
+    this.groupUuid = groupDto.getUuid();
+    this.groupName = groupDto.getName();
+  }
+
+  public GroupEditorNewValue(QProfileDto qualityProfileDto) {
+    this.qualityProfileUuid = qualityProfileDto.getKee();
+    this.qualityProfileName = qualityProfileDto.getName();
+  }
+
   @CheckForNull
   public String getGroupUuid() {
     return this.groupUuid;
@@ -70,6 +91,8 @@ public class GroupEditorNewValue extends AbstractEditorNewValue {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"qualityGateUuid\": ", this.qualityGateUuid, true);
     addField(sb, "\"qualityGateName\": ", this.qualityGateName, true);
+    addField(sb, "\"qualityProfileUuid\": ", this.qualityProfileUuid, true);
+    addField(sb, "\"qualityProfileName\": ", this.qualityProfileName, true);
     addField(sb, "\"groupUuid\": ", this.groupUuid, true);
     addField(sb, "\"groupName\": ", this.groupName, true);
     endString(sb);

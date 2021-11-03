@@ -37,10 +37,10 @@ public interface QProfileEditGroupsMapper {
 
   void insert(@Param("dto") QProfileEditGroupsDto dto, @Param("now") long now);
 
-  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("groupUuid") String groupUuid);
+  int delete(@Param("qProfileUuid") String qProfileUuid, @Param("groupUuid") String groupUuid);
 
-  void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
+  int deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  void deleteByGroup(@Param("groupUuid") String groupUuid);
+  int deleteByGroup(@Param("groupUuid") String groupUuid);
 
 }

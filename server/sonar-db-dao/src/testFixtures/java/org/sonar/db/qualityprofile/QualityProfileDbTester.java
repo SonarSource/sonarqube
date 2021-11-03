@@ -106,29 +106,30 @@ public class QualityProfileDbTester {
   public QualityProfileDbTester setAsDefault(QProfileDto profile, QProfileDto... others) {
     dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
     for (QProfileDto other : others) {
-      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from( other));
+      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(other));
     }
     dbSession.commit();
     return this;
   }
 
-  public void addUserPermission(QProfileDto profile, UserDto user){
+  public void addUserPermission(QProfileDto profile, UserDto user) {
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
     dbClient.qProfileEditUsersDao().insert(dbSession, new QProfileEditUsersDto()
-      .setUuid(Uuids.createFast())
-      .setUserUuid(user.getUuid())
-      .setQProfileUuid(profile.getKee())
+        .setUuid(Uuids.createFast())
+        .setUserUuid(user.getUuid())
+        .setQProfileUuid(profile.getKee()),
+      profile.getName(), user.getLogin()
     );
     dbSession.commit();
   }
 
-  public void addGroupPermission(QProfileDto profile, GroupDto group){
+  public void addGroupPermission(QProfileDto profile, GroupDto group) {
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
     dbClient.qProfileEditGroupsDao().insert(dbSession, new QProfileEditGroupsDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(group.getUuid())
-      .setQProfileUuid(profile.getKee())
-    );
+        .setUuid(Uuids.createFast())
+        .setGroupUuid(group.getUuid())
+        .setQProfileUuid(profile.getKee()),
+      profile.getName(), group.getName());
     dbSession.commit();
   }
 }

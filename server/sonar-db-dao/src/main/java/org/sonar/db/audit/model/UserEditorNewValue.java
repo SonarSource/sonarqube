@@ -23,6 +23,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualitygate.QualityGateUserPermissionsDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QProfileEditUsersDto;
 import org.sonar.db.user.UserDto;
 
 public class UserEditorNewValue extends AbstractEditorNewValue {
@@ -38,16 +40,40 @@ public class UserEditorNewValue extends AbstractEditorNewValue {
     this.userLogin = userLogin;
   }
 
-  public UserEditorNewValue(@Nullable QualityGateDto qualityGateDto, @Nullable UserDto userDto) {
-    if (qualityGateDto != null) {
-      this.qualityGateUuid = qualityGateDto.getUuid();
-      this.qualityGateName = qualityGateDto.getName();
-    }
+  public UserEditorNewValue(QualityGateDto qualityGateDto, UserDto userDto) {
+    this.qualityGateUuid = qualityGateDto.getUuid();
+    this.qualityGateName = qualityGateDto.getName();
+    this.userUuid = userDto.getUuid();
+    this.userLogin = userDto.getLogin();
+  }
 
-    if (userDto != null) {
-      this.userUuid = userDto.getUuid();
-      this.userLogin = userDto.getLogin();
-    }
+  public UserEditorNewValue(QualityGateDto qualityGateDto) {
+    this.qualityGateUuid = qualityGateDto.getUuid();
+    this.qualityGateName = qualityGateDto.getName();
+  }
+
+  public UserEditorNewValue(UserDto userDto) {
+    this.userUuid = userDto.getUuid();
+    this.userLogin = userDto.getLogin();
+  }
+
+  public UserEditorNewValue(QProfileEditUsersDto qProfileEditUsersDto, String qualityProfileName, String userLogin) {
+    this.qualityProfileUuid = qProfileEditUsersDto.getQProfileUuid();
+    this.qualityProfileName = qualityProfileName;
+    this.userUuid = qProfileEditUsersDto.getUserUuid();
+    this.userLogin = userLogin;
+  }
+
+  public UserEditorNewValue(QProfileDto qProfileDto, UserDto userDto) {
+    this.qualityProfileUuid = qProfileDto.getKee();
+    this.qualityProfileName = qProfileDto.getName();
+    this.userUuid = userDto.getUuid();
+    this.userLogin = userDto.getLogin();
+  }
+
+  public UserEditorNewValue(QProfileDto qProfileDto) {
+    this.qualityProfileUuid = qProfileDto.getKee();
+    this.qualityProfileName = qProfileDto.getName();
   }
 
   @CheckForNull
@@ -65,6 +91,8 @@ public class UserEditorNewValue extends AbstractEditorNewValue {
     StringBuilder sb = new StringBuilder("{");
     addField(sb, "\"qualityGateUuid\": ", this.qualityGateUuid, true);
     addField(sb, "\"qualityGateName\": ", this.qualityGateName, true);
+    addField(sb, "\"qualityProfileUuid\": ", this.qualityProfileUuid, true);
+    addField(sb, "\"qualityProfileName\": ", this.qualityProfileName, true);
     addField(sb, "\"userUuid\": ", this.userUuid, true);
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     endString(sb);

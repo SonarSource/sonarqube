@@ -37,9 +37,9 @@ public interface QProfileEditUsersMapper {
 
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
 
-  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userUuid") String userUuid);
+  int delete(@Param("qProfileUuid") String qProfileUuid, @Param("userUuid") String userUuid);
 
-  void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
+  int deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  void deleteByUser(@Param("userUuid") String userUuid);
+  int deleteByUser(@Param("userUuid") String userUuid);
 }

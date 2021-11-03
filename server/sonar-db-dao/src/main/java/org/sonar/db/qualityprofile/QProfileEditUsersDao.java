@@ -24,6 +24,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserEditorNewValue;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
@@ -33,9 +35,11 @@ import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 public class QProfileEditUsersDao implements Dao {
 
   private final System2 system2;
+  private final AuditPersister auditPersister;
 
-  public QProfileEditUsersDao(System2 system2) {
+  public QProfileEditUsersDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
+    this.auditPersister = auditPersister;
   }
 
   public boolean exists(DbSession dbSession, QProfileDto profile, UserDto user) {
@@ -54,20 +58,40 @@ public class QProfileEditUsersDao implements Dao {
     return mapper(dbSession).selectQProfileUuidsByUser(userDto.getUuid());
   }
 
-  public void insert(DbSession dbSession, QProfileEditUsersDto dto) {
+  public void insert(DbSession dbSession, QProfileEditUsersDto dto, String qualityProfileName, String userLogin) {
     mapper(dbSession).insert(dto, system2.now());
+    auditPersister.addQualityProfileEditor(dbSession, new UserEditorNewValue(dto, qualityProfileName, userLogin));
   }
 
   public void deleteByQProfileAndUser(DbSession dbSession, QProfileDto profile, UserDto user) {
-    mapper(dbSession).delete(profile.getKee(), user.getUuid());
+    int deletedRows = mapper(dbSession).delete(profile.getKee(), user.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityProfileEditor(dbSession, new UserEditorNewValue(profile, user));
+    }
   }
 
   public void deleteByQProfiles(DbSession dbSession, List<QProfileDto> qProfiles) {
-    executeLargeUpdates(qProfiles.stream().map(QProfileDto::getKee).collect(toList()), p -> mapper(dbSession).deleteByQProfiles(p));
+    executeLargeUpdates(qProfiles,
+      partitionedProfiles ->
+      {
+        int deletedRows = mapper(dbSession).deleteByQProfiles(partitionedProfiles
+          .stream()
+          .map(QProfileDto::getKee)
+          .collect(toList()));
+
+        if (deletedRows > 0) {
+          partitionedProfiles.forEach(p -> auditPersister.deleteQualityProfileEditor(dbSession, new UserEditorNewValue(p)));
+        }
+      });
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
-    mapper(dbSession).deleteByUser(user.getUuid());
+    int deletedRows = mapper(dbSession).deleteByUser(user.getUuid());
+
+    if (deletedRows > 0) {
+      auditPersister.deleteQualityProfileEditor(dbSession, new UserEditorNewValue(user));
+    }
   }
 
   private static QProfileEditUsersMapper mapper(DbSession dbSession) {

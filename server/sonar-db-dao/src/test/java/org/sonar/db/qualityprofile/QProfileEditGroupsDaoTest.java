@@ -19,12 +19,16 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.GroupEditorNewValue;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
 
@@ -34,6 +38,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
@@ -43,10 +51,13 @@ public class QProfileEditGroupsDaoTest {
 
   private static final long NOW = 10_000_000_000L;
 
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final ArgumentCaptor<GroupEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(GroupEditorNewValue.class);
+
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, auditPersister);
 
   private QProfileEditGroupsDao underTest = db.getDbClient().qProfileEditGroupsDao();
 
@@ -201,22 +212,37 @@ public class QProfileEditGroupsDaoTest {
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
     assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), asList(group1, group2, group3)))
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
-    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(),emptyList())).isEmpty();
+    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), emptyList())).isEmpty();
   }
 
   @Test
   public void insert() {
+    String qualityProfileName = "QPROFILE_NAME";
+    String qualityProfileKee = "QPROFILE";
+    String groupUuid = "100";
+    String groupName = "GROUP_NAME";
     underTest.insert(db.getSession(), new QProfileEditGroupsDto()
-      .setUuid("ABCD")
-      .setGroupUuid("100")
-      .setQProfileUuid("QPROFILE")
+        .setUuid("ABCD")
+        .setGroupUuid(groupUuid)
+        .setQProfileUuid(qualityProfileKee),
+      qualityProfileName,
+      groupName
     );
+
+    verify(auditPersister).addQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    GroupEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileUuid,
+        GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
+      .containsExactly(qualityProfileName, qualityProfileKee, groupName, groupUuid);
+    assertThat(newValue.toString()).contains("\"qualityProfileName\"").contains("\"groupName\"");
 
     assertThat(db.selectFirst(db.getSession(),
       "select uuid as \"uuid\", group_uuid as \"groupUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_groups")).contains(
       entry("uuid", "ABCD"),
-      entry("groupUuid", "100"),
-      entry("qProfileUuid", "QPROFILE"),
+      entry("groupUuid", groupUuid),
+      entry("qProfileUuid", qualityProfileKee),
       entry("createdAt", NOW));
   }
 
@@ -228,6 +254,15 @@ public class QProfileEditGroupsDaoTest {
     assertThat(underTest.exists(db.getSession(), profile, group)).isTrue();
 
     underTest.deleteByQProfileAndGroup(db.getSession(), profile, group);
+
+    verify(auditPersister).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    GroupEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileName,
+        GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
+      .containsExactly(profile.getName(), profile.getKee(), group.getName(), group.getUuid());
+    assertThat(newValue.toString()).contains("\"qualityProfileName\"").contains("\"groupName\"");
 
     assertThat(underTest.exists(db.getSession(), profile, group)).isFalse();
   }
@@ -244,6 +279,20 @@ public class QProfileEditGroupsDaoTest {
     db.qualityProfiles().addGroupPermission(profile3, group1);
 
     underTest.deleteByQProfiles(db.getSession(), asList(profile1, profile2));
+
+    verify(auditPersister, times(2)).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    List<GroupEditorNewValue> newValues = newValueCaptor.getAllValues();
+    assertThat(newValues.get(0))
+      .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileUuid,
+        GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
+      .containsExactly(profile1.getName(), profile1.getKee(), null, null);
+    assertThat(newValues.get(0).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+    assertThat(newValues.get(1))
+      .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileUuid,
+        GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
+      .containsExactly(profile2.getName(), profile2.getKee(), null, null);
+    assertThat(newValues.get(1).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
 
     assertThat(underTest.exists(db.getSession(), profile1, group1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, group2)).isFalse();
@@ -262,6 +311,15 @@ public class QProfileEditGroupsDaoTest {
     db.qualityProfiles().addGroupPermission(profile3, group1);
 
     underTest.deleteByGroup(db.getSession(), group1);
+
+    verify(auditPersister).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    GroupEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileName,
+        GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
+      .containsExactly(null, null, group1.getName(), group1.getUuid());
+    assertThat(newValue.toString()).doesNotContain("\"qualityProfileName\"").contains("\"groupName\"");
 
     assertThat(underTest.exists(db.getSession(), profile1, group1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, group2)).isTrue();

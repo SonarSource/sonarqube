@@ -189,6 +189,16 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
+  public void addQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void deleteQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue) {
+    // no op
+  }
+
+  @Override
   public void addCharacteristicToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
     // no op
   }

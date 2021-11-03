@@ -27,6 +27,10 @@ public abstract class AbstractEditorNewValue extends NewValue {
   protected String qualityGateUuid;
   @Nullable
   protected String qualityGateName;
+  @Nullable
+  protected String qualityProfileUuid;
+  @Nullable
+  protected String qualityProfileName;
 
   @CheckForNull
   public String getQualityGateUuid() {
@@ -36,5 +40,15 @@ public abstract class AbstractEditorNewValue extends NewValue {
   @CheckForNull
   public String getQualityGateName() {
     return this.qualityGateName;
+  }
+
+  @CheckForNull
+  public String getQualityProfileUuid() {
+    return this.qualityProfileUuid;
+  }
+
+  @CheckForNull
+  public String getQualityProfileName() {
+    return this.qualityProfileName;
   }
 }

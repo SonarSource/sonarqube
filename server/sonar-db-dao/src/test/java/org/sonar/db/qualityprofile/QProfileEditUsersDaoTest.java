@@ -20,13 +20,17 @@
 package org.sonar.db.qualityprofile;
 
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.UserEditorNewValue;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
@@ -34,6 +38,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
@@ -45,11 +53,13 @@ public class QProfileEditUsersDaoTest {
   private static final long NOW = 10_000_000_000L;
 
   private final System2 system2 = new TestSystem2().setNow(NOW);
+  private final AuditPersister auditPersister = mock(AuditPersister.class);
+  private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2, auditPersister);
 
   private final QProfileEditUsersDao underTest = db.getDbClient().qProfileEditUsersDao();
 
@@ -60,6 +70,15 @@ public class QProfileEditUsersDaoTest {
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user);
+
+    verify(auditPersister).addQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(profile.getName(), profile.getKee(), user.getLogin(), user.getUuid());
+    assertThat(newValue.toString()).contains("\"qualityProfileName\"").contains("\"userLogin\"");
 
     assertThat(underTest.exists(db.getSession(), profile, user)).isTrue();
     assertThat(underTest.exists(db.getSession(), profile, anotherUser)).isFalse();
@@ -79,17 +98,17 @@ public class QProfileEditUsersDaoTest {
     assertThat(underTest.countByQuery(db.getSession(), builder()
       .setProfile(profile)
       .setMembership(ANY).build()))
-        .isEqualTo(3);
+      .isEqualTo(3);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
       .setProfile(profile)
       .setMembership(IN).build()))
-        .isEqualTo(2);
+      .isEqualTo(2);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
       .setProfile(profile)
       .setMembership(OUT).build()))
-        .isEqualTo(1);
+      .isEqualTo(1);
   }
 
   @Test
@@ -105,24 +124,24 @@ public class QProfileEditUsersDaoTest {
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
       .extracting(SearchUserMembershipDto::getUserUuid, SearchUserMembershipDto::isSelected)
-        .containsExactlyInAnyOrder(
-          tuple(user1.getUuid(), true),
-          tuple(user2.getUuid(), true),
-          tuple(user3.getUuid(), false));
+      .containsExactlyInAnyOrder(
+        tuple(user1.getUuid(), true),
+        tuple(user2.getUuid(), true),
+        tuple(user3.getUuid(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
         .setMembership(IN).build(),
       Pagination.all()))
       .extracting(SearchUserMembershipDto::getUserUuid, SearchUserMembershipDto::isSelected)
-        .containsExactlyInAnyOrder(tuple(user1.getUuid(), true), tuple(user2.getUuid(), true));
+      .containsExactlyInAnyOrder(tuple(user1.getUuid(), true), tuple(user2.getUuid(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
         .setMembership(OUT).build(),
       Pagination.all()))
       .extracting(SearchUserMembershipDto::getUserUuid, SearchUserMembershipDto::isSelected)
-        .containsExactlyInAnyOrder(tuple(user3.getUuid(), false));
+      .containsExactlyInAnyOrder(tuple(user3.getUuid(), false));
   }
 
   @Test
@@ -141,7 +160,7 @@ public class QProfileEditUsersDaoTest {
         .setQuery("user2").build(),
       Pagination.all()))
       .extracting(SearchUserMembershipDto::getUserUuid)
-        .containsExactlyInAnyOrder(user2.getUuid());
+      .containsExactlyInAnyOrder(user2.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
@@ -149,7 +168,7 @@ public class QProfileEditUsersDaoTest {
         .setQuery("joh").build(),
       Pagination.all()))
       .extracting(SearchUserMembershipDto::getUserUuid)
-        .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
@@ -157,7 +176,7 @@ public class QProfileEditUsersDaoTest {
         .setQuery("Doe").build(),
       Pagination.all()))
       .extracting(SearchUserMembershipDto::getUserUuid)
-        .containsExactlyInAnyOrder(user1.getUuid(), user3.getUuid());
+      .containsExactlyInAnyOrder(user1.getUuid(), user3.getUuid());
   }
 
   @Test
@@ -175,7 +194,7 @@ public class QProfileEditUsersDaoTest {
         .build(),
       Pagination.forPage(1).andSize(1)))
       .extracting(SearchUserMembershipDto::getUserUuid)
-        .containsExactly(user1.getUuid());
+      .containsExactly(user1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
@@ -183,7 +202,7 @@ public class QProfileEditUsersDaoTest {
         .build(),
       Pagination.forPage(3).andSize(1)))
       .extracting(SearchUserMembershipDto::getUserUuid)
-        .containsExactly(user3.getUuid());
+      .containsExactly(user3.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setProfile(profile)
@@ -191,7 +210,7 @@ public class QProfileEditUsersDaoTest {
         .build(),
       Pagination.forPage(1).andSize(10)))
       .extracting(SearchUserMembershipDto::getUserUuid)
-        .containsExactly(user1.getUuid(), user2.getUuid(), user3.getUuid());
+      .containsExactly(user1.getUuid(), user2.getUuid(), user3.getUuid());
   }
 
   @Test
@@ -210,32 +229,43 @@ public class QProfileEditUsersDaoTest {
 
   @Test
   public void insert() {
+    String qualityProfileUuid = "QPROFILE";
+    String qualityProfileName = "QPROFILE_NAME";
+    String userUuid = "100";
+    String userLogin = "USER_LOGIN";
     underTest.insert(db.getSession(), new QProfileEditUsersDto()
-      .setUuid("ABCD")
-      .setUserUuid("100")
-      .setQProfileUuid("QPROFILE"));
+        .setUuid("ABCD")
+        .setUserUuid(userUuid)
+        .setQProfileUuid(qualityProfileUuid),
+      qualityProfileName, userLogin);
 
     assertThat(db.selectFirst(db.getSession(),
       "select uuid as \"uuid\", user_uuid as \"userUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_users")).contains(
-        entry("uuid", "ABCD"),
-        entry("userUuid", "100"),
-        entry("qProfileUuid", "QPROFILE"),
-        entry("createdAt", NOW));
+      entry("uuid", "ABCD"),
+      entry("userUuid", userUuid),
+      entry("qProfileUuid", qualityProfileUuid),
+      entry("createdAt", NOW));
   }
 
   @Test
   public void fail_to_insert_same_row_twice() {
+    String qualityProfileUuid = "QPROFILE";
+    String qualityProfileName = "QPROFILE_NAME";
+    String userUuid = "100";
+    String userLogin = "USER_LOGIN";
     underTest.insert(db.getSession(), new QProfileEditUsersDto()
-      .setUuid("UUID-1")
-      .setUserUuid("100")
-      .setQProfileUuid("QPROFILE"));
+        .setUuid("UUID-1")
+        .setUserUuid(userUuid)
+        .setQProfileUuid(qualityProfileUuid),
+      qualityProfileName, userLogin);
 
     expectedException.expectCause(hasType(SQLException.class));
 
     underTest.insert(db.getSession(), new QProfileEditUsersDto()
-      .setUuid("UUID-2")
-      .setUserUuid("100")
-      .setQProfileUuid("QPROFILE"));
+        .setUuid("UUID-2")
+        .setUserUuid(userUuid)
+        .setQProfileUuid(qualityProfileUuid),
+      qualityProfileName, userLogin);
   }
 
   @Test
@@ -246,6 +276,15 @@ public class QProfileEditUsersDaoTest {
     assertThat(underTest.exists(db.getSession(), profile, user)).isTrue();
 
     underTest.deleteByQProfileAndUser(db.getSession(), profile, user);
+
+    verify(auditPersister).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(profile.getName(), profile.getKee(), user.getLogin(), user.getUuid());
+    assertThat(newValue.toString()).contains("\"qualityProfileName\"").contains("\"userLogin\"");
 
     assertThat(underTest.exists(db.getSession(), profile, user)).isFalse();
   }
@@ -263,6 +302,20 @@ public class QProfileEditUsersDaoTest {
 
     underTest.deleteByQProfiles(db.getSession(), asList(profile1, profile2));
 
+    verify(auditPersister, times(2)).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    List<UserEditorNewValue> newValues = newValueCaptor.getAllValues();
+    assertThat(newValues.get(0))
+      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(profile1.getName(), profile1.getKee(), null, null);
+    assertThat(newValues.get(0).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+    assertThat(newValues.get(1))
+      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(profile2.getName(), profile2.getKee(), null, null);
+    assertThat(newValues.get(1).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+
     assertThat(underTest.exists(db.getSession(), profile1, user1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, user2)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile3, user1)).isTrue();
@@ -278,6 +331,15 @@ public class QProfileEditUsersDaoTest {
     db.qualityProfiles().addUserPermission(profile3, user2);
 
     underTest.deleteByUser(db.getSession(), user1);
+
+    verify(auditPersister).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
+
+    UserEditorNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
+        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(null, null, user1.getLogin(), user1.getUuid());
+    assertThat(newValue.toString()).doesNotContain("\"qualityProfileName\"").contains("\"userLogin\"");
 
     assertThat(underTest.exists(db.getSession(), profile1, user1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile3, user2)).isTrue();

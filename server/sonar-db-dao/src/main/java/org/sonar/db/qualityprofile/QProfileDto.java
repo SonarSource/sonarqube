@@ -20,6 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Date;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
@@ -27,7 +28,7 @@ import org.sonar.core.util.UtcDateUtils;
 /**
  * Represents the join of "org_qprofiles" and "rules_profiles"
  */
-public class QProfileDto {
+public class QProfileDto implements Comparable<QProfileDto> {
   private String kee;
   private String name;
   private String language;
@@ -138,5 +139,27 @@ public class QProfileDto {
       .setRulesUpdatedAt(rules.getRulesUpdatedAt())
       .setLastUsed(org.getLastUsed())
       .setUserUpdatedAt(org.getUserUpdatedAt());
+  }
+
+  @Override
+  public int compareTo(QProfileDto o) {
+    return kee.compareTo(o.kee);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    QProfileDto that = (QProfileDto) o;
+    return kee.equals(that.kee);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(kee);
   }
 }

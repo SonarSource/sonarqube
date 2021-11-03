@@ -101,6 +101,10 @@ public interface AuditPersister {
 
   void deleteQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue);
 
+  void addQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue);
+
+  void deleteQualityProfileEditor(DbSession dbSession, AbstractEditorNewValue newValue);
+
   void addCharacteristicToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
   void updateCharacteristicInPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
