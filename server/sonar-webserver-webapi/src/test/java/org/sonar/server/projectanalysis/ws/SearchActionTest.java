@@ -152,11 +152,11 @@ public class SearchActionTest {
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue(a1.getUuid()));
     db.commit();
-    db.events().insertEvent(newEvent(a1).setUuid("E11")
-      .setName("Quality Gate is Red (was Orange)")
+    db.events().insertEvent(newEvent(a1).setUuid("AXt91FkXy_c4CIP4ds6A")
+      .setName("Failed")
       .setCategory(QUALITY_GATE.getLabel())
-      .setDescription("Coverage is < 80%"));
-    db.events().insertEvent(newEvent(a1).setUuid("E12")
+      .setDescription("Coverage on New Code < 85, Reliability Rating > 4, Maintainability Rating on New Code > 1, Reliability Rating on New Code > 1, Security Rating on New Code > 1, Duplicated Lines (%) on New Code > 3"));
+    db.events().insertEvent(newEvent(a1).setUuid("AXx_QFJ6Wa8wkfuJ6r5P")
       .setName("6.3").setCategory(VERSION.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E21")
       .setName("Quality Profile changed to Sonar Way")
