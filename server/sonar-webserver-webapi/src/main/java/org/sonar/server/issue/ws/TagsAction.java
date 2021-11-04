@@ -19,10 +19,10 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
@@ -41,19 +42,22 @@ import org.sonar.server.issue.index.IssueQuery;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_TYPE_NAMES;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * List issue tags matching a given query.
+ *
  * @since 5.1
  */
 public class TagsAction implements IssuesWsAction {
   private static final String PARAM_PROJECT = "project";
+  private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_ALL = "all";
 
   private final IssueIndex issueIndex;
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
@@ -61,8 +65,8 @@ public class TagsAction implements IssuesWsAction {
   private final ComponentFinder componentFinder;
 
   public TagsAction(IssueIndex issueIndex,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
-    ComponentFinder componentFinder) {
+                    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
+                    ComponentFinder componentFinder) {
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.dbClient = dbClient;
@@ -84,15 +88,31 @@ public class TagsAction implements IssuesWsAction {
       .setRequired(false)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("7.4");
+    action.createParam(PARAM_BRANCH)
+      .setDescription("Branch key")
+      .setRequired(false)
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
+      .setSince("9.2");
+    action.createParam(PARAM_ALL)
+      .setDescription("Indicator to search for all tags or only for tags in the main branch of a project")
+      .setRequired(false)
+      .setDefaultValue(Boolean.FALSE)
+      .setPossibleValues(Boolean.TRUE, Boolean.FALSE)
+      .setSince("9.2");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectKey = request.param(PARAM_PROJECT);
+      String branchKey = request.param(PARAM_BRANCH);
+      boolean all = request.mandatoryParamAsBoolean(PARAM_ALL);
       checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
+
       Optional<ComponentDto> project = getProject(dbSession, projectKey);
-      List<String> tags = searchTags(project.orElse(null), request);
+      Optional<BranchDto> branch = project.flatMap(p -> dbClient.branchDao().selectByBranchKey(dbSession, p.uuid(), branchKey));
+      List<String> tags = searchTags(project.orElse(null), branch.orElse(null), request, all);
+
       Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
       tags.forEach(tagsResponseBuilder::addTags);
       writeProtobuf(tagsResponseBuilder.build(), request, response);
@@ -116,22 +136,31 @@ public class TagsAction implements IssuesWsAction {
     }
   }
 
-  private List<String> searchTags(@Nullable ComponentDto project, Request request) {
+  private List<String> searchTags(@Nullable ComponentDto project, @Nullable BranchDto branch, Request request, boolean all) {
     IssueQuery.Builder issueQueryBuilder = IssueQuery.builder()
       .types(ISSUE_TYPE_NAMES);
-    ofNullable(project).ifPresent(p -> {
-      switch (p.qualifier()) {
+    if (project != null) {
+      switch (project.qualifier()) {
         case Qualifiers.PROJECT:
-          issueQueryBuilder.projectUuids(ImmutableSet.of(p.uuid()));
-          return;
+          issueQueryBuilder.projectUuids(Set.of(project.uuid()));
+          break;
         case Qualifiers.APP:
         case Qualifiers.VIEW:
-          issueQueryBuilder.viewUuids(ImmutableSet.of(p.uuid()));
-          return;
+          issueQueryBuilder.viewUuids(Set.of(project.uuid()));
+          break;
         default:
-          throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", p.qualifier()));
+          throw new IllegalArgumentException(String.format("Component of type '%s' is not supported", project.qualifier()));
       }
-    });
+
+      if (branch != null && !project.uuid().equals(branch.getUuid())) {
+        issueQueryBuilder.branchUuid(branch.getUuid());
+        issueQueryBuilder.mainBranch(false);
+      }
+    }
+    if (all) {
+      issueQueryBuilder.mainBranch(null);
+    }
+
     return issueIndex.searchTags(
       issueQueryBuilder.build(),
       request.param(TEXT_QUERY),

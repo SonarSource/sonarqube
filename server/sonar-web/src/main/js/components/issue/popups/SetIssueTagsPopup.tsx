@@ -50,6 +50,7 @@ export default class SetIssueTagsPopup extends React.PureComponent<Props, State>
 
   onSearch = (query: string) => {
     return searchIssueTags({
+      all: true,
       q: query,
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, MAX_LIST_SIZE)
     }).then(

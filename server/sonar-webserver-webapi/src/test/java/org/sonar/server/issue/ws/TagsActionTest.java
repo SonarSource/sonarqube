@@ -157,6 +157,66 @@ public class TagsActionTest {
   }
 
   @Test
+  public void search_tags_by_branch_equals_main_branch() {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    indexIssues();
+    permissionIndexer.allowOnlyAnyone(project, branch);
+
+    assertThat(tagListOf(ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", project.uuid()))).containsExactly("tag1", "tag2");
+  }
+
+  @Test
+  public void search_tags_by_branch() {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    indexIssues();
+    permissionIndexer.allowOnlyAnyone(project, branch);
+
+    assertThat(tagListOf(ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "my_branch"))).containsExactly("tag12", "tag4", "tag5");
+  }
+
+  @Test
+  public void search_tags_by_branch_not_exist_fall_back_to_main_branch() {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    indexIssues();
+    permissionIndexer.allowOnlyAnyone(project, branch);
+
+    assertThat(tagListOf(ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "not_exist"))).containsExactly("tag1", "tag2");
+  }
+
+  @Test
+  public void search_all_tags_by_query() {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, branch, branch, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    indexIssues();
+    permissionIndexer.allowOnlyAnyone(project, branch);
+
+    assertThat(tagListOf(ws.newRequest()
+      .setParam("q", "tag1")
+      .setParam("all", "true"))).containsExactly("tag1", "tag12");
+  }
+
+  @Test
   public void search_tags_by_project_ignores_hotspots() {
     RuleDefinitionDto issueRule = db.rules().insertIssueRule();
     RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
@@ -319,7 +379,9 @@ public class TagsActionTest {
       .containsExactlyInAnyOrder(
         tuple("q", null, null, false, false),
         tuple("ps", "10", null, false, false),
-        tuple("project", null, "7.4", false, false));
+        tuple("project", null, "7.4", false, false),
+        tuple("branch", null, "9.2", false, false),
+        tuple("all", "false", "9.2", false, false));
   }
 
   private static ProtocolStringList tagListOf(TestRequest testRequest) {

@@ -75,6 +75,8 @@ export function getFacet(
 
 export function searchIssueTags(data: {
   project?: string;
+  branch?: string;
+  all?: boolean;
   ps?: number;
   q?: string;
 }): Promise<string[]> {

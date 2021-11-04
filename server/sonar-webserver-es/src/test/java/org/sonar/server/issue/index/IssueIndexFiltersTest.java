@@ -276,6 +276,7 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsOnly(
       IssueQuery.builder().componentUuids(singletonList(branch.uuid())).projectUuids(singletonList(project.uuid())).branchUuid(branch.uuid()).mainBranch(false),
       issueOnBranch.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())).mainBranch(null), issueOnProject.key(), issueOnBranch.key(), issueOnAnotherBranch.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
   }
 

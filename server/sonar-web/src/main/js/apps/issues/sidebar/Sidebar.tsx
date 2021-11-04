@@ -21,6 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
+import { isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
 import {
   Facet,
@@ -105,7 +106,19 @@ export class Sidebar extends React.PureComponent<Props> {
   }
 
   render() {
-    const { component, createdAfterIncludesTime, facets, openFacets, query } = this.props;
+    const {
+      component,
+      createdAfterIncludesTime,
+      facets,
+      openFacets,
+      query,
+      branchLike
+    } = this.props;
+
+    const branch =
+      (isBranch(branchLike) && branchLike.name) ||
+      (isPullRequest(branchLike) && branchLike.branch) ||
+      undefined;
 
     const displayProjectsFacet =
       !component || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
@@ -216,6 +229,7 @@ export class Sidebar extends React.PureComponent<Props> {
         />
         <TagFacet
           component={component}
+          branch={branch}
           fetching={this.props.loadingFacets.tags === true}
           loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}

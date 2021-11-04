@@ -96,7 +96,7 @@ public class IssueQuery {
   private final Boolean asc;
   private final String facetMode;
   private final String branchUuid;
-  private final boolean mainBranch;
+  private final Boolean mainBranch;
   private final ZoneId timeZone;
 
   private IssueQuery(Builder builder) {
@@ -279,7 +279,7 @@ public class IssueQuery {
     return branchUuid;
   }
 
-  public boolean isMainBranch() {
+  public Boolean isMainBranch() {
     return mainBranch;
   }
 
@@ -336,7 +336,7 @@ public class IssueQuery {
     private Boolean asc = false;
     private String facetMode;
     private String branchUuid;
-    private boolean mainBranch = true;
+    private Boolean mainBranch = true;
     private ZoneId timeZone;
 
     private Builder() {
@@ -540,7 +540,7 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder mainBranch(boolean mainBranch) {
+    public Builder mainBranch(@Nullable Boolean mainBranch) {
       this.mainBranch = mainBranch;
       return this;
     }

@@ -516,9 +516,11 @@ public class IssueIndex {
     if (Boolean.TRUE.equals(query.onComponentOnly())) {
       return;
     }
-    allFilters.addFilter(
-      "__is_main_branch", new SimpleFieldFilterScope(FIELD_ISSUE_IS_MAIN_BRANCH),
-      createTermFilter(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.isMainBranch())));
+    if (query.isMainBranch() != null) {
+      allFilters.addFilter(
+        "__is_main_branch", new SimpleFieldFilterScope(FIELD_ISSUE_IS_MAIN_BRANCH),
+        createTermFilter(FIELD_ISSUE_IS_MAIN_BRANCH, query.isMainBranch().toString()));
+    }
     allFilters.addFilter(
       FIELD_ISSUE_BRANCH_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_BRANCH_UUID),
       createTermFilter(FIELD_ISSUE_BRANCH_UUID, query.branchUuid()));
