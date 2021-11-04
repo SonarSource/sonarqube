@@ -46,6 +46,8 @@ interface State {
   showStatusUpdateSuccessModal: boolean;
 }
 
+const SCROLL_TO_COMMENT_BOTTOM_OFFSET = 300;
+
 export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
@@ -65,9 +67,6 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.hotspotKey !== this.props.hotspotKey) {
       this.fetchHotspot();
-    }
-    if (this.commentTextRef.current) {
-      this.commentTextRef.current.focus({ preventScroll: true });
     }
   }
 
@@ -102,7 +101,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     if (this.commentTextRef.current) {
       this.commentTextRef.current.focus({ preventScroll: true });
       scrollToElement(this.commentTextRef.current, {
-        bottomOffset: 100
+        bottomOffset: SCROLL_TO_COMMENT_BOTTOM_OFFSET
       });
     }
   };
