@@ -64,7 +64,7 @@ public class RuleTest {
 
   @Test
   public void hashcode_is_based_on_repository_and_key() {
-    assertThat(underTest.hashCode()).isEqualTo(new Rule(SOME_DUMP_UUID, SOME_REPOSITORY, SOME_KEY).hashCode());
+    assertThat(underTest).hasSameHashCodeAs(new Rule(SOME_DUMP_UUID, SOME_REPOSITORY, SOME_KEY));
     assertThat(underTest.hashCode()).isNotEqualTo(new Rule(SOME_DUMP_UUID, SOME_KEY, SOME_REPOSITORY).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new Rule(SOME_DUMP_UUID, "other repository", SOME_KEY).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new Rule(SOME_DUMP_UUID, SOME_REPOSITORY, "other key").hashCode());
@@ -72,12 +72,12 @@ public class RuleTest {
 
   @Test
   public void hashcode_ignores_dump_id() {
-    assertThat(underTest.hashCode()).isEqualTo(new Rule("uuid-8888", SOME_REPOSITORY, SOME_KEY).hashCode());
+    assertThat(underTest).hasSameHashCodeAs(new Rule("uuid-8888", SOME_REPOSITORY, SOME_KEY));
   }
 
   @Test
   public void toString_displays_all_fields() {
-    assertThat(underTest.toString()).isEqualTo("Rule{ref='uuid-12334', repository='some repository', key='some key'}");
+    assertThat(underTest).hasToString("Rule{ref='uuid-12334', repository='some repository', key='some key'}");
 
   }
 }

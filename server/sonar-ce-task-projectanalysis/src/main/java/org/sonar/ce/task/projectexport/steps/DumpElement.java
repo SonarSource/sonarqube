@@ -28,7 +28,7 @@ import javax.annotation.concurrent.Immutable;
  * File element in the dump report.
  */
 @Immutable
-public class DumpElement<MSG extends Message> {
+public class DumpElement<M extends Message> {
   public static final long NO_DATETIME = 0;
 
   public static final DumpElement<ProjectDump.Metadata> METADATA = new DumpElement<>("metadata.pb", ProjectDump.Metadata.parser());
@@ -50,9 +50,9 @@ public class DumpElement<MSG extends Message> {
   public static final DumpElement<ProjectDump.NewCodePeriod> NEW_CODE_PERIODS = new DumpElement<>("new_code_periods.pb", ProjectDump.NewCodePeriod.parser());
 
   private final String filename;
-  private final Parser<MSG> parser;
+  private final Parser<M> parser;
 
-  private DumpElement(String filename, Parser<MSG> parser) {
+  private DumpElement(String filename, Parser<M> parser) {
     this.filename = filename;
     this.parser = parser;
   }
@@ -61,14 +61,14 @@ public class DumpElement<MSG extends Message> {
     return filename;
   }
 
-  public Parser<MSG> parser() {
+  public Parser<M> parser() {
     return parser;
   }
 
   public static class IssueDumpElement extends DumpElement<ProjectDump.Issue> {
-    public final int NO_LINE = 0;
-    public final double NO_GAP = -1;
-    public final long NO_EFFORT = -1;
+    public static final int NO_LINE = 0;
+    public static final double NO_GAP = -1;
+    public static final long NO_EFFORT = -1;
 
     public IssueDumpElement() {
       super("issues.pb", ProjectDump.Issue.parser());

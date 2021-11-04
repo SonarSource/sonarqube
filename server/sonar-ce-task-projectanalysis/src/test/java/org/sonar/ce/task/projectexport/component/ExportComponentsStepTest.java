@@ -168,9 +168,4 @@ public class ExportComponentsStepTest {
     assertThat(underTest.getDescription()).isEqualTo("Export components");
   }
 
-  @Test
-  public void name() {
-    System.err.println(new Date(1313272860000L));
-
-  }
 }

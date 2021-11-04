@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectexport.steps;
 
-import com.google.common.collect.ImmutableSet;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +40,7 @@ public class ExportSettingsStep implements ComputationStep {
    * These properties are not exported as values depend on environment data that are not
    * exported within the dump (Quality Gate, users).
    */
-  private static final Set<String> IGNORED_KEYS = ImmutableSet.of("sonar.issues.defaultAssigneeLogin");
+  private static final Set<String> IGNORED_KEYS = Set.of("sonar.issues.defaultAssigneeLogin");
 
   private final DbClient dbClient;
   private final ProjectHolder projectHolder;

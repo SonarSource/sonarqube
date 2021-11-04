@@ -78,7 +78,7 @@ public class MutableDumpReaderImpl implements MutableDumpReader {
   }
 
   @Override
-  public <MSG extends Message> MessageStream<MSG> stream(DumpElement<MSG> elt) {
+  public <M extends Message> MessageStream<M> stream(DumpElement<M> elt) {
     File file = new File(tempRootDir(), elt.filename());
     checkState(file.exists(), "Missing file: %s", file);
 

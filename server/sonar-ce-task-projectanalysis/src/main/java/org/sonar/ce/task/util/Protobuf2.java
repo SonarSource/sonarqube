@@ -52,7 +52,7 @@ public class Protobuf2 {
     return this;
   }
 
-  public <MSG extends Message> MSG parseFrom(Parser<MSG> parser, InputStream input) {
+  public <M extends Message> M parseFrom(Parser<M> parser, InputStream input) {
     try {
       return parser.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
@@ -61,7 +61,7 @@ public class Protobuf2 {
   }
 
   @CheckForNull
-  public <MSG extends Message> MSG parseDelimitedFrom(Parser<MSG> parser, InputStream input) {
+  public <M extends Message> M parseDelimitedFrom(Parser<M> parser, InputStream input) {
     try {
       return parser.parseDelimitedFrom(input);
     } catch (InvalidProtocolBufferException e) {

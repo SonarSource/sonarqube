@@ -197,7 +197,7 @@ public class ExportIssuesChangelogStepTest {
     underTest.execute(new TestComputationStepContext());
 
     ProjectDump.IssueChange issueChange = getSingleMessage();
-    assertThat(issueChange.getCreatedAt()).isEqualTo(0L);
+    assertThat(issueChange.getCreatedAt()).isZero();
   }
 
   @Test

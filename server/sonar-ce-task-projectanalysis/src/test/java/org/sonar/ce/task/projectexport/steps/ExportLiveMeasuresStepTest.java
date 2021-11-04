@@ -89,7 +89,7 @@ public class ExportLiveMeasuresStepTest {
       .extracting(ProjectDump.LiveMeasure::getMetricRef, m -> m.getDoubleValue().getValue(), ProjectDump.LiveMeasure::hasVariation)
       .containsOnly(tuple(0, 4711.0d, false));
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
-    assertThat(metricRepository.getRefByUuid().keySet()).containsOnly(metric.getUuid());
+    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
   @Test
@@ -161,7 +161,7 @@ public class ExportLiveMeasuresStepTest {
         "test",
         7.0d));
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
-    assertThat(metricRepository.getRefByUuid().keySet()).containsOnly(metric.getUuid());
+    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
   @Test
@@ -191,7 +191,7 @@ public class ExportLiveMeasuresStepTest {
         "",
         false));
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("1 live measures exported");
-    assertThat(metricRepository.getRefByUuid().keySet()).containsOnly(metric.getUuid());
+    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(metric.getUuid());
   }
 
   @Test

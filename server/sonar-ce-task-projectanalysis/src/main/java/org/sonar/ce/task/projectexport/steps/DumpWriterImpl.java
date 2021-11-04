@@ -69,7 +69,7 @@ public class DumpWriterImpl implements DumpWriter {
   }
 
   @Override
-  public <MSG extends Message> StreamWriter<MSG> newStreamWriter(DumpElement<MSG> elt) {
+  public <M extends Message> StreamWriter<M> newStreamWriter(DumpElement<M> elt) {
     checkNotPublished();
     File file = new File(rootDir, elt.filename());
     return StreamWriterImpl.create(file);

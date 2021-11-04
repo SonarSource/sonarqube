@@ -142,7 +142,7 @@ public class ExportMeasuresStepTest {
     assertThat(exportedMeasures).extracting(ProjectDump.Measure::getAnalysisUuid).containsOnly(firstAnalysis.getUuid(), secondAnalysis.getUuid());
     assertThat(exportedMeasures).extracting(ProjectDump.Measure::getMetricRef).containsOnly(0);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 measures exported");
-    assertThat(metricRepository.getRefByUuid().keySet()).containsOnly(NCLOC.getUuid());
+    assertThat(metricRepository.getRefByUuid()).containsOnlyKeys(NCLOC.getUuid());
   }
 
   @Test
