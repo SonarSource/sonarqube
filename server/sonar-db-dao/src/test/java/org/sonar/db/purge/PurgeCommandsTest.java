@@ -56,7 +56,6 @@ import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -654,7 +653,7 @@ public class PurgeCommandsTest {
   }
 
   @Test
-  public void deleteProjectInPortfolios_deletes_project_and_branch_from_portfolios() {
+  public void deleteProjectInPortfolios_deletes_project_and_branch_from_portfolios_if_root_is_branch() {
     var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
     var portfolio2 = dbTester.components().insertPrivatePortfolioDto();
     dbTester.components().insertPrivatePortfolio();
@@ -674,6 +673,24 @@ public class PurgeCommandsTest {
     assertThat(dbTester.getDbClient().portfolioDao().selectAllPortfolioProjects(dbTester.getSession()))
       .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid, PortfolioProjectDto::getBranchUuids)
       .containsExactlyInAnyOrder(tuple(portfolio1.getUuid(), anotherProject.getUuid(), singleton("anotherProjectBranch")));
+  }
+
+  @Test
+  public void deleteProjectInPortfolios_deletes_project_and_branch_from_portfolios_if_root_is_project_only_selecting_a_single_branch() {
+    var portfolio1 = dbTester.components().insertPrivatePortfolioDto();
+    dbTester.components().insertPrivatePortfolio();
+    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+
+    dbTester.components().addPortfolioProject(portfolio1, project);
+    dbTester.components().addPortfolioProjectBranch(portfolio1, project, "projectBranch");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+
+    purgeCommands.deleteProjectInPortfolios(project.getUuid());
+
+    assertThat(dbTester.getDbClient().portfolioDao().selectAllPortfolioProjects(dbTester.getSession())).isEmpty();
+    assertThat(dbTester.countRowsOfTable("portfolio_proj_branches")).isZero();
+    assertThat(dbTester.countRowsOfTable("portfolio_projects")).isZero();
   }
 
   @Test

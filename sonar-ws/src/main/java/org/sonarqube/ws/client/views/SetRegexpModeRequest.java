@@ -30,8 +30,20 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class SetRegexpModeRequest {
 
+  private String branch;
   private String portfolio;
   private String regexp;
+
+  /**
+   */
+  public SetRegexpModeRequest setBranch(String branch) {
+    this.branch = branch;
+    return this;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
 
   /**
    * This is a mandatory parameter.

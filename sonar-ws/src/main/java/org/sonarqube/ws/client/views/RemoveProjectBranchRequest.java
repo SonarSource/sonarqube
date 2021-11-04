@@ -19,25 +19,26 @@
  */
 package org.sonarqube.ws.client.views;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/set_tags_mode">Further information about this action online (including a response example)</a>
- * @since 7.4
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/remove_project_branch">Further information about this action online (including a response example)</a>
+ * @since 9.2
  */
 @Generated("sonar-ws-generator")
-public class SetTagsModeRequest {
+public class RemoveProjectBranchRequest {
 
   private String branch;
-  private String portfolio;
-  private List<String> tags;
+  private String key;
+  private String project;
 
   /**
+   * This is a mandatory parameter.
+   * Example value: "feature/my_branch"
    */
-  public SetTagsModeRequest setBranch(String branch) {
+  public RemoveProjectBranchRequest setBranch(String branch) {
     this.branch = branch;
     return this;
   }
@@ -49,24 +50,25 @@ public class SetTagsModeRequest {
   /**
    * This is a mandatory parameter.
    */
-  public SetTagsModeRequest setPortfolio(String portfolio) {
-    this.portfolio = portfolio;
+  public RemoveProjectBranchRequest setKey(String key) {
+    this.key = key;
     return this;
   }
 
-  public String getPortfolio() {
-    return portfolio;
+  public String getKey() {
+    return key;
   }
 
   /**
    * This is a mandatory parameter.
+   * Example value: "my_project"
    */
-  public SetTagsModeRequest setTags(List<String> tags) {
-    this.tags = tags;
+  public RemoveProjectBranchRequest setProject(String project) {
+    this.project = project;
     return this;
   }
 
-  public List<String> getTags() {
-    return tags;
+  public String getProject() {
+    return project;
   }
 }

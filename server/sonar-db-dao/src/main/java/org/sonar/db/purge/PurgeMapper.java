@@ -147,6 +147,8 @@ public interface PurgeMapper {
 
   void deleteApplicationBranchProjectBranchesByProjectBranchUuid(@Param("projectBranchUuid") String projectBranchUuid);
 
+  void deletePortfolioProjectsByBranchUuid(@Param("branchUuid") String branchUuid);
+
   void deletePortfolioProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deletePortfolioProjectBranchesByBranchUuid(@Param("branchUuid") String branchUuid);

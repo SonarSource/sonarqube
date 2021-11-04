@@ -93,7 +93,6 @@ public class SearchRequest {
   /**
    * Possible values:
    * <ul>
-   *   <li>"APP"</li>
    *   <li>"VW"</li>
    *   <li>"SVW"</li>
    * </ul>

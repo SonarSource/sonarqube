@@ -455,7 +455,11 @@ class PurgeCommands {
 
   public void deleteProjectInPortfolios(String rootUuid) {
     profiler.start("deleteProjectInPortfolios (portfolio_projects)");
+    // delete selected project if it's only selecting a single branch corresponding to rootUuid
+    purgeMapper.deletePortfolioProjectsByBranchUuid(rootUuid);
+    // delete selected branches if branch is rootUuid or if it's part of a project that is rootUuid
     purgeMapper.deletePortfolioProjectBranchesByBranchUuid(rootUuid);
+    // delete selected project if project is rootUuid
     purgeMapper.deletePortfolioProjectsByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();

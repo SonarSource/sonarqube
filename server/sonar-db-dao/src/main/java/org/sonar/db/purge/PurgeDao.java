@@ -165,7 +165,7 @@ public class PurgeDao implements Dao {
 
   private static final class NewCodePeriodAnalysisFilter implements Predicate<PurgeableAnalysisDto> {
     @Nullable
-    private String analysisUuid;
+    private final String analysisUuid;
 
     private NewCodePeriodAnalysisFilter(PurgeMapper mapper, String componentUuid) {
       this.analysisUuid = mapper.selectSpecificAnalysisNewCodePeriod(componentUuid);

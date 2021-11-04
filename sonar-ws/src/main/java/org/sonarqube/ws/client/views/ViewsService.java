@@ -73,6 +73,23 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_project_branch">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   */
+  public void addProjectBranch(AddProjectBranchRequest request) {
+    call(
+      new PostRequest(path("add_project_branch"))
+        .setParam("branch", request.getBranch())
+        .setParam("key", request.getKey())
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_sub_view">Further information about this action online (including a response example)</a>
    * @since 1.0
    */
@@ -90,20 +107,6 @@ public class ViewsService extends BaseService {
   /**
    *
    * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/app">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   */
-  public String app() {
-    return call(
-      new GetRequest(path("app"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/create">Further information about this action online (including a response example)</a>
    * @since 1.0
@@ -114,6 +117,7 @@ public class ViewsService extends BaseService {
         .setParam("description", request.getDescription())
         .setParam("key", request.getKey())
         .setParam("name", request.getName())
+        .setParam("qualifier", request.getQualifier())
         .setParam("visibility", request.getVisibility())
         .setMediaType(MediaTypes.JSON)
       ).content();
@@ -125,7 +129,9 @@ public class ViewsService extends BaseService {
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/define">Further information about this action online (including a response example)</a>
    * @since 1.0
+   * @deprecated since 9.2
    */
+  @Deprecated
   public void define(DefineRequest request) {
     call(
       new PostRequest(path("define"))
@@ -140,7 +146,9 @@ public class ViewsService extends BaseService {
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/definition">Further information about this action online (including a response example)</a>
    * @since 2.0
+   * @deprecated since 9.2
    */
+  @Deprecated
   public String definition() {
     return call(
       new GetRequest(path("definition"))
@@ -277,14 +285,15 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/run">Further information about this action online (including a response example)</a>
-   * @since 1.0
-   * @deprecated since 7.1
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/remove_project_branch">Further information about this action online (including a response example)</a>
+   * @since 9.2
    */
-  @Deprecated
-  public String run() {
-    return call(
-      new PostRequest(path("run"))
+  public void removeProjectBranch(RemoveProjectBranchRequest request) {
+    call(
+      new PostRequest(path("remove_project_branch"))
+        .setParam("branch", request.getBranch())
+        .setParam("key", request.getKey())
+        .setParam("project", request.getProject())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -320,7 +329,7 @@ public class ViewsService extends BaseService {
       new PostRequest(path("set_manual_mode"))
         .setParam("portfolio", request.getPortfolio())
         .setMediaType(MediaTypes.JSON)
-    ).content();
+      ).content();
   }
 
   /**
@@ -335,23 +344,24 @@ public class ViewsService extends BaseService {
       new PostRequest(path("set_none_mode"))
         .setParam("portfolio", request.getPortfolio())
         .setMediaType(MediaTypes.JSON)
-    ).content();
+      ).content();
   }
 
   /**
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/set_remaining_projects_mode">Further information about this action online (including a response example)</a>
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/set_regexp_mode">Further information about this action online (including a response example)</a>
    * @since 7.4
    */
   public void setRegexpMode(SetRegexpModeRequest request) {
     call(
       new PostRequest(path("set_regexp_mode"))
+        .setParam("branch", request.getBranch())
         .setParam("portfolio", request.getPortfolio())
         .setParam("regexp", request.getRegexp())
         .setMediaType(MediaTypes.JSON)
-    ).content();
+      ).content();
   }
 
   /**
@@ -364,9 +374,10 @@ public class ViewsService extends BaseService {
   public void setRemainingProjectsMode(SetRemainingProjectsModeRequest request) {
     call(
       new PostRequest(path("set_remaining_projects_mode"))
+        .setParam("branch", request.getBranch())
         .setParam("portfolio", request.getPortfolio())
         .setMediaType(MediaTypes.JSON)
-    ).content();
+      ).content();
   }
 
   /**
@@ -379,6 +390,7 @@ public class ViewsService extends BaseService {
   public void setTagsMode(SetTagsModeRequest request) {
     call(
       new PostRequest(path("set_tags_mode"))
+        .setParam("branch", request.getBranch())
         .setParam("portfolio", request.getPortfolio())
         .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)

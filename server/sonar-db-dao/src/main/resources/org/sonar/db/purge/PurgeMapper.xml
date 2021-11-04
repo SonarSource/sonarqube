@@ -349,6 +349,19 @@
     WHERE project_branch_uuid=#{projectBranchUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deletePortfolioProjectsByBranchUuid" parameterType="map">
+    <!-- deletes selected projects that were only selecting the branch being deleted -->
+    DELETE
+    FROM portfolio_projects
+    WHERE uuid in (
+      SELECT ppb.portfolio_project_uuid FROM portfolio_proj_branches ppb
+      <!-- branch was selected -->
+      WHERE ppb.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+      <!-- and was the only one selected in the project -->
+      AND (SELECT count(*) FROM portfolio_proj_branches ppb2 WHERE ppb2.portfolio_project_uuid = ppb.portfolio_project_uuid) = 1
+    )
+  </delete>
+
   <delete id="deletePortfolioProjectsByProjectUuid" parameterType="map">
     DELETE
     FROM portfolio_projects
