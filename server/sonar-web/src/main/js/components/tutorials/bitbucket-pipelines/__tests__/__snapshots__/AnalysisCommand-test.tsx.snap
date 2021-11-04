@@ -403,7 +403,7 @@ exports[`should render correctly for maven 1`] = `
   />
   <CreateYmlFile
     yamlFileName="bitbucket-pipelines.yml"
-    yamlTemplate="image: maven:3.3.9
+    yamlTemplate="image: maven:3-openjdk-11
 
 clone:
   depth: full
@@ -417,7 +417,7 @@ pipelines:
             - maven
             - sonar
           script:
-            - mvn verify sonar:sonar
+            - mvn verify sonar:sonar -Dsonar.projectKey=my-project
   
 definitions:
   caches:
@@ -455,7 +455,7 @@ exports[`should render correctly for maven: with branch enabled 1`] = `
   />
   <CreateYmlFile
     yamlFileName="bitbucket-pipelines.yml"
-    yamlTemplate="image: maven:3.3.9
+    yamlTemplate="image: maven:3-openjdk-11
 
 clone:
   depth: full
@@ -469,7 +469,7 @@ pipelines:
             - maven
             - sonar
           script:
-            - mvn verify sonar:sonar
+            - mvn verify sonar:sonar -Dsonar.projectKey=my-project
 
   pull-requests:
     '**':
@@ -479,7 +479,7 @@ pipelines:
             - maven
             - sonar
           script:
-            - mvn verify sonar:sonar
+            - mvn verify sonar:sonar -Dsonar.projectKey=my-project
   
 definitions:
   caches:

@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import CodeSnippet from '../../common/CodeSnippet';
 import DefaultProjectKey from '../components/DefaultProjectKey';
 import { BuildTools } from '../types';
-import { buildGradleSnippet, mavenPomSnippet } from '../utils';
+import { buildGradleSnippet } from '../utils';
 
 export interface PreambuleYamlProps {
   buildTool: BuildTools;
@@ -51,24 +51,6 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
             }}
           />
           <CodeSnippet snippet={buildGradleSnippet(component.key)} />
-        </li>
-      );
-    case BuildTools.Maven:
-      return (
-        <li className="abs-width-600">
-          <FormattedMessage
-            defaultMessage={translate('onboarding.tutorial.with.yaml.maven.pom')}
-            id="onboarding.tutorial.with.yaml.maven.pom"
-            values={{
-              pom: (
-                <>
-                  <code className="rule">pom.xml</code>
-                  <ClipboardIconButton copyValue="pom.xml" />
-                </>
-              )
-            }}
-          />
-          <CodeSnippet snippet={mavenPomSnippet(component.key)} />
         </li>
       );
     case BuildTools.CFamily:

@@ -119,7 +119,7 @@ Click the scanner you're using below to expand the example configuration:
 [[collapse]]
 | ## SonarScanner for Maven
 |
-| **Note:** A project key might have to be provided through a `pom.xml` file, or through the command line parameter. For more information, see the [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/) documentation.
+| **Note:** A project key might have to be provided  through the command line parameter. For more information, see the [SonarScanner for Maven](/analysis/scan/sonarscanner-for-maven/) documentation.
 | 
 | Write the following in your workflow YAML file:
 |

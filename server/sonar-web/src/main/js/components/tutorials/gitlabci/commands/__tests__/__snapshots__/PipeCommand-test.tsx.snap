@@ -195,7 +195,7 @@ exports[`should render correctly for maven: branches enabled 1`] = `
     paths:
       - .sonar/cache
   script: 
-    - mvn verify sonar:sonar
+    - mvn verify sonar:sonar -Dsonar.projectKey=test
   allow_failure: true
   only:
     - merge_requests
@@ -219,7 +219,7 @@ exports[`should render correctly for maven: branches not enabled 1`] = `
     paths:
       - .sonar/cache
   script: 
-    - mvn verify sonar:sonar
+    - mvn verify sonar:sonar -Dsonar.projectKey=test
   allow_failure: true
   only:
     - merge_requests

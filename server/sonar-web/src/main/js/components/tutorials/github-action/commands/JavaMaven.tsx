@@ -18,13 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../../components/controls/clipboard';
-import { translate } from '../../../../helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
-import { mavenPomSnippet } from '../../utils';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
@@ -32,7 +27,7 @@ export interface JavaMavenProps {
   onDone: () => void;
 }
 
-const mavenYamlTemplte = (branchesEnabled: boolean) => `name: Build
+const mavenYamlTemplte = (branchesEnabled: boolean, projectKey: string) => `name: Build
 on:
   push:
     branches:
@@ -67,30 +62,15 @@ jobs:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar`;
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey}`;
 
 export default function JavaMaven(props: JavaMavenProps) {
   const { component, branchesEnabled } = props;
   return (
     <>
-      <li className="abs-width-600">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.with.yaml.maven.pom')}
-          id="onboarding.tutorial.with.yaml.maven.pom"
-          values={{
-            pom: (
-              <>
-                <code className="rule">pom.xml</code>
-                <ClipboardIconButton copyValue="pom.xml" />
-              </>
-            )
-          }}
-        />
-        <CodeSnippet snippet={mavenPomSnippet(component.key)} />
-      </li>
       <CreateYmlFile
         yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={mavenYamlTemplte(!!branchesEnabled)}
+        yamlTemplate={mavenYamlTemplte(!!branchesEnabled, component.key)}
       />
       <FinishButton onClick={props.onDone} />
     </>

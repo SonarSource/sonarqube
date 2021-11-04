@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export default function mavenExample(branchesEnabled: boolean) {
-  return `image: maven:3.3.9
+export default function mavenExample(branchesEnabled: boolean, projectKey: string) {
+  return `image: maven:3-openjdk-11
 
 clone:
   depth: full
@@ -33,7 +33,7 @@ pipelines:
             - maven
             - sonar
           script:
-            - mvn verify sonar:sonar
+            - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
 ${
   branchesEnabled
     ? `
@@ -45,7 +45,7 @@ ${
             - maven
             - sonar
           script:
-            - mvn verify sonar:sonar
+            - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
 `
     : ''
 }  

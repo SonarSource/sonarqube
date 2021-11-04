@@ -214,7 +214,6 @@ exports[`should render correctly for build tool maven 1`] = `
       />
       <CodeSnippet
         snippet="<properties>
-  <sonar.projectKey>my-project</sonar.projectKey>
   <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 </properties>"
       />

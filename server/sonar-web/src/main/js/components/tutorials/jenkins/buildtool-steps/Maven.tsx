@@ -18,41 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CodeSnippet from '../../../common/CodeSnippet';
 import FinishButton from '../../components/FinishButton';
-import SentenceWithFilename from '../../components/SentenceWithFilename';
-import { mavenPomSnippet } from '../../utils';
 import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
-const JENKINSFILE_SNIPPET = `node {
+function jenkinsfileSnippet(projectKey: string) {
+  return `node {
   stage('SCM') {
     checkout scm
   }
   stage('SonarQube Analysis') {
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
-      sh "\${mvn}/bin/mvn clean verify sonar:sonar"
+      sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=${projectKey}"
     }
   }
 }`;
+}
 
-export default function Maven(props: LanguageProps) {
-  const { component } = props;
+export default function Maven({ component, onDone }: LanguageProps) {
   return (
     <>
-      <li className="abs-width-600">
-        <SentenceWithFilename
-          filename="pom.xml"
-          translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step2"
-        />
-        <CodeSnippet snippet={mavenPomSnippet(component.key)} />
-      </li>
       <CreateJenkinsfileBulletPoint
         alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
-        snippet={JENKINSFILE_SNIPPET}
+        snippet={jenkinsfileSnippet(component.key)}
       />
-      <FinishButton onClick={props.onDone} />
+      <FinishButton onClick={onDone} />
     </>
   );
 }

@@ -2,33 +2,6 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <li
-    className="abs-width-600"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.tutorial.with.yaml.maven.pom"
-      id="onboarding.tutorial.with.yaml.maven.pom"
-      values={
-        Object {
-          "pom": <React.Fragment>
-            <code
-              className="rule"
-            >
-              pom.xml
-            </code>
-            <ClipboardIconButton
-              copyValue="pom.xml"
-            />
-          </React.Fragment>,
-        }
-      }
-    />
-    <CodeSnippet
-      snippet="<properties>
-  <sonar.projectKey>my-project</sonar.projectKey>
-</properties>"
-    />
-  </li>
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
@@ -67,7 +40,7 @@ jobs:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar"
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project"
   />
   <FinishButton
     onClick={[MockFunction]}
@@ -77,33 +50,6 @@ jobs:
 
 exports[`should render correctly: without branch enabled 1`] = `
 <Fragment>
-  <li
-    className="abs-width-600"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.tutorial.with.yaml.maven.pom"
-      id="onboarding.tutorial.with.yaml.maven.pom"
-      values={
-        Object {
-          "pom": <React.Fragment>
-            <code
-              className="rule"
-            >
-              pom.xml
-            </code>
-            <ClipboardIconButton
-              copyValue="pom.xml"
-            />
-          </React.Fragment>,
-        }
-      }
-    />
-    <CodeSnippet
-      snippet="<properties>
-  <sonar.projectKey>my-project</sonar.projectKey>
-</properties>"
-    />
-  </li>
   <CreateYmlFile
     yamlFileName=".github/workflows/build.yml"
     yamlTemplate="name: Build
@@ -141,7 +87,7 @@ jobs:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar"
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project"
   />
   <FinishButton
     onClick={[MockFunction]}

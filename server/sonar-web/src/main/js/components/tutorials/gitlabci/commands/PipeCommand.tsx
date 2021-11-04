@@ -32,8 +32,8 @@ const BUILD_TOOL_SPECIFIC = {
   [BuildTools.Gradle]: { image: 'gradle:jre11-slim', script: () => 'gradle sonarqube' },
   [BuildTools.Maven]: {
     image: 'maven:3.6.3-jdk-11',
-    script: () => `
-    - mvn verify sonar:sonar`
+    script: (projectKey: string) => `
+    - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}`
   },
   [BuildTools.DotNet]: {
     image: 'mcr.microsoft.com/dotnet/core/sdk:latest',

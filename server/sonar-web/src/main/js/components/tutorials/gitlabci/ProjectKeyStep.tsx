@@ -39,8 +39,7 @@ export interface ProjectKeyStepProps {
   setBuildTool: (tool: BuildTools) => void;
 }
 
-const mavenSnippet = (key: string) => `<properties>
-  <sonar.projectKey>${key}</sonar.projectKey>
+const mavenSnippet = () => `<properties>
   <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 </properties>`;
 

@@ -23,15 +23,12 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { BuildTools } from '../../types';
 import { PreambuleYaml, PreambuleYamlProps } from '../PreambuleYaml';
 
-it.each([
-  [BuildTools.DotNet],
-  [BuildTools.Gradle],
-  [BuildTools.Maven],
-  [BuildTools.CFamily],
-  [BuildTools.Other]
-])('should render correctly for %s', buildTool => {
-  expect(shallowRender({ buildTool })).toMatchSnapshot();
-});
+it.each([[BuildTools.DotNet], [BuildTools.Gradle], [BuildTools.CFamily], [BuildTools.Other]])(
+  'should render correctly for %s',
+  buildTool => {
+    expect(shallowRender({ buildTool })).toMatchSnapshot();
+  }
+);
 
 function shallowRender(props: Partial<PreambuleYamlProps> = {}) {
   return shallow<PreambuleYamlProps>(
