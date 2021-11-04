@@ -89,7 +89,7 @@ export class SettingsSearch extends React.Component<Props, State> {
       .search(
         cleanQuery
           .split(/\s+/)
-          .map(s => `${s}~1 *${s}*`)
+          .map(s => `${s} *${s}*`)
           .join(' ')
       )
       .map(match => this.definitionsByKey[match.ref]);
