@@ -23,6 +23,7 @@ import { dismissSonarlintAd } from '../../../api/users';
 import { ButtonLink } from '../../../components/controls/buttons';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 import { setSonarlintAd } from '../../../store/users';
 import './PromotionNotification.css';
@@ -47,7 +48,7 @@ export function PromotionNotification(props: PromotionNotificationProps) {
   return (
     <div className="toaster display-flex-center big-padded-left big-padded-right">
       <div className="toaster-icon spacer-right">
-        <img alt="SonarQube + SonarLint" src="/images/sq-sl.png" />
+        <img alt="SonarQube + SonarLint" src={`${getBaseUrl()}/images/sq-sl.png`} />
       </div>
       <div className="toaster-content flex-1 padded-left padded-right big-padded-top big-padded-bottom">
         <span className="toaster-title text-bold medium">
