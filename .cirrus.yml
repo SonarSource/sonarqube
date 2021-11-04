@@ -32,12 +32,17 @@ only_nightly_depending_on_build_template: &ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPL
   # this task on your branch
   only_if: $CIRRUS_BRANCH == "branch-nightly-build"
 
-only_default_depending_on_build_template: &ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+only_upon_sql_changes_or_nightly_depending_on_build_template: &ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  depends_on: build
+  only_if: $CIRRUS_BRANCH == "branch-nightly-build" ||
+    changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java')
+
+only_default_depending_on_build_template: &ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
   only_if: >-
-           $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-           $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_CRON == ""
+    $CIRRUS_BRANCH !=~ "dogfood/.*" &&
+    $CIRRUS_BRANCH != "public_master" &&
+    $CIRRUS_CRON == ""
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
@@ -107,9 +112,9 @@ profile_artifacts_template: &PROFILE_ARTIFACTS_TEMPLATE
 build_task:
   <<: *YARN_CACHE_TEMPLATE
   only_if: >-
-           $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-           $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_CRON == ""
+    $CIRRUS_BRANCH !=~ "dogfood/.*" &&
+    $CIRRUS_BRANCH != "public_master" &&
+    $CIRRUS_CRON == ""
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -134,7 +139,7 @@ build_task:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 validate_task:
-  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
@@ -151,7 +156,7 @@ validate_task:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 yarn_check-ci_task:
-  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
@@ -167,7 +172,7 @@ yarn_check-ci_task:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 qa_task:
-  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 3
@@ -259,9 +264,9 @@ qa_ha_task:
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
-      # No need to clone the full history.
-      # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-      # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: HA
   gradle_cache:
@@ -371,9 +376,9 @@ qa_saml_task:
           KEYCLOAK_USER: admin
           KEYCLOAK_PASSWORD: admin
   env:
-      # No need to clone the full history.
-      # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-      # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: SAML
   gradle_cache:
@@ -393,9 +398,9 @@ qa_ldap_task:
     cpu: 2.4
     memory: 10Gb
   env:
-      # No need to clone the full history.
-      # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-      # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+    # No need to clone the full history.
+    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: LDAP
   gradle_cache:
@@ -408,7 +413,7 @@ qa_ldap_task:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 promote_task:
-  <<: *ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on:
     - build
     - validate
@@ -457,7 +462,7 @@ package_docker_task:
     - ./private/cirrus/cirrus-package-docker.sh
 
 sql_mssql2017_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -478,7 +483,7 @@ sql_mssql2017_task:
 
 # this is the oldest compatible version of PostgreSQL
 sql_postgres96_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -491,7 +496,7 @@ sql_postgres96_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 sql_oracle12_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -503,7 +508,7 @@ sql_oracle12_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 upgd_mssql2019_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
@@ -531,7 +536,7 @@ upgd_mssql2019_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 upgd_oracle12_task:
-  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
@@ -554,10 +559,10 @@ upgd_oracle12_task:
 # Note that license compliance of dependencies is not checked for now.
 owasp_check_task:
   only_if: >-
-           $CIRRUS_CRON == "nightly" ||
-           $CIRRUS_CRON == "weekly-latest" ||
-           $CIRRUS_CRON == "weekly-lts" ||
-           changesInclude('private/owasp/*.xml')
+    $CIRRUS_CRON == "nightly" ||
+    $CIRRUS_CRON == "weekly-latest" ||
+    $CIRRUS_CRON == "weekly-lts" ||
+    changesInclude('private/owasp/*.xml')
   <<: *YARN_CACHE_TEMPLATE
   timeout_in: 30m
   gke_container:
