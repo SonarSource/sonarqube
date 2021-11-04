@@ -32,7 +32,9 @@ public class UpsertSonarlintAdSeenValue extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    Upsert upsert = context.prepareUpsert("update users set sonarlint_ad_seen = true where last_sonarlint_connection is not null");
+    Upsert upsert = context.prepareUpsert("update users set sonarlint_ad_seen = ? where last_sonarlint_connection is not null");
+    upsert
+      .setBoolean(1, true);
     upsert.execute();
     upsert.commit();
   }

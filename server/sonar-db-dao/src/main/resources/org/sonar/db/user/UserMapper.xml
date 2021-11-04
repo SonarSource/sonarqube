@@ -181,7 +181,7 @@
 
     <update id="dismissSonarlintAd" parameterType="map">
         update users set
-        sonarlint_ad_seen = true
+        sonarlint_ad_seen = ${_true}
         where
         login = #{login, jdbcType=VARCHAR}
     </update>
