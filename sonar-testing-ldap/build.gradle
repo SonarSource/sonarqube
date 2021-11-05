@@ -5,11 +5,11 @@ sonarqube {
 }
 
 dependencies {
-    compile 'junit:junit'
-    compile 'org.apache.directory.server:apacheds-all:2.0.0-M24'
-    compile 'org.slf4j:slf4j-api'
+    implementation 'junit:junit'
+    implementation 'org.apache.directory.server:apacheds-all:2.0.0-M24'
+    implementation 'org.slf4j:slf4j-api'
 
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.hamcrest:hamcrest-core'
-    testCompile 'org.mockito:mockito-core'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.hamcrest:hamcrest-core'
+    testImplementation 'org.mockito:mockito-core'
 }

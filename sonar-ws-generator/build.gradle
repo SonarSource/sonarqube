@@ -5,15 +5,15 @@ sonarqube {
 dependencies {
   // please keep list ordered
 
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
-  compile 'commons-io:commons-io'
+  implementation 'com.google.code.gson:gson'
+  implementation 'com.google.guava:guava'
+  implementation 'commons-io:commons-io'
   // transitive dependency of Velocity that must be upgraded
   // in order to fix a vulnerability
-  compile 'commons-collections:commons-collections:3.2.2'
-  compile 'org.apache.velocity:velocity:1.7'
-  compile 'org.slf4j:log4j-over-slf4j'
-  compile 'org.sonarsource.orchestrator:sonar-orchestrator'
+  implementation 'commons-collections:commons-collections:3.2.2'
+  implementation 'org.apache.velocity:velocity:1.7'
+  implementation 'org.slf4j:log4j-over-slf4j'
+  implementation 'org.sonarsource.orchestrator:sonar-orchestrator'
 
   compileOnly 'com.google.code.findbugs:jsr305'
 }

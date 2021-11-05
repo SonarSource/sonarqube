@@ -1,23 +1,23 @@
 description = 'SonarQube :: ALM integrations :: Clients'
 
 dependencies {
-    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-    compile project(':sonar-ws')
-    compile project(':server:sonar-webserver-api')
-    compile 'com.google.code.gson:gson'
-    compile 'com.google.guava:guava'
-    compile 'com.squareup.okhttp3:okhttp'
-    compile 'commons-codec:commons-codec'
-    compile 'com.auth0:java-jwt'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.69'
+    implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+    implementation project(':sonar-ws')
+    implementation project(':server:sonar-webserver-api')
+    implementation 'com.google.code.gson:gson'
+    implementation 'com.google.guava:guava'
+    implementation 'com.squareup.okhttp3:okhttp'
+    implementation 'commons-codec:commons-codec'
+    implementation 'com.auth0:java-jwt'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
 
-    testCompile project(':sonar-plugin-api-impl')
+    testImplementation project(':sonar-plugin-api-impl')
 
-    testCompile 'junit:junit'
-    testCompile 'com.tngtech.java:junit-dataprovider'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.assertj:assertj-guava'
-    testCompile 'org.mockito:mockito-core'
-    testCompile 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'junit:junit'
+    testImplementation 'com.tngtech.java:junit-dataprovider'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.assertj:assertj-guava'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
 
 }

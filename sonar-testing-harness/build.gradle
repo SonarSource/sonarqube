@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Testing Harness"
@@ -9,14 +13,14 @@ configureCompileJavaToVersion 8
 dependencies {
   // please keep list ordered
 
-  compile 'com.google.code.gson:gson'
-  compile 'com.googlecode.json-simple:json-simple'
-  compile 'com.sun.mail:javax.mail'
-  compile 'commons-io:commons-io'
-  compile 'junit:junit'
-  compile 'org.assertj:assertj-core'
-  compile 'org.hamcrest:hamcrest-core'
-  compile 'org.jsoup:jsoup'
+  implementation 'com.google.code.gson:gson'
+  api 'com.googlecode.json-simple:json-simple'
+  implementation 'com.sun.mail:javax.mail'
+  implementation 'commons-io:commons-io'
+  implementation 'junit:junit'
+  implementation 'org.assertj:assertj-core'
+  implementation 'org.hamcrest:hamcrest-core'
+  implementation 'org.jsoup:jsoup'
 
   compileOnly 'com.google.code.findbugs:jsr305'
 }

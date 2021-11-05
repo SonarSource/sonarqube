@@ -9,23 +9,23 @@ configureCompileJavaToVersion 8
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'org.apache.commons:commons-csv'
+  implementation 'commons-codec:commons-codec'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'org.apache.commons:commons-csv'
 
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'junit:junit'
 
   testCompileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.guava:guava'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.mockito:mockito-core'
+  testImplementation 'com.google.guava:guava'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mockito:mockito-core'
 }
 
 artifactoryPublish.skip = false

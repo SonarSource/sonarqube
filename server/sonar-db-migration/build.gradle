@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Database Migration"
@@ -7,36 +11,36 @@ sonarqube {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'commons-lang:commons-lang'
-  compile 'commons-codec:commons-codec'
-  compile 'com.fasterxml.staxmate:staxmate'
-  compile 'org.picocontainer:picocontainer'
+  implementation 'com.google.guava:guava'
+  implementation 'commons-lang:commons-lang'
+  implementation 'commons-codec:commons-codec'
+  api 'com.fasterxml.staxmate:staxmate'
+  implementation 'org.picocontainer:picocontainer'
 
-  compile project(':server:sonar-db-core')
-  compile project(':server:sonar-process')
-  compile project(':sonar-core')
+  api project(':server:sonar-db-core')
+  implementation project(':server:sonar-process')
+  api project(':sonar-core')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'commons-dbutils:commons-dbutils'
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.mindrot:jbcrypt'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.xmlunit:xmlunit-core'
-  testCompile 'org.xmlunit:xmlunit-matchers'
-  testCompile project(':sonar-scanner-protocol')
-  testCompile project(':sonar-testing-harness')
-  testCompile testFixtures(project(':server:sonar-db-core'))
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-dbutils:commons-dbutils'
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mindrot:jbcrypt'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.xmlunit:xmlunit-core'
+  testImplementation 'org.xmlunit:xmlunit-matchers'
+  testImplementation project(':sonar-scanner-protocol')
+  testImplementation project(':sonar-testing-harness')
+  testImplementation testFixtures(project(':server:sonar-db-core'))
 
-  testRuntime 'com.h2database:h2'
-  testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
-  testRuntime 'com.oracle.database.jdbc:ojdbc8'
-  testRuntime 'org.postgresql:postgresql'
+  testRuntimeOnly 'com.h2database:h2'
+  testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+  testRuntimeOnly 'com.oracle.database.jdbc:ojdbc8'
+  testRuntimeOnly 'org.postgresql:postgresql'
 }
 
 test {

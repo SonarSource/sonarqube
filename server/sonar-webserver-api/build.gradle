@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 description = 'SonarQube WebServer internal APIs, used by other Web Server modules or Core Extensions'
 
 sonarqube {
@@ -17,26 +21,26 @@ sourceSets {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'io.jsonwebtoken:jjwt-api'
-  compile 'io.jsonwebtoken:jjwt-impl'
-  compile project(':sonar-core')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-server-common')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile project(':sonar-plugin-api-impl')
-  compile 'org.mindrot:jbcrypt'
+  implementation 'com.google.guava:guava'
+  implementation 'io.jsonwebtoken:jjwt-api'
+  implementation 'io.jsonwebtoken:jjwt-impl'
+  api project(':sonar-core')
+  implementation project(':server:sonar-process')
+  api project(':server:sonar-server-common')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation project(':sonar-plugin-api-impl')
+  implementation 'org.mindrot:jbcrypt'
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
 
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'javax.servlet:javax.servlet-api'
-  testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.jasonar-db-coreva:junit-dataprovider'
+  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation project(':sonar-testing-harness')
 
   testFixturesApi 'junit:junit'
 

@@ -9,12 +9,12 @@ configureCompileJavaToVersion 8
 dependencies {
   // please keep list ordered
 
-  compile 'commons-lang:commons-lang'
-  compile 'org.codehaus.sonar:sonar-channel'
+  implementation 'commons-lang:commons-lang'
+  implementation 'org.codehaus.sonar:sonar-channel'
 
-  testCompile 'ch.qos.logback:logback-classic'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
 }
 
 artifactoryPublish.skip = false

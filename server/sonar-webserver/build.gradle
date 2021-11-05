@@ -9,30 +9,30 @@ sonarqube {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'org.apache.tomcat.embed:tomcat-embed-core'
-  compile project(':sonar-core')
-  compile project(':server:sonar-auth-bitbucket')
-  compile project(':server:sonar-auth-github')
-  compile project(':server:sonar-auth-gitlab')
-  compile project(':server:sonar-auth-ldap')
-  compile project(':server:sonar-auth-saml')
-  compile project(':server:sonar-ce-task-projectanalysis')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-webserver-core')
-  compile project(':server:sonar-webserver-webapi')
+  implementation 'com.google.guava:guava'
+  implementation 'org.apache.tomcat.embed:tomcat-embed-core'
+  implementation project(':sonar-core')
+  implementation project(':server:sonar-auth-bitbucket')
+  implementation project(':server:sonar-auth-github')
+  implementation project(':server:sonar-auth-gitlab')
+  implementation project(':server:sonar-auth-ldap')
+  implementation project(':server:sonar-auth-saml')
+  implementation project(':server:sonar-ce-task-projectanalysis')
+  implementation project(':server:sonar-process')
+  implementation project(':server:sonar-webserver-core')
+  implementation project(':server:sonar-webserver-webapi')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.eclipse.jetty:jetty-server'
-  testCompile 'org.eclipse.jetty:jetty-servlet'
-  testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile testFixtures(project(':server:sonar-webserver-auth'))
-  testCompile testFixtures(project(':server:sonar-webserver-es'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.eclipse.jetty:jetty-server'
+  testImplementation 'org.eclipse.jetty:jetty-servlet'
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation testFixtures(project(':server:sonar-webserver-es'))
+  testImplementation project(':sonar-testing-harness')
 }

@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Core"
@@ -9,29 +13,29 @@ configureCompileJavaToVersion 8
 dependencies {
   // please keep list ordered
 
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
-  compile 'com.google.guava:guava'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'org.codehaus.sonar:sonar-classloader'
-  compile 'org.picocontainer:picocontainer'
-  compile 'org.slf4j:slf4j-api'
-  compile 'org.sonarsource.update-center:sonar-update-center-common'
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile project(':sonar-plugin-api-impl')
+  api  'ch.qos.logback:logback-classic'
+  api  'ch.qos.logback:logback-core'
+  api  'com.google.guava:guava'
+  api  'com.google.protobuf:protobuf-java'
+  api 'commons-codec:commons-codec'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'org.codehaus.sonar:sonar-classloader'
+  api  'org.picocontainer:picocontainer'
+  implementation 'org.slf4j:slf4j-api'
+  api  'org.sonarsource.update-center:sonar-update-center-common'
+  api project(path: ':sonar-plugin-api', configuration: 'shadow')
+  api project(':sonar-plugin-api-impl')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.simpleframework:simple'
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.simpleframework:simple'
+  testImplementation project(':sonar-testing-harness')
 
   testCompileOnly 'com.google.code.findbugs:jsr305'
 }

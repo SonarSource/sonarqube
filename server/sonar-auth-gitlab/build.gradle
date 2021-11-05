@@ -7,19 +7,19 @@ configurations {
 dependencies {
     // please keep the list ordered
 
-    compile 'com.github.scribejava:scribejava-apis'
-    compile 'com.github.scribejava:scribejava-core'
-    compile 'com.google.code.gson:gson'
-    compile project(':server:sonar-auth-common')
+    implementation 'com.github.scribejava:scribejava-apis'
+    implementation'com.github.scribejava:scribejava-core'
+    implementation'com.google.code.gson:gson'
+    implementation project(':server:sonar-auth-common')
 
     compileOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'com.squareup.okhttp3:okhttp'
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly project(':sonar-core')
 
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'com.squareup.okhttp3:okhttp'
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'com.squareup.okhttp3:okhttp'
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
 }

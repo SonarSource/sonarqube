@@ -16,47 +16,47 @@ configurations {
 dependencies {
   // please keep the list ordered
 
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.code.gson:gson'
-  compile 'org.apache.commons:commons-csv'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'com.squareup.okhttp3:okhttp'
-  compile 'com.fasterxml.staxmate:staxmate'
-  compile 'org.eclipse.jgit:org.eclipse.jgit'
-  compile 'org.tmatesoft.svnkit:svnkit'
-  compile 'org.picocontainer:picocontainer'
-  compile 'org.slf4j:jcl-over-slf4j'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:log4j-over-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile 'org.sonarsource.update-center:sonar-update-center-common'
+  implementation 'ch.qos.logback:logback-classic'
+  implementation 'ch.qos.logback:logback-core'
+  implementation 'commons-codec:commons-codec'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'com.google.code.gson:gson'
+  implementation 'org.apache.commons:commons-csv'
+  implementation 'com.google.protobuf:protobuf-java'
+  implementation 'com.squareup.okhttp3:okhttp'
+  implementation 'com.fasterxml.staxmate:staxmate'
+  implementation 'org.eclipse.jgit:org.eclipse.jgit'
+  implementation 'org.tmatesoft.svnkit:svnkit'
+  implementation 'org.picocontainer:picocontainer'
+  implementation 'org.slf4j:jcl-over-slf4j'
+  implementation 'org.slf4j:jul-to-slf4j'
+  implementation 'org.slf4j:log4j-over-slf4j'
+  implementation 'org.slf4j:slf4j-api'
+  implementation 'org.sonarsource.update-center:sonar-update-center-common'
 
-  compile project(':sonar-core')
-  compile project(':sonar-scanner-protocol')
-  compile project(':sonar-ws')
-  compile project(':sonar-duplications')
+  implementation project(':sonar-core')
+  implementation project(':sonar-scanner-protocol')
+  implementation project(':sonar-ws')
+  implementation project(':sonar-duplications')
 
-  compile project(':sonar-plugin-api-impl')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation project(':sonar-plugin-api-impl')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'com.squareup.okhttp3:okhttp'
-  testCompile 'com.squareup.okio:okio'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'commons-io:commons-io'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'com.fasterxml.staxmate:staxmate'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile project(':plugins:sonar-xoo-plugin')
-  testCompile project(':sonar-plugin-api').sourceSets.test.output
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.squareup.okhttp3:okhttp'
+  testImplementation 'com.squareup.okio:okio'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-io:commons-io'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'com.fasterxml.staxmate:staxmate'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation project(':plugins:sonar-xoo-plugin')
+  testImplementation project(':sonar-plugin-api').sourceSets.test.output
 
 }
 

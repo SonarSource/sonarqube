@@ -48,16 +48,16 @@ shadowJar {
 
 dependencies {
     // please keep list ordered
-    compile 'org.slf4j:slf4j-api'
+    implementation 'org.slf4j:slf4j-api'
 
-    compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
-    compile project(':server:sonar-ce')
-    compile project(':server:sonar-main')
-    compile project(':server:sonar-process')
-    compile project(':server:sonar-webserver')
-    compile project(':sonar-core')
-    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-    compile project(':sonar-plugin-api-impl')
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+    implementation project(':server:sonar-ce')
+    implementation project(':server:sonar-main')
+    implementation project(':server:sonar-process')
+    implementation project(':server:sonar-webserver')
+    implementation project(':sonar-core')
+    implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+    implementation project(':sonar-plugin-api-impl')
 
     compileOnly 'com.google.code.findbugs:jsr305'
 
@@ -75,12 +75,17 @@ dependencies {
 apply from: 'bundled_plugins.gradle'
 
 task verifyElasticSearchDownload(type: Verify) {
+  outputs.file("$buildDir/checksum")
+  outputs.cacheIf { true }
+
   src new File(buildDir, "$elasticsearchDownloadUrlFile")
   algorithm 'SHA-512'
   checksum elasticsearchDownloadSha512
 }
 
 task downloadElasticSearch(type: Download) {
+  outputs.cacheIf { true }
+
   def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
   def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
   if (artifactoryUsername && artifactoryPassword) {
@@ -91,7 +96,10 @@ task downloadElasticSearch(type: Download) {
     src "$elasticsearchDownloadUrlPath$elasticsearchDownloadUrlFile"
   }
   dest "$buildDir/$elasticsearchDownloadUrlFile"
-  onlyIfModified true
+
+  onlyIfModified false
+  overwrite false
+
   finalizedBy verifyElasticSearchDownload
 }
 
@@ -191,7 +199,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
   into("${archiveDir}/conf/") {
     from file('src/main/assembly/conf/wrapper.conf')
     filter(ReplaceTokens, tokens: [
-            'sqversion': version
+            'sqversion': archiveVersion.get()
     ])
   }
 

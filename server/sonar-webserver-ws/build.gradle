@@ -9,21 +9,21 @@ sonarqube {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile project(':sonar-core')
-  compile project(':server:sonar-webserver-api')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile project(':sonar-plugin-api-impl')
-  compile project(':sonar-ws')
+  implementation 'com.google.guava:guava'
+  implementation project(':sonar-core')
+  implementation project(':server:sonar-webserver-api')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation project(':sonar-plugin-api-impl')
+  implementation project(':sonar-ws')
 
   compileOnly 'com.google.code.findbugs:jsr305'
   compileOnly 'javax.servlet:javax.servlet-api'
   compileOnly 'org.apache.tomcat.embed:tomcat-embed-core'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'javax.servlet:javax.servlet-api'
-  testCompile 'org.apache.tomcat.embed:tomcat-embed-core'
-  testCompile 'org.mockito:mockito-core'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.apache.tomcat.embed:tomcat-embed-core'
+  testImplementation 'org.mockito:mockito-core'
 
   testFixturesApi project(':sonar-testing-harness')
 

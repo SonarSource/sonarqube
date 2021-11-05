@@ -11,12 +11,12 @@ apply plugin: 'com.github.johnrengelman.shadow'
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.code.gson:gson'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'com.google.code.gson:gson'
 
   // shaded, but not relocated
-  compile project(':sonar-check-api')
+  implementation project(':sonar-check-api')
 
   compileOnly 'ch.qos.logback:logback-classic'
   compileOnly 'com.google.code.findbugs:jsr305'
@@ -26,11 +26,11 @@ dependencies {
   compileOnly 'org.junit.jupiter:junit-jupiter-api'
   compileOnly 'org.slf4j:slf4j-api'
 
-  testCompile 'com.google.guava:guava'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile project(':sonar-plugin-api-impl')
+  testImplementation 'com.google.guava:guava'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation project(':sonar-plugin-api-impl')
 }
 
 configurations {

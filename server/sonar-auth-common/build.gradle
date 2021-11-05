@@ -7,14 +7,14 @@ configurations {
 dependencies {
     // please keep the list ordered
 
-    compile 'com.github.scribejava:scribejava-apis'
-    compile 'com.github.scribejava:scribejava-core'
+    implementation 'com.github.scribejava:scribejava-apis'
+    implementation 'com.github.scribejava:scribejava-core'
 
     compileOnly 'com.google.code.findbugs:jsr305'
 
-    testCompile 'commons-lang:commons-lang'
-    testCompile 'com.squareup.okhttp3:mockwebserver'
-    testCompile 'junit:junit'
-    testCompile 'org.assertj:assertj-core'
-    testCompile 'org.mockito:mockito-core'
+    testImplementation 'commons-lang:commons-lang'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
 }

@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Process"
@@ -7,30 +11,30 @@ sonarqube {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'com.hazelcast:hazelcast'
-  compile 'com.hazelcast:hazelcast-kubernetes'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile project(':sonar-core')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation 'ch.qos.logback:logback-classic'
+  implementation 'ch.qos.logback:logback-core'
+  implementation 'commons-codec:commons-codec'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  api  'com.google.code.gson:gson'
+  implementation 'com.google.guava:guava'
+  implementation 'com.google.protobuf:protobuf-java'
+  api  'com.hazelcast:hazelcast'
+  api 'com.hazelcast:hazelcast-kubernetes'
+  implementation 'org.slf4j:jul-to-slf4j'
+  implementation 'org.slf4j:slf4j-api'
+  api project(':sonar-core')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.google.protobuf:protobuf-java'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.awaitility:awaitility'
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.google.protobuf:protobuf-java'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.awaitility:awaitility'
+  testImplementation project(':sonar-testing-harness')
 }

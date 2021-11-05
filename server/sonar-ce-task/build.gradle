@@ -17,29 +17,29 @@ sourceSets {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'org.picocontainer:picocontainer'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
+  implementation 'com.google.guava:guava'
+  implementation 'org.picocontainer:picocontainer'
+  implementation 'org.slf4j:jul-to-slf4j'
+  implementation 'org.slf4j:slf4j-api'
 
-  compile project(':server:sonar-server-common')
-  compile project(':sonar-core')
+  implementation project(':server:sonar-server-common')
+  implementation project(':sonar-core')
 
   compileOnly project(path: ':sonar-plugin-api', configuration: 'shadow')
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'ch.qos.logback:logback-access'
-  testCompile 'ch.qos.logback:logback-classic'
-  testCompile 'ch.qos.logback:logback-core'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.reflections:reflections'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
+  testImplementation 'ch.qos.logback:logback-access'
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation 'ch.qos.logback:logback-core'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.reflections:reflections'
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
 
   testFixturesApi 'org.assertj:assertj-core'
   testFixturesApi project(path: ':sonar-plugin-api', configuration: 'shadow')

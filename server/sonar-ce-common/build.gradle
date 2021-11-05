@@ -31,25 +31,25 @@ configurations {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-server-common')
-  compile project(':sonar-core')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation 'com.google.guava:guava'
+  implementation 'org.slf4j:jul-to-slf4j'
+  implementation 'org.slf4j:slf4j-api'
+  implementation project(':server:sonar-ce-task')
+  implementation project(':server:sonar-server-common')
+  implementation project(':sonar-core')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'commons-lang:commons-lang'
-  testCompile 'junit:junit'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.hamcrest:hamcrest-all'
-  testCompile project(':sonar-plugin-api-impl')
-  testCompile testFixtures(project(':server:sonar-server-common'))
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-lang:commons-lang'
+  testImplementation 'junit:junit'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation project(':sonar-plugin-api-impl')
+  testImplementation testFixtures(project(':server:sonar-server-common'))
 }

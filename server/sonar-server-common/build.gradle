@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 description = 'Code shared between the Web Server and the Compute Engine'
 
 sonarqube {
@@ -6,42 +10,43 @@ sonarqube {
   }
 }
 
+
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'org.apache.commons:commons-email'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.guava:guava'
-  compile 'org.slf4j:slf4j-api'
-  compile 'com.squareup.okhttp3:okhttp'
-  compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
-  compile project(':server:sonar-db-dao')
-  compile project(':server:sonar-db-migration')
-  compile project(':server:sonar-process')
-  compile project(':sonar-core')
-  compile project(':sonar-markdown')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile project(':sonar-ws')
+  api 'org.apache.commons:commons-email'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'com.google.guava:guava'
+  implementation 'org.slf4j:slf4j-api'
+  implementation 'com.squareup.okhttp3:okhttp'
+  api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+  api project(':server:sonar-db-dao')
+  api project(':server:sonar-db-migration')
+  implementation project(':server:sonar-process')
+  api project(':sonar-core')
+  api project(':sonar-markdown')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+  api project(':sonar-ws')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'org.elasticsearch.plugin:transport-netty4-client'
-  testCompile 'ch.qos.logback:logback-core'
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'com.squareup.okio:okio'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'junit:junit'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.hamcrest:hamcrest-core'
-  testCompile 'org.mockito:mockito-core'
-  testCompile testFixtures(project(':server:sonar-db-dao'))
-  testCompile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  testCompile project(':sonar-plugin-api-impl')
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
+  testImplementation 'ch.qos.logback:logback-core'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.squareup.okio:okio'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'junit:junit'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.hamcrest:hamcrest-core'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
+  testImplementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+  testImplementation project(':sonar-plugin-api-impl')
+  testImplementation project(':sonar-testing-harness')
     
   testFixturesApi 'junit:junit'
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))

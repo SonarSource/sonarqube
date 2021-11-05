@@ -7,5 +7,5 @@ sonarqube {
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-  compile project(':sonar-scanner-engine')
+  implementation project(':sonar-scanner-engine')
 }

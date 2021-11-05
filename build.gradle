@@ -185,7 +185,12 @@ subprojects {
 
         if (!project.hasProperty('skipJava8Checks')) {
           task ensureDependenciesRunOnJava8(dependsOn: [configurations.compileClasspath]) {
-            ext.readJavaMajorVersion = { classFile ->
+              inputs.files(configurations.compileClasspath)
+                      .withPropertyName('classpath').withNormalizer(ClasspathNormalizer)
+              outputs.file("$buildDir/java8Checks")
+              outputs.cacheIf { true }
+
+              ext.readJavaMajorVersion = { classFile ->
               classFile.withDataInputStream({ d ->
                 if (d.skip(7) == 7) {
                   // read the version of the class file
@@ -666,7 +671,7 @@ gradle.projectsEvaluated { gradle ->
 
 ext.osAdaptiveCommand = { commands ->
     def newCommands = []
-    
+
     if (System.properties['os.name'].toLowerCase().contains('windows')) {
       newCommands = ['cmd', '/c']
     }

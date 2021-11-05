@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 sonarqube {
   properties {
     property 'sonar.projectName', "${projectTitle} :: DAO"
@@ -7,36 +11,36 @@ sonarqube {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'com.google.guava:guava'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'net.jpountz.lz4:lz4'
-  compile 'org.mybatis:mybatis'
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation 'com.google.guava:guava'
+  implementation 'com.google.protobuf:protobuf-java'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'net.jpountz.lz4:lz4'
+  implementation 'org.mybatis:mybatis'
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
 
-  compile project(':server:sonar-db-core')
-  compile project(':server:sonar-db-migration')
-  compile project(':sonar-core')
+  api project(':server:sonar-db-core')
+  api project(':server:sonar-db-migration')
+  implementation project(':sonar-core')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'commons-dbutils:commons-dbutils'
-  testCompile 'junit:junit'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.sonarsource.orchestrator:sonar-orchestrator'
-  testCompile project(':sonar-testing-harness')
-  testCompile project(':sonar-plugin-api-impl')
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-dbutils:commons-dbutils'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator'
+  testImplementation project(':sonar-testing-harness')
+  testImplementation project(':sonar-plugin-api-impl')
 
   testCompileOnly 'com.google.code.findbugs:jsr305'
 
-  testRuntime 'com.h2database:h2'
-  testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
-  testRuntime 'com.oracle.database.jdbc:ojdbc8'
-  testRuntime 'org.postgresql:postgresql'
+  testRuntimeOnly 'com.h2database:h2'
+  testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+  testRuntimeOnly 'com.oracle.database.jdbc:ojdbc8'
+  testRuntimeOnly 'org.postgresql:postgresql'
 
   testFixturesApi testFixtures(project(':server:sonar-db-core'))
 

@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 description = 'Code of the Compute Engine task processing project analysis reports'
 
 sonarqube {
@@ -17,44 +21,44 @@ sourceSets {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile 'net.sf.trove4j:core:3.1.0'
-  compile 'commons-codec:commons-codec'
-  compile 'commons-io:commons-io'
-  compile 'commons-lang:commons-lang'
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.guava:guava'
-  compile 'com.google.code.findbugs:jsr305'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'com.googlecode.java-diff-utils:diffutils'
-  compile 'org.mybatis:mybatis'
-  compile 'org.picocontainer:picocontainer'
+  implementation 'org.slf4j:jul-to-slf4j'
+  implementation 'org.slf4j:slf4j-api'
+  implementation 'net.sf.trove4j:core:3.1.0'
+  implementation 'commons-codec:commons-codec'
+  implementation 'commons-io:commons-io'
+  implementation 'commons-lang:commons-lang'
+  implementation 'com.google.code.gson:gson'
+  implementation 'com.google.guava:guava'
+  implementation 'com.google.code.findbugs:jsr305'
+  implementation 'com.google.protobuf:protobuf-java'
+  implementation 'com.googlecode.java-diff-utils:diffutils'
+  implementation 'org.mybatis:mybatis'
+  implementation 'org.picocontainer:picocontainer'
 
-  compile project(':sonar-core')
-  compile project(':server:sonar-ce-common')
-  compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-db-migration')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-server-common')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile project(':sonar-plugin-api-impl')
-  compile project(':sonar-duplications')
-  compile project(':sonar-scanner-protocol')
+  api project(':sonar-core')
+  implementation project(':server:sonar-ce-common')
+  implementation project(':server:sonar-ce-task')
+  implementation project(':server:sonar-db-migration')
+  implementation project(':server:sonar-process')
+  implementation project(':server:sonar-server-common')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation project(':sonar-plugin-api-impl')
+  implementation project(':sonar-duplications')
+  implementation project(':sonar-scanner-protocol')
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
-  compile project(':server:sonar-db-dao')
+  implementation project(':server:sonar-db-dao')
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.reflections:reflections'
-  testCompile project(':sonar-testing-harness')
-  testCompile testFixtures(project(':server:sonar-server-common'))
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.reflections:reflections'
+  testImplementation project(':sonar-testing-harness')
+  testImplementation testFixtures(project(':server:sonar-server-common'))
 
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'

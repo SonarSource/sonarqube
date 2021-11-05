@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 description = 'SonarQube WebServer-only code'
 
 sonarqube {
@@ -18,62 +22,62 @@ processResources {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  compile 'ch.qos.logback:logback-access'
-  compile 'ch.qos.logback:logback-classic'
-  compile 'ch.qos.logback:logback-core'
-  compile 'com.google.code.gson:gson'
-  compile 'com.google.protobuf:protobuf-java'
-  compile 'io.jsonwebtoken:jjwt-api'
-  compile 'io.jsonwebtoken:jjwt-impl'
-  compile 'org.apache.httpcomponents:httpclient'
-  compile 'org.apache.logging.log4j:log4j-api'
-  compile 'org.apache.tomcat.embed:tomcat-embed-core'
-  compile 'org.apache.commons:commons-dbcp2'
-  compile 'org.picocontainer:picocontainer'
-  compile 'org.slf4j:jul-to-slf4j'
-  compile 'org.slf4j:slf4j-api'
-  compile 'org.sonarsource.update-center:sonar-update-center-common'
-  compile 'org.mindrot:jbcrypt'
+  api  'ch.qos.logback:logback-access'
+  api  'ch.qos.logback:logback-classic'
+  api  'ch.qos.logback:logback-core'
+  implementation 'com.google.code.gson:gson'
+  implementation 'com.google.protobuf:protobuf-java'
+  implementation 'io.jsonwebtoken:jjwt-api'
+  implementation 'io.jsonwebtoken:jjwt-impl'
+  implementation 'org.apache.httpcomponents:httpclient'
+  implementation 'org.apache.logging.log4j:log4j-api'
+  implementation 'org.apache.tomcat.embed:tomcat-embed-core'
+  implementation 'org.apache.commons:commons-dbcp2'
+  implementation 'org.picocontainer:picocontainer'
+  implementation 'org.slf4j:jul-to-slf4j'
+  implementation 'org.slf4j:slf4j-api'
+  implementation 'org.sonarsource.update-center:sonar-update-center-common'
+  implementation 'org.mindrot:jbcrypt'
 
-  compile project(':server:sonar-ce-common')
-  compile project(':server:sonar-ce-task')
-  compile project(':server:sonar-ce-task-projectanalysis')
-  compile project(':server:sonar-db-migration')
-  compile project(':server:sonar-process')
-  compile project(':server:sonar-server-common')
-  compile project(':server:sonar-webserver-api')
-  compile project(':server:sonar-webserver-es')
-  compile project(':sonar-core')
-  compile project(':sonar-duplications')
-  compile project(':sonar-scanner-protocol')
-  compile project(':sonar-markdown')
-  compile project(path: ':sonar-plugin-api', configuration: 'shadow')
-  compile project(':sonar-plugin-api-impl')
-  compile project(':sonar-ws')
+  implementation project(':server:sonar-ce-common')
+  implementation project(':server:sonar-ce-task')
+  implementation project(':server:sonar-ce-task-projectanalysis')
+  implementation project(':server:sonar-db-migration')
+  implementation project(':server:sonar-process')
+  implementation project(':server:sonar-server-common')
+  implementation project(':server:sonar-webserver-api')
+  implementation project(':server:sonar-webserver-es')
+  implementation project(':sonar-core')
+  implementation project(':sonar-duplications')
+  implementation project(':sonar-scanner-protocol')
+  implementation project(':sonar-markdown')
+  implementation project(path: ':sonar-plugin-api', configuration: 'shadow')
+  implementation project(':sonar-plugin-api-impl')
+  implementation project(':sonar-ws')
 
   compileOnly 'com.google.code.findbugs:jsr305'
   // not a transitive dep. At runtime lib/jdbc/h2 is used
   compileOnly 'com.h2database:h2'
 
-  testCompile 'com.google.code.findbugs:jsr305'
-  testCompile 'com.h2database:h2'
-  testCompile 'com.squareup.okhttp3:mockwebserver'
-  testCompile 'com.tngtech.java:junit-dataprovider'
-  testCompile 'commons-dbutils:commons-dbutils'
-  testCompile 'org.apache.logging.log4j:log4j-api'
-  testCompile 'org.apache.logging.log4j:log4j-core'
-  testCompile 'org.assertj:assertj-core'
-  testCompile 'org.assertj:assertj-guava'
-  testCompile 'org.eclipse.jetty:jetty-server'
-  testCompile 'org.eclipse.jetty:jetty-servlet'
-  testCompile 'org.hamcrest:hamcrest-all'
-  testCompile 'org.mockito:mockito-core'
-  testCompile 'org.subethamail:subethasmtp'
-  testCompile testFixtures(project(':server:sonar-server-common'))
-  testCompile testFixtures(project(':server:sonar-webserver-auth'))
-  testCompile testFixtures(project(':server:sonar-webserver-es'))
-  testCompile testFixtures(project(':server:sonar-webserver-ws'))
-  testCompile project(':sonar-testing-harness')
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.h2database:h2'
+  testImplementation 'com.squareup.okhttp3:mockwebserver'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'commons-dbutils:commons-dbutils'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.assertj:assertj-guava'
+  testImplementation 'org.eclipse.jetty:jetty-server'
+  testImplementation 'org.eclipse.jetty:jetty-servlet'
+  testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.subethamail:subethasmtp'
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation testFixtures(project(':server:sonar-webserver-es'))
+  testImplementation testFixtures(project(':server:sonar-webserver-ws'))
+  testImplementation project(':sonar-testing-harness')
 
-  runtime 'io.jsonwebtoken:jjwt-jackson'
+  runtimeOnly 'io.jsonwebtoken:jjwt-jackson'
 }
