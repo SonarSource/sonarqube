@@ -8,9 +8,9 @@ If SonarQube's results aren't relevant, no one will want to use it. That's why p
 SonarQube gives you several options for configuring exactly what will be analyzed. You can
 
 * completely ignore some files or directories
-* exclude files/directories from Issues detection (specific rules or all of them) but analyze all other aspects
-* exclude files/directories from Duplications detection but analyze all other aspects
 * exclude files/directories from Coverage calculations but analyze all other aspects
+* exclude files/directories from Duplications detection but analyze all other aspects
+* exclude files/directories from Issues detection (specific rules or all of them) but analyze all other aspects
 
 You can make these changes globally or at a project level. At the global level, the navigation path is  **Administration > General Settings > Analysis Scope**. At the project level, the navigation path is **Project Settings > General Settings > Analysis Scope**
 
@@ -67,6 +67,18 @@ You can set these properties at both the project and global levels.
 
 See the Patterns section below for more details on the syntax to use in these inputs.
 
+## Ignore Code Coverage
+
+You can prevent some files from being taken into account for code coverage by unit tests.
+
+To do so, go to **Project Settings > General Settings > Analysis Scope > Code Coverage** and set the *Coverage Exclusions* property. See the Patterns section for more details on the syntax.
+
+## Ignore Duplications
+
+You can prevent some files from being checked for duplications.
+
+To do so, go to **Project Settings > General Settings > Analysis Scope > Duplications** and set the *Duplication Exclusions* property. See the Patterns section for more details on the syntax.
+
 ## Ignore Issues
 You can have SonarQube ignore issues on certain components and against certain coding rules. Go to **Project Settings > General Settings > Analysis Scope > Issues**.
 
@@ -122,15 +134,3 @@ KEY #1 = `cobol:COBOL.GotoTransferControlOutsideCurrentModuleCheck`
 PATH #1 = `bank/creditcard/**/*`  
 KEY #2 = `cobol:COBOL.GotoTransferControlOutsideCurrentModuleCheck`  
 PATH #2 = `bank/bankcard/**/*`
-
-## Ignore Duplications
-
-You can prevent some files from being checked for duplications.
-
-To do so, go to **Project Settings > General Settings > Analysis Scope > Duplications** and set the *Duplication Exclusions* property. See the Patterns section for more details on the syntax.
-
-## Ignore Code Coverage
-
-You can prevent some files from being taken into account for code coverage by unit tests.
-
-To do so, go to **Project Settings > General Settings > Analysis Scope > Code Coverage** and set the *Coverage Exclusions* property. See the Patterns section for more details on the syntax.
