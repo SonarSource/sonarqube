@@ -125,7 +125,7 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  isEmpty = () => this.state.measures === undefined || this.state.measures['ncloc'] === undefined;
+  isEmpty = () => this.state.measures === undefined || this.state.measures['lines'] === undefined;
 
   isNotComputed = () =>
     this.state.measures && this.state.measures['reliability_rating'] === undefined;

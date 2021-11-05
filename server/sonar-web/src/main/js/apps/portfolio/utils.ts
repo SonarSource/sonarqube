@@ -20,6 +20,7 @@
 export const PORTFOLIO_METRICS = [
   'projects',
   'ncloc',
+  'lines',
   'ncloc_language_distribution',
 
   'releasability_rating',

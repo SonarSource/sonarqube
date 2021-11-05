@@ -60,11 +60,11 @@ it('should render correctly', () => {
   wrapper.setState({ loading: false, measures: { reliability_rating: '1' } });
   expect(wrapper).toMatchSnapshot('portfolio is empty');
 
-  wrapper.setState({ measures: { ncloc: '173' } });
+  wrapper.setState({ measures: { lines: '173' } });
   expect(wrapper).toMatchSnapshot('portfolio is not computed');
 
   wrapper.setState({
-    measures: { ncloc: '173', reliability_rating: '1' },
+    measures: { lines: '173', reliability_rating: '1' },
     subComponents: [],
     totalSubComponents: 0
   });
@@ -78,7 +78,7 @@ it('should require authentication if this is an unsubscription request and user 
 
 it('should show the unsubscribe modal if this is an unsubscription request and user is logged in', async () => {
   (getMeasures as jest.Mock).mockResolvedValueOnce([
-    { metric: 'ncloc', value: '173' },
+    { metric: 'lines', value: '173' },
     { metric: 'reliability_rating', value: '1' }
   ]);
   const wrapper = shallowRender({
@@ -109,7 +109,7 @@ it('fetches measures and children components', () => {
   expect(getMeasures).toBeCalledWith({
     component: 'foo',
     metricKeys:
-      'projects,ncloc,ncloc_language_distribution,releasability_rating,releasability_effort,sqale_rating,maintainability_rating_effort,reliability_rating,reliability_rating_effort,security_rating,security_rating_effort,security_review_rating,security_review_rating_effort,last_change_on_releasability_rating,last_change_on_maintainability_rating,last_change_on_security_rating,last_change_on_security_review_rating,last_change_on_reliability_rating'
+      'projects,ncloc,lines,ncloc_language_distribution,releasability_rating,releasability_effort,sqale_rating,maintainability_rating_effort,reliability_rating,reliability_rating_effort,security_rating,security_rating_effort,security_review_rating,security_review_rating_effort,last_change_on_releasability_rating,last_change_on_maintainability_rating,last_change_on_security_rating,last_change_on_security_review_rating,last_change_on_reliability_rating'
   });
 
   expect(getChildren).toBeCalledWith(
