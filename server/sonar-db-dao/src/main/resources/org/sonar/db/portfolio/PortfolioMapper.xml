@@ -294,7 +294,7 @@
     AND source.root_uuid = #{rootUuid,jdbcType=VARCHAR})
   </select>
 
-  <delete id="deletePortfolio" parameterType="String">
+  <sql id="deletePortfolioQuery">
     DELETE FROM portfolio_proj_branches
     WHERE portfolio_project_uuid in (select uuid FROM portfolio_projects WHERE portfolio_uuid = #{uuid,jdbcType=VARCHAR});
 
@@ -302,6 +302,16 @@
     WHERE portfolio_uuid = #{uuid,jdbcType=VARCHAR};
 
     DELETE FROM portfolios WHERE uuid = #{uuid,jdbcType=VARCHAR};
+  </sql>
+
+  <delete id="deletePortfolio" parameterType="String">
+    <include refid="deletePortfolioQuery"/>
+  </delete>
+
+  <delete id="deletePortfolio" parameterType="String" databaseId="oracle">
+    BEGIN
+    <include refid="deletePortfolioQuery"/>
+    END;
   </delete>
 
   <delete id="deleteReferencesByPortfolioOrReferenceUuids" parameterType="String">
@@ -319,9 +329,19 @@
     DELETE FROM portfolio_references
   </delete>
 
-  <delete id="deleteAllProjects" parameterType="String">
+  <sql id="deleteAllProjectsQuery">
     DELETE FROM portfolio_projects;
-    DELETE FROM portfolio_proj_branches
+    DELETE FROM portfolio_proj_branches;
+  </sql>
+
+  <delete id="deleteAllProjects" parameterType="String">
+    <include refid="deleteAllProjectsQuery"/>
+  </delete>
+
+  <delete id="deleteAllProjects" parameterType="String" databaseId="oracle">
+    BEGIN
+    <include refid="deleteAllProjectsQuery"/>
+    END;
   </delete>
 
   <insert id="insertReference" parameterType="PortfolioReference">
@@ -352,26 +372,46 @@
     WHERE reference_uuid =  #{referenceUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteProjects" parameterType="String">
+  <sql id="deleteProjectsQuery">
     DELETE FROM portfolio_proj_branches
     WHERE portfolio_project_uuid in
-      (SELECT uuid FROM portfolio_projects
-      WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR});
+    (SELECT uuid FROM portfolio_projects
+    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR});
 
     DELETE FROM portfolio_projects
-    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR};
+  </sql>
+
+  <delete id="deleteProjects" parameterType="String">
+    <include refid="deleteProjectsQuery"/>
   </delete>
 
-  <delete id="deleteProject" parameterType="map">
+  <delete id="deleteProjects" parameterType="String" databaseId="oracle">
+    BEGIN
+    <include refid="deleteProjectsQuery"/>
+    END;
+  </delete>
+
+  <sql id="deleteProjectQuery">
     DELETE FROM portfolio_proj_branches
     WHERE portfolio_project_uuid =
-      (SELECT uuid FROM portfolio_projects
-      WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-      AND project_uuid = #{projectUuid,jdbcType=VARCHAR});
+    (SELECT uuid FROM portfolio_projects
+    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    AND project_uuid = #{projectUuid,jdbcType=VARCHAR});
 
     DELETE FROM portfolio_projects
     WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-      AND project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    AND project_uuid = #{projectUuid,jdbcType=VARCHAR};
+  </sql>
+
+  <delete id="deleteProject" parameterType="map">
+    <include refid="deleteProjectQuery"/>
+  </delete>
+
+  <delete id="deleteProject" parameterType="map" databaseId="oracle">
+    BEGIN
+    <include refid="deleteProjectQuery"/>
+    END;
   </delete>
 
   <insert id="insertProject" parameterType="map">
