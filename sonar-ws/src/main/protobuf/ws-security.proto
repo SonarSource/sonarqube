@@ -41,6 +41,7 @@ message SecurityStandardCategoryStatistics {
   repeated CweStatistics distribution = 8;
   optional int64 activeRules = 9;
   optional int64 totalRules = 10;
+  optional bool hasMoreRules = 11;
 }
 
 message CweStatistics {
@@ -52,6 +53,7 @@ message CweStatistics {
   optional int64 securityReviewRating = 7;
   optional int64 activeRules = 8;
   optional int64 totalRules = 9;
+  optional bool hasMoreRules = 10;
 }
 
 

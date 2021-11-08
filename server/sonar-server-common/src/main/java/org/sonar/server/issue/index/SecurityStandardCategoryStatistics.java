@@ -34,6 +34,7 @@ public class SecurityStandardCategoryStatistics {
   private final List<SecurityStandardCategoryStatistics> children;
   private long activeRules;
   private long totalRules;
+  private boolean hasMoreRules;
 
   public SecurityStandardCategoryStatistics(String category, long vulnerabilities, OptionalInt vulnerabiliyRating, long toReviewSecurityHotspots,
     long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children) {
@@ -44,6 +45,7 @@ public class SecurityStandardCategoryStatistics {
     this.reviewedSecurityHotspots = reviewedSecurityHotspots;
     this.securityReviewRating = securityReviewRating;
     this.children = children;
+    this.hasMoreRules = false;
   }
 
   public String getCategory() {
@@ -88,5 +90,13 @@ public class SecurityStandardCategoryStatistics {
   public SecurityStandardCategoryStatistics setTotalRules(long totalRules) {
     this.totalRules = totalRules;
     return this;
+  }
+
+  public boolean hasMoreRules() {
+    return hasMoreRules;
+  }
+
+  public void setHasMoreRules(boolean hasMoreRules) {
+    this.hasMoreRules = hasMoreRules;
   }
 }
