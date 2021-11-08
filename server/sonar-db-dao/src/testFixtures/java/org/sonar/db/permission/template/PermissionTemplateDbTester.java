@@ -19,6 +19,7 @@
  */
 package org.sonar.db.permission.template;
 
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -59,8 +60,9 @@ public class PermissionTemplateDbTester {
       ofNullable(portfoliosDefaultTemplate).map(PermissionTemplateDto::getUuid).orElse(null));
   }
 
-  public PermissionTemplateDto insertTemplate() {
-    return insertTemplate(newPermissionTemplateDto());
+  @SafeVarargs
+  public final PermissionTemplateDto insertTemplate(Consumer<PermissionTemplateDto>... populators) {
+    return insertTemplate(newPermissionTemplateDto(populators));
   }
 
   public PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {

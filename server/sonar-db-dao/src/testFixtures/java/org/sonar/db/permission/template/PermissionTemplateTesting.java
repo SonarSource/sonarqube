@@ -20,21 +20,26 @@
 package org.sonar.db.permission.template;
 
 import java.util.Date;
+import java.util.function.Consumer;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.permission.PermissionsTestHelper;
 
+import static java.util.Arrays.stream;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 
 public class PermissionTemplateTesting {
-  public static PermissionTemplateDto newPermissionTemplateDto() {
-    return new PermissionTemplateDto()
+  @SafeVarargs
+  public static PermissionTemplateDto newPermissionTemplateDto(Consumer<PermissionTemplateDto>... populators) {
+    PermissionTemplateDto dto = new PermissionTemplateDto()
       .setName(randomAlphanumeric(60))
       .setDescription(randomAscii(500))
       .setUuid(Uuids.create())
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
+    stream(populators).forEach(p -> p.accept(dto));
+    return dto;
   }
 
   public static PermissionTemplateUserDto newPermissionTemplateUserDto() {

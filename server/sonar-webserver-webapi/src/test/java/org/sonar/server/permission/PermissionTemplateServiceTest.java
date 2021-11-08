@@ -20,6 +20,8 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,10 +38,12 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.es.TestProjectIndexers;
+import org.sonar.server.exceptions.TemplateMatchingKeyException;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -63,6 +67,7 @@ public class PermissionTemplateServiceTest {
   private final ProjectIndexers projectIndexers = new TestProjectIndexers();
   private final PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver,
     new SequenceUuidFactory());
+  private ComponentDto privateProject;
 
   @Test
   public void apply_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
@@ -450,6 +455,29 @@ public class PermissionTemplateServiceTest {
     dbTester.permissionTemplates().setDefaultTemplates(template, null, null);
 
     checkWouldUserHaveScanPermission(null, false);
+  }
+
+  @Test
+  public void apply_permission_template_with_key_pattern_collision() {
+    final String key = "hi-test";
+    final String keyPattern = ".*-test";
+
+    Stream<PermissionTemplateDto> templates = Stream.of(
+      templateDb.insertTemplate(t -> t.setKeyPattern(keyPattern)),
+      templateDb.insertTemplate(t -> t.setKeyPattern(keyPattern))
+    );
+
+    String templateNames = templates
+      .map(PermissionTemplateDto::getName)
+      .sorted(String.CASE_INSENSITIVE_ORDER)
+      .map(x -> String.format("\"%s\"", x))
+      .collect(Collectors.joining(", "));
+
+    ComponentDto project = dbTester.components().insertPrivateProject(p -> p.setDbKey(key));
+
+    assertThatThrownBy(() -> underTest.applyDefaultToNewComponent(session, project, null))
+      .isInstanceOf(TemplateMatchingKeyException.class)
+      .hasMessageContaining("The \"%s\" key matches multiple permission templates: %s.", key, templateNames);
   }
 
   private void checkWouldUserHaveScanPermission(@Nullable String userUuid, boolean expectedResult) {

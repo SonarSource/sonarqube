@@ -46,6 +46,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.exceptions.TemplateMatchingKeyException;
 import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.user.UserSession;
 
@@ -230,7 +231,7 @@ public class PermissionTemplateService {
           templatesNames.append(", ");
         }
       }
-      throw new IllegalStateException(MessageFormat.format(
+      throw new TemplateMatchingKeyException(MessageFormat.format(
         "The \"{0}\" key matches multiple permission templates: {1}."
           + " A system administrator must update these templates so that only one of them matches the key.",
         componentKey,

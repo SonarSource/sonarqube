@@ -37,8 +37,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadConfigurationException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.MediaTypes;
 
