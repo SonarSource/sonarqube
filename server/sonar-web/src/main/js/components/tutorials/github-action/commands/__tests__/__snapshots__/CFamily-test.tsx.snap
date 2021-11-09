@@ -117,10 +117,17 @@ jobs:
         env:
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
 
+      - name: Download and install the SonarScanner
+        env:
+          SONAR_SCANNER_VERSION: 4.6.2.2472
+        run: |
+          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${{ env.SONAR_SCANNER_VERSION }}-linux.zip
+          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          echo \\"$HOME/.sonar/sonar-scanner-\${{ env.SONAR_SCANNER_VERSION }}-linux/bin\\" >> $GITHUB_PATH
+
       - name: SonarQube analysis
-        uses: SonarSource/sonarqube-scan-action@v1.0.0
-        with:
-          args: -Dsonar.cfamily.build-wrapper-output=bw-output
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output=bw-output  
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
