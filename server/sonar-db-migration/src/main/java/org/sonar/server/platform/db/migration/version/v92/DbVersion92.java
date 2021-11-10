@@ -37,6 +37,7 @@ public class DbVersion92 implements DbVersion {
       .add(6109, "Create table 'portfolio_proj_branches'", CreatePortfolioProjectBranchesTable.class)
       .add(6110, "Add column 'branch_key' to table 'portfolios'", AddBranchToPortfolios.class)
       .add(6111, "Change size of column 'kee' in 'components'", AlterKeeInComponentsTable.class)
+      .add(6112, "Create 'project_badge_token' Table", CreateProjectBadgeTokenTable.class)
     ;
   }
 }
