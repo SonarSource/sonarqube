@@ -11,7 +11,7 @@ With this integration, you'll be able to:
 - **Report your Quality Gate status to your pull requests** - (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)) See your Quality Gate and code metric results right in Azure DevOps so you know if it's safe to merge your changes.
 
 ## Prerequisites
-Integration with Azure DevOps Server requires Azure DevOps Server 2020, Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2.
+Integration with Azure DevOps Server requires Azure DevOps Server 2020, Azure DevOps Server 2019, TFS 2018, or TFS 2017 Update 2 (including _Express_ editions).
 
 ### Branch Analysis
 Community Edition doesn't support the analysis of multiple branches, so you can only analyze your main branch. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and pull requests.
