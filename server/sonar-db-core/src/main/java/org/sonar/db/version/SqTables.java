@@ -78,6 +78,7 @@ public final class SqTables {
     "portfolio_references",
     "projects",
     "project_alm_settings",
+    "project_badge_token",
     "project_branches",
     "project_links",
     "project_mappings",

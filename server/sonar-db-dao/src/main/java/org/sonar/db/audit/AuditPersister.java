@@ -21,15 +21,16 @@ package org.sonar.db.audit;
 
 import org.sonar.core.extension.PlatformLevel;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
-import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.audit.model.PluginNewValue;
+import org.sonar.db.audit.model.ProjectBadgeTokenNewValue;
 import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.audit.model.UserGroupNewValue;
@@ -70,6 +71,8 @@ public interface AuditPersister {
   void deleteProperty(DbSession dbSession, PropertyNewValue newValue, boolean isUserProperty);
 
   void addUserToken(DbSession dbSession, UserTokenNewValue newValue);
+
+  void addProjectBadgeToken(DbSession dbSession, ProjectBadgeTokenNewValue newValue);
 
   void updateUserToken(DbSession dbSession, UserTokenNewValue newValue);
 

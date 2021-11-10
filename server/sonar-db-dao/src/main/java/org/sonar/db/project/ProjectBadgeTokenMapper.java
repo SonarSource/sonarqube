@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.badge.ws;
+package org.sonar.db.project;
 
-import org.sonar.core.platform.Module;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-public class ProjectBadgesWsModule extends Module {
+public interface ProjectBadgeTokenMapper {
 
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectBadgesWs.class,
-      QualityGateAction.class,
-      MeasureAction.class,
-      TokenAction.class,
-      SvgGenerator.class,
-      ProjectBadgesSupport.class);
-  }
+  void insert(ProjectBadgeTokenDto projectBadgeTokenDto);
+
+  @CheckForNull
+  ProjectBadgeTokenDto selectTokenByProjectUuid(@Param("projectUuid") String projectUuid);
 }

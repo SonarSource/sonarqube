@@ -1,0 +1,13 @@
+
+syntax = "proto2";
+
+package sonarqube.ws.badge;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "ProjectBadgeToken";
+option optimize_for = SPEED;
+
+// WS api/project_badges/token
+message TokenWsResponse {
+  optional string token = 1;
+}

@@ -17,20 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.badge.ws;
+package org.sonar.db.audit.model;
 
-import org.sonar.core.platform.Module;
+public class ProjectBadgeTokenNewValue extends NewValue {
 
-public class ProjectBadgesWsModule extends Module {
+  private final String projectKey;
+  private final String userUuid;
+  private final String userLogin;
+
+  public ProjectBadgeTokenNewValue(String projectKey, String userUuid, String userLogin) {
+    this.projectKey = projectKey;
+    this.userUuid = userUuid;
+    this.userLogin = userLogin;
+  }
 
   @Override
-  protected void configureModule() {
-    add(
-      ProjectBadgesWs.class,
-      QualityGateAction.class,
-      MeasureAction.class,
-      TokenAction.class,
-      SvgGenerator.class,
-      ProjectBadgesSupport.class);
+  public String toString() {
+    StringBuilder sb = new StringBuilder("{");
+    addField(sb, "\"projectKey\": ", this.projectKey, true);
+    addField(sb, "\"userUuid\": ", this.userUuid, true);
+    addField(sb, "\"userLogin\": ", this.userLogin, true);
+    endString(sb);
+    return sb.toString();
   }
 }

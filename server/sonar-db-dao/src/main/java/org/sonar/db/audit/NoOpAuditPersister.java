@@ -29,6 +29,7 @@ import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.audit.model.PluginNewValue;
+import org.sonar.db.audit.model.ProjectBadgeTokenNewValue;
 import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.db.audit.model.SecretNewValue;
 import org.sonar.db.audit.model.UserGroupNewValue;
@@ -110,6 +111,11 @@ public class NoOpAuditPersister implements AuditPersister {
 
   @Override
   public void addUserToken(DbSession dbSession, UserTokenNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void addProjectBadgeToken(DbSession dbSession, ProjectBadgeTokenNewValue newValue) {
     // no op
   }
 

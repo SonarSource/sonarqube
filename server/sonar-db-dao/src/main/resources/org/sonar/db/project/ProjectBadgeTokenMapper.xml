@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.project.ProjectBadgeTokenMapper">
+
+    <sql id="projectBadgeTokenColumns">
+      p.uuid as uuid,
+      p.token as token,
+      p.project_uuid as projectUuid,
+      p.created_at as createdAt,
+      p.updated_at as updatedAt
+    </sql>
+
+  <insert id="insert" parameterType="ProjectBadgeToken">
+    INSERT INTO project_badge_token (
+      uuid,
+      token,
+      project_uuid,
+      created_at,
+      updated_at
+    )
+    VALUES (
+    #{uuid,jdbcType=VARCHAR},
+    #{token,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT},
+    #{updatedAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <select id="selectTokenByProjectUuid" parameterType="String" resultType="ProjectBadgeToken">
+    select
+      <include refid="projectBadgeTokenColumns"/>
+    from project_badge_token p
+    where
+    p.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </select>
+
+</mapper>

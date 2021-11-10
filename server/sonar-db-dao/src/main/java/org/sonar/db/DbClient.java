@@ -58,6 +58,7 @@ import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.plugin.PluginDao;
 import org.sonar.db.portfolio.PortfolioDao;
 import org.sonar.db.project.ProjectDao;
+import org.sonar.db.project.ProjectBadgeTokenDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
@@ -166,6 +167,7 @@ public class DbClient {
   private final SamlMessageIdDao samlMessageIdDao;
   private final UserDismissedMessagesDao userDismissedMessagesDao;
   private final ApplicationProjectsDao applicationProjectsDao;
+  private final ProjectBadgeTokenDao projectBadgeTokenDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -240,6 +242,7 @@ public class DbClient {
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
     newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
     projectDao = getDao(map, ProjectDao.class);
+    projectBadgeTokenDao = getDao(map, ProjectBadgeTokenDao.class);
     portfolioDao = getDao(map, PortfolioDao.class);
     sessionTokensDao = getDao(map, SessionTokensDao.class);
     samlMessageIdDao = getDao(map, SamlMessageIdDao.class);
@@ -541,4 +544,7 @@ public class DbClient {
     return userDismissedMessagesDao;
   }
 
+  public ProjectBadgeTokenDao projectBadgeTokenDao() {
+    return projectBadgeTokenDao;
+  }
 }

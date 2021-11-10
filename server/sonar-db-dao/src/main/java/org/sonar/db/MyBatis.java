@@ -100,6 +100,8 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioMapper;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.portfolio.PortfolioReferenceDto;
+import org.sonar.db.project.ProjectBadgeTokenDto;
+import org.sonar.db.project.ProjectBadgeTokenMapper;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.project.ProjectMapper;
@@ -117,8 +119,8 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateConditionMapper;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualitygate.QualityGateGroupPermissionsMapper;
-import org.sonar.db.qualitygate.QualityGateUserPermissionsMapper;
 import org.sonar.db.qualitygate.QualityGateMapper;
+import org.sonar.db.qualitygate.QualityGateUserPermissionsMapper;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleMapper;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -206,6 +208,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PrIssue", PrIssueDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);
+    confBuilder.loadAlias("ProjectBadgeToken", ProjectBadgeTokenDto.class);
     confBuilder.loadAlias("ProjectCountPerAnalysisPropertyValue", ProjectCountPerAnalysisPropertyValue.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
@@ -271,6 +274,7 @@ public class MyBatis implements Startable {
       ProjectAlmSettingMapper.class,
       ProjectLinkMapper.class,
       ProjectMapper.class,
+      ProjectBadgeTokenMapper.class,
       ProjectExportMapper.class,
       ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,
