@@ -100,6 +100,11 @@ yarn_cache_template: &YARN_CACHE_TEMPLATE
         private/core-extension-license/yarn.lock \
         private/core-extension-securityreport/yarn.lock
 
+gradle_cache_template: &GRADLE_CACHE_TEMPLATE
+  gradle_cache:
+    folder: "~/.gradle/caches"
+    fingerprint_script:  find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) -exec cat {} +
+
 custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
   clone_script: |
     git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR --depth=1
@@ -112,6 +117,7 @@ profile_artifacts_template: &PROFILE_ARTIFACTS_TEMPLATE
 
 build_task:
   <<: *YARN_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH !=~ "dogfood/.*" &&
     $CIRRUS_BRANCH != "public_master" &&
@@ -142,6 +148,7 @@ build_task:
 validate_task:
   <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -159,6 +166,7 @@ validate_task:
 yarn_check-ci_task:
   <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -174,6 +182,7 @@ yarn_check-ci_task:
 
 qa_task:
   <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 3
@@ -206,6 +215,7 @@ qa_task:
 
 task: #bitbucket
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 3
@@ -233,6 +243,7 @@ task: #bitbucket
 
 qa_bb_cloud_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -247,17 +258,14 @@ qa_bb_cloud_task:
     BBC_CLIENT_SECRET: ENCRYPTED[39cc89ce4695c243fd688e687879bd473a60882fd30ba8613d6697e5d2b04e2017c68cae3a9a7ed9704f69c52bf229ee]
     BBC_READ_REPOS_APP_PASSWORD: ENCRYPTED[d33b02d02987e188b5cec2a14f6ddd04d1fcac39ed5d6ced08891fc562ebb6721c9fbf307c0eba81df78c83f75b3c27c]
     BBC_USERNAME: ENCRYPTED[f0af9be9d2fbaa55fbf69e4fce706ebc9131e0dc22cf8bce5d7ab2e0c2b57aff3ddbf6b3b77166e803a6000276256cea]
-  gradle_cache:
-    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 qa_ha_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -270,12 +278,8 @@ qa_ha_task:
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: HA
-  gradle_cache:
-    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh postgres106
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
@@ -302,6 +306,7 @@ docker_gitlab_container_build_task:
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   depends_on:
     - build
     - docker_gitlab_container_build
@@ -326,18 +331,15 @@ qa_gitlab_task:
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: GITLAB
-  gradle_cache:
-    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 # Azure QA is executed in a dedicated task in order to not slow down the pipeline.
 qa_azure_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -351,18 +353,15 @@ qa_azure_task:
     AZURE_USERNAME_LOGIN: ENCRYPTED[dcdf19769c1501408ebc22670c76d5e375cd739de2df5dfa3f215aa795296dfb257dbbcbe9bdfd33135feb04421fea1f]
     AZURE_CODE_READ_AND_WRITE_TOKEN: ENCRYPTED[eddc3448b40e72310f24f21241bdc1243860139d1a5aad593b016baedf03e4bba3f9e3d8d9f6329fe3b587966a8112d2]
     AZURE_FULL_ACCESS_TOKEN: ENCRYPTED[58779d6588e2e10d1b6f98fcc58a46957f8ef3a18e29d79abc6aa8d69ea55c23d8708e1f1af626464d309b1c7c087985]
-  gradle_cache:
-    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 # SAML QA is executed in a dedicated task in order to not slow down the pipeline, as a Keycloak server docker image is required.
 qa_saml_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -382,18 +381,15 @@ qa_saml_task:
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: SAML
-  gradle_cache:
-    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 # LDAP QA is executed in a dedicated task in order to not slow down the pipeline, as a LDAP server and SonarQube server are re-started on each test.
 qa_ldap_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
@@ -404,12 +400,8 @@ qa_ldap_task:
     # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
     CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: LDAP
-  gradle_cache:
-    folder: ~/.gradle/caches
   script:
     - ./private/cirrus/cirrus-qa.sh h2
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
@@ -464,6 +456,7 @@ package_docker_task:
 
 sql_mssql2017_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -485,6 +478,7 @@ sql_mssql2017_task:
 # this is the oldest compatible version of PostgreSQL
 sql_postgres96_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -498,6 +492,7 @@ sql_postgres96_task:
 
 sql_oracle12_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
@@ -510,6 +505,7 @@ sql_oracle12_task:
 
 upgd_mssql2019_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
@@ -538,6 +534,7 @@ upgd_mssql2019_task:
 
 upgd_oracle12_task:
   <<: *ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
@@ -565,6 +562,7 @@ owasp_check_task:
     $CIRRUS_CRON == "weekly-lts" ||
     changesInclude('private/owasp/*.xml')
   <<: *YARN_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
