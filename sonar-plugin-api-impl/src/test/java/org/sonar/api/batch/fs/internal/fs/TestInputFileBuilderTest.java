@@ -22,6 +22,7 @@ package org.sonar.api.batch.fs.internal.fs;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.LinkOption;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,6 +71,6 @@ public class TestInputFileBuilderTest {
     File baseDir = temp.newFolder();
     AbstractProjectOrModule module = TestInputFileBuilder.newDefaultInputModule("key", baseDir);
     assertThat(module.key()).isEqualTo("key");
-    assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath());
+    assertThat(module.getBaseDir()).isEqualTo(baseDir.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS));
   }
 }

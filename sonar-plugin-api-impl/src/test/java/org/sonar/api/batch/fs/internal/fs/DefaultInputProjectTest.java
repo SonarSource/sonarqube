@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.LinkOption;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -55,7 +56,7 @@ public class DefaultInputProjectTest {
     assertThat(project.getName()).isEqualTo("projectName");
     assertThat(project.getOriginalName()).isEqualTo("projectName");
     assertThat(project.definition()).isEqualTo(def);
-    assertThat(project.getBaseDir()).isEqualTo(baseDir.toPath());
+    assertThat(project.getBaseDir()).isEqualTo(baseDir.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS));
     assertThat(project.getDescription()).isEqualTo("desc");
     assertThat(project.getWorkDir()).isEqualTo(workDir.toPath());
     assertThat(project.getEncoding()).isEqualTo(Charset.defaultCharset());

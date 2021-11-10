@@ -188,7 +188,7 @@ public class PluginDownloaderTest {
     Plugin test = Plugin.factory("test");
     File file = testFolder.newFile("test-1.0.jar");
     file.createNewFile();
-    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + separatorsToUnix(file.getCanonicalPath()));
+    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + separatorsToUnix(file.getAbsolutePath()));
     test.addRelease(test10);
 
     when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
