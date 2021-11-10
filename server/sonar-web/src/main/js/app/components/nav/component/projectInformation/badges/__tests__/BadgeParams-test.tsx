@@ -42,14 +42,6 @@ const METRICS = {
   coverage: { key: 'coverage', name: 'Coverage' } as T.Metric
 };
 
-it('should display marketing badge params', () => {
-  const updateOptions = jest.fn();
-  const wrapper = getWrapper({ updateOptions });
-  expect(wrapper).toMatchSnapshot();
-  (wrapper.instance() as BadgeParams).handleColorChange({ value: 'black' });
-  expect(updateOptions).toHaveBeenCalledWith({ color: 'black' });
-});
-
 it('should display measure badge params', () => {
   const updateOptions = jest.fn();
   const wrapper = getWrapper({ updateOptions, type: BadgeType.measure });
@@ -70,8 +62,8 @@ function getWrapper(props = {}) {
   return shallow(
     <BadgeParams
       metrics={METRICS}
-      options={{ color: 'white', metric: 'alert_status' }}
-      type={BadgeType.marketing}
+      options={{ metric: 'alert_status' }}
+      type={BadgeType.measure}
       updateOptions={jest.fn()}
       {...props}
     />

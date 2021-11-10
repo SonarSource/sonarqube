@@ -203,7 +203,7 @@ exports[`should render correctly: private 1`] = `
 <Fragment>
   <Memo(ProjectInformationRenderer)
     canConfigureNotifications={false}
-    canUseBadges={false}
+    canUseBadges={true}
     component={
       Object {
         "breadcrumbs": Array [],
@@ -230,5 +230,24 @@ exports[`should render correctly: private 1`] = `
     onComponentChange={[MockFunction]}
     onPageChange={[Function]}
   />
+  <InfoDrawerPage
+    displayed={false}
+    onPageChange={[Function]}
+  >
+    <ProjectBadges
+      metrics={
+        Object {
+          "coverage": Object {
+            "id": "coverage",
+            "key": "coverage",
+            "name": "Coverage",
+            "type": "PERCENT",
+          },
+        }
+      }
+      project="my-project"
+      qualifier="TRK"
+    />
+  </InfoDrawerPage>
 </Fragment>
 `;

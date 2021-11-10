@@ -22,7 +22,7 @@ import * as React from 'react';
 import { fetchWebApi } from '../../../../../../api/web-api';
 import Select from '../../../../../../components/controls/Select';
 import { getLocalizedMetricName, translate } from '../../../../../../helpers/l10n';
-import { BadgeColors, BadgeFormats, BadgeOptions, BadgeType } from './utils';
+import { BadgeFormats, BadgeOptions, BadgeType } from './utils';
 
 interface Props {
   className?: string;
@@ -90,10 +90,6 @@ export default class BadgeParams extends React.PureComponent<Props> {
     });
   };
 
-  handleColorChange = ({ value }: { value: BadgeColors }) => {
-    this.props.updateOptions({ color: value });
-  };
-
   handleFormatChange = ({ value }: { value: BadgeFormats }) => {
     this.props.updateOptions({ format: value });
   };
@@ -103,24 +99,7 @@ export default class BadgeParams extends React.PureComponent<Props> {
   };
 
   renderBadgeType = (type: BadgeType, options: BadgeOptions) => {
-    if (type === BadgeType.marketing) {
-      return (
-        <>
-          <label className="spacer-right" htmlFor="badge-color">
-            {translate('color')}:
-          </label>
-          <Select
-            className="input-medium"
-            clearable={false}
-            name="badge-color"
-            onChange={this.handleColorChange}
-            options={this.getColorOptions()}
-            searchable={false}
-            value={options.color}
-          />
-        </>
-      );
-    } else if (type === BadgeType.measure) {
+    if (type === BadgeType.measure) {
       return (
         <>
           <label className="spacer-right" htmlFor="badge-metric">

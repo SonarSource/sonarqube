@@ -26,7 +26,6 @@ export type BadgeFormats = 'md' | 'url';
 
 export interface BadgeOptions {
   branch?: string;
-  color?: BadgeColors;
   format?: BadgeFormats;
   project?: string;
   metric?: string;
@@ -35,12 +34,11 @@ export interface BadgeOptions {
 
 export enum BadgeType {
   measure = 'measure',
-  qualityGate = 'quality_gate',
-  marketing = 'marketing'
+  qualityGate = 'quality_gate'
 }
 
-export function getBadgeSnippet(type: BadgeType, options: BadgeOptions) {
-  const url = getBadgeUrl(type, options);
+export function getBadgeSnippet(type: BadgeType, options: BadgeOptions, token: string) {
+  const url = getBadgeUrl(type, options, token);
   const { branch, format = 'md', metric = 'alert_status', project } = options;
 
   if (format === 'url') {
@@ -50,9 +48,6 @@ export function getBadgeSnippet(type: BadgeType, options: BadgeOptions) {
     let projectUrl;
 
     switch (type) {
-      case BadgeType.marketing:
-        label = 'SonarCloud';
-        break;
       case BadgeType.measure:
         label = getLocalizedMetricName({ key: metric });
         break;
@@ -73,19 +68,18 @@ export function getBadgeSnippet(type: BadgeType, options: BadgeOptions) {
 
 export function getBadgeUrl(
   type: BadgeType,
-  { branch, project, color = 'white', metric = 'alert_status', pullRequest }: BadgeOptions
+  { branch, project, metric = 'alert_status', pullRequest }: BadgeOptions,
+  token: string
 ) {
   switch (type) {
-    case BadgeType.marketing:
-      return `${getHostUrl()}/images/project_badges/sonarcloud-${color}.svg`;
     case BadgeType.qualityGate:
       return `${getHostUrl()}/api/project_badges/quality_gate?${new URLSearchParams(
-        omitNil({ branch, project, pullRequest })
+        omitNil({ branch, project, pullRequest, token })
       ).toString()}`;
     case BadgeType.measure:
     default:
       return `${getHostUrl()}/api/project_badges/measure?${new URLSearchParams(
-        omitNil({ branch, project, metric, pullRequest })
+        omitNil({ branch, project, metric, pullRequest, token })
       ).toString()}`;
   }
 }

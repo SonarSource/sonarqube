@@ -6,7 +6,7 @@ exports[`should display correctly 1`] = `
   onClick={[Function]}
 >
   <img
-    alt="overview.badges.marketing.alt"
+    alt="overview.badges.quality_gate.alt"
     src="http://foo.bar"
     width="128px"
   />
@@ -19,7 +19,7 @@ exports[`should display correctly 2`] = `
   onClick={[Function]}
 >
   <img
-    alt="overview.badges.marketing.alt"
+    alt="overview.badges.quality_gate.alt"
     src="http://foo.bar"
     width="128px"
   />

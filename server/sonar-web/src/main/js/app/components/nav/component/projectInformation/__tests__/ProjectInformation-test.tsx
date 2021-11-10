@@ -22,6 +22,8 @@ import * as React from 'react';
 import { mockComponent } from '../../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMetric } from '../../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../../../types/component';
+import ProjectBadges from '../badges/ProjectBadges';
 import { ProjectInformation } from '../ProjectInformation';
 import { ProjectInformationPages } from '../ProjectInformationPages';
 
@@ -51,6 +53,17 @@ it('should handle page change', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().page).toBe(ProjectInformationPages.badges);
+});
+
+it('should display badge', () => {
+  const wrapper = shallowRender({
+    component: mockComponent({ qualifier: ComponentQualifier.Project })
+  });
+
+  expect(wrapper.find(ProjectBadges).type).toBeDefined();
+
+  wrapper.setProps({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
+  expect(wrapper.find(ProjectBadges).type).toBeDefined();
 });
 
 function shallowRender(props: Partial<ProjectInformation['props']> = {}) {

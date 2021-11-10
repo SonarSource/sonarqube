@@ -42,7 +42,8 @@ export default function CodeSnippet(props: CodeSnippetProps) {
 
   return (
     <div className={classNames('code-snippet spacer-top spacer-bottom display-flex-row', {})}>
-      <pre className="flex-1" ref={snippetRef}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+      <pre className="flex-1" ref={snippetRef} tabIndex={0}>
         {finalSnippet}
       </pre>
       {!noCopy && <ClipboardButton copyValue={finalSnippet} />}

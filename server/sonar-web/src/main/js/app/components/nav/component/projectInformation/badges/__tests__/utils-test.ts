@@ -29,44 +29,40 @@ jest.mock('../../../../../../../helpers/urls', () => ({
 
 const options: BadgeOptions = {
   branch: 'master',
-  color: 'white',
   metric: 'alert_status',
   project: 'foo'
 };
 
 describe('#getBadgeUrl', () => {
-  it('should generate correct marketing badge links', () => {
-    expect(getBadgeUrl(BadgeType.marketing, options)).toBe(
-      'host/images/project_badges/sonarcloud-white.svg'
-    );
-    expect(getBadgeUrl(BadgeType.marketing, { ...options, color: 'orange' })).toBe(
-      'host/images/project_badges/sonarcloud-orange.svg'
-    );
-  });
-
   it('should generate correct quality gate badge links', () => {
-    expect(getBadgeUrl(BadgeType.qualityGate, options)).toBe(
-      'host/api/project_badges/quality_gate?branch=master&project=foo'
+    expect(getBadgeUrl(BadgeType.qualityGate, options, 'foo')).toBe(
+      'host/api/project_badges/quality_gate?branch=master&project=foo&token=foo'
     );
   });
 
   it('should generate correct measures badge links', () => {
-    expect(getBadgeUrl(BadgeType.measure, options)).toBe(
-      'host/api/project_badges/measure?branch=master&project=foo&metric=alert_status'
+    expect(getBadgeUrl(BadgeType.measure, options, 'foo')).toBe(
+      'host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo'
     );
   });
 
   it('should ignore undefined parameters', () => {
-    expect(getBadgeUrl(BadgeType.measure, { color: 'white', metric: 'alert_status' })).toBe(
-      'host/api/project_badges/measure?metric=alert_status'
+    expect(getBadgeUrl(BadgeType.measure, { metric: 'alert_status' }, 'foo')).toBe(
+      'host/api/project_badges/measure?metric=alert_status&token=foo'
+    );
+  });
+
+  it('should force metric parameters', () => {
+    expect(getBadgeUrl(BadgeType.measure, {}, 'foo')).toBe(
+      'host/api/project_badges/measure?metric=alert_status&token=foo'
     );
   });
 });
 
 describe('#getBadgeSnippet', () => {
   it('should generate a correct markdown image', () => {
-    expect(getBadgeSnippet(BadgeType.marketing, { ...options, format: 'md' })).toBe(
-      '[![SonarCloud](host/images/project_badges/sonarcloud-white.svg)](host/dashboard?id=foo&branch=master)'
+    expect(getBadgeSnippet(BadgeType.measure, { ...options, format: 'md' }, 'foo')).toBe(
+      '[![alert_status](host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo)](host/dashboard?id=foo&branch=master)'
     );
   });
 });

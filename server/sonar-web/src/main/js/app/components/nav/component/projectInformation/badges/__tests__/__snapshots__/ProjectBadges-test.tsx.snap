@@ -16,7 +16,7 @@ exports[`should display correctly 1`] = `
     onClick={[Function]}
     selected={true}
     type="measure"
-    url="host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status"
+    url="host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status&token=foo"
   />
   <p
     className="huge-spacer-bottom spacer-top"
@@ -27,7 +27,7 @@ exports[`should display correctly 1`] = `
     onClick={[Function]}
     selected={false}
     type="quality_gate"
-    url="host/api/project_badges/quality_gate?branch=branch-6.7&project=foo"
+    url="host/api/project_badges/quality_gate?branch=branch-6.7&project=foo&token=foo"
   />
   <p
     className="huge-spacer-bottom spacer-top"
@@ -54,16 +54,20 @@ exports[`should display correctly 1`] = `
     }
     options={
       Object {
-        "color": "white",
         "metric": "alert_status",
       }
     }
     type="measure"
     updateOptions={[Function]}
   />
+  <Alert
+    variant="warning"
+  >
+    overview.badges.leak_warning
+  </Alert>
   <CodeSnippet
     isOneLine={true}
-    snippet="[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status)](/dashboard)"
+    snippet="[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status&token=foo)](/dashboard)"
   />
 </div>
 `;

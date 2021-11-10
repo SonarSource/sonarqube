@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getProjectBadgesToken } from '../../../../../../api/project-badges';
 import CodeSnippet from '../../../../../../components/common/CodeSnippet';
+import { Alert } from '../../../../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../../types/branch-like';
@@ -36,15 +38,35 @@ interface Props {
 }
 
 interface State {
+  token: string;
   selectedType: BadgeType;
   badgeOptions: BadgeOptions;
 }
 
 export default class ProjectBadges extends React.PureComponent<Props, State> {
+  mounted = false;
   state: State = {
+    token: '',
     selectedType: BadgeType.measure,
-    badgeOptions: { color: 'white', metric: MetricKey.alert_status }
+    badgeOptions: { metric: MetricKey.alert_status }
   };
+
+  componentDidMount() {
+    this.mounted = true;
+    this.fetchToken();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  async fetchToken() {
+    const { project } = this.props;
+    const token = await getProjectBadgesToken(project);
+    if (this.mounted) {
+      this.setState({ token });
+    }
+  }
 
   handleSelectBadge = (selectedType: BadgeType) => {
     this.setState({ selectedType });
@@ -56,7 +78,7 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, project, qualifier } = this.props;
-    const { selectedType, badgeOptions } = this.state;
+    const { selectedType, badgeOptions, token } = this.state;
     const fullBadgeOptions = { project, ...badgeOptions, ...getBranchLikeQuery(branchLike) };
 
     return (
@@ -67,7 +89,7 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
           onClick={this.handleSelectBadge}
           selected={BadgeType.measure === selectedType}
           type={BadgeType.measure}
-          url={getBadgeUrl(BadgeType.measure, fullBadgeOptions)}
+          url={getBadgeUrl(BadgeType.measure, fullBadgeOptions, token)}
         />
         <p className="huge-spacer-bottom spacer-top">
           {translate('overview.badges', BadgeType.measure, 'description', qualifier)}
@@ -76,7 +98,7 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
           onClick={this.handleSelectBadge}
           selected={BadgeType.qualityGate === selectedType}
           type={BadgeType.qualityGate}
-          url={getBadgeUrl(BadgeType.qualityGate, fullBadgeOptions)}
+          url={getBadgeUrl(BadgeType.qualityGate, fullBadgeOptions, token)}
         />
         <p className="huge-spacer-bottom spacer-top">
           {translate('overview.badges', BadgeType.qualityGate, 'description', qualifier)}
@@ -88,7 +110,11 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
           type={selectedType}
           updateOptions={this.handleUpdateOptions}
         />
-        <CodeSnippet isOneLine={true} snippet={getBadgeSnippet(selectedType, fullBadgeOptions)} />
+        <Alert variant="warning">{translate('overview.badges.leak_warning')}</Alert>
+        <CodeSnippet
+          isOneLine={true}
+          snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}
+        />
       </div>
     );
   }

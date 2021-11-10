@@ -90,7 +90,6 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
       isLoggedIn(currentUser) && component.qualifier === ComponentQualifier.Project;
     const canUseBadges =
       metrics !== undefined &&
-      component.visibility !== 'private' &&
       (component.qualifier === ComponentQualifier.Application ||
         component.qualifier === ComponentQualifier.Project);
 

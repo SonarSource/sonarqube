@@ -6,6 +6,7 @@ exports[`renders correctly: array snippet 1`] = `
 >
   <pre
     className="flex-1"
+    tabIndex={0}
   >
     foo \\
   bar
@@ -23,6 +24,7 @@ exports[`renders correctly: default 1`] = `
 >
   <pre
     className="flex-1"
+    tabIndex={0}
   >
     foo
 bar
@@ -40,6 +42,7 @@ exports[`renders correctly: no copy 1`] = `
 >
   <pre
     className="flex-1"
+    tabIndex={0}
   >
     foo
 bar
@@ -53,6 +56,7 @@ exports[`renders correctly: single line with array snippet 1`] = `
 >
   <pre
     className="flex-1"
+    tabIndex={0}
   >
     foo bar
   </pre>

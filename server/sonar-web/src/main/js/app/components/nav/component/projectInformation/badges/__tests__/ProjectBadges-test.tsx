@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../../../../helpers/mocks/branch-like';
 import { mockMetric } from '../../../../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../../../../helpers/testUtils';
 import { Location } from '../../../../../../../helpers/urls';
 import { MetricKey } from '../../../../../../../types/metrics';
 import ProjectBadges from '../ProjectBadges';
@@ -31,8 +32,14 @@ jest.mock('../../../../../../../helpers/urls', () => ({
   getProjectUrl: () => ({ pathname: '/dashboard' } as Location)
 }));
 
-it('should display correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+jest.mock('../../../../../../../api/project-badges', () => ({
+  getProjectBadgesToken: jest.fn().mockResolvedValue('foo')
+}));
+
+it('should display correctly', async () => {
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
 });
 
 function shallowRender(overrides = {}) {

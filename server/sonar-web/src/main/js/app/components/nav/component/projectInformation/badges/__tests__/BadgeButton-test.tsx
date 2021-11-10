@@ -33,7 +33,7 @@ it('should return the badge type on click', () => {
   const onClick = jest.fn();
   const wrapper = getWrapper({ onClick });
   click(wrapper.find('Button'));
-  expect(onClick).toHaveBeenCalledWith(BadgeType.marketing);
+  expect(onClick).toHaveBeenCalledWith(BadgeType.qualityGate);
 });
 
 function getWrapper(props = {}) {
@@ -41,7 +41,7 @@ function getWrapper(props = {}) {
     <BadgeButton
       onClick={jest.fn()}
       selected={false}
-      type={BadgeType.marketing}
+      type={BadgeType.qualityGate}
       url="http://foo.bar"
       {...props}
     />
