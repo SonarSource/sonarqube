@@ -2,7 +2,7 @@ plugins {
   // Ordered alphabeticly
   id 'com.github.ben-manes.versions' version '0.33.0'
   id 'com.github.hierynomus.license' version '0.15.0'
-  id "com.github.hierynomus.license-report" version"0.15.0" apply false
+  id "com.github.hierynomus.license-report" version "0.15.0" apply false
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
   id 'com.google.protobuf' version '0.8.13' apply false
   id 'com.jfrog.artifactory' version '4.21.0'
@@ -337,6 +337,7 @@ subprojects {
       // Documentation must be updated if mssql-jdbc is updated: https://github.com/SonarSource/sonarqube/commit/03e4773ebf6cba854cdcf57a600095f65f4f53e7
       dependency 'com.microsoft.sqlserver:mssql-jdbc:9.2.0.jre11'
       dependency 'com.oracle.database.jdbc:ojdbc8:19.3.0.0'
+      dependency 'org.aspectj:aspectjtools:1.9.6'
       // upgrade okhttp3 dependency kotlin to get rid of not exploitable CVE-2020-29582
       dependency 'org.jetbrains.kotlin:kotlin-stdlib-common:1.4.21'
       dependency 'org.jetbrains.kotlin:kotlin-stdlib:1.4.21'
@@ -607,6 +608,29 @@ subprojects {
       }
     }
   }
+
+  if (System.getenv('CIRRUS_BRANCH') == "branch-nightly-build") {
+    tasks.withType(Test) {
+
+      configurations {
+        utMonitoring
+      }
+
+      dependencies {
+        testCompile project(":ut-monitoring")
+
+        utMonitoring 'org.aspectj:aspectjweaver:1.9.6'
+      }
+
+      doFirst {
+        ext {
+          aspectJWeaver = configurations.utMonitoring.resolvedConfiguration.resolvedArtifacts.find { it.name == 'aspectjweaver' }
+        }
+        jvmArgs "-javaagent:${aspectJWeaver.file}"
+      }
+    }
+  }
+
 
   signing {
     def signingKeyId = findProperty("signingKeyId")

@@ -31,6 +31,7 @@ dependencies {
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.mockito:mockito-core'
   testCompile project(':sonar-plugin-api-impl')
+  testCompile project(':ut-monitoring')
 }
 
 configurations {

@@ -1,0 +1,19 @@
+sonarqube {
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: Java UT Monitoring"
+    }
+}
+
+dependencies {
+    // please keep the list grouped by configuration and ordered by name
+
+    compile 'com.google.code.gson:gson'
+    compile 'junit:junit'
+    compile project(path: ':sonar-plugin-api', configuration: 'shadow')
+
+    compileOnly 'org.aspectj:aspectjtools'
+}
+
+sonarqube {
+    skipProject = true
+}
