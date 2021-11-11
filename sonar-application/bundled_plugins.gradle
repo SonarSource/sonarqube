@@ -1,5 +1,4 @@
-dependencies {
-    bundledPlugin 'org.sonarsource.css:sonar-css-plugin@jar'
+dependencies {    
     bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin@jar"
     bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin@jar"
     bundledPlugin 'org.sonarsource.flex:sonar-flex-plugin@jar'

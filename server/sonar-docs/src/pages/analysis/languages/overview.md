@@ -5,15 +5,15 @@ url: /analysis/languages/overview/
 
 SonarQube provides analysis of different languages depending on the edition you're running.
 
-| Language                             | Community Edition      | Developer Edition      | Enterprise Edition and Data Center Edtion |
-| ------------------------------------ | ---------------------- | ---------------------- | ----------------------------------------- |
+| Language                                      | Community Edition      | Developer Edition      | Enterprise Edition and Data Center Edtion |
+| --------------------------------------------- | ---------------------- | ---------------------- | ----------------------------------------- |
 | [ABAP](/analysis/languages/abap/)             |                        | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [Apex](/analysis/languages/apex/)             |                        |                        | ![](/images/check.svg)                    |
 | [C#](/analysis/languages/csharp/)             | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [C](/analysis/languages/cfamily/)             |                        | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [C++](/analysis/languages/cfamily/)           |                        | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [COBOL](/analysis/languages/cobol/)           |                        |                        | ![](/images/check.svg)                    |
-| [CSS](/analysis/languages/css/)               | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
+| [CSS](/analysis/languages/javascript/)        | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [Flex](/analysis/languages/flex/)             | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [Go](/analysis/languages/go/)                 | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [Java](/analysis/languages/java/)             | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |

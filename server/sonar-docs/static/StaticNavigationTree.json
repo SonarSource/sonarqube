@@ -2,10 +2,7 @@
   "/setup/get-started-2-minutes/",
   {
     "title": "Requirements",
-    "children": [
-      "/requirements/requirements/",
-      "/requirements/hardware-recommendations/"
-    ]
+    "children": ["/requirements/requirements/", "/requirements/hardware-recommendations/"]
   },
   {
     "title": "Setup and Upgrade",
@@ -14,27 +11,18 @@
       "/setup/install-server/",
       {
         "title": "Configure and Operate a Server",
-        "children": [
-		  "/setup/operate-server/",
-		  "/setup/environment-variables/"
-        ]
+        "children": ["/setup/operate-server/", "/setup/environment-variables/"]
       },
       "/setup/install-plugin/",
       "/setup/install-cluster/",
       "/setup/operate-cluster/",
-            {
+      {
         "title": "Deploy on Kubernetes",
-        "children": [
-		  "/setup/sonarqube-on-kubernetes/",
-		  "/setup/sonarqube-cluster-on-kubernetes/"
-        ]
+        "children": ["/setup/sonarqube-on-kubernetes/", "/setup/sonarqube-cluster-on-kubernetes/"]
       },
       {
         "title": "Upgrade the Server",
-        "children": [
-		  "/setup/before-you-upgrade/",
-		  "/setup/upgrading/"
-        ]
+        "children": ["/setup/before-you-upgrade/", "/setup/upgrading/"]
       },
       "/setup/upgrade-notes/",
       "/setup/troubleshooting/"
@@ -66,7 +54,6 @@
           "/analysis/languages/csharp/",
           "/analysis/languages/cfamily/",
           "/analysis/languages/cobol/",
-          "/analysis/languages/css/",
           "/analysis/languages/flex/",
           "/analysis/languages/go/",
           "/analysis/languages/html/",
@@ -91,28 +78,22 @@
       "/analysis/generic-test/",
       {
         "title": "Importing External Issues",
-        "children": [
-		  "/analysis/external-issues/",
-		  "/analysis/generic-issue/"
-		]
+        "children": ["/analysis/external-issues/", "/analysis/generic-issue/"]
       },
       "/analysis/background-tasks/",
-	  "/analysis/pull-request/",
+      "/analysis/pull-request/",
       {
         "title": "Branches",
-        "children": [
-          "/branches/overview/",
-          "/branches/branches-faq/"
-        ]
+        "children": ["/branches/overview/", "/branches/branches-faq/"]
       },
-	  {
+      {
         "title": "CI Integration",
         "children": [
           "/analysis/ci-integration-overview/",
-		  "/analysis/jenkins/",
-		  "/analysis/codemagic/"
+          "/analysis/jenkins/",
+          "/analysis/codemagic/"
         ]
-	  },
+      },
       "/analysis/scm-integration/",
       "/analysis/security_configuration/",
       "/analysis/analysis-with-java-11/"
@@ -123,15 +104,12 @@
     "children": [
       "/analysis/github-integration/",
       "/analysis/gitlab-integration/",
-	  {
+      {
         "title": "Bitbucket Integration",
-        "children": [
-          "/analysis/bitbucket-integration/",
-		  "/analysis/bitbucket-cloud-integration/"
-        ]
+        "children": ["/analysis/bitbucket-integration/", "/analysis/bitbucket-cloud-integration/"]
       },
       "/analysis/azuredevops-integration/"
-	 ]
+    ]
   },
   {
     "title": "User Guide",
@@ -144,17 +122,14 @@
       {
         "title": "Rules",
         "children": [
-		  "/user-guide/rules/",
-		  "/user-guide/security-rules/",
-		  "/user-guide/built-in-rule-tags/"
+          "/user-guide/rules/",
+          "/user-guide/security-rules/",
+          "/user-guide/built-in-rule-tags/"
         ]
       },
       {
         "title": "User Account",
-        "children": [
-		  "/user-guide/user-account/",
-		  "/user-guide/user-token/"
-        ]
+        "children": ["/user-guide/user-account/", "/user-guide/user-token/"]
       },
       "/user-guide/issues/",
       "/user-guide/security-hotspots/",
@@ -173,9 +148,9 @@
       "/project-administration/project-existence/",
       "/project-administration/managing-project-history/",
       "/project-administration/narrowing-the-focus/",
-	  "/project-administration/new-code-period/",
-	  "/project-administration/managing-portfolios/",
-	  "/project-administration/managing-applications/",
+      "/project-administration/new-code-period/",
+      "/project-administration/managing-portfolios/",
+      "/project-administration/managing-applications/",
       "/project-administration/portfolio-pdf-configuration/",
       "/project-administration/project-settings/",
       "/project-administration/webhooks/"
