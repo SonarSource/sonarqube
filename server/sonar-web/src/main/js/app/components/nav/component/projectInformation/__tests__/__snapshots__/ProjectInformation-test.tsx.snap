@@ -35,6 +35,28 @@ exports[`should render correctly: default 1`] = `
     onPageChange={[Function]}
   >
     <ProjectBadges
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
       metrics={
         Object {
           "coverage": Object {
@@ -45,8 +67,6 @@ exports[`should render correctly: default 1`] = `
           },
         }
       }
-      project="my-project"
-      qualifier="TRK"
     />
   </InfoDrawerPage>
 </Fragment>
@@ -87,6 +107,28 @@ exports[`should render correctly: logged in user 1`] = `
     onPageChange={[Function]}
   >
     <ProjectBadges
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
       metrics={
         Object {
           "coverage": Object {
@@ -97,8 +139,6 @@ exports[`should render correctly: logged in user 1`] = `
           },
         }
       }
-      project="my-project"
-      qualifier="TRK"
     />
   </InfoDrawerPage>
   <InfoDrawerPage
@@ -182,6 +222,28 @@ exports[`should render correctly: measures loaded 1`] = `
     onPageChange={[Function]}
   >
     <ProjectBadges
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
       metrics={
         Object {
           "coverage": Object {
@@ -192,8 +254,6 @@ exports[`should render correctly: measures loaded 1`] = `
           },
         }
       }
-      project="my-project"
-      qualifier="TRK"
     />
   </InfoDrawerPage>
 </Fragment>
@@ -235,6 +295,29 @@ exports[`should render correctly: private 1`] = `
     onPageChange={[Function]}
   >
     <ProjectBadges
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "visibility": "private",
+        }
+      }
       metrics={
         Object {
           "coverage": Object {
@@ -245,8 +328,6 @@ exports[`should render correctly: private 1`] = `
           },
         }
       }
-      project="my-project"
-      qualifier="TRK"
     />
   </InfoDrawerPage>
 </Fragment>

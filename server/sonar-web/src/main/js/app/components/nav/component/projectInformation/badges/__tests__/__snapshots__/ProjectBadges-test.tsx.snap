@@ -60,14 +60,17 @@ exports[`should display correctly 1`] = `
     type="measure"
     updateOptions={[Function]}
   />
-  <Alert
-    variant="warning"
-  >
-    overview.badges.leak_warning
-  </Alert>
   <CodeSnippet
     isOneLine={true}
     snippet="[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=foo&metric=alert_status&token=foo)](/dashboard)"
   />
+  <Alert
+    variant="warning"
+  >
+    <p>
+      overview.badges.leak_warning
+       
+    </p>
+  </Alert>
 </div>
 `;

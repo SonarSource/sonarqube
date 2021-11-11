@@ -18,9 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getProjectBadgesToken } from '../../../../../../api/project-badges';
+import {
+  getProjectBadgesToken,
+  renewProjectBadgesToken
+} from '../../../../../../api/project-badges';
 import CodeSnippet from '../../../../../../components/common/CodeSnippet';
+import { Button } from '../../../../../../components/controls/buttons';
 import { Alert } from '../../../../../../components/ui/Alert';
+import DeferredSpinner from '../../../../../../components/ui/DeferredSpinner';
 import { getBranchLikeQuery } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../../types/branch-like';
@@ -33,11 +38,11 @@ import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
 interface Props {
   branchLike?: BranchLike;
   metrics: T.Dict<T.Metric>;
-  project: string;
-  qualifier: string;
+  component: T.Component;
 }
 
 interface State {
+  isRenewing: boolean;
   token: string;
   selectedType: BadgeType;
   badgeOptions: BadgeOptions;
@@ -46,6 +51,7 @@ interface State {
 export default class ProjectBadges extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
+    isRenewing: false,
     token: '',
     selectedType: BadgeType.measure,
     badgeOptions: { metric: MetricKey.alert_status }
@@ -61,8 +67,10 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
   }
 
   async fetchToken() {
-    const { project } = this.props;
-    const token = await getProjectBadgesToken(project);
+    const {
+      component: { key }
+    } = this.props;
+    const token = await getProjectBadgesToken(key).catch(() => '');
     if (this.mounted) {
       this.setState({ token });
     }
@@ -73,13 +81,36 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
   };
 
   handleUpdateOptions = (options: Partial<BadgeOptions>) => {
-    this.setState(state => ({ badgeOptions: { ...state.badgeOptions, ...options } }));
+    this.setState(state => ({
+      badgeOptions: { ...state.badgeOptions, ...options }
+    }));
+  };
+
+  handleRenew = async () => {
+    const {
+      component: { key }
+    } = this.props;
+
+    this.setState({ isRenewing: true });
+    await renewProjectBadgesToken(key).catch(() => {});
+    await this.fetchToken();
+    if (this.mounted) {
+      this.setState({ isRenewing: false });
+    }
   };
 
   render() {
-    const { branchLike, project, qualifier } = this.props;
-    const { selectedType, badgeOptions, token } = this.state;
-    const fullBadgeOptions = { project, ...badgeOptions, ...getBranchLikeQuery(branchLike) };
+    const {
+      branchLike,
+      component: { key: project, qualifier, configuration }
+    } = this.props;
+    const { isRenewing, selectedType, badgeOptions, token } = this.state;
+    const fullBadgeOptions = {
+      project,
+      ...badgeOptions,
+      ...getBranchLikeQuery(branchLike)
+    };
+    const canRenew = configuration?.showSettings;
 
     return (
       <div className="display-flex-column">
@@ -110,11 +141,31 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
           type={selectedType}
           updateOptions={this.handleUpdateOptions}
         />
-        <Alert variant="warning">{translate('overview.badges.leak_warning')}</Alert>
-        <CodeSnippet
-          isOneLine={true}
-          snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}
-        />
+        {isRenewing ? (
+          <div className="spacer-top spacer-bottom display-flex-row display-flex-justify-center">
+            <DeferredSpinner className="spacer-top spacer-bottom" loading={isRenewing} />
+          </div>
+        ) : (
+          <CodeSnippet
+            isOneLine={true}
+            snippet={getBadgeSnippet(selectedType, fullBadgeOptions, token)}
+          />
+        )}
+
+        <Alert variant="warning">
+          <p>
+            {translate('overview.badges.leak_warning')}{' '}
+            {canRenew && translate('overview.badges.renew.description')}
+          </p>
+          {canRenew && (
+            <Button
+              disabled={isRenewing}
+              className="spacer-top it__project-info-renew-badge"
+              onClick={this.handleRenew}>
+              {translate('overview.badges.renew')}
+            </Button>
+          )}
+        </Alert>
       </div>
     );
   }

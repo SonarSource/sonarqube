@@ -19,11 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { getProjectBadgesToken } from '../../../../../../../api/project-badges';
+import CodeSnippet from '../../../../../../../components/common/CodeSnippet';
 import { mockBranch } from '../../../../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../../../../helpers/mocks/component';
 import { mockMetric } from '../../../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../../../helpers/testUtils';
 import { Location } from '../../../../../../../helpers/urls';
+import { ComponentQualifier } from '../../../../../../../types/component';
 import { MetricKey } from '../../../../../../../types/metrics';
+import BadgeButton from '../BadgeButton';
 import ProjectBadges from '../ProjectBadges';
 
 jest.mock('../../../../../../../helpers/urls', () => ({
@@ -33,13 +38,35 @@ jest.mock('../../../../../../../helpers/urls', () => ({
 }));
 
 jest.mock('../../../../../../../api/project-badges', () => ({
-  getProjectBadgesToken: jest.fn().mockResolvedValue('foo')
+  getProjectBadgesToken: jest.fn().mockResolvedValue('foo'),
+  renewProjectBadgesToken: jest.fn().mockResolvedValue({})
 }));
 
 it('should display correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should renew token', async () => {
+  (getProjectBadgesToken as jest.Mock).mockResolvedValueOnce('foo').mockResolvedValueOnce('bar');
+  const wrapper = shallowRender({
+    component: mockComponent({ configuration: { showSettings: true } })
+  });
+  await waitAndUpdate(wrapper);
+  wrapper.find('.it__project-info-renew-badge').simulate('click');
+
+  // it shoud be loading
+  expect(wrapper.find('.it__project-info-renew-badge').props().disabled).toBe(true);
+
+  await waitAndUpdate(wrapper);
+  const buttons = wrapper.find(BadgeButton);
+  expect(buttons.at(0).props().url).toMatch('token=bar');
+  expect(buttons.at(1).props().url).toMatch('token=bar');
+  expect(wrapper.find(CodeSnippet).props().snippet).toMatch('token=bar');
+
+  // let's check that the loading has correclty ends.
+  expect(wrapper.find('.it__project-info-renew-badge').props().disabled).toBe(false);
 });
 
 function shallowRender(overrides = {}) {
@@ -50,8 +77,7 @@ function shallowRender(overrides = {}) {
         [MetricKey.coverage]: mockMetric({ key: MetricKey.coverage }),
         [MetricKey.new_code_smells]: mockMetric({ key: MetricKey.new_code_smells })
       }}
-      project="foo"
-      qualifier="TRK"
+      component={mockComponent({ key: 'foo', qualifier: ComponentQualifier.Project })}
       {...overrides}
     />
   );
