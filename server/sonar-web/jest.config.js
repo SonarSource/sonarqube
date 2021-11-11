@@ -39,6 +39,12 @@ module.exports = {
         classNameTemplate: '{classname}',
         titleTemplate: '{title}'
       }
+    ],
+    [
+      './config/jest/ElasticSearchReporter.js',
+      {
+        outputFilepath: '/tmp/ut-ts-web-monitoring.log'
+      }
     ]
   ]
 };
