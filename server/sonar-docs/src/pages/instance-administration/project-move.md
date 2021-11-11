@@ -9,7 +9,7 @@ Project Move allows you to export a project from one SonarQube instance and impo
 Project Move can help you with the following situations:
 
 * You want to create a central SonarQube instance at enterprise level and you want to keep the history created on instances used previously at the team level.
-* You want to consolidate your editions and move projects from a Community Edition instance to an [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) instance or [above](https://www.sonarsource.com/plans-and-pricing/).
+* You want to consolidate your editions and move projects from a Community Edition instance to an [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) instance or [above](https://redirect.sonarsource.com/editions/editions.html).
 * Your company is acquiring another company that already has a central SonarQube instance.
 * You are at a large company with several SonarQube instances and an application is transferred from one team to another.
 
@@ -18,7 +18,7 @@ To export your project's data from the source instance and then load it on the t
 
 The _target_ instance must:
 
-* Be [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) or [above](https://www.sonarsource.com/plans-and-pricing/).
+* Be [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) or [above](https://redirect.sonarsource.com/editions/editions.html).
 * Contain all of the plugins with the same versions as the source instance.  
 
 [[info]]
@@ -41,13 +41,13 @@ On the source instance:
 A zip file containing all project data is generated in _$SONAR_SOURCE_HOME/data/governance/project_dumps/export/_ named _<project_key>.zip_
 
 ## How to import
-_Your target instance must be [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) or [above](https://www.sonarsource.com/plans-and-pricing/)._
+_Your target instance must be [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) or [above](https://redirect.sonarsource.com/editions/editions.html)._
 
 On the target instance:
 
 * With a user having the "Administer System" and "Create Projects" permissions, go to [**Administration > Projects > Management**](/#sonarqube-admin#/admin/projects_management/) and [provision the project](/project-administration/project-existence/) using the same key the project had in the source instance.
 * Configure the Project's permissions, and the Quality Profiles and Quality Gate associated to the Project
-* Put the generated zip file into the directory *$SONAR\_TARGET\_HOME/data/governance/project_dumps/import*
+* Put the generated zip file into the directory `$SONAR\_TARGET\_HOME/data/governance/project_dumps/import`. You need to create the `governance/project_dumps/import` folders the first time. 
 * Go to the Project's Home Page and choose **Project Settings > Import / Export**
 * Click on the Import button to start importing your data
 * Source code is not included in the zip file. Once the import is finished, trigger an analysis to import source files into the new instance.
