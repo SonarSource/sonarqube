@@ -23,7 +23,7 @@
 const fse = require('fs-extra');
 const { tokenToString } = require('typescript');
 
-const ES_ITEM_CATEGORY = 'Validate-UT-Typescript';
+const ES_ITEM_CATEGORY = 'Validate-UT-Frontend';
 const ES_ITEM_KIND = 'testcase';
 const ES_ITEM_OPERATION = 'total';
 const ES_ITEM_SUITE = 'Standalone';
@@ -64,30 +64,26 @@ module.exports = class ElasticSearchReporter {
     const testClass = this.stripFilePath(testClassResult.testFilePath);
 
     return testClassResult.testResults.map(testResult => ({
-      fields: {
-        commit,
-        build,
-        category: ES_ITEM_CATEGORY,
-        kind: ES_ITEM_KIND,
-        operation: ES_ITEM_OPERATION,
-        suite: ES_ITEM_SUITE,
-        measureClass: '',
-        measureMethod: '',
-        timestamp,
-        testClass,
-        testMethod: testResult.fullName,
-        duration: testResult.duration
-      }
+      commit,
+      build,
+      category: ES_ITEM_CATEGORY,
+      kind: ES_ITEM_KIND,
+      operation: ES_ITEM_OPERATION,
+      suite: ES_ITEM_SUITE,
+      measureClass: '',
+      measureMethod: '',
+      timestamp,
+      testClass,
+      testMethod: testResult.fullName,
+      duration: testResult.duration
     }));
   }
 
   onRunComplete(contexts, { testResults }) {
-    if (process.env.CIRRUS_BRANCH === 'branch-nightly-build') {
-      if (!this.outputFilepath) {
-        throw new Error('option `outputFilepath` is undefined');
-      }
-
-      this.collectTestData(testResults);
+    if (!this.outputFilepath) {
+      throw new Error('option `outputFilepath` is undefined');
     }
+
+    this.collectTestData(testResults);
   }
 };
