@@ -84,7 +84,7 @@ public class MeasureActionTest {
   private WsActionTester ws = new WsActionTester(
     new MeasureAction(
       db.getDbClient(),
-      new ProjectBadgesSupport(userSession, new ComponentFinder(db.getDbClient(), null)),
+      new ProjectBadgesSupport(new ComponentFinder(db.getDbClient(), null), db.getDbClient()),
       new SvgGenerator(mapSettings.asConfig())));
 
   @Test
@@ -347,19 +347,6 @@ public class MeasureActionTest {
   }
 
   @Test
-  public void return_error_if_unauthorized() throws ParseException {
-    ComponentDto project = db.components().insertPublicProject();
-    MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
-
-    TestResponse response = ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", metric.getKey())
-      .execute();
-
-    checkError(response, "Insufficient privileges");
-  }
-
-  @Test
   public void fail_on_invalid_quality_gate() {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
@@ -419,7 +406,8 @@ public class MeasureActionTest {
       .containsExactlyInAnyOrder(
         tuple("project", true),
         tuple("branch", false),
-        tuple("metric", true));
+        tuple("metric", true),
+        tuple("token", false));
   }
 
   private void checkSvg(TestResponse response, String expectedLabel, String expectedValue, Color expectedColorValue) {

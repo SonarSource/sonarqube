@@ -19,31 +19,34 @@
  */
 package org.sonar.server.badge.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectBadgeTokenDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.UserSession;
 
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.PROJECT_BADGE_TOKEN_EXAMPLE;
 
 public class ProjectBadgesSupport {
 
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_BRANCH = "branch";
+  private static final String PARAM_TOKEN = "token";
 
-  private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final DbClient dbClient;
 
-  public ProjectBadgesSupport(UserSession userSession, ComponentFinder componentFinder) {
-    this.userSession = userSession;
+  public ProjectBadgesSupport(ComponentFinder componentFinder, DbClient dbClient) {
     this.componentFinder = componentFinder;
+    this.dbClient = dbClient;
   }
 
   void addProjectAndBranchParams(WebService.NewAction action) {
@@ -55,6 +58,10 @@ public class ProjectBadgesSupport {
       .createParam(PARAM_BRANCH)
       .setDescription("Branch key")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
+    action
+      .createParam(PARAM_TOKEN)
+      .setDescription("Project badge token")
+      .setExampleValue(PROJECT_BADGE_TOKEN_EXAMPLE);
   }
 
   BranchDto getBranch(DbSession dbSession, Request request) {
@@ -62,10 +69,6 @@ public class ProjectBadgesSupport {
       String projectKey = request.mandatoryParam(PARAM_PROJECT);
       String branchName = request.param(PARAM_BRANCH);
       ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
-      userSession.checkProjectPermission(USER, project);
-      if (project.isPrivate()) {
-        throw generateInvalidProjectException();
-      }
 
       BranchDto branch;
       if (branchName == null) {
@@ -86,5 +89,26 @@ public class ProjectBadgesSupport {
 
   private static ProjectBadgesException generateInvalidProjectException() {
     return new ProjectBadgesException("Project is invalid");
+  }
+
+  public void validateToken(Request request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String projectKey = request.mandatoryParam(PARAM_PROJECT);
+      ProjectDto projectDto;
+      try {
+        projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
+      } catch (NotFoundException e) {
+        throw new NotFoundException("Project has not been found");
+      }
+      String token = request.param(PARAM_TOKEN);
+      if (projectDto.isPrivate() && !isTokenValid(dbSession, projectDto, token)) {
+        throw generateInvalidProjectException();
+      }
+    }
+  }
+
+  private boolean isTokenValid(DbSession dbSession, ProjectDto projectDto, @Nullable String token) {
+    ProjectBadgeTokenDto projectBadgeTokenDto = dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, projectDto);
+    return token != null && projectBadgeTokenDto != null && token.equals(projectBadgeTokenDto.getToken());
   }
 }

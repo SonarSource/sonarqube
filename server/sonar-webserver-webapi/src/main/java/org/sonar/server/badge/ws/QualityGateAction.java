@@ -43,7 +43,7 @@ import static org.sonar.server.badge.ws.ETagUtils.RFC1123_DATE;
 import static org.sonar.server.badge.ws.ETagUtils.getETag;
 import static org.sonarqube.ws.MediaTypes.SVG;
 
-public class QualityGateAction implements ProjectBadgesWsAction  {
+public class QualityGateAction implements ProjectBadgesWsAction {
 
   private final DbClient dbClient;
   private final ProjectBadgesSupport support;
@@ -71,6 +71,7 @@ public class QualityGateAction implements ProjectBadgesWsAction  {
     response.setHeader("Cache-Control", "no-cache");
     response.stream().setMediaType(SVG);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      support.validateToken(request);
       BranchDto branch = support.getBranch(dbSession, request);
       Level qualityGateStatus = getQualityGate(dbSession, branch);
       String result = svgGenerator.generateQualityGate(qualityGateStatus);

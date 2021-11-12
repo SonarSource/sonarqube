@@ -50,14 +50,15 @@ public class UserSessionInitializer {
   private static final String ACCESS_LOG_LOGIN = "LOGIN";
 
   // SONAR-6546 these urls should be get from WebService
-  private static final Set<String> SKIPPED_URLS = ImmutableSet.of(
+  private static final Set<String> SKIPPED_URLS = Set.of(
     "/batch/index", "/batch/file",
     "/maintenance/*", "/setup/*",
     "/sessions/*", "/oauth2/callback/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
     "/api/server/version",
     "/api/users/identity_providers", "/api/l10n/index",
-    "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate");
+    "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate",
+    "/api/project_badges/measure", "/api/project_badges/quality_gate");
 
   private static final Set<String> URL_USING_PASSCODE = ImmutableSet.of(
     "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics", "/api/system/migrate_es");

@@ -35,6 +35,8 @@ public class KeyExamples {
   public static final String NAME_WEBHOOK_EXAMPLE_001 = "My Webhook";
   public static final String URL_WEBHOOK_EXAMPLE_001 = "https://www.my-webhook-listener.com/sonar";
 
+  public static final String PROJECT_BADGE_TOKEN_EXAMPLE = "8bb493196edb5896ccb64582499895f187a2ae8f";
+
   private KeyExamples() {
     // prevent instantiation
   }

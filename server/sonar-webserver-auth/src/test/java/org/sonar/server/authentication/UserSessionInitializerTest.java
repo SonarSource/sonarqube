@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Method;
-import org.sonar.server.authentication.event.AuthenticationEvent.Provider;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.tester.AnonymousMockUserSession;
@@ -42,7 +41,6 @@ import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -95,6 +93,10 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/server/version");
     assertPathIsIgnored("/api/users/identity_providers");
     assertPathIsIgnored("/api/l10n/index");
+
+    // exclude project_badge url, as they can be auth. by a token as queryparam
+    assertPathIsIgnored("/api/project_badges/measure");
+    assertPathIsIgnored("/api/project_badges/quality_gate");
 
     // exlude passcode urls
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/info");

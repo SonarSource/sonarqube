@@ -141,6 +141,7 @@ public class MeasureAction implements ProjectBadgesWsAction {
     response.stream().setMediaType(SVG);
     String metricKey = request.mandatoryParam(PARAM_METRIC);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      support.validateToken(request);
       BranchDto branch = support.getBranch(dbSession, request);
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkState(metric != null && metric.isEnabled(), "Metric '%s' hasn't been found", metricKey);
@@ -204,6 +205,5 @@ public class MeasureAction implements ProjectBadgesWsAction {
     checkState(value != null, "Measure has not been found");
     return value;
   }
-
 
 }

@@ -64,7 +64,7 @@ public class QualityGateActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new QualityGateAction(db.getDbClient(),
-      new ProjectBadgesSupport(userSession, new ComponentFinder(db.getDbClient(), null)),
+      new ProjectBadgesSupport(new ComponentFinder(db.getDbClient(), null), db.getDbClient()),
       new SvgGenerator(mapSettings.asConfig())));
 
   @Test
@@ -290,7 +290,8 @@ public class QualityGateActionTest {
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("project", true),
-        tuple("branch", false));
+        tuple("branch", false),
+        tuple("token", false));
   }
 
   private MetricDto createQualityGateMetric() {
