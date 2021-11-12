@@ -1,77 +1,77 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render child correctly: C unavailable 1`] = `
-<Fragment>
-  <ol
-    className="list-styled big-spacer-top big-spacer-bottom"
+<ol
+  className="list-styled big-spacer-top big-spacer-bottom"
+>
+  <li
+    className="abs-width-600"
   >
-    <li>
-      onboarding.build
-      <RenderOptions
-        name="language"
-        onCheck={[Function]}
-        optionLabelKey="onboarding.build"
-        options={
-          Array [
-            "maven",
-            "gradle",
-            "dotnet",
-            "other",
-          ]
-        }
-      />
-    </li>
-  </ol>
-</Fragment>
+    onboarding.build
+    <RenderOptions
+      name="language"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build"
+      options={
+        Array [
+          "maven",
+          "gradle",
+          "dotnet",
+          "other",
+        ]
+      }
+    />
+  </li>
+</ol>
 `;
 
 exports[`should render correctly: C available 1`] = `
-<Fragment>
-  <ol
-    className="list-styled big-spacer-top big-spacer-bottom"
+<ol
+  className="list-styled big-spacer-top big-spacer-bottom"
+>
+  <li
+    className="abs-width-600"
   >
-    <li>
-      onboarding.build
-      <RenderOptions
-        name="language"
-        onCheck={[Function]}
-        optionLabelKey="onboarding.build"
-        options={
-          Array [
-            "maven",
-            "gradle",
-            "dotnet",
-            "cfamily",
-            "other",
-          ]
-        }
-      />
-    </li>
-  </ol>
-</Fragment>
+    onboarding.build
+    <RenderOptions
+      name="language"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build"
+      options={
+        Array [
+          "maven",
+          "gradle",
+          "dotnet",
+          "cfamily",
+          "other",
+        ]
+      }
+    />
+  </li>
+</ol>
 `;
 
 exports[`should render correctly: C unavailable 1`] = `
-<Fragment>
-  <ol
-    className="list-styled big-spacer-top big-spacer-bottom"
+<ol
+  className="list-styled big-spacer-top big-spacer-bottom"
+>
+  <li
+    className="abs-width-600"
   >
-    <li>
-      onboarding.build
-      <RenderOptions
-        name="language"
-        onCheck={[Function]}
-        optionLabelKey="onboarding.build"
-        options={
-          Array [
-            "maven",
-            "gradle",
-            "dotnet",
-            "other",
-          ]
-        }
-      />
-    </li>
-  </ol>
-</Fragment>
+    onboarding.build
+    <RenderOptions
+      name="language"
+      onCheck={[Function]}
+      optionLabelKey="onboarding.build"
+      options={
+        Array [
+          "maven",
+          "gradle",
+          "dotnet",
+          "other",
+        ]
+      }
+    />
+  </li>
+</ol>
 `;

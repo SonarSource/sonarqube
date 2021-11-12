@@ -26,8 +26,10 @@ import {
 } from '../../../types/alm-settings';
 import AllSetStep from '../components/AllSetStep';
 import FinishButton from '../components/FinishButton';
+import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import Step from '../components/Step';
 import YamlFileStep from '../components/YamlFileStep';
+import { BuildTools, TutorialModes } from '../types';
 import AnalysisCommand from './AnalysisCommand';
 import RepositoryVariables from './RepositoryVariables';
 
@@ -84,6 +86,12 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
           <YamlFileStep>
             {buildTool => (
               <>
+                {buildTool === BuildTools.CFamily && (
+                  <GithubCFamilyExampleRepositories
+                    className="big-spacer-top"
+                    ci={TutorialModes.BitbucketPipelines}
+                  />
+                )}
                 <AnalysisCommand buildTool={buildTool} component={component} />
                 <FinishButton onClick={() => setStep(Steps.ALL_SET)} />
               </>

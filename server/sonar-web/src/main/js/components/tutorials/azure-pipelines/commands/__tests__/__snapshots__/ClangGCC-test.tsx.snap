@@ -20,6 +20,11 @@ exports[`should render correctly for "linux" 1`] = `
       ]
     }
   />
+  <GithubCFamilyExampleRepositories
+    ci="azure-pipelines"
+    className="big-spacer-top abs-width-600"
+    os="linux"
+  />
   <AlertClassicEditor />
   <ol
     className="list-styled big-spacer-top"
@@ -137,6 +142,11 @@ exports[`should render correctly for "mac" 1`] = `
       ]
     }
   />
+  <GithubCFamilyExampleRepositories
+    ci="azure-pipelines"
+    className="big-spacer-top abs-width-600"
+    os="mac"
+  />
   <AlertClassicEditor />
   <ol
     className="list-styled big-spacer-top"
@@ -253,6 +263,11 @@ exports[`should render correctly for "win" 1`] = `
         "mac",
       ]
     }
+  />
+  <GithubCFamilyExampleRepositories
+    ci="azure-pipelines"
+    className="big-spacer-top abs-width-600"
+    os="win"
   />
   <AlertClassicEditor />
   <ol

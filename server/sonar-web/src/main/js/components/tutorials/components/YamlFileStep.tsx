@@ -28,12 +28,6 @@ export interface YamlFileStepProps {
   hasCLanguageFeature: boolean;
 }
 
-export interface AnalysisCommandProps {
-  appState: T.AppState;
-  buildTool?: BuildTools;
-  component: T.Component;
-}
-
 export function YamlFileStep(props: YamlFileStepProps) {
   const { children, hasCLanguageFeature } = props;
 
@@ -46,22 +40,19 @@ export function YamlFileStep(props: YamlFileStepProps) {
   const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
 
   return (
-    <>
-      <ol className="list-styled big-spacer-top big-spacer-bottom">
-        <li>
-          {translate('onboarding.build')}
-
-          <RenderOptions
-            checked={buildToolSelected}
-            name="language"
-            onCheck={value => setBuildToolSelected(value as BuildTools)}
-            options={buildTools}
-            optionLabelKey="onboarding.build"
-          />
-        </li>
-        {children && buildToolSelected && children(buildToolSelected)}
-      </ol>
-    </>
+    <ol className="list-styled big-spacer-top big-spacer-bottom">
+      <li className="abs-width-600">
+        {translate('onboarding.build')}
+        <RenderOptions
+          checked={buildToolSelected}
+          name="language"
+          onCheck={value => setBuildToolSelected(value as BuildTools)}
+          options={buildTools}
+          optionLabelKey="onboarding.build"
+        />
+      </li>
+      {children && buildToolSelected && children(buildToolSelected)}
+    </ol>
   );
 }
 

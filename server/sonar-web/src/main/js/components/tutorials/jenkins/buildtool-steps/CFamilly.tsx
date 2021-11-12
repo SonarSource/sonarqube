@@ -22,8 +22,9 @@ import { translate } from '../../../../helpers/l10n';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import FinishButton from '../../components/FinishButton';
+import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
-import { OSs } from '../../types';
+import { OSs, TutorialModes } from '../../types';
 import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
@@ -107,7 +108,7 @@ export default function CFamilly(props: LanguageProps) {
   return (
     <>
       <DefaultProjectKey component={component} />
-      <li>
+      <li className="abs-width-600">
         {translate('onboarding.build.other.os')}
         <RenderOptions
           checked={os}
@@ -116,6 +117,13 @@ export default function CFamilly(props: LanguageProps) {
           onCheck={value => setOs(value as OSs)}
           options={Object.values(OSs)}
         />
+        {os && (
+          <GithubCFamilyExampleRepositories
+            className="big-spacer-top big-spacer-bottom"
+            os={os}
+            ci={TutorialModes.Jenkins}
+          />
+        )}
       </li>
       {os && (
         <>

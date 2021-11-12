@@ -11,6 +11,10 @@ exports[`should render correctly for build tool cfamily: with branch support 1`]
       className="flex-column-full"
     >
       <React.Fragment>
+        <GithubCFamilyExampleRepositories
+          ci="gitlab-ci"
+          className="big-spacer-bottom abs-width-600"
+        />
         <div
           className="big-spacer-bottom"
         >
@@ -71,6 +75,10 @@ exports[`should render correctly for build tool cfamily: without branch support 
       className="flex-column-full"
     >
       <React.Fragment>
+        <GithubCFamilyExampleRepositories
+          ci="gitlab-ci"
+          className="big-spacer-bottom abs-width-600"
+        />
         <div
           className="big-spacer-bottom"
         >

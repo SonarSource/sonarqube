@@ -23,9 +23,10 @@ import { translate } from '../../../../helpers/l10n';
 import { getHostUrl } from '../../../../helpers/urls';
 import CodeSnippet from '../../../common/CodeSnippet';
 import { CompilationInfo } from '../../components/CompilationInfo';
+import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
-import { BuildTools, OSs } from '../../types';
+import { BuildTools, OSs, TutorialModes } from '../../types';
 import AlertClassicEditor from './AlertClassicEditor';
 import PrepareAnalysisCommand, { PrepareType } from './PrepareAnalysisCommand';
 import PublishSteps from './PublishSteps';
@@ -102,6 +103,11 @@ unzip build-wrapper.zip`,
 
       {os && (
         <>
+          <GithubCFamilyExampleRepositories
+            className="big-spacer-top abs-width-600"
+            os={os}
+            ci={TutorialModes.AzurePipelines}
+          />
           <AlertClassicEditor />
           <ol className="list-styled big-spacer-top">
             <li>

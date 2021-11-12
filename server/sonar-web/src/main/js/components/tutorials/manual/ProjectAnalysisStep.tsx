@@ -54,7 +54,7 @@ export default class ProjectAnalysisStep extends React.PureComponent<Props, Stat
           <BuildToolForm onDone={this.handleBuildToolSelect} />
 
           {this.state.config && (
-            <div className="huge-spacer-top">
+            <div className="big-spacer-top">
               <AnalysisCommand
                 component={this.props.component}
                 languageConfig={this.state.config}

@@ -21,8 +21,9 @@ import * as React from 'react';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import { translate } from '../../../helpers/l10n';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
+import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../components/RenderOptions';
-import { BuildTools, ManualTutorialConfig, OSs } from '../types';
+import { BuildTools, ManualTutorialConfig, OSs, TutorialModes } from '../types';
 
 interface Props {
   hasCLanguageFeature: boolean;
@@ -89,6 +90,14 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
             optionLabelKey="onboarding.build.other.os"
             options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
             titleLabelKey="onboarding.build.other.os"
+          />
+        )}
+
+        {config.buildTool === BuildTools.CFamily && config.os && (
+          <GithubCFamilyExampleRepositories
+            className="big-spacer-top abs-width-600"
+            os={config.os}
+            ci={TutorialModes.Manual}
           />
         )}
       </>

@@ -26,7 +26,9 @@ exports[`should render correctly 1`] = `
       }
     }
   />
-  <li>
+  <li
+    className="abs-width-600"
+  >
     <span>
       onboarding.build.other.os
     </span>
@@ -72,7 +74,9 @@ exports[`should render correctly for linux: branches disabled 1`] = `
       }
     }
   />
-  <li>
+  <li
+    className="abs-width-600"
+  >
     <span>
       onboarding.build.other.os
     </span>
@@ -88,6 +92,11 @@ exports[`should render correctly for linux: branches disabled 1`] = `
           "mac",
         ]
       }
+    />
+    <GithubCFamilyExampleRepositories
+      ci="github-actions"
+      className="big-spacer-top"
+      os="linux"
     />
   </li>
   <CreateYmlFile
@@ -168,7 +177,9 @@ exports[`should render correctly for mac: branches enabled 1`] = `
       }
     }
   />
-  <li>
+  <li
+    className="abs-width-600"
+  >
     <span>
       onboarding.build.other.os
     </span>
@@ -184,6 +195,11 @@ exports[`should render correctly for mac: branches enabled 1`] = `
           "mac",
         ]
       }
+    />
+    <GithubCFamilyExampleRepositories
+      ci="github-actions"
+      className="big-spacer-top"
+      os="mac"
     />
   </li>
   <CreateYmlFile
@@ -263,7 +279,9 @@ exports[`should render correctly for win: branches enabled 1`] = `
       }
     }
   />
-  <li>
+  <li
+    className="abs-width-600"
+  >
     <span>
       onboarding.build.other.os
     </span>
@@ -279,6 +297,11 @@ exports[`should render correctly for win: branches enabled 1`] = `
           "mac",
         ]
       }
+    />
+    <GithubCFamilyExampleRepositories
+      ci="github-actions"
+      className="big-spacer-top"
+      os="win"
     />
   </li>
   <CreateYmlFile

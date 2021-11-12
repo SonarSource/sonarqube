@@ -23,8 +23,9 @@ import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
 import { withAppState } from '../../hoc/withAppState';
 import FinishButton from '../components/FinishButton';
+import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import Step from '../components/Step';
-import { BuildTools } from '../types';
+import { BuildTools, TutorialModes } from '../types';
 import PipeCommand from './commands/PipeCommand';
 
 export interface YmlFileStepProps {
@@ -52,6 +53,12 @@ export function YmlFileStep(props: YmlFileStepProps) {
         <div className="flex-column-full">
           {buildTool && (
             <>
+              {buildTool === BuildTools.CFamily && (
+                <GithubCFamilyExampleRepositories
+                  className="big-spacer-bottom abs-width-600"
+                  ci={TutorialModes.GitLabCI}
+                />
+              )}
               <div className="big-spacer-bottom">
                 <FormattedMessage
                   defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yml.description')}
@@ -71,7 +78,6 @@ export function YmlFileStep(props: YmlFileStepProps) {
                   }}
                 />
               </div>
-
               <div className="big-spacer-bottom abs-width-600">
                 <PipeCommand
                   buildTool={buildTool}
@@ -79,13 +85,11 @@ export function YmlFileStep(props: YmlFileStepProps) {
                   projectKey={projectKey}
                 />
               </div>
-
               <p className="little-spacer-bottom">
                 {branchesEnabled
                   ? translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig')
                   : translate('onboarding.tutorial.with.gitlab_ci.yml.baseconfig.no_branches')}
               </p>
-
               <p>{translate('onboarding.tutorial.with.gitlab_ci.yml.existing')}</p>
             </>
           )}

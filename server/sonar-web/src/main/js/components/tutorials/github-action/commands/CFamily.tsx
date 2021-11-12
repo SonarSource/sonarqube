@@ -23,8 +23,9 @@ import { CompilationInfo } from '../../components/CompilationInfo';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import FinishButton from '../../components/FinishButton';
+import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
-import { OSs } from '../../types';
+import { OSs, TutorialModes } from '../../types';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
@@ -147,7 +148,7 @@ export default function CFamily(props: CFamilyProps) {
   return (
     <>
       <DefaultProjectKey component={component} />
-      <li>
+      <li className="abs-width-600">
         <span>{translate('onboarding.build.other.os')}</span>
         <RenderOptions
           checked={os}
@@ -156,6 +157,13 @@ export default function CFamily(props: CFamilyProps) {
           optionLabelKey="onboarding.build.other.os"
           options={Object.values(OSs)}
         />
+        {os && (
+          <GithubCFamilyExampleRepositories
+            className="big-spacer-top"
+            os={os}
+            ci={TutorialModes.GitHubActions}
+          />
+        )}
       </li>
       {os && (
         <>
