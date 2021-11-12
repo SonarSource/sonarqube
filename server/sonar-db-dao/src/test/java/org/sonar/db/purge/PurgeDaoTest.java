@@ -1372,6 +1372,19 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void deleteProject_deletes_project_badge_tokens() {
+    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto otherProject = db.components().insertPublicProjectDto();
+    dbClient.projectBadgeTokenDao().insert(dbSession, "token_to_delete", project, "user-uuid", "user-login");
+    dbClient.projectBadgeTokenDao().insert(dbSession, "token_to_not_delete", otherProject, "user-uuid", "user-login");
+
+    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
+
+    assertThat(dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, project)).isNull();
+    assertThat(dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, otherProject)).isNotNull();
+  }
+
+  @Test
   public void deleteProject_deletes_portfolio_projects() {
     ComponentDto portfolio1 = db.components().insertPrivatePortfolio();
     ComponentDto portfolio2 = db.components().insertPrivatePortfolio();

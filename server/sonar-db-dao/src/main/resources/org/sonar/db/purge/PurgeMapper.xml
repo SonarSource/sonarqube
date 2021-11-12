@@ -538,6 +538,10 @@
     delete from project_alm_settings where project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteProjectBadgeTokenByProjectUuid">
+    delete from project_badge_token where project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteBranchByUuid">
     delete from project_branches where uuid=#{uuid,jdbcType=VARCHAR}
   </delete>

@@ -163,6 +163,8 @@ public interface PurgeMapper {
 
   void deleteProjectAlmSettingsByProjectUuid(@Param("projectUuid") String projectUuid);
 
+  void deleteProjectBadgeTokenByProjectUuid(@Param("projectUuid") String rootUuid);
+
   void deleteUserDismissedMessagesByProjectUuid(@Param("projectUuid") String projectUuid);
 
 }

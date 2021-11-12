@@ -424,6 +424,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteProjectBadgeToken(String rootUuid) {
+    profiler.start("deleteProjectBadgeToken (project_badge_token)");
+    purgeMapper.deleteProjectBadgeTokenByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteBranch(String rootUuid) {
     profiler.start("deleteBranch (project_branches)");
     purgeMapper.deleteApplicationBranchProjectBranchesByProjectBranchUuid(rootUuid);
@@ -464,4 +471,5 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
 }
