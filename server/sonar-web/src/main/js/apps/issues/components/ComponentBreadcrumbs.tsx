@@ -20,9 +20,9 @@
 import * as React from 'react';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isView } from '../../../types/component';
 import { getSelectedLocation } from '../utils';
 
 interface Props {
@@ -50,6 +50,7 @@ export default function ComponentBreadcrumbs({
     ![ComponentQualifier.SubProject, ComponentQualifier.Directory].includes(
       component.qualifier as ComponentQualifier
     );
+  const displayBranchInformation = isView(component?.qualifier);
 
   const selectedLocation = getSelectedLocation(issue, selectedFlowIndex, selectedLocationIndex);
   const componentName = selectedLocation ? selectedLocation.componentName : issue.componentLongName;
@@ -67,11 +68,17 @@ export default function ComponentBreadcrumbs({
       {displayProject && (
         <span title={projectName}>
           {limitComponentName(issue.projectName)}
-          {issue.branch && (
+          {displayBranchInformation && (
             <>
               {' - '}
-              <BranchIcon />
-              <span>{issue.branch}</span>
+              {issue.branch ? (
+                <>
+                  <BranchIcon />
+                  <span>{issue.branch}</span>
+                </>
+              ) : (
+                <span className="badge">{translate('branches.main_branch')}</span>
+              )}
             </>
           )}
           <span className="slash-separator" />

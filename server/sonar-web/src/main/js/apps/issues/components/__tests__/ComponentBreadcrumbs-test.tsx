@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
@@ -36,6 +37,25 @@ it('renders', () => {
   expect(
     shallow(<ComponentBreadcrumbs component={undefined} issue={baseIssue} />)
   ).toMatchSnapshot();
+});
+
+it('renders issues properly for views', () => {
+  expect(
+    shallow(
+      <ComponentBreadcrumbs
+        component={mockComponent({ qualifier: ComponentQualifier.Portfolio })}
+        issue={{ ...baseIssue, branch: undefined }}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentBreadcrumbs
+        component={mockComponent({ qualifier: ComponentQualifier.Portfolio })}
+        issue={{ ...baseIssue }}
+      />
+    )
+  ).toMatchSnapshot('with branch information');
 });
 
 it('renders with sub-project', () => {
