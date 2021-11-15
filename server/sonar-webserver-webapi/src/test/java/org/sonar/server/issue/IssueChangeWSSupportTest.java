@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -36,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -62,6 +65,7 @@ import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
 
 @RunWith(DataProviderRunner.class)
 public class IssueChangeWSSupportTest {
+  private static final UuidFactoryFast UUID_FACTORY = UuidFactoryFast.getInstance();
   private static final Random RANDOM = new Random();
 
   @Rule
@@ -69,10 +73,9 @@ public class IssueChangeWSSupportTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private AvatarResolverImpl avatarResolver = new AvatarResolverImpl();
-
-  private IssueChangeWSSupport underTest = new IssueChangeWSSupport(dbClient, avatarResolver, userSessionRule);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final AvatarResolverImpl avatarResolver = new AvatarResolverImpl();
+  private final IssueChangeWSSupport underTest = new IssueChangeWSSupport(dbClient, avatarResolver, userSessionRule);
 
   @Test
   public void newFormattingContext_with_Load_CHANGE_LOG_loads_only_changelog() {
@@ -94,6 +97,31 @@ public class IssueChangeWSSupportTest {
       .extracting(FieldDiffs::toEncodedString)
       .containsExactlyInAnyOrder(fieldChanges.stream().map(t -> t.toFieldDiffs().toEncodedString()).toArray(String[]::new));
     assertThat(formattingContext.getComments(issue)).isEmpty();
+  }
+
+  @Test
+  public void newFormattingContext_sorts_changes() {
+    IssueDto issue = dbTester.issues().insertIssue();
+    insertFieldChange(issue, c -> c.setCreatedAt(3L));
+    insertFieldChange(issue, c -> c.setIssueChangeCreationDate(1L));
+    insertFieldChange(issue, c -> c.setCreatedAt(2L));
+
+    FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.CHANGE_LOG);
+
+    assertThat(formattingContext.getChanges(issue))
+      .extracting(FieldDiffs::creationDate)
+      .containsExactly(new Date(1L), new Date(2L), new Date(3L));
+  }
+
+  private void insertFieldChange(IssueDto issue, Consumer<IssueChangeDto> consumer ) {
+    IssueChangeDto change = new IssueChangeDto()
+      .setUuid(UUID_FACTORY.create())
+      .setProjectUuid(UUID_FACTORY.create())
+      .setChangeType(TYPE_FIELD_CHANGE)
+      .setIssueKey(issue.getKey());
+    consumer.accept(change);
+    dbTester.issues().insertChange(change);
+    dbTester.getSession().commit();
   }
 
   @Test

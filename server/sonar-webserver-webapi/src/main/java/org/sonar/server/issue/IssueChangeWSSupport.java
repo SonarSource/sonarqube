@@ -22,10 +22,10 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +65,6 @@ import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
 
 public class IssueChangeWSSupport {
   private static final String EFFORT_CHANGELOG_KEY = "effort";
-  private static final Ordering<IssueChangeDto> ISSUE_CHANGE_CREATED_AT_COMPARATOR = Ordering.natural().onResultOf(IssueChangeDto::getCreatedAt);
 
   private final DbClient dbClient;
   private final AvatarResolver avatarFactory;
@@ -100,8 +99,7 @@ public class IssueChangeWSSupport {
     return newFormattingContext(dbSession, dtos, load, ImmutableSet.of(), ImmutableSet.of());
   }
 
-  public FormattingContext newFormattingContext(DbSession dbSession, Set<IssueDto> dtos, Load load,
-    Set<UserDto> preloadedUsers, Set<ComponentDto> preloadedComponents) {
+  public FormattingContext newFormattingContext(DbSession dbSession, Set<IssueDto> dtos, Load load, Set<UserDto> preloadedUsers, Set<ComponentDto> preloadedComponents) {
     Set<String> issueKeys = dtos.stream().map(IssueDto::getKey).collect(toSet());
 
     List<IssueChangeDto> changes = List.of();
@@ -126,23 +124,23 @@ public class IssueChangeWSSupport {
         throw new IllegalStateException("Unsupported Load value:" + load);
     }
 
-    Map<String, List<FieldDiffs>> changesByRuleKey = indexAndSort(changes, IssueChangeDto::toFieldDiffs);
-    Map<String, List<IssueChangeDto>> commentsByIssueKey = indexAndSort(comments, t -> t);
+    Map<String, List<FieldDiffs>> changesByRuleKey = indexAndSort(changes, IssueChangeDto::toFieldDiffs, Comparator.comparing(FieldDiffs::creationDate));
+    Map<String, List<IssueChangeDto>> commentsByIssueKey = indexAndSort(comments, t -> t, Comparator.comparing(IssueChangeDto::getIssueChangeCreationDate));
     Map<String, UserDto> usersByUuid = loadUsers(dbSession, changesByRuleKey, commentsByIssueKey, preloadedUsers);
     Map<String, ComponentDto> filesByUuid = loadFiles(dbSession, changesByRuleKey, preloadedComponents);
     Map<String, Boolean> updatableCommentByKey = loadUpdatableFlag(commentsByIssueKey);
     return new FormattingContextImpl(changesByRuleKey, commentsByIssueKey, usersByUuid, filesByUuid, updatableCommentByKey);
   }
 
-  private static <T> Map<String, List<T>> indexAndSort(List<IssueChangeDto> changes, Function<IssueChangeDto, T> transform) {
+  private static <T> Map<String, List<T>> indexAndSort(List<IssueChangeDto> changes, Function<IssueChangeDto, T> transform, Comparator<T> sortingComparator) {
     Multimap<String, IssueChangeDto> unordered = changes.stream()
       .collect(MoreCollectors.index(IssueChangeDto::getIssueKey, t -> t));
     return unordered.asMap().entrySet().stream()
       .collect(uniqueIndex(
         Map.Entry::getKey,
         t -> t.getValue().stream()
-          .sorted(ISSUE_CHANGE_CREATED_AT_COMPARATOR)
           .map(transform)
+          .sorted(sortingComparator)
           .collect(toList(t.getValue().size()))));
   }
 
