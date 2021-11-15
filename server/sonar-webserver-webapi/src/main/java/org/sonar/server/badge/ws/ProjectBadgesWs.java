@@ -32,7 +32,7 @@ public class ProjectBadgesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/project_badges");
+      NewController controller = context.createController("api/project_badges");
     controller.setDescription("Generate badges based on quality gates or measures");
     controller.setSince("7.1");
     actions.forEach(action -> action.define(controller));

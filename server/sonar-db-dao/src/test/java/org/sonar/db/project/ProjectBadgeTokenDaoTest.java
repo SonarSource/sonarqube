@@ -51,17 +51,16 @@ public class ProjectBadgeTokenDaoTest {
 
   private final ProjectBadgeTokenDao projectBadgeTokenDao = new ProjectBadgeTokenDao(system2, auditPersister, uuidFactory);
 
-
   @Test
   public void should_insert_and_select_by_project_uuid() {
     when(uuidFactory.create()).thenReturn("generated_uuid_1");
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 
     ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "userUuid", "userLogin");
-    assertProjectBadgeToken(insertedProjectBadgeToken);
+    assertProjectBadgeToken(insertedProjectBadgeToken, "token");
 
     ProjectBadgeTokenDto selectedProjectBadgeToken = projectBadgeTokenDao.selectTokenByProject(db.getSession(), projectDto);
-    assertProjectBadgeToken(selectedProjectBadgeToken);
+    assertProjectBadgeToken(selectedProjectBadgeToken, "token");
   }
 
   @Test
@@ -70,7 +69,7 @@ public class ProjectBadgeTokenDaoTest {
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 
     ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user-login");
-    assertProjectBadgeToken(insertedProjectBadgeToken);
+    assertProjectBadgeToken(insertedProjectBadgeToken, "token");
 
     ArgumentCaptor<ProjectBadgeTokenNewValue> captor = ArgumentCaptor.forClass(ProjectBadgeTokenNewValue.class);
 
@@ -80,9 +79,57 @@ public class ProjectBadgeTokenDaoTest {
     Assertions.assertThat(captor.getValue()).hasToString("{\"userUuid\": \"user-uuid\", \"userLogin\": \"user-login\" }");
   }
 
-  private void assertProjectBadgeToken(@Nullable ProjectBadgeTokenDto projectBadgeTokenDto) {
+  @Test
+  public void upsert_existing_token_and_select_by_project_uuid() {
+    when(uuidFactory.create()).thenReturn("generated_uuid_1");
+    ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
+
+    // first insert
+    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user-login");
+    assertProjectBadgeToken(insertedProjectBadgeToken, "token");
+
+    // renew
+    projectBadgeTokenDao.upsert(db.getSession(), "new-token", projectDto, "user-uuid", "user-login");
+    ProjectBadgeTokenDto selectedProjectBadgeToken = projectBadgeTokenDao.selectTokenByProject(db.getSession(), projectDto);
+    assertProjectBadgeToken(selectedProjectBadgeToken, "new-token");
+  }
+
+  @Test
+  public void upsert_non_existing_token_and_select_by_project_uuid() {
+    when(uuidFactory.create()).thenReturn("generated_uuid_1");
+    ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
+
+    // renew
+    projectBadgeTokenDao.upsert(db.getSession(), "new-token", projectDto, "user-uuid", "user-login");
+    ProjectBadgeTokenDto selectedProjectBadgeToken = projectBadgeTokenDao.selectTokenByProject(db.getSession(), projectDto);
+    assertProjectBadgeToken(selectedProjectBadgeToken, "new-token");
+  }
+
+
+  @Test
+  public void token_upsert_is_log_in_audit() {
+    when(uuidFactory.create()).thenReturn("generated_uuid_1");
+    ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
+
+    // fist insert
+    projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user-login");
+    ArgumentCaptor<ProjectBadgeTokenNewValue> captor = ArgumentCaptor.forClass(ProjectBadgeTokenNewValue.class);
+    verify(auditPersister).addProjectBadgeToken(eq(db.getSession()), captor.capture());
+
+    // upsert
+    projectBadgeTokenDao.upsert(db.getSession(), "new-token", projectDto, "user-uuid", "user-login");
+    ProjectBadgeTokenDto selectedProjectBadgeToken = projectBadgeTokenDao.selectTokenByProject(db.getSession(), projectDto);
+    assertProjectBadgeToken(selectedProjectBadgeToken, "new-token");
+
+    verify(auditPersister).updateProjectBadgeToken(eq(db.getSession()), captor.capture());
+    verifyNoMoreInteractions(auditPersister);
+
+    Assertions.assertThat(captor.getValue()).hasToString("{\"userUuid\": \"user-uuid\", \"userLogin\": \"user-login\" }");
+  }
+
+  private void assertProjectBadgeToken(@Nullable ProjectBadgeTokenDto projectBadgeTokenDto, String expectedToken) {
     assertThat(projectBadgeTokenDto).isNotNull();
-    assertThat(projectBadgeTokenDto.getToken()).isEqualTo("token");
+    assertThat(projectBadgeTokenDto.getToken()).isEqualTo(expectedToken);
     assertThat(projectBadgeTokenDto.getProjectUuid()).isEqualTo("project_uuid_1");
     assertThat(projectBadgeTokenDto.getUuid()).isEqualTo("generated_uuid_1");
     assertThat(projectBadgeTokenDto.getCreatedAt()).isEqualTo(1000L);

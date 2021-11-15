@@ -49,6 +49,15 @@ public class ProjectBadgeTokenDao implements Dao {
     return projectBadgeTokenDto;
   }
 
+  public void upsert(DbSession session, String token, ProjectDto projectDto, String userUuid, String userLogin) {
+    if(selectTokenByProject(session, projectDto) == null) {
+      insert(session, token, projectDto, userUuid, userLogin);
+    } else {
+      mapper(session).update(token, projectDto.getUuid(), system2.now());
+      auditPersister.updateProjectBadgeToken(session, new ProjectBadgeTokenNewValue(projectDto.getKey(), userUuid, userLogin));
+    }
+  }
+
   private static ProjectBadgeTokenMapper mapper(DbSession session) {
     return session.getMapper(ProjectBadgeTokenMapper.class);
   }
@@ -56,6 +65,5 @@ public class ProjectBadgeTokenDao implements Dao {
   @CheckForNull
   public ProjectBadgeTokenDto selectTokenByProject(DbSession session, ProjectDto projectDto) {
     return mapper(session).selectTokenByProjectUuid(projectDto.getUuid());
-
   }
 }

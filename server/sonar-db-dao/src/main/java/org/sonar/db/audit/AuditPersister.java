@@ -74,6 +74,8 @@ public interface AuditPersister {
 
   void addProjectBadgeToken(DbSession dbSession, ProjectBadgeTokenNewValue newValue);
 
+  void updateProjectBadgeToken(DbSession session, ProjectBadgeTokenNewValue projectBadgeTokenNewValue);
+
   void updateUserToken(DbSession dbSession, UserTokenNewValue newValue);
 
   void deleteUserToken(DbSession dbSession, UserTokenNewValue newValue);

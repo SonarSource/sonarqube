@@ -120,6 +120,11 @@ public class NoOpAuditPersister implements AuditPersister {
   }
 
   @Override
+  public void updateProjectBadgeToken(DbSession session, ProjectBadgeTokenNewValue projectBadgeTokenNewValue) {
+    // no op
+  }
+
+  @Override
   public void updateUserToken(DbSession dbSession, UserTokenNewValue newValue) {
     // no op
   }

@@ -26,6 +26,8 @@ public interface ProjectBadgeTokenMapper {
 
   void insert(ProjectBadgeTokenDto projectBadgeTokenDto);
 
+  int update(@Param("token") String token, @Param("projectUuid") String projectUuid, @Param("updatedAt") long updatedAt);
+
   @CheckForNull
   ProjectBadgeTokenDto selectTokenByProjectUuid(@Param("projectUuid") String projectUuid);
 }

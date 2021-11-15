@@ -31,6 +31,7 @@ public class ProjectBadgesWsModule extends Module {
       MeasureAction.class,
       TokenAction.class,
       SvgGenerator.class,
-      ProjectBadgesSupport.class);
+      ProjectBadgesSupport.class,
+      TokenRenewAction.class);
   }
 }

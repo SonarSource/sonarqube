@@ -10,6 +10,15 @@
       p.updated_at as updatedAt
     </sql>
 
+  <update id="update" parameterType="map" useGeneratedKeys="false">
+    update project_badge_token
+    set
+      token = #{token, jdbcType=VARCHAR},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      project_uuid = #{projectUuid, jdbcType=VARCHAR}
+  </update>
+
   <insert id="insert" parameterType="ProjectBadgeToken">
     INSERT INTO project_badge_token (
       uuid,
