@@ -155,6 +155,9 @@ Property  | Description | Default | Required
 [[info]]
 | This configuration is optional. To secure access to your setup, you may want to first limit access to the nodes in your network. Elasticsearch authentication just adds another layer of security.
 
+[[warning]]
+| When creating the PKCS#12 container, make sure it is created with an algorithm that is readable by Java 11.
+
 For Elasticsearch authentication, the following properties need to be configured on specific nodes:
 
 #### Application nodes
@@ -171,7 +174,8 @@ Property  | Description | Default | Required
 `sonar.cluster.es.ssl.keystorePassword`|Password to the keystore.| |no
 `sonar.cluster.es.ssl.truststorePassword`|Password to the truststore.| | no
 
-When you're using Docker image, truststore and keystore should be provided as volumes.
+When you're using the SonarSource Docker images, the truststore/keystore should be provided as volumes. 
+On Kubernetes, you need to create a new Secret from the truststore/keystore and provide the name to the Helm chart.
 
 ## Limitations
 * Cluster downtime is required for SonarQube upgrades or plugin installations.
@@ -189,3 +193,6 @@ Yes, but it's best to have one machine for each node to be resilient to failures
 
 ### Can the members of a cluster be discovered automatically? 
 No, all nodes must be configured in _$SONARQUBE-HOME/conf/sonar.properties_
+
+### My keystore/truststore cannot be read by SonarQube
+Make sure that the keystore/truststore in question was generated with an algorithm that is known to Java 11. See [JDK-8267599](https://bugs.openjdk.java.net/browse/JDK-8267599) for reference

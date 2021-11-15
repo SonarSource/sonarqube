@@ -141,6 +141,15 @@ With JSON Logging enabled, you can define a LogQL Query like this to filter only
 {namespace="sonarqube-dce", app="sonarqube-dce"}| json | severity="ERROR" | line_format "{{.nodename}} {{.message}}"
 ```
 
+### ES Cluster Authentication
+
+Since SonarQube 8.9, you can enable basic security for the Search Cluster in SonarQube. To benefit from this additional layer of security on Kubernetes as well, you need to provide a PKCS#11 Container with the required certificates to our Helm chart.
+The required secret can be created like this: 
+
+```bash
+kubectl create secret generic <NAME OF THE SECRET> --from-file=/PATH/TO/YOUR/PKCS12.container=elastic-stack-ca.p12 -n <NAMESPACE>
+```
+
 ### Other Configuration Options
 
 This documentation only contains the most important Helm chart customizations. See the [Customize the Chart Before Installing](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) documentation and the Helm chart [README](https://github.com/SonarSource/helm-chart-sonarqube/tree/master/charts/sonarqube-dce) for more possibilities on customizing the Helm chart. 
