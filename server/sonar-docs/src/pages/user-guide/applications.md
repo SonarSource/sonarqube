@@ -21,9 +21,6 @@ Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enter
 
 For more information on setting up Applications, see [Managing Applications](/project-administration/managing-applications/). 
 
-[[info]]
-|Applications must be created initially by a user with global administration rights, but after set-up, administration of an individual Application can be delegated to other users.
-
 ### Populating Application Data
 
 An Application is automatically re-calculated after each analysis of one of its projects. If you want immediate (re)calculation, a user with administration rights on the Application can use the **Recompute** button in the Application-level **Application Settings > Edit Definition** interface. 
