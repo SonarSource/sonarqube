@@ -402,17 +402,25 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteApplicationProjectsByProject(String projectUuid) {
+    profiler.start("deleteApplicationProjectsByProject (app_projects)");
+    purgeMapper.deleteAppBranchProjectBranchesByProjectUuid(projectUuid);
+    purgeMapper.deleteAppProjectsByProjectUuid(projectUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteApplicationProjects(String applicationUuid) {
     profiler.start("deleteApplicationProjects (app_projects)");
-    purgeMapper.deleteApplicationBranchProjectBranchesByApplicationUuid(applicationUuid);
-    purgeMapper.deleteApplicationProjectsByApplicationUuid(applicationUuid);
+    purgeMapper.deleteAppBranchProjectBranchesByAppUuid(applicationUuid);
+    purgeMapper.deleteAppProjectsByAppUuid(applicationUuid);
     session.commit();
     profiler.stop();
   }
 
   void deleteApplicationBranchProjects(String applicationBranchUuid) {
     profiler.start("deleteApplicationBranchProjects (app_branch_project_branch)");
-    purgeMapper.deleteApplicationBranchProjects(applicationBranchUuid);
+    purgeMapper.deleteAppBranchProjectsByAppBranchUuid(applicationBranchUuid);
     session.commit();
     profiler.stop();
   }
@@ -433,7 +441,7 @@ class PurgeCommands {
 
   void deleteBranch(String rootUuid) {
     profiler.start("deleteBranch (project_branches)");
-    purgeMapper.deleteApplicationBranchProjectBranchesByProjectBranchUuid(rootUuid);
+    purgeMapper.deleteAppBranchProjectBranchesByProjectBranchUuid(rootUuid);
     purgeMapper.deleteBranchByUuid(rootUuid);
     session.commit();
     profiler.stop();

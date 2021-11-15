@@ -632,7 +632,6 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("app_projects", "application_uuid")).containsOnly(app.uuid(), otherApp.uuid());
     assertThat(uuidsIn("app_branch_project_branch", "application_branch_uuid")).containsOnly(otherAppBranch.uuid());
     assertThat(componentUuidsIn("properties")).containsOnly(otherAppBranch.uuid());
-
   }
 
   @Test
@@ -1400,6 +1399,29 @@ public class PurgeDaoTest {
     assertThat(dbClient.portfolioDao().selectAllPortfolioProjects(dbSession))
       .extracting(PortfolioProjectDto::getPortfolioUuid, PortfolioProjectDto::getProjectUuid)
       .containsExactlyInAnyOrder(tuple(portfolio1.uuid(), otherProject.getUuid()));
+  }
+
+  @Test
+  public void deleteProject_deletes_app_projects() {
+    ProjectDto app = db.components().insertPrivateApplicationDto();
+    BranchDto appBranch = db.components().insertProjectBranch(app);
+
+    ProjectDto project = db.components().insertPublicProjectDto();
+    BranchDto projectBranch = db.components().insertProjectBranch(project);
+
+    ProjectDto otherProject = db.components().insertPublicProjectDto();
+
+    db.components().addApplicationProject(app, project, otherProject);
+    db.components().addProjectBranchToApplicationBranch(appBranch, projectBranch);
+
+    assertThat(db.countRowsOfTable("app_branch_project_branch")).isOne();
+
+    underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
+
+    assertThat(dbClient.applicationProjectsDao().selectProjects(dbSession, app.getUuid()))
+      .extracting(ProjectDto::getUuid)
+      .containsExactlyInAnyOrder(otherProject.getUuid());
+    assertThat(db.countRowsOfTable("app_branch_project_branch")).isZero();
   }
 
   @Test

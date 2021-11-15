@@ -139,13 +139,17 @@ public interface PurgeMapper {
 
   void deleteProjectMappingsByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteApplicationProjectsByApplicationUuid(@Param("applicationUuid") String applicationUuid);
+  void deleteAppProjectsByAppUuid(@Param("applicationUuid") String applicationUuid);
 
-  void deleteApplicationBranchProjectBranchesByApplicationUuid(@Param("applicationUuid") String applicationUuid);
+  void deleteAppProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteApplicationBranchProjects(@Param("branchUuid") String applicationBranchUuid);
+  void deleteAppBranchProjectBranchesByAppUuid(@Param("applicationUuid") String applicationUuid);
 
-  void deleteApplicationBranchProjectBranchesByProjectBranchUuid(@Param("projectBranchUuid") String projectBranchUuid);
+  void deleteAppBranchProjectBranchesByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteAppBranchProjectsByAppBranchUuid(@Param("branchUuid") String applicationBranchUuid);
+
+  void deleteAppBranchProjectBranchesByProjectBranchUuid(@Param("projectBranchUuid") String projectBranchUuid);
 
   void deletePortfolioProjectsByBranchUuid(@Param("branchUuid") String branchUuid);
 

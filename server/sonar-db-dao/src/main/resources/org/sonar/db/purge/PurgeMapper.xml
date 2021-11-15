@@ -322,28 +322,42 @@
     </foreach>
   </delete>
 
-  <delete id="deleteApplicationProjectsByApplicationUuid" parameterType="map">
+  <delete id="deleteAppProjectsByAppUuid" parameterType="map">
     DELETE
     FROM app_projects
     WHERE
       application_uuid=#{applicationUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteApplicationBranchProjectBranchesByApplicationUuid" parameterType="map">
+    <delete id="deleteAppProjectsByProjectUuid" parameterType="map">
+    DELETE
+    FROM app_projects
+    WHERE
+      project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteAppBranchProjectBranchesByAppUuid" parameterType="map">
     DELETE
     FROM app_branch_project_branch
     WHERE
       application_uuid=#{applicationUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteApplicationBranchProjects" parameterType="String">
+    <delete id="deleteAppBranchProjectBranchesByProjectUuid" parameterType="map">
+    DELETE
+    FROM app_branch_project_branch
+    WHERE
+      project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteAppBranchProjectsByAppBranchUuid" parameterType="String">
     DELETE
     FROM app_branch_project_branch
     WHERE
       application_branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteApplicationBranchProjectBranchesByProjectBranchUuid" parameterType="String">
+  <delete id="deleteAppBranchProjectBranchesByProjectBranchUuid" parameterType="String">
     DELETE
     FROM app_branch_project_branch
     WHERE project_branch_uuid=#{projectBranchUuid,jdbcType=VARCHAR}
