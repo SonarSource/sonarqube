@@ -45,11 +45,7 @@ it('should have at least one instance of all possible frontmatter fields', () =>
 
 /* eslint-disable no-console */
 it('should have valid links in trees files', () => {
-  const trees = [
-    'SonarCloudNavigationTree.json',
-    'SonarQubeNavigationTree.json',
-    'StaticNavigationTree.json'
-  ];
+  const trees = ['SonarQubeNavigationTree.json', 'StaticNavigationTree.json'];
   let hasErrors = false;
   trees.forEach(file => {
     const tree = JSON.parse(fs.readFileSync(path.join(rootPath, '..', 'static', file), 'utf8'));
