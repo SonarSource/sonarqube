@@ -22,6 +22,7 @@ import { Helmet } from 'react-helmet-async';
 import { withRouter, WithRouterProps } from 'react-router';
 import { getSystemInfo } from '../../../api/system';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import UpdateNotification from '../../../app/components/update-notification/UpdateNotification';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 import {
@@ -37,7 +38,6 @@ import {
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
-import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
 
 type Props = WithRouterProps;
 
@@ -122,7 +122,9 @@ export class App extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Suggestions suggestions="system_info" />
         <Helmet defer={false} title={translate('system_info.page')} />
-        <SystemUpgradeNotif />
+        <div className="page-notifs">
+          <UpdateNotification dismissable={false} />
+        </div>
         {sysInfoData && (
           <PageHeader
             isCluster={isCluster(sysInfoData)}

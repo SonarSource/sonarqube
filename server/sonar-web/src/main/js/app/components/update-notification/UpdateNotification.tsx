@@ -23,7 +23,7 @@ import * as React from 'react';
 import { getSystemUpgrades } from '../../../api/system';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { AlertVariant } from '../../../components/ui/Alert';
+import { Alert, AlertVariant } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
 import { sortUpgrades, UpdateUseCase } from '../../../components/upgrade/utils';
@@ -47,6 +47,7 @@ const MAP_VARIANT: T.Dict<AlertVariant> = {
 };
 
 interface Props {
+  dismissable: boolean;
   appState: Pick<T.AppState, 'version'>;
   currentUser: T.CurrentUser;
 }
@@ -218,11 +219,12 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const { dismissable } = this.props;
     const { latestLTS, systemUpgrades, canSeeNotification, useCase, dismissKey } = this.state;
     if (!canSeeNotification) {
       return null;
     }
-    return (
+    return dismissable ? (
       <DismissableAlert
         alertKey={dismissKey}
         variant={MAP_VARIANT[useCase]}
@@ -234,6 +236,15 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
           latestLTS={latestLTS}
         />
       </DismissableAlert>
+    ) : (
+      <Alert variant={MAP_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
+        {translate('admin_notification.update', useCase)}
+        <SystemUpgradeButton
+          systemUpgrades={systemUpgrades}
+          updateUseCase={useCase}
+          latestLTS={latestLTS}
+        />
+      </Alert>
     );
   }
 }

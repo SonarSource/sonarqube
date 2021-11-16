@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../../api/system';
+import { Alert } from '../../../../components/ui/Alert';
 import DismissableAlert from '../../../../components/ui/DismissableAlert';
 import { mockUpgrades } from '../../../../helpers/mocks/system-upgrades';
 import { mockAppState, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -158,8 +159,32 @@ it('should show prompt when lts upgrade is more than 6 month', async () => {
   expect(wrapper.contains('admin_notification.update.previous_lts')).toBe(true);
 });
 
+it('should show correct alert when not dismissable', async () => {
+  (getSystemUpgrades as jest.Mock).mockResolvedValueOnce({
+    upgrades: [
+      mockUpgrades({ version: '8.9', releaseDate: formatDate(new Date(Date.now())) }),
+      mockUpgrades({ version: '9.2' }),
+      mockUpgrades({ version: '9.1.1' })
+    ],
+    latestLTS: '8.9'
+  });
+  const wrapper = shallowRender({
+    appState: mockAppState({ version: '8.8' }),
+    currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find(DismissableAlert).type).toBeDefined();
+  wrapper.setProps({ dismissable: false });
+  expect(wrapper.find(Alert).type).toBeDefined();
+});
+
 function shallowRender(props: Partial<UpdateNotification['props']> = {}) {
   return shallow(
-    <UpdateNotification appState={mockAppState()} currentUser={mockCurrentUser()} {...props} />
+    <UpdateNotification
+      dismissable={true}
+      appState={mockAppState()}
+      currentUser={mockCurrentUser()}
+      {...props}
+    />
   );
 }

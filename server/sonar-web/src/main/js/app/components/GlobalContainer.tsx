@@ -27,8 +27,8 @@ import GlobalMessagesContainer from './GlobalMessagesContainer';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import GlobalNav from './nav/global/GlobalNav';
-import StartupModal from './StartupModal';
 import PromotionNotification from './promotion-notification/PromotionNotification';
+import StartupModal from './StartupModal';
 import UpdateNotification from './update-notification/UpdateNotification';
 
 export interface Props {
@@ -54,7 +54,7 @@ export default function GlobalContainer(props: Props) {
                     <GlobalNav location={props.location} />
                     <GlobalMessagesContainer />
                     <IndexationNotification />
-                    <UpdateNotification />
+                    <UpdateNotification dismissable={true} />
                     {props.children}
                   </IndexationContextProvider>
                 </Workspace>

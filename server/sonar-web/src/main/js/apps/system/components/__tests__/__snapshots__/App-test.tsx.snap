@@ -12,7 +12,13 @@ exports[`should render correctly: cluster sysinfo 1`] = `
     encodeSpecialCharacters={true}
     title="system_info.page"
   />
-  <SystemUpgradeNotif />
+  <div
+    className="page-notifs"
+  >
+    <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
+      dismissable={false}
+    />
+  </div>
   <Connect(PageHeader)
     isCluster={true}
     loading={false}
@@ -198,7 +204,13 @@ exports[`should render correctly: loading 1`] = `
     encodeSpecialCharacters={true}
     title="system_info.page"
   />
-  <SystemUpgradeNotif />
+  <div
+    className="page-notifs"
+  >
+    <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
+      dismissable={false}
+    />
+  </div>
 </div>
 `;
 
@@ -214,7 +226,13 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
     encodeSpecialCharacters={true}
     title="system_info.page"
   />
-  <SystemUpgradeNotif />
+  <div
+    className="page-notifs"
+  >
+    <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
+      dismissable={false}
+    />
+  </div>
   <Connect(PageHeader)
     isCluster={false}
     loading={false}

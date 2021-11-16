@@ -32,7 +32,9 @@ exports[`should render correctly 1`] = `
                 />
                 <Connect(GlobalMessages) />
                 <Connect(withCurrentUser(withIndexationContext(IndexationNotification))) />
-                <Connect(withCurrentUser(Connect(withAppState(UpdateNotification)))) />
+                <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
+                  dismissable={true}
+                />
                 <ChildComponent />
               </Connect(withAppState(IndexationContextProvider))>
             </Workspace>
