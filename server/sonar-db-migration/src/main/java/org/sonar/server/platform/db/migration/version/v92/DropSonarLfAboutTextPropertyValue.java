@@ -17,28 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.server.platform.db.migration.version.v92;
 
-import java.util.List;
-import org.junit.Test;
-import org.sonar.api.config.PropertyDefinition;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropSonarLfAboutTextPropertyValue extends DataChange {
 
-public class CorePropertyDefinitionsTest {
+  public static final String PROPERTY_TO_DELETE_KEY = "sonar.lf.aboutText";
 
-  @Test
-  public void all() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(52);
+  public DropSonarLfAboutTextPropertyValue(Database db) {
+    super(db);
   }
 
-  @Test
-  public void all_includes_scanner_properties() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-
-    assertThat(defs.stream()
-      .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
-      .findFirst()).isPresent();
+  @Override
+  public void execute(Context context) throws SQLException {
+    context
+      .prepareUpsert("delete from properties where prop_key = ?")
+      .setString(1, PROPERTY_TO_DELETE_KEY)
+      .execute()
+      .commit();
   }
 }

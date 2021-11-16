@@ -39,6 +39,7 @@ public class DbVersion92 implements DbVersion {
       .add(6111, "Change size of column 'kee' in 'components'", AlterKeeInComponentsTable.class)
       .add(6112, "Create 'project_badge_token' Table", CreateProjectBadgeTokenTable.class)
       .add(6113, "Deprecate quality profile 'Sonar way Recommended' for js and ts", DeprecateSWRecommendedQProfile.class)
+      .add(6114, "Drop the 'sonar.lf.aboutText' property value", DropSonarLfAboutTextPropertyValue.class)
     ;
   }
 }

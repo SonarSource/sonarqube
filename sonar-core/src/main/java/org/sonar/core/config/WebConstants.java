@@ -28,7 +28,6 @@ public final class WebConstants {
   public static final String SONAR_LF_GRAVATAR_SERVER_URL = "sonar.lf.gravatarServerUrl";
   public static final String SONAR_LF_LOGO_URL = "sonar.lf.logoUrl";
   public static final String SONAR_LF_LOGO_WIDTH_PX = "sonar.lf.logoWidthPx";
-  public static final String SONAR_LF_ABOUT_TEXT = "sonar.lf.aboutText";
 
   private WebConstants() {
   }

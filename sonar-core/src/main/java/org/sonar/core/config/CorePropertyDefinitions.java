@@ -136,13 +136,6 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
-      PropertyDefinition.builder(WebConstants.SONAR_LF_ABOUT_TEXT)
-        .name("About page text")
-        .description("Optional text that is displayed on the About page. Supports html.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
-        .type(PropertyType.TEXT)
-        .build(),
 
       // ISSUES
       PropertyDefinition.builder(CoreProperties.DEVELOPER_AGGREGATED_INFO_DISABLED)
