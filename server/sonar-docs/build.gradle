@@ -58,6 +58,7 @@ task extractAnalyzerDocFiles {
 task yarn_run(type: Exec) {
   def docsVersion = version.split("[.-]").take(2).join('.')
   inputs.property('version', docsVersion)
+  inputs.file(rootProject.file('build.gradle'));
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
   ['gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
