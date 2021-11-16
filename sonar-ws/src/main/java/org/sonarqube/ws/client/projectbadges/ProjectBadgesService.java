@@ -21,9 +21,12 @@ package org.sonarqube.ws.client.projectbadges;
 
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.ProjectBadgeToken.TokenWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.WsResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_badges">Further information about this web service online</a>
@@ -48,6 +51,7 @@ public class ProjectBadgesService extends BaseService {
         .setParam("branch", request.getBranch())
         .setParam("metric", request.getMetric())
         .setParam("project", request.getProject())
+        .setParam("token", request.getToken())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -64,7 +68,35 @@ public class ProjectBadgesService extends BaseService {
       new GetRequest(path("quality_gate"))
         .setParam("branch", request.getBranch())
         .setParam("project", request.getProject())
+        .setParam("token", request.getToken())
         .setMediaType(MediaTypes.JSON)
       ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_badges/token">Further information about this action online (including a response example)</a>
+   * @since 9.2
+   * @return
+   */
+  public TokenWsResponse token(TokenRequest request) {
+    return call(
+      new GetRequest(path("token"))
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON),
+      TokenWsResponse.parser()
+    );
+  }
+
+
+  public WsResponse renewToken(RenewTokenRequest request) {
+    return call(
+      new PostRequest(path("renew_token"))
+        .setParam("project", request.getProject())
+        .setMediaType(MediaTypes.JSON)
+    );
+
   }
 }

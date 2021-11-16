@@ -40,6 +40,7 @@ public class ProjectBadgesSupport {
   private static final String PARAM_PROJECT = "project";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_TOKEN = "token";
+  public static final String PROJECT_HAS_NOT_BEEN_FOUND = "Project has not been found";
 
   private final ComponentFinder componentFinder;
   private final DbClient dbClient;
@@ -83,7 +84,7 @@ public class ProjectBadgesSupport {
 
       return branch;
     } catch (NotFoundException e) {
-      throw new NotFoundException("Project has not been found");
+      throw new NotFoundException(PROJECT_HAS_NOT_BEEN_FOUND);
     }
   }
 
@@ -98,11 +99,11 @@ public class ProjectBadgesSupport {
       try {
         projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       } catch (NotFoundException e) {
-        throw new NotFoundException("Project has not been found");
+        throw new NotFoundException(PROJECT_HAS_NOT_BEEN_FOUND);
       }
       String token = request.param(PARAM_TOKEN);
       if (projectDto.isPrivate() && !isTokenValid(dbSession, projectDto, token)) {
-        throw generateInvalidProjectException();
+        throw new NotFoundException(PROJECT_HAS_NOT_BEEN_FOUND);
       }
     }
   }

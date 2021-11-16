@@ -65,5 +65,6 @@ public class ProjectBadgeTokenDao implements Dao {
   @CheckForNull
   public ProjectBadgeTokenDto selectTokenByProject(DbSession session, ProjectDto projectDto) {
     return mapper(session).selectTokenByProjectUuid(projectDto.getUuid());
+
   }
 }

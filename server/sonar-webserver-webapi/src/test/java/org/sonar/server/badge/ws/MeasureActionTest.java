@@ -329,7 +329,7 @@ public class MeasureActionTest {
       .setParam("metric", metric.getKey())
       .execute();
 
-    checkError(response, "Project is invalid");
+    checkError(response, "Project has not been found");
   }
 
   @Test

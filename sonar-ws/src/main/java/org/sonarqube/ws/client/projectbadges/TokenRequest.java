@@ -23,51 +23,25 @@ import javax.annotation.Generated;
 
 /**
  * This is part of the internal API.
- * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_badges/quality_gate">Further information about this action online (including a response example)</a>
- * @since 7.1
+ * This is a GET request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_badges/token">Further information about this action online (including a response example)</a>
+ * @since 9.2
  */
 @Generated("sonar-ws-generator")
-public class QualityGateRequest {
+public class TokenRequest {
 
-  private String branch;
   private String project;
-  private String token;
-
-  /**
-   * Example value: "feature/my_branch"
-   */
-  public QualityGateRequest setBranch(String branch) {
-    this.branch = branch;
-    return this;
-  }
-
-  public String getBranch() {
-    return branch;
-  }
 
   /**
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
-  public QualityGateRequest setProject(String project) {
+  public TokenRequest setProject(String project) {
     this.project = project;
     return this;
   }
 
   public String getProject() {
     return project;
-  }
-
-  /**
-   * This is aan optional parameter.
-   */
-  public QualityGateRequest setToken(String token) {
-    this.token = token;
-    return this;
-  }
-
-  public String getToken() {
-    return token;
   }
 }
