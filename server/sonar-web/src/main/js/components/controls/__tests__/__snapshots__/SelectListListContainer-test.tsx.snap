@@ -32,7 +32,7 @@ exports[`should render correctly 1`] = `
     <SelectListListElement
       disabled={false}
       element="foo"
-      key="foo"
+      key="1"
       onSelect={[MockFunction]}
       onUnselect={[MockFunction]}
       renderElement={[Function]}
@@ -41,7 +41,7 @@ exports[`should render correctly 1`] = `
     <SelectListListElement
       disabled={false}
       element="bar"
-      key="bar"
+      key="2"
       onSelect={[MockFunction]}
       onUnselect={[MockFunction]}
       renderElement={[Function]}
@@ -50,7 +50,7 @@ exports[`should render correctly 1`] = `
     <SelectListListElement
       disabled={false}
       element="baz"
-      key="baz"
+      key="3"
       onSelect={[MockFunction]}
       onUnselect={[MockFunction]}
       renderElement={[Function]}

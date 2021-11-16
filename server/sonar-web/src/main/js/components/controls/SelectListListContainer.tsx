@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import DeferredSpinner from '../ui/DeferredSpinner';
@@ -115,7 +116,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
             <SelectListListElement
               disabled={this.isDisabled(element)}
               element={element}
-              key={element}
+              key={uniqueId()}
               onSelect={this.props.onSelect}
               onUnselect={this.props.onUnselect}
               renderElement={this.props.renderElement}
