@@ -1,9 +1,9 @@
 {"more": false, "total": 1,
   "results": [
     {
-      "key": "squid:AvoidCycle",
-      "repository": "squid",
-      "name": "Avoid cycle",
+      "key": "java:S1144",
+      "repository": "java",
+      "name": "Unused \"private\" methods should be removed",
       "language": "Java",
       "status": "READY",
       "debtCharacteristic": "REUSABILITY",

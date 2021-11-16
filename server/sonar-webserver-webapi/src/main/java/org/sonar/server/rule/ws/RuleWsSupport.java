@@ -101,12 +101,12 @@ public class RuleWsSupport {
     action
       .createParam(PARAM_RULE_KEY)
       .setDescription("Key of rule to search for")
-      .setExampleValue("squid:S001");
+      .setExampleValue("java:S1144");
 
     action
       .createParam(PARAM_REPOSITORIES)
       .setDescription("Comma-separated list of repositories")
-      .setExampleValue("checkstyle,findbugs");
+      .setExampleValue("java,html");
 
     action
       .createParam(PARAM_SEVERITIES)

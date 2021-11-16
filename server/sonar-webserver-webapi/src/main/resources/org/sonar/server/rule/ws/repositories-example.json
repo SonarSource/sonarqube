@@ -21,7 +21,7 @@
     {"key": "javascript", "name": "SonarQube", "language": "js"},
     {"key": "objc", "name": "SonarQube", "language": "objc"},
     {"key": "php", "name": "SonarQube", "language": "php"},
-    {"key": "squid", "name": "SonarQube", "language": "java"},
+    {"key": "java", "name": "SonarQube", "language": "java"},
     {"key": "stylecop", "name": "StyleCop", "language": "cs"}
   ]
 }

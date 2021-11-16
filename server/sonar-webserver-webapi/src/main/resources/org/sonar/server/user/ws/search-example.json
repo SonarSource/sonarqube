@@ -35,7 +35,7 @@
       "tokensCount": 3,
       "local": false,
       "externalIdentity": "sbrandhof@ldap.com",
-      "externalProvider": "LDAP",
+      "externalProvider": "sonarqube",
       "avatar": "3930ad855bc7fe48db8e9a663174cdd3"
     }
   ]

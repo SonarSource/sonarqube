@@ -71,7 +71,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
     deactivate.createParam(PARAM_RULE)
       .setDescription("Rule key")
       .setRequired(true)
-      .setExampleValue("squid:AvoidCycles");
+      .setExampleValue("java:S1144");
   }
 
   @Override

@@ -60,7 +60,7 @@ public class RepositoriesAction implements RulesWsAction {
 
     action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match repository keys/names against")
-      .setExampleValue("squid");
+      .setExampleValue("java");
     action.createParam(LANGUAGE)
       .setDescription("A language key; if provided, only repositories for the given language will be returned")
       .setExampleValue("java");

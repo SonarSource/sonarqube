@@ -65,7 +65,7 @@ public class DeleteAction implements RulesWsAction {
       .createParam(PARAM_KEY)
       .setDescription("Rule key")
       .setRequired(true)
-      .setExampleValue("squid:XPath_1402065390816");
+      .setExampleValue("java:S1144");
   }
 
   @Override

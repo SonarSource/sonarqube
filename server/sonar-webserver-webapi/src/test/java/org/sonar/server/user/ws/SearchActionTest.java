@@ -353,7 +353,7 @@ public class SearchActionTest {
     UserDto simon = db.users().insertUser(u -> u.setLogin("sbrandhof").setName("Simon").setEmail("s.brandhof@company.tld")
       .setLocal(false)
       .setExternalLogin("sbrandhof@ldap.com")
-      .setExternalIdentityProvider("LDAP")
+      .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(asList("simon.brandhof", "s.brandhof@company.tld")));
     GroupDto sonarUsers = db.users().insertGroup("sonar-users");
     GroupDto sonarAdministrators = db.users().insertGroup("sonar-administrators");
