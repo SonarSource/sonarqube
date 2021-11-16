@@ -19,9 +19,7 @@
  */
 
 /* eslint-disable no-console */
-
-const fse = require('fs-extra');
-const { tokenToString } = require('typescript');
+const fs = require('fs');
 
 const ES_ITEM_CATEGORY = 'Validate-UT-Frontend';
 const ES_ITEM_KIND = 'testcase';
@@ -40,7 +38,7 @@ module.exports = class ElasticSearchReporter {
 
   writeToFile(data) {
     try {
-      fse.writeJsonSync(this.outputFilepath, data);
+      fs.writeFileSync(this.outputFilepath, JSON.stringify(data));
     } catch (e) {
       console.error(e);
     }
