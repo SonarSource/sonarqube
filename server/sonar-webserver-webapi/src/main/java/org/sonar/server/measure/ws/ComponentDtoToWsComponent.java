@@ -37,7 +37,7 @@ class ComponentDtoToWsComponent {
                                                      Map<String, ComponentDto> referenceComponentsByUuid) {
     Component.Builder wsComponent = componentDtoToWsComponent(component);
 
-    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
+    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
       wsComponent.setRefKey(referenceComponent.getDbKey());
     }

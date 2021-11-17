@@ -189,7 +189,7 @@ public class ComponentUpdateDto {
       .setUuid(from.uuid())
       .setBChanged(false)
       .setBKey(from.getDbKey())
-      .setBCopyComponentUuid(from.getCopyResourceUuid())
+      .setBCopyComponentUuid(from.getCopyComponentUuid())
       .setBDescription(from.description())
       .setBEnabled(from.isEnabled())
       .setBUuidPath(from.getUuidPath())

@@ -149,7 +149,7 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
-    assertThat(result.getCopyResourceUuid()).isNull();
+    assertThat(result.getCopyComponentUuid()).isNull();
     assertThat(result.isPrivate()).isTrue();
 
     assertThat(underTest.selectByUuid(dbSession, "UNKNOWN")).isEmpty();
@@ -178,7 +178,7 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isNull();
-    assertThat(result.getCopyResourceUuid()).isEqualTo(project.uuid());
+    assertThat(result.getCopyComponentUuid()).isEqualTo(project.uuid());
     assertThat(result.isPrivate()).isFalse();
   }
 
@@ -1272,7 +1272,7 @@ public class ComponentDaoTest {
     Map<String, Object> row1 = selectBColumnsForUuid("U1");
     assertThat(row1.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
     assertThat(row1.get("bKey")).isEqualTo(dto1.getDbKey());
-    assertThat(row1.get("bCopyComponentUuid")).isEqualTo(dto1.getCopyResourceUuid());
+    assertThat(row1.get("bCopyComponentUuid")).isEqualTo(dto1.getCopyComponentUuid());
     assertThat(row1.get("bDescription")).isEqualTo(dto1.description());
     assertThat(row1.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
     assertThat(row1.get("bUuidPath")).isEqualTo(dto1.getUuidPath());
@@ -1287,7 +1287,7 @@ public class ComponentDaoTest {
     Map<String, Object> row2 = selectBColumnsForUuid("U2");
     assertThat(row2.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
     assertThat(row2.get("bKey")).isEqualTo(dto2.getDbKey());
-    assertThat(row2.get("bCopyComponentUuid")).isEqualTo(dto2.getCopyResourceUuid());
+    assertThat(row2.get("bCopyComponentUuid")).isEqualTo(dto2.getCopyComponentUuid());
     assertThat(row2.get("bDescription")).isEqualTo(dto2.description());
     assertThat(row2.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
     assertThat(row2.get("bUuidPath")).isEqualTo(dto2.getUuidPath());

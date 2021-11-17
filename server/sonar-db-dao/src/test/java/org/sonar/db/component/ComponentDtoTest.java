@@ -51,7 +51,7 @@ public class ComponentDtoTest {
     assertThat(componentDto.language()).isEqualTo("java");
     assertThat(componentDto.description()).isEqualTo("desc");
     assertThat(componentDto.getRootUuid()).isEqualTo("uuid_3");
-    assertThat(componentDto.getCopyResourceUuid()).isEqualTo("uuid_5");
+    assertThat(componentDto.getCopyComponentUuid()).isEqualTo("uuid_5");
     assertThat(componentDto.isPrivate()).isFalse();
   }
 

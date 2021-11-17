@@ -27,28 +27,27 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class ProjectViewAttributes {
-  private final String projectUuid;
+  private final String uuid;
   private final String originalKey;
   @CheckForNull
   private final Long analysisDate;
   private final String branchName;
 
-  public ProjectViewAttributes(String projectUuid, String originalKey, @Nullable Long analysisDate, @Nullable String branchName) {
-    this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
-    this.originalKey = requireNonNull(originalKey, "projectKey can't be null");
+  public ProjectViewAttributes(String uuid, String originalKey, @Nullable Long analysisDate, @Nullable String branchName) {
+    this.uuid = requireNonNull(uuid, "uuid can't be null");
+    this.originalKey = requireNonNull(originalKey, "originalKey can't be null");
     this.analysisDate = analysisDate;
     this.branchName = branchName;
   }
 
-  public String getProjectUuid() {
-    return projectUuid;
+  public String getUuid() {
+    return uuid;
   }
 
   @CheckForNull
   public Long getAnalysisDate() {
     return analysisDate;
   }
-
 
   public String getBranchName() {
     return branchName;
@@ -61,7 +60,7 @@ public class ProjectViewAttributes {
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
-      ", projectUuid='" + projectUuid + '\'' +
+      ", uuid='" + uuid + '\'' +
       ", branchName='" + branchName + '\'' +
       ", analysisDate=" + analysisDate +
       '}';

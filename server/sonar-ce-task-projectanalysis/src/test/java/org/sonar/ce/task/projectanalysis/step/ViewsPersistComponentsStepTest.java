@@ -207,7 +207,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertRowsCountInTableProjects(2);
 
     ComponentDto subView = getComponentFromDb(SUBVIEW_1_KEY);
-    assertThat(subView.getCopyResourceUuid()).isEqualTo("ORIGINAL_UUID");
+    assertThat(subView.getCopyComponentUuid()).isEqualTo("ORIGINAL_UUID");
   }
 
   @Test
@@ -368,7 +368,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     dbTester.commit();
 
     ComponentDto subViewReloaded = getComponentFromDb(SUBVIEW_1_KEY);
-    assertThat(subViewReloaded.getCopyResourceUuid()).isEqualTo("NEW_COPY");
+    assertThat(subViewReloaded.getCopyComponentUuid()).isEqualTo("NEW_COPY");
   }
 
   @Test
@@ -504,7 +504,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(dto.moduleUuidPath()).isEqualTo("." + dto.uuid() + ".");
     assertThat(dto.qualifier()).isEqualTo(Qualifiers.VIEW);
     assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
-    assertThat(dto.getCopyResourceUuid()).isNull();
+    assertThat(dto.getCopyComponentUuid()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(now);
   }
 
@@ -523,7 +523,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(dto.moduleUuidPath()).isEqualTo("." + dto.uuid() + ".");
     assertThat(dto.qualifier()).isEqualTo(Qualifiers.APP);
     assertThat(dto.scope()).isEqualTo(Scopes.PROJECT);
-    assertThat(dto.getCopyResourceUuid()).isNull();
+    assertThat(dto.getCopyComponentUuid()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(now);
   }
 
@@ -542,7 +542,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(sv1Dto.moduleUuidPath()).isEqualTo(viewDto.moduleUuidPath() + sv1Dto.uuid() + ".");
     assertThat(sv1Dto.qualifier()).isEqualTo(Qualifiers.SUBVIEW);
     assertThat(sv1Dto.scope()).isEqualTo(Scopes.PROJECT);
-    assertThat(sv1Dto.getCopyResourceUuid()).isNull();
+    assertThat(sv1Dto.getCopyComponentUuid()).isNull();
     assertThat(sv1Dto.getCreatedAt()).isEqualTo(now);
   }
 
@@ -558,7 +558,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertThat(pv1Dto.moduleUuidPath()).isEqualTo(parentViewDto.moduleUuidPath() + pv1Dto.uuid() + ".");
     assertThat(pv1Dto.qualifier()).isEqualTo(Qualifiers.PROJECT);
     assertThat(pv1Dto.scope()).isEqualTo(Scopes.FILE);
-    assertThat(pv1Dto.getCopyResourceUuid()).isEqualTo(project.uuid());
+    assertThat(pv1Dto.getCopyComponentUuid()).isEqualTo(project.uuid());
     assertThat(pv1Dto.getCreatedAt()).isEqualTo(now);
   }
 

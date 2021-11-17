@@ -371,7 +371,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
     Map<String, ComponentDto> referenceComponentsByUuid) {
     Measures.Component.Builder wsComponent = componentDtoToWsComponent(component);
-    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
+    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
       wsComponent.setRefKey(referenceComponent.getKey());
       String displayQualifier = getDisplayQualifier(component, referenceComponent);
@@ -463,7 +463,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
   private Map<String, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDto> components) {
     List<String> referenceComponentUUids = components.stream()
-      .map(ComponentDto::getCopyResourceUuid)
+      .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toList(components.size()));
     if (referenceComponentUUids.isEmpty()) {

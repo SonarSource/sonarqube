@@ -340,7 +340,7 @@ public class PersistComponentsStep implements ComputationStep {
       res.setQualifier(PROJECT);
       res.setName(projectView.getName());
       res.setLongName(res.name());
-      res.setCopyComponentUuid(projectView.getProjectViewAttributes().getProjectUuid());
+      res.setCopyComponentUuid(projectView.getProjectViewAttributes().getUuid());
 
       setRootAndParentModule(res, path);
 
@@ -395,7 +395,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private static Optional<ComponentUpdateDto> compareForUpdate(ComponentDto existing, ComponentDto target) {
-    boolean hasDifferences = !StringUtils.equals(existing.getCopyResourceUuid(), target.getCopyResourceUuid()) ||
+    boolean hasDifferences = !StringUtils.equals(existing.getCopyComponentUuid(), target.getCopyComponentUuid()) ||
       !StringUtils.equals(existing.description(), target.description()) ||
       !StringUtils.equals(existing.getDbKey(), target.getDbKey()) ||
       !existing.isEnabled() ||

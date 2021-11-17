@@ -231,11 +231,11 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private Optional<ComponentDto> getReferenceComponent(DbSession dbSession, ComponentDto component) {
-    if (component.getCopyResourceUuid() == null) {
+    if (component.getCopyComponentUuid() == null) {
       return Optional.empty();
     }
 
-    return dbClient.componentDao().selectByUuid(dbSession, component.getCopyResourceUuid());
+    return dbClient.componentDao().selectByUuid(dbSession, component.getCopyComponentUuid());
   }
 
   private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,

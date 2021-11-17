@@ -352,7 +352,7 @@ public class ComponentDto {
   }
 
   @CheckForNull
-  public String getCopyResourceUuid() {
+  public String getCopyComponentUuid() {
     return copyComponentUuid;
   }
 

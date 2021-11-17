@@ -198,7 +198,7 @@ public class TreeAction implements ComponentsWsAction {
 
   private Map<String, ComponentDto> searchReferenceComponentsByUuid(DbSession dbSession, List<ComponentDto> components) {
     List<String> referenceComponentIds = components.stream()
-      .map(ComponentDto::getCopyResourceUuid)
+      .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
       .collect(toList());
     if (referenceComponentIds.isEmpty()) {
@@ -244,7 +244,7 @@ public class TreeAction implements ComponentsWsAction {
       wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), null);
     }
 
-    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
+    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyComponentUuid());
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
       wsComponent.setRefKey(referenceComponent.getKey());
