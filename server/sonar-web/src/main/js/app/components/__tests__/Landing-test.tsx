@@ -17,20 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import ReadMore from './ReadMore';
+import { mockCurrentUser, mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
+import { Landing } from '../Landing';
 
-const link = '/documentation/user-guide/issues/';
+it.each([
+  [mockCurrentUser(), '/projects'],
+  [mockLoggedInUser(), '/projects'],
+  [
+    mockLoggedInUser({ homepage: { type: 'ISSUES' } }),
+    expect.objectContaining({ pathname: '/issues' })
+  ]
+])('should render correctly', (currentUser: T.CurrentUser, homepageUrl: string) => {
+  const router = mockRouter();
+  shallowRender({ router, currentUser });
+  expect(router.replace).toHaveBeenCalledWith(homepageUrl);
+});
 
-export default function AboutCleanCode() {
-  return (
-    <div className="boxed-group">
-      <h2>{translate('about_page.clean_code')}</h2>
-      <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
-        <ReadMore link={link} />
-      </div>
-    </div>
+function shallowRender(props: Partial<Landing['props']> = {}) {
+  return shallow<Landing>(
+    <Landing currentUser={mockCurrentUser()} router={mockRouter()} {...props} />
   );
 }

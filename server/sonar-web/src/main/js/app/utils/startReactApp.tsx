@@ -26,7 +26,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
-import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
 import applicationConsoleRoutes from '../../apps/application-console/routes';
 import applicationSettingsRoutes from '../../apps/application-settings/routes';
@@ -295,7 +294,6 @@ export default function startReactApp(
                 <IndexRoute component={lazyLoadComponent(() => import('../components/Landing'))} />
 
                 <Route component={GlobalContainer}>
-                  <RouteWithChildRoutes path="about" childRoutes={aboutRoutes} />
                   <RouteWithChildRoutes path="account" childRoutes={accountRoutes} />
                   <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
                   <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />

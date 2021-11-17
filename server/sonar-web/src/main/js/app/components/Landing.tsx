@@ -17,34 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, WithRouterProps } from 'react-router';
+import { withCurrentUser } from '../../components/hoc/withCurrentUser';
+import { Router, withRouter } from '../../components/hoc/withRouter';
 import { getHomePageUrl } from '../../helpers/urls';
 import { isLoggedIn } from '../../helpers/users';
-import { getCurrentUser, Store } from '../../store/rootReducer';
 
-interface StateProps {
-  currentUser: T.CurrentUser | undefined;
+export interface LandingProps {
+  currentUser: T.CurrentUser;
+  router: Router;
 }
 
-interface OwnProps {
-  location: Location;
-}
-
-class Landing extends React.PureComponent<StateProps & OwnProps & WithRouterProps> {
+export class Landing extends React.PureComponent<LandingProps> {
   componentDidMount() {
     const { currentUser } = this.props;
-    if (currentUser && isLoggedIn(currentUser)) {
-      if (currentUser.homepage) {
-        const homepage = getHomePageUrl(currentUser.homepage);
-        this.props.router.replace(homepage);
-      } else {
-        this.props.router.replace('/projects');
-      }
+    if (isLoggedIn(currentUser) && currentUser.homepage) {
+      const homepage = getHomePageUrl(currentUser.homepage);
+      this.props.router.replace(homepage);
     } else {
-      this.props.router.replace('/about');
+      this.props.router.replace('/projects');
     }
   }
 
@@ -53,8 +44,4 @@ class Landing extends React.PureComponent<StateProps & OwnProps & WithRouterProp
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default withRouter(connect(mapStateToProps)(Landing));
+export default withRouter(withCurrentUser(Landing));

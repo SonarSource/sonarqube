@@ -35,14 +35,9 @@ interface Props {
 export class GlobalNavUser extends React.PureComponent<Props> {
   handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    const shouldReturnToCurrentPage = window.location.pathname !== `${getBaseUrl()}/about`;
-    if (shouldReturnToCurrentPage) {
-      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location.href =
-        getBaseUrl() + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
-    } else {
-      window.location.href = `${getBaseUrl()}/sessions/new`;
-    }
+    const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href =
+      getBaseUrl() + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
   };
 
   handleLogout = (event: React.SyntheticEvent<HTMLAnchorElement>) => {

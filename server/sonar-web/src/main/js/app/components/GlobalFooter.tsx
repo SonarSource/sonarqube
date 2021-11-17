@@ -95,11 +95,6 @@ export default function GlobalFooter({
             <Link to="/web_api">{translate('footer.web_api')}</Link>
           </li>
         )}
-        {!hideLoggedInInfo && (
-          <li className="page-footer-menu-item">
-            <Link to="/about">{translate('footer.about')}</Link>
-          </li>
-        )}
       </ul>
     </div>
   );
