@@ -23,12 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.net.NoRouteToHostException;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -43,7 +41,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
@@ -57,7 +54,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -69,8 +66,6 @@ public class DefaultHttpDownloaderTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
@@ -133,23 +128,21 @@ public class DefaultHttpDownloaderTest {
     // non routable address
     String url = "http://10.255.255.1";
 
-    thrown.expect(SonarException.class);
-    thrown.expect(hasCause(new BaseMatcher<Exception>() {
-      @Override
-      public boolean matches(Object ex) {
-        return
-          // Java 8
-          ex instanceof NoRouteToHostException || ex instanceof SocketException
-            // Java 7 or before
-            || ex instanceof SocketTimeoutException;
-      }
+    assertThatThrownBy(() -> {
+      DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings().asConfig(), 10, 50000);
+      downloader.openStream(new URI(url));
+    })
+      .isInstanceOf(SonarException.class)
+      .isEqualToComparingFieldByField(new BaseMatcher<Exception>() {
+        @Override
+        public boolean matches(Object ex) {
+          return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
+        }
 
-      @Override
-      public void describeTo(Description arg0) {
-      }
-    }));
-    DefaultHttpDownloader downloader = new DefaultHttpDownloader(new MapSettings().asConfig(), 10, 50000);
-    downloader.openStream(new URI(url));
+        @Override
+        public void describeTo(Description arg0) {
+        }
+      });
   }
 
   @Test
@@ -178,17 +171,17 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void readStringWithTimeout() throws URISyntaxException {
-    thrown.expect(new BaseMatcher<Exception>() {
-      @Override
-      public boolean matches(Object ex) {
-        return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
-      }
+    assertThatThrownBy(() -> new DefaultHttpDownloader(new MapSettings().asConfig(), 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8))
+      .isEqualToComparingFieldByField(new BaseMatcher<Exception>() {
+        @Override
+        public boolean matches(Object ex) {
+          return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
+        }
 
-      @Override
-      public void describeTo(Description arg0) {
-      }
-    });
-    new DefaultHttpDownloader(new MapSettings().asConfig(), 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
+        @Override
+        public void describeTo(Description arg0) {
+        }
+      });
   }
 
   @Test

@@ -22,21 +22,18 @@ package org.sonar.server.es;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.IndexType.IndexRelationType;
 import org.sonar.server.es.IndexType.SimpleIndexMainType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class IndexTypeTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void parseMainType_from_main_type_without_relations() {
@@ -74,10 +71,9 @@ public class IndexTypeTest {
 
   @Test
   public void parse_throws_IAE_if_invalid_format() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported IndexType value: foo");
-
-    IndexType.parseMainType("foo");
+    assertThatThrownBy(() -> IndexType.parseMainType("foo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported IndexType value: foo");
   }
 
   @Test
@@ -85,10 +81,9 @@ public class IndexTypeTest {
   public void main_fails_with_IAE_if_index_name_is_null_or_empty(String nullOrEmpty) {
     Index index = Index.simple("foo");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("type name can't be null nor empty");
-
-    IndexType.main(index, nullOrEmpty);
+    assertThatThrownBy(() -> IndexType.main(index, nullOrEmpty))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("type name can't be null nor empty");
   }
 
   @Test
@@ -97,10 +92,9 @@ public class IndexTypeTest {
     Index index = Index.withRelations("foo");
     IndexMainType mainType = IndexType.main(index, "foobar");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("type name can't be null nor empty");
-
-    IndexType.relation(mainType, nullOrEmpty);
+    assertThatThrownBy(() -> IndexType.relation(mainType, nullOrEmpty))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("type name can't be null nor empty");
   }
 
   @DataProvider

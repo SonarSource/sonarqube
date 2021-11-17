@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
@@ -42,8 +41,6 @@ public class OneToManyResilientIndexingListenerTest {
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void ES_QUEUE_rows_are_deleted_when_all_docs_are_successfully_indexed() {

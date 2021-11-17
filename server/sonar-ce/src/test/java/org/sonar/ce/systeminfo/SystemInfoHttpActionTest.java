@@ -22,9 +22,7 @@ package org.sonar.ce.systeminfo;
 import fi.iki.elonen.NanoHTTPD;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.httpd.HttpAction;
 import org.sonar.process.systeminfo.JvmStateSection;
 import org.sonar.process.systeminfo.SystemInfoSection;
@@ -40,10 +38,6 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.ce.httpd.CeHttpUtils.createHttpSession;
 
 public class SystemInfoHttpActionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private SystemInfoSection stateProvider1 = new JvmStateSection("state1");
   private SystemInfoSection stateProvider2 = new JvmStateSection("state2");
   private SystemInfoHttpAction underTest;

@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -73,8 +72,6 @@ public class AddCommentActionTest {
 
   private static final long NOW = 10_000_000_000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -148,24 +145,24 @@ public class AddCommentActionTest {
   public void fail_when_missing_issue_key() {
     userSession.logIn("john");
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(null, "please fix it");
+    assertThatThrownBy(() -> call(null, "please fix it"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_issue_does_not_exist() {
     userSession.logIn("john");
 
-    expectedException.expect(NotFoundException.class);
-    call("ABCD", "please fix it");
+    assertThatThrownBy(() -> call("ABCD", "please fix it"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_when_missing_comment_text() {
     userSession.logIn("john");
 
-    expectedException.expect(IllegalArgumentException.class);
-    call("ABCD", null);
+    assertThatThrownBy(() -> call("ABCD", null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -173,14 +170,14 @@ public class AddCommentActionTest {
     IssueDto issueDto = issueDbTester.insertIssue();
     loginWithBrowsePermission(issueDto, USER);
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(issueDto.getKey(), "");
+    assertThatThrownBy(() -> call(issueDto.getKey(), ""))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_not_authenticated() {
-    expectedException.expect(UnauthorizedException.class);
-    call("ABCD", "please fix it");
+    assertThatThrownBy(() -> call("ABCD", "please fix it"))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -188,8 +185,8 @@ public class AddCommentActionTest {
     IssueDto issueDto = issueDbTester.insertIssue();
     loginWithBrowsePermission(issueDto, CODEVIEWER);
 
-    expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), "please fix it");
+    assertThatThrownBy(() -> call(issueDto.getKey(), "please fix it"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

@@ -24,11 +24,11 @@ import java.io.IOException;
 import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -38,17 +38,14 @@ public class EsInstallationTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_fails_with_IAE_if_sq_home_property_is_not_defined() {
     Props props = new Props(new Properties());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.path.home is not set");
-
-    new EsInstallation(props);
+    assertThatThrownBy(() ->  new EsInstallation(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property sonar.path.home is not set");
   }
 
   @Test
@@ -57,10 +54,9 @@ public class EsInstallationTest {
     props.set(PATH_DATA.getKey(), temp.newFolder().getAbsolutePath());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.path.temp is not set");
-
-    new EsInstallation(props);
+    assertThatThrownBy(() -> new EsInstallation(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property sonar.path.temp is not set");
   }
 
   @Test
@@ -68,10 +64,9 @@ public class EsInstallationTest {
     Props props = new Props(new Properties());
     props.set(PATH_HOME.getKey(), temp.newFolder().getAbsolutePath());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing property: sonar.path.data");
-
-    new EsInstallation(props);
+    assertThatThrownBy(() -> new EsInstallation(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing property: sonar.path.data");
   }
 
   @Test

@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -61,6 +60,7 @@ import org.sonar.server.project.Project;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -79,8 +79,6 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
@@ -229,20 +227,18 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     setupRoot(project);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Attempting to resolve period while no analysis exist");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Attempting to resolve period while no analysis exist");
   }
 
   @Test
   public void throw_ISE_if_no_analysis_found_with_default() {
     setupRoot(project);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Attempting to resolve period while no analysis exist");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Attempting to resolve period while no analysis exist");
   }
 
   @Test
@@ -268,10 +264,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setProjectPeriod(project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "nonexistent");
     setupRoot(project);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis 'nonexistent' of project '" + project.uuid() + "' defined as the baseline does not exist");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis 'nonexistent' of project '" + project.uuid() + "' defined as the baseline does not exist");
   }
 
   @Test
@@ -281,11 +276,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setBranchPeriod(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, otherProjectAnalysis.getUuid());
     setupRoot(project);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis '" + otherProjectAnalysis.getUuid() + "' of project '" + project.uuid()
-      + "' defined as the baseline does not exist");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis '" + otherProjectAnalysis.getUuid() + "' of project '" + project.uuid() + "' defined as the baseline does not exist");
   }
 
   @Test
@@ -295,11 +288,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setBranchPeriod(project.uuid(), project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, otherBranchAnalysis.getUuid());
     setupRoot(project);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis '" + otherBranchAnalysis.getUuid() + "' of project '" + project.uuid()
-      + "' defined as the baseline does not exist");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis '" + otherBranchAnalysis.getUuid() + "' of project '" + project.uuid() + "' defined as the baseline does not exist");
   }
 
   @Test

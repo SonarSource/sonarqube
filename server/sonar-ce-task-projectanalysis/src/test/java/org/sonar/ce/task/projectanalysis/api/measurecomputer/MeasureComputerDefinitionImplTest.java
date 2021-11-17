@@ -19,17 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.api.measurecomputer;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.MeasureComputer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MeasureComputerDefinitionImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void build_measure_computer_definition() {
@@ -78,62 +75,68 @@ public class MeasureComputerDefinitionImplTest {
 
   @Test
   public void fail_with_NPE_when_null_input_metrics() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Input metrics cannot be null");
-
-    new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics((String[]) null)
-      .setOutputMetrics("comment_density_1", "comment_density_2");
+    assertThatThrownBy(() -> {
+      new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics((String[]) null)
+        .setOutputMetrics("comment_density_1", "comment_density_2");
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Input metrics cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_one_input_metric_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Null metric is not allowed");
-
-    new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics("ncloc", null)
-      .setOutputMetrics("comment_density_1", "comment_density_2");
+    assertThatThrownBy(() -> {
+      new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics("ncloc", null)
+        .setOutputMetrics("comment_density_1", "comment_density_2");
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Null metric is not allowed");
   }
 
   @Test
   public void fail_with_NPE_when_no_output_metrics() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Output metrics cannot be null");
-
-    new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics("ncloc", "comment")
-      .build();
+    assertThatThrownBy(() -> {
+      new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics("ncloc", "comment")
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Output metrics cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_null_output_metrics() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Output metrics cannot be null");
-
-    new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics((String[]) null);
+    assertThatThrownBy(() -> {
+      new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics("ncloc", "comment")
+        .setOutputMetrics((String[]) null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Output metrics cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_one_output_metric_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Null metric is not allowed");
-
-    new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics("comment_density_1", null);
+    assertThatThrownBy(() -> {
+      new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics("ncloc", "comment")
+        .setOutputMetrics("comment_density_1", null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Null metric is not allowed");
   }
 
   @Test
   public void fail_with_IAE_with_empty_output_metrics() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one output metric must be defined");
-
-    new MeasureComputerDefinitionImpl.BuilderImpl()
-      .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics();
+    assertThatThrownBy(() -> {
+      new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics("ncloc", "comment")
+        .setOutputMetrics();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one output metric must be defined");
   }
 
   @Test

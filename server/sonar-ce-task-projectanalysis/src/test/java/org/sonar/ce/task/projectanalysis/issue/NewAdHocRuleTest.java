@@ -20,21 +20,18 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NewAdHocRuleTest {
-  @org.junit.Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void fail_if_engine_id_is_not_set() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("'engine id' not expected to be null for an ad hoc rule");
-
-    new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().build());
+    assertThatThrownBy(() -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().build()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'engine id' not expected to be null for an ad hoc rule");
   }
 
   @Test

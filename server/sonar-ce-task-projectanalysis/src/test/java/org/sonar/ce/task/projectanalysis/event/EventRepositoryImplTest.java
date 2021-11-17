@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 public class EventRepositoryImplTest {
@@ -50,14 +51,16 @@ public class EventRepositoryImplTest {
     assertThat(underTest.getEvents(COMPONENT_2)).extracting("name").containsExactly(EVENT_2.getName());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_component_arg_is_null() {
-    underTest.add(null, EVENT_1);
+    assertThatThrownBy(() -> underTest.add(null, EVENT_1))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_even_arg_is_null() {
-    underTest.add(COMPONENT_1, null);
+    assertThatThrownBy(() -> underTest.add(COMPONENT_1, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

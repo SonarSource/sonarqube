@@ -38,6 +38,7 @@ import org.sonar.server.permission.PermissionServiceImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -47,7 +48,6 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -133,13 +133,14 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   public void fail_when_project_uuid_is_unknown() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -177,26 +178,28 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   private void failIfComponentIsNotAProjectOrView(ComponentDto file) {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, file.uuid())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, file.uuid())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
   public void fail_when_project_permission_without_project() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -205,48 +208,52 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     db.components().insertComponent(newFileDto(project, null, "file-uuid"));
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, "file-uuid")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, "file-uuid")
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_when_get_request() {
     loginAsAdmin();
 
-    expectedException.expect(ServerException.class);
-
-    newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_USER_LOGIN, "george.orwell")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setMethod("GET")
+        .setParam(PARAM_USER_LOGIN, "george.orwell")
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(ServerException.class);
   }
 
   @Test
   public void fail_when_user_login_is_missing() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_permission_is_missing() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -254,27 +261,29 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     db.components().insertPrivateProject();
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key can be provided, not both.");
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .setParam(PARAM_PROJECT_KEY, "project-key")
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, "project-uuid")
+        .setParam(PARAM_PROJECT_KEY, "project-key")
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Project id or project key can be provided, not both.");
   }
 
   @Test
   public void adding_global_permission_fails_if_not_system_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -282,13 +291,14 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   /**
@@ -343,14 +353,15 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
-
-    newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -359,13 +370,14 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
-
-    newRequest()
-      .setParam(PARAM_PROJECT_ID, branch.uuid())
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PROJECT_ID, branch.uuid())
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project id '%s' not found", branch.uuid()));
   }
 }

@@ -19,41 +19,40 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MetricImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private static final String SOME_UUID = "uuid";
   private static final String SOME_KEY = "key";
   private static final String SOME_NAME = "name";
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_key_arg_is_null() {
-    new MetricImpl(SOME_UUID, null, SOME_NAME, Metric.MetricType.BOOL);
+    assertThatThrownBy(() -> new MetricImpl(SOME_UUID, null, SOME_NAME, Metric.MetricType.BOOL))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_name_arg_is_null() {
-    new MetricImpl(SOME_UUID, SOME_KEY, null, Metric.MetricType.BOOL);
+    assertThatThrownBy(() -> new MetricImpl(SOME_UUID, SOME_KEY, null, Metric.MetricType.BOOL))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_valueType_arg_is_null() {
-    new MetricImpl(SOME_UUID, SOME_KEY, SOME_NAME, null);
+    assertThatThrownBy(() -> new MetricImpl(SOME_UUID, SOME_KEY, SOME_NAME, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void constructor_throws_IAE_if_bestValueOptimized_is_true_but_bestValue_is_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A BestValue must be specified if Metric is bestValueOptimized");
-
-    new MetricImpl(SOME_UUID, SOME_KEY, SOME_NAME, Metric.MetricType.INT, 1, null, true, false);
+    assertThatThrownBy(() -> new MetricImpl(SOME_UUID, SOME_KEY, SOME_NAME, Metric.MetricType.INT, 1, null, true, false))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A BestValue must be specified if Metric is bestValueOptimized");
   }
 
   @Test

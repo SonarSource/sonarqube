@@ -31,7 +31,7 @@ import org.sonar.core.platform.ComponentContainer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor.AuditPurgeComputationSteps;
 import static org.sonar.db.ce.CeTaskTypes.AUDIT_PURGE;
-
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AuditPurgeTaskProcessorTest {
 
   private ComponentContainer ceEngineContainer = Mockito.mock(ComponentContainer.class);
@@ -44,9 +44,10 @@ public class AuditPurgeTaskProcessorTest {
     Assertions.assertThat(underTest.getHandledCeTaskTypes()).containsExactly(AUDIT_PURGE);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void processThrowsNPEIfCeTaskIsNull() {
-    underTest.process(null);
+    assertThatThrownBy(() -> underTest.process(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

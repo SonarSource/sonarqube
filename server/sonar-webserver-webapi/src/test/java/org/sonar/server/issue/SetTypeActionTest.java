@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -37,6 +36,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -50,8 +50,6 @@ public class SetTypeActionTest {
   private static final Date NOW = new Date(10_000_000_000L);
   private static final String USER_LOGIN = "john";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -83,18 +81,16 @@ public class SetTypeActionTest {
 
   @Test
   public void verify_fail_if_parameter_not_found() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing parameter : 'type'");
-
-    action.verify(ImmutableMap.of("unknwown", VULNERABILITY.name()), Lists.newArrayList(), userSession);
+    assertThatThrownBy(() -> action.verify(ImmutableMap.of("unknwown", VULNERABILITY.name()), Lists.newArrayList(), userSession))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing parameter : 'type'");
   }
 
   @Test
   public void verify_fail_if_type_is_invalid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown type : unknown");
-
-    action.verify(ImmutableMap.of("type", "unknown"), Lists.newArrayList(), userSession);
+    assertThatThrownBy(() -> action.verify(ImmutableMap.of("type", "unknown"), Lists.newArrayList(), userSession))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unknown type : unknown");
   }
 
   @Test

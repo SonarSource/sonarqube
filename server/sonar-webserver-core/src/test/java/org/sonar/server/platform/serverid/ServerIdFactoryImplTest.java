@@ -24,9 +24,8 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.junit.Rule;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
@@ -36,6 +35,7 @@ import org.sonar.core.util.Uuids;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.ServerId.DATABASE_ID_LENGTH;
@@ -48,8 +48,6 @@ import static org.sonar.server.platform.serverid.ServerIdFactoryImpl.crc32Hex;
 public class ServerIdFactoryImplTest {
   private static final ServerId A_SERVERID = ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(UUID_DATASET_ID_LENGTH));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private Configuration config = settings.asConfig();
@@ -59,9 +57,7 @@ public class ServerIdFactoryImplTest {
 
   @Test
   public void create_from_scratch_fails_with_ISE_if_JDBC_property_not_set() {
-    expectMissingJdbcUrlISE();
-
-    underTest.create();
+    expectMissingJdbcUrlISE(() ->  underTest.create());
   }
 
   @Test
@@ -81,9 +77,7 @@ public class ServerIdFactoryImplTest {
 
   @Test
   public void create_from_ServerId_fails_with_ISE_if_JDBC_property_not_set() {
-    expectMissingJdbcUrlISE();
-
-    underTest.create(A_SERVERID);
+    expectMissingJdbcUrlISE(() -> underTest.create(A_SERVERID));
   }
 
   @Test
@@ -112,8 +106,9 @@ public class ServerIdFactoryImplTest {
     };
   }
 
-  private void expectMissingJdbcUrlISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Missing JDBC URL");
+  private void expectMissingJdbcUrlISE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Missing JDBC URL");
   }
 }

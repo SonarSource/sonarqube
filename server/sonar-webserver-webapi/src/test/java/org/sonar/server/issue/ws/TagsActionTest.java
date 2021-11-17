@@ -23,7 +23,6 @@ import com.google.protobuf.ProtocolStringList;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -50,6 +49,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -68,8 +68,6 @@ public class TagsActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
@@ -343,12 +341,13 @@ public class TagsActionTest {
     indexIssues();
     permissionIndexer.allowOnlyAnyone(project, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Component '%s' must be a project", file.getKey()));
-
-    ws.newRequest()
-      .setParam("project", file.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", file.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Component '%s' must be a project", file.getKey()));
   }
 
   @Test

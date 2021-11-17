@@ -21,9 +21,7 @@ package org.sonar.api.batch.sensor.error.internal;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
@@ -32,15 +30,13 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 public class DefaultAnalysisErrorTest {
   private InputFile inputFile;
   private SensorStorage storage;
   private TextPointer textPointer;
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -72,9 +68,10 @@ public class DefaultAnalysisErrorTest {
 
   @Test
   public void test_no_storage() {
-    exception.expect(NullPointerException.class);
     DefaultAnalysisError analysisError = new DefaultAnalysisError();
-    analysisError.onFile(inputFile).save();
+
+    assertThatThrownBy(() -> analysisError.onFile(inputFile).save())
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

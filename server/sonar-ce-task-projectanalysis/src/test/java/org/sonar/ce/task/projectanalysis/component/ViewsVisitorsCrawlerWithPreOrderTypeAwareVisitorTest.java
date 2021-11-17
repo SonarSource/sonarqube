@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.InOrder;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -48,10 +49,12 @@ public class ViewsVisitorsCrawlerWithPreOrderTypeAwareVisitorTest {
   });
   private final InOrder inOrder = inOrder(spyViewVisitor, spySubViewVisitor, spyProjectViewVisitor);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void visit_null_Component_throws_NPE() {
     VisitorsCrawler underTest = newVisitorsCrawler(spyProjectViewVisitor);
-    underTest.visit(null);
+
+    assertThatThrownBy(() -> underTest.visit(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

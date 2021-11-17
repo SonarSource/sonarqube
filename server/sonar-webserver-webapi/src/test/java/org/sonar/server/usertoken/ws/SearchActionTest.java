@@ -22,7 +22,6 @@ package org.sonar.server.usertoken.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -39,6 +38,7 @@ import org.sonarqube.ws.UserTokens.SearchWsResponse;
 import org.sonarqube.ws.UserTokens.SearchWsResponse.UserToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
@@ -46,8 +46,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -117,10 +115,11 @@ public class SearchActionTest {
   public void fail_when_login_does_not_exist() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'unknown-login' doesn't exist");
-
-    newRequest("unknown-login");
+    assertThatThrownBy(() -> {
+      newRequest("unknown-login");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login 'unknown-login' doesn't exist");
   }
 
   @Test
@@ -128,9 +127,10 @@ public class SearchActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(user.getLogin());
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin());
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -138,9 +138,10 @@ public class SearchActionTest {
     UserDto user = db.users().insertUser();
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(user.getLogin());
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin());
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private SearchWsResponse newRequest(@Nullable String login) {

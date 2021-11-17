@@ -23,9 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
@@ -33,12 +31,11 @@ import org.sonar.api.utils.System2;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ChildSettingsTest {
   private static final Random RANDOM = new Random();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings parent = new MapSettings();
   private ChildSettings underTest = new ChildSettings(parent);
@@ -66,18 +63,16 @@ public class ChildSettingsTest {
 
   @Test
   public void set_will_throw_NPE_if_key_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can't be null");
-
-    underTest.set(null, "");
+    assertThatThrownBy(() -> underTest.set(null, ""))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key can't be null");
   }
 
   @Test
   public void set_will_throw_NPE_if_value_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value can't be null");
-
-    underTest.set(randomAlphanumeric(10), null);
+    assertThatThrownBy(() -> underTest.set(randomAlphanumeric(10), null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("value can't be null");
   }
 
   @Test

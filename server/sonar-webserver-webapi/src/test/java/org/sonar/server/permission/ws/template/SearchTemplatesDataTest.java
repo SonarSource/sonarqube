@@ -20,17 +20,14 @@
 package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.HashBasedTable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
 public class SearchTemplatesDataTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   SearchTemplatesData.Builder underTest = SearchTemplatesData.builder()
     .defaultTemplates(new DefaultTemplatesResolverImpl.ResolvedDefaultTemplates("template_uuid", null, null))
@@ -41,41 +38,51 @@ public class SearchTemplatesDataTest {
 
   @Test
   public void fail_if_templates_is_null() {
-    expectedException.expect(IllegalStateException.class);
-    underTest.templates(null);
+    assertThatThrownBy(() ->  {
+      underTest.templates(null);
 
-    underTest.build();
+      underTest.build();
+    })
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_default_templates_are_null() {
-    expectedException.expect(IllegalStateException.class);
-    underTest.defaultTemplates(null);
+    assertThatThrownBy(() ->  {
+      underTest.defaultTemplates(null);
 
-    underTest.build();
+      underTest.build();
+    })
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_user_count_is_null() {
-    expectedException.expect(IllegalStateException.class);
-    underTest.userCountByTemplateUuidAndPermission(null);
+    assertThatThrownBy(() ->  {
+      underTest.userCountByTemplateUuidAndPermission(null);
 
-    underTest.build();
+      underTest.build();
+    })
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_group_count_is_null() {
-    expectedException.expect(IllegalStateException.class);
-    underTest.groupCountByTemplateUuidAndPermission(null);
+    assertThatThrownBy(() ->  {
+      underTest.groupCountByTemplateUuidAndPermission(null);
 
-    underTest.build();
+      underTest.build();
+    })
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_with_project_creators_is_null() {
-    expectedException.expect(IllegalStateException.class);
-    underTest.withProjectCreatorByTemplateUuidAndPermission(null);
+    assertThatThrownBy(() ->  {
+      underTest.withProjectCreatorByTemplateUuidAndPermission(null);
 
-    underTest.build();
+      underTest.build();
+    })
+      .isInstanceOf(IllegalStateException.class);
   }
 }

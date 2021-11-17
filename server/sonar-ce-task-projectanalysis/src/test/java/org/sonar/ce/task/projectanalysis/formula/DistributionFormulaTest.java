@@ -20,15 +20,14 @@
 package org.sonar.ce.task.projectanalysis.formula;
 
 import java.util.Optional;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
@@ -37,8 +36,6 @@ public class DistributionFormulaTest {
 
   private static final DistributionFormula BASIC_DISTRIBUTION_FORMULA = new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY);
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
@@ -53,10 +50,9 @@ public class DistributionFormulaTest {
 
   @Test
   public void fail_with_NPE_when_creating_counter_with_null_metric() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Metric key cannot be null");
-
-    new DistributionFormula(null);
+    assertThatThrownBy(() -> new DistributionFormula(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Metric key cannot be null");
   }
 
   @Test

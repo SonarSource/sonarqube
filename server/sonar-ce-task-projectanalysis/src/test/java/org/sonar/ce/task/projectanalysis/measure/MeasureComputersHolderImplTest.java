@@ -21,18 +21,15 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class MeasureComputersHolderImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private MeasureComputersHolderImpl underTest = new MeasureComputersHolderImpl();
 
@@ -46,10 +43,9 @@ public class MeasureComputersHolderImplTest {
 
   @Test
   public void get_measure_computers_throws_ISE_if_not_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Measure computers have not been initialized yet");
-
-    underTest.getMeasureComputers();
+    assertThatThrownBy(() -> underTest.getMeasureComputers())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Measure computers have not been initialized yet");
   }
 
   @Test
@@ -61,12 +57,13 @@ public class MeasureComputersHolderImplTest {
 
   @Test
   public void set_measure_computers_throws_ISE_if_already_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Measure computers have already been initialized");
-
-    MeasureComputerWrapper measureComputer = mock(MeasureComputerWrapper.class);
-    underTest.setMeasureComputers(Collections.singletonList(measureComputer));
-    underTest.setMeasureComputers(Collections.singletonList(measureComputer));
+    assertThatThrownBy(() -> {
+      MeasureComputerWrapper measureComputer = mock(MeasureComputerWrapper.class);
+      underTest.setMeasureComputers(Collections.singletonList(measureComputer));
+      underTest.setMeasureComputers(Collections.singletonList(measureComputer));
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Measure computers have already been initialized");
   }
 
 }

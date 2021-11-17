@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -33,10 +32,9 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.measures.CoreMetrics;
 
-public class DefaultMeasureTest {
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+public class DefaultMeasureTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -77,14 +75,14 @@ public class DefaultMeasureTest {
   }
 
   @Test
-  public void not_allowed_to_call_on_twice() throws IOException {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("on() already called");
-    new DefaultMeasure<Integer>()
+  public void not_allowed_to_call_on_twice() {
+    assertThatThrownBy(() -> new DefaultMeasure<Integer>()
       .on(new DefaultInputProject(ProjectDefinition.create().setKey("foo").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())))
       .on(new TestInputFileBuilder("foo", "src/Foo.php").build())
       .withValue(3)
-      .save();
+      .save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("on() already called");
   }
 
 }

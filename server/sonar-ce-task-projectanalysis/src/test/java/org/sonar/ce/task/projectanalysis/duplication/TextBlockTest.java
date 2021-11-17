@@ -24,30 +24,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TextBlockTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_IAE_if_start_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("First line index must be >= 1");
-
-    new TextBlock(0, 2);
+    assertThatThrownBy(() -> new TextBlock(0, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("First line index must be >= 1");
   }
 
   @Test
   public void constructor_throws_IAE_if_end_is_less_than_start() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Last line index must be >= first line index");
-
-    new TextBlock(1, 0);
+    assertThatThrownBy(() -> new TextBlock(1, 0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Last line index must be >= first line index");
   }
 
   @Test

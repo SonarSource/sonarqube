@@ -28,20 +28,19 @@ import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.server.authentication.JwtSerializer.JwtSession;
-import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 import static org.apache.commons.lang.time.DateUtils.addMinutes;
 import static org.apache.commons.lang.time.DateUtils.addYears;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class JwtSerializerTest {
 
@@ -49,8 +48,6 @@ public class JwtSerializerTest {
   private static final String USER_LOGIN = "john";
   private static final String SESSION_TOKEN_UUID = "ABCD";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private System2 system2 = System2.INSTANCE;
@@ -181,9 +178,11 @@ public class JwtSerializerTest {
       .signWith(decodeSecretKey(A_SECRET_KEY), HS256)
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("Token id hasn't been found");
-    underTest.decode(token);
+    assertThatThrownBy(() -> underTest.decode(token))
+      .hasMessage("Token id hasn't been found")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.jwt())
+      .hasFieldOrPropertyWithValue("login", USER_LOGIN);
   }
 
   @Test
@@ -199,9 +198,10 @@ public class JwtSerializerTest {
       .signWith(HS256, decodeSecretKey(A_SECRET_KEY))
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withoutLogin().andNoPublicMessage());
-    expectedException.expectMessage("Token subject hasn't been found");
-    underTest.decode(token);
+    assertThatThrownBy(() -> underTest.decode(token))
+      .hasMessage("Token subject hasn't been found")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.jwt());
   }
 
   @Test
@@ -217,9 +217,11 @@ public class JwtSerializerTest {
       .signWith(decodeSecretKey(A_SECRET_KEY), HS256)
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("Token expiration date hasn't been found");
-    underTest.decode(token);
+    assertThatThrownBy(() -> underTest.decode(token))
+      .hasMessage("Token expiration date hasn't been found")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.jwt())
+      .hasFieldOrPropertyWithValue("login", USER_LOGIN);
   }
 
   @Test
@@ -234,9 +236,11 @@ public class JwtSerializerTest {
       .signWith(decodeSecretKey(A_SECRET_KEY), HS256)
       .compact();
 
-    expectedException.expect(authenticationException().from(Source.jwt()).withLogin(USER_LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("Token creation date hasn't been found");
-    underTest.decode(token);
+    assertThatThrownBy(() -> underTest.decode(token))
+      .hasMessage("Token creation date hasn't been found")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.jwt())
+      .hasFieldOrPropertyWithValue("login", USER_LOGIN);
   }
 
   @Test
@@ -306,26 +310,23 @@ public class JwtSerializerTest {
 
   @Test
   public void encode_fail_when_not_started() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("org.sonar.server.authentication.JwtSerializer not started");
-
-    underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 10).getTime()));
+    assertThatThrownBy(() -> underTest.encode(new JwtSession(USER_LOGIN, SESSION_TOKEN_UUID, addMinutes(new Date(), 10).getTime())))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("org.sonar.server.authentication.JwtSerializer not started");
   }
 
   @Test
   public void decode_fail_when_not_started() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("org.sonar.server.authentication.JwtSerializer not started");
-
-    underTest.decode("token");
+    assertThatThrownBy(() -> underTest.decode("token"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("org.sonar.server.authentication.JwtSerializer not started");
   }
 
   @Test
   public void refresh_fail_when_not_started() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("org.sonar.server.authentication.JwtSerializer not started");
-
-    underTest.refresh(new DefaultClaims(), addMinutes(new Date(), 10).getTime());
+    assertThatThrownBy(() -> underTest.refresh(new DefaultClaims(), addMinutes(new Date(), 10).getTime()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("org.sonar.server.authentication.JwtSerializer not started");
   }
 
   private SecretKey decodeSecretKey(String encodedKey) {

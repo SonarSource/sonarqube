@@ -26,9 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -37,22 +35,22 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IssueDtoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void set_data_check_maximal_length() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value is too long for issue attributes:");
-
-    StringBuilder s = new StringBuilder(4500);
-    for (int i = 0; i < 4500; i++) {
-      s.append('a');
-    }
-    new IssueDto().setIssueAttributes(s.toString());
+    assertThatThrownBy(() -> {
+      StringBuilder s = new StringBuilder(4500);
+      for (int i = 0; i < 4500; i++) {
+        s.append('a');
+      }
+      new IssueDto().setIssueAttributes(s.toString());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Value is too long for issue attributes:");
   }
 
   @Test

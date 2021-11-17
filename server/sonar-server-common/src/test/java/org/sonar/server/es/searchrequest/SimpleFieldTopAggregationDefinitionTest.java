@@ -24,26 +24,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SimpleFieldTopAggregationDefinitionTest {
   private static final Random RANDOM = new Random();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fieldName_cannot_be_null() {
     boolean sticky = RANDOM.nextBoolean();
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("fieldName can't be null");
 
-    new SimpleFieldTopAggregationDefinition(null, sticky);
+    assertThatThrownBy(() -> new SimpleFieldTopAggregationDefinition(null, sticky))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("fieldName can't be null");
   }
 
   @Test

@@ -20,26 +20,22 @@
 package org.sonar.server.plugins.edition;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.Plugin;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EditionBundledPluginsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
 
   @Test
   public void isEditionBundled_on_Plugin_fails_with_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    EditionBundledPlugins.isEditionBundled((Plugin) null);
+    assertThatThrownBy(() -> EditionBundledPlugins.isEditionBundled((Plugin) null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -79,9 +75,8 @@ public class EditionBundledPluginsTest {
 
   @Test
   public void isEditionBundled_on_PluginInfo_fails_with_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    EditionBundledPlugins.isEditionBundled((PluginInfo) null);
+    assertThatThrownBy(() -> EditionBundledPlugins.isEditionBundled((PluginInfo) null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

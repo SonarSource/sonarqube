@@ -22,7 +22,6 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -36,14 +35,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CreateBitbucketCloudActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -85,15 +83,14 @@ public class CreateBitbucketCloudActionTest {
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto bitbucketAlmSetting = db.almSettings().insertBitbucketAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("An ALM setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", bitbucketAlmSetting.getKey())
       .setParam("workspace", "workspace1")
       .setParam("clientId", "id")
       .setParam("clientSecret", "secret")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
   }
 
   @Test
@@ -103,15 +100,14 @@ public class CreateBitbucketCloudActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertBitbucketCloudAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A BITBUCKET_CLOUD setting is already defined");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "otherKey")
       .setParam("workspace", "workspace1")
       .setParam("clientId", "id")
       .setParam("clientSecret", "secret")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A BITBUCKET_CLOUD setting is already defined");
   }
 
   @Test
@@ -121,15 +117,14 @@ public class CreateBitbucketCloudActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertBitbucketAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A BITBUCKET setting is already defined");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "otherKey")
       .setParam("workspace", "workspace1")
       .setParam("clientId", "id")
       .setParam("clientSecret", "secret")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A BITBUCKET setting is already defined");
   }
 
   @Test
@@ -137,14 +132,13 @@ public class CreateBitbucketCloudActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "Bitbucket Server - Dev Team")
       .setParam("clientId", "id")
       .setParam("clientSecret", "secret")
       .setParam("workspace", "workspace1")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

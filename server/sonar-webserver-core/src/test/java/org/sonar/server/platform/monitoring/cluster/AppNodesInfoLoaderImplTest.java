@@ -25,9 +25,7 @@ import com.hazelcast.cluster.MemberSelector;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collection;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.DistributedCall;
@@ -45,8 +43,6 @@ public class AppNodesInfoLoaderImplTest {
 
   private static final InetAddress AN_ADDRESS = InetAddress.getLoopbackAddress();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final HazelcastMember hzMember = mock(HazelcastMember.class);
   private final AppNodesInfoLoaderImpl underTest = new AppNodesInfoLoaderImpl(hzMember);

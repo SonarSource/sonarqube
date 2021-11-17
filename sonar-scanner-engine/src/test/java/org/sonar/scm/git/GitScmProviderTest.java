@@ -53,7 +53,6 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -65,6 +64,7 @@ import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -112,9 +112,6 @@ public class GitScmProviderTest {
 
   @Rule
   public LogTester logs = new LogTester();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private final GitIgnoreCommand gitIgnoreCommand = mock(GitIgnoreCommand.class);
   private static final Random random = new Random();
@@ -616,16 +613,16 @@ public class GitScmProviderTest {
 
   @Test
   public void branchChangedFiles_should_throw_when_repo_nonexistent() throws IOException {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Not inside a Git work tree: ");
-    newScmProvider().branchChangedFiles("master", temp.newFolder().toPath());
+    assertThatThrownBy(() -> newScmProvider().branchChangedFiles("master", temp.newFolder().toPath()))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("Not inside a Git work tree: ");
   }
 
   @Test
   public void branchChangedFiles_should_throw_when_dir_nonexistent() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Not inside a Git work tree: ");
-    newScmProvider().branchChangedFiles("master", temp.getRoot().toPath().resolve("nonexistent"));
+    assertThatThrownBy(() -> newScmProvider().branchChangedFiles("master", temp.getRoot().toPath().resolve("nonexistent")))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("Not inside a Git work tree: ");
   }
 
   @Test

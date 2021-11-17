@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.issue.commonrule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -39,6 +38,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.DUMB_PROJECT;
 
 public class CommentDensityRuleTest {
@@ -56,8 +56,6 @@ public class CommentDensityRuleTest {
     .setFileAttributes(new FileAttributes(true, PLUGIN_KEY, 1))
     .build();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public ActiveRulesHolderRule activeRuleHolder = new ActiveRulesHolderRule();
@@ -127,12 +125,12 @@ public class CommentDensityRuleTest {
    */
   @Test
   public void fail_if_min_density_is_100() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Minimum density of rule [common-java:InsufficientCommentDensity] is incorrect. Got [100] but must be strictly less than 100.");
-
-    prepareForIssue("100", FILE, 0.0, 0, 1);
-
-    underTest.processFile(FILE, PLUGIN_KEY);
+    assertThatThrownBy(() -> {
+      prepareForIssue("100", FILE, 0.0, 0, 1);
+      underTest.processFile(FILE, PLUGIN_KEY);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Minimum density of rule [common-java:InsufficientCommentDensity] is incorrect. Got [100] but must be strictly less than 100.");
   }
 
   private void prepareForIssue(String minDensity, ReportComponent file, double commentLineDensity, int commentLines, int ncloc) {

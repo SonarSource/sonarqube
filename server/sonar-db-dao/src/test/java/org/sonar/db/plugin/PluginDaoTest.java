@@ -22,7 +22,6 @@ package org.sonar.db.plugin;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto.Type;
@@ -33,8 +32,6 @@ import static org.sonar.db.plugin.PluginDto.Type.EXTERNAL;
 
 public class PluginDaoTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 

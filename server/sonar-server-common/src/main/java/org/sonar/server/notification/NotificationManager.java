@@ -62,8 +62,6 @@ public interface NotificationManager {
    */
   Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectKey,
     SubscriberPermissionsOnProject subscriberPermissionsOnProject);
-
-
   @Immutable
   final class EmailRecipient {
     private final String login;

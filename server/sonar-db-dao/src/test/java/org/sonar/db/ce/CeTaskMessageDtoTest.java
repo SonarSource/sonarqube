@@ -20,33 +20,28 @@
 package org.sonar.db.ce;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskMessageDtoTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeTaskMessageDto underTest = new CeTaskMessageDto();
 
   @Test
   public void setMessage_fails_with_IAE_if_argument_is_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("message can't be null nor empty");
-
-    underTest.setMessage(null);
+    assertThatThrownBy(() -> underTest.setMessage(null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("message can't be null nor empty");
   }
 
   @Test
   public void setMessage_fails_with_IAE_if_argument_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("message can't be null nor empty");
-
-    underTest.setMessage("");
+    assertThatThrownBy(() -> underTest.setMessage(""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("message can't be null nor empty");
   }
 
   @Test
@@ -61,9 +56,9 @@ public class CeTaskMessageDtoTest {
   public void setMessage_fails_with_IAE_if_argument_has_size_bigger_then_4000() {
     int size = 4000 + 1 + new Random().nextInt(100);
     String str = repeat("a", size);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("message is too long: " + size);
 
-    underTest.setMessage(str);
+    assertThatThrownBy(() -> underTest.setMessage(str))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("message is too long: " + size);
   }
 }

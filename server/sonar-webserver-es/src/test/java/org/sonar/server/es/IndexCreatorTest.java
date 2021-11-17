@@ -35,7 +35,6 @@ import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -48,6 +47,7 @@ import org.sonar.server.es.newindex.SettingsConfiguration;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.es.IndexType.main;
@@ -61,8 +61,6 @@ public class IndexCreatorTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public EsTester es = EsTester.createCustom();
 
@@ -124,10 +122,9 @@ public class IndexCreatorTest {
     run(new FakeIndexDefinition());
 
     // v2
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Blue/green deployment is not supported. Elasticsearch index [fakes] changed and needs to be dropped.");
-
-    run(new FakeIndexDefinitionV2());
+    assertThatThrownBy(() -> run(new FakeIndexDefinitionV2()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Blue/green deployment is not supported. Elasticsearch index [fakes] changed and needs to be dropped.");
   }
 
   @Test

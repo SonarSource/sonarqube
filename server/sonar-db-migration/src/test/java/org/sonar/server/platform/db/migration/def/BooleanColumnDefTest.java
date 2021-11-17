@@ -19,22 +19,16 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BooleanColumnDefTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void build_column_def() {
     BooleanColumnDef def = new BooleanColumnDef.Builder()
@@ -74,19 +68,15 @@ public class BooleanColumnDefTest {
 
   @Test
   public void fail_with_NPE_if_name_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    new BooleanColumnDef.Builder().setColumnName(null);
+    assertThatThrownBy(() -> new BooleanColumnDef.Builder().setColumnName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 
   @Test
   public void fail_with_NPE_if_no_name() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    new BooleanColumnDef.Builder().build();
+    assertThatThrownBy(() -> new BooleanColumnDef.Builder().build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
-
-
 }

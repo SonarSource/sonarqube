@@ -59,8 +59,6 @@ public class CeTaskProcessorModuleTest {
     ComponentContainer container = new ComponentContainer();
 
     underTest.configure(container);
-
-
     assertThat(container.getPicoContainer().getComponentAdapter(CeTaskInterrupter.class))
       .isInstanceOf(CeTaskInterrupterProvider.class);
   }

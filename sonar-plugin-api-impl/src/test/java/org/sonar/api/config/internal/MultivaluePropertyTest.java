@@ -23,23 +23,19 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static java.util.function.UnaryOperator.identity;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 import static org.sonar.api.config.internal.MultivalueProperty.trimFieldsAndRemoveEmptyFields;
 
 @RunWith(DataProviderRunner.class)
 public class MultivaluePropertyTest {
   private static final String[] EMPTY_STRING_ARRAY = {};
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   @UseDataProvider("testParseAsCsv")
@@ -52,10 +48,9 @@ public class MultivaluePropertyTest {
 
   @Test
   public void parseAsCsv_fails_with_ISE_if_value_can_not_be_parsed() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property: 'multi' doesn't contain a valid CSV value: '\"a ,b'");
-
-    parseAsCsv("multi", "\"a ,b");
+    assertThatThrownBy(() -> parseAsCsv("multi", "\"a ,b"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Property: 'multi' doesn't contain a valid CSV value: '\"a ,b'");
   }
 
   @DataProvider
@@ -81,9 +76,8 @@ public class MultivaluePropertyTest {
 
   @Test
   public void trimFieldsAndRemoveEmptyFields_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    trimFieldsAndRemoveEmptyFields(null);
+    assertThatThrownBy(() -> trimFieldsAndRemoveEmptyFields(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

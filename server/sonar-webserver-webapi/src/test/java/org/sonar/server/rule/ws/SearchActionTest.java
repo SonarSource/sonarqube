@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -72,6 +71,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.guava.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -91,8 +91,6 @@ public class SearchActionTest {
 
   @org.junit.Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
   @org.junit.Rule
@@ -698,13 +696,15 @@ public class SearchActionTest {
       tuple(ruleParam2.getName(), ruleParam2.getDefaultValue()));
 
     String unknownProfile = "unknown_profile" + randomAlphanumeric(5);
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("The specified qualityProfile '" + unknownProfile + "' does not exist");
 
-    ws.newRequest()
-      .setParam("activation", "true")
-      .setParam("qprofile", unknownProfile)
-      .executeProtobuf(SearchResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("activation", "true")
+        .setParam("qprofile", unknownProfile)
+        .executeProtobuf(SearchResponse.class);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("The specified qualityProfile '" + unknownProfile + "' does not exist");
   }
 
   @Test

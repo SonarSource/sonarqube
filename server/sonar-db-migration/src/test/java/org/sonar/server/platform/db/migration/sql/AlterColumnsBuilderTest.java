@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -30,6 +28,7 @@ import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.DecimalColumnDef.newDecimalColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
@@ -37,8 +36,6 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 public class AlterColumnsBuilderTest {
 
   private static final String TABLE_NAME = "issues";
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void update_columns_on_h2() {
@@ -98,10 +95,9 @@ public class AlterColumnsBuilderTest {
 
   @Test
   public void fail_with_ISE_if_no_column() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("No column has been defined");
-
-    new AlterColumnsBuilder(new H2(), TABLE_NAME).build();
+    assertThatThrownBy(() -> new AlterColumnsBuilder(new H2(), TABLE_NAME).build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No column has been defined");
   }
 
   /**
@@ -117,10 +113,9 @@ public class AlterColumnsBuilderTest {
       .build();
     AlterColumnsBuilder alterColumnsBuilder = new AlterColumnsBuilder(new H2(), TABLE_NAME);
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Default value is not supported on alter of column 'enabled'");
-
-    alterColumnsBuilder.updateColumn(column);
+    assertThatThrownBy(() -> alterColumnsBuilder.updateColumn(column))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default value is not supported on alter of column 'enabled'");
   }
 
   private AlterColumnsBuilder createSampleBuilder(Dialect dialect) {

@@ -20,17 +20,12 @@
 package org.sonar.application.config;
 
 import java.util.Properties;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CommandLineParserTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void parseArguments() {
     System.setProperty("CommandLineParserTest.unused", "unused");
@@ -53,9 +48,8 @@ public class CommandLineParserTest {
     assertThat(p.getProperty("sonar.foo")).isEqualTo("bar");
     assertThat(p.getProperty("sonar.whitespace")).isEqualTo("foo bar");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Command-line argument must start with -D, for example -Dsonar.jdbc.username=sonar. Got: sonar.bad=true");
-
-    CommandLineParser.argumentsToProperties(new String[] {"-Dsonar.foo=bar", "sonar.bad=true"});
+    assertThatThrownBy(() -> CommandLineParser.argumentsToProperties(new String[] {"-Dsonar.foo=bar", "sonar.bad=true"}))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Command-line argument must start with -D, for example -Dsonar.jdbc.username=sonar. Got: sonar.bad=true");
   }
 }

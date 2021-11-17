@@ -20,7 +20,6 @@
 package org.sonar.process.cluster.hz;
 
 import java.net.InetAddress;
-import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;

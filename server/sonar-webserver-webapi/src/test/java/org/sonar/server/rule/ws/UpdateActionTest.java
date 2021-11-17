@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -46,6 +45,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -67,8 +67,6 @@ public class UpdateActionTest {
 
   private static final long PAST = 10000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create();
@@ -250,14 +248,15 @@ public class UpdateActionTest {
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The description is missing");
-
-    ws.newRequest().setMethod("POST")
-      .setParam("key", customRule.getKey().toString())
-      .setParam("name", "My custom rule")
-      .setParam("markdown_description", "")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest().setMethod("POST")
+        .setParam("key", customRule.getKey().toString())
+        .setParam("name", "My custom rule")
+        .setParam("markdown_description", "")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The description is missing");
   }
 
   @Test
@@ -265,31 +264,33 @@ public class UpdateActionTest {
     logInAsQProfileAdministrator();
     RuleDefinitionDto rule = db.rules().insert();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a custom rule");
-
-    ws.newRequest().setMethod("POST")
-      .setParam("key", rule.getKey().toString())
-      .setParam("name", rule.getName())
-      .setParam("markdown_description", "New description")
-      .execute();
-
+    assertThatThrownBy(() -> {
+      ws.newRequest().setMethod("POST")
+        .setParam("key", rule.getKey().toString())
+        .setParam("name", rule.getName())
+        .setParam("markdown_description", "New description")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Not a custom rule");
   }
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest().setMethod("POST").execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest().setMethod("POST").execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest().setMethod("POST").execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest().setMethod("POST").execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private void logInAsQProfileAdministrator() {

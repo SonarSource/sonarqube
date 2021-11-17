@@ -22,7 +22,6 @@ package org.sonar.server.ce.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -42,13 +41,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CancelActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -122,10 +120,9 @@ public class CancelActionTest {
   public void throw_IllegalArgumentException_if_missing_id() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'id' parameter is missing");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'id' parameter is missing");
   }
 
   @Test
@@ -134,12 +131,13 @@ public class CancelActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     CeQueueDto queue = createTaskSubmit(project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
-      .setParam("id", queue.getUuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("id", queue.getUuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -147,12 +145,13 @@ public class CancelActionTest {
     userSession.logIn().setNonSystemAdministrator();
     CeQueueDto queue = createTaskSubmit(null);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
-      .setParam("id", queue.getUuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("id", queue.getUuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -160,12 +159,13 @@ public class CancelActionTest {
     userSession.logIn().setNonSystemAdministrator();
     CeQueueDto queue = createTaskSubmit(nonExistentComponentDot());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
-      .setParam("id", queue.getUuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("id", queue.getUuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   private static ComponentDto nonExistentComponentDot() {

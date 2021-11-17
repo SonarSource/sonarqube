@@ -30,7 +30,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
-
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class ViewsVisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
 
   private static final Component PROJECT_VIEW_5 = component(PROJECT_VIEW, 5);
@@ -48,10 +48,11 @@ public class ViewsVisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
   });
   private final InOrder inOrder = inOrder(spyViewVisitor, spySubViewVisitor, spyProjectViewVisitor);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void visit_null_Component_throws_NPE() {
     VisitorsCrawler underTest = newVisitorsCrawler(spyProjectViewVisitor);
-    underTest.visit(null);
+    assertThatThrownBy(() -> underTest.visit(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

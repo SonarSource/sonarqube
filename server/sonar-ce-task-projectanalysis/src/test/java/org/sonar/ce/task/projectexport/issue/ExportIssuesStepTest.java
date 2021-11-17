@@ -32,7 +32,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -64,13 +63,13 @@ import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 @RunWith(DataProviderRunner.class)
 public class ExportIssuesStepTest {
@@ -81,8 +80,6 @@ public class ExportIssuesStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -144,10 +141,11 @@ public class ExportIssuesStepTest {
   public void execute_fails_with_ISE_if_componentUuid_is_not_set() {
     insertIssue(createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID).setComponentUuid(null));
 
-    expectExportFailure();
-    expectedException.expectCause(hasType(NullPointerException.class).andMessage("uuid can not be null"));
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Issue export failed after processing 0 issues successfully")
+      .hasRootCauseInstanceOf(NullPointerException.class)
+      .hasRootCauseMessage("uuid can not be null");
   }
 
   @DataProvider
@@ -303,11 +301,9 @@ public class ExportIssuesStepTest {
     byte[] rubbishBytes = getRubbishBytes();
     String uuid = insertIssue(createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID).setLocations(rubbishBytes)).getKey();
 
-    expectExportFailure();
-    expectedException.expectCause(
-      hasType(IllegalStateException.class).andMessage("Fail to read locations from DB for issue " + uuid));
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Issue export failed after processing 0 issues successfully");
   }
 
   @Test
@@ -327,9 +323,9 @@ public class ExportIssuesStepTest {
     insertIssue(createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID));
     insertIssue(createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID).setLocations(getRubbishBytes())).getKey();
 
-    expectExportFailure(2);
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Issue export failed after processing 2 issues successfully");
   }
 
   private byte[] getRubbishBytes() throws IOException, URISyntaxException {
@@ -340,14 +336,14 @@ public class ExportIssuesStepTest {
     return dumpWriter.getWrittenMessagesOf(DumpElement.ISSUES).get(0);
   }
 
-  private void expectExportFailure() {
-    expectExportFailure(0);
-  }
+//  private void expectExportFailure() {
+//    expectExportFailure(0);
+//  }
 
-  private void expectExportFailure(int i) {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Issue export failed after processing " + i + " issues successfully");
-  }
+//  private void expectExportFailure(int i) {
+//    expectedException.expect(IllegalStateException.class);
+//    expectedException.expectMessage("Issue export failed after processing " + i + " issues successfully");
+//  }
 
   private int issueUuidGenerator = 1;
 

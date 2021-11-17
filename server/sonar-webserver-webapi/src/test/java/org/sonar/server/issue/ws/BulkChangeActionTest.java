@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
@@ -73,6 +72,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -103,8 +103,6 @@ public class BulkChangeActionTest {
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
@@ -669,33 +667,36 @@ public class BulkChangeActionTest {
     IssueDto issue = db.issues().insertIssue(rule, project, project, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
-    expectedException.expectMessage("At least one action must be provided");
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(builder()
-      .setIssues(singletonList(issue.getKey()))
-      .setComment("type was badly defined")
-      .build());
+    assertThatThrownBy(() -> {
+      call(builder()
+        .setIssues(singletonList(issue.getKey()))
+        .setComment("type was badly defined")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one action must be provided");
   }
 
   @Test
   public void fail_when_number_of_issues_is_more_than_500() {
     userSession.logIn("john");
 
-    expectedException.expectMessage("Number of issues is limited to 500");
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(builder()
-      .setIssues(IntStream.range(0, 510).mapToObj(String::valueOf).collect(Collectors.toList()))
-      .setSetSeverity(MINOR)
-      .build());
+    assertThatThrownBy(() -> {
+      call(builder()
+        .setIssues(IntStream.range(0, 510).mapToObj(String::valueOf).collect(Collectors.toList()))
+        .setSetSeverity(MINOR)
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Number of issues is limited to 500");
   }
 
   @Test
   public void fail_when_not_authenticated() {
-    expectedException.expect(UnauthorizedException.class);
-
-    call(builder().setIssues(singletonList("ABCD")).build());
+    assertThatThrownBy(() -> {
+      call(builder().setIssues(singletonList("ABCD")).build());
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test

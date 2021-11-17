@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -30,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
-import java.util.Arrays;
 
 public class BundledSectionTest {
 

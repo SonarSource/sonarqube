@@ -28,12 +28,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -46,8 +46,6 @@ public class TomcatContextsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   Tomcat tomcat = mock(Tomcat.class);
 
@@ -97,13 +95,13 @@ public class TomcatContextsTest {
   @Test
   public void fail_if_static_directory_can_not_be_initialized() throws Exception {
     File dir = temp.newFolder();
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to create or clean-up directory " + dir.getAbsolutePath());
 
     TomcatContexts.Fs fs = mock(TomcatContexts.Fs.class);
     doThrow(new IOException()).when(fs).createOrCleanupDir(any(File.class));
 
-    new TomcatContexts(fs).addStaticDir(tomcat, "/deploy", dir);
+    assertThatThrownBy(() -> new TomcatContexts(fs).addStaticDir(tomcat, "/deploy", dir))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Fail to create or clean-up directory " + dir.getAbsolutePath());
   }
 
   @Test
@@ -117,9 +115,9 @@ public class TomcatContextsTest {
   public void context_path_must_start_with_slash() {
     props.setProperty("sonar.web.context", "foo");
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
-    underTest.configure(tomcat, new Props(props));
+    assertThatThrownBy(() -> underTest.configure(tomcat, new Props(props)))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
   }
 
   @Test

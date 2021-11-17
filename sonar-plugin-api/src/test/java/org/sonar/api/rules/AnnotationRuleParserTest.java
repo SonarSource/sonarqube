@@ -22,17 +22,14 @@ package org.sonar.api.rules;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnnotationRuleParserTest {
-
-  @org.junit.Rule
-  public final ExpectedException exception = ExpectedException.none();
 
   @Test
   public void rule_with_property() {
@@ -75,10 +72,9 @@ public class AnnotationRuleParserTest {
 
   @Test
   public void should_reject_invalid_property_types() {
-    exception.expect(SonarException.class);
-    exception.expectMessage("Invalid property type [INVALID]");
-
-    parseAnnotatedClass(RuleWithInvalidPropertyType.class);
+    assertThatThrownBy(() -> parseAnnotatedClass(RuleWithInvalidPropertyType.class))
+      .isInstanceOf(SonarException.class)
+      .hasMessage("Invalid property type [INVALID]");
   }
 
   @Test

@@ -20,7 +20,6 @@
 package org.sonar.alm.client.github.security;
 
 import org.junit.Test;
-import org.sonar.alm.client.github.security.AppToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

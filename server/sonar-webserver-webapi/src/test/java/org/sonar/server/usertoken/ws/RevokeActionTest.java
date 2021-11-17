@@ -22,7 +22,6 @@ package org.sonar.server.usertoken.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -38,6 +37,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 
@@ -47,8 +47,6 @@ public class RevokeActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -115,9 +113,10 @@ public class RevokeActionTest {
     UserTokenDto token = db.users().insertToken(user);
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(user.getLogin(), token.getName());
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), token.getName());
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -126,19 +125,21 @@ public class RevokeActionTest {
     UserTokenDto token = db.users().insertToken(user);
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(user.getLogin(), token.getName());
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), token.getName());
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_login_does_not_exist() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'unknown-login' doesn't exist");
-
-    newRequest("unknown-login", "any-name");
+    assertThatThrownBy(() -> {
+      newRequest("unknown-login", "any-name");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login 'unknown-login' doesn't exist");
   }
 
   private String newRequest(@Nullable String login, String name) {

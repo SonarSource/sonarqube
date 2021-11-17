@@ -21,7 +21,6 @@ package org.sonar.server.batch;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -45,6 +44,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -54,8 +54,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 public class ProjectDataLoaderTest {
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -71,12 +69,13 @@ public class ProjectDataLoaderTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "unknown_branch"));
-
-    underTest.load(ProjectDataQuery.create()
-      .setProjectKey(project.getKey())
-      .setBranch("unknown_branch"));
+    assertThatThrownBy(() -> {
+      underTest.load(ProjectDataQuery.create()
+        .setProjectKey(project.getKey())
+        .setBranch("unknown_branch"));
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "unknown_branch"));
   }
 
   @Test
@@ -144,27 +143,24 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void fails_with_NPE_if_query_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest.load(null);
+    assertThatThrownBy(() -> underTest.load(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fails_with_NFE_if_query_is_empty() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'null' not found");
-
-    underTest.load(ProjectDataQuery.create());
+    assertThatThrownBy(() -> underTest.load(ProjectDataQuery.create()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'null' not found");
   }
 
   @Test
   public void throws_NotFoundException_if_component_does_not_exist() {
     String key = "theKey";
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'theKey' not found");
-
-    underTest.load(ProjectDataQuery.create().setProjectKey(key));
+    assertThatThrownBy(() -> underTest.load(ProjectDataQuery.create().setProjectKey(key)))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'theKey' not found");
   }
 
   @Test
@@ -204,10 +200,9 @@ public class ProjectDataLoaderTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("You're not authorized to push analysis results to the SonarQube server. Please contact your SonarQube administrator.");
-
-    underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey()));
+    assertThatThrownBy(() -> underTest.load(ProjectDataQuery.create().setProjectKey(project.getKey())))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("You're not authorized to push analysis results to the SonarQube server. Please contact your SonarQube administrator.");
   }
 
   private static FileSourceDto newFileSourceDto(ComponentDto file) {

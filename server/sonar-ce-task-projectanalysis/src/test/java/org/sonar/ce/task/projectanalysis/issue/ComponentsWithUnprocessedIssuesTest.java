@@ -20,17 +20,14 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ComponentsWithUnprocessedIssuesTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   ComponentsWithUnprocessedIssues sut = new ComponentsWithUnprocessedIssues();
 
@@ -55,19 +52,19 @@ public class ComponentsWithUnprocessedIssuesTest {
 
   @Test
   public void fail_with_NPE_when_setting_null_uuids() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Uuids cannot be null");
-
-    sut.setUuids(null);
+    assertThatThrownBy(() -> sut.setUuids(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Uuids cannot be null");
   }
 
   @Test
   public void fail_with_ISE_when_setting_uuids_twice() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Uuids have already been initialized");
-
-    sut.setUuids(newHashSet("ABCD"));
-    sut.setUuids(newHashSet("EFGH"));
+    assertThatThrownBy(() -> {
+      sut.setUuids(newHashSet("ABCD"));
+      sut.setUuids(newHashSet("EFGH"));
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Uuids have already been initialized");
   }
 
   @Test
@@ -80,17 +77,15 @@ public class ComponentsWithUnprocessedIssuesTest {
 
   @Test
   public void fail_with_ISE_when_removing_uuid_and_not_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Uuids have not been initialized yet");
-
-    sut.remove("ABCD");
+    assertThatThrownBy(() -> sut.remove("ABCD"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Uuids have not been initialized yet");
   }
 
   @Test
   public void fail_with_ISE_when_getting_uuid_and_not_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Uuids have not been initialized yet");
-
-    sut.getUuids();
+    assertThatThrownBy(() -> sut.getUuids())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Uuids have not been initialized yet");
   }
 }

@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -59,6 +58,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -77,8 +77,6 @@ public class ValuesActionTest {
 
   private static Joiner COMMA_JOINER = Joiner.on(",");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -711,9 +709,10 @@ public class ValuesActionTest {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    expectedException.expect(ForbiddenException.class);
-
-    executeRequest(project.getDbKey(), "foo");
+    assertThatThrownBy(() -> {
+      executeRequest(project.getDbKey(), "foo");
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -726,21 +725,23 @@ public class ValuesActionTest {
     propertyDb.insertProperties(null, null, null, null,
       newGlobalPropertyDto().setKey("foo").setValue("one"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'foo' and 'deprecated' cannot be used at the same time as they refer to the same setting");
-
-    executeRequestForGlobalProperties("foo", "deprecated");
+    assertThatThrownBy(() -> {
+      executeRequestForGlobalProperties("foo", "deprecated");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'foo' and 'deprecated' cannot be used at the same time as they refer to the same setting");
   }
 
   @Test
   public void fail_when_component_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
-
-    newTester().newRequest()
-      .setParam("keys", "foo")
-      .setParam("component", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      newTester().newRequest()
+        .setParam("keys", "foo")
+        .setParam("component", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'unknown' not found");
   }
 
   @Test
@@ -786,13 +787,14 @@ public class ValuesActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    newTester().newRequest()
-      .setParam("keys", "foo")
-      .setParam("component", branch.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      newTester().newRequest()
+        .setParam("keys", "foo")
+        .setParam("component", branch.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -801,13 +803,14 @@ public class ValuesActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
-
-    newTester().newRequest()
-      .setParam("keys", settingKey)
-      .setParam("component", project.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      newTester().newRequest()
+        .setParam("keys", settingKey)
+        .setParam("component", project.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
 
   @Test

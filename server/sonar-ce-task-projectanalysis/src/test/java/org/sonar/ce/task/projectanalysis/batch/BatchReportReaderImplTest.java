@@ -33,6 +33,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BatchReportReaderImplTest {
   private static final int COMPONENT_REF = 1;
@@ -61,9 +62,10 @@ public class BatchReportReaderImplTest {
     writer = new ScannerReportWriter(holder.getDirectory());
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void readMetadata_throws_ISE_if_no_metadata() {
-    underTest.readMetadata();
+    assertThatThrownBy(() -> underTest.readMetadata())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -134,9 +136,10 @@ public class BatchReportReaderImplTest {
     assertThat(underTest.readChangesets(COMPONENT_REF)).isNotSameAs(underTest.readChangesets(COMPONENT_REF));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void readComponent_throws_ISE_if_file_does_not_exist() {
-    underTest.readComponent(COMPONENT_REF);
+    assertThatThrownBy(() -> underTest.readComponent(COMPONENT_REF))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

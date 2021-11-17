@@ -30,9 +30,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
@@ -40,13 +38,11 @@ import org.sonar.api.utils.MessageException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 @RunWith(DataProviderRunner.class)
 public class ProjectInfoTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private Clock clock = mock(Clock.class);
@@ -80,9 +76,8 @@ public class ProjectInfoTest {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
 
-    expectedException.expect(RuntimeException.class);
-
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(RuntimeException.class);
   }
 
   @Test
@@ -91,11 +86,10 @@ public class ProjectInfoTest {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("\"" + version + "\" is not a valid project version. " +
-      "The maximum length is 100 characters.");
-
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("\"" + version + "\" is not a valid project version. " +
+        "The maximum length is 100 characters.");
   }
 
   @Test
@@ -104,11 +98,10 @@ public class ProjectInfoTest {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("\"" + buildString + "\" is not a valid buildString. " +
-      "The maximum length is 100 characters.");
-
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("\"" + buildString + "\" is not a valid buildString. " +
+        "The maximum length is 100 characters.");
   }
 
   @Test

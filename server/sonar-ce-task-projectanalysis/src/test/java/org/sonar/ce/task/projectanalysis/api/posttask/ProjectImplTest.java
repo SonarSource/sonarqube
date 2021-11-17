@@ -19,42 +19,36 @@
  */
 package org.sonar.ce.task.projectanalysis.api.posttask;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ProjectImplTest {
   private static final String SOME_UUID = "some uuid";
   private static final String SOME_KEY = "some key";
   private static final String SOME_NAME = "some name";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_NPE_if_uuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can not be null");
-
-    new ProjectImpl(null, SOME_KEY, SOME_NAME);
+    assertThatThrownBy(() -> new ProjectImpl(null, SOME_KEY, SOME_NAME))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_key_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can not be null");
-
-    new ProjectImpl(SOME_UUID, null, SOME_NAME);
+    assertThatThrownBy(() ->  new ProjectImpl(SOME_UUID, null, SOME_NAME))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can not be null");
-
-    new ProjectImpl(SOME_UUID, SOME_KEY, null);
+    assertThatThrownBy(() ->  new ProjectImpl(SOME_UUID, SOME_KEY, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name can not be null");
   }
 
   @Test

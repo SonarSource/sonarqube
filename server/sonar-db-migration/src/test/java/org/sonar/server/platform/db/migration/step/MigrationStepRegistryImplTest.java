@@ -21,66 +21,65 @@ package org.sonar.server.platform.db.migration.step;
 
 import java.util.List;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MigrationStepRegistryImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MigrationStepRegistryImpl underTest = new MigrationStepRegistryImpl();
 
   @Test
   public void add_fails_with_IAE_if_migrationNumber_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Migration number must be >= 0");
-
-    underTest.add(-Math.abs(new Random().nextLong() + 1), "sdsd", MigrationStep.class);
+    assertThatThrownBy(() -> {
+      underTest.add(-Math.abs(new Random().nextLong() + 1), "sdsd", MigrationStep.class);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Migration number must be >= 0");
   }
 
   @Test
   public void add_fails_with_NPE_if_description_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("description can't be null");
-
-    underTest.add(12, null, MigrationStep.class);
+    assertThatThrownBy(() -> {
+      underTest.add(12, null, MigrationStep.class);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("description can't be null");
   }
 
   @Test
   public void add_fails_with_IAE_if_description_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("description can't be empty");
-
-    underTest.add(12, "", MigrationStep.class);
+    assertThatThrownBy(() -> {
+      underTest.add(12, "", MigrationStep.class);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("description can't be empty");
   }
 
   @Test
   public void add_fails_with_NPE_is_migrationstep_class_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("MigrationStep class can't be null");
-
-    underTest.add(12, "sdsd", null);
+    assertThatThrownBy(() -> {
+      underTest.add(12, "sdsd", null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("MigrationStep class can't be null");
   }
 
   @Test
   public void add_fails_with_ISE_when_called_twice_with_same_migration_number() {
     underTest.add(12, "dsd", MigrationStep.class);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("A migration is already registered for migration number '12'");
-
-    underTest.add(12, "dfsdf", MigrationStep.class);
+    assertThatThrownBy(() -> underTest.add(12, "dfsdf", MigrationStep.class))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("A migration is already registered for migration number '12'");
   }
 
   @Test
   public void build_fails_with_ISE_if_registry_is_empty() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Registry is empty");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Registry is empty");
   }
 
   @Test

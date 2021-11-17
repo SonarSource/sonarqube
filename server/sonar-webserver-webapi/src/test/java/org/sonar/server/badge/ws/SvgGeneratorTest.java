@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbTester;
@@ -31,14 +30,13 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.badge.ws.SvgGenerator.Color.DEFAULT;
 
 public class SvgGeneratorTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -93,9 +91,8 @@ public class SvgGeneratorTest {
     mapSettings.setProperty("sonar.sonarcloud.enabled", false);
     initSvgGenerator();
 
-    expectedException.expectMessage("Invalid character 'é'");
-
-    underTest.generateError("Méssage with accent");
+    assertThatThrownBy(() -> underTest.generateError("Méssage with accent"))
+      .hasMessage("Invalid character 'é'");
   }
 
   private void initSvgGenerator() {

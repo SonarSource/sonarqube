@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
@@ -49,6 +48,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,8 +79,6 @@ public class ExportAdHocRulesStepTest {
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-3").setUuid("branch-3-uuid").setMergeBranchUuid("master")
       .setExcludeFromPurge(false));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -172,10 +170,10 @@ public class ExportAdHocRulesStepTest {
     insertIssue(rule2, PROJECT_UUID, PROJECT_UUID);
     insertIssue(rule3, PROJECT_UUID, PROJECT_UUID);
     dumpWriter.failIfMoreThan(2, DumpElement.AD_HOC_RULES);
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Ad-hoc rules export failed after processing 2 rules successfully");
 
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Ad-hoc rules export failed after processing 2 rules successfully");
   }
 
   @Test

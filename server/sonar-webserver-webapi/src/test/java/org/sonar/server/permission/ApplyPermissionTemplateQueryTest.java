@@ -20,19 +20,16 @@
 package org.sonar.server.permission;
 
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.permission.ApplyPermissionTemplateQuery.create;
 
 public class ApplyPermissionTemplateQueryTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void should_populate_with_params() {
@@ -44,17 +41,15 @@ public class ApplyPermissionTemplateQueryTest {
 
   @Test
   public void should_invalidate_query_with_empty_name() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission template is mandatory");
-
-    create("", newArrayList("1", "2", "3"));
+    assertThatThrownBy(() -> create("", newArrayList("1", "2", "3")))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission template is mandatory");
   }
 
   @Test
   public void should_invalidate_query_with_no_components() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("No project provided. Please provide at least one project.");
-
-    create("my_template_key", Collections.emptyList());
+    assertThatThrownBy(() -> create("my_template_key", Collections.emptyList()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("No project provided. Please provide at least one project.");
   }
 }

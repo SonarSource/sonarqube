@@ -23,9 +23,7 @@ import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.picocontainer.Startable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
@@ -34,14 +32,13 @@ import org.sonar.api.config.PropertyDefinitions;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class ComponentContainerTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldRegisterItself() {
@@ -267,8 +264,8 @@ public class ComponentContainerTest {
     container.add(UnstartableComponent.class);
 
     // do not expect a PicoException
-    thrown.expect(IllegalStateException.class);
-    container.startComponents();
+    assertThatThrownBy(container::startComponents)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -278,11 +275,9 @@ public class ComponentContainerTest {
 
     container.startComponents();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unable to register extension org.sonar.core.platform.ComponentContainerTest$UnstartableComponent");
-
-    container.addExtension(plugin, UnstartableComponent.class);
-
+    assertThatThrownBy(() -> container.addExtension(plugin, UnstartableComponent.class))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unable to register extension org.sonar.core.platform.ComponentContainerTest$UnstartableComponent");
   }
 
   @Test
@@ -340,9 +335,9 @@ public class ComponentContainerTest {
     ComponentContainer container = new ComponentContainer();
     container.add(UnstartableComponent.class, FailingStopWithISEComponent.class);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to start");
-    container.execute();
+    assertThatThrownBy(container::execute)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to start");
   }
 
   @Test
@@ -350,9 +345,9 @@ public class ComponentContainerTest {
     ComponentContainer container = new ComponentContainer();
     container.add(UnstartableApiComponent.class, FailingStopWithISEComponent.class);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to start");
-    container.execute();
+    assertThatThrownBy(container::execute)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to start");
   }
 
   @Test

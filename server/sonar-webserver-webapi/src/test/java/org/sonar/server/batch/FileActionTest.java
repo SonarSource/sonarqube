@@ -24,7 +24,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.NotFoundException;
@@ -33,13 +32,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FileActionTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -75,16 +73,16 @@ public class FileActionTest {
     writeStringToFile(new File(batchDir, "sonar-batch.jar"), "foo");
     batchIndex.start();
 
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Bad filename: unknown");
-    tester.newRequest().setParam("name", "unknown").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("name", "unknown").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Bad filename: unknown");
   }
 
   @Test
   public void throw_IAE_when_no_name_parameter() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("The 'name' parameter is missing");
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'name' parameter is missing");
   }
 
   @Test

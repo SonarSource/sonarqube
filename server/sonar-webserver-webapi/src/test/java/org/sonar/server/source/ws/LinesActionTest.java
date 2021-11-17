@@ -22,7 +22,6 @@ package org.sonar.server.source.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -48,6 +47,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,8 +56,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class LinesActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -99,9 +97,8 @@ public class LinesActionTest {
     TestRequest request = tester.newRequest()
       .setParam("uuid", file.uuid());
 
-    expectedException.expect(NotFoundException.class);
-
-    request.execute();
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -167,26 +164,23 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_no_uuid_or_key_param() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'uuid' or 'key' must be provided");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Either 'uuid' or 'key' must be provided");
   }
 
   @Test
   public void fail_when_file_key_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'Foo.java' not found");
-
-    tester.newRequest().setParam("key", "Foo.java").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("key", "Foo.java").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component key 'Foo.java' not found");
   }
 
   @Test
   public void fail_when_file_uuid_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component id 'ABCD' not found");
-
-    tester.newRequest().setParam("uuid", "ABCD").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("uuid", "ABCD").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component id 'ABCD' not found");
   }
 
   @Test
@@ -196,22 +190,24 @@ public class LinesActionTest {
     db.components().insertComponents(file);
     setUserWithValidPermission(file);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'file-key' not found");
-
-    tester.newRequest().setParam("key", "file-key").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("key", "file-key").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component key 'file-key' not found");
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void check_permission() {
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto file = insertFileWithData(FileSourceTesting.newFakeData(1).build(), privateProject);
 
     userSession.logIn("login");
 
-    tester.newRequest()
-      .setParam("uuid", file.uuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("uuid", file.uuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -308,13 +304,12 @@ public class LinesActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("key", file.getKey())
       .setParam("branch", "another_branch")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -324,13 +319,12 @@ public class LinesActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("uuid", file.uuid())
       .setParam("branch", "another_branch")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Parameter 'uuid' cannot be used at the same time as 'branch' or 'pullRequest'");
   }
 
   @Test
@@ -339,12 +333,11 @@ public class LinesActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("key", branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -353,12 +346,11 @@ public class LinesActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("uuid", branch.uuid())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component id '%s' not found", branch.uuid()));
   }
 
   @Test

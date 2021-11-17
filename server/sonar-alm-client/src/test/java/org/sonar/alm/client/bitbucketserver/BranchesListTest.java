@@ -19,10 +19,10 @@
  */
 package org.sonar.alm.client.bitbucketserver;
 
+import java.util.Optional;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BranchesListTest {
 

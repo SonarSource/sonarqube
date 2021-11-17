@@ -26,12 +26,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MessageException;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.application.config.JdbcSettings.Provider;
 import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
@@ -39,8 +39,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class JdbcSettingsTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -92,20 +90,18 @@ public class JdbcSettingsTest {
   public void fail_with_MessageException_when_provider_is_not_supported() {
     Props props = newProps(JDBC_URL.getKey(), "jdbc:microsoft:sqlserver://localhost");
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Unsupported JDBC driver provider: microsoft");
-
-    underTest.resolveProviderAndEnforceNonnullJdbcUrl(props);
+    assertThatThrownBy(() -> underTest.resolveProviderAndEnforceNonnullJdbcUrl(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Unsupported JDBC driver provider: microsoft");
   }
 
   @Test
   public void fail_with_MessageException_when_url_does_not_have_jdbc_prefix() {
     Props props = newProps(JDBC_URL.getKey(), "oracle:thin:@localhost/XE");
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Bad format of JDBC URL: oracle:thin:@localhost/XE");
-
-    underTest.resolveProviderAndEnforceNonnullJdbcUrl(props);
+    assertThatThrownBy(() -> underTest.resolveProviderAndEnforceNonnullJdbcUrl(props))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Bad format of JDBC URL: oracle:thin:@localhost/XE");
   }
 
   @Test
@@ -159,20 +155,18 @@ public class JdbcSettingsTest {
 
   @Test
   public void driver_dir_does_not_exist() {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Directory does not exist: extensions/jdbc-driver/oracle");
-
-    underTest.driverPath(homeDir, Provider.ORACLE);
+    assertThatThrownBy(() -> underTest.driverPath(homeDir, Provider.ORACLE))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Directory does not exist: extensions/jdbc-driver/oracle");
   }
 
   @Test
   public void no_files_in_driver_dir() throws Exception {
     FileUtils.forceMkdir(new File(homeDir, "extensions/jdbc-driver/oracle"));
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Directory does not contain JDBC driver: extensions/jdbc-driver/oracle");
-
-    underTest.driverPath(homeDir, Provider.ORACLE);
+    assertThatThrownBy(() -> underTest.driverPath(homeDir, Provider.ORACLE))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Directory does not contain JDBC driver: extensions/jdbc-driver/oracle");
   }
 
   @Test
@@ -180,10 +174,9 @@ public class JdbcSettingsTest {
     FileUtils.touch(new File(homeDir, "extensions/jdbc-driver/oracle/ojdbc5.jar"));
     FileUtils.touch(new File(homeDir, "extensions/jdbc-driver/oracle/ojdbc6.jar"));
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Directory must contain only one JAR file: extensions/jdbc-driver/oracle");
-
-    underTest.driverPath(homeDir, Provider.ORACLE);
+    assertThatThrownBy(() -> underTest.driverPath(homeDir, Provider.ORACLE))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Directory must contain only one JAR file: extensions/jdbc-driver/oracle");
   }
 
   private Props newProps(String... params) {

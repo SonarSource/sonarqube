@@ -21,7 +21,6 @@ package org.sonar.server.webhook;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;

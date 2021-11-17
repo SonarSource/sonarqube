@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.config.internal.MapSettings;
@@ -43,6 +42,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
@@ -52,8 +52,6 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 
 public class MeasureComputerContextImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final String INT_METRIC_KEY = "int_metric_key";
   private static final String DOUBLE_METRIC_KEY = "double_metric_key";
@@ -134,11 +132,12 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void fail_with_IAE_when_get_measure_is_called_on_metric_not_in_input_list() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [another metric] can be used to load measures");
-
-    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, "another metric", "debt");
-    underTest.getMeasure(NCLOC_KEY);
+    assertThatThrownBy(() -> {
+      MeasureComputerContextImpl underTest = newContext(PROJECT_REF, "another metric", "debt");
+      underTest.getMeasure(NCLOC_KEY);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [another metric] can be used to load measures");
   }
 
   @Test
@@ -171,11 +170,12 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void fail_with_IAE_when_get_children_measures_is_called_on_metric_not_in_input_list() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [another metric] can be used to load measures");
-
-    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, "another metric", "debt");
-    underTest.getChildrenMeasures(NCLOC_KEY);
+    assertThatThrownBy(() -> {
+      MeasureComputerContextImpl underTest = newContext(PROJECT_REF, "another metric", "debt");
+      underTest.getChildrenMeasures(NCLOC_KEY);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [another metric] can be used to load measures");
   }
 
   @Test
@@ -230,22 +230,23 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void fail_with_IAE_when_add_measure_is_called_on_metric_not_in_output_list() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [int_metric_key] can be used to add measures. Metric 'double_metric_key' is not allowed.");
-
-    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
-    underTest.addMeasure(DOUBLE_METRIC_KEY, 10);
+    assertThatThrownBy(() -> {
+      MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
+      underTest.addMeasure(DOUBLE_METRIC_KEY, 10);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [int_metric_key] can be used to add measures. Metric 'double_metric_key' is not allowed.");
   }
 
   @Test
   public void fail_with_unsupported_operation_when_adding_measure_that_already_exists() {
-    thrown.expect(UnsupportedOperationException.class);
-    thrown.expectMessage("A measure on metric 'int_metric_key' already exists on component 'fileKey'");
-
-    measureRepository.addRawMeasure(FILE_1_REF, INT_METRIC_KEY, newMeasureBuilder().create(20));
-
-    MeasureComputerContextImpl underTest = newContext(FILE_1_REF, NCLOC_KEY, INT_METRIC_KEY);
-    underTest.addMeasure(INT_METRIC_KEY, 10);
+    assertThatThrownBy(() -> {
+      measureRepository.addRawMeasure(FILE_1_REF, INT_METRIC_KEY, newMeasureBuilder().create(20));
+      MeasureComputerContextImpl underTest = newContext(FILE_1_REF, NCLOC_KEY, INT_METRIC_KEY);
+      underTest.addMeasure(INT_METRIC_KEY, 10);
+    })
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("A measure on metric 'int_metric_key' already exists on component 'fileKey'");
   }
 
   @Test

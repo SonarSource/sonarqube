@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -48,8 +47,6 @@ public class RegisterPermissionTemplatesTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), UuidFactoryFast.getInstance(), System2.INSTANCE, new DefaultGroupFinder(db.getDbClient()));
 

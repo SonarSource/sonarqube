@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -37,14 +36,13 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 
 public class SelectActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -142,12 +140,11 @@ public class SelectActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", "1")
       .setParam("projectKey", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -155,11 +152,11 @@ public class SelectActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(NotFoundException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -168,11 +165,11 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.anonymous();
 
-    expectedException.expect(ForbiddenException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -181,11 +178,11 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
 
-    expectedException.expect(ForbiddenException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -194,11 +191,11 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -208,13 +205,12 @@ public class SelectActionTest {
     userSession.logIn().addProjectPermission(ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
   }
 
   private void assertSelected(QualityGateDto qualityGate, ComponentDto project) {

@@ -23,7 +23,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -38,14 +37,13 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CreateGitlabActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -116,14 +114,13 @@ public class CreateGitlabActionTest {
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto gitlabAlmSetting = db.almSettings().insertGitlabAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("An ALM setting with key '%s' already exist", gitlabAlmSetting.getKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", gitlabAlmSetting.getKey())
       .setParam("personalAccessToken", "98765432100")
       .setParam("url", GITLAB_URL)
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", gitlabAlmSetting.getKey()));
   }
 
   @Test
@@ -133,14 +130,13 @@ public class CreateGitlabActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertGitlabAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A GITLAB setting is already defined");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "anotherKey")
       .setParam("personalAccessToken", "98765432100")
       .setParam("url", GITLAB_URL)
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A GITLAB setting is already defined");
   }
 
   @Test
@@ -148,12 +144,11 @@ public class CreateGitlabActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "Gitlab - Dev Team")
       .setParam("personalAccessToken", "98765432100")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

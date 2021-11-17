@@ -20,9 +20,7 @@
 package org.sonar.scanner.rule;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -35,8 +33,6 @@ import static org.mockito.Mockito.when;
 
 public class QProfileVerifierTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private InputComponentStore store;
   private QualityProfiles profiles;

@@ -23,12 +23,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
@@ -44,8 +43,6 @@ public class PostgresCharsetHandlerTest {
   private static final String COLUMN_KEE = "kee";
   private static final String COLUMN_NAME = "name";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SqlExecutor sqlExecutor = mock(SqlExecutor.class);
   private Connection connection = mock(Connection.class);
@@ -106,10 +103,9 @@ public class PostgresCharsetHandlerTest {
       new String[] {TABLE_PROJECTS, COLUMN_KEE, "latin"},
       new String[] {TABLE_PROJECTS, COLUMN_NAME, "latin"}));
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Database columns [projects.kee, projects.name] must have UTF8 charset.");
-
-    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Database columns [projects.kee, projects.name] must have UTF8 charset.");
   }
 
   @Test
@@ -118,10 +114,9 @@ public class PostgresCharsetHandlerTest {
     answerColumns(
       Arrays.<String[]>asList(new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8"}));
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Database charset is latin. It must support UTF8.");
-
-    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Database charset is latin. It must support UTF8.");
   }
 
   private void answerDefaultCharset(String defaultCollation) throws SQLException {

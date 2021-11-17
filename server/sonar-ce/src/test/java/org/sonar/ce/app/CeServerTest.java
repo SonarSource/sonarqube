@@ -30,7 +30,6 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
@@ -43,6 +42,7 @@ import org.sonar.process.Monitored;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,8 +51,6 @@ import static org.mockito.Mockito.verify;
 public class CeServerTest {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeServer underTest = null;
   private Thread waitingThread = null;
@@ -88,10 +86,9 @@ public class CeServerTest {
   public void awaitStop_throws_ISE_if_called_before_start() {
     CeServer ceServer = newCeServer();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("awaitStop() must not be called before start()");
-
-    ceServer.awaitStop();
+    assertThatThrownBy(ceServer::awaitStop)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("awaitStop() must not be called before start()");
   }
 
   @Test
@@ -134,20 +131,18 @@ public class CeServerTest {
 
     ceServer.start();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("start() can not be called twice");
-
-    ceServer.start();
+    assertThatThrownBy(ceServer::start)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("start() can not be called twice");
   }
 
   @Test
   public void getStatus_throws_ISE_when_called_before_start() {
     CeServer ceServer = newCeServer();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("getStatus() can not be called before start()");
-
-    ceServer.getStatus();
+    assertThatThrownBy(ceServer::getStatus)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("getStatus() can not be called before start()");
   }
 
   @Test
@@ -235,9 +230,8 @@ public class CeServerTest {
   public void staticMain_withoutAnyArguments_expectException() {
     String[] emptyArray = {};
 
-    expectedException.expectMessage("Only a single command-line argument is accepted (absolute path to configuration file)");
-
-    CeServer.main(emptyArray);
+    assertThatThrownBy(() -> CeServer.main(emptyArray))
+      .hasMessage("Only a single command-line argument is accepted (absolute path to configuration file)");
   }
 
   @Test

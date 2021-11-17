@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -59,6 +58,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -75,8 +75,6 @@ public class DeactivateActionTest {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
@@ -314,22 +312,24 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user.getLogin()).setSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Self-deactivation is not possible");
+    assertThatThrownBy(() -> {
+      deactivate(user.getLogin());
 
-    deactivate(user.getLogin());
-
-    verifyThatUserExists(user.getLogin());
+      verifyThatUserExists(user.getLogin());
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Self-deactivation is not possible");
   }
 
   @Test
   public void deactivation_requires_to_be_logged_in() {
     createAdminUser();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    deactivate("someone");
+    assertThatThrownBy(() -> {
+      deactivate("someone");
+    })
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
@@ -337,10 +337,11 @@ public class DeactivateActionTest {
     createAdminUser();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    deactivate("someone");
+    assertThatThrownBy(() -> {
+      deactivate("someone");
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -348,10 +349,11 @@ public class DeactivateActionTest {
     createAdminUser();
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'someone' doesn't exist");
-
-    deactivate("someone");
+    assertThatThrownBy(() -> {
+      deactivate("someone");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'someone' doesn't exist");
   }
 
   @Test
@@ -359,10 +361,11 @@ public class DeactivateActionTest {
     createAdminUser();
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'login' parameter is missing");
-
-    deactivate("");
+    assertThatThrownBy(() -> {
+      deactivate("");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'login' parameter is missing");
   }
 
   @Test
@@ -370,10 +373,11 @@ public class DeactivateActionTest {
     createAdminUser();
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'login' parameter is missing");
-
-    deactivate(null);
+    assertThatThrownBy(() -> {
+      deactivate(null);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'login' parameter is missing");
   }
 
   @Test
@@ -382,10 +386,11 @@ public class DeactivateActionTest {
     db.users().insertPermissionOnUser(admin, ADMINISTER);
     logInAsSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("User is last administrator, and cannot be deactivated");
-
-    deactivate(admin.getLogin());
+    assertThatThrownBy(() -> {
+      deactivate(admin.getLogin());
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("User is last administrator, and cannot be deactivated");
   }
 
   @Test

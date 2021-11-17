@@ -21,7 +21,6 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -32,17 +31,17 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 
 public class UpdateGithubActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -143,18 +142,18 @@ public class UpdateGithubActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("ALM setting with key 'unknown' cannot be found");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", "unknown")
       .setParam("newKey", "GitHub Server - Infra Team")
       .setParam("url", "https://github.enterprise-unicorn.com")
       .setParam("appId", "54321")
       .setParam("privateKey", "10987654321")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("ALM setting with key 'unknown' cannot be found");
   }
 
   @Test
@@ -164,18 +163,18 @@ public class UpdateGithubActionTest {
     AlmSettingDto almSetting1 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto almSetting2 = db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", almSetting1.getKey())
       .setParam("newKey", almSetting2.getKey())
       .setParam("url", "https://github.enterprise-unicorn.com")
       .setParam("appId", "54321")
       .setParam("privateKey", "10987654321")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
   }
 
   @Test
@@ -184,17 +183,17 @@ public class UpdateGithubActionTest {
     userSession.logIn(user);
     AlmSettingDto almSettingDto = db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", almSettingDto.getKey())
       .setParam("newKey", "GitHub Server - Infra Team")
       .setParam("url", "https://github.enterprise-unicorn.com")
       .setParam("appId", "54321")
       .setParam("privateKey", "10987654321")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

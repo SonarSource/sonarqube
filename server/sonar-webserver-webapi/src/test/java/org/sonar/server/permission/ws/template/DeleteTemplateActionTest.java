@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
@@ -51,6 +50,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -63,8 +63,6 @@ public class DeleteTemplateActionTest {
 
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final UserSessionRule userSession = UserSessionRule.standalone();
   private final DbClient dbClient = db.getDbClient();
@@ -112,9 +110,8 @@ public class DeleteTemplateActionTest {
   public void fail_if_uuid_is_not_known() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequestByUuid(underTest, "unknown-template-uuid");
+    assertThatThrownBy(() -> newRequestByUuid(underTest, "unknown-template-uuid"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -124,10 +121,9 @@ public class DeleteTemplateActionTest {
       null, db.permissionTemplates().insertTemplate());
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to delete the default permission template for projects");
-
-    newRequestByUuid(underTest, projectTemplate.getUuid());
+    assertThatThrownBy(() -> newRequestByUuid(underTest, projectTemplate.getUuid()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("It is not possible to delete the default permission template for projects");
   }
 
   @Test
@@ -136,10 +132,9 @@ public class DeleteTemplateActionTest {
     db.permissionTemplates().setDefaultTemplates(projectTemplate, null, db.permissionTemplates().insertTemplate());
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to delete the default permission template for projects");
-
-    newRequestByName(underTest, projectTemplate.getName());
+    assertThatThrownBy(() -> newRequestByName(underTest, projectTemplate.getName()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("It is not possible to delete the default permission template for projects");
   }
 
   @Test
@@ -148,10 +143,9 @@ public class DeleteTemplateActionTest {
     db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, template);
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to delete the default permission template for portfolios");
-
-    newRequestByUuid(this.underTest, template.getUuid());
+    assertThatThrownBy(() -> newRequestByUuid(this.underTest, template.getUuid()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("It is not possible to delete the default permission template for portfolios");
   }
 
   @Test
@@ -160,23 +154,21 @@ public class DeleteTemplateActionTest {
     db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), template, null);
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to delete the default permission template for applications");
-
-    newRequestByUuid(this.underTest, template.getUuid());
+    assertThatThrownBy(() -> newRequestByUuid(this.underTest, template.getUuid()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("It is not possible to delete the default permission template for applications");
   }
 
   @Test
   public void fail_to_delete_by_uuid_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequestByUuid(underTest, "uuid");
+    assertThatThrownBy(() -> newRequestByUuid(underTest, "uuid"))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_to_delete_by_name_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    newRequestByName(underTest, "name");
+    assertThatThrownBy(() -> newRequestByName(underTest, "name"))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -184,9 +176,8 @@ public class DeleteTemplateActionTest {
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequestByUuid(underTest, template.getUuid());
+    assertThatThrownBy(() -> newRequestByUuid(underTest, template.getUuid()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -194,30 +185,29 @@ public class DeleteTemplateActionTest {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequestByName(underTest, template.getName());
+    assertThatThrownBy(() -> newRequestByName(underTest, template.getName()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_neither_uuid_nor_name_is_provided() {
     userSession.logIn();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequestByUuid(underTest, null);
+    assertThatThrownBy(() -> newRequestByUuid(underTest, null))
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_both_uuid_and_name_are_provided() {
     userSession.logIn();
 
-    expectedException.expect(BadRequestException.class);
-
-    underTest.newRequest().setMethod("POST")
-      .setParam(PARAM_TEMPLATE_ID, "uuid")
-      .setParam(PARAM_TEMPLATE_NAME, "name")
-      .execute();
+    assertThatThrownBy(() -> {
+      underTest.newRequest().setMethod("POST")
+        .setParam(PARAM_TEMPLATE_ID, "uuid")
+        .setParam(PARAM_TEMPLATE_NAME, "name")
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   private UserSessionRule loginAsAdmin() {

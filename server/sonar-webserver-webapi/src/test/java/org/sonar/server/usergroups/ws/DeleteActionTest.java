@@ -21,7 +21,6 @@ package org.sonar.server.usergroups.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
@@ -29,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -44,6 +42,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -54,8 +53,6 @@ public class DeleteActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
@@ -205,12 +202,13 @@ public class DeleteActionTest {
     loginAsAdmin();
     int groupId = 123;
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with id '" + groupId + "'");
-
-    newRequest()
-      .setParam("id", String.valueOf(groupId))
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", String.valueOf(groupId))
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No group with id '" + groupId + "'");
   }
 
   @Test
@@ -218,12 +216,13 @@ public class DeleteActionTest {
     loginAsAdmin();
     GroupDto defaultGroup = db.users().insertDefaultGroup();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
-
-    newRequest()
-      .setParam("id", defaultGroup.getUuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", defaultGroup.getUuid())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
 
   @Test
@@ -233,12 +232,13 @@ public class DeleteActionTest {
     db.users().insertPermissionOnGroup(group, SYSTEM_ADMIN);
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The last system admin group cannot be deleted");
-
-    newRequest()
-      .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_GROUP_NAME, group.getName())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The last system admin group cannot be deleted");
   }
 
   @Test
@@ -251,10 +251,11 @@ public class DeleteActionTest {
     db.users().insertMember(adminGroup, bigBoss);
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The last system admin group cannot be deleted");
-
-    executeDeleteGroupRequest(adminGroup);
+    assertThatThrownBy(() -> {
+      executeDeleteGroupRequest(adminGroup);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The last system admin group cannot be deleted");
   }
 
   @Test

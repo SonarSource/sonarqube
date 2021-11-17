@@ -20,18 +20,15 @@
 package org.sonar.api.batch.rule;
 
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CheckFactoryTest {
-
-  @org.junit.Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   ActiveRulesBuilder builder = new ActiveRulesBuilder();
 
@@ -81,9 +78,6 @@ public class CheckFactoryTest {
 
   @Test
   public void fail_if_missing_field() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The field 'unknown' does not exist or is not annotated with @RuleProperty in the class org.sonar.api.batch.rule.CheckWithStringProperty");
-
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithStringProperty");
     NewActiveRule rule = new NewActiveRule.Builder()
       .setRuleKey(ruleKey)
@@ -92,7 +86,10 @@ public class CheckFactoryTest {
     builder.addRule(rule);
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
-    checkFactory.create("squid").addAnnotatedChecks(CheckWithStringProperty.class);
+
+    assertThatThrownBy(() -> checkFactory.create("squid").addAnnotatedChecks(CheckWithStringProperty.class))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The field 'unknown' does not exist or is not annotated with @RuleProperty in the class org.sonar.api.batch.rule.CheckWithStringProperty");
   }
 
   @Test
@@ -155,8 +152,6 @@ public class CheckFactoryTest {
 
   @Test
   public void fail_if_field_type_is_not_supported() {
-    thrown.expect(SonarException.class);
-
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithUnsupportedPropertyType");
     NewActiveRule rule = new NewActiveRule.Builder()
       .setRuleKey(ruleKey)
@@ -165,7 +160,9 @@ public class CheckFactoryTest {
     builder.addRule(rule);
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
-    checkFactory.create("squid").addAnnotatedChecks(CheckWithUnsupportedPropertyType.class);
+
+    assertThatThrownBy(() -> checkFactory.create("squid").addAnnotatedChecks(CheckWithUnsupportedPropertyType.class))
+      .isInstanceOf(SonarException.class);
   }
 
   @Test

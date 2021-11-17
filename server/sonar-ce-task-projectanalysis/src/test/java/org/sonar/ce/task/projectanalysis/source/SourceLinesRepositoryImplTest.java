@@ -21,13 +21,13 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.core.util.CloseableIterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class SourceLinesRepositoryImplTest {
@@ -36,8 +36,6 @@ public class SourceLinesRepositoryImplTest {
   private static final String FILE_KEY = "FILE_KEY";
   private static final int FILE_REF = 2;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -62,47 +60,44 @@ public class SourceLinesRepositoryImplTest {
   public void read_lines_throws_ISE_when_sourceLine_has_less_elements_then_lineCount_minus_1() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has less lines (2) than the expected number (10)");
-
-    consume(underTest.readLines(createComponent(10)));
+    assertThatThrownBy(() -> consume(underTest.readLines(createComponent(10))))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has less lines (2) than the expected number (10)");
   }
 
   @Test
   public void read_lines_throws_ISE_when_sourceLines_has_more_elements_then_lineCount() {
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2", "line3");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has at least one more line than the expected number (2)");
-
-    consume(underTest.readLines(createComponent(2)));
+    assertThatThrownBy(() -> consume(underTest.readLines(createComponent(2))))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has at least one more line than the expected number (2)");
   }
 
   @Test
   public void fail_with_ISE_when_file_has_no_source() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("File 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has no source code");
-
-    underTest.readLines(builder(Component.Type.FILE, FILE_REF)
-      .setKey(FILE_KEY)
-      .setUuid(FILE_UUID)
-      .build());
+    assertThatThrownBy(() -> {
+      underTest.readLines(builder(Component.Type.FILE, FILE_REF)
+        .setKey(FILE_KEY)
+        .setUuid(FILE_UUID)
+        .build());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("File 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has no source code");
   }
 
   @Test
   public void fail_with_NPE_to_read_lines_on_null_component() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Component should not be null");
-
-    underTest.readLines(null);
+    assertThatThrownBy(() -> underTest.readLines(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Component should not be null");
   }
 
   @Test
   public void fail_with_IAE_to_read_lines_on_not_file_component() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Component 'ReportComponent{ref=123, key='NotFile', type=PROJECT}' is not a file");
-
-    underTest.readLines(builder(Component.Type.PROJECT, 123).setKey("NotFile").build());
+    assertThatThrownBy(() -> underTest.readLines(builder(Component.Type.PROJECT, 123).setKey("NotFile").build()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Component 'ReportComponent{ref=123, key='NotFile', type=PROJECT}' is not a file");
   }
 
   private static Component createComponent(int lineCount) {

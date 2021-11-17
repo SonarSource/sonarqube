@@ -25,9 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
@@ -36,6 +35,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -43,8 +43,6 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 
 public class IssueFilterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   static final RuleKey XOO_X1 = RuleKey.of("xoo", "x1");
   static final RuleKey XOO_X2 = RuleKey.of("xoo", "x2");
@@ -166,18 +164,16 @@ public class IssueFilterTest {
 
   @Test
   public void fail_when_only_rule_key_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("File path pattern cannot be empty. Please check 'sonar.issue.ignore.multicriteria' settings");
-
-    newIssueFilter(newSettings(asList("xoo:x1", ""), Collections.emptyList()));
+    assertThatThrownBy(() -> newIssueFilter(newSettings(asList("xoo:x1", ""), Collections.emptyList())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("File path pattern cannot be empty. Please check 'sonar.issue.ignore.multicriteria' settings");
   }
 
   @Test
   public void fail_when_only_path_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Rule key pattern cannot be empty. Please check 'sonar.issue.enforce.multicriteria' settings");
-
-    newIssueFilter(newSettings(Collections.emptyList(), asList("", "**")));
+    assertThatThrownBy(() ->  newIssueFilter(newSettings(Collections.emptyList(), asList("", "**"))))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Rule key pattern cannot be empty. Please check 'sonar.issue.enforce.multicriteria' settings");
   }
 
   private IssueFilter newIssueFilter(MapSettings settings) {

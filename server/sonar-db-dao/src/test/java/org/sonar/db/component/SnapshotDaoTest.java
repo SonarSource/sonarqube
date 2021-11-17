@@ -33,7 +33,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -65,8 +64,6 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 @RunWith(DataProviderRunner.class)
 public class SnapshotDaoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 

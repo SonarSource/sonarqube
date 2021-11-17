@@ -26,13 +26,13 @@ import org.awaitility.Awaitility;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -43,8 +43,6 @@ public class ManagedProcessHandlerTest {
 
   private static final ProcessId A_PROCESS_ID = ProcessId.ELASTICSEARCH;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
@@ -105,13 +103,14 @@ public class ManagedProcessHandlerTest {
   public void start_throws_exception_and_move_to_state_STOPPED_if_execution_of_command_fails() {
     ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("error");
-
-    underTest.start(() -> {
-      throw new IllegalStateException("error");
-    });
-    assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
+    assertThatThrownBy(() -> {
+      underTest.start(() -> {
+        throw new IllegalStateException("error");
+      });
+      assertThat(underTest.getState()).isEqualTo(ManagedProcessLifecycle.State.STOPPED);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("error");
   }
 
   @Test

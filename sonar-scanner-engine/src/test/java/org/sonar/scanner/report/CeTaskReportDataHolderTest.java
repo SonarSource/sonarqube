@@ -19,16 +19,12 @@
  */
 package org.sonar.scanner.report;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskReportDataHolderTest {
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   CeTaskReportDataHolder underTest = new CeTaskReportDataHolder();
 
@@ -45,19 +41,19 @@ public class CeTaskReportDataHolderTest {
 
   @Test
   public void getCeTaskId_should_fail_if_not_initialized() {
-    exception.expect(IllegalStateException.class);
-    underTest.getCeTaskId();
+    assertThatThrownBy(() -> underTest.getCeTaskId())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void getCeTaskUrl_should_fail_if_not_initialized() {
-    exception.expect(IllegalStateException.class);
-    underTest.getCeTaskUrl();
+    assertThatThrownBy(() -> underTest.getCeTaskUrl())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void getDashboardUrl_should_fail_if_not_initialized() {
-    exception.expect(IllegalStateException.class);
-    underTest.getDashboardUrl();
+    assertThatThrownBy(() -> underTest.getDashboardUrl())
+      .isInstanceOf(IllegalStateException.class);
   }
 }

@@ -34,6 +34,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Measure.LongValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class BatchMeasureToMeasureTest {
@@ -54,14 +55,16 @@ public class BatchMeasureToMeasureTest {
     assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isNotPresent();
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void toMeasure_throws_NPE_if_metric_argument_is_null() {
-    underTest.toMeasure(EMPTY_BATCH_MEASURE, null);
+    assertThatThrownBy(() -> underTest.toMeasure(EMPTY_BATCH_MEASURE, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
-    underTest.toMeasure(null, null);
+    assertThatThrownBy(() -> underTest.toMeasure(null, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

@@ -19,18 +19,15 @@
  */
 package org.sonar.server.platform.web.requestid;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.core.util.UuidGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RequestIdGeneratorImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private UuidGenerator.WithFixedBase generator1 = increment -> new byte[] {124, 22, 66, 96, 55, 88, 2, 9};
   private UuidGenerator.WithFixedBase generator2 = increment -> new byte[] {0, 5, 88, 81, 8, 6, 44, 19};
@@ -55,10 +52,11 @@ public class RequestIdGeneratorImplTest {
     assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // renewing generator and using generator3
     assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // using generator3
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(expected.getMessage());
-
-    underTest.generate(); // renewing generator and failing
+    assertThatThrownBy(() -> {
+      underTest.generate(); // renewing generator and failing
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(expected.getMessage());
   }
 
   @Test
@@ -81,9 +79,10 @@ public class RequestIdGeneratorImplTest {
     assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // using generator3
     assertThat(underTest.generate()).isEqualTo("fgkjTAIBAg=="); // using generator3
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(expected.getMessage());
-
-    underTest.generate(); // renewing generator and failing
+    assertThatThrownBy(() -> {
+      underTest.generate(); // renewing generator and failing
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(expected.getMessage());
   }
 }

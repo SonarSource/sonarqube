@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -38,6 +37,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.rule.RuleTesting.EXTERNAL_XOO;
@@ -47,8 +47,6 @@ public class BuiltInQProfileRepositoryImplTest {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
   private static final String SONAR_WAY_QP_NAME = "Sonar way";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -196,30 +194,26 @@ public class BuiltInQProfileRepositoryImplTest {
     DummyProfileDefinition[] definitions = new DummyProfileDefinition[] {new DummyProfileDefinition("foo", "foo", false, singletonList(EXTERNAL_XOO))};
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE), definitions);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Rule with key '%s' not found", EXTERNAL_XOO.toString()));
 
-    underTest.initialize();
   }
 
   @Test
   public void fail_with_ISE_when_two_profiles_with_different_name_are_default_for_the_same_language() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, ruleFinder, new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo2", true));
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Several Quality profiles are flagged as default for the language foo: [foo1, foo2]");
 
-    underTest.initialize();
+    assertThatThrownBy(underTest::initialize)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Several Quality profiles are flagged as default for the language foo: [foo1, foo2]");
   }
 
   @Test
   public void get_throws_ISE_if_called_before_initialize() {
     BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("initialize must be called first");
-
-    underTest.get();
+    assertThatThrownBy(underTest::get)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("initialize must be called first");
   }
 
   @Test
@@ -227,20 +221,18 @@ public class BuiltInQProfileRepositoryImplTest {
     BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages());
     underTest.initialize();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("initialize must be called only once");
-
-    underTest.initialize();
+    assertThatThrownBy(underTest::initialize)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("initialize must be called only once");
   }
 
   @Test
   public void initialize_throws_ISE_if_language_has_no_builtin_qp() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(mock(DbClient.class), ruleFinder, new Languages(FOO_LANGUAGE));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The following languages have no built-in quality profiles: foo");
-
-    underTest.initialize();
+    assertThatThrownBy(underTest::initialize)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The following languages have no built-in quality profiles: foo");
   }
 
   private static final class DummyProfileDefinition implements BuiltInQualityProfilesDefinition {

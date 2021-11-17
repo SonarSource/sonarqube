@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -30,13 +29,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class QualityGateUpdaterTest {
 
   static final String QGATE_NAME = "Default";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -61,9 +59,8 @@ public class QualityGateUpdaterTest {
   public void fail_to_create_when_name_already_exists() {
     underTest.create(dbSession, QGATE_NAME);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name has already been taken");
-
-    underTest.create(dbSession, QGATE_NAME);
+    assertThatThrownBy(() -> underTest.create(dbSession, QGATE_NAME))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Name has already been taken");
   }
 }

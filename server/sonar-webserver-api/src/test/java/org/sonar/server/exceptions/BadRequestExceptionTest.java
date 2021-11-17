@@ -20,18 +20,13 @@
 package org.sonar.server.exceptions;
 
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BadRequestExceptionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void text_error() {
     BadRequestException exception = BadRequestException.create("error");
@@ -61,25 +56,22 @@ public class BadRequestExceptionTest {
 
   @Test
   public void fail_when_creating_exception_with_empty_list() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At least one error message is required");
-
-    BadRequestException.create(Collections.emptyList());
+    assertThatThrownBy(() -> BadRequestException.create(Collections.emptyList()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one error message is required");
   }
 
   @Test
   public void fail_when_creating_exception_with_one_empty_element() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Message cannot be empty");
-
-    BadRequestException.create(asList("error", ""));
+    assertThatThrownBy(() -> BadRequestException.create(asList("error", "")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Message cannot be empty");
   }
 
   @Test
   public void fail_when_creating_exception_with_one_null_element() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Message cannot be empty");
-
-    BadRequestException.create(asList("error", null));
+    assertThatThrownBy(() -> BadRequestException.create(asList("error", null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Message cannot be empty");
   }
 }

@@ -30,7 +30,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -48,8 +47,8 @@ import org.sonar.server.rule.RuleCreator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
@@ -65,8 +64,6 @@ public class QProfileBackuperImplTest {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -389,11 +386,13 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void fail_to_restore_if_xml_is_not_well_formed() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Fail to restore Quality profile backup, XML document is not well formed");
-    String notWellFormedXml = "<?xml version='1.0' encoding='UTF-8'?><profile><name>\"profil\"</name><language>\"language\"</language><rules/></profile";
+    assertThatThrownBy(() -> {
+      String notWellFormedXml = "<?xml version='1.0' encoding='UTF-8'?><profile><name>\"profil\"</name><language>\"language\"</language><rules/></profile";
 
-    underTest.restore(db.getSession(), new StringReader(notWellFormedXml), (String) null);
+      underTest.restore(db.getSession(), new StringReader(notWellFormedXml), (String) null);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Fail to restore Quality profile backup, XML document is not well formed");
   }
 
   @Test
@@ -424,9 +423,11 @@ public class QProfileBackuperImplTest {
       "</rules>" +
       "</profile>");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The quality profile cannot be restored as it contains rules from external rule engines: sonarjs:s001");
-    underTest.restore(db.getSession(), backup, (String) null);
+    assertThatThrownBy(() -> {
+      underTest.restore(db.getSession(), backup, (String) null);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The quality profile cannot be restored as it contains rules from external rule engines: sonarjs:s001");
   }
 
   private RuleDefinitionDto createRule() {

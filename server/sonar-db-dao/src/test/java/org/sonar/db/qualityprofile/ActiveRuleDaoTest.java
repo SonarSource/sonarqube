@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -43,6 +42,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.BETA;
@@ -56,8 +56,6 @@ import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
 public class ActiveRuleDaoTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final long NOW = 10_000_000L;
 
@@ -279,26 +277,23 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void fail_to_insert_when_profile_id_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Quality profile is not persisted (missing id)");
-
-    underTest.insert(dbSession, createFor(profile1, rule1).setProfileUuid(null));
+    assertThatThrownBy(() -> underTest.insert(dbSession, createFor(profile1, rule1).setProfileUuid(null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Quality profile is not persisted (missing id)");
   }
 
   @Test
   public void fail_to_insert_when_rule_uuid_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Rule is not persisted");
-
-    underTest.insert(dbSession, createFor(profile1, rule1).setRuleUuid(null));
+    assertThatThrownBy(() -> underTest.insert(dbSession, createFor(profile1, rule1).setRuleUuid(null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Rule is not persisted");
   }
 
   @Test
   public void fail_to_insert_when_uuid_is_not_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("ActiveRule is already persisted");
-
-    underTest.insert(dbSession, createFor(profile1, rule1).setUuid("uuid"));
+    assertThatThrownBy(() -> underTest.insert(dbSession, createFor(profile1, rule1).setUuid("uuid")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("ActiveRule is already persisted");
   }
 
   @Test
@@ -333,26 +328,23 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void fail_to_update_when_profile_id_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Quality profile is not persisted (missing id)");
-
-    underTest.update(dbSession, createFor(profile1, rule1).setUuid("uuid").setProfileUuid(null));
+    assertThatThrownBy(() -> underTest.update(dbSession, createFor(profile1, rule1).setUuid("uuid").setProfileUuid(null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Quality profile is not persisted (missing id)");
   }
 
   @Test
   public void fail_to_update_when_rule_id_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Rule is not persisted");
-
-    underTest.update(dbSession, createFor(profile1, rule1).setUuid("uuid").setRuleUuid(null));
+    assertThatThrownBy(() -> underTest.update(dbSession, createFor(profile1, rule1).setUuid("uuid").setRuleUuid(null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Rule is not persisted");
   }
 
   @Test
   public void fail_to_update_when_id_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("ActiveRule is not persisted");
-
-    underTest.update(dbSession, createFor(profile1, rule1).setUuid(null));
+    assertThatThrownBy(() -> underTest.update(dbSession, createFor(profile1, rule1).setUuid(null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("ActiveRule is not persisted");
   }
 
   @Test
@@ -470,32 +462,35 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void insertParam_fails_when_active_rule_id_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("ActiveRule is not persisted");
-
-    underTest.insertParam(dbSession,
-      createFor(profile1, rule1).setUuid(null),
-      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1"));
+    assertThatThrownBy(() -> {
+      underTest.insertParam(dbSession,
+        createFor(profile1, rule1).setUuid(null),
+        ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1"));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("ActiveRule is not persisted");
   }
 
   @Test
   public void insertParam_fails_when_active_rule_param_id_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("ActiveRuleParam is already persisted");
-
-    underTest.insertParam(dbSession,
-      createFor(profile1, rule1).setUuid("uuid"),
-      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setUuid("uuid-1"));
+    assertThatThrownBy(() -> {
+      underTest.insertParam(dbSession,
+        createFor(profile1, rule1).setUuid("uuid"),
+        ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setUuid("uuid-1"));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("ActiveRuleParam is already persisted");
   }
 
   @Test
   public void insertParam_fails_when_uuid_is_not_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Rule param is not persisted");
-
-    underTest.insertParam(dbSession,
-      createFor(profile1, rule1).setUuid("uuid"),
-      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setRulesParameterUuid(null));
+    assertThatThrownBy(() -> {
+      underTest.insertParam(dbSession,
+        createFor(profile1, rule1).setUuid("uuid"),
+        ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setRulesParameterUuid(null));
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Rule param is not persisted");
   }
 
   @Test

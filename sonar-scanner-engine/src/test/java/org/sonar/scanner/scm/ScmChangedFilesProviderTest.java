@@ -23,17 +23,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -48,9 +47,6 @@ public class ScmChangedFilesProviderTest {
   private InputModuleHierarchy inputModuleHierarchy;
   @Mock
   private ScmProvider scmProvider;
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private Path rootBaseDir = Paths.get("root");
   private ScmChangedFilesProvider provider;
@@ -81,9 +77,9 @@ public class ScmChangedFilesProviderTest {
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     when(scmProvider.branchChangedFiles("target", rootBaseDir)).thenReturn(Collections.singleton(Paths.get("changedFile")));
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("changed file with a relative path");
-    provider.provide(scmConfiguration, branchConfiguration, project);
+    assertThatThrownBy(() -> provider.provide(scmConfiguration, branchConfiguration, project))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("changed file with a relative path");
   }
 
   @Test

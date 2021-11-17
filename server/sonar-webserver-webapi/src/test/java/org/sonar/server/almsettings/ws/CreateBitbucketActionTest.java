@@ -22,7 +22,6 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -36,14 +35,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CreateBitbucketActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -57,7 +55,7 @@ public class CreateBitbucketActionTest {
       multipleAlmFeatureProvider)));
 
   @Before
-  public void before(){
+  public void before() {
     when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
   }
 
@@ -84,14 +82,13 @@ public class CreateBitbucketActionTest {
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto bitbucketAlmSetting = db.almSettings().insertBitbucketAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("An ALM setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", bitbucketAlmSetting.getKey())
       .setParam("url", "https://bitbucket.enterprise.com")
       .setParam("personalAccessToken", "98765432100")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", bitbucketAlmSetting.getKey()));
   }
 
   @Test
@@ -101,14 +98,13 @@ public class CreateBitbucketActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertBitbucketAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A BITBUCKET setting is already defined");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "otherKey")
       .setParam("url", "https://bitbucket.enterprise.com")
       .setParam("personalAccessToken", "98765432100")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A BITBUCKET setting is already defined");
   }
 
   @Test
@@ -118,14 +114,13 @@ public class CreateBitbucketActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertBitbucketCloudAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A BITBUCKET_CLOUD setting is already defined");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "otherKey")
       .setParam("url", "https://bitbucket.enterprise.com")
       .setParam("personalAccessToken", "98765432100")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A BITBUCKET_CLOUD setting is already defined");
   }
 
   @Test
@@ -133,13 +128,13 @@ public class CreateBitbucketActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "Bitbucket Server - Dev Team")
       .setParam("url", "https://bitbucket.enterprise.com")
       .setParam("personalAccessToken", "98765432100")
-      .execute();
+      .setParam("personalAccessToken", "98765432100")
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

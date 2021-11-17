@@ -24,7 +24,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.platform.ServerFileSystem;
@@ -32,13 +31,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IndexActionTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -70,8 +68,9 @@ public class IndexActionTest {
 
   @Test
   public void throw_ISE_when_no_file() {
-    thrown.expect(IllegalStateException.class);
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No available files");
   }
 
   @Test

@@ -19,23 +19,19 @@
  */
 package org.sonar.server.webhook;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnalysisTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_NPE_when_uuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid must not be null");
-
-    new Analysis(null, 1_990L, "abcde");
+    assertThatThrownBy(() -> new Analysis(null, 1_990L, "abcde"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid must not be null");
   }
 
   @Test

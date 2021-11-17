@@ -25,6 +25,7 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -32,14 +33,16 @@ public class TaskContainerImplTest {
   private ComponentContainer parent = new ComponentContainer();
   private ContainerPopulator<TaskContainer> populator = spy(new DummyContainerPopulator());
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_fails_fast_on_null_container() {
-    new TaskContainerImpl(null, populator);
+    assertThatThrownBy(() -> new TaskContainerImpl(null, populator))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_fails_fast_on_null_item() {
-    new TaskContainerImpl(new ComponentContainer(), null);
+    assertThatThrownBy(() -> new TaskContainerImpl(new ComponentContainer(), null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -44,6 +43,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -60,8 +60,6 @@ public class CreateActionTest {
 
   private System2 system2 = mock(System2.class);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -183,10 +181,9 @@ public class CreateActionTest {
       .setParam("severity", "MAJOR")
       .setParam("prevent_reactivation", "true");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The template key doesn't exist: non:existing");
-
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The template key doesn't exist: non:existing");
   }
 
   @Test
@@ -203,26 +200,23 @@ public class CreateActionTest {
       .setParam("severity", "MAJOR")
       .setParam("prevent_reactivation", "true");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The template key doesn't exist: " + templateRule.getKey());
-
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The template key doesn't exist: " + templateRule.getKey());
   }
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private static MacroInterpreter createMacroInterpreter() {

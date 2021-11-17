@@ -22,7 +22,6 @@ package org.sonar.db.ce;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbSession;
@@ -31,6 +30,7 @@ import org.sonar.db.DbTester;
 import static java.lang.System.lineSeparator;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class CeScannerContextDaoTest {
@@ -40,8 +40,6 @@ public class CeScannerContextDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system = mock(System2.class);
   private DbSession dbSession = dbTester.getSession();
@@ -65,10 +63,9 @@ public class CeScannerContextDaoTest {
 
   @Test
   public void insert_fails_with_IAE_if_data_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Scanner context can not be empty");
-
-    underTest.insert(dbSession, SOME_UUID, CloseableIterator.emptyCloseableIterator());
+    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, CloseableIterator.emptyCloseableIterator()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Scanner context can not be empty");
   }
 
   @Test
@@ -76,10 +73,9 @@ public class CeScannerContextDaoTest {
     CloseableIterator<String> iterator = scannerContextInputStreamOf("aa");
     iterator.next();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Scanner context can not be empty");
-
-    underTest.insert(dbSession, SOME_UUID, iterator);
+    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, iterator))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Scanner context can not be empty");
   }
 
   @Test
@@ -89,10 +85,9 @@ public class CeScannerContextDaoTest {
 
     assertThat(dbTester.countRowsOfTable(dbSession, TABLE_NAME)).isEqualTo(1);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to insert scanner context for task " + SOME_UUID);
-
-    underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("blo"));
+    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("blo")))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to insert scanner context for task " + SOME_UUID);
   }
 
   @Test

@@ -100,7 +100,7 @@ public class LogbackJsonLayoutTest {
     JsonLog json = new Gson().fromJson(log, JsonLog.class);
     assertThat(json.stacktrace).hasSizeGreaterThan(5);
     assertThat(json.stacktrace[0]).isEqualTo("java.lang.IllegalStateException: BOOM");
-    assertThat(json.stacktrace[1]).startsWith("at org.sonar.process.logging.LogbackJsonLayoutTest.test_log_with_throwable_and_cause(LogbackJsonLayoutTest.java:");
+    assertThat(json.stacktrace[1]).contains("at org.sonar.process.logging.LogbackJsonLayoutTest.test_log_with_throwable_and_cause");
     assertThat(json.stacktrace)
       .contains("\tCaused by: ")
       .contains("\tjava.lang.IllegalArgumentException: Root cause");

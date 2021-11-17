@@ -20,23 +20,14 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultIssueLocationTest {
-
-  @Rule
-  public ExpectedException thrown = none();
 
   private InputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
@@ -53,12 +44,12 @@ public class DefaultIssueLocationTest {
 
   @Test
   public void not_allowed_to_call_on_twice() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("on() already called");
-    new DefaultIssueLocation()
+    assertThatThrownBy(() -> new DefaultIssueLocation()
       .on(inputFile)
       .on(inputFile)
-      .message("Wrong way!");
+      .message("Wrong way!"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("on() already called");
   }
 
   @Test
@@ -74,35 +65,19 @@ public class DefaultIssueLocationTest {
 
   @Test
   public void prevent_null_character_in_message_text() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Character \\u0000 is not supported in issue message");
-
-    new DefaultIssueLocation()
-      .message("pipo " + '\u0000' + " bimbo");
+    assertThatThrownBy(() -> new DefaultIssueLocation()
+      .message("pipo " + '\u0000' + " bimbo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Character \\u0000 is not supported in issue message");
   }
 
   @Test
   public void prevent_null_character_in_message_text_when_builder_has_been_initialized() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(customMatcher("Character \\u0000 is not supported in issue message", ", on component: src/Foo.php"));
-
-    new DefaultIssueLocation()
+    assertThatThrownBy(() -> new DefaultIssueLocation()
       .on(inputFile)
-      .message("pipo " + '\u0000' + " bimbo");
+      .message("pipo " + '\u0000' + " bimbo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageStartingWith("Character \\u0000 is not supported in issue message")
+      .hasMessageEndingWith(", on component: src/Foo.php");
   }
-
-  private Matcher<String> customMatcher(String startWith, String endWith) {
-    return new TypeSafeMatcher<String>() {
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("Invalid message");
-      }
-
-      @Override
-      protected boolean matchesSafely(final String item) {
-        return item.startsWith(startWith) && item.endsWith(endWith);
-      }
-    };
-  }
-
 }

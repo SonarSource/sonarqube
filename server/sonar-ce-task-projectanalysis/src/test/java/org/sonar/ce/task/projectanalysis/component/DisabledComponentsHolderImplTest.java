@@ -20,16 +20,13 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DisabledComponentsHolderImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   DisabledComponentsHolderImpl underTest = new DisabledComponentsHolderImpl();
 
@@ -44,15 +41,15 @@ public class DisabledComponentsHolderImplTest {
   public void setUuids_fails_if_called_twice() {
     underTest.setUuids(ImmutableSet.of("U1", "U2"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("UUIDs have already been set in repository");
-    underTest.setUuids(ImmutableSet.of("U1", "U2"));
+    assertThatThrownBy(() -> underTest.setUuids(ImmutableSet.of("U1", "U2")))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("UUIDs have already been set in repository");
   }
 
   @Test
   public void getUuids_fails_if_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("UUIDs have not been set in repository");
-    underTest.getUuids();
+    assertThatThrownBy(() -> underTest.getUuids())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("UUIDs have not been set in repository");
   }
 }

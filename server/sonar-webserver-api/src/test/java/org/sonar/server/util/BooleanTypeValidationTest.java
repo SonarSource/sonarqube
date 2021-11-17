@@ -19,18 +19,13 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BooleanTypeValidationTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private BooleanTypeValidation underTest = new BooleanTypeValidation();
 
   @Test
@@ -48,10 +43,9 @@ public class BooleanTypeValidationTest {
 
   @Test
   public void fail_on_invalid_boolean() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value 'abc' must be one of \"true\" or \"false\".");
-
-    underTest.validate("abc", null);
+    assertThatThrownBy(() -> underTest.validate("abc", null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value 'abc' must be one of \"true\" or \"false\".");
   }
 
 }

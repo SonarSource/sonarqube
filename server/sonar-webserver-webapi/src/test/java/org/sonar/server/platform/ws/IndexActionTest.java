@@ -23,9 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.i18n.DefaultI18n;
@@ -37,6 +35,7 @@ import static java.util.Locale.ENGLISH;
 import static java.util.Locale.PRC;
 import static java.util.Locale.UK;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -49,8 +48,6 @@ public class IndexActionTest {
   private static final String KEY_2 = "key2";
   private static final String KEY_3 = "key3";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DefaultI18n i18n = mock(DefaultI18n.class);
   private Server server = mock(Server.class);
@@ -133,9 +130,9 @@ public class IndexActionTest {
     when(i18n.message(UK, key1, key1)).thenReturn(key1);
     when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Locale cannot be parsed as a BCP47 language tag");
-    call("en_GB", null);
+    assertThatThrownBy(() -> call("en_GB", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Locale cannot be parsed as a BCP47 language tag");
   }
 
   private TestResponse call(@Nullable String locale, @Nullable String timestamp) {

@@ -22,7 +22,6 @@ package org.sonar.server.setting.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -41,14 +40,13 @@ import org.sonar.db.user.UserTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
 public class SettingsUpdaterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -186,18 +184,20 @@ public class SettingsUpdaterTest {
 
   @Test
   public void fail_to_delete_global_setting_when_no_setting_key() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At least one setting key is required");
-
-    underTest.deleteGlobalSettings(dbSession);
+    assertThatThrownBy(() -> {
+      underTest.deleteGlobalSettings(dbSession);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one setting key is required");
   }
 
   @Test
   public void fail_to_delete_component_setting_when_no_setting_key() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At least one setting key is required");
-
-    underTest.deleteComponentSettings(dbSession, project);
+    assertThatThrownBy(() -> {
+      underTest.deleteComponentSettings(dbSession, project);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one setting key is required");
   }
 
   private void assertGlobalPropertyDoesNotExist(String key) {

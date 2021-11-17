@@ -22,7 +22,6 @@ package org.sonar.server.favorite;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -31,11 +30,10 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class FavoriteUpdaterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -106,10 +104,9 @@ public class FavoriteUpdaterTest {
       user.getUuid(), user.getLogin()));
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("You cannot have more than 100 favorites on components with qualifier 'TRK'");
-
-    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
+    assertThatThrownBy(() -> underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You cannot have more than 100 favorites on components with qualifier 'TRK'");
   }
 
   @Test
@@ -119,10 +116,9 @@ public class FavoriteUpdaterTest {
     underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
     assertFavorite(project, user);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Component '%s' is already a favorite", project.getKey()));
-
-    underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true);
+    assertThatThrownBy(() -> underTest.add(dbSession, project, user.getUuid(), user.getLogin(), true))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Component '%s' is already a favorite", project.getKey()));
   }
 
   private void assertFavorite(ComponentDto project, UserDto user) {

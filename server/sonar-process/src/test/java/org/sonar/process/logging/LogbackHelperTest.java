@@ -49,7 +49,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.process.MessageException;
@@ -58,6 +57,7 @@ import org.sonar.process.Props;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -68,8 +68,6 @@ public class LogbackHelperTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Props props = new Props(new Properties());
   private LogbackHelper underTest = new LogbackHelper();
@@ -307,10 +305,9 @@ public class LogbackHelperTest {
   public void apply_fails_with_IAE_if_LogLevelConfig_does_not_have_ROOT_LOGGER_NAME_of_LogBack() {
     LogLevelConfig logLevelConfig = LogLevelConfig.newBuilder(randomAlphanumeric(2)).build();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of LogLevelConfig#rootLoggerName must be \"ROOT\"");
-
-    underTest.apply(logLevelConfig, props);
+    assertThatThrownBy(() -> underTest.apply(logLevelConfig, props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of LogLevelConfig#rootLoggerName must be \"ROOT\"");
   }
 
   @Test
@@ -319,10 +316,9 @@ public class LogbackHelperTest {
 
     props.set("sonar.log.level", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.apply(config, props);
+    assertThatThrownBy(() -> underTest.apply(config, props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
@@ -331,10 +327,9 @@ public class LogbackHelperTest {
 
     props.set("sonar.log.level.web", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.web is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.apply(config, props);
+    assertThatThrownBy(() -> underTest.apply(config, props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.web is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
@@ -419,10 +414,9 @@ public class LogbackHelperTest {
 
     props.set("sonar.log.level.web.jmx", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.web.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.apply(config, props);
+    assertThatThrownBy(() -> underTest.apply(config, props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.web.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test

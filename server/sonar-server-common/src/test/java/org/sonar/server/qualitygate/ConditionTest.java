@@ -20,44 +20,38 @@
 package org.sonar.server.qualitygate;
 
 import java.util.Arrays;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ConditionTest {
   private static final String METRIC_KEY = "metric_key";
   private static final Condition.Operator OPERATOR = Condition.Operator.GREATER_THAN;
   private static final String ERROR_THRESHOLD = "2";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Condition underTest = new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD);
 
   @Test
   public void constructor_throws_NPE_if_metricKey_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey can't be null");
-
-    new Condition(null, OPERATOR, ERROR_THRESHOLD);
+    assertThatThrownBy(() -> new Condition(null, OPERATOR, ERROR_THRESHOLD))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("metricKey can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_operator_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator can't be null");
-
-    new Condition(METRIC_KEY, null, ERROR_THRESHOLD);
+    assertThatThrownBy(() -> new Condition(METRIC_KEY, null, ERROR_THRESHOLD))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("operator can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_errorThreshold_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("errorThreshold can't be null");
-
-    new Condition(METRIC_KEY, OPERATOR, null);
+    assertThatThrownBy(() -> new Condition(METRIC_KEY, OPERATOR, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("errorThreshold can't be null");
   }
 
   @Test

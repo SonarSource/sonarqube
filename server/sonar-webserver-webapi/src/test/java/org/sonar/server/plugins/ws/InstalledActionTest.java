@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
@@ -68,8 +67,6 @@ public class InstalledActionTest {
     "  \"plugins\":" + "[]" +
     "}";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule

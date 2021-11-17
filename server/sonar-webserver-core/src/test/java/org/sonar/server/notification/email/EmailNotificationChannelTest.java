@@ -35,9 +35,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
@@ -63,8 +61,6 @@ public class EmailNotificationChannelTest {
 
   private static final String SUBJECT_PREFIX = "[SONARQUBE]";
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private Wiser smtpServer;
   private EmailSettings configuration;

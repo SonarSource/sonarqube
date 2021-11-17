@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -44,6 +43,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -55,8 +55,6 @@ import static org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.Comp
 
 public class PersistProjectLinksStepTest extends BaseStepTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
@@ -247,10 +245,9 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
   }
 
   private void mockBranch(boolean isMain) {

@@ -22,12 +22,11 @@ package org.sonar.ce.task.projectanalysis.api.posttask;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.posttask.QualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,42 +35,36 @@ public class QualityGateImplTest {
   private static final String SOME_NAME = "some name";
   private static final QualityGate.Status SOME_STATUS = QualityGate.Status.OK;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private QualityGate.Condition condition = mock(QualityGate.Condition.class);
   private QualityGateImpl underTest = new QualityGateImpl(SOME_ID, SOME_NAME, SOME_STATUS, ImmutableList.of(condition));
 
   @Test
   public void constructor_throws_NPE_if_id_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can not be null");
-
-    new QualityGateImpl(null, SOME_NAME, SOME_STATUS, Collections.emptyList());
+    assertThatThrownBy(() -> new QualityGateImpl(null, SOME_NAME, SOME_STATUS, Collections.emptyList()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_name_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can not be null");
-
-    new QualityGateImpl(SOME_ID, null, SOME_STATUS, Collections.emptyList());
+    assertThatThrownBy(() -> new QualityGateImpl(SOME_ID, null, SOME_STATUS, Collections.emptyList()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_status_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
-
-    new QualityGateImpl(SOME_ID, SOME_NAME, null, Collections.emptyList());
+    assertThatThrownBy(() -> new QualityGateImpl(SOME_ID, SOME_NAME, null, Collections.emptyList()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_conditions_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("conditions can not be null");
-
-    new QualityGateImpl(SOME_ID, SOME_NAME, SOME_STATUS, null);
+    assertThatThrownBy(() -> new QualityGateImpl(SOME_ID, SOME_NAME, SOME_STATUS, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("conditions can not be null");
   }
 
   @Test

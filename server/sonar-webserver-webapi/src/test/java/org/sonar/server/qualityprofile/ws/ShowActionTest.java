@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
@@ -46,6 +45,7 @@ import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
@@ -65,8 +65,6 @@ public class ShowActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
@@ -293,18 +291,20 @@ public class ShowActionTest {
   public void fail_if_profile_language_is_not_supported() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setKee("unknown-profile").setLanguage("kotlin"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'unknown-profile' does not exist");
-
-    call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile with key 'unknown-profile' does not exist");
   }
 
   @Test
   public void fail_if_profile_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'unknown-profile' does not exist");
-
-    call(ws.newRequest().setParam(PARAM_KEY, "unknown-profile"));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam(PARAM_KEY, "unknown-profile"));
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile with key 'unknown-profile' does not exist");
   }
 
   @Test

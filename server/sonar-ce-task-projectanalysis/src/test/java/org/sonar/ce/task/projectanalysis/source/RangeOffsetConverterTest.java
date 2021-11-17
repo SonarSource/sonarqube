@@ -19,19 +19,16 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter;
 import org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetConverter.RangeOffsetConverterException;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RangeOffsetConverterTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   static final int LINE_1 = 1;
   static final int LINE_2 = 2;
@@ -91,29 +88,23 @@ public class RangeOffsetConverterTest {
 
   @Test
   public void fail_when_end_offset_is_before_start_offset() {
-    thrown.expect(RangeOffsetConverterException.class);
-    thrown.expectMessage("End offset 2 cannot be defined before start offset 4 on line 1");
-
-    underTest.offsetToString(createTextRange(LINE_1, LINE_1, OFFSET_4, OFFSET_2),
-      LINE_1, DEFAULT_LINE_LENGTH);
+    assertThatThrownBy(() -> underTest.offsetToString(createTextRange(LINE_1, LINE_1, OFFSET_4, OFFSET_2), LINE_1, DEFAULT_LINE_LENGTH))
+      .isInstanceOf(RangeOffsetConverterException.class)
+      .hasMessage("End offset 2 cannot be defined before start offset 4 on line 1");
   }
 
   @Test
   public void fail_when_end_offset_is_higher_than_line_length() {
-    thrown.expect(RangeOffsetConverterException.class);
-    thrown.expectMessage("End offset 10 is defined outside the length (5) of the line 1");
-
-    underTest.offsetToString(createTextRange(LINE_1, LINE_1, OFFSET_4, BIG_OFFSET),
-      LINE_1, DEFAULT_LINE_LENGTH);
+    assertThatThrownBy(() -> underTest.offsetToString(createTextRange(LINE_1, LINE_1, OFFSET_4, BIG_OFFSET), LINE_1, DEFAULT_LINE_LENGTH))
+      .isInstanceOf(RangeOffsetConverterException.class)
+      .hasMessage("End offset 10 is defined outside the length (5) of the line 1");
   }
 
   @Test
   public void fail_when_start_offset_is_higher_than_line_length() {
-    thrown.expect(RangeOffsetConverterException.class);
-    thrown.expectMessage("Start offset 10 is defined outside the length (5) of the line 1");
-
-    underTest.offsetToString(createTextRange(LINE_1, LINE_1, BIG_OFFSET, BIG_OFFSET + 1),
-      LINE_1, DEFAULT_LINE_LENGTH);
+    assertThatThrownBy(() -> underTest.offsetToString(createTextRange(LINE_1, LINE_1, BIG_OFFSET, BIG_OFFSET + 1), LINE_1, DEFAULT_LINE_LENGTH))
+      .isInstanceOf(RangeOffsetConverterException.class)
+      .hasMessage("Start offset 10 is defined outside the length (5) of the line 1");
   }
 
   private static ScannerReport.TextRange createTextRange(int startLine, int enLine, int startOffset, int endOffset) {

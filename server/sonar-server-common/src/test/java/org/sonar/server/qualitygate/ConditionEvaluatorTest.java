@@ -24,13 +24,12 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
@@ -39,8 +38,6 @@ import static org.sonar.server.qualitygate.FakeMeasure.newMeasureOnLeak;
 
 @RunWith(DataProviderRunner.class)
 public class ConditionEvaluatorTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void GREATER_THAN_double() {
@@ -80,11 +77,9 @@ public class ConditionEvaluatorTest {
 
   @Test
   public void evaluate_throws_IAE_if_fail_to_parse_threshold() {
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Quality Gate: unable to parse threshold '9bar' to compare against foo");
-
-    test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9bar", EvaluatedCondition.EvaluationStatus.ERROR, "10da");
+    assertThatThrownBy(() -> test(new FakeMeasure(10), Condition.Operator.LESS_THAN, "9bar", EvaluatedCondition.EvaluationStatus.ERROR, "10da"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Quality Gate: unable to parse threshold '9bar' to compare against foo");
   }
 
   @Test
@@ -97,10 +92,9 @@ public class ConditionEvaluatorTest {
   @Test
   @UseDataProvider("unsupportedMetricTypes")
   public void fail_when_condition_is_on_unsupported_metric(Metric.ValueType metricType) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Condition is not allowed for type %s", metricType));
-
-    test(new FakeMeasure(metricType), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10");
+    assertThatThrownBy(() -> test(new FakeMeasure(metricType), Condition.Operator.LESS_THAN, "9", EvaluatedCondition.EvaluationStatus.OK, "10"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Condition is not allowed for type %s", metricType));
   }
 
   @DataProvider

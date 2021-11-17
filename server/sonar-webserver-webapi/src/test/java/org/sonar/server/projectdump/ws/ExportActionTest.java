@@ -22,7 +22,6 @@ package org.sonar.server.projectdump.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.CeTask;
@@ -40,6 +39,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -54,8 +54,6 @@ public class ExportActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -80,19 +78,17 @@ public class ExportActionTest {
   public void fails_if_missing_project_key() {
     logInAsProjectAdministrator("foo");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter is missing");
-
-    actionTester.newRequest().setMethod("POST").execute();
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'key' parameter is missing");
   }
 
   @Test
   public void fails_if_not_project_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute();
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -110,10 +106,9 @@ public class ExportActionTest {
   public void fails_to_trigger_task_if_anonymous() {
     userSession.anonymous();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute();
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").setParam("key", project.getDbKey()).execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -133,12 +128,13 @@ public class ExportActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-
-    actionTester.newRequest()
-      .setMethod("POST")
-      .setParam("key", branch.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      actionTester.newRequest()
+        .setMethod("POST")
+        .setParam("key", branch.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   private void logInAsProjectAdministrator(String login) {

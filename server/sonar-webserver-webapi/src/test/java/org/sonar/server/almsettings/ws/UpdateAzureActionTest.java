@@ -21,7 +21,6 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -36,13 +35,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 
 public class UpdateAzureActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -112,14 +110,13 @@ public class UpdateAzureActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("ALM setting with key 'unknown' cannot be found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "unknown")
       .setParam("personalAccessToken", "0123456789")
       .setParam("url", AZURE_URL)
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("ALM setting with key 'unknown' cannot be found");
   }
 
   @Test
@@ -129,15 +126,14 @@ public class UpdateAzureActionTest {
     AlmSettingDto almSetting1 = db.almSettings().insertAzureAlmSetting();
     AlmSettingDto almSetting2 = db.almSettings().insertAzureAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", almSetting1.getKey())
       .setParam("newKey", almSetting2.getKey())
       .setParam("personalAccessToken", "0123456789")
       .setParam("url", AZURE_URL)
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("An ALM setting with key '%s' already exists", almSetting2.getKey()));
   }
 
   @Test
@@ -146,13 +142,12 @@ public class UpdateAzureActionTest {
     userSession.logIn(user);
     AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", almSettingDto.getKey())
       .setParam("newKey", "Azure Server - Infra Team")
       .setParam("personalAccessToken", "0123456789")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

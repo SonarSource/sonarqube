@@ -20,19 +20,16 @@
 package org.sonar.api.server.rule;
 
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition.NewRule;
 import org.sonar.check.Priority;
-import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RulesDefinitionAnnotationLoaderTest {
 
-  @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
 
   RulesDefinitionAnnotationLoader annotationLoader = new RulesDefinitionAnnotationLoader();
 

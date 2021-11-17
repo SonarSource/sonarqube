@@ -22,12 +22,11 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.EvaluationStatus.NO_VALUE;
 import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.EvaluationStatus.OK;
 import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.EvaluationStatus.values;
@@ -36,32 +35,27 @@ import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.Eval
 public class ConditionStatusTest {
   private static final String SOME_VALUE = "value";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_throws_NPE_if_status_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
-
-    ConditionStatus.create(null, SOME_VALUE);
+    assertThatThrownBy(() -> ConditionStatus.create(null, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can not be null");
   }
 
   @Test
   public void create_throws_IAE_if_status_argument_is_NO_VALUE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("EvaluationStatus 'NO_VALUE' can not be used with this method, use constant ConditionStatus.NO_VALUE_STATUS instead.");
-
-    ConditionStatus.create(NO_VALUE, SOME_VALUE);
+    assertThatThrownBy(() -> ConditionStatus.create(NO_VALUE, SOME_VALUE))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("EvaluationStatus 'NO_VALUE' can not be used with this method, use constant ConditionStatus.NO_VALUE_STATUS instead.");
   }
 
   @Test
   @UseDataProvider("allStatusesButNO_VALUE")
   public void create_throws_NPE_if_value_is_null_and_status_argument_is_not_NO_VALUE(ConditionStatus.EvaluationStatus status) {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value can not be null");
-
-    ConditionStatus.create(status, null);
+    assertThatThrownBy(() -> ConditionStatus.create(status, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("value can not be null");
   }
 
   @Test

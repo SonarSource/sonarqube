@@ -22,14 +22,12 @@ package org.sonar.server.platform.monitoring;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.plugins.PluginType;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;

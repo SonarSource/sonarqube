@@ -21,7 +21,6 @@ package org.sonar.server.usergroups.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -38,6 +37,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -57,8 +57,6 @@ public class SearchActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession,
     new DefaultGroupFinder(db.getDbClient())));
@@ -189,8 +187,10 @@ public class SearchActionTest {
   public void fail_when_not_logged_in() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-    call(ws.newRequest());
+    assertThatThrownBy(() -> {
+      call(ws.newRequest());
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test

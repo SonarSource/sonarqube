@@ -30,17 +30,15 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ShutdownerTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  
+
   private File srcFile;
 
   @Before
@@ -58,10 +56,9 @@ public class ShutdownerTest {
   public void loadPropertiesFile_fails_with_ISE_if_sonar_properties_not_in_conf_dir() throws IOException {
     File homeDir = temporaryFolder.newFolder();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration file not found: " + new File(new File(homeDir, "conf"), "sonar.properties").getAbsolutePath());
-
-    Shutdowner.loadPropertiesFile(homeDir);
+    assertThatThrownBy(() -> Shutdowner.loadPropertiesFile(homeDir))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Configuration file not found: " + new File(new File(homeDir, "conf"), "sonar.properties").getAbsolutePath());
   }
 
   @Test

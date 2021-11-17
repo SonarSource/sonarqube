@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -66,8 +65,6 @@ public class PropertiesDaoWithPersisterTest {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<PropertyNewValue> newValueCaptor = ArgumentCaptor.forClass(PropertyNewValue.class);
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2, auditPersister);
 

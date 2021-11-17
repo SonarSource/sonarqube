@@ -19,43 +19,37 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class InProjectDuplicateTest {
   private static final Component FILE_1 = ReportComponent.builder(Component.Type.FILE, 1).build();
   private static final Component FILE_2 = ReportComponent.builder(Component.Type.FILE, 2).build();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructors_throws_NPE_if_file_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("file can not be null");
-
-    new InProjectDuplicate(null, new TextBlock(1, 1));
+    assertThatThrownBy(() -> new InProjectDuplicate(null, new TextBlock(1, 1)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("file can not be null");
   }
 
   @Test
   public void constructors_throws_NPE_if_textBlock_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("textBlock of duplicate can not be null");
-
-    new InProjectDuplicate(FILE_1, null);
+    assertThatThrownBy(() -> new InProjectDuplicate(FILE_1, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("textBlock of duplicate can not be null");
   }
 
   @Test
   public void constructors_throws_IAE_if_type_of_file_argument_is_not_FILE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("file must be of type FILE");
-
-    new InProjectDuplicate(ReportComponent.builder(Component.Type.PROJECT, 1).build(), new TextBlock(1, 1));
+    assertThatThrownBy(() -> new InProjectDuplicate(ReportComponent.builder(Component.Type.PROJECT, 1).build(), new TextBlock(1, 1)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("file must be of type FILE");
   }
 
   @Test

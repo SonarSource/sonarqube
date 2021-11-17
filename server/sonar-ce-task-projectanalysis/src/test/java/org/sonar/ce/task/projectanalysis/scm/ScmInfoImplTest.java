@@ -19,16 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ScmInfoImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   static final Changeset CHANGESET_1 = Changeset.newChangesetBuilder()
     .setAuthor("john")
@@ -76,28 +73,29 @@ public class ScmInfoImplTest {
 
   @Test
   public void fail_with_ISE_on_empty_changeset() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("ScmInfo cannot be empty");
-
-    new ScmInfoImpl(new Changeset[0]);
+    assertThatThrownBy(() -> new ScmInfoImpl(new Changeset[0]))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("ScmInfo cannot be empty");
   }
 
   @Test
   public void fail_with_IAE_when_line_is_smaller_than_one() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("There's no changeset on line 0");
-
-    ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
-    scmInfo.getChangesetForLine(0);
+    assertThatThrownBy(() -> {
+      ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
+      scmInfo.getChangesetForLine(0);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("There's no changeset on line 0");
   }
 
   @Test
   public void fail_with_IAE_when_line_is_bigger_than_changetset_size() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("There's no changeset on line 5");
-
-    ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
-    scmInfo.getChangesetForLine(5);
+    assertThatThrownBy(() -> {
+      ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
+      scmInfo.getChangesetForLine(5);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("There's no changeset on line 5");
   }
 
   @Test

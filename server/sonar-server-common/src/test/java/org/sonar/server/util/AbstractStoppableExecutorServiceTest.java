@@ -20,15 +20,14 @@
 package org.sonar.server.util;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.mockito.Mockito.mock;

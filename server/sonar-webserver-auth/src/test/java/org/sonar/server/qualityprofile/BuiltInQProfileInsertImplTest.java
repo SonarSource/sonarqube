@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.Severity;
@@ -59,8 +58,6 @@ public class BuiltInQProfileInsertImplTest {
   public BuiltInQProfileRepositoryRule builtInQProfileRepository = new BuiltInQProfileRepositoryRule();
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();

@@ -20,12 +20,11 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -38,8 +37,6 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
 
 public class ReportVisitorsCrawlerTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final Component FILE_5 = component(FILE, 5);
   private static final Component DIRECTORY_4 = component(DIRECTORY, 4, FILE_5);
@@ -104,21 +101,23 @@ public class ReportVisitorsCrawlerTest {
 
   @Test
   public void fail_with_IAE_when_visitor_is_not_path_aware_or_type_aware() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only TypeAwareVisitor and PathAwareVisitor can be used");
+    assertThatThrownBy(() -> {
+      ComponentVisitor componentVisitor = new ComponentVisitor() {
+        @Override
+        public Order getOrder() {
+          return PRE_ORDER;
+        }
 
-    ComponentVisitor componentVisitor = new ComponentVisitor() {
-      @Override
-      public Order getOrder() {
-        return PRE_ORDER;
-      }
-
-      @Override
-      public CrawlerDepthLimit getMaxDepth() {
+        @Override
+        public CrawlerDepthLimit getMaxDepth() {
         return CrawlerDepthLimit.FILE;
       }
-    };
-    new VisitorsCrawler(Arrays.asList(componentVisitor));
+      };
+
+      new VisitorsCrawler(Arrays.asList(componentVisitor));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only TypeAwareVisitor and PathAwareVisitor can be used");
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {

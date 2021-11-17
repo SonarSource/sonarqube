@@ -27,26 +27,23 @@ import java.nio.file.attribute.BasicFileAttributes;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 
 public class FileUtils2Test {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void cleanDirectory_throws_NPE_if_file_is_null() throws IOException {
-    expectDirectoryCanNotBeNullNPE();
-
-    FileUtils2.cleanDirectory(null);
+    expectDirectoryCanNotBeNullNPE(() -> FileUtils2.cleanDirectory(null));
   }
 
   @Test
@@ -58,10 +55,9 @@ public class FileUtils2Test {
   public void cleanDirectory_throws_IAE_if_argument_is_a_file() throws IOException {
     File file = temporaryFolder.newFile();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'" + file.getAbsolutePath() + "' is not a directory");
-
-    FileUtils2.cleanDirectory(file);
+    assertThatThrownBy(() -> FileUtils2.cleanDirectory(file))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'" + file.getAbsolutePath() + "' is not a directory");
   }
 
   @Test
@@ -178,9 +174,7 @@ public class FileUtils2Test {
 
   @Test
   public void deleteDirectory_throws_NPE_if_argument_is_null() throws IOException {
-    expectDirectoryCanNotBeNullNPE();
-
-    FileUtils2.deleteDirectory(null);
+    expectDirectoryCanNotBeNullNPE(() -> FileUtils2.deleteDirectory(null));
   }
 
   @Test
@@ -194,10 +188,9 @@ public class FileUtils2Test {
   public void deleteDirectory_throws_IOE_if_argument_is_a_file() throws IOException {
     File file = temporaryFolder.newFile();
 
-    expectedException.expect(IOException.class);
-    expectedException.expectMessage("Directory '" + file.getAbsolutePath() + "' is a file");
-
-    FileUtils2.deleteDirectory(file);
+    assertThatThrownBy(() -> FileUtils2.deleteDirectory(file))
+      .isInstanceOf(IOException.class)
+      .hasMessage("Directory '" + file.getAbsolutePath() + "' is a file");
   }
 
   @Test
@@ -210,10 +203,9 @@ public class FileUtils2Test {
     assertThat(file1).isRegularFile();
     assertThat(symLink).isSymbolicLink();
 
-    expectedException.expect(IOException.class);
-    expectedException.expectMessage("Directory '" + symLink.toFile().getAbsolutePath() + "' is a symbolic link");
-
-    FileUtils2.deleteDirectory(symLink.toFile());
+    assertThatThrownBy(() -> FileUtils2.deleteDirectory(symLink.toFile()))
+      .isInstanceOf(IOException.class)
+      .hasMessage("Directory '" + symLink.toFile().getAbsolutePath() + "' is a symbolic link");
   }
 
   @Test
@@ -276,9 +268,8 @@ public class FileUtils2Test {
     Path path = temporaryFolder.newFile().toPath();
     Files.delete(path);
 
-    expectedException.expect(IOException.class);
-
-    FileUtils2.sizeOf(path);
+    assertThatThrownBy(() -> FileUtils2.sizeOf(path))
+      .isInstanceOf(IOException.class);
   }
 
   @Test
@@ -297,9 +288,10 @@ public class FileUtils2Test {
       .isEqualTo(FileUtils2.sizeOf(child.toPath()));
   }
 
-  private void expectDirectoryCanNotBeNullNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Directory can not be null");
+  private void expectDirectoryCanNotBeNullNPE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(NullPointerException.class)
+        .hasMessage("Directory can not be null");
   }
 
   @CheckForNull

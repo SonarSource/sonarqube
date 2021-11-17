@@ -29,7 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.application.es.EsInstallation;
@@ -41,14 +40,13 @@ import org.sonar.process.Props;
 import org.sonar.process.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CommandFactoryImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -111,10 +109,9 @@ public class CommandFactoryImplTest {
 
   @Test
   public void createEsCommand_throws_ISE_if_es_binary_is_not_found() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cannot find elasticsearch binary");
-
-    newFactory(new Properties()).createEsCommand();
+    assertThatThrownBy(() -> newFactory(new Properties()).createEsCommand())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cannot find elasticsearch binary");
   }
 
   @Test

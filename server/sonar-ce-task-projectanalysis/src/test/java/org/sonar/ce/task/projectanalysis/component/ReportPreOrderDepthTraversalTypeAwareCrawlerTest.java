@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.component;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -42,9 +43,10 @@ public class ReportPreOrderDepthTraversalTypeAwareCrawlerTest {
   private final DepthTraversalTypeAwareCrawler directoryCrawler = new DepthTraversalTypeAwareCrawler(directoryVisitor);
   private final DepthTraversalTypeAwareCrawler fileCrawler = new DepthTraversalTypeAwareCrawler(fileVisitor);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void visit_null_Component_throws_NPE() {
-    fileCrawler.visit(null);
+    assertThatThrownBy(() -> fileCrawler.visit(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

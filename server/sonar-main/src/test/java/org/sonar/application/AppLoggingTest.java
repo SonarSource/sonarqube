@@ -36,7 +36,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
@@ -46,6 +45,7 @@ import org.sonar.process.logging.LogbackJsonLayout;
 import org.sonar.process.logging.PatternLayoutEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
@@ -55,8 +55,6 @@ public class AppLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private File logDir;
 
@@ -232,20 +230,18 @@ public class AppLoggingTest {
   public void fail_with_IAE_if_global_property_unsupported_level() {
     settings.getProps().set("sonar.log.level", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure();
+    assertThatThrownBy(() -> underTest.configure())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_app_property_unsupported_level() {
     settings.getProps().set("sonar.log.level.app", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.app is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure();
+    assertThatThrownBy(() -> underTest.configure())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.app is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test

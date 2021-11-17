@@ -30,7 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.log.LogTester;
@@ -57,9 +56,6 @@ public class ScmMediumTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();

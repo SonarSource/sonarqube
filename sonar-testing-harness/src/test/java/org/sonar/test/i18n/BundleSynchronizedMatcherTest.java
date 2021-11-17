@@ -19,30 +19,27 @@
  */
 package org.sonar.test.i18n;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.SortedMap;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import static junit.framework.TestCase.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class BundleSynchronizedMatcherTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   BundleSynchronizedMatcher matcher;
 
@@ -141,8 +138,8 @@ public class BundleSynchronizedMatcherTest {
 
   @Test
   public void shouldFailToLoadUnexistingPropertiesFile() throws Exception {
-    thrown.expect(IOException.class);
-    BundleSynchronizedMatcher.loadProperties(new FileInputStream("foo.blabla"));
+    assertThatThrownBy(() -> BundleSynchronizedMatcher.loadProperties(new FileInputStream("foo.blabla")))
+      .isInstanceOf(IOException.class);
   }
 
 }

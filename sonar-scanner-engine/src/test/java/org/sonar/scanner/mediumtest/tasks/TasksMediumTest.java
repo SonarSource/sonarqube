@@ -22,7 +22,6 @@ package org.sonar.scanner.mediumtest.tasks;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.Plugin;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
@@ -34,9 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class TasksMediumTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();

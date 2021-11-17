@@ -22,18 +22,15 @@ package org.sonar.core.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class LineReaderIteratorTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void read_lines() {
@@ -71,13 +68,14 @@ public class LineReaderIteratorTest {
 
   @Test
   public void fail_if_cannot_read() throws IOException {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to read line");
+    assertThatThrownBy(() -> {
+      BufferedReader reader = mock(BufferedReader.class);
+      when(reader.readLine()).thenThrow(new IOException());
+      LineReaderIterator it = new LineReaderIterator(reader);
 
-    BufferedReader reader = mock(BufferedReader.class);
-    when(reader.readLine()).thenThrow(new IOException());
-    LineReaderIterator it = new LineReaderIterator(reader);
-
-    it.hasNext();
+      it.hasNext();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to read line");
   }
 }

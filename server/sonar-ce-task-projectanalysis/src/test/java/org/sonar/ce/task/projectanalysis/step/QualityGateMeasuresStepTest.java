@@ -28,7 +28,6 @@ import org.assertj.core.api.AbstractAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.internal.ConfigurationBridge;
@@ -57,13 +56,14 @@ import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatusHolder;
 import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.collect.ImmutableList.of;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
-import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat;
 
 public class QualityGateMeasuresStepTest {
@@ -77,8 +77,6 @@ public class QualityGateMeasuresStepTest {
   private static final String SOME_QG_UUID = "7521551";
   private static final String SOME_QG_NAME = "name";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -145,10 +143,9 @@ public class QualityGateMeasuresStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Quality gate status has not been set yet");
-
-    qualityGateStatusHolder.getStatus();
+    assertThatThrownBy(() -> qualityGateStatusHolder.getStatus())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Quality gate status has not been set yet");
   }
 
   @Test

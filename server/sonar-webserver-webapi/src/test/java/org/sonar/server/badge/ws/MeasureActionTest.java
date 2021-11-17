@@ -29,7 +29,6 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
@@ -54,6 +53,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
@@ -77,8 +77,6 @@ import static org.sonar.server.badge.ws.SvgGenerator.Color.QUALITY_GATE_WARN;
 @RunWith(DataProviderRunner.class)
 public class MeasureActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -415,13 +413,14 @@ public class MeasureActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No enum constant org.sonar.api.measures.Metric.Level.UNKNOWN");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", metric.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", project.getKey())
+        .setParam("metric", metric.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("No enum constant org.sonar.api.measures.Metric.Level.UNKNOWN");
   }
 
   @Test
@@ -431,13 +430,14 @@ public class MeasureActionTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));
     db.measures().insertLiveMeasure(project, metric, m -> m.setValue(null));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Measure has not been found");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", metric.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", project.getKey())
+        .setParam("metric", metric.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Measure has not been found");
   }
 
   @Test
@@ -445,13 +445,14 @@ public class MeasureActionTest {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metric 'bugs' hasn't been found");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("metric", BUGS_KEY)
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", project.getKey())
+        .setParam("metric", BUGS_KEY)
+        .execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric 'bugs' hasn't been found");
   }
 
   @Test

@@ -32,6 +32,7 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportIteratorTest {
 
@@ -77,13 +78,16 @@ public class ReportIteratorTest {
     assertThat(underTest.hasNext()).isFalse();
   }
 
-  @Test(expected = NoSuchElementException.class)
+  @Test
   public void test_error() {
     underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
     underTest.next();
 
-    // fail !
-    underTest.next();
+    assertThatThrownBy(() -> {
+      // fail !
+      underTest.next();
+    })
+      .isInstanceOf(NoSuchElementException.class);
   }
 
 }

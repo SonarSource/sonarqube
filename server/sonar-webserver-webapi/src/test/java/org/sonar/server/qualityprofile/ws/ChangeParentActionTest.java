@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -64,6 +63,7 @@ import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE;
@@ -77,8 +77,6 @@ public class ChangeParentActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient;
   private DbSession dbSession;
@@ -339,9 +337,8 @@ public class ChangeParentActionTest {
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, "palap");
 
-    expectedException.expect(BadRequestException.class);
-
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -355,9 +352,9 @@ public class ChangeParentActionTest {
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   private QProfileDto createProfile() {

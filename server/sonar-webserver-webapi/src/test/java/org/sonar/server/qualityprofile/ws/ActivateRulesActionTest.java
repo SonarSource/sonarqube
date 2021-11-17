@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -40,6 +39,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,8 +53,6 @@ public class ActivateRulesActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
@@ -130,9 +128,8 @@ public class ActivateRulesActionTest {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, randomAlphanumeric(UUID_SIZE));
 
-    expectedException.expect(UnauthorizedException.class);
-
-    request.execute();
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -143,9 +140,8 @@ public class ActivateRulesActionTest {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
 
-    expectedException.expect(BadRequestException.class);
-
-    request.execute();
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -153,11 +149,12 @@ public class ActivateRulesActionTest {
     userSession.logIn(db.users().insertUser());
     QProfileDto qualityProfile = db.qualityProfiles().insert();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 }

@@ -21,17 +21,14 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.server.platform.WebServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PlatformLevelTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private PlatformLevel underTest = new PlatformLevel("name") {
 
@@ -43,10 +40,9 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfStartupLeader_throws_ISE_if_container_does_not_have_WebServer_object() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("WebServer not available in Pico yet");
-
-    underTest.addIfStartupLeader();
+    assertThatThrownBy(() -> underTest.addIfStartupLeader())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("WebServer not available in Pico yet");
   }
 
   @Test
@@ -59,10 +55,9 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfCluster_throws_ISE_if_container_does_not_have_WebServer_object() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("WebServer not available in Pico yet");
-
-    underTest.addIfCluster();
+    assertThatThrownBy(() -> underTest.addIfCluster())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("WebServer not available in Pico yet");
   }
 
   @Test
@@ -75,10 +70,9 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfStandalone_throws_ISE_if_container_does_not_have_WebServer_object() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("WebServer not available in Pico yet");
-
-    underTest.addIfCluster();
+    assertThatThrownBy(() -> underTest.addIfCluster())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("WebServer not available in Pico yet");
   }
 
   @Test

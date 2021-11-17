@@ -25,12 +25,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class QualityGateTest {
   private static final String QUALIGATE_ID = "qg_id";
@@ -38,53 +37,45 @@ public class QualityGateTest {
   private static final Condition CONDITION_1 = new Condition("m1", Condition.Operator.GREATER_THAN, "1");
   private static final Condition CONDITION_2 = new Condition("m2", Condition.Operator.LESS_THAN, "2");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private QualityGate underTest = new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2));
 
   @Test
   public void constructor_fails_with_NPE_if_id_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can't be null");
-
-    new QualityGate(null, "name", emptySet());
+    assertThatThrownBy(() -> new QualityGate(null, "name", emptySet()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can't be null");
-
-    new QualityGate("id", null, emptySet());
+    assertThatThrownBy(() -> new QualityGate("id", null, emptySet()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_conditions_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("conditions can't be null");
-
-    new QualityGate("id", "name", null);
+    assertThatThrownBy(() ->new QualityGate("id", "name", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("conditions can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_conditions_contains_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("condition can't be null");
     Random random = new Random();
+
     Set<Condition> conditions = Stream.of(
-      IntStream.range(0, random.nextInt(5))
-        .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.GREATER_THAN, "10")),
-      Stream.of((Condition) null),
-      IntStream.range(0, random.nextInt(5))
-        .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.GREATER_THAN, "10")))
+        IntStream.range(0, random.nextInt(5))
+          .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.GREATER_THAN, "10")),
+        Stream.of((Condition) null),
+        IntStream.range(0, random.nextInt(5))
+          .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.GREATER_THAN, "10")))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("condition can't be null");
-
-    new QualityGate("id", "name", conditions);
+    assertThatThrownBy(() -> new QualityGate("id", "name", conditions))
+      .isInstanceOf(NullPointerException.class)
+        .hasMessageContaining("condition can't be null");
   }
 
   @Test

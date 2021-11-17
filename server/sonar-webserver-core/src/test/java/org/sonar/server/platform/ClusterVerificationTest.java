@@ -19,11 +19,10 @@
  */
 package org.sonar.server.platform;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,8 +30,6 @@ public class ClusterVerificationTest {
 
   private static final String ERROR_MESSAGE = "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://redirect.sonarsource.com/editions/datacenter.html.";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private WebServer webServer = mock(WebServer.class);
   private ClusterFeature feature = mock(ClusterFeature.class);
@@ -43,9 +40,9 @@ public class ClusterVerificationTest {
 
     ClusterVerification underTest = new ClusterVerification(webServer);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage(ERROR_MESSAGE);
-    underTest.start();
+    assertThatThrownBy(underTest::start)
+      .isInstanceOf(MessageException.class)
+      .hasMessage(ERROR_MESSAGE);
   }
 
   @Test
@@ -54,9 +51,9 @@ public class ClusterVerificationTest {
     when(feature.isEnabled()).thenReturn(false);
     ClusterVerification underTest = new ClusterVerification(webServer, feature);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage(ERROR_MESSAGE);
-    underTest.start();
+    assertThatThrownBy(underTest::start)
+      .isInstanceOf(MessageException.class)
+      .hasMessage(ERROR_MESSAGE);
   }
 
   @Test

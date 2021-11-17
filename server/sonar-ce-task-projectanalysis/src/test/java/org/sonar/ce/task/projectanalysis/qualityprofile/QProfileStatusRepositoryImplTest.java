@@ -25,18 +25,15 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class QProfileStatusRepositoryImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private QProfileStatusRepositoryImpl underTest;
 
   @Before
@@ -68,28 +65,26 @@ public class QProfileStatusRepositoryImplTest {
   @Test
   @UseDataProvider("qualityProfileStatuses")
   public void register_fails_with_NPE_if_qpKey_is_null(QProfileStatusRepository.Status status) {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("qpKey can't be null");
-
-    underTest.register(null, status);
+    assertThatThrownBy(() -> underTest.register(null, status))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("qpKey can't be null");
   }
 
   @Test
   public void register_fails_with_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    underTest.register("key", null);
+    assertThatThrownBy(() -> underTest.register("key", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test
   @UseDataProvider("qualityProfileStatuses")
   public void register_fails_with_ISE_if_qp_is_already_registered(QProfileStatusRepository.Status status) {
     underTest.register("key", status);
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Quality Profile 'key' is already registered");
 
-    underTest.register("key", status);
+    assertThatThrownBy(() -> underTest.register("key", status))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Quality Profile 'key' is already registered");
   }
 
   @DataProvider

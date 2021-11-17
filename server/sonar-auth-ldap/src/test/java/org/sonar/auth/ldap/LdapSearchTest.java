@@ -26,21 +26,16 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.auth.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LdapSearchTest {
 
   @ClassRule
   public static LdapServer server = new LdapServer("/users.example.org.ldif");
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private static Map<String, LdapContextFactory> contextFactories;
 
   @BeforeClass
@@ -63,9 +58,10 @@ public class LdapSearchTest {
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"objectClass"});
     assertThat(search.toString()).isEqualTo("LdapSearch{baseDn=dc=example,dc=org, scope=subtree, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[objectClass]}");
     assertThat(enumerationToArrayList(search.find()).size()).isEqualTo(3);
-    thrown.expect(NamingException.class);
-    thrown.expectMessage("Non unique result for " + search.toString());
-    search.findUnique();
+
+    assertThatThrownBy(() -> search.findUnique())
+      .isInstanceOf(NamingException.class)
+      .hasMessage("Non unique result for " + search.toString());
   }
 
   @Test

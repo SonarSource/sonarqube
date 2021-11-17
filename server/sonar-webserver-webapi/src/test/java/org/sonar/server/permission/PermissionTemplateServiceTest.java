@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
@@ -53,8 +52,6 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class PermissionTemplateServiceTest {
 
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create();
 

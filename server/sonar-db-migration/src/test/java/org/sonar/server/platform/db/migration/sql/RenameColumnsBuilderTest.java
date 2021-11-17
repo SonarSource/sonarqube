@@ -23,12 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.junit.Rule;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.FromDataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -47,13 +45,10 @@ import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(Theories.class)
 public class RenameColumnsBuilderTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private static final String NEW_COLUMN_NAME = "new_" + randomAlphabetic(6).toLowerCase();
 
   @DataPoints("database")
@@ -116,33 +111,31 @@ public class RenameColumnsBuilderTest {
   }
 
   @Theory
-  public void when_old_column_is_same_as_new_column_ISA_is_thrown (
+  public void when_old_column_is_same_as_new_column_ISA_is_thrown(
     @FromDataPoints("database") DatabaseAndResult database,
     @FromDataPoints("columnDef") ColumnDef columnDef) {
 
     String tableName = "table_" + randomAlphabetic(6).toLowerCase();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Column names must be different");
-
-    new RenameColumnsBuilder(database.getDialect(), tableName)
+    assertThatThrownBy(() -> new RenameColumnsBuilder(database.getDialect(), tableName)
       .renameColumn(NEW_COLUMN_NAME, columnDef)
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Column names must be different");
   }
 
   @Theory
-  public void when_new_column_contains_illegal_character_ISA_is_thrown (
+  public void when_new_column_contains_illegal_character_ISA_is_thrown(
     @FromDataPoints("database") DatabaseAndResult database,
     @FromDataPoints("columnDef") ColumnDef columnDef,
     @FromDataPoints("illegalColumnName") String illegalColumnName) {
 
     String tableName = "table_" + randomAlphabetic(6).toLowerCase();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    new RenameColumnsBuilder(database.getDialect(), tableName)
+    assertThatThrownBy(() -> new RenameColumnsBuilder(database.getDialect(), tableName)
       .renameColumn(illegalColumnName, columnDef)
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private static class DatabaseAndResult {

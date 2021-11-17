@@ -20,24 +20,20 @@
 package org.sonar.scanner.scan;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectBuilder.Context;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 public class ProjectBuildersExecutorTest {
   private ProjectReactor reactor;
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -50,9 +46,9 @@ public class ProjectBuildersExecutorTest {
     doThrow(new IllegalStateException()).when(builder).build(any(Context.class));
     ProjectBuilder[] projectBuilders = {builder};
 
-    exception.expectMessage("Failed to execute project builder: Mock for ProjectBuilder");
-    exception.expect(MessageException.class);
-    new ProjectBuildersExecutor(mock(GlobalConfiguration.class), projectBuilders).execute(reactor);
+    assertThatThrownBy(() -> new ProjectBuildersExecutor(mock(GlobalConfiguration.class), projectBuilders).execute(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("Failed to execute project builder: Mock for ProjectBuilder");
   }
 
   @Test
@@ -60,9 +56,9 @@ public class ProjectBuildersExecutorTest {
 
     ProjectBuilder[] projectBuilders = {new MyProjectBuilder()};
 
-    exception.expectMessage("Failed to execute project builder: org.sonar.scanner.scan.ProjectBuildersExecutorTest$MyProjectBuilder");
-    exception.expect(MessageException.class);
-    new ProjectBuildersExecutor(mock(GlobalConfiguration.class), projectBuilders).execute(reactor);
+    assertThatThrownBy(() -> new ProjectBuildersExecutor(mock(GlobalConfiguration.class), projectBuilders).execute(reactor))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Failed to execute project builder: org.sonar.scanner.scan.ProjectBuildersExecutorTest$MyProjectBuilder");
   }
 
   static class MyProjectBuilder extends ProjectBuilder {

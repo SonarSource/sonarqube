@@ -21,13 +21,17 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class TypeAwareVisitorAdapterTest {
-  @Test(expected = NullPointerException.class)
+  @Test
   public void non_null_max_depth_fast_fail() {
-    new TypeAwareVisitorAdapter(null, POST_ORDER) {
-    };
+    assertThatThrownBy(() -> {
+      new TypeAwareVisitorAdapter(null, POST_ORDER) {
+      };
+    })
+      .isInstanceOf(NullPointerException.class);
   }
 
 }

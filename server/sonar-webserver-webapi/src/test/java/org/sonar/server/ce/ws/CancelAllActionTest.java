@@ -21,12 +21,12 @@ package org.sonar.server.ce.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -36,8 +36,6 @@ public class CancelAllActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeQueue queue = mock(CeQueue.class);
   private CancelAllAction underTest = new CancelAllAction(userSession, queue);
@@ -56,12 +54,12 @@ public class CancelAllActionTest {
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call();
-
-    verifyZeroInteractions(queue);
+    assertThatThrownBy(() -> {
+      call();
+      verifyZeroInteractions(queue);
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   private void call() {

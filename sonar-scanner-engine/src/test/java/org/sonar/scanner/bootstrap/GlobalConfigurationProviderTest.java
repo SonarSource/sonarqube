@@ -24,7 +24,6 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -35,8 +34,6 @@ import static org.mockito.Mockito.when;
 
 public class GlobalConfigurationProviderTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 

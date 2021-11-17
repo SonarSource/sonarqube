@@ -22,7 +22,6 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -33,17 +32,17 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CreateGithubActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -108,17 +107,17 @@ public class CreateGithubActionTest {
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("An ALM setting with key '%s' already exist", gitHubAlmSetting.getKey()));
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", gitHubAlmSetting.getKey())
       .setParam("url", "https://github.enterprise.com")
       .setParam("appId", "12345")
       .setParam("privateKey", "678910")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", gitHubAlmSetting.getKey()));
   }
 
   @Test
@@ -128,17 +127,17 @@ public class CreateGithubActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A GITHUB setting is already defined");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", "key")
       .setParam("url", "https://github.enterprise.com")
       .setParam("appId", "12345")
       .setParam("privateKey", "678910")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A GITHUB setting is already defined");
   }
 
   @Test
@@ -146,16 +145,16 @@ public class CreateGithubActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", "GitHub Server - Dev Team")
       .setParam("url", "https://github.enterprise.com")
       .setParam("appId", "12345")
       .setParam("privateKey", "678910")
       .setParam("clientId", "client_1234")
-      .setParam("clientSecret", "client_so_secret")
-      .execute();
+      .setParam("clientSecret", "client_so_secret");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

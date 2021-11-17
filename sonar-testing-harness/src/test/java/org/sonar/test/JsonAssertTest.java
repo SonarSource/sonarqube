@@ -22,18 +22,14 @@ package org.sonar.test;
 import java.io.File;
 import java.net.URL;
 import org.junit.ComparisonFailure;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class JsonAssertTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void isSimilarAs_strings() {
@@ -54,38 +50,35 @@ public class JsonAssertTest {
     URL url1 = getClass().getResource("JsonAssertTest/sample1.json");
     URL url2 = getClass().getResource("JsonAssertTest/sample2.json");
     assertJson(url1).isSimilarTo(url1);
-    expectedException.expect(AssertionError.class);
 
-    assertJson(url1).isSimilarTo(url2);
+    assertThatThrownBy(() -> assertJson(url1).isSimilarTo(url2))
+      .isInstanceOf(AssertionError.class);
   }
 
   @Test
   public void actual_can_be_superset_of_expected() {
     assertJson("{\"foo\": \"bar\"}").isSimilarTo("{}");
-    expectedException.expect(AssertionError.class);
 
-    assertJson("{}").isSimilarTo("{\"foo\": \"bar\"}");
+    assertThatThrownBy(() -> assertJson("{}").isSimilarTo("{\"foo\": \"bar\"}"))
+      .isInstanceOf(AssertionError.class);
   }
 
   @Test
-  public void fail_to_load_url() throws Exception {
-    expectedException.expect(IllegalStateException.class);
-
-    assertJson(new File("target/missing").toURI().toURL());
+  public void fail_to_load_url() {
+    assertThatThrownBy(() -> assertJson(new File("target/missing").toURI().toURL()))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void enable_strict_order_of_arrays() {
-    expectedException.expect(AssertionError.class);
-
-    assertJson("[1,2]").withStrictArrayOrder().isSimilarTo("[2, 1]");
+    assertThatThrownBy(() -> assertJson("[1,2]").withStrictArrayOrder().isSimilarTo("[2, 1]"))
+      .isInstanceOf(AssertionError.class);
   }
 
   @Test
   public void enable_strict_timezone() {
-    expectedException.expect(AssertionError.class);
-
-    assertJson("[\"2010-05-18T15:50:45+0100\"]").withStrictTimezone().isSimilarTo("[\"2010-05-18T16:50:45+0200\"]");
+    assertThatThrownBy(() -> assertJson("[\"2010-05-18T15:50:45+0100\"]").withStrictTimezone().isSimilarTo("[\"2010-05-18T16:50:45+0200\"]"))
+      .isInstanceOf(AssertionError.class);
   }
 
   @Test

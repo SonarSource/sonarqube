@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -59,6 +58,7 @@ import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -72,8 +72,6 @@ public class InheritanceActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -204,12 +202,15 @@ public class InheritanceActionTest {
     assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-simple.json"));
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
   public void fail_if_not_found() {
-    ws.newRequest()
-      .setParam(PARAM_LANGUAGE, "xoo")
-      .setParam(PARAM_QUALITY_PROFILE, "asd")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_LANGUAGE, "xoo")
+        .setParam(PARAM_QUALITY_PROFILE, "asd")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test

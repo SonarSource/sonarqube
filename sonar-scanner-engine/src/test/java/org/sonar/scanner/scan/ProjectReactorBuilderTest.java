@@ -31,7 +31,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -42,12 +41,10 @@ import org.sonar.scanner.bootstrap.ScannerProperties;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class ProjectReactorBuilderTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -65,11 +62,10 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void should_fail_if_sources_are_missing_in_leaf_module() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
-      + getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
-
-    loadProjectDefinition("simple-project-with-unexisting-source-dir");
+    assertThatThrownBy(() -> loadProjectDefinition("simple-project-with-unexisting-source-dir"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
+        + getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
   }
 
   @Test
@@ -84,18 +80,16 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void modulesDuplicateIds() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Two modules have the same id: 'module1'. Each module must have a unique id.");
-
-    loadProjectDefinition("multi-module-duplicate-id");
+    assertThatThrownBy(() -> loadProjectDefinition("multi-module-duplicate-id"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Two modules have the same id: 'module1'. Each module must have a unique id.");
   }
 
   @Test
   public void sonarModuleIdIsForbidden() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("'sonar' is not a valid module id. Please check property 'sonar.modules'.");
-
-    loadProjectDefinition("multi-module-sonar-module");
+    assertThatThrownBy(() -> loadProjectDefinition("multi-module-sonar-module"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("'sonar' is not a valid module id. Please check property 'sonar.modules'.");
   }
 
   @Test
@@ -243,38 +237,34 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfUnexistingModuleBaseDir() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The base directory of the module 'module1' does not exist: "
-      + getResource(this.getClass(), "multi-module-with-unexisting-basedir").getAbsolutePath() + File.separator + "module1");
-
-    loadProjectDefinition("multi-module-with-unexisting-basedir");
+    assertThatThrownBy(() -> loadProjectDefinition("multi-module-with-unexisting-basedir"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The base directory of the module 'module1' does not exist: "
+        + getResource(this.getClass(), "multi-module-with-unexisting-basedir").getAbsolutePath() + File.separator + "module1");
   }
 
   @Test
   public void shouldFailIfUnexistingSourceFolderInheritedInMultimodule() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project:module1' (base directory = "
-      + getResource(this.getClass(), "multi-module-with-unexisting-source-dir").getAbsolutePath() + File.separator + "module1)");
-
-    loadProjectDefinition("multi-module-with-unexisting-source-dir");
+    assertThatThrownBy(() -> loadProjectDefinition("multi-module-with-unexisting-source-dir"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project:module1' (base directory = "
+        + getResource(this.getClass(), "multi-module-with-unexisting-source-dir").getAbsolutePath() + File.separator + "module1)");
   }
 
   @Test
   public void shouldFailIfExplicitUnexistingTestFolder() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The folder 'tests' does not exist for 'com.foo.project' (base directory = "
-      + getResource(this.getClass(), "simple-project-with-unexisting-test-dir").getAbsolutePath());
-
-    loadProjectDefinition("simple-project-with-unexisting-test-dir");
+    assertThatThrownBy(() -> loadProjectDefinition("simple-project-with-unexisting-test-dir"))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("The folder 'tests' does not exist for 'com.foo.project' (base directory = "
+        + getResource(this.getClass(), "simple-project-with-unexisting-test-dir").getAbsolutePath());
   }
 
   @Test
   public void shouldFailIfExplicitUnexistingTestFolderOnModule() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The folder 'tests' does not exist for 'module1' (base directory = "
-      + getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
-
-    loadProjectDefinition("multi-module-with-explicit-unexisting-test-dir");
+    assertThatThrownBy(() -> loadProjectDefinition("multi-module-with-explicit-unexisting-test-dir"))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The folder 'tests' does not exist for 'module1' (base directory = "
+        + getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
   }
 
   @Test
@@ -318,10 +308,9 @@ public class ProjectReactorBuilderTest {
     props.put("foo1", "bla");
     props.put("foo4", "bla");
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
-
-    ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
+    assertThatThrownBy(() -> ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"}))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
   }
 
   @Test
@@ -330,10 +319,9 @@ public class ProjectReactorBuilderTest {
     props.put("foo1", "bla");
     props.put("sonar.projectKey", "my-project");
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
-
-    ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
+    assertThatThrownBy(() -> ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"}))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
   }
 
   @Test
@@ -439,10 +427,9 @@ public class ProjectReactorBuilderTest {
     // Now, add it and check again
     root.addSubProject(mod2);
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Project 'root' can't have 2 modules with the following key: mod2");
-
-    ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root);
+    assertThatThrownBy(() -> ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Project 'root' can't have 2 modules with the following key: mod2");
   }
 
   @Test

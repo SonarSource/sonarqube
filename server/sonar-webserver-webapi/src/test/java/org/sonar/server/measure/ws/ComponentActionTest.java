@@ -22,7 +22,6 @@ package org.sonar.server.measure.ws;
 import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -46,6 +45,7 @@ import org.sonarqube.ws.Measures.ComponentWsResponse;
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -63,8 +63,6 @@ public class ComponentActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -304,10 +302,9 @@ public class ComponentActionTest {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType("INT"));
     db.measures().insertMetric(m -> m.setKey("complexity").setValueType("INT"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
-
-    newRequest(project.getKey(), "ncloc, complexity, unknown-metric, another-unknown-metric");
+    assertThatThrownBy(() -> newRequest(project.getKey(), "ncloc, complexity, unknown-metric, another-unknown-metric"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
   }
 
   @Test
@@ -316,10 +313,9 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertSnapshot(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("At least one metric key must be provided");
-
-    newRequest(project.getKey(), "");
+    assertThatThrownBy(() -> newRequest(project.getKey(), ""))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("At least one metric key must be provided");
   }
 
   @Test
@@ -329,22 +325,22 @@ public class ComponentActionTest {
     db.components().insertSnapshot(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(project.getKey(), metric.getKey());
+    assertThatThrownBy(() -> newRequest(project.getKey(), metric.getKey()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_component_does_not_exist() {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'project-key' not found");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, "project-key")
-      .setParam(PARAM_METRIC_KEYS, metric.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, "project-key")
+        .setParam(PARAM_METRIC_KEYS, metric.getKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'project-key' not found");
   }
 
   @Test
@@ -354,13 +350,14 @@ public class ComponentActionTest {
     userSession.addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component key '%s' not found", project.getKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, metric.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, metric.getKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component key '%s' not found", project.getKey()));
   }
 
   @Test
@@ -370,14 +367,15 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, "another_branch")
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, file.getKey())
+        .setParam(PARAM_BRANCH, "another_branch")
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -387,13 +385,14 @@ public class ComponentActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .setParam(PARAM_METRIC_KEYS, metric.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, branch.getDbKey())
+        .setParam(PARAM_METRIC_KEYS, metric.getKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test

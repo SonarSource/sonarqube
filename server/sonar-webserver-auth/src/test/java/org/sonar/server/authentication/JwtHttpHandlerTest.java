@@ -32,7 +32,6 @@ import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
@@ -43,6 +42,7 @@ import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -69,8 +69,6 @@ public class JwtHttpHandlerTest {
 
   private static final long IN_FIVE_MINUTES = NOW + 5 * 60 * 1000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -156,40 +154,36 @@ public class JwtHttpHandlerTest {
   public void session_timeout_property_cannot_be_zero() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 0);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 0");
-
-    new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 0 minutes");
   }
 
   @Test
   public void session_timeout_property_cannot_be_negative() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", -10);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got -10");
-
-    new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got -10 minutes");
   }
 
   @Test
   public void session_timeout_property_cannot_be_set_to_five_minutes() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 5);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 5 minutes");
-
-    new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 5 minutes");
   }
 
   @Test
   public void session_timeout_property_cannot_be_greater_than_three_months() {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 172800 minutes");
-
-    new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+    assertThatThrownBy(() -> new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 172800 minutes");
   }
 
   @Test

@@ -21,14 +21,13 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component.Status;
 
 import static com.google.common.base.Strings.repeat;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -39,8 +38,6 @@ public class ComponentImplTest {
   static final String KEY = "KEY";
   static final String UUID = "UUID";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void verify_key_uuid_and_name() {
@@ -53,56 +50,51 @@ public class ComponentImplTest {
 
   @Test
   public void builder_throws_NPE_if_component_arg_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(null);
+    assertThatThrownBy(() -> builder(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void builder_throws_NPE_if_status_arg_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(FILE).setStatus(null);
+    assertThatThrownBy(() -> builder(FILE).setStatus(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void builder_throws_NPE_if_status_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(Component.Type.DIRECTORY)
-      .setName("DIR")
-      .setDbKey(KEY)
-      .setUuid(UUID)
-      .setReportAttributes(ReportAttributes.newBuilder(1).build())
-      .build();
+    assertThatThrownBy(() -> {
+      builder(Component.Type.DIRECTORY)
+        .setName("DIR")
+        .setDbKey(KEY)
+        .setUuid(UUID)
+        .setReportAttributes(ReportAttributes.newBuilder(1).build())
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void set_key_throws_NPE_if_component_arg_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(FILE).setUuid(null);
+    assertThatThrownBy(() -> builder(FILE).setUuid(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void set_uuid_throws_NPE_if_component_arg_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(FILE).setDbKey(null);
+    assertThatThrownBy(() -> builder(FILE).setDbKey(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void build_without_key_throws_NPE_if_component_arg_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(FILE).setUuid("ABCD").build();
+    assertThatThrownBy(() -> builder(FILE).setUuid("ABCD").build())
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void build_without_uuid_throws_NPE_if_component_arg_is_Null() {
-    expectedException.expect(NullPointerException.class);
-
-    builder(FILE).setDbKey(KEY).build();
+    assertThatThrownBy(() -> builder(FILE).setDbKey(KEY).build())
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

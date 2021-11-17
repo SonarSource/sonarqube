@@ -20,12 +20,11 @@
 package org.sonar.ce.task.projectanalysis.component;
 
 import java.util.Arrays;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -38,8 +37,6 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
 
 public class ViewsVisitorsCrawlerTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final Component PROJECT_VIEW_5 = component(PROJECT_VIEW, 5);
   private static final Component SUBVIEW_4 = component(SUBVIEW, 4, PROJECT_VIEW_5);
@@ -104,21 +101,23 @@ public class ViewsVisitorsCrawlerTest {
 
   @Test
   public void fail_with_IAE_when_visitor_is_not_path_aware_or_type_aware() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only TypeAwareVisitor and PathAwareVisitor can be used");
+    assertThatThrownBy(() -> {
+      ComponentVisitor componentVisitor = new ComponentVisitor() {
+        @Override
+        public Order getOrder() {
+          return PRE_ORDER;
+        }
 
-    ComponentVisitor componentVisitor = new ComponentVisitor() {
-      @Override
-      public Order getOrder() {
-        return PRE_ORDER;
-      }
+        @Override
+        public CrawlerDepthLimit getMaxDepth() {
+          return CrawlerDepthLimit.PROJECT_VIEW;
+        }
+      };
 
-      @Override
-      public CrawlerDepthLimit getMaxDepth() {
-        return CrawlerDepthLimit.PROJECT_VIEW;
-      }
-    };
-    new VisitorsCrawler(Arrays.asList(componentVisitor));
+      new VisitorsCrawler(Arrays.asList(componentVisitor));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only TypeAwareVisitor and PathAwareVisitor can be used");
   }
 
   @Test

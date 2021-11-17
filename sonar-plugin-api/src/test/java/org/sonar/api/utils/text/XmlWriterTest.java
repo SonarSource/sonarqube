@@ -19,17 +19,13 @@
  */
 package org.sonar.api.utils.text;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import java.io.StringWriter;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XmlWriterTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   StringWriter xml = new StringWriter();
   XmlWriter writer = XmlWriter.of(xml);
@@ -79,8 +75,8 @@ public class XmlWriterTest {
 
   @Test
   public void fail_on_NaN_value() {
-    thrown.expect(WriterException.class);
-    thrown.expectMessage("Fail to write XML. Double value is not valid: NaN");
-    writer.begin("root").prop("foo", Double.NaN).end().close();
+    assertThatThrownBy(() -> writer.begin("root").prop("foo", Double.NaN).end().close())
+      .isInstanceOf(WriterException.class)
+      .hasMessage("Fail to write XML. Double value is not valid: NaN");
   }
 }

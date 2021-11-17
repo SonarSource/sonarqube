@@ -33,7 +33,6 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -50,6 +49,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
@@ -61,9 +61,6 @@ import static org.sonar.scm.git.Utils.javaUnzip;
 public class JGitBlameCommandTest {
 
   private static final String DUMMY_JAVA = "src/main/java/org/dummy/Dummy.java";
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -135,10 +132,9 @@ public class JGitBlameCommandTest {
     BlameOutput blameResult = mock(BlameOutput.class);
     when(input.filesToBlame()).thenReturn(Arrays.asList(inputFile));
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Not inside a Git work tree: ");
-
-    jGitBlameCommand.blame(input, blameResult);
+    assertThatThrownBy(() -> jGitBlameCommand.blame(input, blameResult))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("Not inside a Git work tree: ");
   }
 
   @Test

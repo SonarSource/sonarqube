@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
@@ -64,6 +63,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,8 +78,6 @@ public class LiveMeasureComputerImplTest {
 
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final TestProjectIndexers projectIndexer = new TestProjectIndexers();
   private MetricDto intMetric;
@@ -378,12 +376,13 @@ public class LiveMeasureComputerImplTest {
     markProjectAsAnalyzed(project);
     Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to compute " + metric.getKey() + " on " + project.getDbKey());
-
-    run(project, new IssueMetricFormula(metric, false, (context, issueCounter) -> {
-      throw new NullPointerException("BOOM");
-    }));
+    assertThatThrownBy(() -> {
+      run(project, new IssueMetricFormula(metric, false, (context, issueCounter) -> {
+        throw new NullPointerException("BOOM");
+      }));
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to compute " + metric.getKey() + " on " + project.getDbKey());
   }
 
   private List<QGChangeEvent> run(ComponentDto component, IssueMetricFormula... formulas) {

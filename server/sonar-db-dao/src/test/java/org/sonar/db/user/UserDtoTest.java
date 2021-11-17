@@ -21,16 +21,12 @@ package org.sonar.db.user;
 
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDtoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void encode_scm_accounts() {

@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.event;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EventTest {
 
@@ -29,14 +30,16 @@ public class EventTest {
   private static final String SOME_DATA = "some data";
   private static final String SOME_DESCRIPTION = "some description";
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void createAlert_fail_fast_null_check_on_null_name() {
-    Event.createAlert(null, SOME_DATA, SOME_DESCRIPTION);
+    assertThatThrownBy(() -> Event.createAlert(null, SOME_DATA, SOME_DESCRIPTION))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void createProfile_fail_fast_null_check_on_null_name() {
-    Event.createProfile(null, SOME_DATA, SOME_DESCRIPTION);
+    assertThatThrownBy(() -> Event.createProfile(null, SOME_DATA, SOME_DESCRIPTION))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

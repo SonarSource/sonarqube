@@ -19,75 +19,64 @@
  */
 package org.sonar.api.ce.posttask;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
   private static final String SOME_NAME = "some name";
   private static final String SOME_KEY = "some key";
   private static final String SOME_UUID = "some uuid";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private PostProjectAnalysisTaskTester.ProjectBuilder underTest = PostProjectAnalysisTaskTester.newProjectBuilder();
 
   @Test
   public void setKey_throws_NPE_if_key_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key cannot be null");
-
-    underTest.setKey(null);
+    assertThatThrownBy(() -> underTest.setKey(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key cannot be null");
   }
 
   @Test
   public void setName_throws_NPE_if_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name cannot be null");
-
-    underTest.setName(null);
+    assertThatThrownBy(() -> underTest.setName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name cannot be null");
   }
 
   @Test
   public void setUuid_throws_NPE_if_uuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid cannot be null");
-
-    underTest.setUuid(null);
+    assertThatThrownBy(() -> underTest.setUuid(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_key_is_null() {
     underTest.setUuid(SOME_UUID).setName(SOME_NAME);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_name_is_null() {
     underTest.setUuid(SOME_UUID).setKey(SOME_KEY);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name cannot be null");
-
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_uuid_is_null() {
     underTest.setKey(SOME_KEY).setName(SOME_NAME);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid cannot be null");
   }
 
   @Test

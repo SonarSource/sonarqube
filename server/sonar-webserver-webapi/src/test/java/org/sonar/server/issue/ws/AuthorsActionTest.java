@@ -21,7 +21,6 @@ package org.sonar.server.issue.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.Issues.AuthorsResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,8 +67,6 @@ public class AuthorsActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
@@ -234,9 +232,8 @@ public class AuthorsActionTest {
   public void fail_when_user_is_not_logged() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -246,24 +243,26 @@ public class AuthorsActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     permissionIndexer.allowOnlyAnyone(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Component '%s' must be a project", file.getKey()));
-
-    ws.newRequest()
-      .setParam("project", file.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", file.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Component '%s' must be a project", file.getKey()));
   }
 
   @Test
   public void fail_when_project_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
-
-    ws.newRequest()
-      .setParam("project", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'unknown' not found");
   }
 
   @Test

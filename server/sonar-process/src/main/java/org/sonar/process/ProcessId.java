@@ -31,8 +31,6 @@ public enum ProcessId {
   private final String key;
   private final int ipcIndex;
   private final String logFilenamePrefix;
-
-
   ProcessId(String key, int ipcIndex, String logFilenamePrefix) {
     this.key = key;
     this.ipcIndex = ipcIndex;

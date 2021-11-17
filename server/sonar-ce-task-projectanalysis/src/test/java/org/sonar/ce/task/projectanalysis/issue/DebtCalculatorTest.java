@@ -28,6 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DebtCalculatorTest {
 
@@ -92,13 +93,14 @@ public class DebtCalculatorTest {
     assertThat(underTest.calculate(issue).toMinutes()).isEqualTo(2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void effort_to_fix_must_not_be_set_with_constant_function() {
     int constant = 2;
     issue.setGap(3.0);
     rule.setFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, constant + "min"));
 
-    underTest.calculate(issue);
+    assertThatThrownBy(() -> underTest.calculate(issue))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

@@ -28,7 +28,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -37,6 +36,7 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.source.index.FileSourceTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +47,6 @@ public class SourceServiceTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   HtmlSourceDecorator htmlDecorator = mock(HtmlSourceDecorator.class);
 
@@ -108,18 +106,16 @@ public class SourceServiceTest {
 
   @Test
   public void getLines_fails_if_range_starts_at_zero() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Line number must start at 1, got 0");
-
-    underTest.getLines(dbTester.getSession(), FILE_UUID, 0, 2);
+    assertThatThrownBy(() -> underTest.getLines(dbTester.getSession(), FILE_UUID, 0, 2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Line number must start at 1, got 0");
   }
 
   @Test
   public void getLines_fails_if_range_upper_bound_less_than_lower_bound() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Line number must greater than or equal to 5, got 4");
-
-    underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 4);
+    assertThatThrownBy(() -> underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 4))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Line number must greater than or equal to 5, got 4");
   }
 
   @Test

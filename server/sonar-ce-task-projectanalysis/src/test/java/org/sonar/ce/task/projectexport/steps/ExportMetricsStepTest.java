@@ -26,7 +26,6 @@ import javax.annotation.Nonnull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -36,6 +35,7 @@ import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ExportMetricsStepTest {
 
@@ -50,8 +50,6 @@ public class ExportMetricsStepTest {
     .setShortName("Coverage")
     .setEnabled(true);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -102,11 +100,9 @@ public class ExportMetricsStepTest {
     metricsHolder.add(NCLOC.getUuid());
     dumpWriter.failIfMoreThan(0, DumpElement.METRICS);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metric Export failed after processing 0 metrics successfully");
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Metric Export failed after processing 0 metrics successfully");
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric Export failed after processing 0 metrics successfully");
   }
 
   @Test

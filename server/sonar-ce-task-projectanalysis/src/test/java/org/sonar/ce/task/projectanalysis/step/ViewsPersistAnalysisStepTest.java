@@ -47,8 +47,6 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 
 public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 

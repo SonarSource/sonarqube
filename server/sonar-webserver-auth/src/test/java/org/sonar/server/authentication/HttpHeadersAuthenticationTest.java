@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
@@ -40,6 +39,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -48,7 +48,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
@@ -58,14 +58,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class HttpHeadersAuthenticationTest {
 
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
 
-  @Rule
-  public ExpectedException expectedException = none();
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
@@ -346,13 +343,12 @@ public class HttpHeadersAuthenticationTest {
     startWithSso();
     setNotUserInToken();
 
-    expectedException.expect(authenticationException().from(Source.sso()).withoutLogin().andNoPublicMessage());
-    expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
-    try {
-      underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(createRequest("invalid login", DEFAULT_NAME, DEFAULT_EMAIL, GROUPS), response))
+      .hasMessage("Use only letters, numbers, and .-_@ please.")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.sso());
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   private void startWithSso() {

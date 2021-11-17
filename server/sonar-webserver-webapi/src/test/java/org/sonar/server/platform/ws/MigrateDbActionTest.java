@@ -28,9 +28,7 @@ import java.util.Date;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.Database;
@@ -45,6 +43,7 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -57,8 +56,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
 public class MigrateDbActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private static final Date SOME_DATE = new Date();
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
@@ -94,10 +91,9 @@ public class MigrateDbActionTest {
     reset(databaseVersion);
     when(databaseVersion.getVersion()).thenReturn(Optional.empty());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cannot connect to Database.");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Cannot connect to Database.");
   }
 
   @Test
@@ -222,7 +218,7 @@ public class MigrateDbActionTest {
 
   @DataProvider
   public static Object[][] statusRequiringDbMigration() {
-    return new Object[][] {
+    return new Object[][]{
       {DatabaseVersion.Status.FRESH_INSTALL},
       {DatabaseVersion.Status.REQUIRES_UPGRADE},
     };

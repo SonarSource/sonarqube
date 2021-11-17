@@ -74,8 +74,6 @@ public class ComputeEngineImpl implements ComputeEngine, ComputeEngineStatus {
       this.status = Status.STOPPED;
     }
   }
-
-
   @Override
   public Status getStatus() {
     return status;

@@ -21,7 +21,6 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -36,8 +35,8 @@ import org.sonarqube.ws.AlmSettings.AlmSettingGithub;
 import org.sonarqube.ws.AlmSettings.AlmSettingGitlab;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.tester.UserSessionRule.standalone;
@@ -46,8 +45,6 @@ import static org.sonarqube.ws.AlmSettings.ListDefinitionsWsResponse;
 
 public class ListDefinitionsActionTest {
 
-  @Rule
-  public ExpectedException expectedException = none();
   @Rule
   public UserSessionRule userSession = standalone();
 
@@ -156,9 +153,8 @@ public class ListDefinitionsActionTest {
     userSession.logIn(user);
     db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest().executeProtobuf(ListDefinitionsWsResponse.class);
+    assertThatThrownBy(() -> ws.newRequest().executeProtobuf(ListDefinitionsWsResponse.class))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

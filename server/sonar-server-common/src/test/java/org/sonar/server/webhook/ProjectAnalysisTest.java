@@ -21,9 +21,7 @@ package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
@@ -31,10 +29,9 @@ import org.sonar.server.qualitygate.QualityGate;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ProjectAnalysisTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final CeTask ceTask = new CeTask("id", CeTask.Status.SUCCESS);
   private final Project project = new Project("uuid", "key", "name");
@@ -49,30 +46,32 @@ public class ProjectAnalysisTest {
 
   @Test
   public void constructor_throws_NPE_if_project_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project can't be null");
-
-    new ProjectAnalysis(null,
-      ceTask,
-      analysis,
-      branch,
-      qualityGate,
-      1L,
-      emptyMap());
+    assertThatThrownBy(() -> {
+      new ProjectAnalysis(null,
+        ceTask,
+        analysis,
+        branch,
+        qualityGate,
+        1L,
+        emptyMap());
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("project can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_properties_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("properties can't be null");
-
-    new ProjectAnalysis(project,
-      ceTask,
-      analysis,
-      branch,
-      qualityGate,
-      1L,
-      null);
+    assertThatThrownBy(() -> {
+      new ProjectAnalysis(project,
+        ceTask,
+        analysis,
+        branch,
+        qualityGate,
+        1L,
+        null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("properties can't be null");
   }
 
   @Test

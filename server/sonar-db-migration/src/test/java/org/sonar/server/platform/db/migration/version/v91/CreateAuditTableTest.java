@@ -19,11 +19,10 @@
  */
 package org.sonar.server.platform.db.migration.version.v91;
 
+import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
-
-import java.sql.SQLException;
 
 public class CreateAuditTableTest {
   private static final String TABLE_NAME = "audits";

@@ -24,7 +24,6 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
@@ -47,6 +46,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
@@ -60,8 +60,6 @@ public class DeactivateRuleActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ArgumentCaptor<Collection<String>> ruleUuidsCaptor = ArgumentCaptor.forClass(Collection.class);
   private final DbClient dbClient = db.getDbClient();
@@ -127,9 +125,8 @@ public class DeactivateRuleActionTest {
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
       .setParam(PARAM_KEY, randomAlphanumeric(UUID_SIZE));
 
-    expectedException.expect(UnauthorizedException.class);
-
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -143,10 +140,9 @@ public class DeactivateRuleActionTest {
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(String.format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
-
-    request.execute();
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(String.format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
   }
 
   @Test
@@ -160,8 +156,7 @@ public class DeactivateRuleActionTest {
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
-    expectedException.expect(BadRequestException.class);
-
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class);
   }
 }

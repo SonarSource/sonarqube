@@ -23,15 +23,12 @@ import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ServletFilterTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void include_all() {
@@ -188,9 +185,9 @@ public class ServletFilterTest {
 
   @Test
   public void create_throws_IAE_if_empty_url() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("URL pattern must start with slash '/': ");
-    ServletFilter.UrlPattern.create("");
+    assertThatThrownBy(() -> ServletFilter.UrlPattern.create(""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("URL pattern must start with slash '/': ");
   }
 
   @Test

@@ -26,6 +26,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class CallbackHandlerImplTest {
@@ -40,9 +41,12 @@ public class CallbackHandlerImplTest {
     assertThat(passwordCallback.getPassword()).isEqualTo("secret".toCharArray());
   }
 
-  @Test(expected = UnsupportedCallbackException.class)
-  public void unsupportedCallback() throws Exception {
-    new CallbackHandlerImpl("tester", "secret").handle(new Callback[] {mock(Callback.class)});
+  @Test
+  public void unsupportedCallback() {
+    assertThatThrownBy(() -> {
+      new CallbackHandlerImpl("tester", "secret").handle(new Callback[] {mock(Callback.class)});
+    })
+      .isInstanceOf(UnsupportedCallbackException.class);
   }
 
 }

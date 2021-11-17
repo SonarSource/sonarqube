@@ -27,15 +27,14 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertiesDao;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -46,8 +45,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class NotificationServiceTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = mock(DbClient.class);
   private final PropertiesDao propertiesDao = mock(PropertiesDao.class);
@@ -65,10 +62,9 @@ public class NotificationServiceTest {
       .collect(Collectors.toList());
     NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[] {handler});
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Type of notification objects must be a subtype of Notification");
-
-    underTest.deliverEmails(notifications);
+    assertThatThrownBy(() -> underTest.deliverEmails(notifications))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Type of notification objects must be a subtype of Notification");
   }
 
   @Test

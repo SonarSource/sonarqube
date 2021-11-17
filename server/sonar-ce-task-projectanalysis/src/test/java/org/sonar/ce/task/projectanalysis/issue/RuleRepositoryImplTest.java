@@ -22,14 +22,13 @@ package org.sonar.ce.task.projectanalysis.issue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -42,9 +41,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -60,8 +59,6 @@ public class RuleRepositoryImplTest {
   private static final RuleKey AC_RULE_KEY = RuleKey.of("a", "c");
   private static final String AC_RULE_UUID = "uuid-684";
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @org.junit.Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -139,9 +136,7 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void getByKey_throws_NPE_if_key_argument_is_null() {
-    expectNullRuleKeyNPE();
-
-    underTest.getByKey(null);
+    expectNullRuleKeyNPE(() -> underTest.getByKey(null));
   }
 
   @Test
@@ -169,28 +164,23 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void getByKey_throws_IAE_if_rules_does_not_exist_in_DB() {
-    expectIAERuleNotFound(AC_RULE_KEY);
-
-    underTest.getByKey(AC_RULE_KEY);
+    expectIAERuleNotFound(() -> underTest.getByKey(AC_RULE_KEY), AC_RULE_KEY);
   }
 
   @Test
   public void getByKey_throws_IAE_if_argument_is_deprecated_key_in_DB_of_non_existing_rule() {
-    expectIAERuleNotFound(DEPRECATED_KEY_OF_NON_EXITING_RULE);
-
-    underTest.getByKey(DEPRECATED_KEY_OF_NON_EXITING_RULE);
+    expectIAERuleNotFound(() -> underTest.getByKey(DEPRECATED_KEY_OF_NON_EXITING_RULE), DEPRECATED_KEY_OF_NON_EXITING_RULE);
   }
 
-  private void expectIAERuleNotFound(RuleKey ruleKey) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Can not find rule for key " + ruleKey.toString() + ". This rule does not exist in DB");
+  private void expectIAERuleNotFound(ThrowingCallable callback, RuleKey ruleKey) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can not find rule for key " + ruleKey.toString() + ". This rule does not exist in DB");
   }
 
   @Test
   public void findByKey_throws_NPE_if_key_argument_is_null() {
-    expectNullRuleKeyNPE();
-
-    underTest.findByKey(null);
+    expectNullRuleKeyNPE(() -> underTest.findByKey(null));
   }
 
   @Test
@@ -239,10 +229,9 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void getByUuid_throws_IAE_if_rules_does_not_exist_in_DB() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Can not find rule for uuid " + AC_RULE_UUID + ". This rule does not exist in DB");
-
-    underTest.getByUuid(AC_RULE_UUID);
+    assertThatThrownBy(() -> underTest.getByUuid(AC_RULE_UUID))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can not find rule for uuid " + AC_RULE_UUID + ". This rule does not exist in DB");
   }
 
   @Test
@@ -293,9 +282,10 @@ public class RuleRepositoryImplTest {
     verify(ruleIndexer).commitAndIndex(db.getSession(), ruleDefinitionDto.get().getUuid());
   }
 
-  private void expectNullRuleKeyNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("RuleKey can not be null");
+  private void expectNullRuleKeyNPE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("RuleKey can not be null");
   }
 
   private void verifyNoMethodCallTriggersCallToDB() {

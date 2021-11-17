@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,6 +44,7 @@ import static org.apache.commons.io.FileUtils.copyFileToDirectory;
 import static org.apache.commons.io.FileUtils.touch;
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -61,8 +61,6 @@ public class PluginDownloaderTest {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private File downloadDir;
   private UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private UpdateCenter updateCenter;
@@ -178,9 +176,8 @@ public class PluginDownloaderTest {
 
   @Test
   public void fail_if_no_compatible_plugin_found() {
-    expectedException.expect(BadRequestException.class);
-
-    pluginDownloader.download("foo", create("1.0"));
+    assertThatThrownBy(() -> pluginDownloader.download("foo", create("1.0")))
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test

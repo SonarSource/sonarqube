@@ -25,7 +25,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -47,13 +46,11 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 
 public class QProfileTreeImplTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   @Rule
@@ -73,10 +70,9 @@ public class QProfileTreeImplTest {
     RuleDefinitionDto rule = createRule();
     QProfileDto profile = createProfile(rule);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(" can not be selected as parent of ");
-
-    underTest.setParentAndCommit(db.getSession(), profile, profile);
+    assertThatThrownBy(() -> underTest.setParentAndCommit(db.getSession(), profile, profile))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(" can not be selected as parent of ");
   }
 
   @Test
@@ -85,9 +81,9 @@ public class QProfileTreeImplTest {
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(" can not be selected as parent of ");
-    underTest.setParentAndCommit(db.getSession(), parentProfile, childProfile);
+    assertThatThrownBy(() -> underTest.setParentAndCommit(db.getSession(), parentProfile, childProfile))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(" can not be selected as parent of ");
   }
 
   @Test
@@ -97,9 +93,9 @@ public class QProfileTreeImplTest {
     QProfileDto childProfile = createChildProfile(parentProfile);
     QProfileDto grandchildProfile = createChildProfile(childProfile);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(" can not be selected as parent of ");
-    underTest.setParentAndCommit(db.getSession(), parentProfile, grandchildProfile);
+    assertThatThrownBy(() -> underTest.setParentAndCommit(db.getSession(), parentProfile, grandchildProfile))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(" can not be selected as parent of ");
   }
 
   @Test
@@ -115,10 +111,9 @@ public class QProfileTreeImplTest {
     changes = activate(childProfile, RuleActivation.create(rule2.getUuid()));
     assertThat(changes).hasSize(1);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Cannot set the profile");
-
-    underTest.setParentAndCommit(db.getSession(), childProfile, parentProfile);
+    assertThatThrownBy(() -> underTest.setParentAndCommit(db.getSession(), childProfile, parentProfile))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Cannot set the profile");
   }
 
   @Test
@@ -209,7 +204,7 @@ public class QProfileTreeImplTest {
   }
 
   private void assertThatRuleIsActivated(QProfileDto profile, RuleDefinitionDto rule, @Nullable List<ActiveRuleChange> changes,
-                                         String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
+    String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))
@@ -242,7 +237,7 @@ public class QProfileTreeImplTest {
   }
 
   private void assertThatRuleIsUpdated(QProfileDto profile, RuleDefinitionDto rule,
-                                       String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
+    String expectedSeverity, @Nullable ActiveRuleInheritance expectedInheritance, Map<String, String> expectedParams) {
     OrgActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), profile)
       .stream()
       .filter(ar -> ar.getRuleKey().equals(rule.getKey()))

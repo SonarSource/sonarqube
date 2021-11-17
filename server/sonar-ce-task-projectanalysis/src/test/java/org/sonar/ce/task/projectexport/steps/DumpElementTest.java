@@ -23,7 +23,18 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.ce.task.projectexport.steps.DumpElement.*;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.ANALYSES;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.COMPONENTS;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.EVENTS;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.ISSUES;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.ISSUES_CHANGELOG;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.LINKS;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.MEASURES;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.METADATA;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.METRICS;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.PLUGINS;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.RULES;
+import static org.sonar.ce.task.projectexport.steps.DumpElement.SETTINGS;
 
 public class DumpElementTest {
 

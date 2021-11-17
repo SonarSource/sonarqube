@@ -21,7 +21,6 @@ package org.sonar.server.plugins.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
@@ -31,6 +30,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,8 +38,6 @@ import static org.mockito.Mockito.verify;
 public class CancelAllActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private PluginUninstaller pluginUninstaller = mock(PluginUninstaller.class);
@@ -59,20 +57,18 @@ public class CancelAllActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

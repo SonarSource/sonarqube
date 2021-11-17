@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -39,6 +38,7 @@ import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -52,8 +52,6 @@ public class SetSeverityActionTest {
   private static final Date NOW = new Date(10_000_000_000L);
   private static final String USER_LOGIN = "john";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -86,10 +84,9 @@ public class SetSeverityActionTest {
 
   @Test
   public void fail_if_parameter_not_found() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing parameter : 'severity'");
-
-    action.verify(ImmutableMap.of("unknwown", MINOR), Lists.newArrayList(), new AnonymousMockUserSession());
+    assertThatThrownBy(() -> action.verify(ImmutableMap.of("unknwown", MINOR), Lists.newArrayList(), new AnonymousMockUserSession()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing parameter : 'severity'");
   }
 
   @Test

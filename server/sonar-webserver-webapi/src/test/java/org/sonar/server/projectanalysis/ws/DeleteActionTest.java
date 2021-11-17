@@ -22,13 +22,11 @@ package org.sonar.server.projectanalysis.ws;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
@@ -40,17 +38,14 @@ import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.component.BranchType.BRANCH;
-import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 
 public class DeleteActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -90,10 +85,9 @@ public class DeleteActionTest {
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(true));
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The last analysis 'A1' cannot be deleted");
-
-    call("A1");
+    assertThatThrownBy(() -> call("A1"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The last analysis 'A1' cannot be deleted");
   }
 
   @Test
@@ -109,20 +103,18 @@ public class DeleteActionTest {
     db.commit();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The analysis '" + analysisUuid + "' can not be deleted because it is set as a new code period baseline");
-
-    call(analysisUuid);
+    assertThatThrownBy(() -> call(analysisUuid))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The analysis '" + analysisUuid + "' can not be deleted because it is set as a new code period baseline");
   }
 
   @Test
   public void fail_when_analysis_not_found() {
     userSession.logIn().setRoot();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Analysis 'A42' not found");
-
-    call("A42");
+    assertThatThrownBy(() -> call("A42"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Analysis 'A42' not found");
   }
 
   @Test
@@ -131,10 +123,9 @@ public class DeleteActionTest {
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_UNPROCESSED));
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Analysis 'A1' not found");
-
-    call("A1");
+    assertThatThrownBy(() -> call("A1"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Analysis 'A1' not found");
   }
 
   @Test
@@ -143,9 +134,8 @@ public class DeleteActionTest {
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false));
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    call("A1");
+    assertThatThrownBy(() -> call("A1"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private void call(String analysis) {

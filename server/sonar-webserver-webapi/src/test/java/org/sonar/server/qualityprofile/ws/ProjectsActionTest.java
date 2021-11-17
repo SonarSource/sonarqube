@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -35,6 +34,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -43,8 +43,6 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class ProjectsActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -292,11 +290,12 @@ public class ProjectsActionTest {
 
   @Test
   public void fail_on_nonexistent_profile() {
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_KEY, "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_KEY, "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test

@@ -19,17 +19,14 @@
  */
 package org.sonar.server.user;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NewUserTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_new_user() {
@@ -76,15 +73,16 @@ public class NewUserTest {
 
   @Test
   public void fail_to_set_password_when_external_identity_is_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Password should not be set with an external identity");
-
-    NewUser.builder()
-      .setLogin("login")
-      .setName("name")
-      .setEmail("email")
-      .setPassword("password")
-      .setExternalIdentity(new ExternalIdentity("github", "github_login", "ABCD"))
-      .build();
+    assertThatThrownBy(() -> {
+      NewUser.builder()
+        .setLogin("login")
+        .setName("name")
+        .setEmail("email")
+        .setPassword("password")
+        .setExternalIdentity(new ExternalIdentity("github", "github_login", "ABCD"))
+        .build();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Password should not be set with an external identity");
   }
 }

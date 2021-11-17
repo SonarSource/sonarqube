@@ -24,20 +24,17 @@ import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.process.jmx.Fake;
 import org.sonar.process.jmx.FakeMBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class JmxTest {
 
   static final String FAKE_NAME = "SonarQube:name=Fake";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   FakeMBean mbean = new Fake();
 
@@ -60,18 +57,16 @@ public class JmxTest {
 
   @Test
   public void register_fails_if_mbean_interface_can_not_be_found() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Can not find the MBean interface of class java.lang.String");
-
-    Jmx.register(FAKE_NAME, "not a mbean");
+    assertThatThrownBy(() -> Jmx.register(FAKE_NAME, "not a mbean"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can not find the MBean interface of class java.lang.String");
   }
 
   @Test
   public void register_fails_if_name_is_not_valid() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not register MBean [/]");
-
-    Jmx.register("/", new Fake());
+    assertThatThrownBy(() -> Jmx.register("/", new Fake()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Can not register MBean [/]");
   }
 
   @Test

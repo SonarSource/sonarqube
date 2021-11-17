@@ -131,8 +131,6 @@ public class ProcessProperties {
     CLUSTER_ES_TRUSTSTORE("sonar.cluster.es.ssl.truststore"),
     CLUSTER_ES_KEYSTORE_PASSWORD("sonar.cluster.es.ssl.keystorePassword"),
     CLUSTER_ES_TRUSTSTORE_PASSWORD("sonar.cluster.es.ssl.truststorePassword"),
-
-
     // search node only settings
     CLUSTER_ES_HOSTS("sonar.cluster.es.hosts"),
     CLUSTER_ES_DISCOVERY_SEED_HOSTS("sonar.cluster.es.discovery.seed.hosts"),

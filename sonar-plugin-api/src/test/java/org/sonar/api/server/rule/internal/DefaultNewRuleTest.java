@@ -19,9 +19,7 @@
  */
 package org.sonar.api.server.rule.internal;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
@@ -30,11 +28,10 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class DefaultNewRuleTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private DefaultNewRule rule = new DefaultNewRule("plugin", "repo", "key");
 
@@ -97,8 +94,9 @@ public class DefaultNewRuleTest {
   @Test
   public void validate_fails() {
     rule.setHtmlDescription("html");
-    exception.expect(IllegalStateException.class);
-    rule.validate();
+
+    assertThatThrownBy(() -> rule.validate())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -115,20 +113,21 @@ public class DefaultNewRuleTest {
   }
   @Test
   public void fail_if_severity_is_invalid() {
-    exception.expect(IllegalArgumentException.class);
-    rule.setSeverity("invalid");
+    assertThatThrownBy(() -> rule.setSeverity("invalid"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_setting_markdown_if_html_is_set() {
-    exception.expect(IllegalStateException.class);
     rule.setHtmlDescription("html");
-    rule.setMarkdownDescription("markdown");
+
+    assertThatThrownBy(() -> rule.setMarkdownDescription("markdown"))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_set_status_to_removed() {
-    exception.expect(IllegalArgumentException.class);
-    rule.setStatus(RuleStatus.REMOVED);
+    assertThatThrownBy(() -> rule.setStatus(RuleStatus.REMOVED))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 }

@@ -24,19 +24,16 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.component.SnapshotDto;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.ProjectStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class QualityGateDetailsFormatterTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private QualityGateDetailsFormatter underTest;
 
@@ -117,10 +114,10 @@ public class QualityGateDetailsFormatterTest {
       "  ]\n" +
       "}";
     underTest = newQualityGateDetailsFormatter(measureData, new SnapshotDto());
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown quality gate status 'UNKNOWN'");
 
-    underTest.format();
+    assertThatThrownBy(() -> underTest.format())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unknown quality gate status 'UNKNOWN'");
   }
 
   @Test
@@ -140,10 +137,10 @@ public class QualityGateDetailsFormatterTest {
       "  ]\n" +
       "}";
     underTest = newQualityGateDetailsFormatter(measureData, new SnapshotDto());
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown quality gate comparator 'UNKNOWN'");
 
-    underTest.format();
+    assertThatThrownBy(() -> underTest.format())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unknown quality gate comparator 'UNKNOWN'");
   }
 
   private static QualityGateDetailsFormatter newQualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshotDto) {

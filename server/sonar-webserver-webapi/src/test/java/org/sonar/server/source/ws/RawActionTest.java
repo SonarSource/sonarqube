@@ -21,7 +21,6 @@ package org.sonar.server.source.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -37,14 +36,13 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.protobuf.DbFileSources.Data;
 import static org.sonar.db.protobuf.DbFileSources.Line;
 
 public class RawActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -96,12 +94,11 @@ public class RawActionTest {
 
   @Test
   public void fail_on_unknown_file() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component key 'unknown' not found");
   }
 
   @Test
@@ -112,13 +109,12 @@ public class RawActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.fileSources().insertFileSource(file);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", file.getKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", file.getKey())
       .setParam("branch", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component '%s' on branch 'unknown' not found", file.getKey()));
   }
 
   @Test
@@ -129,12 +125,11 @@ public class RawActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.fileSources().insertFileSource(file);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", file.getDbKey()));
-
-    ws.newRequest()
-      .setParam("key", file.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest()
+      .setParam("key", file.getKey())
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component key '%s' not found", file.getKey()));
   }
 
   @Test
@@ -143,10 +138,9 @@ public class RawActionTest {
     userSession.addProjectPermission(UserRole.ISSUE_ADMIN, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", file.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 }

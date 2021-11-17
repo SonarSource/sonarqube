@@ -19,21 +19,18 @@
  */
 package org.sonar.auth.github;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GitHubIdentityProviderTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private GitHubSettings gitHubSettings = new GitHubSettings(settings.asConfig());
@@ -128,9 +125,9 @@ public class GitHubIdentityProviderTest {
     setSettings(false);
     OAuth2IdentityProvider.InitContext context = mock(OAuth2IdentityProvider.InitContext.class);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("GitHub authentication is disabled");
-    underTest.init(context);
+    assertThatThrownBy(() -> underTest.init(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("GitHub authentication is disabled");
   }
 
   @Test

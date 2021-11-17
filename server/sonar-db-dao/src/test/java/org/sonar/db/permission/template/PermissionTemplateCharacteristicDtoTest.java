@@ -20,22 +20,18 @@
 package org.sonar.db.permission.template;
 
 import com.google.common.base.Strings;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PermissionTemplateCharacteristicDtoTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   PermissionTemplateCharacteristicDto underTest = new PermissionTemplateCharacteristicDto();
 
   @Test
   public void check_permission_field_length() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException
-      .expectMessage("Permission key length (65) is longer than the maximum authorized (64). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
-
-    underTest.setPermission(Strings.repeat("a", 65));
+    assertThatThrownBy(() -> underTest.setPermission(Strings.repeat("a", 65)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Permission key length (65) is longer than the maximum authorized (64). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
   }
 }

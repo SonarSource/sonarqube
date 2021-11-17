@@ -27,20 +27,18 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class DeprecatedBranchMediumTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
@@ -77,15 +75,14 @@ public class DeprecatedBranchMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
-      "Branch analysis is available in Developer Edition and above. See https://redirect.sonarsource.com/editions/developer.html for more information.");
-
-    tester.newAnalysis()
+    assertThatThrownBy(() -> tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .putAll(commonProps)
         .put("sonar.branch", "branch")
         .build())
-      .execute();
+      .execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("The 'sonar.branch' parameter is no longer supported. You should stop using it. " +
+        "Branch analysis is available in Developer Edition and above. See https://redirect.sonarsource.com/editions/developer.html for more information.");
   }
 }

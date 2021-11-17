@@ -21,22 +21,17 @@ package org.sonar.ce.taskprocessor;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskProcessorRepositoryImplTest {
   private static final String SOME_CE_TASK_TYPE = "some type";
   private static final String SOME_COMPONENT_KEY = "key";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void constructor_accepts_empty_array_argument() {
     new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {});
@@ -44,28 +39,30 @@ public class CeTaskProcessorRepositoryImplTest {
 
   @Test
   public void constructor_throws_IAE_if_two_TaskProcessor_handle_the_same_CeTask_type() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(
-      "There can be only one CeTaskProcessor instance registered as the processor for CeTask type " + SOME_CE_TASK_TYPE + ". " +
-        "More than one found. Please fix your configuration: " + SomeProcessor1.class.getName() + ", " + SomeProcessor2.class.getName());
-
-    new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {
-      new SomeProcessor1(SOME_CE_TASK_TYPE),
-      new SomeProcessor2(SOME_CE_TASK_TYPE)
-    });
+    assertThatThrownBy(() -> {
+      new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {
+        new SomeProcessor1(SOME_CE_TASK_TYPE),
+        new SomeProcessor2(SOME_CE_TASK_TYPE)
+      });
+    }).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(
+        "There can be only one CeTaskProcessor instance registered as the processor for CeTask type " + SOME_CE_TASK_TYPE + ". " +
+        "More than one found. Please fix your configuration: " + SomeProcessor1.class.getName() + ", " + SomeProcessor2.class.getName()
+      );
   }
 
   @Test
   public void constructor_throws_IAE_if_multiple_TaskProcessor_overlap_their_supported_CeTask_type() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(
-      "There can be only one CeTaskProcessor instance registered as the processor for CeTask type " + SOME_CE_TASK_TYPE + ". " +
-        "More than one found. Please fix your configuration: " + SomeProcessor1.class.getName() + ", " + SomeProcessor2.class.getName());
-
-    new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {
-      new SomeProcessor2(SOME_CE_TASK_TYPE + "_2", SOME_CE_TASK_TYPE),
-      new SomeProcessor1(SOME_CE_TASK_TYPE, SOME_CE_TASK_TYPE + "_3")
-    });
+    assertThatThrownBy(() -> {
+      new CeTaskProcessorRepositoryImpl(new CeTaskProcessor[] {
+        new SomeProcessor2(SOME_CE_TASK_TYPE + "_2", SOME_CE_TASK_TYPE),
+        new SomeProcessor1(SOME_CE_TASK_TYPE, SOME_CE_TASK_TYPE + "_3")
+      });
+    }).isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(
+        "There can be only one CeTaskProcessor instance registered as the processor for CeTask type " + SOME_CE_TASK_TYPE + ". " +
+        "More than one found. Please fix your configuration: " + SomeProcessor1.class.getName() + ", " + SomeProcessor2.class.getName()
+      );
   }
 
   @Test

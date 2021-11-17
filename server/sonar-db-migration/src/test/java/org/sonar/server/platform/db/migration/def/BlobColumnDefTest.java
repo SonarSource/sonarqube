@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -29,13 +27,12 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.db.migration.def.BlobColumnDef.newBlobColumnDefBuilder;
 
 public class BlobColumnDefTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private BlobColumnDef underTest = newBlobColumnDefBuilder().setColumnName("a").build();
 
@@ -43,19 +40,18 @@ public class BlobColumnDefTest {
   public void builder_setColumnName_throws_IAE_if_name_is_not_lowercase() {
     BlobColumnDef.Builder builder = newBlobColumnDefBuilder();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'T'");
-    builder.setColumnName("T");
+    assertThatThrownBy(() -> builder.setColumnName("T"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'T'");
   }
 
   @Test
   public void builder_build_throws_NPE_if_no_name_was_set() {
     BlobColumnDef.Builder builder = newBlobColumnDefBuilder();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Column name cannot be null");
-
-    builder.build();
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 
   @Test
@@ -99,9 +95,8 @@ public class BlobColumnDefTest {
     Dialect dialect = mock(Dialect.class);
     when(dialect.getId()).thenReturn("AAA");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported dialect id AAA");
-
-    underTest.generateSqlType(dialect);
+    assertThatThrownBy(() -> underTest.generateSqlType(dialect))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported dialect id AAA");
   }
 }

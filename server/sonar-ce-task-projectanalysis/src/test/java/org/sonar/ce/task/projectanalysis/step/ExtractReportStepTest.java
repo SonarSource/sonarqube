@@ -25,7 +25,6 @@ import java.io.InputStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -40,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ExtractReportStepTest {
 
@@ -51,8 +51,6 @@ public class ExtractReportStepTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -67,10 +65,9 @@ public class ExtractReportStepTest {
 
   @Test
   public void fail_if_report_zip_does_not_exist() {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Analysis report 1 is missing in database");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Analysis report 1 is missing in database");
   }
 
   @Test

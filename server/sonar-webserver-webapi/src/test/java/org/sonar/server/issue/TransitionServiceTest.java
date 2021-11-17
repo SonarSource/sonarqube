@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
@@ -37,6 +36,7 @@ import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -49,8 +49,6 @@ public class TransitionServiceTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private IssueFieldsSetter updater = new IssueFieldsSetter();
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
@@ -135,9 +133,8 @@ public class TransitionServiceTest {
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Transition is not allowed on issues imported from external rule engines");
-
-    underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm");
+    assertThatThrownBy(() -> underTest.doTransition(defaultIssue, IssueChangeContext.createUser(new Date(), "user_uuid"), "confirm"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Transition is not allowed on issues imported from external rule engines");
   }
 }

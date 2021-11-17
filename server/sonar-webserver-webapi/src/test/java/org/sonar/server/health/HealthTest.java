@@ -25,17 +25,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.api.AbstractCharSequenceAssert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class HealthTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private final Health.Status anyStatus = Health.Status.values()[random.nextInt(Health.Status.values().length)];
@@ -45,18 +43,14 @@ public class HealthTest {
   public void build_throws_NPE_if_status_is_null() {
     Health.Builder builder = newHealthCheckBuilder();
 
-    expectStatusNotNullNPE();
-
-    builder.build();
+    expectStatusNotNullNPE(() -> builder.build());
   }
 
   @Test
   public void setStatus_throws_NPE_if_status_is_null() {
     Health.Builder builder = newHealthCheckBuilder();
 
-    expectStatusNotNullNPE();
-
-    builder.setStatus(null);
+    expectStatusNotNullNPE(() -> builder.setStatus(null));
   }
 
   @Test
@@ -70,28 +64,23 @@ public class HealthTest {
   public void addCause_throws_NPE_if_arg_is_null() {
     Health.Builder builder = newHealthCheckBuilder();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("cause can't be null");
-
-    builder.addCause(null);
+    assertThatThrownBy(() -> builder.addCause(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("cause can't be null");
   }
 
   @Test
   public void addCause_throws_IAE_if_arg_is_empty() {
     Health.Builder builder = newHealthCheckBuilder();
 
-    expectCauseCannotBeEmptyIAE();
-
-    builder.addCause("");
+    expectCauseCannotBeEmptyIAE(() -> builder.addCause(""));
   }
 
   @Test
   public void addCause_throws_IAE_if_arg_contains_only_spaces() {
     Health.Builder builder = newHealthCheckBuilder();
 
-    expectCauseCannotBeEmptyIAE();
-
-    builder.addCause(Strings.repeat(" ", 1 + random.nextInt(5)));
+    expectCauseCannotBeEmptyIAE(() -> builder.addCause(Strings.repeat(" ", 1 + random.nextInt(5))));
   }
 
   @Test
@@ -172,13 +161,15 @@ public class HealthTest {
     }
   }
 
-  private void expectStatusNotNullNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
+  private void expectStatusNotNullNPE(ThrowingCallable shouldRaiseThrowable) {
+    assertThatThrownBy(shouldRaiseThrowable)
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("status can't be null");
   }
 
-  private void expectCauseCannotBeEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("cause can't be empty");
+  private void expectCauseCannotBeEmptyIAE(ThrowingCallable shouldRaiseThrowable) {
+    assertThatThrownBy(shouldRaiseThrowable)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("cause can't be empty");
   }
 }

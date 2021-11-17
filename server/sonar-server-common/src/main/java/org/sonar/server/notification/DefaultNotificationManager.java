@@ -58,8 +58,6 @@ public class DefaultNotificationManager implements NotificationManager {
 
   private NotificationChannel[] notificationChannels;
   private final DbClient dbClient;
-
-
   private boolean alreadyLoggedDeserializationIssue = false;
 
   /**

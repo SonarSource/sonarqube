@@ -19,17 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportScmInfoTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   static final int FILE_REF = 1;
 
@@ -112,46 +108,47 @@ public class ReportScmInfoTest {
 
   @Test
   public void fail_with_ISE_when_no_changeset() {
-    thrown.expect(IllegalStateException.class);
-
-    ReportScmInfo.create(ScannerReport.Changesets.newBuilder().build());
+    assertThatThrownBy(() -> ReportScmInfo.create(ScannerReport.Changesets.newBuilder().build()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("ScmInfo cannot be empty");
   }
 
   @Test
   public void fail_with_NPE_when_report_is_null() {
-    thrown.expect(NullPointerException.class);
-
-    ReportScmInfo.create(null);
+    assertThatThrownBy(() -> ReportScmInfo.create(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_with_ISE_when_changeset_has_no_revision() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Changeset on line 1 must have a revision");
-
-    ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
-      .setComponentRef(FILE_REF)
-      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
-        .setAuthor("john")
-        .setDate(123456789L)
-        .build())
-      .addChangesetIndexByLine(0)
-      .build());
+    assertThatThrownBy(() -> {
+      ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
+        .setComponentRef(FILE_REF)
+        .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
+          .setAuthor("john")
+          .setDate(123456789L)
+          .build())
+        .addChangesetIndexByLine(0)
+        .build());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Changeset on line 1 must have a revision");
   }
 
   @Test
   public void fail_with_ISE_when_changeset_has_no_date() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Changeset on line 1 must have a date");
-
-    ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
-      .setComponentRef(FILE_REF)
-      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
-        .setAuthor("john")
-        .setRevision("rev-1")
-        .build())
-      .addChangesetIndexByLine(0)
-      .build());
+    assertThatThrownBy(() -> {
+      ReportScmInfo.create(ScannerReport.Changesets.newBuilder()
+        .setComponentRef(FILE_REF)
+        .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
+          .setAuthor("john")
+          .setRevision("rev-1")
+          .build())
+        .addChangesetIndexByLine(0)
+        .build());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Changeset on line 1 must have a date");
   }
 
 }

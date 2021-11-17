@@ -24,20 +24,16 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.utils.ExceptionCauseMatcher.hasType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RulesDefinitionXmlLoaderTest {
-
-  @org.junit.Rule
-  public final ExpectedException expectedException = ExpectedException.none();
 
   RulesDefinitionXmlLoader underTest = new RulesDefinitionXmlLoader();
 
@@ -76,29 +72,31 @@ public class RulesDefinitionXmlLoaderTest {
 
   @Test
   public void fail_if_missing_rule_key() {
-    expectedException.expect(IllegalStateException.class);
-    load(IOUtils.toInputStream("<rules><rule><name>Foo</name></rule></rules>"), StandardCharsets.UTF_8.name());
+    assertThatThrownBy(() -> load(IOUtils.toInputStream("<rules><rule><name>Foo</name></rule></rules>"), StandardCharsets.UTF_8.name()))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_missing_property_key() {
-    expectedException.expect(IllegalStateException.class);
-    load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"), StandardCharsets.UTF_8.name());
+    assertThatThrownBy(() -> load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"),
+      StandardCharsets.UTF_8.name()))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_on_invalid_rule_parameter_type() {
-    expectedException.expect(IllegalStateException.class);
-    load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"), StandardCharsets.UTF_8.name());
+    assertThatThrownBy(() -> load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"),
+      StandardCharsets.UTF_8.name()))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_invalid_xml() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("XML is not valid");
-
     InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/invalid.xml");
-    load(input, StandardCharsets.UTF_8.name());
+
+    assertThatThrownBy(() -> load(input, StandardCharsets.UTF_8.name()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("XML is not valid");
   }
 
   @Test
@@ -213,12 +211,7 @@ public class RulesDefinitionXmlLoaderTest {
 
   @Test
   public void fail_if_invalid_remediation_function() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to load the rule with key [squid:1]");
-    expectedException.expectCause(hasType(IllegalArgumentException.class)
-      .andMessage("No enum constant org.sonar.api.server.debt.DebtRemediationFunction.Type.UNKNOWN"));
-
-    load("" +
+    assertThatThrownBy(() -> load("" +
       "<rules>" +
       "  <rule>" +
       "    <key>1</key>" +
@@ -226,7 +219,11 @@ public class RulesDefinitionXmlLoaderTest {
       "    <description>Desc</description>" +
       "    <remediationFunction>UNKNOWN</remediationFunction>" +
       "  </rule>" +
-      "</rules>");
+      "</rules>"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to load the rule with key [squid:1]")
+      .hasCauseInstanceOf(IllegalArgumentException.class)
+      .hasRootCauseMessage("No enum constant org.sonar.api.server.debt.DebtRemediationFunction.Type.UNKNOWN");
   }
 
   @Test
@@ -257,12 +254,11 @@ public class RulesDefinitionXmlLoaderTest {
       "  </rule>" +
       "</rules>";
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to load the rule with key [squid:1]");
-    expectedException.expectCause(hasType(IllegalArgumentException.class)
-      .andMessage("No enum constant org.sonar.api.server.rule.RulesDefinitionXmlLoader.DescriptionFormat.UNKNOWN"));
-
-    load(xml).rule("1");
+    assertThatThrownBy(() -> load(xml).rule("1"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to load the rule with key [squid:1]")
+      .hasCauseInstanceOf(IllegalArgumentException.class)
+      .hasRootCauseMessage("No enum constant org.sonar.api.server.rule.RulesDefinitionXmlLoader.DescriptionFormat.UNKNOWN");
   }
 
   @Test

@@ -24,7 +24,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
@@ -55,6 +54,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -79,8 +79,6 @@ public class SearchEventsActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private Server server = mock(Server.class);
   private IssueIndex issueIndex = new IssueIndex(es.client(), null, null, null);
   private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
@@ -240,25 +238,27 @@ public class SearchEventsActionTest {
     userSession.anonymous();
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
-      .setParam(PARAM_FROM, formatDateTime(1_000L))
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_PROJECTS, project.getKey())
+        .setParam(PARAM_FROM, formatDateTime(1_000L))
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_date_format_is_not_valid() {
     userSession.logIn().setRoot();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'wat' cannot be parsed as either a date or date+time");
-    ws.newRequest()
-      .setParam(PARAM_PROJECTS, "foo")
-      .setParam(PARAM_FROM, "wat")
-      .executeProtobuf(SearchEventsWsResponse.class);
-
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_PROJECTS, "foo")
+        .setParam(PARAM_FROM, "wat")
+        .executeProtobuf(SearchEventsWsResponse.class);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'wat' cannot be parsed as either a date or date+time");
   }
 
   private static EventDto newQualityGateEvent(SnapshotDto analysis) {

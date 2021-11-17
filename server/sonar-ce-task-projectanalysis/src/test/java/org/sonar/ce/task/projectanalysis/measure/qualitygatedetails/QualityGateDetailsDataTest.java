@@ -28,15 +28,19 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.test.JsonAssert;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class QualityGateDetailsDataTest {
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_Level_arg_is_null() {
-    new QualityGateDetailsData(null, Collections.emptyList(), false);
+    assertThatThrownBy(() -> new QualityGateDetailsData(null, Collections.emptyList(), false))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_Iterable_arg_is_null() {
-    new QualityGateDetailsData(Measure.Level.OK, null, false);
+    assertThatThrownBy(() -> new QualityGateDetailsData(Measure.Level.OK, null, false))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

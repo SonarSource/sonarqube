@@ -27,7 +27,6 @@ import java.io.Writer;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.profiles.ProfileExporter;
@@ -63,8 +62,6 @@ public class QProfileExportersTest {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
 
@@ -178,11 +175,11 @@ public class QProfileExportersTest {
   public void export_throws_NotFoundException_if_exporter_does_not_exist() {
     QProfileDto profile = createProfile();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Unknown quality profile exporter: does_not_exist");
-
-    underTest.export(db.getSession(), profile, "does_not_exist", new StringWriter());
-
+    assertThatThrownBy(() -> {
+      underTest.export(db.getSession(), profile, "does_not_exist", new StringWriter());
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Unknown quality profile exporter: does_not_exist");
   }
 
   private QProfileDto createProfile() {

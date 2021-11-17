@@ -21,7 +21,6 @@ package org.sonar.server.almsettings.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -49,8 +48,6 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ListActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -108,8 +105,8 @@ public class ListActionTest {
 
   @Test
   public void fail_when_missing_create_project_permission() {
-    expectedException.expect(ForbiddenException.class);
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

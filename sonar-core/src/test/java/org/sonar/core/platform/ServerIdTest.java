@@ -27,15 +27,14 @@ import java.util.Date;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.core.util.UuidFactoryImpl;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.platform.ServerId.DATABASE_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.DEPRECATED_SERVER_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.NOT_UUID_DATASET_ID_LENGTH;
@@ -47,23 +46,19 @@ import static org.sonar.core.platform.ServerId.Format.WITH_DATABASE_ID;
 
 @RunWith(DataProviderRunner.class)
 public class ServerIdTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void parse_throws_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    ServerId.parse(null);
+    assertThatThrownBy(() -> ServerId.parse(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   @UseDataProvider("emptyAfterTrim")
   public void parse_throws_IAE_if_parameter_is_empty_after_trim(String serverId) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("serverId can't be empty");
-
-    ServerId.parse(serverId);
+    assertThatThrownBy(() -> ServerId.parse(serverId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("serverId can't be empty");
   }
 
   @DataProvider
@@ -78,10 +73,9 @@ public class ServerIdTest {
   @Test
   @UseDataProvider("wrongFormatWithDatabaseId")
   public void parse_throws_IAE_if_split_char_is_at_wrong_position(String emptyDatabaseId) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unrecognized serverId format. Parts have wrong length");
-
-    ServerId.parse(emptyDatabaseId);
+    assertThatThrownBy(() -> ServerId.parse(emptyDatabaseId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unrecognized serverId format. Parts have wrong length");
   }
 
   @DataProvider
@@ -170,33 +164,29 @@ public class ServerIdTest {
 
   @Test
   public void parse_does_not_support_deprecated_server_id_with_database_id() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("serverId does not have a supported length");
-
-    ServerId.parse(randomAlphabetic(DATABASE_ID_LENGTH) + SPLIT_CHARACTER + randomAlphabetic(DEPRECATED_SERVER_ID_LENGTH));
+    assertThatThrownBy(() -> ServerId.parse(randomAlphabetic(DATABASE_ID_LENGTH) + SPLIT_CHARACTER + randomAlphabetic(DEPRECATED_SERVER_ID_LENGTH)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("serverId does not have a supported length");
   }
 
   @Test
   public void of_throws_NPE_if_datasetId_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), null);
+    assertThatThrownBy(() -> ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void of_throws_IAE_if_datasetId_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Illegal datasetId length (0)");
-
-    ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), "");
+    assertThatThrownBy(() -> ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), ""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Illegal datasetId length (0)");
   }
 
   @Test
   public void of_throws_IAE_if_databaseId_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Illegal databaseId length (0)");
-
-    ServerId.of("", randomAlphabetic(UUID_DATASET_ID_LENGTH));
+    assertThatThrownBy(() -> ServerId.of("", randomAlphabetic(UUID_DATASET_ID_LENGTH)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Illegal databaseId length (0)");
   }
 
   @Test
@@ -215,10 +205,9 @@ public class ServerIdTest {
     String databaseId = randomAlphabetic(illegalDatabaseIdLengths);
     String datasetId = randomAlphabetic(UUID_DATASET_ID_LENGTH);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Illegal databaseId length (" + illegalDatabaseIdLengths + ")");
-
-    ServerId.of(databaseId, datasetId);
+    assertThatThrownBy(() -> ServerId.of(databaseId, datasetId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Illegal databaseId length (" + illegalDatabaseIdLengths + ")");
   }
 
   @DataProvider
@@ -235,10 +224,9 @@ public class ServerIdTest {
     String datasetId = randomAlphabetic(illegalDatasetIdLengths);
     String databaseId = randomAlphabetic(DATABASE_ID_LENGTH);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Illegal datasetId length (" + illegalDatasetIdLengths + ")");
-
-    ServerId.of(databaseId, datasetId);
+    assertThatThrownBy(() -> ServerId.of(databaseId, datasetId))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Illegal datasetId length (" + illegalDatasetIdLengths + ")");
   }
 
   @DataProvider

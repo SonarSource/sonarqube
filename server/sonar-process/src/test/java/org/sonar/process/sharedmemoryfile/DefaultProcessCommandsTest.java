@@ -22,12 +22,13 @@ package org.sonar.process.sharedmemoryfile;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
@@ -37,8 +38,6 @@ public class DefaultProcessCommandsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fail_to_init_if_dir_does_not_exist() throws Exception {
@@ -170,76 +169,71 @@ public class DefaultProcessCommandsTest {
   public void main_fails_if_processNumber_is_less_than_0() throws Exception {
     int processNumber = -2;
 
-    expectProcessNumberNoValidIAE(processNumber);
+    expectProcessNumberNoValidIAE(() -> {
+      try ( DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber);) {
 
+      }
+    }, processNumber);
 
-    try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
-
-    }
   }
 
   @Test
   public void main_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES + 1;
 
-    expectProcessNumberNoValidIAE(processNumber);
+    expectProcessNumberNoValidIAE(() -> {
+      try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
 
-    try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
-
-    }
+      }
+    }, processNumber);
   }
 
   @Test
   public void main_fails_if_processNumber_is_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES;
 
-    expectProcessNumberNoValidIAE(processNumber);
+    expectProcessNumberNoValidIAE(() -> {
+      try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
 
-    try (DefaultProcessCommands main = DefaultProcessCommands.main(temp.newFolder(), processNumber)) {
-
-    }
+      }
+    }, processNumber);
   }
 
   @Test
   public void secondary_fails_if_processNumber_is_less_than_0() throws Exception {
     int processNumber = -2;
 
-    expectProcessNumberNoValidIAE(processNumber);
-
-    DefaultProcessCommands.secondary(temp.newFolder(), processNumber);
+    expectProcessNumberNoValidIAE(() -> DefaultProcessCommands.secondary(temp.newFolder(), processNumber), processNumber);
   }
 
   @Test
   public void secondary_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES + 1;
 
-    expectProcessNumberNoValidIAE(processNumber);
+    expectProcessNumberNoValidIAE(() -> {
+      try (DefaultProcessCommands secondary = DefaultProcessCommands.secondary(temp.newFolder(), processNumber)) {
 
-    try (DefaultProcessCommands secondary = DefaultProcessCommands.secondary(temp.newFolder(), processNumber)) {
-
-    }
+      }
+    }, processNumber);
   }
 
   @Test
   public void reset_fails_if_processNumber_is_less_than_0() throws Exception {
     int processNumber = -2;
 
-    expectProcessNumberNoValidIAE(processNumber);
-
-    DefaultProcessCommands.reset(temp.newFolder(), processNumber);
+    expectProcessNumberNoValidIAE(() -> DefaultProcessCommands.reset(temp.newFolder(), processNumber), processNumber);
   }
 
   @Test
   public void reset_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES + 1;
 
-    expectProcessNumberNoValidIAE(processNumber);
-
-    DefaultProcessCommands.reset(temp.newFolder(), processNumber);
+    expectProcessNumberNoValidIAE(() -> DefaultProcessCommands.reset(temp.newFolder(), processNumber), processNumber);
   }
 
-  private void expectProcessNumberNoValidIAE(int processNumber) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Process number " + processNumber + " is not valid");
+  private void expectProcessNumberNoValidIAE(ThrowableAssert.ThrowingCallable callback, int processNumber) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Process number " + processNumber + " is not valid");
   }
 }

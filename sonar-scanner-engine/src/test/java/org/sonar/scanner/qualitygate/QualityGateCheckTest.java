@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
@@ -44,6 +43,7 @@ import org.sonarqube.ws.client.MockWsResponse;
 import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -59,9 +59,6 @@ public class QualityGateCheckTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   QualityGateCheck underTest = new QualityGateCheck(wsClient, analysisMode, reportMetadataHolder, properties);
 
@@ -127,9 +124,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
   }
 
   @Test
@@ -145,9 +142,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
   }
 
   @Test
@@ -164,10 +161,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
-
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("QUALITY GATE STATUS: FAILED - View details on http://dashboard-url.com");
   }
 
   @Test
@@ -180,9 +176,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("Quality Gate check timeout exceeded - View details on http://dashboard-url.com");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Quality Gate check timeout exceeded - View details on http://dashboard-url.com");
   }
 
   @Test
@@ -197,9 +193,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("Failed to get Quality Gate status - HTTP code 400: content");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Failed to get Quality Gate status - HTTP code 400: content");
   }
 
   @Test
@@ -217,9 +213,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to parse response from quality-gate-url");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse response from quality-gate-url");
   }
 
   @Test
@@ -231,9 +227,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("Failed to get CE Task status - HTTP code 400: content");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Failed to get CE Task status - HTTP code 400: content");
   }
 
   @Test
@@ -249,9 +245,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to parse response from ce-task-url");
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse response from ce-task-url");
   }
 
   @Test
@@ -265,9 +261,9 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("CE Task finished abnormally with status: " + taskStatus.name());
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("CE Task finished abnormally with status: " + taskStatus.name());
   }
 
   private WsRequest newGetCeTaskRequest() {
@@ -302,9 +298,8 @@ public class QualityGateCheckTest {
 
     underTest.start();
 
-    exception.expect(IllegalStateException.class);
-
-    underTest.await();
+    assertThatThrownBy(() -> underTest.await())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   private WsRequest newGetQualityGateRequest() {

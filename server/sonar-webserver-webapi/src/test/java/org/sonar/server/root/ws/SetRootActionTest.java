@@ -20,9 +20,9 @@
 package org.sonar.server.root.ws;
 
 import javax.annotation.Nullable;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -37,6 +37,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SetRootActionTest {
   private static final String SOME_LOGIN = "johndoe";
@@ -45,8 +46,6 @@ public class SetRootActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private UserDao userDao = dbTester.getDbClient().userDao();
   private DbSession dbSession = dbTester.getSession();
@@ -79,28 +78,23 @@ public class SetRootActionTest {
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectInsufficientPrivilegesForbiddenException();
-
-    executeRequest(SOME_LOGIN);
+    expectInsufficientPrivilegesForbiddenException(() -> executeRequest(SOME_LOGIN));
   }
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_root() {
     userSessionRule.logIn().setNonRoot();
 
-    expectInsufficientPrivilegesForbiddenException();
-
-    executeRequest(SOME_LOGIN);
+    expectInsufficientPrivilegesForbiddenException(() -> executeRequest(SOME_LOGIN));
   }
 
   @Test
   public void execute_fails_with_IAE_when_login_param_is_not_provided() {
     logInAsRoot();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'login' parameter is missing");
-
-    executeRequest(null);
+    assertThatThrownBy(() -> executeRequest(null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'login' parameter is missing");
   }
 
   @Test
@@ -136,10 +130,9 @@ public class SetRootActionTest {
   public void execute_fails_with_NotFoundException_when_user_for_specified_login_does_not_exist() {
     logInAsRoot();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'foo_bar' not found");
-    
-    executeRequest("foo_bar");
+    assertThatThrownBy(() -> executeRequest("foo_bar"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login 'foo_bar' not found");
   }
 
   @Test
@@ -149,19 +142,19 @@ public class SetRootActionTest {
     dbSession.commit();
     logInAsRoot();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login '" + userDto.getLogin() + "' not found");
-
-    executeRequest(userDto.getLogin());
+    assertThatThrownBy(() -> executeRequest(userDto.getLogin()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login '" + userDto.getLogin() + "' not found");
   }
 
   private void logInAsRoot() {
     userSessionRule.logIn().setRoot();
   }
 
-  private void expectInsufficientPrivilegesForbiddenException() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+  private void expectInsufficientPrivilegesForbiddenException(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   private int executeRequest(@Nullable String login) {

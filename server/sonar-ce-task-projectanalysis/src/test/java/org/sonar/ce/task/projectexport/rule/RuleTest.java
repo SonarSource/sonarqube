@@ -20,34 +20,30 @@
 package org.sonar.ce.task.projectexport.rule;
 
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RuleTest {
   private static final String SOME_DUMP_UUID = "uuid-12334";
   private static final String SOME_REPOSITORY = "some repository";
   private static final String SOME_KEY = "some key";
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Rule underTest = new Rule(SOME_DUMP_UUID, SOME_REPOSITORY, SOME_KEY);
 
   @Test
   public void constructor_throws_NPE_if_repository_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("repository can not be null");
-
-    new Rule(SOME_DUMP_UUID, null, SOME_KEY);
+    assertThatThrownBy(() -> new Rule(SOME_DUMP_UUID, null, SOME_KEY))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("repository can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_key_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can not be null");
-
-    new Rule(SOME_DUMP_UUID, SOME_REPOSITORY, null);
+    assertThatThrownBy(() -> new Rule(SOME_DUMP_UUID, SOME_REPOSITORY, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key can not be null");
   }
 
   @Test

@@ -23,18 +23,16 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.test.TestUtils;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.test.Test.Fake;
 
 public class ProtobufTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -46,12 +44,12 @@ public class ProtobufTest {
 
   @Test
   public void read_file_fails_if_file_does_not_exist() throws Exception {
-    thrown.expect(ContextException.class);
-    thrown.expectMessage("Unable to read message");
-
-    File file = temp.newFile();
-    FileUtils.forceDelete(file);
-    Protobuf.read(file, Fake.parser());
+    assertThatThrownBy(() -> {
+      File file = temp.newFile();
+      FileUtils.forceDelete(file);
+      Protobuf.read(file, Fake.parser());
+    }).isInstanceOf(ContextException.class)
+      .hasMessageContaining("Unable to read message");
   }
 
   @Test
@@ -73,11 +71,11 @@ public class ProtobufTest {
 
   @Test
   public void fail_to_write_single_message() throws Exception {
-    thrown.expect(ContextException.class);
-    thrown.expectMessage("Unable to write message");
-
-    File dir = temp.newFolder();
-    Protobuf.write(Fake.getDefaultInstance(), dir);
+    assertThatThrownBy(() -> {
+      File dir = temp.newFolder();
+      Protobuf.write(Fake.getDefaultInstance(), dir);
+    }).isInstanceOf(ContextException.class)
+      .hasMessageContaining("Unable to write message");
   }
 
   @Test
@@ -100,11 +98,11 @@ public class ProtobufTest {
 
   @Test
   public void fail_to_read_stream() throws Exception {
-    thrown.expect(ContextException.class);
-    thrown.expectMessage("Unable to read messages");
-
-    File dir = temp.newFolder();
-    Protobuf.readStream(dir, Fake.parser());
+    assertThatThrownBy(() -> {
+      File dir = temp.newFolder();
+      Protobuf.readStream(dir, Fake.parser());
+    }).isInstanceOf(ContextException.class)
+      .hasMessageContaining("Unable to read messages");
   }
 
   @Test

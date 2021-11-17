@@ -20,22 +20,19 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationBuilder.Profile;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class BuiltInQPChangeNotificationTest {
 
   private static final Random RANDOM = new Random();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void serialize_and_parse_no_profile() {
@@ -137,9 +134,8 @@ public class BuiltInQPChangeNotificationTest {
 
   @Test
   public void fail_with_ISE_when_parsing_empty_notification() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Could not read the built-in quality profile notification");
-
-    BuiltInQPChangeNotificationBuilder.parse(new Notification(BuiltInQPChangeNotification.TYPE));
+    assertThatThrownBy(() -> BuiltInQPChangeNotificationBuilder.parse(new Notification(BuiltInQPChangeNotification.TYPE)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Could not read the built-in quality profile notification");
   }
 }

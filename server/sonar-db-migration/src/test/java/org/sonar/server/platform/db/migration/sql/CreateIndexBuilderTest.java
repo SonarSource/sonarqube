@@ -20,18 +20,13 @@
 package org.sonar.server.platform.db.migration.sql;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateIndexBuilderTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void create_index_on_single_column() {
     verifySql(new CreateIndexBuilder()
@@ -83,59 +78,64 @@ public class CreateIndexBuilderTest {
 
   @Test
   public void throw_NPE_if_table_is_missing() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name can't be null");
-
-    new CreateIndexBuilder()
-      .setName("issues_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-      .build();
+    assertThatThrownBy(() -> {
+      new CreateIndexBuilder()
+        .setName("issues_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Table name can't be null");
   }
 
   @Test
   public void throw_NPE_if_index_name_is_missing() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Index name can't be null");
-
-    new CreateIndexBuilder()
-      .setTable("issues")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-      .build();
+    assertThatThrownBy(() -> {
+      new CreateIndexBuilder()
+        .setTable("issues")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Index name can't be null");
   }
 
   @Test
   public void throw_IAE_if_columns_are_missing() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("at least one column must be specified");
-
-    new CreateIndexBuilder()
-      .setTable("issues")
-      .setName("issues_key")
-      .build();
+    assertThatThrownBy(() -> {
+      new CreateIndexBuilder()
+        .setTable("issues")
+        .setName("issues_key")
+        .build();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("at least one column must be specified");
   }
 
   @Test
   public void throw_IAE_if_table_name_is_not_valid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
-
-    new CreateIndexBuilder()
-      .setTable("(not valid)")
-      .setName("issues_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-      .build();
+    assertThatThrownBy(() -> {
+      new CreateIndexBuilder()
+        .setTable("(not valid)")
+        .setName("issues_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
+        .build();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
   }
 
   @Test
   public void throw_NPE_when_adding_null_column() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Column cannot be null");
-
-    new CreateIndexBuilder()
-      .setTable("issues")
-      .setName("issues_key")
-      .addColumn((String) null)
-      .build();
+    assertThatThrownBy(() -> {
+      new CreateIndexBuilder()
+        .setTable("issues")
+        .setName("issues_key")
+        .addColumn((String) null)
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column cannot be null");
   }
 
   private static void verifySql(CreateIndexBuilder builder, String expectedSql) {

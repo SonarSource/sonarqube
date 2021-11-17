@@ -40,6 +40,7 @@ import org.sonar.server.permission.RequestValidator;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.countMatches;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -267,34 +268,37 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void fail_if_project_permission_without_project() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
-      .setParam(Param.SELECTED, SelectionMode.ALL.value())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+        .setParam(Param.SELECTED, SelectionMode.ALL.value())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
     userSession.logIn("login");
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam("permission", SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("permission", SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_not_logged_in() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest()
-      .setParam("permission", SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("permission", SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -302,24 +306,24 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key can be provided, not both.");
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_PROJECT_ID, project.uuid())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Project id or project key can be provided, not both.");
   }
 
   @Test
   public void fail_if_search_query_is_too_short() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
-
-    newRequest().setParam(TEXT_QUERY, "ab").execute();
+    assertThatThrownBy(() -> newRequest().setParam(TEXT_QUERY, "ab").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'q' length (2) is shorter than the minimum authorized (3)");
   }
 
   @Test
@@ -330,14 +334,15 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
-
-    newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -348,14 +353,15 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
-
-    newRequest()
-      .setParam(PARAM_PROJECT_ID, branch.uuid())
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PROJECT_ID, branch.uuid())
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project id '%s' not found", branch.uuid()));
   }
 
   private void insertUsersHavingGlobalPermissions() {

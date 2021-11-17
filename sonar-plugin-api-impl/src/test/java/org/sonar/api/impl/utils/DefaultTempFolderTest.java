@@ -21,25 +21,32 @@ package org.sonar.api.impl.utils;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultTempFolderTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  private static StringBuilder tooLong = new StringBuilder("tooooolong");
+
+  @BeforeClass
+  public static void setUp() {
+    for (int i = 0; i < 50; i++) {
+      tooLong.append("tooooolong");
+    }
+  }
 
   @Test
   public void createTempFolderAndFile() throws Exception {
@@ -70,30 +77,20 @@ public class DefaultTempFolderTest {
   public void newDir_throws_ISE_if_name_is_not_valid() throws Exception {
     File rootTempFolder = temp.newFolder();
     DefaultTempFolder underTest = new DefaultTempFolder(rootTempFolder);
-    String tooLong = "tooooolong";
-    for (int i = 0; i < 50; i++) {
-      tooLong += "tooooolong";
-    }
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Failed to create temp directory");
-
-    underTest.newDir(tooLong);
+    assertThatThrownBy(() -> underTest.newDir(tooLong.toString()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to create temp directory");
   }
 
   @Test
   public void newFile_throws_ISE_if_name_is_not_valid() throws Exception {
     File rootTempFolder = temp.newFolder();
     DefaultTempFolder underTest = new DefaultTempFolder(rootTempFolder);
-    String tooLong = "tooooolong";
-    for (int i = 0; i < 50; i++) {
-      tooLong += "tooooolong";
-    }
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Failed to create temp file");
-
-    underTest.newFile(tooLong, ".txt");
+    assertThatThrownBy(() -> underTest.newFile(tooLong.toString(), ".txt"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to create temp file");
   }
 
   @Test

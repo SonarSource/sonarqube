@@ -19,30 +19,25 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RegisteredMigrationStepTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_NPE_if_description_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("description can't be null");
-
-    new RegisteredMigrationStep(1, null, MigrationStep.class);
+    assertThatThrownBy(() -> new RegisteredMigrationStep(1, null, MigrationStep.class))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("description can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_MigrationStep_class_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("MigrationStep class can't be null");
-
-    new RegisteredMigrationStep(1, "", null);
+    assertThatThrownBy(() -> new RegisteredMigrationStep(1, "", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("MigrationStep class can't be null");
   }
 
   @Test

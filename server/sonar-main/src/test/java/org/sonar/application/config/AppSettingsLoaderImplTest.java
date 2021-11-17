@@ -27,21 +27,19 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.System2;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AppSettingsLoaderImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -115,10 +113,9 @@ public class AppSettingsLoaderImplTest {
     FileUtils.forceMkdir(propsFileAsDir);
     AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cannot open file " + propsFileAsDir.getAbsolutePath());
-
-    underTest.load();
+    assertThatThrownBy(() -> underTest.load())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cannot open file " + propsFileAsDir.getAbsolutePath());
   }
 
   @Test

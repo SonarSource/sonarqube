@@ -24,9 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import org.assertj.core.data.Offset;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.measure.Measure.Level;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -34,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.db.measure.LiveMeasureDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class LiveMeasureDtoToMeasureTest {
@@ -48,8 +47,6 @@ public class LiveMeasureDtoToMeasureTest {
   private static final String SOME_ALERT_TEXT = "some alert text_be_careFul!";
   private static final LiveMeasureDto EMPTY_MEASURE_DTO = new LiveMeasureDto();
 
-  @Rule
-  public final ExpectedException expectedException = ExpectedException.none();
 
   private LiveMeasureDtoToMeasure underTest = new LiveMeasureDtoToMeasure();
 
@@ -58,14 +55,16 @@ public class LiveMeasureDtoToMeasureTest {
     assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isNotPresent();
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void toMeasure_throws_NPE_if_metric_argument_is_null() {
-    underTest.toMeasure(EMPTY_MEASURE_DTO, null);
+    assertThatThrownBy(() -> underTest.toMeasure(EMPTY_MEASURE_DTO, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
-    underTest.toMeasure(null, null);
+    assertThatThrownBy(() -> underTest.toMeasure(null, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

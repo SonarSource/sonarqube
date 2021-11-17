@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RulePriority;
@@ -62,6 +61,7 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
@@ -74,8 +74,6 @@ public class CreateActionTest {
     .setLanguage(XOO_LANGUAGE)
     .getDefinition();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -159,20 +157,23 @@ public class CreateActionTest {
       .logIn()
       .addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    executeRequest(ws.newRequest()
-      .setParam("name", "some Name")
-      .setParam("language", XOO_LANGUAGE));
+    assertThatThrownBy(() -> {
+      executeRequest(ws.newRequest()
+        .setParam("name", "some Name")
+        .setParam("language", XOO_LANGUAGE));
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void fail_if_import_generate_error() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    executeRequest("Profile with errors", XOO_LANGUAGE, ImmutableMap.of("with_errors", "<xml/>"));
+    assertThatThrownBy(() -> {
+      executeRequest("Profile with errors", XOO_LANGUAGE, ImmutableMap.of("with_errors", "<xml/>"));
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test

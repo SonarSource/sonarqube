@@ -19,16 +19,12 @@
  */
 package org.sonar.api.ce.measure.test;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestMeasureTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void create_double_measure() {
@@ -57,41 +53,36 @@ public class TestMeasureTest {
 
   @Test
   public void getDoubleValue_fails_with_ISE_when_not_a_double() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Not a double measure");
-
-    TestMeasure.createMeasure(10).getDoubleValue();
+    assertThatThrownBy(() -> TestMeasure.createMeasure(10).getDoubleValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Not a double measure");
   }
 
   @Test
   public void getIntValue_fails_with_ISE_when_not_an_int() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Not an integer measure");
-
-    TestMeasure.createMeasure(10L).getIntValue();
+    assertThatThrownBy(() -> TestMeasure.createMeasure(10L).getIntValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Not an integer measure");
   }
 
   @Test
   public void getLongValue_fails_with_ISE_when_not_a_long() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Not a long measure");
-
-    TestMeasure.createMeasure(10).getLongValue();
+    assertThatThrownBy(() -> TestMeasure.createMeasure(10).getLongValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Not a long measure");
   }
 
   @Test
   public void getStringValue_fails_with_ISE_when_not_a_string() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Not a string measure");
-
-    TestMeasure.createMeasure(10).getStringValue();
+    assertThatThrownBy(() -> TestMeasure.createMeasure(10).getStringValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Not a string measure");
   }
 
   @Test
   public void getBooleanValue_fails_with_ISE_when_not_a_boolean() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Not a boolean measure");
-
-    TestMeasure.createMeasure(10).getBooleanValue();
+    assertThatThrownBy(() -> TestMeasure.createMeasure(10).getBooleanValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Not a boolean measure");
   }
 }

@@ -23,17 +23,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ScmChangedFilesTest {
   private ScmChangedFiles scmChangedFiles;
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testGetter() {
@@ -48,8 +44,8 @@ public class ScmChangedFilesTest {
     assertThat(scmChangedFiles.isValid()).isFalse();
     assertThat(scmChangedFiles.get()).isNull();
 
-    exception.expect(IllegalStateException.class);
-    assertThat(scmChangedFiles.isChanged(Paths.get("files2"))).isTrue();
+    assertThatThrownBy(() -> scmChangedFiles.isChanged(Paths.get("files2")))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

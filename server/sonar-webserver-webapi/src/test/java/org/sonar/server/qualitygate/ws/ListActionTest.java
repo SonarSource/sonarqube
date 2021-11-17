@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -34,6 +33,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -42,8 +42,6 @@ import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
 public class ListActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -102,10 +100,9 @@ public class ListActionTest {
   public void no_default_quality_gate() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(IllegalStateException.class);
-
-    ListWsResponse response = ws.newRequest()
-      .executeProtobuf(ListWsResponse.class);
+    assertThatThrownBy(() -> ws.newRequest()
+      .executeProtobuf(ListWsResponse.class))
+      .isInstanceOf(IllegalStateException.class);
 
   }
 

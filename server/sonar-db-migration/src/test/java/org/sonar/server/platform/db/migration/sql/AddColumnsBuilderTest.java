@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -31,16 +29,13 @@ import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddColumnsBuilderTest {
 
   private static final String TABLE_NAME = "issues";
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void add_columns_on_h2() {
     assertThat(createSampleBuilder(new H2()).build())
@@ -67,10 +62,10 @@ public class AddColumnsBuilderTest {
 
   @Test
   public void fail_with_ISE_if_no_column() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("No column has been defined");
+    assertThatThrownBy(() -> new AddColumnsBuilder(new H2(), TABLE_NAME).build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No column has been defined");
 
-    new AddColumnsBuilder(new H2(), TABLE_NAME).build();
   }
 
   private AddColumnsBuilder createSampleBuilder(Dialect dialect) {

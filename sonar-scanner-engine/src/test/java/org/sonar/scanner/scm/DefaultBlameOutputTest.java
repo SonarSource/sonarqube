@@ -20,9 +20,7 @@
 package org.sonar.scanner.scm;
 
 import java.util.Date;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameLine;
@@ -32,13 +30,12 @@ import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultBlameOutputTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   private System2 system2 = mock(System2.class);
   private DefaultAnalysisWarnings analysisWarnings = new DefaultAnalysisWarnings(system2);
   private ScannerWsClient client = mock(ScannerWsClient.class);
@@ -64,33 +61,30 @@ public class DefaultBlameOutputTest {
   public void shouldFailIfNotExpectedFile() {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").build();
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("It was not expected to blame file " + file);
-
-    new DefaultBlameOutput(null, analysisWarnings, singletonList(new TestInputFileBuilder("foo", "src/main/java/Foo2.java").build()), client)
-      .blameResult(file, singletonList(new BlameLine().revision("1").author("guy")));
+    assertThatThrownBy(() -> new DefaultBlameOutput(null, analysisWarnings,
+      singletonList(new TestInputFileBuilder("foo", "src/main/java/Foo2.java").build()), client)
+      .blameResult(file, singletonList(new BlameLine().revision("1").author("guy"))))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("It was not expected to blame file " + file);
   }
 
   @Test
   public void shouldFailIfNullDate() {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(1).build();
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Blame date is null for file " + file + " at line 1");
-
-    new DefaultBlameOutput(null, analysisWarnings, singletonList(file), client)
-      .blameResult(file, singletonList(new BlameLine().revision("1").author("guy")));
+    assertThatThrownBy(() -> new DefaultBlameOutput(null, analysisWarnings, singletonList(file), client)
+      .blameResult(file, singletonList(new BlameLine().revision("1").author("guy"))))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Blame date is null for file " + file + " at line 1");
   }
 
   @Test
   public void shouldFailIfNullRevision() {
     InputFile file = new TestInputFileBuilder("foo", "src/main/java/Foo.java").setLines(1).build();
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Blame revision is blank for file " + file + " at line 1");
-
-    new DefaultBlameOutput(null, analysisWarnings, singletonList(file), client)
-      .blameResult(file, singletonList(new BlameLine().date(new Date()).author("guy")));
+    assertThatThrownBy(() ->     new DefaultBlameOutput(null, analysisWarnings, singletonList(file), client)
+      .blameResult(file, singletonList(new BlameLine().date(new Date()).author("guy"))))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Blame revision is blank for file " + file + " at line 1");
   }
-
 }

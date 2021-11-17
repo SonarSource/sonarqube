@@ -22,7 +22,6 @@ package org.sonar.server.almintegration.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -36,13 +35,12 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class SetPatActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -151,13 +149,14 @@ public class SetPatActionTest {
     AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Username cannot be null for Bitbucket Cloud");
-
-    ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .setParam("pat", "12345678987654321")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", almSetting.getKey())
+        .setParam("pat", "12345678987654321")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Username cannot be null for Bitbucket Cloud");
   }
 
   @Test
@@ -165,13 +164,14 @@ public class SetPatActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("ALM Setting 'notExistingKey' not found");
-
-    ws.newRequest()
-      .setParam("almSetting", "notExistingKey")
-      .setParam("pat", "12345678987654321")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "notExistingKey")
+        .setParam("pat", "12345678987654321")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("ALM Setting 'notExistingKey' not found");
   }
 
   @Test
@@ -180,20 +180,20 @@ public class SetPatActionTest {
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only Azure DevOps, Bitbucket Server, GitLab ALM and Bitbucket Cloud Settings are supported.");
-
-    ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .setParam("pat", "12345678987654321")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", almSetting.getKey())
+        .setParam("pat", "12345678987654321")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only Azure DevOps, Bitbucket Server, GitLab ALM and Bitbucket Cloud Settings are supported.");
   }
 
   @Test
   public void fail_when_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -201,10 +201,9 @@ public class SetPatActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

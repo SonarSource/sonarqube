@@ -24,12 +24,12 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collections;
 import java.util.Map;
-import org.junit.Rule;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 @RunWith(DataProviderRunner.class)
@@ -37,42 +37,35 @@ public class QualityGateStatusHolderImplTest {
   private static final Map<Condition, ConditionStatus> SOME_STATUS_PER_CONDITION = Collections.singletonMap(
     mock(Condition.class), ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "val"));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private QualityGateStatusHolderImpl underTest = new QualityGateStatusHolderImpl();
 
   @Test
   public void setStatus_throws_NPE_if_globalStatus_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("global status can not be null");
-
-    underTest.setStatus(null, SOME_STATUS_PER_CONDITION);
+    assertThatThrownBy(() -> underTest.setStatus(null, SOME_STATUS_PER_CONDITION))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("global status can not be null");
   }
 
   @Test
   public void setStatus_throws_NPE_if_statusPerCondition_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status per condition can not be null");
-
-    underTest.setStatus(QualityGateStatus.OK, null);
+    assertThatThrownBy(() -> underTest.setStatus(QualityGateStatus.OK, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status per condition can not be null");
   }
 
   @Test
   public void setStatus_throws_ISE_if_called_twice() {
     underTest.setStatus(QualityGateStatus.OK, SOME_STATUS_PER_CONDITION);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Quality gate status has already been set in the holder");
-
-    underTest.setStatus(null, null);
+    assertThatThrownBy(() -> underTest.setStatus(null, null))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Quality gate status has already been set in the holder");
   }
 
   @Test
   public void getStatus_throws_ISE_if_setStatus_not_called_yet() {
-    expectQGNotSetYetISE();
-
-    underTest.getStatus();
+    expectQGNotSetYetISE(() -> underTest.getStatus());
   }
 
   @Test
@@ -85,9 +78,7 @@ public class QualityGateStatusHolderImplTest {
 
   @Test
   public void getStatusPerConditions_throws_ISE_if_setStatus_not_called_yet() {
-    expectQGNotSetYetISE();
-
-    underTest.getStatusPerConditions();
+    expectQGNotSetYetISE(() ->  underTest.getStatusPerConditions());
   }
 
   @Test
@@ -99,9 +90,10 @@ public class QualityGateStatusHolderImplTest {
     assertThat(underTest.getStatusPerConditions()).isNotSameAs(SOME_STATUS_PER_CONDITION);
   }
 
-  private void expectQGNotSetYetISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Quality gate status has not been set yet");
+  private void expectQGNotSetYetISE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Quality gate status has not been set yet");
   }
 
   @DataProvider

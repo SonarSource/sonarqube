@@ -26,9 +26,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -47,8 +45,6 @@ public class WebServiceFilterTest {
 
   private static final String RUNTIME_VERSION = "7.1.0.1234";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
 

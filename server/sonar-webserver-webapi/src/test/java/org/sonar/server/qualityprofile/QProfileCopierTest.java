@@ -23,7 +23,6 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.utils.System2;
@@ -45,8 +44,6 @@ public class QProfileCopierTest {
   private static final String BACKUP = "<backup/>";
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule

@@ -25,7 +25,6 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -41,8 +40,6 @@ import static org.mockito.Mockito.when;
 public class EventComponentChangeDaoTest {
   private static Random random = new Random();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 

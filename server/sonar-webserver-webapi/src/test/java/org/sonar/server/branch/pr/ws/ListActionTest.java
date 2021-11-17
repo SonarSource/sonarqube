@@ -22,7 +22,6 @@ package org.sonar.server.branch.pr.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
@@ -55,6 +54,7 @@ import org.sonarqube.ws.ProjectPullRequests.PullRequest;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -76,8 +76,6 @@ import static org.sonarqube.ws.ProjectPullRequests.Status;
 
 public class ListActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -408,20 +406,18 @@ public class ListActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
   }
 
   @Test
   public void fail_if_missing_project_parameter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'project' parameter is missing");
   }
 
   @Test
@@ -430,22 +426,16 @@ public class ListActionTest {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project '" + file.getDbKey() + "' not found");
-
-    ws.newRequest()
-      .setParam("project", file.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest().setParam("project", file.getDbKey()).execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project '" + file.getDbKey() + "' not found");
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'foo' not found");
-
-    ws.newRequest()
-      .setParam("project", "foo")
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest().setParam("project", "foo").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'foo' not found");
   }
 
   @Test
@@ -458,11 +448,8 @@ public class ListActionTest {
         .setPullRequestData(DbProjectBranches.PullRequestData.newBuilder().setBranch("feature/bar").build()));
     userSession.logIn().addProjectPermission(CODEVIEWER, project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam("project", project.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest().setParam("project",  project.getDbKey()).execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
 }

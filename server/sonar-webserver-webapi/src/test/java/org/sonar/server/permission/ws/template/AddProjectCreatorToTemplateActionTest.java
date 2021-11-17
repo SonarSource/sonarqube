@@ -39,6 +39,7 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.ws.WsParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
@@ -109,36 +110,39 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   public void fail_when_template_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, "42")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, "42")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_if_permission_is_not_a_project_permission() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, QUALITY_GATE_ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_not_admin() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private void assertThatProjectCreatorIsPresentFor(String permission, String templateUuid) {

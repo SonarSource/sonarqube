@@ -19,17 +19,13 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 
 public class InMemorySensorStorageTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   InMemorySensorStorage underTest = new InMemorySensorStorage();
 
@@ -43,17 +39,15 @@ public class InMemorySensorStorageTest {
 
   @Test
   public void storeProperty_throws_IAE_if_key_is_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Key of context property must not be null");
-
-    underTest.storeProperty(null, "bar");
+    assertThatThrownBy(() -> underTest.storeProperty(null, "bar"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Key of context property must not be null");
   }
 
   @Test
   public void storeProperty_throws_IAE_if_value_is_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of context property must not be null");
-
-    underTest.storeProperty("foo", null);
+    assertThatThrownBy(() -> underTest.storeProperty("foo", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of context property must not be null");
   }
 }

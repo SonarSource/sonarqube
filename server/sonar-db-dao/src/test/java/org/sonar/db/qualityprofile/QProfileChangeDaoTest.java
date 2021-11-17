@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -33,14 +32,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class QProfileChangeDaoTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -77,10 +75,9 @@ public class QProfileChangeDaoTest {
 
   @Test
   public void insert_throws_ISE_if_date_is_already_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Date of QProfileChangeDto must be set by DAO only. Got 123.");
-
-    underTest.insert(dbSession, new QProfileChangeDto().setCreatedAt(123L));
+    assertThatThrownBy(() ->  underTest.insert(dbSession, new QProfileChangeDto().setCreatedAt(123L)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Date of QProfileChangeDto must be set by DAO only. Got 123.");
   }
 
   @Test

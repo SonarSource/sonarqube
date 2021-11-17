@@ -20,13 +20,17 @@
 
 package org.sonar.server.plugins;
 
+import java.util.Optional;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.core.extension.PluginRiskConsent;
-import org.sonar.server.plugins.PluginsRiskConsentFilter;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,11 +39,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.PLUGINS_RISK_CONSENT;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 public class PluginsRiskConsentFilterTest {
 

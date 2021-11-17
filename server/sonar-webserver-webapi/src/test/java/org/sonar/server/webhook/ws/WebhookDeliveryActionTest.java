@@ -22,15 +22,12 @@ package org.sonar.server.webhook.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -43,13 +40,11 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Webhooks;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebhookDeliveryActionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -82,21 +77,19 @@ public class WebhookDeliveryActionTest {
 
   @Test
   public void throw_UnauthorizedException_if_anonymous() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void return_404_if_delivery_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("deliveryId", "does_not_exist")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -174,11 +167,11 @@ public class WebhookDeliveryActionTest {
     db.commit();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("deliveryId", dto.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 }

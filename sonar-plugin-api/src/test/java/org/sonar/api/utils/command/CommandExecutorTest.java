@@ -26,12 +26,12 @@ import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 public class CommandExecutorTest {
@@ -41,9 +41,6 @@ public class CommandExecutorTest {
 
   @Rule
   public TestName testName = new TestName();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private File workDir;
 
@@ -76,17 +73,19 @@ public class CommandExecutorTest {
   @Test(timeout = 3000L)
   public void stdOut_consumer_can_throw_exception() throws Exception {
     Command command = Command.create(getScript("output")).setDirectory(workDir);
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("Error inside stdOut stream");
-    CommandExecutor.create().execute(command, BAD_CONSUMER, NOP_CONSUMER, 1000L);
+
+    assertThatThrownBy(() -> CommandExecutor.create().execute(command, BAD_CONSUMER, NOP_CONSUMER, 1000L))
+      .isInstanceOf(CommandException.class)
+      .hasMessageContaining("Error inside stdOut stream");
   }
 
   @Test(timeout = 3000L)
   public void stdErr_consumer_can_throw_exception() throws Exception {
     Command command = Command.create(getScript("output")).setDirectory(workDir);
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("Error inside stdErr stream");
-    CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1500L);
+
+    assertThatThrownBy(() -> CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1500L))
+      .isInstanceOf(CommandException.class)
+      .hasMessageContaining("Error inside stdErr stream");
   }
 
   private static final StreamConsumer NOP_CONSUMER = line -> {
@@ -136,8 +135,8 @@ public class CommandExecutorTest {
 
   @Test
   public void should_fail_if_script_not_found() {
-    thrown.expect(CommandException.class);
-    CommandExecutor.create().execute(Command.create("notfound").setDirectory(workDir), 1000L);
+    assertThatThrownBy(() -> CommandExecutor.create().execute(Command.create("notfound").setDirectory(workDir), 1000L))
+      .isInstanceOf(CommandException.class);
   }
 
   private static String getScript(String name) throws IOException {

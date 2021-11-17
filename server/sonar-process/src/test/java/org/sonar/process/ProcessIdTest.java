@@ -21,16 +21,13 @@ package org.sonar.process;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ProcessIdTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_constants() {
@@ -60,17 +57,15 @@ public class ProcessIdTest {
 
   @Test
   public void fromKey_throws_IAE_if_key_is_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Process [null] does not exist");
-
-    ProcessId.fromKey(null);
+    assertThatThrownBy(() -> ProcessId.fromKey(null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Process [null] does not exist");
   }
 
   @Test
   public void fromKey_throws_IAE_if_key_does_not_exist() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Process [foo] does not exist");
-
-    ProcessId.fromKey("foo");
+    assertThatThrownBy(() -> ProcessId.fromKey("foo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Process [foo] does not exist");
   }
 }

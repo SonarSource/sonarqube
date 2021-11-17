@@ -22,7 +22,6 @@ package org.sonar.db.user;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -34,8 +33,6 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 public class UserTokenDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = db.getSession();
 

@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.container.ComputeEngineStatus;
@@ -52,6 +51,7 @@ import org.sonar.db.user.UserDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -69,8 +69,6 @@ public class InternalCeQueueImplTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -144,10 +142,9 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void peek_throws_NPE_if_workerUUid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("workerUuid can't be null");
-
-    underTest.peek(null, true);
+    assertThatThrownBy(() -> underTest.peek(null, true))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("workerUuid can't be null");
   }
 
   @Test
@@ -170,18 +167,16 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void remove_throws_IAE_if_exception_is_provided_but_status_is_SUCCESS() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Error can be provided only when status is FAILED");
-
-    underTest.remove(mock(CeTask.class), CeActivityDto.Status.SUCCESS, null, new RuntimeException("Some error"));
+    assertThatThrownBy(() -> underTest.remove(mock(CeTask.class), CeActivityDto.Status.SUCCESS, null, new RuntimeException("Some error")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Error can be provided only when status is FAILED");
   }
 
   @Test
   public void remove_throws_IAE_if_exception_is_provided_but_status_is_CANCELED() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Error can be provided only when status is FAILED");
-
-    underTest.remove(mock(CeTask.class), CeActivityDto.Status.CANCELED, null, new RuntimeException("Some error"));
+    assertThatThrownBy(() -> underTest.remove(mock(CeTask.class), CeActivityDto.Status.CANCELED, null, new RuntimeException("Some error")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Error can be provided only when status is FAILED");
   }
 
   @Test
@@ -326,9 +321,8 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
     underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
 
-    expectedException.expect(IllegalStateException.class);
-
-    underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null);
+    assertThatThrownBy(() -> underTest.remove(task, CeActivityDto.Status.SUCCESS, null, null))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -492,10 +486,9 @@ public class InternalCeQueueImplTest {
     underTest.peek(WORKER_UUID_2, true);
     CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Task is in progress and can't be canceled");
-
-    underTest.cancel(db.getSession(), queueDto);
+    assertThatThrownBy(() -> underTest.cancel(db.getSession(), queueDto))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Task is in progress and can't be canceled");
   }
 
   @Test

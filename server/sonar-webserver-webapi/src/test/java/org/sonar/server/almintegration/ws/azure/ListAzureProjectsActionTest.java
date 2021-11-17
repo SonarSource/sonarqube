@@ -20,13 +20,10 @@
 package org.sonar.server.almintegration.ws.azure;
 
 import com.google.common.collect.ImmutableList;
-
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureProject;
 import org.sonar.alm.client.azure.GsonAzureProjectList;
@@ -54,8 +51,6 @@ import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class ListAzureProjectsActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

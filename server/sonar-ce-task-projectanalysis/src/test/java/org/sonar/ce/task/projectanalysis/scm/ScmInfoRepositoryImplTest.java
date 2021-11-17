@@ -31,7 +31,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -50,6 +49,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -67,8 +67,6 @@ public class ScmInfoRepositoryImplTest {
   static final long DATE_1 = 123456789L;
   static final long DATE_2 = 1234567810L;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
@@ -222,10 +220,9 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void fail_with_NPE_when_component_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Component cannot be null");
-
-    underTest.getScmInfo(null);
+    assertThatThrownBy(() -> underTest.getScmInfo(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Component cannot be null");
   }
 
   @Test

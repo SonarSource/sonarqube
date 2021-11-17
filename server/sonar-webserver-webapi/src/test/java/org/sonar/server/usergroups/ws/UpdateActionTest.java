@@ -21,7 +21,6 @@ package org.sonar.server.usergroups.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
@@ -37,6 +36,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -46,8 +46,6 @@ public class UpdateActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(
     new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
@@ -172,13 +170,14 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "some-product-bu")
-      .setParam("description", "Business Unit for Some Awesome Product")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("name", "some-product-bu")
+        .setParam("description", "Business Unit for Some Awesome Product")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -187,38 +186,41 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Group name cannot be empty");
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("name", "")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 
   @Test
   public void fail_if_no_id_and_no_currentname_are_provided() {
     insertDefaultGroup();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Need to specify one and only one of 'id' or 'currentName'");
-
-    newRequest()
-      .setParam("name", "newname")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("name", "newname")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Need to specify one and only one of 'id' or 'currentName'");
   }
 
   @Test
   public void fail_if_both_id_and_currentname_are_provided() {
     insertDefaultGroup();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Need to specify one and only one of 'id' or 'currentName'");
-
-    newRequest()
-      .setParam("id", "id")
-      .setParam("currentName", "name")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", "id")
+        .setParam("currentName", "name")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Need to specify one and only one of 'id' or 'currentName'");
   }
 
   @Test
@@ -227,13 +229,14 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Anyone group cannot be used");
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "AnYoNe")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("name", "AnYoNe")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Anyone group cannot be used");
   }
 
   @Test
@@ -244,37 +247,40 @@ public class UpdateActionTest {
     db.users().insertGroup(newName);
     loginAsAdmin();
 
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage("Group 'new-name' already exists");
-
-    newRequest()
-      .setParam("id", groupToBeRenamed.getUuid())
-      .setParam("name", newName)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", groupToBeRenamed.getUuid())
+        .setParam("name", newName)
+        .execute();
+    })
+      .isInstanceOf(ServerException.class)
+      .hasMessage("Group 'new-name' already exists");
   }
 
   @Test
   public void fail_if_unknown_group_id() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Could not find a user group with id '42'.");
-
-    newRequest()
-      .setParam("id", "42")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", "42")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Could not find a user group with id '42'.");
   }
 
   @Test
   public void fail_if_unknown_group_name() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Could not find a user group with name '42'.");
-
-    newRequest()
-      .setParam("currentName", "42")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("currentName", "42")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Could not find a user group with name '42'.");
   }
 
   @Test
@@ -282,13 +288,14 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertDefaultGroup();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("name", "new name")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("name", "new name")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
 
   @Test
@@ -296,13 +303,14 @@ public class UpdateActionTest {
     GroupDto group = db.users().insertDefaultGroup();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("description", "new description")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("description", "new description")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
 
   private TestRequest newRequest() {

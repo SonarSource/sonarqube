@@ -19,13 +19,12 @@
  */
 package org.sonar.api.web.page;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.page.Page.Qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.page.Page.Qualifier.APP;
 import static org.sonar.api.web.page.Page.Qualifier.MODULE;
 import static org.sonar.api.web.page.Page.Qualifier.PROJECT;
@@ -35,8 +34,6 @@ import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
 
 public class PageTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Page.Builder underTest = Page.builder("governance/project_dump").setName("Project Dump");
 
@@ -96,59 +93,51 @@ public class PageTest {
 
   @Test
   public void fail_if_null_qualifiers() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest.setComponentQualifiers((Qualifier[])null).build();
+    assertThatThrownBy(() -> underTest.setComponentQualifiers((Qualifier[])null).build())
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_if_a_page_has_a_null_key() {
-    expectedException.expect(NullPointerException.class);
-
-    Page.builder(null).setName("Say my name").build();
+    assertThatThrownBy(() -> Page.builder(null).setName("Say my name").build())
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_if_a_page_has_an_empty_key() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    Page.builder("").setName("Say my name").build();
+    assertThatThrownBy(() -> Page.builder("").setName("Say my name").build())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_a_page_has_a_null_name() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    Page.builder("governance/project_dump").build();
+    assertThatThrownBy(() -> Page.builder("governance/project_dump").build())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_a_page_has_an_empty_name() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    Page.builder("governance/project_dump").setName("").build();
+    assertThatThrownBy(() -> Page.builder("governance/project_dump").setName("").build())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_qualifiers_without_scope() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    underTest.setComponentQualifiers(PROJECT).build();
+    assertThatThrownBy(() -> underTest.setComponentQualifiers(PROJECT).build())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_key_does_not_contain_a_slash() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page key [project_dump] is not valid. It must contain a single slash, for example my_plugin/my_page.");
-
-    Page.builder("project_dump").setName("Project Dump").build();
+    assertThatThrownBy(() -> Page.builder("project_dump").setName("Project Dump").build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page key [project_dump] is not valid. It must contain a single slash, for example my_plugin/my_page.");
   }
 
   @Test
   public void fail_if_key_contains_more_than_one_slash() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page key [governance/project/dump] is not valid. It must contain a single slash, for example my_plugin/my_page.");
-
-    Page.builder("governance/project/dump").setName("Project Dump").build();
+    assertThatThrownBy(() -> Page.builder("governance/project/dump").setName("Project Dump").build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page key [governance/project/dump] is not valid. It must contain a single slash, for example my_plugin/my_page.");
   }
 }

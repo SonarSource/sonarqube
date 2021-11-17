@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
@@ -42,8 +41,6 @@ public class LanguageDetectionTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private MapSettings settings;
 

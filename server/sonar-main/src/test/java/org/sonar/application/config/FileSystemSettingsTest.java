@@ -24,7 +24,6 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 
@@ -39,8 +38,6 @@ public class FileSystemSettingsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private FileSystemSettings underTest = new FileSystemSettings();
   private File homeDir;

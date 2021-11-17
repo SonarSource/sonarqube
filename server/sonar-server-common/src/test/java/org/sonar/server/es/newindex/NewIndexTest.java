@@ -26,9 +26,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Map;
 import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;
@@ -37,6 +35,7 @@ import org.sonar.server.es.IndexType.IndexMainType;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_REPLICAS;
@@ -45,8 +44,6 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 @RunWith(DataProviderRunner.class)
 public class NewIndexTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private static final String someIndexName = randomAlphabetic(5).toLowerCase();
   private MapSettings settings = new MapSettings();
@@ -192,10 +189,9 @@ public class NewIndexTest {
   public void fail_when_nested_with_no_field(NewIndex<?> newIndex, TypeMapping typeMapping) {
     NestedFieldBuilder<TypeMapping> nestedFieldBuilder = typeMapping.nestedFieldBuilder("measures");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At least one sub-field must be declared in nested property 'measures'");
-
-    nestedFieldBuilder.build();
+    assertThatThrownBy(() -> nestedFieldBuilder.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one sub-field must be declared in nested property 'measures'");
   }
 
   @Test
@@ -308,10 +304,9 @@ public class NewIndexTest {
     SettingsConfiguration settingsConfiguration = newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build();
     IndexMainType mainType = IndexType.main(index, "foo");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The property 'sonar.search.replicas' is not an int value: For input string: \"ꝱꝲꝳପ\"");
-
-    new SimplestNewIndex(mainType, settingsConfiguration);
+    assertThatThrownBy(() ->  new SimplestNewIndex(mainType, settingsConfiguration))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The property 'sonar.search.replicas' is not an int value: For input string: \"ꝱꝲꝳପ\"");
   }
 
   @Test
@@ -360,10 +355,9 @@ public class NewIndexTest {
       }
     };
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Index is not configured to accept relations. Update IndexDefinition.Descriptor instance for this index");
-
-    underTest.createTypeMapping(indexRelationType);
+    assertThatThrownBy(() -> underTest.createTypeMapping(indexRelationType))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Index is not configured to accept relations. Update IndexDefinition.Descriptor instance for this index");
   }
 
   @DataProvider

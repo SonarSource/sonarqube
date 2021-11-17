@@ -43,6 +43,7 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -136,63 +137,67 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Test
   public void fail_if_not_a_project_permission() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(group.getName(), template.getUuid(), GlobalPermissions.PROVISIONING);
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), GlobalPermissions.PROVISIONING))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
     userSession.logIn().addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(group.getName(), template.getUuid(), PERMISSION);
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), PERMISSION))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
-
-    newRequest(group.getName(), template.getUuid(), PERMISSION);
+    assertThatThrownBy(() ->  {
+      userSession.anonymous();
+      newRequest(group.getName(), template.getUuid(), PERMISSION);
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_group_params_missing() {
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(null, template.getUuid(), PERMISSION);
+    assertThatThrownBy(() ->  {
+      newRequest(null, template.getUuid(), PERMISSION);
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_permission_missing() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(group.getName(), template.getUuid(), null);
+    assertThatThrownBy(() ->  {
+      newRequest(group.getName(), template.getUuid(), null);
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_template_missing() {
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(group.getName(), null, PERMISSION);
+    assertThatThrownBy(() ->  {
+      newRequest(group.getName(), null, PERMISSION);
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_group_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with name 'unknown-group-name'");
-
-    newRequest("unknown-group-name", template.getUuid(), PERMISSION);
+    assertThatThrownBy(() ->  {
+      newRequest("unknown-group-name", template.getUuid(), PERMISSION);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No group with name 'unknown-group-name'");
   }
 
   @Test
   public void fail_if_template_key_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
-
-    newRequest(group.getName(), "unknown-key", PERMISSION);
+    assertThatThrownBy(() ->  {
+      newRequest(group.getName(), "unknown-key", PERMISSION);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id 'unknown-key' is not found");
   }
 
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {

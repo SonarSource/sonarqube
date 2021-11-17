@@ -19,17 +19,13 @@
  */
 package org.sonar.server.permission;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.user.GroupDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupUuidOrAnyoneTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void for_returns_isAnyone_if_id_is_null() {

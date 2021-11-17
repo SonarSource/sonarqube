@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -47,6 +46,7 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -55,8 +55,6 @@ import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT
 
 public class AddActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -92,27 +90,24 @@ public class AddActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(project.getKey());
+    assertThatThrownBy(() -> call(project.getKey()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_component_is_not_found() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-
-    call("P42");
+    assertThatThrownBy(() ->  call("P42"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_when_user_is_not_authenticated() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    call(project.getKey());
+    assertThatThrownBy(() -> call(project.getKey()))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -122,10 +117,9 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    call(branch.getDbKey());
+    assertThatThrownBy(() -> call(branch.getDbKey()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -135,10 +129,9 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
-
-    call(directory.getKey());
+    assertThatThrownBy(() -> call(directory.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
   }
 
   @Test
@@ -148,10 +141,9 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
-
-    call(file.getKey());
+    assertThatThrownBy(() -> call(file.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
   }
 
   @Test
@@ -161,10 +153,9 @@ public class AddActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
-
-    call(unitTestFile.getKey());
+    assertThatThrownBy(() -> call(unitTestFile.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
   }
 
   @Test

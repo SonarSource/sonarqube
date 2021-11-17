@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -40,6 +39,7 @@ import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -57,8 +57,6 @@ public class SearchUsersActionTest {
   private static final String FOO = "foo";
   private static final Languages LANGUAGES = LanguageTesting.newLanguages(XOO, FOO);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -232,8 +230,8 @@ public class SearchUsersActionTest {
       .setParam(PAGE, "1")
       .setParam(PAGE_SIZE, "1")
       .executeProtobuf(SearchUsersResponse.class).getUsersList())
-        .extracting(SearchUsersResponse.User::getLogin)
-        .containsExactly(user1.getLogin());
+      .extracting(SearchUsersResponse.User::getLogin)
+      .containsExactly(user1.getLogin());
 
     assertThat(ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -242,8 +240,8 @@ public class SearchUsersActionTest {
       .setParam(PAGE, "3")
       .setParam(PAGE_SIZE, "1")
       .executeProtobuf(SearchUsersResponse.class).getUsersList())
-        .extracting(SearchUsersResponse.User::getLogin)
-        .containsExactly(user3.getLogin());
+      .extracting(SearchUsersResponse.User::getLogin)
+      .containsExactly(user3.getLogin());
 
     assertThat(ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -252,8 +250,8 @@ public class SearchUsersActionTest {
       .setParam(PAGE, "1")
       .setParam(PAGE_SIZE, "10")
       .executeProtobuf(SearchUsersResponse.class).getUsersList())
-        .extracting(SearchUsersResponse.User::getLogin)
-        .containsExactly(user1.getLogin(), user2.getLogin(), user3.getLogin());
+      .extracting(SearchUsersResponse.User::getLogin)
+      .containsExactly(user1.getLogin(), user2.getLogin(), user3.getLogin());
   }
 
   @Test
@@ -309,13 +307,14 @@ public class SearchUsersActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, "unknown")
-      .setParam(PARAM_LANGUAGE, XOO)
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, "unknown")
+        .setParam(PARAM_LANGUAGE, XOO)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
   }
 
   @Test
@@ -325,13 +324,14 @@ public class SearchUsersActionTest {
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Quality Profile for language 'foo' and name '%s' does not exist", profile.getName()));
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, FOO)
-      .executeProtobuf(SearchUsersResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+        .setParam(PARAM_LANGUAGE, FOO)
+        .executeProtobuf(SearchUsersResponse.class);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Quality Profile for language 'foo' and name '%s' does not exist", profile.getName()));
   }
 
   @Test
@@ -340,11 +340,11 @@ public class SearchUsersActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 }

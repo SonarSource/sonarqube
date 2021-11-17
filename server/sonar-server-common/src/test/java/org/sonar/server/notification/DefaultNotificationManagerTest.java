@@ -32,16 +32,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
@@ -57,6 +53,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -73,8 +70,6 @@ import static org.sonar.server.notification.NotificationManager.SubscriberPermis
 
 public class DefaultNotificationManagerTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DefaultNotificationManager underTest;
 
@@ -270,20 +265,18 @@ public class DefaultNotificationManagerTest {
   public void findSubscribedEmailRecipients_fails_with_NPE_if_projectKey_is_null() {
     String dispatcherKey = randomAlphabetic(12);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projectKey is mandatory");
-
-    underTest.findSubscribedEmailRecipients(dispatcherKey, null, ALL_MUST_HAVE_ROLE_USER);
+    assertThatThrownBy(() -> underTest.findSubscribedEmailRecipients(dispatcherKey, null, ALL_MUST_HAVE_ROLE_USER))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projectKey is mandatory");
   }
 
   @Test
   public void findSubscribedEmailRecipients_with_logins_fails_with_NPE_if_projectKey_is_null() {
     String dispatcherKey = randomAlphabetic(12);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projectKey is mandatory");
-
-    underTest.findSubscribedEmailRecipients(dispatcherKey, null, ImmutableSet.of(), ALL_MUST_HAVE_ROLE_USER);
+    assertThatThrownBy(() -> underTest.findSubscribedEmailRecipients(dispatcherKey, null, ImmutableSet.of(), ALL_MUST_HAVE_ROLE_USER))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projectKey is mandatory");
   }
 
   @Test
@@ -291,10 +284,9 @@ public class DefaultNotificationManagerTest {
     String dispatcherKey = randomAlphabetic(12);
     String projectKey = randomAlphabetic(6);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("logins can't be null");
-
-    underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, null, ALL_MUST_HAVE_ROLE_USER);
+    assertThatThrownBy(() -> underTest.findSubscribedEmailRecipients(dispatcherKey, projectKey, null, ALL_MUST_HAVE_ROLE_USER))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("logins can't be null");
   }
 
   @Test

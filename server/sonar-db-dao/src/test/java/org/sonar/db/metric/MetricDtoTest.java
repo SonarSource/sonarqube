@@ -19,16 +19,13 @@
  */
 package org.sonar.db.metric;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MetricDtoTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MetricDto underTest = new MetricDto();
 
@@ -70,39 +67,35 @@ public class MetricDtoTest {
   public void fail_if_key_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metric key length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
-
-    underTest.setKey(a65);
+    assertThatThrownBy(() -> underTest.setKey(a65))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metric key length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
   }
 
   @Test
   public void fail_if_name_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metric name length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
-
-    underTest.setShortName(a65);
+    assertThatThrownBy(() -> underTest.setShortName(a65))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metric name length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
   }
 
   @Test
   public void fail_if_description_longer_than_255_characters() {
     String a256 = repeat("a", 256);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metric description length (256) is longer than the maximum authorized (255). '" + a256 + "' was provided.");
-
-    underTest.setDescription(a256);
+    assertThatThrownBy(() -> underTest.setDescription(a256))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metric description length (256) is longer than the maximum authorized (255). '" + a256 + "' was provided.");
   }
 
   @Test
   public void fail_if_domain_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metric domain length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
-
-    underTest.setDomain(a65);
+    assertThatThrownBy(() -> underTest.setDomain(a65))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metric domain length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
   }
 }

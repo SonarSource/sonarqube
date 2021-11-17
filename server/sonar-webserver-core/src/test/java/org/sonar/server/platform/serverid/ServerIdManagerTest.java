@@ -22,13 +22,13 @@ package org.sonar.server.platform.serverid;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.sonar.api.SonarEdition;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
@@ -43,6 +43,7 @@ import org.sonar.server.property.InternalProperties;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -65,8 +66,6 @@ public class ServerIdManagerTest {
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ServerIdChecksum serverIdChecksum = mock(ServerIdChecksum.class);
   private ServerIdFactory serverIdFactory = mock(ServerIdFactory.class);
@@ -209,9 +208,7 @@ public class ServerIdManagerTest {
   public void web_follower_fails_if_server_id_is_missing() {
     when(webServer.isStartupLeader()).thenReturn(false);
 
-    expectMissingServerIdException();
-
-    test(SERVER);
+    expectMissingServerIdException(() -> test(SERVER));
   }
 
   @Test
@@ -219,9 +216,7 @@ public class ServerIdManagerTest {
     insertServerId("");
     when(webServer.isStartupLeader()).thenReturn(false);
 
-    expectEmptyServerIdException();
-
-    test(SERVER);
+    expectEmptyServerIdException(() -> test(SERVER));
   }
 
   @Test
@@ -258,18 +253,14 @@ public class ServerIdManagerTest {
 
   @Test
   public void compute_engine_fails_if_server_id_is_missing() {
-    expectMissingServerIdException();
-
-    test(COMPUTE_ENGINE);
+    expectMissingServerIdException(() -> test(COMPUTE_ENGINE));
   }
 
   @Test
   public void compute_engine_fails_if_server_id_is_empty() {
     insertServerId("");
 
-    expectEmptyServerIdException();
-
-    test(COMPUTE_ENGINE);
+    expectEmptyServerIdException(() -> test(COMPUTE_ENGINE));
   }
 
   @Test
@@ -299,14 +290,16 @@ public class ServerIdManagerTest {
     };
   }
 
-  private void expectEmptyServerIdException() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property sonar.core.id is empty in database");
+  private void expectEmptyServerIdException(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Property sonar.core.id is empty in database");
   }
 
-  private void expectMissingServerIdException() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property sonar.core.id is missing in database");
+  private void expectMissingServerIdException(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Property sonar.core.id is missing in database");
   }
 
   private void verifyDb(ServerId expectedServerId, String expectedChecksum) {

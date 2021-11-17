@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -41,6 +40,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
@@ -48,8 +48,6 @@ import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_EVENT;
 
 public class DeleteEventActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -93,10 +91,9 @@ public class DeleteEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Cannot delete the version event of last analysis");
-
-    call("E1");
+    assertThatThrownBy(() -> call("E1"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Cannot delete the version event of last analysis");
   }
 
   @Test
@@ -106,18 +103,16 @@ public class DeleteEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event of category 'QUALITY_PROFILE' cannot be modified. Authorized categories: VERSION, OTHER");
-
-    call("E1");
+    assertThatThrownBy(() -> call("E1"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Event of category 'QUALITY_PROFILE' cannot be modified.");
   }
 
   @Test
   public void fail_if_event_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("E42' not found");
-
-    call("E42");
+    assertThatThrownBy(() -> call("E42"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("E42' not found");
   }
 
   @Test
@@ -126,16 +121,14 @@ public class DeleteEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    call("E1");
+    assertThatThrownBy(() -> call("E1"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_event_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(null);
+    assertThatThrownBy(() -> call(null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

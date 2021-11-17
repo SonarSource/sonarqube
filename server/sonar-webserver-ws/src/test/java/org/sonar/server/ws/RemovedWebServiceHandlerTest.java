@@ -19,9 +19,7 @@
  */
 package org.sonar.server.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.server.exceptions.ServerException;
 
@@ -32,8 +30,6 @@ import static org.mockito.Mockito.when;
 
 public class RemovedWebServiceHandlerTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void throw_server_exception() {

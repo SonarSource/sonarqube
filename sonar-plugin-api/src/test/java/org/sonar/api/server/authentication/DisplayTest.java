@@ -19,16 +19,12 @@
  */
 package org.sonar.api.server.authentication;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DisplayTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void create_display() {
@@ -64,67 +60,61 @@ public class DisplayTest {
 
   @Test
   public void fail_when_icon_path_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Icon path must not be blank");
-
-    Display.builder()
+    assertThatThrownBy(() -> Display.builder()
       .setIconPath(null)
       .setBackgroundColor("#123456")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Icon path must not be blank");
   }
 
   @Test
   public void fail_when_icon_path_is_blank() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Icon path must not be blank");
-
-    Display.builder()
+    assertThatThrownBy(() -> Display.builder()
       .setIconPath("")
       .setBackgroundColor("#123456")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Icon path must not be blank");
   }
 
   @Test
   public void fail_when_background_color_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Background color must not be blank");
-
-    Display.builder()
+    assertThatThrownBy(() -> Display.builder()
       .setIconPath("/static/authgithub/github.svg")
       .setBackgroundColor(null)
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Background color must not be blank");
   }
 
   @Test
   public void fail_when_background_color_is_blank() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Background color must not be blank");
-
-    Display.builder()
+    assertThatThrownBy(() -> Display.builder()
       .setIconPath("/static/authgithub/github.svg")
       .setBackgroundColor("")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Background color must not be blank");
   }
 
   @Test
   public void fail_when_background_color_has_wrong_size() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Background color must begin with a sharp followed by 6 characters");
-
-    Display.builder()
+    assertThatThrownBy(() -> Display.builder()
       .setIconPath("/static/authgithub/github.svg")
-      .setBackgroundColor("#1234")
-      .build();
+      .setBackgroundColor("1234")
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Background color must begin with a sharp followed by 6 characters");
   }
 
   @Test
   public void fail_when_background_color_doesnt_begin_with_sharp() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Background color must begin with a sharp followed by 6 characters");
-
-    Display.builder()
+    assertThatThrownBy(() -> Display.builder()
       .setIconPath("/static/authgithub/github.svg")
       .setBackgroundColor("*123456")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Background color must begin with a sharp followed by 6 characters");
   }
 }

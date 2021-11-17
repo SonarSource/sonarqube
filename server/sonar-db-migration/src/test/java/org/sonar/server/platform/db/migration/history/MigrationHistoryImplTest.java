@@ -25,20 +25,18 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class MigrationHistoryImplTest {
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrationHistoryImplTest.class, "schema_migration.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
   private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);
@@ -64,9 +62,8 @@ public class MigrationHistoryImplTest {
 
   @Test
   public void done_fails_with_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest.done(null);
+    assertThatThrownBy(() -> underTest.done(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

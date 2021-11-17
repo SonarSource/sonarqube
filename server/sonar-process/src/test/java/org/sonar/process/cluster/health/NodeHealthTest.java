@@ -25,17 +25,14 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 
 public class NodeHealthTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Random random = new Random();
   private NodeDetailsTestSupport testSupport = new NodeDetailsTestSupport(random);
@@ -44,36 +41,32 @@ public class NodeHealthTest {
 
   @Test
   public void setStatus_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    builderUnderTest.setStatus(null);
+    assertThatThrownBy(() -> builderUnderTest.setStatus(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test
   public void setDetails_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("details can't be null");
-
-    builderUnderTest.setDetails(null);
+    assertThatThrownBy(() -> builderUnderTest.setDetails(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("details can't be null");
   }
 
   @Test
   public void build_throws_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test
   public void build_throws_NPE_if_details_is_null() {
     builderUnderTest.setStatus(randomStatus);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("details can't be null");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("details can't be null");
   }
 
   @Test

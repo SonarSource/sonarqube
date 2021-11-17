@@ -26,7 +26,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -51,14 +50,13 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class SetActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -93,31 +91,23 @@ public class SetActionTest {
   // validation of type
   @Test
   public void throw_IAE_if_no_type_specified() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'type' parameter is missing");
-
-    ws.newRequest()
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'type' parameter is missing");
   }
 
   @Test
   public void throw_IAE_if_type_is_invalid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type: unknown");
-
-    ws.newRequest()
-      .setParam("type", "unknown")
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest().setParam("type", "unknown").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Invalid type: unknown");
   }
 
   @Test
   public void throw_IAE_if_type_is_invalid_for_global() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Overall setting can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
-
-    ws.newRequest()
-      .setParam("type", "specific_analysis")
-      .execute();
+    assertThatThrownBy(() -> ws.newRequest().setParam("type", "specific_analysis").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Invalid type 'SPECIFIC_ANALYSIS'. Overall setting can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
   }
 
   @Test
@@ -125,71 +115,70 @@ public class SetActionTest {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH]");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH]");
   }
 
   @Test
   public void throw_IAE_if_no_value_for_days() {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("New Code Period type 'NUMBER_OF_DAYS' requires a value");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "master")
       .setParam("type", "number_of_days")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("New Code Period type 'NUMBER_OF_DAYS' requires a value");
   }
 
   @Test
   public void throw_IAE_if_no_value_for_analysis() {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("New Code Period type 'SPECIFIC_ANALYSIS' requires a value");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
       .setParam("branch", "master")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("New Code Period type 'SPECIFIC_ANALYSIS' requires a value");
   }
 
   @Test
   public void throw_IAE_if_days_is_invalid() {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Failed to parse number of days: unknown");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "number_of_days")
       .setParam("branch", "master")
       .setParam("value", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Failed to parse number of days: unknown");
   }
 
   @Test
   public void throw_IAE_if_analysis_is_not_found() {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Analysis 'unknown' is not found");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
       .setParam("branch", "master")
       .setParam("value", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Analysis 'unknown' is not found");
   }
 
   @Test
@@ -201,74 +190,71 @@ public class SetActionTest {
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
 
     logInAsProjectAdministrator(project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch 'master' of project '" + project.getKey() + "'");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "specific_analysis")
       .setParam("branch", "master")
       .setParam("value", analysisBranch.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Analysis '" + analysisBranch.getUuid() + "' does not belong to branch 'master' of project '" + project.getKey() + "'");
   }
 
   // validation of project/branch
   @Test
   public void throw_IAE_if_branch_is_specified_without_project() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If branch key is specified, project key needs to be specified too");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("branch", "branch")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("If branch key is specified, project key needs to be specified too");
   }
 
   @Test
   public void throw_NFE_if_project_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'unknown' not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("type", "previous_version")
       .setParam("project", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'unknown' not found");
   }
 
   @Test
   public void throw_NFE_if_branch_not_found() {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectAdministrator(project);
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Branch 'unknown' in project '" + project.getKey() + "' not found");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "previous_version")
       .setParam("branch", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Branch 'unknown' in project '" + project.getKey() + "' not found");
   }
 
   // permission
   @Test
   public void throw_NFE_if_no_project_permission() {
     ComponentDto project = componentDb.insertPublicProject();
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .setParam("type", "previous_version")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
   public void throw_NFE_if_no_system_permission() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("type", "previous_version")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   // success cases

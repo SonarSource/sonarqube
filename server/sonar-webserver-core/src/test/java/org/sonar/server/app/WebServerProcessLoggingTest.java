@@ -42,7 +42,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
@@ -50,6 +49,7 @@ import org.sonar.process.logging.LogbackJsonLayout;
 import org.sonar.process.logging.PatternLayoutEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
@@ -57,8 +57,6 @@ public class WebServerProcessLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private File logDir;
   private Props props = new Props(new Properties());
@@ -401,50 +399,45 @@ public class WebServerProcessLoggingTest {
   public void fail_with_IAE_if_global_property_unsupported_level() {
     props.set("sonar.log.level", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_web_property_unsupported_level() {
     props.set("sonar.log.level.web", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.web is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.web is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_web_sql_property_unsupported_level() {
     props.set("sonar.log.level.web.sql", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.web.sql is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.web.sql is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_web_es_property_unsupported_level() {
     props.set("sonar.log.level.web.es", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.web.es is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.web.es is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_web_jmx_property_unsupported_level() {
     props.set("sonar.log.level.web.jmx", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.web.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.web.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test

@@ -21,7 +21,6 @@ package org.sonar.server.ce.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.configuration.WorkerCountProvider;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -30,14 +29,13 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce.WorkerCountResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WorkerCountActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -71,9 +69,8 @@ public class WorkerCountActionTest {
     userSession.logIn().setNonSystemAdministrator();
     WsActionTester ws = new WsActionTester(new WorkerCountAction(userSession));
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

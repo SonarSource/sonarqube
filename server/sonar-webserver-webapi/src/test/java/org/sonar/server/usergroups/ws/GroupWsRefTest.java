@@ -19,17 +19,13 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.usergroups.ws.GroupWsRef.fromName;
 
 public class GroupWsRefTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_ref_by_id() {

@@ -19,19 +19,16 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskCanceledException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class SimpleCeTaskInterrupterTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SimpleCeTaskInterrupter underTest = new SimpleCeTaskInterrupter();
 
@@ -48,10 +45,9 @@ public class SimpleCeTaskInterrupterTest {
 
       t.interrupt();
 
-      expectedException.expect(CeTaskCanceledException.class);
-      expectedException.expectMessage("CeWorker executing in Thread '" + threadName + "' has been interrupted");
-
-      underTest.check(t);
+      assertThatThrownBy(() -> underTest.check(t))
+        .isInstanceOf(CeTaskCanceledException.class)
+        .hasMessage("CeWorker executing in Thread '" + threadName + "' has been interrupted");
     } finally {
       t.kill();
       t.join(1_000);

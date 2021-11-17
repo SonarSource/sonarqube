@@ -20,9 +20,7 @@
 package org.sonar.ce.task.projectexport;
 
 import com.google.common.collect.Lists;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.ce.task.projectanalysis.step.ComplexityMeasuresStep;
@@ -31,11 +29,10 @@ import org.sonar.core.platform.ComponentContainer;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class ProjectExportComputationStepsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private TaskContainer container = mock(TaskContainer.class);
   private ProjectExportComputationSteps underTest = new ProjectExportComputationSteps(container);
@@ -47,27 +44,29 @@ public class ProjectExportComputationStepsTest {
 
   @Test
   public void instances_throws_ISE_if_steps_do_not_exist_in_container() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Component not found: " + LoadProjectStep.class);
-
-    copyOf(underTest.instances());
+    assertThatThrownBy(() -> copyOf(underTest.instances()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Component not found: " + LoadProjectStep.class);
   }
 
   @Test
   public void instances_throws_ISE_if_container_does_not_have_second_step() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Component not found: class org.sonar.ce.task.projectexport.steps.LoadProjectStep");
+    assertThatThrownBy(() -> {
+      final ComplexityMeasuresStep reportExtractionStep = mock(ComplexityMeasuresStep.class);
 
-    final ComplexityMeasuresStep reportExtractionStep = mock(ComplexityMeasuresStep.class);
-    ComponentContainer componentContainer = new ComponentContainer() {
-      {
-        addSingleton(reportExtractionStep);
-      }
-    };
-    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, container -> {
-      // do nothing
-    });
+      ComponentContainer componentContainer = new ComponentContainer() {
+        {
+          addSingleton(reportExtractionStep);
+        }
+      };
+      TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, container -> {
+        // do nothing
+      });
 
-    Lists.newArrayList(new ProjectExportComputationSteps(computeEngineContainer).instances());
+      Lists.newArrayList(new ProjectExportComputationSteps(computeEngineContainer).instances());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Component not found: class org.sonar.ce.task.projectexport.steps.LoadProjectStep");
+
   }
 }

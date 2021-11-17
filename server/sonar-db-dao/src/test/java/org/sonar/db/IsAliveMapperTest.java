@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-
 public class IsAliveMapperTest {
 
   @Rule

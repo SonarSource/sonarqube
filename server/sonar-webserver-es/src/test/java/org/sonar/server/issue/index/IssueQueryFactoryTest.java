@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbTester;
@@ -43,6 +42,7 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -62,8 +62,6 @@ public class IssueQueryFactoryTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -257,10 +255,9 @@ public class IssueQueryFactoryTest {
       .setComponents(singletonList("foo"))
       .setComponentUuids(singletonList("bar"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys and componentUuids");
-
-    underTest.create(request);
+    assertThatThrownBy(() -> underTest.create(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("At most one of the following parameters can be provided: componentKeys and componentUuids");
   }
 
   @Test
@@ -268,10 +265,9 @@ public class IssueQueryFactoryTest {
     SearchRequest request = new SearchRequest()
       .setTimeZone("Poitou-Charentes");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("TimeZone 'Poitou-Charentes' cannot be parsed as a valid zone ID");
-
-    underTest.create(request);
+    assertThatThrownBy(() -> underTest.create(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("TimeZone 'Poitou-Charentes' cannot be parsed as a valid zone ID");
   }
 
   @Test
@@ -421,14 +417,14 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchRequest()
       .setProjects(singletonList(branch.getKey()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-        .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
 
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(branch.getKey()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-        .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(project.uuid()), false);
   }
 
   @Test
@@ -440,22 +436,22 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(file.getKey()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
-        .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
 
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(branch.getKey()))
       .setFiles(singletonList(file.path()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.files()), IssueQuery::isMainBranch)
-        .containsOnly(branch.uuid(), singletonList(file.path()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.files()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(file.path()), false);
 
     assertThat(underTest.create(new SearchRequest()
       .setProjects(singletonList(branch.getKey()))
       .setFiles(singletonList(file.path()))
       .setBranch(branch.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.files()), IssueQuery::isMainBranch)
-        .containsOnly(branch.uuid(), singletonList(file.path()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.files()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(file.path()), false);
   }
 
   @Test
@@ -468,8 +464,8 @@ public class IssueQueryFactoryTest {
       .setComponents(singletonList(file.getKey()))
       .setBranch(branch.getBranch())
       .setOnComponentOnly(true)))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
-        .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.componentUuids()), IssueQuery::isMainBranch)
+      .containsOnly(branch.uuid(), singletonList(file.uuid()), false);
   }
 
   @Test
@@ -480,13 +476,13 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchRequest()
       .setProjects(singletonList(project.getKey()))
       .setBranch("master")))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-        .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(project.getKey()))
       .setBranch("master")))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-        .containsOnly(project.uuid(), singletonList(project.uuid()), true);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(project.uuid(), singletonList(project.uuid()), true);
   }
 
   @Test
@@ -499,7 +495,7 @@ public class IssueQueryFactoryTest {
     userSession.addProjectPermission(USER, application);
 
     assertThat(underTest.create(new SearchRequest()
-      .setComponents(singletonList(application.getKey())))
+        .setComponents(singletonList(application.getKey())))
       .viewUuids()).containsExactly(application.uuid());
   }
 
@@ -521,16 +517,16 @@ public class IssueQueryFactoryTest {
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(applicationBranch1.getKey()))
       .setBranch(applicationBranch1.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-        .containsOnly(applicationBranch1.uuid(), Collections.emptyList(), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(applicationBranch1.uuid(), Collections.emptyList(), false);
 
     // Search on project1Branch1
     assertThat(underTest.create(new SearchRequest()
       .setComponents(singletonList(applicationBranch1.getKey()))
       .setProjects(singletonList(project1.getKey()))
       .setBranch(applicationBranch1.getBranch())))
-        .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
-        .containsOnly(applicationBranch1.uuid(), singletonList(project1.uuid()), false);
+      .extracting(IssueQuery::branchUuid, query -> new ArrayList<>(query.projectUuids()), IssueQuery::isMainBranch)
+      .containsOnly(applicationBranch1.uuid(), singletonList(project1.uuid()), false);
   }
 
   @Test
@@ -561,20 +557,18 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void fail_if_since_leak_period_and_created_after_set_at_the_same_time() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameters 'createdAfter' and 'sinceLeakPeriod' cannot be set simultaneously");
-
-    underTest.create(new SearchRequest()
+    assertThatThrownBy(() -> underTest.create(new SearchRequest()
       .setSinceLeakPeriod(true)
-      .setCreatedAfter("2013-07-25T07:35:00+0100"));
+      .setCreatedAfter("2013-07-25T07:35:00+0100")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Parameters 'createdAfter' and 'sinceLeakPeriod' cannot be set simultaneously");
   }
 
   @Test
   public void fail_if_no_component_provided_with_since_leak_period() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("One and only one component must be provided when searching since leak period");
-
-    underTest.create(new SearchRequest().setSinceLeakPeriod(true));
+    assertThatThrownBy(() -> underTest.create(new SearchRequest().setSinceLeakPeriod(true)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("One and only one component must be provided when searching since leak period");
   }
 
   @Test
@@ -582,21 +576,19 @@ public class IssueQueryFactoryTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("One and only one component must be provided when searching since leak period");
-
-    underTest.create(new SearchRequest()
+    assertThatThrownBy(() -> underTest.create(new SearchRequest()
       .setSinceLeakPeriod(true)
-      .setComponents(asList(project1.getKey(), project2.getKey())));
+      .setComponents(asList(project1.getKey(), project2.getKey()))))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("One and only one component must be provided when searching since leak period");
   }
 
   @Test
   public void fail_if_date_is_not_formatted_correctly() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'unknown-date' cannot be parsed as either a date or date+time");
-
-    underTest.create(new SearchRequest()
-      .setCreatedAfter("unknown-date"));
+    assertThatThrownBy(() -> underTest.create(new SearchRequest()
+      .setCreatedAfter("unknown-date")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("'unknown-date' cannot be parsed as either a date or date+time");
   }
 
 }

@@ -21,20 +21,18 @@ package org.sonar.ce.task.projectanalysis.duplication;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CrossProjectDuplicationStatusHolderImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
@@ -101,10 +99,9 @@ public class CrossProjectDuplicationStatusHolderImplTest {
 
   @Test
   public void isEnabled_throws_ISE_when_start_have_not_been_called_before() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Flag hasn't been initialized, the start() should have been called before");
-
-    underTest.isEnabled();
+    assertThatThrownBy(() -> underTest.isEnabled())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Flag hasn't been initialized, the start() should have been called before");
   }
 
   private static Branch newBranch(boolean supportsCrossProjectCpd) {

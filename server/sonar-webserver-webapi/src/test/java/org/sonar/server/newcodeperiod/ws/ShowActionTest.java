@@ -21,7 +21,6 @@ package org.sonar.server.newcodeperiod.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -44,10 +43,9 @@ import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ShowActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -78,23 +76,22 @@ public class ShowActionTest {
 
   @Test
   public void throw_IAE_if_branch_is_specified_without_project() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("If branch key is specified, project key needs to be specified too");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("branch", "branch")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("If branch key is specified, project key needs to be specified too");
   }
 
   @Test
   public void throw_FE_if_no_project_permission() {
     ComponentDto project = componentDb.insertPublicProject();
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
@@ -102,12 +99,11 @@ public class ShowActionTest {
     ComponentDto project = componentDb.insertPublicProject();
     logInAsProjectIssueAdmin(project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

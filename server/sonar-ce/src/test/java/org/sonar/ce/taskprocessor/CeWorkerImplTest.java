@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
@@ -57,6 +56,7 @@ import org.sonar.db.user.UserTesting;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -84,8 +84,6 @@ public class CeWorkerImplTest {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public DbTester db = DbTester.create(system2);
 
   private DbSession session = db.getSession();
@@ -111,10 +109,9 @@ public class CeWorkerImplTest {
 
   @Test
   public void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Ordinal must be >= 0");
-
-    new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, taskProcessorRepository, ceWorkerController);
+    assertThatThrownBy(() -> new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, taskProcessorRepository, ceWorkerController))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Ordinal must be >= 0");
   }
 
   @Test

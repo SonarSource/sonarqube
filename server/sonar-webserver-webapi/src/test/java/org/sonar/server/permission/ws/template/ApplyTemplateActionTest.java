@@ -44,9 +44,11 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -137,58 +139,64 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   public void fail_when_unknown_template() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
-
-    newRequest("unknown-template-uuid", project.uuid(), null);
+    assertThatThrownBy(() -> {
+      newRequest("unknown-template-uuid", project.uuid(), null);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id 'unknown-template-uuid' is not found");
   }
 
   @Test
   public void fail_when_unknown_project_uuid() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project id 'unknown-project-uuid' not found");
-
-    newRequest(template1.getUuid(), "unknown-project-uuid", null);
+    assertThatThrownBy(() -> {
+      newRequest(template1.getUuid(), "unknown-project-uuid", null);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project id 'unknown-project-uuid' not found");
   }
 
   @Test
   public void fail_when_unknown_project_key() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'unknown-project-key' not found");
-
-    newRequest(template1.getUuid(), null, "unknown-project-key");
+    assertThatThrownBy(() -> {
+      newRequest(template1.getUuid(), null, "unknown-project-key");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project key 'unknown-project-key' not found");
   }
 
   @Test
   public void fail_when_template_is_not_provided() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(null, project.uuid(), null);
+    assertThatThrownBy(() -> {
+      newRequest(null, project.uuid(), null);
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_when_project_uuid_and_key_not_provided() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key can be provided, not both.");
-
-    newRequest(template1.getUuid(), null, null);
+    assertThatThrownBy(() -> {
+      newRequest(template1.getUuid(), null, null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Project id or project key can be provided, not both.");
   }
 
   @Test
   public void fail_when_not_admin() {
     userSession.logIn().addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(template1.getUuid(), project.uuid(), null);
+    assertThatThrownBy(() -> {
+      newRequest(template1.getUuid(), project.uuid(), null);
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private void assertTemplate1AppliedToProject() {

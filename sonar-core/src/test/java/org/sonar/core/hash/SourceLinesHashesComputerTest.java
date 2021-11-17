@@ -22,22 +22,18 @@ package org.sonar.core.hash;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SourceLinesHashesComputerTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void addLine_throws_NPE_is_line_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("line can not be null");
-
-    new SourceLineHashesComputer(1).addLine(null);
+    assertThatThrownBy(() -> new SourceLineHashesComputer(1).addLine(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("line can not be null");
   }
 
   @Test

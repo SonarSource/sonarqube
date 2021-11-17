@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -45,6 +44,7 @@ import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
@@ -56,8 +56,6 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   private QProfileDto sonarWayPhp = newProfile("sonar-way-php");
   private QProfileDto myQualityProfile = newProfile("my-qp");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -134,8 +132,8 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
 
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
 
-    expectedException.expect(RowNotFoundException.class);
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(RowNotFoundException.class);
   }
 
   @Test

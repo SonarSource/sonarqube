@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -34,14 +33,13 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.Uuids;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ExportRuleStepTest {
   private static final String REPOSITORY = "repository";
 
   @org.junit.Rule
   public LogTester logTester = new LogTester();
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private SimpleRuleRepository ruleRepository = new SimpleRuleRepository();
@@ -90,10 +88,9 @@ public class ExportRuleStepTest {
       // will cause NPE
       .addNull();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Rule Export failed after processing 3 rules successfully");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Rule Export failed after processing 3 rules successfully");
   }
 
   private static class SimpleRuleRepository implements RuleRepository {

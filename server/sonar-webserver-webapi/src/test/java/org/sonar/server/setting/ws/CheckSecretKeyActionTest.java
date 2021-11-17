@@ -24,7 +24,6 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.MapSettings;
@@ -35,11 +34,10 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CheckSecretKeyActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -90,10 +88,9 @@ public class CheckSecretKeyActionTest {
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call();
+    assertThatThrownBy(() -> call())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   private CheckSecretKeyWsResponse call() {

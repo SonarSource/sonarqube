@@ -23,9 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
@@ -34,12 +32,10 @@ import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.HttpException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class DefaultQualityProfileLoaderTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private final ScanProperties properties = mock(ScanProperties.class);
@@ -75,11 +71,9 @@ public class DefaultQualityProfileLoaderTest {
   public void load_throws_MessageException_if_no_profiles_are_available_for_specified_project() throws IOException {
     prepareCallWithEmptyResults();
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("No quality profiles");
-
-    underTest.load("project");
-    verifyNoMoreInteractions(wsClient);
+    assertThatThrownBy(() -> underTest.load("project"))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("No quality profiles");
   }
 
   private void verifyCalledPath(String expectedPath) {

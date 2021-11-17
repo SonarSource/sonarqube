@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -90,8 +89,6 @@ public class ExportMeasuresStepTest {
       .setUuid(PROJECT.uuid())
       .setProjectUuid(PROJECT.uuid()));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();

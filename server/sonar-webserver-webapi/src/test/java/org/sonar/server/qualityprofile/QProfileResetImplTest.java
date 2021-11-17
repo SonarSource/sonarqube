@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -40,6 +39,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -48,8 +48,6 @@ public class QProfileResetImplTest {
 
   private static final String LANGUAGE = "xoo";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -103,10 +101,11 @@ public class QProfileResetImplTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE).setIsBuiltIn(true));
     RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Operation forbidden for built-in Quality Profile '%s'", profile.getKee()));
-
-    underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getUuid())));
+    assertThatThrownBy(() -> {
+      underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getUuid())));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Operation forbidden for built-in Quality Profile '%s'", profile.getKee()));
   }
 
   @Test
@@ -114,9 +113,10 @@ public class QProfileResetImplTest {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setRulesProfileUuid(null).setLanguage(LANGUAGE);
     RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Quality profile must be persisted");
-
-    underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getUuid())));
+    assertThatThrownBy(() -> {
+      underTest.reset(db.getSession(), profile, singletonList(RuleActivation.create(defaultRule.getUuid())));
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Quality profile must be persisted");
   }
 }

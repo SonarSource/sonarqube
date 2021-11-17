@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.component;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
@@ -44,9 +45,10 @@ public class ViewsPreOrderDepthTraversalTypeAwareCrawlerTest {
   private final DepthTraversalTypeAwareCrawler subViewCrawler = new DepthTraversalTypeAwareCrawler(subViewVisitor);
   private final DepthTraversalTypeAwareCrawler projectViewCrawler = new DepthTraversalTypeAwareCrawler(projectViewVisitor);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void visit_null_Component_throws_NPE() {
-    projectViewCrawler.visit(null);
+    assertThatThrownBy(() -> projectViewCrawler.visit(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

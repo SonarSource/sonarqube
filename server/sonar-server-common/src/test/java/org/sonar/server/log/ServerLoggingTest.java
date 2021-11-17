@@ -28,7 +28,6 @@ import java.io.IOException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
@@ -39,6 +38,7 @@ import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.LogbackHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -56,8 +56,6 @@ public class ServerLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
   private LogbackHelper logbackHelper = spy(new LogbackHelper());
@@ -123,17 +121,15 @@ public class ServerLoggingTest {
 
   @Test
   public void changeLevel_fails_with_IAE_when_level_is_ERROR() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.changeLevel(ERROR);
+    assertThatThrownBy(() -> underTest.changeLevel(ERROR))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void changeLevel_fails_with_IAE_when_level_is_WARN() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("WARN log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.changeLevel(WARN);
+    assertThatThrownBy(() -> underTest.changeLevel(WARN))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("WARN log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
   }
 }

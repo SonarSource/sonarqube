@@ -23,7 +23,6 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -44,6 +43,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ScmActionTest {
 
@@ -53,8 +53,6 @@ public class ScmActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -205,13 +203,16 @@ public class ScmActionTest {
       .assertJson(getClass(), "return_empty_value_when_no_scm.json");
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void fail_without_code_viewer_permission() {
     userSessionRule.addProjectPermission(UserRole.USER, project, file);
 
-    tester.newRequest()
-      .setParam("key", FILE_KEY)
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("key", FILE_KEY)
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -220,12 +221,11 @@ public class ScmActionTest {
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("key", branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   private DbFileSources.Line newSourceLine(String author, String revision, Date date, int line) {

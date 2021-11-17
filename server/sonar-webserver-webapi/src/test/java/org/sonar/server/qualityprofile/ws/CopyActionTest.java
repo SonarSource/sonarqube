@@ -24,7 +24,6 @@ import java.io.Writer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
@@ -48,6 +47,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -58,8 +58,6 @@ public class CopyActionTest {
 
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -202,14 +200,15 @@ public class CopyActionTest {
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    tester.newRequest()
-      .setMethod("POST")
-      .setParam("fromKey", "foo")
-      .setParam("toName", "bar")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .setParam("fromKey", "foo")
+        .setParam("toName", "bar")
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
@@ -217,14 +216,15 @@ public class CopyActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     userSession.logIn().addPermission(GlobalPermission.SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
-      .setMethod("POST")
-      .setParam("fromKey", profile.getKee())
-      .setParam("toName", "bar")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .setParam("fromKey", profile.getKee())
+        .setParam("toName", "bar")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -232,38 +232,41 @@ public class CopyActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     userSession.logIn().addPermission(GlobalPermission.SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
-      .setMethod("POST")
-      .setParam("fromKey", profile.getKee())
-      .setParam("toName", "bar")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .setParam("fromKey", profile.getKee())
+        .setParam("toName", "bar")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void fail_if_parameter_fromKey_is_missing() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'fromKey' parameter is missing");
-
-    tester.newRequest()
-      .setParam("toName", "bar")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("toName", "bar")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'fromKey' parameter is missing");
   }
 
   @Test
   public void fail_if_parameter_toName_is_missing() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'toName' parameter is missing");
-
-    tester.newRequest()
-      .setParam("fromKey", "foo")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("fromKey", "foo")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'toName' parameter is missing");
   }
 
   private void logInAsQProfileAdministrator() {

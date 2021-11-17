@@ -26,7 +26,6 @@ import java.util.function.Predicate;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -37,6 +36,7 @@ import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.component.ComponentKeyUpdaterDao.RekeyedResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -53,8 +53,6 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ComponentKeyUpdaterDaoTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -142,10 +140,9 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto appBranch = db.components().insertProjectBranch(app);
     db.components().insertProjectBranch(app, b -> b.setKey("newName"));
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(String.format("Impossible to update key: a component with key \"%s\" already exists.", generateBranchKey(app.getDbKey(), "newName")));
-
-    underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName");
+    assertThatThrownBy(() -> underTest.updateApplicationBranchKey(dbSession, appBranch.uuid(), app.getDbKey(), "newName"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Impossible to update key: a component with key \"%s\" already exists.", generateBranchKey(app.getDbKey(), "newName")));
   }
 
   @Test
@@ -222,10 +219,9 @@ public class ComponentKeyUpdaterDaoTest {
   public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
     populateSomeData();
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
-
-    underTest.updateKey(dbSession, "B", "org.struts:struts-ui");
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, "B", "org.struts:struts-ui"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Impossible to update key: a component with key \"org.struts:struts-ui\" already exists.");
   }
 
   @Test
@@ -234,10 +230,10 @@ public class ComponentKeyUpdaterDaoTest {
     db.components().insertComponent(project);
     db.components().insertComponent(newFileDto(project, null).setDbKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
 
-    underTest.updateKey(dbSession, project.uuid(), newLongProjectKey);
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, project.uuid(), newLongProjectKey))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
   }
 
   @Test

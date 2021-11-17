@@ -21,9 +21,7 @@ package org.sonar.server.authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.ExternalGroupsProvider;
@@ -32,11 +30,12 @@ import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.security.UserDetails;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -46,7 +45,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class CredentialsExternalAuthenticationTest {
 
@@ -54,9 +52,6 @@ public class CredentialsExternalAuthenticationTest {
   private static final String PASSWORD = "PASSWORD";
 
   private static final String REALM_NAME = "realm name";
-
-  @Rule
-  public ExpectedException expectedException = none();
 
   private MapSettings settings = new MapSettings();
 
@@ -189,13 +184,13 @@ public class CredentialsExternalAuthenticationTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(null);
 
-    expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("No user details");
-    try {
-      underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC))
+      .hasMessage("No user details")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.realm(BASIC, REALM_NAME))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -205,13 +200,14 @@ public class CredentialsExternalAuthenticationTest {
 
     when(authenticator.doAuthenticate(any(Authenticator.Context.class))).thenReturn(false);
 
-    expectedException.expect(authenticationException().from(Source.realm(BASIC, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("Realm returned authenticate=false");
-    try {
-      underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC))
+      .hasMessage("Realm returned authenticate=false")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.realm(BASIC, REALM_NAME))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyZeroInteractions(authenticationEvent);
+
   }
 
   @Test
@@ -222,13 +218,13 @@ public class CredentialsExternalAuthenticationTest {
 
     when(externalUsersProvider.doGetUserDetails(any(ExternalUsersProvider.Context.class))).thenReturn(new UserDetails());
 
-    expectedException.expect(authenticationException().from(Source.realm(BASIC_TOKEN, REALM_NAME)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage(expectedMessage);
-    try {
-      underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC_TOKEN))
+      .hasMessage(expectedMessage)
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.realm(BASIC_TOKEN, REALM_NAME))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -242,9 +238,9 @@ public class CredentialsExternalAuthenticationTest {
     when(realm.doGetAuthenticator()).thenReturn(null);
     when(securityRealmFactory.getRealm()).thenReturn(realm);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("No authenticator available");
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("No authenticator available");
   }
 
   @Test
@@ -253,9 +249,9 @@ public class CredentialsExternalAuthenticationTest {
     when(realm.getUsersProvider()).thenReturn(null);
     when(securityRealmFactory.getRealm()).thenReturn(realm);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("No users provider available");
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("No users provider available");
   }
 
   private void executeStartWithoutGroupSync() {

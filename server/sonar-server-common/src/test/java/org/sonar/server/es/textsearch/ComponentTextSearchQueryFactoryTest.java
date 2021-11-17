@@ -20,18 +20,15 @@
 package org.sonar.server.es.textsearch;
 
 import org.elasticsearch.index.query.QueryBuilder;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.createQuery;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentTextSearchQueryFactoryTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_query() {
@@ -59,34 +56,32 @@ public class ComponentTextSearchQueryFactoryTest {
 
   @Test
   public void fail_to_create_query_when_no_feature() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("features cannot be empty");
-
-    createQuery(ComponentTextSearchQuery.builder()
-      .setQueryText("SonarQube").setFieldKey("key").setFieldName("name").build());
+    assertThatThrownBy(() -> {
+      createQuery(ComponentTextSearchQuery.builder()
+        .setQueryText("SonarQube").setFieldKey("key").setFieldName("name").build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("features cannot be empty");
   }
 
   @Test
   public void fail_to_create_query_when_no_query_text() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("query text cannot be null");
-
-    ComponentTextSearchQuery.builder().setFieldKey("key").setFieldName("name").build();
+    assertThatThrownBy(() -> ComponentTextSearchQuery.builder().setFieldKey("key").setFieldName("name").build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("query text cannot be null");
   }
 
   @Test
   public void fail_to_create_query_when_no_field_key() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("field key cannot be null");
-
-    ComponentTextSearchQuery.builder().setQueryText("SonarQube").setFieldName("name").build();
+    assertThatThrownBy(() -> ComponentTextSearchQuery.builder().setQueryText("SonarQube").setFieldName("name").build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("field key cannot be null");
   }
 
   @Test
   public void fail_to_create_query_when_no_field_name() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("field name cannot be null");
-
-    ComponentTextSearchQuery.builder().setQueryText("SonarQube").setFieldKey("key").build();
+    assertThatThrownBy(() -> ComponentTextSearchQuery.builder().setQueryText("SonarQube").setFieldKey("key").build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("field name cannot be null");
   }
 }

@@ -19,33 +19,27 @@
  */
 package org.sonar.ce.task.projectanalysis.api.posttask;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.posttask.CeTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskImplTest {
   private static final String SOME_ID = "some id";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void constructor_throws_NPE_if_id_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can not be null");
-
-    new CeTaskImpl(null, CeTask.Status.SUCCESS);
+    assertThatThrownBy(() -> new CeTaskImpl(null, CeTask.Status.SUCCESS))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("id can not be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
-
-    new CeTaskImpl(SOME_ID, null);
+    assertThatThrownBy(() ->  new CeTaskImpl(SOME_ID, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can not be null");
   }
 
   @Test

@@ -19,20 +19,17 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ClobColumnDefTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   private final ClobColumnDef underTest = new ClobColumnDef.Builder()
     .setColumnName("issues")
     .setIsNullable(true)
@@ -78,19 +75,21 @@ public class ClobColumnDefTest {
 
   @Test
   public void fail_with_NPE_if_name_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    new ClobColumnDef.Builder()
-      .setColumnName(null);
+    assertThatThrownBy(() -> {
+      new ClobColumnDef.Builder()
+        .setColumnName(null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 
   @Test
   public void fail_with_NPE_if_no_name() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    new ClobColumnDef.Builder()
-      .build();
+    assertThatThrownBy(() -> {
+      new ClobColumnDef.Builder()
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 }

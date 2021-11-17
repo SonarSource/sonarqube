@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -31,6 +30,7 @@ import org.sonar.ce.task.CeTaskInterrupter;
 import org.sonar.ce.task.ChangeLogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -46,8 +46,6 @@ import static org.mockito.Mockito.when;
 public class ComputationStepExecutorTest {
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
   private final CeTaskInterrupter taskInterrupter = mock(CeTaskInterrupter.class);
@@ -81,10 +79,9 @@ public class ComputationStepExecutorTest {
 
     ComputationStepExecutor computationStepExecutor = new ComputationStepExecutor(mockComputationSteps(computationStep), taskInterrupter);
 
-    expectedException.expect(RuntimeException.class);
-    expectedException.expectMessage(message);
-
-    computationStepExecutor.execute();
+    assertThatThrownBy(computationStepExecutor::execute)
+      .isInstanceOf(RuntimeException.class)
+      .hasMessage(message);
   }
 
   @Test
@@ -143,10 +140,9 @@ public class ComputationStepExecutorTest {
     ComputationStep step = new StepWithStatistics("A Step", "foo", "100", "time", "20");
 
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
-      expectedException.expect(IllegalArgumentException.class);
-      expectedException.expectMessage("Statistic with key [time] is not accepted");
-
-      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
+      assertThatThrownBy(() -> new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Statistic with key [time] is not accepted");
     }
   }
 
@@ -155,10 +151,9 @@ public class ComputationStepExecutorTest {
     ComputationStep step = new StepWithStatistics("A Step", "foo", "100", "foo", "20");
 
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
-      expectedException.expect(IllegalArgumentException.class);
-      expectedException.expectMessage("Statistic with key [foo] is already present");
-
-      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
+      assertThatThrownBy(() -> new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Statistic with key [foo] is already present");
     }
   }
 
@@ -167,10 +162,9 @@ public class ComputationStepExecutorTest {
     ComputationStep step = new StepWithStatistics("A Step", "foo", "100", null, "bar");
 
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
-      expectedException.expect(NullPointerException.class);
-      expectedException.expectMessage("Statistic has null key");
-
-      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
+      assertThatThrownBy(() -> new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute())
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Statistic has null key");
     }
   }
 
@@ -179,10 +173,9 @@ public class ComputationStepExecutorTest {
     ComputationStep step = new StepWithStatistics("A Step", "foo", "100", "bar", null);
 
     try (ChangeLogLevel executor = new ChangeLogLevel(ComputationStepExecutor.class, LoggerLevel.INFO)) {
-      expectedException.expect(NullPointerException.class);
-      expectedException.expectMessage("Statistic with key [bar] has null value");
-
-      new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute();
+      assertThatThrownBy(() -> new ComputationStepExecutor(mockComputationSteps(step), taskInterrupter).execute())
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Statistic with key [bar] has null value");
     }
   }
 

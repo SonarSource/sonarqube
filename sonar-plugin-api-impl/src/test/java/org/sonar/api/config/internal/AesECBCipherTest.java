@@ -26,17 +26,13 @@ import java.security.Key;
 import javax.crypto.BadPaddingException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 public class AesECBCipherTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void generateRandomSecretKey() {
@@ -60,13 +56,12 @@ public class AesECBCipherTest {
 
   @Test
   public void encrypt_bad_key() throws Exception {
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("Invalid AES key");
-
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
     AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
-    cipher.encrypt("this is a secret");
+    assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
+      .isInstanceOf(RuntimeException.class)
+      .hasMessageContaining("Invalid AES key");
   }
 
   @Test
@@ -147,18 +142,17 @@ public class AesECBCipherTest {
 
   @Test
   public void loadSecretKeyFromFile_file_does_not_exist() throws Exception {
-    thrown.expect(IllegalStateException.class);
-
     AesECBCipher cipher = new AesECBCipher(null);
-    cipher.loadSecretFileFromFile("/file/does/not/exist");
+
+    assertThatThrownBy(() -> cipher.loadSecretFileFromFile("/file/does/not/exist"))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void loadSecretKeyFromFile_no_property() throws Exception {
-    thrown.expect(IllegalStateException.class);
-
     AesECBCipher cipher = new AesECBCipher(null);
-    cipher.loadSecretFileFromFile(null);
+    assertThatThrownBy(() -> cipher.loadSecretFileFromFile(null))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

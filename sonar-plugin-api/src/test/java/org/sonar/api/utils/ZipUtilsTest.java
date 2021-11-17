@@ -32,17 +32,15 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ZipUtilsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void zip_directory() throws IOException {
@@ -96,10 +94,10 @@ public class ZipUtilsTest {
     File zip = new File(getClass().getResource("ZipUtilsTest/zip-slip.zip").toURI());
     File toDir = temp.newFolder();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unzipping an entry outside the target directory is not allowed: ../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt");
-
-    ZipUtils.unzip(zip, toDir);
+    assertThatThrownBy(() -> ZipUtils.unzip(zip, toDir))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unzipping an entry outside the target directory is not allowed: ../../../../../../../../../../../../../../../../" +
+        "../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt");
   }
 
   @Test
@@ -107,11 +105,12 @@ public class ZipUtilsTest {
     File zip = new File(getClass().getResource("ZipUtilsTest/zip-slip.zip").toURI());
     File toDir = temp.newFolder();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unzipping an entry outside the target directory is not allowed: ../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt");
 
     try (InputStream input = new FileInputStream(zip)) {
-      ZipUtils.unzip(input, toDir);
+      assertThatThrownBy(() -> ZipUtils.unzip(input, toDir))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Unzipping an entry outside the target directory is not allowed: ../../../../../../../../../../../../../../../../../.." +
+          "/../../../../../../../../../../../../../../../../../../../../../../tmp/evil.txt");
     }
   }
 

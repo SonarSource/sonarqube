@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MetricDtoToMetricTest {
 
@@ -30,9 +31,10 @@ public class MetricDtoToMetricTest {
 
   private MetricDtoToMetric underTest = MetricDtoToMetric.INSTANCE;
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void apply_throws_NPE_if_arg_is_null() {
-    underTest.apply(null);
+    assertThatThrownBy(() -> underTest.apply(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -57,9 +59,10 @@ public class MetricDtoToMetricTest {
     assertThat(underTest.apply(createMetricDto(Metric.MetricType.INT).setOptimizedBestValue(true)).isBestValueOptimized()).isTrue();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void apply_throws_IAE_if_valueType_can_not_be_parsed() {
-    underTest.apply(new MetricDto().setUuid("1").setKey("key").setValueType("trololo"));
+    assertThatThrownBy(() -> underTest.apply(new MetricDto().setUuid("1").setKey("key").setValueType("trololo")))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private static MetricDto createMetricDto(Metric.MetricType metricType) {

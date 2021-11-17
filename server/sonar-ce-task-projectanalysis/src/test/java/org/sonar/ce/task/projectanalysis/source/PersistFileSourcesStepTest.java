@@ -27,7 +27,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -63,8 +62,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   private System2 system2 = mock(System2.class);
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
   @Rule

@@ -25,7 +25,6 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -42,6 +41,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -51,8 +51,6 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class TransitionActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -105,9 +103,9 @@ public class TransitionActionTest {
 
   @Test
   public void fail_to_verify_when_parameter_not_found() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing parameter : 'transition'");
-    action.verify(ImmutableMap.of("unknown", "reopen"), Lists.newArrayList(), userSession);
+    assertThatThrownBy(() -> action.verify(ImmutableMap.of("unknown", "reopen"), Lists.newArrayList(), userSession))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing parameter : 'transition'");
   }
 
   @Test

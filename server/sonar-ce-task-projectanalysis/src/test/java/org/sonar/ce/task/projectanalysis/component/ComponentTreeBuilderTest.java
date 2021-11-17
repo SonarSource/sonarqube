@@ -31,7 +31,6 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.core.component.ComponentKeys;
@@ -41,6 +40,7 @@ import org.sonar.server.project.Project;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,8 +64,6 @@ public class ComponentTreeBuilderTest {
   private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
     randomAlphabetic(20), new Random().nextBoolean() ? null : randomAlphabetic(12), "1def5123");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
@@ -717,10 +715,9 @@ public class ComponentTreeBuilderTest {
       .setType(FILE)
       .setProjectRelativePath("src/js/Foo.js"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("File 'src/js/Foo.js' has no line");
-
-    call(project);
+    assertThatThrownBy(() ->  call(project))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("File 'src/js/Foo.js' has no line");
   }
 
   @Test
@@ -736,10 +733,9 @@ public class ComponentTreeBuilderTest {
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(0));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("File 'src/js/Foo.js' has no line");
-
-    call(project);
+    assertThatThrownBy(() ->  call(project))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("File 'src/js/Foo.js' has no line");
   }
 
   @Test
@@ -755,10 +751,9 @@ public class ComponentTreeBuilderTest {
       .setProjectRelativePath("src/js/Foo.js")
       .setLines(-10));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("File 'src/js/Foo.js' has no line");
-
-    call(project);
+    assertThatThrownBy(() ->  call(project))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("File 'src/js/Foo.js' has no line");
   }
 
   private static class ScannerComponentProvider extends ExternalResource implements Function<Integer, ScannerReport.Component> {

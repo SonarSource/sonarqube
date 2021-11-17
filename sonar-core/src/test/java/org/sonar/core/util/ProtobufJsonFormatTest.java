@@ -21,9 +21,7 @@ package org.sonar.core.util;
 
 import com.google.protobuf.ByteString;
 import java.io.StringWriter;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.test.Test.Countries;
 import org.sonar.core.test.Test.Country;
@@ -39,12 +37,11 @@ import org.sonar.core.test.Test.Translations;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.util.ProtobufJsonFormat.toJson;
 
 public class ProtobufJsonFormatTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_primitive_types() {
@@ -63,14 +60,15 @@ public class ProtobufJsonFormatTest {
 
   @Test
   public void bytes_field_can_not_be_converted() {
-    expectedException.expect(RuntimeException.class);
-    expectedException.expectMessage("JSON format does not support type 'BYTE_STRING' of field 'bytesField'");
+    assertThatThrownBy(() -> {
+      PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()
+        .setBytesField(ByteString.copyFrom(new byte[]{2, 4}))
+        .build();
 
-    PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()
-      .setBytesField(ByteString.copyFrom(new byte[]{2, 4}))
-      .build();
-
-    ProtobufJsonFormat.write(protobuf, JsonWriter.of(new StringWriter()));
+      ProtobufJsonFormat.write(protobuf, JsonWriter.of(new StringWriter()));
+    })
+      .isInstanceOf(RuntimeException.class)
+      .hasMessage("JSON format does not support type 'BYTE_STRING' of field 'bytesField'");
   }
 
   @Test

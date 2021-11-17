@@ -26,7 +26,6 @@ import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
@@ -34,14 +33,13 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class WebServiceTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -96,75 +94,69 @@ public class WebServiceTest {
 
   @Test
   public void fail_if_duplicated_ws_keys() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The web service 'api/metric' is defined multiple times");
-
     MetricWs metricWs = new MetricWs();
     metricWs.define(context);
-    ((WebService) context -> {
+
+    assertThatThrownBy(() -> ((WebService) context -> {
       NewController newController = context.createController("api/metric");
       newDefaultAction(newController, "delete");
       newController.done();
-    }).define(context);
+    }).define(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The web service 'api/metric' is defined multiple times");
   }
 
   @Test
   public void fail_if_no_action_handler() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("RequestHandler is not set on action rule/show");
-
-    ((WebService) context -> {
+    assertThatThrownBy(() -> ((WebService) context -> {
       NewController controller = context.createController("rule");
       newDefaultAction(controller, "show")
         .setHandler(null);
       controller.done();
-    }).define(context);
+    }).define(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("RequestHandler is not set on action rule/show");
   }
 
   @Test
   public void fail_if_duplicated_action_keys() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The action 'delete' is defined multiple times in the web service 'rule'");
-
-    ((WebService) context -> {
+    assertThatThrownBy(() -> ((WebService) context -> {
       NewController newController = context.createController("rule");
       newDefaultAction(newController, "create");
       newDefaultAction(newController, "delete");
       newDefaultAction(newController, "delete");
       newController.done();
-    }).define(context);
+    }).define(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The action 'delete' is defined multiple times in the web service 'rule'");
   }
 
   @Test
   public void fail_if_no_actions() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("At least one action must be declared in the web service 'rule'");
-
-    ((WebService) context -> context.createController("rule").done()).define(context);
+    assertThatThrownBy(() -> ((WebService) context -> context.createController("rule").done()).define(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("At least one action must be declared in the web service 'rule'");
   }
 
   @Test
   public void fail_if_no_controller_path() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("WS controller path must not be empty");
-
-    ((WebService) context -> context.createController(null).done()).define(context);
+    assertThatThrownBy(() -> ((WebService) context -> context.createController(null).done()).define(context))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("WS controller path must not be empty");
   }
 
   @Test
   public void controller_path_must_not_start_with_slash() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("WS controller path must not start or end with slash: /hello");
-
-    ((WebService) context -> context.createController("/hello").done()).define(context);
+    assertThatThrownBy(() -> ((WebService) context -> context.createController("/hello").done()).define(context))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("WS controller path must not start or end with slash: /hello");
   }
 
   @Test
   public void controller_path_must_not_end_with_slash() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("WS controller path must not start or end with slash: hello/");
-
-    ((WebService) context -> context.createController("hello/").done()).define(context);
+    assertThatThrownBy(() -> ((WebService) context -> context.createController("hello/").done()).define(context))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("WS controller path must not start or end with slash: hello/");
   }
 
   @Test
@@ -345,28 +337,27 @@ public class WebServiceTest {
 
   @Test
   public void fail_if_required_param_has_default_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");
-    ((WebService) context -> {
+    assertThatThrownBy(() -> ((WebService) context -> {
       NewController controller = context.createController("api/rule");
       NewAction action = newDefaultAction(controller, "create");
       action.createParam("key").setRequired(true).setDefaultValue("abc");
       controller.done();
-    }).define(context);
+    }).define(context))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");
   }
 
   @Test
   public void fail_if_duplicated_action_parameters() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The parameter 'key' is defined multiple times in the action 'create'");
-
-    ((WebService) context -> {
+    assertThatThrownBy(() -> ((WebService) context -> {
       NewController controller = context.createController("api/rule");
       NewAction action = newDefaultAction(controller, "create");
       action.createParam("key");
       action.createParam("key");
       controller.done();
-    }).define(context);
+    }).define(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The parameter 'key' is defined multiple times in the action 'create'");
   }
 
   @Test

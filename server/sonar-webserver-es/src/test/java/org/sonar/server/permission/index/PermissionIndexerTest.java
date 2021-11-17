@@ -22,7 +22,6 @@ package org.sonar.server.permission.index;
 import java.util.Collection;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -50,8 +49,6 @@ public class PermissionIndexerTest {
 
   private static final IndexMainType INDEX_TYPE_FOO_AUTH = IndexType.main(FooIndexDefinition.DESCRIPTOR, TYPE_AUTHORIZATION);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule

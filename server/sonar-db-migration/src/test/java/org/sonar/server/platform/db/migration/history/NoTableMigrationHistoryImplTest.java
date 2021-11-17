@@ -21,30 +21,26 @@ package org.sonar.server.platform.db.migration.history;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class NoTableMigrationHistoryImplTest {
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createEmpty();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
   private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);
 
   @Test
   public void start_fails_with_ISE_if_table_history_does_not_exist() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Migration history table is missing");
-
-    underTest.start();
-
-    verifyZeroInteractions(migrationHistoryMeddler);
+    assertThatThrownBy(() -> {
+      underTest.start();
+      verifyZeroInteractions(migrationHistoryMeddler);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Migration history table is missing");
   }
-
-
 }

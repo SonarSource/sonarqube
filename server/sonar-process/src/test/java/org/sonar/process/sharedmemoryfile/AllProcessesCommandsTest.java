@@ -24,10 +24,10 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
@@ -43,8 +43,6 @@ public class AllProcessesCommandsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fail_to_init_if_dir_does_not_exist() throws Exception {
@@ -191,10 +189,9 @@ public class AllProcessesCommandsTest {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
       int processNumber = -2;
 
-      expectedException.expect(IllegalArgumentException.class);
-      expectedException.expectMessage("Process number " + processNumber + " is not valid");
-
-      commands.createAfterClean(processNumber);
+      assertThatThrownBy(() -> commands.createAfterClean(processNumber))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Process number " + processNumber + " is not valid");
     }
   }
 
@@ -203,10 +200,9 @@ public class AllProcessesCommandsTest {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
       int processNumber = MAX_PROCESSES + 1;
 
-      expectedException.expect(IllegalArgumentException.class);
-      expectedException.expectMessage("Process number " + processNumber + " is not valid");
-
-      commands.createAfterClean(processNumber);
+      assertThatThrownBy(() -> commands.createAfterClean(processNumber))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Process number " + processNumber + " is not valid");
     }
   }
 

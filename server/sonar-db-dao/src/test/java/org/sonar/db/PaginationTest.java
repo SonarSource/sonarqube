@@ -20,17 +20,12 @@
 package org.sonar.db;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.Pagination.forPage;
-
-
 public class PaginationTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void all_is_page_1_with_MAX_INTEGER_page_size() {
@@ -47,38 +42,34 @@ public class PaginationTest {
 
   @Test
   public void forPage_fails_with_IAE_if_page_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("page index must be >= 1");
-
-    forPage(0);
+    assertThatThrownBy(() -> forPage(0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("page index must be >= 1");
   }
 
   @Test
   public void forPage_fails_with_IAE_if_page_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("page index must be >= 1");
-
-    forPage(-Math.abs(new Random().nextInt()) - 1);
+    assertThatThrownBy(() -> forPage(-Math.abs(new Random().nextInt()) - 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("page index must be >= 1");
   }
 
   @Test
   public void andSize_fails_with_IAE_if_size_is_0() {
     Pagination.Builder builder = forPage(1);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("page size must be >= 1");
-
-    builder.andSize(0);
+    assertThatThrownBy(() -> builder.andSize(0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("page size must be >= 1");
   }
 
   @Test
   public void andSize_fails_with_IAE_if_size_is_less_than_0() {
     Pagination.Builder builder = forPage(1);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("page size must be >= 1");
-
-    builder.andSize(-Math.abs(new Random().nextInt()) - 1);
+    assertThatThrownBy(() -> builder.andSize(-Math.abs(new Random().nextInt()) - 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("page size must be >= 1");
   }
 
   @Test

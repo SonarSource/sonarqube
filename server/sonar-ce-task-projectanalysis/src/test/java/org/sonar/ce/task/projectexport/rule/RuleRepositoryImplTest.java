@@ -22,11 +22,11 @@ package org.sonar.ce.task.projectexport.rule;
 import java.util.Collection;
 import java.util.Random;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.Uuids;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RuleRepositoryImplTest {
   private static final String SOME_UUID = "uuid-846";
@@ -34,8 +34,6 @@ public class RuleRepositoryImplTest {
   private static final String SOME_RULE_KEY = "key";
   private static final Rule SOME_RULE = new Rule("uuid-1", SOME_REPOSITORY, SOME_RULE_KEY);
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Random random = new Random();
 
@@ -43,10 +41,9 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void register_throws_NPE_if_ruleKey_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ruleKey can not be null");
-
-    underTest.register(SOME_UUID, null);
+    assertThatThrownBy(() -> underTest.register(SOME_UUID, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("ruleKey can not be null");
   }
 
   @Test
@@ -64,20 +61,18 @@ public class RuleRepositoryImplTest {
   public void register_fails_IAE_if_RuleKey_is_not_the_same_repository_for_a_specific_ref() {
     underTest.register(SOME_UUID, RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Specified RuleKey 'other repo:key' is not equal to the one already registered in repository for ref " + SOME_UUID + ": 'rep:key'");
-
-    underTest.register(SOME_UUID, RuleKey.of("other repo", SOME_RULE_KEY));
+    assertThatThrownBy(() -> underTest.register(SOME_UUID, RuleKey.of("other repo", SOME_RULE_KEY)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Specified RuleKey 'other repo:key' is not equal to the one already registered in repository for ref " + SOME_UUID + ": 'rep:key'");
   }
 
   @Test
   public void register_fails_IAE_if_RuleKey_is_not_the_same_key_for_a_specific_ref() {
     underTest.register(SOME_UUID, RuleKey.of(SOME_REPOSITORY, SOME_RULE_KEY));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Specified RuleKey 'rep:other key' is not equal to the one already registered in repository for ref " + SOME_UUID + ": 'rep:key'");
-
-    underTest.register(SOME_UUID, RuleKey.of(SOME_REPOSITORY, "other key"));
+    assertThatThrownBy(() -> underTest.register(SOME_UUID, RuleKey.of(SOME_REPOSITORY, "other key")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Specified RuleKey 'rep:other key' is not equal to the one already registered in repository for ref " + SOME_UUID + ": 'rep:key'");
   }
 
   @Test
@@ -105,7 +100,8 @@ public class RuleRepositoryImplTest {
     Collection<Rule> all = underTest.getAll();
     assertThat(all).isEmpty();
 
-    ensureImmutable(all);
+    assertThatThrownBy(() -> all.add(SOME_RULE))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
@@ -125,12 +121,9 @@ public class RuleRepositoryImplTest {
 
     assertThat(all).extracting(Rule::getRepository).containsOnly(repositories);
     assertThat(all).extracting(Rule::getKey).containsOnly(keys);
-    ensureImmutable(all);
-  }
 
-  private void ensureImmutable(Collection<Rule> collection) {
-    expectedException.expect(UnsupportedOperationException.class);
-    collection.add(SOME_RULE);
+    assertThatThrownBy(() -> all.add(SOME_RULE))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   private int someRandomInt() {

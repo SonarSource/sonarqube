@@ -21,30 +21,25 @@ package org.sonar.auth.ldap;
 
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.auth.ldap.LdapAutodiscovery.LdapSrvRecord;
 
 public class LdapSettingsManagerTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void shouldFailWhenNoLdapUrl() {
     MapSettings settings = generateMultipleLdapSettingsWithUserAndGroupMapping();
     settings.removeProperty("ldap.example.url");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
 
-    thrown.expect(LdapException.class);
-    thrown.expectMessage("The property 'ldap.example.url' property is empty while it is mandatory.");
-    settingsManager.getContextFactories();
+    assertThatThrownBy(settingsManager::getContextFactories)
+      .isInstanceOf(LdapException.class)
+      .hasMessage("The property 'ldap.example.url' property is empty while it is mandatory.");
   }
 
   @Test
@@ -53,11 +48,9 @@ public class LdapSettingsManagerTest {
     settings.setProperty("ldap.url", "ldap://foo");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
 
-    thrown.expect(LdapException.class);
-    thrown
-      .expectMessage(
-        "When defining multiple LDAP servers with the property 'ldap.servers', all LDAP properties must be linked to one of those servers. Please remove properties like 'ldap.url', 'ldap.realm', ...");
-    settingsManager.getContextFactories();
+    assertThatThrownBy(settingsManager::getContextFactories)
+      .isInstanceOf(LdapException.class)
+      .hasMessage("When defining multiple LDAP servers with the property 'ldap.servers', all LDAP properties must be linked to one of those servers. Please remove properties like 'ldap.url', 'ldap.realm', ...");
   }
 
   @Test
@@ -98,10 +91,9 @@ public class LdapSettingsManagerTest {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateAutodiscoverSettings().asConfig(), ldapAutodiscovery);
 
-    thrown.expect(LdapException.class);
-    thrown.expectMessage("The property 'ldap.url' is empty and SonarQube is not able to auto-discover any LDAP server.");
-
-    settingsManager.getContextFactories();
+    assertThatThrownBy(settingsManager::getContextFactories)
+      .isInstanceOf(LdapException.class)
+      .hasMessage("The property 'ldap.url' is empty and SonarQube is not able to auto-discover any LDAP server.");
   }
 
   /**
@@ -139,9 +131,9 @@ public class LdapSettingsManagerTest {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       new MapSettings().asConfig(), new LdapAutodiscovery());
 
-    thrown.expect(LdapException.class);
-    thrown.expectMessage("The property 'ldap.url' is empty and no realm configured to try auto-discovery.");
-    settingsManager.getContextFactories();
+    assertThatThrownBy(settingsManager::getContextFactories)
+      .isInstanceOf(LdapException.class)
+      .hasMessage("The property 'ldap.url' is empty and no realm configured to try auto-discovery.");
   }
 
   private MapSettings generateMultipleLdapSettingsWithUserAndGroupMapping() {

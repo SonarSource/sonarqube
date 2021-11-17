@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
@@ -62,8 +62,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ProjectStatusActionTest {
   private static final String ANALYSIS_ID = "task-uuid";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -316,12 +314,11 @@ public class ProjectStatusActionTest {
   public void fail_if_no_snapshot_id_found() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Analysis with id 'task-uuid' is not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, ANALYSIS_ID)
-      .executeProtobuf(ProjectStatusResponse.class);
+      .executeProtobuf(ProjectStatusResponse.class))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Analysis with id 'task-uuid' is not found");
   }
 
   @Test
@@ -331,11 +328,10 @@ public class ProjectStatusActionTest {
     dbSession.commit();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
-      .executeProtobuf(ProjectStatusResponse.class);
+      .executeProtobuf(ProjectStatusResponse.class))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -343,13 +339,12 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     logInAsSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, "analysis-id")
       .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .execute().getInput();
+      .execute().getInput())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
   }
 
   @Test
@@ -357,26 +352,23 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     logInAsSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'branch' or 'pullRequest' can be provided, not both");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "key")
       .setParam(PARAM_BRANCH, "branch")
       .setParam(PARAM_PULL_REQUEST, "pr")
-      .execute().getInput();
+      .execute().getInput())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Either 'branch' or 'pullRequest' can be provided, not both");
   }
 
   @Test
   public void fail_if_no_parameter_provided() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
-
-    ws.newRequest()
-      .execute()
-      .getInput();
+    assertThatThrownBy(() -> ws.newRequest()
+      .execute().getInput())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
   }
 
   @Test
@@ -386,12 +378,11 @@ public class ProjectStatusActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto snapshot = db.components().insertSnapshot(branch);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -401,12 +392,11 @@ public class ProjectStatusActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     SnapshotDto snapshot = db.components().insertSnapshot(branch);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.uuid()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectId", branch.uuid())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.uuid()));
   }
 
   private void logInAsSystemAdministrator() {

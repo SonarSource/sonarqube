@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;

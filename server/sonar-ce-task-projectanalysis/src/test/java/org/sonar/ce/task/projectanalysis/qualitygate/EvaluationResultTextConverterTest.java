@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
 import org.sonar.core.i18n.I18n;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
@@ -50,14 +51,16 @@ public class EvaluationResultTextConverterTest {
   private Durations durations = mock(Durations.class);
   private EvaluationResultTextConverter underTest = new EvaluationResultTextConverterImpl(i18n, durations);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void evaluate_throws_NPE_if_Condition_arg_is_null() {
-    underTest.asText(null, OK_EVALUATION_RESULT);
+    assertThatThrownBy(() ->  underTest.asText(null, OK_EVALUATION_RESULT))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void evaluate_throws_NPE_if_EvaluationResult_arg_is_null() {
-    underTest.asText(LT_10_CONDITION, null);
+    assertThatThrownBy(() -> underTest.asText(LT_10_CONDITION, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

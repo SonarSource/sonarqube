@@ -27,7 +27,6 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.slf4j.event.Level;
 import org.sonar.process.LoggingRule;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -35,6 +34,7 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,8 +47,6 @@ public class SharedHealthStateImplTest {
   private static final String MAP_SQ_HEALTH_STATE = "sq_health_state";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public LoggingRule logging = new LoggingRule(SharedHealthStateImpl.class);
 
   private final Random random = new Random();
@@ -58,10 +56,9 @@ public class SharedHealthStateImplTest {
 
   @Test
   public void write_fails_with_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("nodeHealth can't be null");
-
-    underTest.writeMine(null);
+    assertThatThrownBy(() -> underTest.writeMine(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("nodeHealth can't be null");
   }
 
   @Test

@@ -19,16 +19,12 @@
  */
 package org.sonar.api.task;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TaskDefinitionTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_build() {
@@ -67,30 +63,30 @@ public class TaskDefinitionTest {
 
   @Test
   public void description_should_be_required() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Description must be set for task 'foo'");
-    TaskDefinition.builder().key("foo").taskClass(FooTask.class).build();
+    assertThatThrownBy(() -> TaskDefinition.builder().key("foo").taskClass(FooTask.class).build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Description must be set for task 'foo'");
   }
 
   @Test
   public void key_should_be_required() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Task key must be set");
-    TaskDefinition.builder().description("Foo").taskClass(FooTask.class).build();
+    assertThatThrownBy(() -> TaskDefinition.builder().description("Foo").taskClass(FooTask.class).build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Task key must be set");
   }
 
   @Test
   public void key_should_not_contain_spaces() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Task key 'fo o' must match " + TaskDefinition.KEY_PATTERN);
-    TaskDefinition.builder().key("fo o").description("foo").taskClass(FooTask.class).build();
+    assertThatThrownBy(() -> TaskDefinition.builder().key("fo o").description("foo").taskClass(FooTask.class).build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Task key 'fo o' must match " + TaskDefinition.KEY_PATTERN);
   }
 
   @Test
   public void class_should_be_required() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Class must be set for task 'foo'");
-    TaskDefinition.builder().key("foo").description("Foo").build();
+    assertThatThrownBy(() -> TaskDefinition.builder().key("foo").description("Foo").build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Class must be set for task 'foo'");
   }
 
   private static class FooTask implements Task {

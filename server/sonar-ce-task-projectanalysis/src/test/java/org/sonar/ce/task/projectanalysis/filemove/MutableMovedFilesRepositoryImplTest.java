@@ -20,13 +20,12 @@
 package org.sonar.ce.task.projectanalysis.filemove;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
@@ -41,25 +40,20 @@ public class MutableMovedFilesRepositoryImplTest {
   };
   private static final MovedFilesRepository.OriginalFile SOME_ORIGINAL_FILE = new MovedFilesRepository.OriginalFile("uuid for 100", "key for 100");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private MutableMovedFilesRepositoryImpl underTest = new MutableMovedFilesRepositoryImpl();
 
   @Test
   public void setOriginalFile_throws_NPE_when_file_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("file can't be null");
-
-    underTest.setOriginalFile(null, SOME_ORIGINAL_FILE);
+    assertThatThrownBy(() -> underTest.setOriginalFile(null, SOME_ORIGINAL_FILE))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("file can't be null");
   }
 
   @Test
   public void setOriginalFile_throws_NPE_when_originalFile_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("originalFile can't be null");
-
-    underTest.setOriginalFile(SOME_FILE, null);
+    assertThatThrownBy(() -> underTest.setOriginalFile(SOME_FILE, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("originalFile can't be null");
   }
 
   @Test
@@ -80,11 +74,10 @@ public class MutableMovedFilesRepositoryImplTest {
   public void setOriginalFile_throws_ISE_if_settings_another_originalFile() {
     underTest.setOriginalFile(SOME_FILE, SOME_ORIGINAL_FILE);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Original file OriginalFile{uuid='uuid for 100', key='key for 100'} " +
-      "already registered for file ReportComponent{ref=1, key='key_1', type=FILE}");
-
-    underTest.setOriginalFile(SOME_FILE, new MovedFilesRepository.OriginalFile("uudi", "key"));
+    assertThatThrownBy(() -> underTest.setOriginalFile(SOME_FILE, new MovedFilesRepository.OriginalFile("uudi", "key")))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Original file OriginalFile{uuid='uuid for 100', key='key for 100'} " +
+        "already registered for file ReportComponent{ref=1, key='key_1', type=FILE}");
   }
 
   @Test
@@ -104,10 +97,9 @@ public class MutableMovedFilesRepositoryImplTest {
 
   @Test
   public void getOriginalFile_throws_NPE_when_file_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("file can't be null");
-
-    underTest.getOriginalFile(null);
+    assertThatThrownBy(() -> underTest.getOriginalFile(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("file can't be null");
   }
 
   @Test

@@ -24,15 +24,14 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,26 +41,25 @@ public class DuplicationRepositoryImplTest {
   private static final Component FILE_COMPONENT_2 = ReportComponent.builder(Component.Type.FILE, 2).build();
   private static final Duplication SOME_DUPLICATION = createDuplication(1, 2);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DuplicationRepository underTest = new DuplicationRepositoryImpl();
 
   @Test
   public void getDuplications_throws_NPE_if_Component_argument_is_null() {
-    expectFileArgumentNPE();
-
-    underTest.getDuplications(null);
+    assertThatThrownBy(() -> underTest.getDuplications(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("file can not be null");
   }
 
   @Test
   @UseDataProvider("allComponentTypesButFile")
   public void getDuplications_throws_IAE_if_Component_type_is_not_FILE(Component.Type type) {
-    expectFileTypeIAE();
-
-    Component component = mockComponentGetType(type);
-
-    underTest.getDuplications(component);
+    assertThatThrownBy(() -> {
+      Component component = mockComponentGetType(type);
+      underTest.getDuplications(component);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("type of file must be FILE");
   }
 
   @Test
@@ -71,27 +69,27 @@ public class DuplicationRepositoryImplTest {
 
   @Test
   public void add_throws_NPE_if_file_argument_is_null() {
-    expectFileArgumentNPE();
-
-    underTest.add(null, SOME_DUPLICATION);
+    assertThatThrownBy(() -> underTest.add(null, SOME_DUPLICATION))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("file can not be null");
   }
 
   @Test
   public void addDuplication_inner_throws_NPE_if_duplication_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("duplication can not be null");
-
-    underTest.add(FILE_COMPONENT_1, null);
+    assertThatThrownBy(() -> underTest.add(FILE_COMPONENT_1, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("duplication can not be null");
   }
 
   @Test
   @UseDataProvider("allComponentTypesButFile")
   public void addDuplication_inner_throws_IAE_if_file_type_is_not_FILE(Component.Type type) {
-    expectFileTypeIAE();
-
-    Component component = mockComponentGetType(type);
-
-    underTest.add(component, SOME_DUPLICATION);
+    assertThatThrownBy(() -> {
+      Component component = mockComponentGetType(type);
+      underTest.add(component, SOME_DUPLICATION);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("type of file must be FILE");
   }
 
   @Test
@@ -143,16 +141,6 @@ public class DuplicationRepositoryImplTest {
 
   private void assertNoDuplication(Component component) {
     assertThat(underTest.getDuplications(component)).isEmpty();
-  }
-
-  private void expectFileArgumentNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("file can not be null");
-  }
-
-  private void expectFileTypeIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("type of file must be FILE");
   }
 
   private Component mockComponentGetType(Component.Type type) {

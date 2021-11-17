@@ -26,9 +26,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
@@ -37,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.source.linereader.LineReader;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,8 +46,6 @@ import static org.sonar.ce.task.projectanalysis.source.linereader.LineReader.Dat
 
 @RunWith(DataProviderRunner.class)
 public class FileSourceDataWarningsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeTaskMessages taskMessages = mock(CeTaskMessages.class);
   private System2 system2 = mock(System2.class);
@@ -63,40 +60,36 @@ public class FileSourceDataWarningsTest {
   public void addWarning_fails_with_NPE_if_file_is_null() {
     LineReader.ReadError readError = new LineReader.ReadError(HIGHLIGHTING, 2);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("file can't be null");
-
-    underTest.addWarning(null, readError);
+    assertThatThrownBy(() -> underTest.addWarning(null, readError))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("file can't be null");
   }
 
   @Test
   public void addWarning_fails_with_NPE_if_readError_is_null() {
     Component component = mock(Component.class);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("readError can't be null");
-
-    underTest.addWarning(component, null);
+    assertThatThrownBy(() -> underTest.addWarning(component, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("readError can't be null");
   }
 
   @Test
   public void addWarnings_fails_with_ISE_if_called_after_commitWarnings() {
     underTest.commitWarnings();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("warnings already commit");
-
-    underTest.addWarning(null /*doesn't matter*/, null /*doesn't matter*/);
+    assertThatThrownBy(() -> underTest.addWarning(null /*doesn't matter*/, null /*doesn't matter*/))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("warnings already commit");
   }
 
   @Test
   public void commitWarnings_fails_with_ISE_if_called_after_commitWarnings() {
     underTest.commitWarnings();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("warnings already commit");
-
-    underTest.commitWarnings();
+    assertThatThrownBy(() -> underTest.commitWarnings())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("warnings already commit");
   }
 
   @Test

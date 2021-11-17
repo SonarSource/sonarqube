@@ -23,12 +23,14 @@ import java.io.File;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class BatchReportDirectoryHolderImplTest {
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void getDirectory_throws_ISE_if_holder_is_empty() {
-    new BatchReportDirectoryHolderImpl().getDirectory();
+    assertThatThrownBy(() ->  new BatchReportDirectoryHolderImpl().getDirectory())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

@@ -26,9 +26,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -36,6 +34,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.EditionProvider.Edition;
@@ -50,28 +49,24 @@ public class AnalysisMetadataHolderImplTest {
     .build();
   private static final long SOME_DATE = 10000000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
   @Test
   public void setUuid_throws_NPE_is_parameter_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Analysis uuid can't be null");
-
-    underTest.setUuid(null);
+    assertThatThrownBy(() -> underTest.setUuid(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Analysis uuid can't be null");
   }
 
   @Test
   public void setUuid_throws_ISE_if_called_twice() {
     underTest.setUuid("org1");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis uuid has already been set");
-
-    underTest.setUuid("org1");
+    assertThatThrownBy(() -> underTest.setUuid("org1"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis uuid has already been set");
   }
 
   @Test
@@ -84,10 +79,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void getAnalysisDate_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis date has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getAnalysisDate();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).getAnalysisDate())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis date has not been set");
   }
 
   @Test
@@ -95,10 +89,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setAnalysisDate(SOME_DATE);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis date has already been set");
-
-    underTest.setAnalysisDate(SOME_DATE);
+    assertThatThrownBy(() -> underTest.setAnalysisDate(SOME_DATE))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis date has already been set");
   }
 
   @Test
@@ -111,10 +104,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void getForkDate_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fork date has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getForkDate();
+    assertThatThrownBy(() ->  new AnalysisMetadataHolderImpl(editionProvider).getForkDate())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fork date has not been set");
   }
 
   @Test
@@ -122,10 +114,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setForkDate(SOME_DATE);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fork date has already been set");
-
-    underTest.setForkDate(SOME_DATE);
+    assertThatThrownBy(() ->  underTest.setForkDate(SOME_DATE))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fork date has already been set");
   }
 
   @Test
@@ -158,18 +149,16 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void isFirstAnalysis_throws_ISE_when_base_project_snapshot_is_not_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Base project snapshot has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).isFirstAnalysis();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).isFirstAnalysis())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Base project snapshot has not been set");
   }
 
   @Test
   public void baseProjectSnapshot_throws_ISE_when_base_project_snapshot_is_not_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Base project snapshot has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getBaseAnalysis();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).getBaseAnalysis())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Base project snapshot has not been set");
   }
 
   @Test
@@ -177,9 +166,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setBaseAnalysis(baseProjectAnalysis);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Base project snapshot has already been set");
-    underTest.setBaseAnalysis(baseProjectAnalysis);
+    assertThatThrownBy(() -> underTest.setBaseAnalysis(baseProjectAnalysis))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Base project snapshot has already been set");
   }
 
   @Test
@@ -202,10 +191,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void isCrossProjectDuplicationEnabled_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cross project duplication flag has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).isCrossProjectDuplicationEnabled();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).isCrossProjectDuplicationEnabled())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cross project duplication flag has not been set");
   }
 
   @Test
@@ -213,9 +201,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setCrossProjectDuplicationEnabled(true);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cross project duplication flag has already been set");
-    underTest.setCrossProjectDuplicationEnabled(false);
+    assertThatThrownBy(() -> underTest.setCrossProjectDuplicationEnabled(false))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cross project duplication flag has already been set");
   }
 
   @Test
@@ -229,10 +217,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void getBranch_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Branch has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getBranch();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).getBranch())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Branch has not been set");
   }
 
   @Test
@@ -240,9 +227,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setBranch(new DefaultBranchImpl());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Branch has already been set");
-    underTest.setBranch(new DefaultBranchImpl());
+    assertThatThrownBy(() -> underTest.setBranch(new DefaultBranchImpl()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Branch has already been set");
   }
 
   @Test
@@ -278,10 +265,9 @@ public class AnalysisMetadataHolderImplTest {
     when(branch.isMain()).thenReturn(false);
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Branches and Pull Requests are not supported in Community Edition");
-
-    underTest.setBranch(branch);
+    assertThatThrownBy(() -> underTest.setBranch(branch))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Branches and Pull Requests are not supported in Community Edition");
   }
 
   @DataProvider
@@ -314,10 +300,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void getPullRequestId_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Pull request key has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getPullRequestKey();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).getPullRequestKey())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Pull request key has not been set");
   }
 
   @Test
@@ -325,9 +310,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setPullRequestKey("pr-123");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Pull request key has already been set");
-    underTest.setPullRequestKey("pr-234");
+    assertThatThrownBy(() -> underTest.setPullRequestKey("pr-234"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Pull request key has already been set");
   }
 
   @Test
@@ -342,10 +327,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void getProject_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Project has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getProject();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).getProject())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Project has not been set");
   }
 
   @Test
@@ -353,10 +337,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setProject(Project.from(newPrivateProjectDto()));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Project has already been set");
-
-    underTest.setProject(Project.from(newPrivateProjectDto()));
+    assertThatThrownBy(() -> underTest.setProject(Project.from(newPrivateProjectDto())))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Project has already been set");
   }
 
   @Test
@@ -370,10 +353,9 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void getRootComponentRef_throws_ISE_when_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Root component ref has not been set");
-
-    new AnalysisMetadataHolderImpl(editionProvider).getRootComponentRef();
+    assertThatThrownBy(() -> new AnalysisMetadataHolderImpl(editionProvider).getRootComponentRef())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Root component ref has not been set");
   }
 
   @Test
@@ -381,9 +363,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setRootComponentRef(10);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Root component ref has already been set");
-    underTest.setRootComponentRef(9);
+    assertThatThrownBy(() ->  underTest.setRootComponentRef(9))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Root component ref has already been set");
   }
 
   @Test
@@ -402,9 +384,9 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setScmRevision("bd56dab");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("ScmRevision has already been set");
-    underTest.setScmRevision("bd56dab");
+    assertThatThrownBy(() ->  underTest.setScmRevision("bd56dab"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("ScmRevision has already been set");
   }
 
   @Test
@@ -455,9 +437,8 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void isBranch_throws_ISE_for_not_initialized_branch() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Branch has not been set");
-
-    underTest.isBranch();
+    assertThatThrownBy(underTest::isBranch)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Branch has not been set");
   }
 }

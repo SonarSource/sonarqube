@@ -20,9 +20,7 @@
 package org.sonar.server.platform.db.migration.sql;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -30,12 +28,9 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RenameTableBuilderTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void rename_table_on_h2() {
     verifySql(new H2(), "ALTER TABLE foo RENAME TO bar");
@@ -67,18 +62,16 @@ public class RenameTableBuilderTest {
 
   @Test
   public void throw_IAE_if_name_is_not_valid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
-
-    new RenameTableBuilder(new H2()).setName("(not valid)").build();
+    assertThatThrownBy(() -> new RenameTableBuilder(new H2()).setName("(not valid)").build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
   }
 
   @Test
   public void throw_IAE_if_new_name_is_not_valid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
-
-    new RenameTableBuilder(new H2()).setName("foo").setNewName("(not valid)").build();
+    assertThatThrownBy(() -> new RenameTableBuilder(new H2()).setName("foo").setNewName("(not valid)").build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
   }
 
   private static void verifySql(Dialect dialect, String... expectedSql) {

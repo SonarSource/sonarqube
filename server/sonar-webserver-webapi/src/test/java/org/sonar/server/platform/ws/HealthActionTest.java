@@ -31,7 +31,6 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
@@ -52,6 +51,8 @@ import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,8 +65,6 @@ import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class HealthActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -92,9 +91,8 @@ public class HealthActionTest {
   public void request_fails_with_ForbiddenException_when_anonymous() {
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException();
+    expectForbiddenException(() -> request.execute());
 
-    request.execute();
   }
 
   @Test
@@ -102,9 +100,7 @@ public class HealthActionTest {
     when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException();
-
-    request.execute();
+    expectForbiddenException(() -> request.execute());
   }
 
   @Test
@@ -114,9 +110,7 @@ public class HealthActionTest {
     when(healthChecker.checkCluster()).thenReturn(randomStatusMinimalClusterHealth());
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException();
-
-    request.execute();
+    expectForbiddenException(() -> request.execute());
   }
 
   @Test
@@ -310,13 +304,13 @@ public class HealthActionTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
     IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
-      newNodeDetailsBuilder()
-        .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
-        .setName(randomAlphanumeric(3))
-        .setHost(randomAlphanumeric(4))
-        .setPort(1 + random.nextInt(3))
-        .setStartedAt(1 + random.nextInt(23))
-        .build())
+        newNodeDetailsBuilder()
+          .setType(random.nextBoolean() ? NodeDetails.Type.APPLICATION : NodeDetails.Type.SEARCH)
+          .setName(randomAlphanumeric(3))
+          .setHost(randomAlphanumeric(4))
+          .setPort(1 + random.nextInt(3))
+          .setStartedAt(1 + random.nextInt(23))
+          .build())
       .build();
   }
 
@@ -325,13 +319,13 @@ public class HealthActionTest {
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)]);
     IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomAlphabetic(5)).forEach(builder::addCause);
     return builder.setDetails(
-      newNodeDetailsBuilder()
-        .setType(type)
-        .setName(name)
-        .setHost(host)
-        .setPort(port)
-        .setStartedAt(started)
-        .build())
+        newNodeDetailsBuilder()
+          .setType(type)
+          .setName(name)
+          .setHost(host)
+          .setPort(port)
+          .setStartedAt(started)
+          .build())
       .build();
   }
 
@@ -341,9 +335,10 @@ public class HealthActionTest {
       .build(), emptySet());
   }
 
-  private void expectForbiddenException() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+  private void expectForbiddenException(ThrowingCallable shouldRaiseThrowable) {
+    assertThatThrownBy(shouldRaiseThrowable)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   /**

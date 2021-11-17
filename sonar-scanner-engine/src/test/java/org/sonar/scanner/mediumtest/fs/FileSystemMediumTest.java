@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
@@ -49,17 +48,14 @@ import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
-import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assume.assumeTrue;
 
 public class FileSystemMediumTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -118,13 +114,12 @@ public class FileSystemMediumTest {
     assertThat(srcDir.mkdir()).isTrue();
 
     // Using sonar.branch.name when the branch plugin is not installed is an error.
-    thrown.expect(MessageException.class);
-
-    tester.newAnalysis()
+    assertThatThrownBy(() -> tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
-      .execute();
+      .execute())
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
@@ -210,10 +205,9 @@ public class FileSystemMediumTest {
     assertThat(logTester.logs()).doesNotContain("'src/test/sample.java' generated metadata", "'src\\test\\sample.java' generated metadata");
     DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unable to find report for component");
-
-    result.getReportComponent(javaInputFile);
+    assertThatThrownBy(() -> result.getReportComponent(javaInputFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unable to find report for component");
   }
 
   @Test
@@ -693,13 +687,13 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
-    tester.newAnalysis()
+    assertThatThrownBy(() -> tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "src,src/sample.xoo")
         .build())
-      .execute();
+      .execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-9574
@@ -711,16 +705,15 @@ public class FileSystemMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
-    tester.newAnalysis()
+    assertThatThrownBy(() -> tester.newAnalysis()
       .properties(builder
         .put("sonar.sources", "module1/src")
         .put("sonar.modules", "module1")
         .put("module1.sonar.sources", "src")
         .build())
-      .execute();
-
+      .execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-5330
@@ -778,9 +771,9 @@ public class FileSystemMediumTest {
         "TESTX/ClassOneTest.xoo.scm",
         "XOURCES/hello/HelloJava.xoo");
     } else {
-      thrown.expect(MessageException.class);
-      thrown.expectMessage("The folder 'TESTX' does not exist for 'sample'");
-      analysis.execute();
+      assertThatThrownBy(() -> analysis.execute())
+        .isInstanceOf(MessageException.class)
+        .hasMessageContaining("The folder 'TESTX' does not exist for 'sample'");
     }
   }
 
@@ -954,8 +947,7 @@ public class FileSystemMediumTest {
       .execute();
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .containsSequence("Indexing files...",
-        "Project configuration:",
+      .containsSequence("Project configuration:",
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
         "  Included tests: **/global.test.inclusions",

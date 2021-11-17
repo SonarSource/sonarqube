@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -45,6 +46,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -247,30 +249,33 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto template = addTemplate();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(GlobalPermission.PROVISION_PROJECTS.getKey(), template.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest(GlobalPermission.PROVISION_PROJECTS.getKey(), template.getUuid())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_no_template_param() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(null, null)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest(null, null)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_template_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequest(null, "unknown-template-uuid")
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest(null, "unknown-template-uuid")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -278,11 +283,12 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto template = addTemplate();
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(null, template.getUuid())
-      .setParam(PARAM_TEMPLATE_NAME, template.getName())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest(null, template.getUuid())
+        .setParam(PARAM_TEMPLATE_NAME, template.getName())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -290,9 +296,10 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto template = addTemplate();
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(null, template.getUuid()).execute();
+    assertThatThrownBy(() ->  {
+      newRequest(null, template.getUuid()).execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -300,9 +307,10 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto template = addTemplate();
     userSession.logIn().addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(null, template.getUuid()).execute();
+    assertThatThrownBy(() ->  {
+      newRequest(null, template.getUuid()).execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private UserDto insertUser(UserDto userDto) {

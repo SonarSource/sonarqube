@@ -28,24 +28,21 @@ import okio.Buffer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessId;
+import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeHttpClientImplTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public MockWebServer server = new MockWebServer();
 
@@ -87,19 +84,18 @@ public class CeHttpClientImplTest {
     // initialize registration of process
     setUpWithHttpUrl(ProcessId.COMPUTE_ENGINE);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Failed to call HTTP server of process " + ProcessId.COMPUTE_ENGINE);
-    expectedException.expectCause(hasType(IOException.class)
-      .andMessage(format("Server returned HTTP response code: 500 for URL: http://%s:%d/systemInfo", server.getHostName(), server.getPort())));
-    underTest.retrieveSystemInfo();
+    assertThatThrownBy(() -> underTest.retrieveSystemInfo())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to call HTTP server of process " + ProcessId.COMPUTE_ENGINE)
+      .hasRootCauseInstanceOf(IOException.class)
+      .hasRootCauseMessage(format("Server returned HTTP response code: 500 for URL: http://%s:%d/systemInfo", server.getHostName(), server.getPort()));
   }
 
   @Test
   public void changeLogLevel_throws_NPE_if_level_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("level can't be null");
-
-    underTest.changeLogLevel(null);
+    assertThatThrownBy(() -> underTest.changeLogLevel(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("level can't be null");
   }
 
   @Test
@@ -110,13 +106,12 @@ public class CeHttpClientImplTest {
     // initialize registration of process
     setUpWithHttpUrl(ProcessId.COMPUTE_ENGINE);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Failed to call HTTP server of process " + ProcessId.COMPUTE_ENGINE);
-    expectedException.expectCause(hasType(IOException.class)
-      .andMessage(format("Failed to change log level in Compute Engine. Code was '500' and response was 'blah' for url " +
-        "'http://%s:%s/changeLogLevel'", server.getHostName(), server.getPort())));
-
-    underTest.changeLogLevel(LoggerLevel.DEBUG);
+    assertThatThrownBy(() -> underTest.changeLogLevel(LoggerLevel.DEBUG))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to call HTTP server of process " + ProcessId.COMPUTE_ENGINE)
+      .hasRootCauseInstanceOf(IOException.class)
+      .hasRootCauseMessage(format("Failed to change log level in Compute Engine. Code was '500' and response was 'blah' for url " +
+        "'http://%s:%s/changeLogLevel'", server.getHostName(), server.getPort()));
   }
 
   @Test

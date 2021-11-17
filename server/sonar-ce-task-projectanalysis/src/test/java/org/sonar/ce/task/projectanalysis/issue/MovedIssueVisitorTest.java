@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -34,6 +33,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -51,8 +51,6 @@ public class MovedIssueVisitorTest {
     .setUuid(FILE_UUID)
     .build();
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @org.junit.Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
@@ -88,11 +86,10 @@ public class MovedIssueVisitorTest {
     DefaultIssue issue = mockIssue("other component uuid");
     when(issue.toString()).thenReturn("[bad issue, bad!]");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Issue [bad issue, bad!] for component ReportComponent{ref=1, key='key_1', type=FILE} " +
-      "has a different component key but no original file exist in MovedFilesRepository");
-
-    underTest.onIssue(FILE, issue);
+    assertThatThrownBy(() -> underTest.onIssue(FILE, issue))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Issue [bad issue, bad!] for component ReportComponent{ref=1, key='key_1', type=FILE} " +
+        "has a different component key but no original file exist in MovedFilesRepository");
   }
 
   @Test
@@ -102,11 +99,10 @@ public class MovedIssueVisitorTest {
     when(movedFilesRepository.getOriginalFile(FILE))
       .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile("original uuid", "original key")));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Issue [bad issue, bad!] doesn't belong to file original uuid registered as original " +
-      "file of current file ReportComponent{ref=1, key='key_1', type=FILE}");
-
-    underTest.onIssue(FILE, issue);
+    assertThatThrownBy(() -> underTest.onIssue(FILE, issue))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Issue [bad issue, bad!] doesn't belong to file original uuid registered as original " +
+        "file of current file ReportComponent{ref=1, key='key_1', type=FILE}");
   }
 
   @Test

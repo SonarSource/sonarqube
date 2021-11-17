@@ -27,14 +27,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
@@ -51,8 +50,6 @@ public class MssqlCharsetHandlerTest {
   private static final String COLUMN_KEE = "kee";
   private static final String COLUMN_NAME = "name";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SqlExecutor sqlExecutor = mock(SqlExecutor.class);
   private MssqlMetadataReader metadata = mock(MssqlMetadataReader.class);
@@ -72,18 +69,18 @@ public class MssqlCharsetHandlerTest {
   public void fresh_install_fails_if_default_collation_is_not_CS_AS() throws SQLException {
     answerDefaultCollation("Latin1_General_CI_AI");
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Database collation must be case-sensitive and accent-sensitive. It is Latin1_General_CI_AI but should be Latin1_General_CS_AS.");
-    underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL);
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.FRESH_INSTALL))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Database collation must be case-sensitive and accent-sensitive. It is Latin1_General_CI_AI but should be Latin1_General_CS_AS.");
   }
 
   @Test
   public void upgrade_fails_if_default_collation_is_not_CS_AS() throws SQLException {
     answerDefaultCollation("Latin1_General_CI_AI");
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Database collation must be case-sensitive and accent-sensitive. It is Latin1_General_CI_AI but should be Latin1_General_CS_AS.");
-    underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE);
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.UPGRADE))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Database collation must be case-sensitive and accent-sensitive. It is Latin1_General_CI_AI but should be Latin1_General_CS_AS.");
   }
 
   @Test

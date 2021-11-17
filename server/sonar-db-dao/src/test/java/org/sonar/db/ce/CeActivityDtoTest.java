@@ -23,21 +23,16 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class CeActivityDtoTest {
   private static final String STR_40_CHARS = "0123456789012345678901234567890123456789";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private CeActivityDto underTest = new CeActivityDto();
 
   @Test
@@ -82,10 +77,9 @@ public class CeActivityDtoTest {
   public void setComponentUuid_throws_IAE_if_value_is_41_chars() {
     String str_41_chars = STR_40_CHARS + "a";
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value is too long for column CE_ACTIVITY.COMPONENT_UUID: " + str_41_chars);
-
-    underTest.setComponentUuid(str_41_chars);
+    assertThatThrownBy(() -> underTest.setComponentUuid(str_41_chars))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value is too long for column CE_ACTIVITY.COMPONENT_UUID: " + str_41_chars);
   }
 
   @Test
@@ -100,10 +94,9 @@ public class CeActivityDtoTest {
   public void setMainComponentUuid_throws_IAE_if_value_is_41_chars() {
     String str_41_chars = STR_40_CHARS + "a";
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value is too long for column CE_ACTIVITY.MAIN_COMPONENT_UUID: " + str_41_chars);
-
-    underTest.setMainComponentUuid(str_41_chars);
+    assertThatThrownBy(() -> underTest.setMainComponentUuid(str_41_chars))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value is too long for column CE_ACTIVITY.MAIN_COMPONENT_UUID: " + str_41_chars);
   }
 
   @Test
@@ -137,9 +130,8 @@ public class CeActivityDtoTest {
     underTest.setWarningCount(0);
     underTest.setWarningCount(1 + new Random().nextInt(10));
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    underTest.setWarningCount(-1 - new Random().nextInt(10));
+    assertThatThrownBy(() -> underTest.setWarningCount(-1 - new Random().nextInt(10)))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @DataProvider

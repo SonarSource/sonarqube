@@ -20,18 +20,15 @@
 package org.sonar.server.es;
 
 import java.io.StringWriter;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SearchOptionsTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SearchOptions underTest = new SearchOptions();
 
@@ -64,38 +61,37 @@ public class SearchOptionsTest {
 
   @Test
   public void fail_if_page_is_not_strictly_positive() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page must be greater or equal to 1 (got 0)");
-    new SearchOptions().setPage(0, 10);
+    assertThatThrownBy(() -> new SearchOptions().setPage(0, 10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page must be greater or equal to 1 (got 0)");
   }
 
   @Test
   public void fail_if_ps_is_zero() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be between 1 and 500 (got 0)");
-    new SearchOptions().setPage(1, 0);
+    assertThatThrownBy(() -> new SearchOptions().setPage(1, 0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page size must be between 1 and 500 (got 0)");
   }
 
   @Test
   public void fail_if_ps_is_negative() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be between 1 and 500 (got -1)");
-    new SearchOptions().setPage(2, -1);
+    assertThatThrownBy(() -> new SearchOptions().setPage(2, -1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page size must be between 1 and 500 (got -1)");
   }
 
   @Test
   public void fail_if_ps_is_over_limit() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be between 1 and 500 (got 510)");
-    new SearchOptions().setPage(3, SearchOptions.MAX_PAGE_SIZE + 10);
+    assertThatThrownBy(() -> new SearchOptions().setPage(3, SearchOptions.MAX_PAGE_SIZE + 10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page size must be between 1 and 500 (got 510)");
   }
 
   @Test
   public void fail_if_result_after_first_10_000() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Can return only the first 10000 results. 10500th result asked.");
-
-    underTest.setPage(21, 500);
+    assertThatThrownBy(() -> underTest.setPage(21, 500))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can return only the first 10000 results. 10500th result asked.");
   }
 
   @Test
@@ -103,9 +99,9 @@ public class SearchOptionsTest {
     SearchOptions options = new SearchOptions().setLimit(42);
     assertThat(options.getLimit()).isEqualTo(42);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be between 1 and 500 (got 510)");
-    options.setLimit(SearchOptions.MAX_PAGE_SIZE + 10);
+    assertThatThrownBy(() -> options.setLimit(SearchOptions.MAX_PAGE_SIZE + 10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page size must be between 1 and 500 (got 510)");
   }
 
   @Test

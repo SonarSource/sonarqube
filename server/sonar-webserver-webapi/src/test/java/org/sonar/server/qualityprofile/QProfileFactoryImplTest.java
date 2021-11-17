@@ -22,10 +22,10 @@ package org.sonar.server.qualityprofile;
 import java.util.Collections;
 import java.util.Set;
 import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.Severity;
@@ -50,6 +50,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
@@ -61,8 +62,6 @@ public class QProfileFactoryImplTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -97,18 +96,14 @@ public class QProfileFactoryImplTest {
   public void checkAndCreateCustom_throws_BadRequestException_if_name_null() {
     QProfileName name = new QProfileName("xoo", null);
 
-    expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
-
-    underTest.checkAndCreateCustom(dbSession, name);
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, name), "quality_profiles.profile_name_cant_be_blank");
   }
 
   @Test
   public void checkAndCreateCustom_throws_BadRequestException_if_name_empty() {
     QProfileName name = new QProfileName("xoo", "");
 
-    expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
-
-    underTest.checkAndCreateCustom(dbSession, name);
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, name), "quality_profiles.profile_name_cant_be_blank");
   }
 
   @Test
@@ -118,9 +113,7 @@ public class QProfileFactoryImplTest {
     underTest.checkAndCreateCustom(dbSession, name);
     dbSession.commit();
 
-    expectBadRequestException("Quality profile already exists: xoo/P1");
-
-    underTest.checkAndCreateCustom(dbSession, name);
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, name), "Quality profile already exists: xoo/P1");
   }
 
   @Test
@@ -342,8 +335,9 @@ public class QProfileFactoryImplTest {
     assertThat(p2.getParentKee()).isEqualTo(p1.getParentKee());
   }
 
-  private void expectBadRequestException(String message) {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(message);
+  private void expectBadRequestException(ThrowingCallable callback, String message) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(message);
   }
 }

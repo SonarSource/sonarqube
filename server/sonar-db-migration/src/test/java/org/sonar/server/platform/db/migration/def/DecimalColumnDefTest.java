@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -29,14 +27,11 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DecimalColumnDefTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void build_string_column_def() {
     DecimalColumnDef def = new DecimalColumnDef.Builder()
@@ -55,20 +50,22 @@ public class DecimalColumnDefTest {
 
   @Test
   public void fail_with_NPE_if_name_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    new DecimalColumnDef.Builder()
-      .setColumnName(null);
+    assertThatThrownBy(() -> {
+      new DecimalColumnDef.Builder()
+        .setColumnName(null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 
   @Test
   public void fail_with_NPE_if_no_name() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    new DecimalColumnDef.Builder()
-      .build();
+    assertThatThrownBy(() -> {
+      new DecimalColumnDef.Builder()
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 
   @Test
@@ -122,19 +119,20 @@ public class DecimalColumnDefTest {
 
   @Test
   public void fail_with_UOE_to_generate_sql_type_when_unknown_dialect() {
-    thrown.expect(UnsupportedOperationException.class);
-    thrown.expectMessage("Unknown dialect 'unknown'");
+    assertThatThrownBy(() -> {
+      DecimalColumnDef def = new DecimalColumnDef.Builder()
+        .setColumnName("issues")
+        .setPrecision(30)
+        .setScale(20)
+        .setIsNullable(true)
+        .build();
 
-    DecimalColumnDef def = new DecimalColumnDef.Builder()
-      .setColumnName("issues")
-      .setPrecision(30)
-      .setScale(20)
-      .setIsNullable(true)
-      .build();
-
-    Dialect dialect = mock(Dialect.class);
-    when(dialect.getId()).thenReturn("unknown");
-    def.generateSqlType(dialect);
+      Dialect dialect = mock(Dialect.class);
+      when(dialect.getId()).thenReturn("unknown");
+      def.generateSqlType(dialect);
+    })
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Unknown dialect 'unknown'");
   }
 
 }

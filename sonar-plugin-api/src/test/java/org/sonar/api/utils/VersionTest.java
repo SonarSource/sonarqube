@@ -19,17 +19,13 @@
  */
 package org.sonar.api.utils;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.utils.Version.parse;
 
 public class VersionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_parse() {
@@ -46,10 +42,9 @@ public class VersionTest {
 
   @Test
   public void parse_throws_IAE_if_more_than_4_fields() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Maximum 4 fields are accepted: 1.2.3.456.7");
-
-    parse("1.2.3.456.7");
+    assertThatThrownBy(() -> parse("1.2.3.456.7"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Maximum 4 fields are accepted: 1.2.3.456.7");
   }
 
   @Test

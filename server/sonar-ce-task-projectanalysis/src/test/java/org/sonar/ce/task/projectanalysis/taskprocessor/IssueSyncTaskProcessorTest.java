@@ -29,7 +29,7 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor.*;
+import static org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor.SyncComputationSteps;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
 public class IssueSyncTaskProcessorTest {

@@ -20,9 +20,9 @@
 package org.sonar.server.root.ws;
 
 import javax.annotation.Nullable;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -37,6 +37,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UnsetRootActionTest {
@@ -46,8 +47,6 @@ public class UnsetRootActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private UserDao userDao = dbTester.getDbClient().userDao();
   private DbSession dbSession = dbTester.getSession();
@@ -80,28 +79,23 @@ public class UnsetRootActionTest {
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectInsufficientPrivilegesForbiddenException();
-
-    executeRequest(SOME_LOGIN);
+    expectInsufficientPrivilegesForbiddenException(() -> executeRequest(SOME_LOGIN));
   }
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_root() {
     userSessionRule.logIn().setNonRoot();
 
-    expectInsufficientPrivilegesForbiddenException();
-
-    executeRequest(SOME_LOGIN);
+    expectInsufficientPrivilegesForbiddenException(() -> executeRequest(SOME_LOGIN));
   }
 
   @Test
   public void execute_fails_with_IAE_when_login_param_is_not_provided() {
     logInAsRoot();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'login' parameter is missing");
-
-    executeRequest(null);
+    assertThatThrownBy(() -> executeRequest(null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'login' parameter is missing");
   }
 
   @Test
@@ -134,10 +128,9 @@ public class UnsetRootActionTest {
     insertNonRootUser(newUserDto());
     logInAsRoot();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last root can't be unset");
-    
-    executeRequest(SOME_LOGIN);
+    assertThatThrownBy(() -> executeRequest(SOME_LOGIN))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Last root can't be unset");
   }
 
   @Test
@@ -146,20 +139,18 @@ public class UnsetRootActionTest {
     insertNonRootUser(userDto1);
     logInAsRoot();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last root can't be unset");
-
-    executeRequest(userDto1.getLogin());
+    assertThatThrownBy(() -> executeRequest(userDto1.getLogin()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Last root can't be unset");
   }
 
   @Test
   public void execute_fails_with_NotFoundException_when_user_for_specified_login_does_not_exist() {
     logInAsRoot();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'bar_foo' not found");
-
-    executeRequest("bar_foo");
+    assertThatThrownBy(() -> executeRequest("bar_foo"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login 'bar_foo' not found");
   }
 
   @Test
@@ -167,10 +158,9 @@ public class UnsetRootActionTest {
     UserDto userDto = insertRootUser(newUserDto().setActive(false));
     logInAsRoot();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login '" + userDto.getLogin() + "' not found");
-
-    executeRequest(userDto.getLogin());
+    assertThatThrownBy(() -> executeRequest(userDto.getLogin()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login '" + userDto.getLogin() + "' not found");
   }
 
   private UserDto insertNonRootUser(UserDto dto) {
@@ -190,9 +180,11 @@ public class UnsetRootActionTest {
     userSessionRule.logIn().setRoot();
   }
 
-  private void expectInsufficientPrivilegesForbiddenException() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+  private void expectInsufficientPrivilegesForbiddenException(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+
   }
 
   private int executeRequest(@Nullable String login) {

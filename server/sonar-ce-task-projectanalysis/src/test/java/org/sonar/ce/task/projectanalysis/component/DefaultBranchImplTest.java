@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -33,8 +31,6 @@ public class DefaultBranchImplTest {
   private static final String PROJECT_KEY = "P";
   private static final ScannerReport.Component FILE = ScannerReport.Component.newBuilder().setType(ComponentType.FILE).setProjectRelativePath("src/Foo.js").build();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void default_branch_represents_the_project() {

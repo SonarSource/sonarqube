@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.component;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -29,13 +28,12 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class BranchLoaderTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public AnalysisMetadataHolderRule metadataHolder = new AnalysisMetadataHolderRule();
@@ -46,10 +44,9 @@ public class BranchLoaderTest {
       .setBranchName("bar")
       .build();
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Current edition does not support branch feature");
-
-    new BranchLoader(metadataHolder).load(metadata);
+    assertThatThrownBy(() -> new BranchLoader(metadataHolder).load(metadata))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Current edition does not support branch feature");
   }
 
   @Test

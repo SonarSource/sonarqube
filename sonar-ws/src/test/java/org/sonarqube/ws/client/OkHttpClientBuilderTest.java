@@ -21,17 +21,14 @@ package org.sonarqube.ws.client;
 
 import javax.net.ssl.SSLSocketFactory;
 import okhttp3.OkHttpClient;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class OkHttpClientBuilderTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private OkHttpClientBuilder underTest = new OkHttpClientBuilder();
 
@@ -75,17 +72,15 @@ public class OkHttpClientBuilderTest {
 
   @Test
   public void build_throws_IAE_if_connect_timeout_is_negative() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Connect timeout must be positive. Got -10");
-
-    underTest.setConnectTimeoutMs(-10);
+    assertThatThrownBy(() -> underTest.setConnectTimeoutMs(-10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Connect timeout must be positive. Got -10");
   }
 
   @Test
   public void build_throws_IAE_if_read_timeout_is_negative() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Read timeout must be positive. Got -10");
-
-    underTest.setReadTimeoutMs(-10);
+    assertThatThrownBy(() -> underTest.setReadTimeoutMs(-10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Read timeout must be positive. Got -10");
   }
 }

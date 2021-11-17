@@ -21,11 +21,10 @@ package org.sonar.server.authentication;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.Cookies.findCookie;
@@ -35,8 +34,6 @@ public class CookiesTest {
 
   private static final String HTTPS_HEADER = "X-Forwarded-Proto";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
@@ -108,14 +105,14 @@ public class CookiesTest {
 
   @Test
   public void fail_with_NPE_when_cookie_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    newCookieBuilder(request).setName(null);
+    assertThatThrownBy(() -> newCookieBuilder(request).setName(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_with_NPE_when_cookie_has_no_name() {
-    expectedException.expect(NullPointerException.class);
-    newCookieBuilder(request).setName(null);
+    assertThatThrownBy(() -> newCookieBuilder(request).setName(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
 }

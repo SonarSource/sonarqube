@@ -22,9 +22,7 @@ package org.sonar.api.batch.sensor.symbol.internal;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -44,8 +42,6 @@ public class DefaultSymbolTableTest {
 
   private Map<TextRange, Set<TextRange>> referencesPerSymbol;
 
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
 
   @Before
   public void setUpSampleSymbols() {

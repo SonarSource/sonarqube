@@ -34,6 +34,7 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -122,9 +123,10 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     PermissionTemplateDto template = insertTemplate();
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(template.getUuid(), PROJECT);
+    assertThatThrownBy(() ->  {
+      newRequest(template.getUuid(), PROJECT);
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -132,23 +134,26 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     PermissionTemplateDto template = insertTemplate();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(template.getUuid(), null);
+    assertThatThrownBy(() ->  {
+      newRequest(template.getUuid(), null);
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_template_not_provided() {
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(null, PROJECT);
+    assertThatThrownBy(() ->  {
+      newRequest(null, PROJECT);
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_template_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-
-    newRequest("unknown-template-uuid", PROJECT);
+    assertThatThrownBy(() ->  {
+      newRequest("unknown-template-uuid", PROJECT);
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -156,10 +161,11 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     PermissionTemplateDto template = insertTemplate();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'qualifier' (FIL) must be one of: [APP, TRK, VW]");
-
-    newRequest(template.getUuid(), Qualifiers.FILE);
+    assertThatThrownBy(() ->  {
+      newRequest(template.getUuid(), Qualifiers.FILE);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'qualifier' (FIL) must be one of: [APP, TRK, VW]");
   }
 
   private void newRequest(@Nullable String templateUuid, @Nullable String qualifier) {

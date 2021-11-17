@@ -28,9 +28,7 @@ import java.io.StringReader;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +39,6 @@ import static org.mockito.Mockito.when;
 
 public class ServletRequestTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private HttpServletRequest source = mock(HttpServletRequest.class);
 

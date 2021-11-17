@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
@@ -54,8 +53,6 @@ public class PermissionTemplateDaoTest {
   private static final Date PAST = new Date(100_000_000_000L);
   private static final Date NOW = new Date(500_000_000_000L);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 

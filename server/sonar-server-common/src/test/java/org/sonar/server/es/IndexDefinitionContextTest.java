@@ -23,23 +23,20 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Locale;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.newindex.SettingsConfiguration;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 @RunWith(DataProviderRunner.class)
 public class IndexDefinitionContextTest {
   private SettingsConfiguration emptySettingsConfiguration = newBuilder(new MapSettings().asConfig()).build();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_indices() {
@@ -58,10 +55,9 @@ public class IndexDefinitionContextTest {
 
     context.create(index1, emptySettingsConfiguration);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index already exists: " + index1.getName());
-
-    context.create(index2, emptySettingsConfiguration);
+    assertThatThrownBy(() -> context.create(index2, emptySettingsConfiguration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index already exists: " + index1.getName());
   }
 
   @DataProvider

@@ -20,33 +20,28 @@
 package org.sonar.api.utils.command;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-
 import java.io.File;
 import java.util.Arrays;
+import org.junit.Test;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void fail_if_blank_executable() {
-    thrown.expect(IllegalArgumentException.class);
-    Command.create("  ");
+    assertThatThrownBy(() -> Command.create("  "))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_null_executable() {
-    thrown.expect(IllegalArgumentException.class);
-    Command.create(null);
+    assertThatThrownBy(() -> Command.create(null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

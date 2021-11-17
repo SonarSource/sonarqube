@@ -19,6 +19,8 @@
  */
 package org.sonar.server.component.index;
 
+import java.util.Arrays;
+import java.util.Collection;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
@@ -45,8 +47,6 @@ import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COM
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
-import java.util.Arrays;
-import java.util.Collection;
 
 public class ComponentIndexerTest {
 

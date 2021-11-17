@@ -20,9 +20,7 @@
 package org.sonar.auth.gitlab;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
@@ -37,8 +35,6 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
 
 public class GitLabSettingsTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private MapSettings settings;
   private GitLabSettings config;

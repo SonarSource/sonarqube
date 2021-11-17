@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -31,6 +30,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SkipOnboardingTutorialActionTest {
 
@@ -40,8 +40,6 @@ public class SkipOnboardingTutorialActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, db.getDbClient()));
 
@@ -73,10 +71,10 @@ public class SkipOnboardingTutorialActionTest {
   @Test
   public void fail_for_anonymous() {
     userSession.anonymous();
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
 
-    call();
+    assertThatThrownBy(() -> call())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
@@ -84,10 +82,9 @@ public class SkipOnboardingTutorialActionTest {
     db.users().insertUser(usert -> usert.setLogin("another"));
     userSession.logIn("obiwan.kenobi");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("User login 'obiwan.kenobi' cannot be found");
-
-    call();
+    assertThatThrownBy(() -> call())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("User login 'obiwan.kenobi' cannot be found");
   }
 
   @Test

@@ -23,9 +23,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
@@ -38,8 +36,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class WebServiceReroutingFilterTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private WebServiceEngine webServiceEngine = mock(WebServiceEngine.class);
 

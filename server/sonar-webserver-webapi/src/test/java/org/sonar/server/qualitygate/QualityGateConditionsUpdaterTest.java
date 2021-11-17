@@ -24,7 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
@@ -36,6 +35,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
@@ -54,9 +54,6 @@ import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 
 @RunWith(DataProviderRunner.class)
 public class QualityGateConditionsUpdaterTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -89,10 +86,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("errorThreshold can not be null");
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", null);
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("errorThreshold can not be null");
   }
 
   @Test
@@ -101,20 +97,18 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().addCondition(qualityGate, metric);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Condition on metric '%s' already exists.", metric.getShortName()));
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "80");
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "80"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Condition on metric '%s' already exists.", metric.getShortName()));
   }
 
   @Test
   public void fail_to_create_condition_on_missing_metric() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("There is no metric with key=new_coverage");
-
-    underTest.createCondition(db.getSession(), qualityGate, "new_coverage", "LT", "80");
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, "new_coverage", "LT", "80"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("There is no metric with key=new_coverage");
   }
 
   @Test
@@ -123,10 +117,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(metricKey).setValueType(valueType.name()).setHidden(hidden).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Metric '%s' cannot be used to define a condition", metric.getKey()));
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "80");
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", "80"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Metric '%s' cannot be used to define a condition", metric.getKey()));
   }
 
   @Test
@@ -135,10 +128,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey("key").setValueType(INT.name()).setHidden(false).setDirection(direction));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Operator %s is not allowed for this metric.", operator));
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), operator, "90");
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), operator, "90"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Operator %s is not allowed for this metric.", operator));
   }
 
   @Test
@@ -156,10 +148,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("'80' is not a valid rating");
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "80");
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "80"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("'80' is not a valid rating");
   }
 
   @Test
@@ -167,10 +158,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = insertMetric(RATING, SQALE_RATING_KEY);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("There's no worse rating than E (5)");
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "5");
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "GT", "5"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("There's no worse rating than E (5)");
   }
 
   @Test
@@ -190,10 +180,9 @@ public class QualityGateConditionsUpdaterTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(valueType.name()).setHidden(false).setDirection(0));
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
-
-    underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", value);
+    assertThatThrownBy(() -> underTest.createCondition(db.getSession(), qualityGate, metric.getKey(), "LT", value))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
   }
 
   @Test
@@ -215,10 +204,9 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("errorThreshold can not be null");
-
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", null);
+    assertThatThrownBy(() -> underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("errorThreshold can not be null");
   }
 
   @Test
@@ -241,10 +229,9 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator(validOperator).setErrorThreshold("80"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Operator %s is not allowed for this metric", updatedOperator));
-
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), updatedOperator, "70");
+    assertThatThrownBy(() -> underTest.updateCondition(db.getSession(), condition, metric.getKey(), updatedOperator, "70"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Operator %s is not allowed for this metric", updatedOperator));
   }
 
   @Test
@@ -266,10 +253,9 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("3"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("The metric '%s' cannot be used", metric.getShortName()));
-
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4");
+    assertThatThrownBy(() -> underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "4"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("The metric '%s' cannot be used", metric.getShortName()));
   }
 
   @Test
@@ -280,10 +266,9 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Metric '%s' cannot be used to define a condition", metric.getKey()));
-
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "60");
+    assertThatThrownBy(() -> underTest.updateCondition(db.getSession(), condition, metric.getKey(), "GT", "60"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Metric '%s' cannot be used to define a condition", metric.getKey()));
   }
 
   @Test
@@ -307,10 +292,9 @@ public class QualityGateConditionsUpdaterTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
-
-    underTest.updateCondition(db.getSession(), condition, metric.getKey(), "LT", value);
+    assertThatThrownBy(() -> underTest.updateCondition(db.getSession(), condition, metric.getKey(), "LT", value))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Invalid value '%s' for metric '%s'", value, metric.getShortName()));
   }
 
   @DataProvider

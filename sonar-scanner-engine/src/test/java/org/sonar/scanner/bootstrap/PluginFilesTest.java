@@ -43,12 +43,9 @@ import okio.Buffer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
@@ -57,11 +54,11 @@ import org.sonarqube.ws.client.WsClientFactories;
 
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 
 public class PluginFilesTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
@@ -147,9 +144,8 @@ public class PluginFilesTest {
     enqueueDownload(tempJar.file, "invalid_hash");
     InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
 
-    expectISE("foo", "was expected to have checksum invalid_hash but had " + tempJar.md5);
-
-    underTest.get(plugin);
+    expectISE("foo", "was expected to have checksum invalid_hash but had " + tempJar.md5,
+      () -> underTest.get(plugin));
   }
 
   @Test
@@ -157,10 +153,9 @@ public class PluginFilesTest {
     FileAndMd5 jar = new FileAndMd5();
     enqueueCompressedDownload(jar, false);
 
-    expectISE("foo", "was expected to have checksum invalid_hash but had ");
     InstalledPlugin plugin = newInstalledPlugin("foo", jar.md5);
 
-    underTest.get(plugin).get();
+    expectISE("foo", "was expected to have checksum invalid_hash but had ", () -> underTest.get(plugin).get());
   }
 
   @Test
@@ -169,9 +164,7 @@ public class PluginFilesTest {
     enqueueDownload(tempJar, null);
     InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
 
-    expectISE("foo", "did not return header Sonar-MD5");
-
-    underTest.get(plugin);
+    expectISE("foo", "did not return header Sonar-MD5", () -> underTest.get(plugin));
   }
 
   @Test
@@ -182,10 +175,9 @@ public class PluginFilesTest {
     response.setHeader("Sonar-Compression", "pack200");
     server.enqueue(response);
 
-    expectISE("foo", "Pack200 error");
-
     InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
-    underTest.get(plugin).get();
+
+    expectISE("foo", "Pack200 error", () -> underTest.get(plugin).get());
   }
 
   @Test
@@ -193,9 +185,7 @@ public class PluginFilesTest {
     server.enqueue(new MockResponse().setResponseCode(500));
     InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
 
-    expectISE("foo", "returned code 500");
-
-    underTest.get(plugin);
+    expectISE("foo", "returned code 500", () -> underTest.get(plugin));
   }
 
   @Test
@@ -229,10 +219,9 @@ public class PluginFilesTest {
 
     InstalledPlugin plugin = newInstalledPlugin("foo/bar", "abc");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to download plugin [foo/bar]. Key is not valid.");
-
-    underTest.get(plugin);
+    assertThatThrownBy(() -> underTest.get(plugin))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to download plugin [foo/bar]. Key is not valid.");
   }
 
   private FileAndMd5 createFileInCache(String pluginKey) throws IOException {
@@ -274,7 +263,7 @@ public class PluginFilesTest {
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     try (JarInputStream in = new JarInputStream(new BufferedInputStream(Files.newInputStream(jar.file.toPath())));
-      OutputStream output = new GZIPOutputStream(new BufferedOutputStream(bytes))) {
+         OutputStream output = new GZIPOutputStream(new BufferedOutputStream(bytes))) {
       Pack200.newPacker().pack(in, output);
     }
     body.write(bytes.toByteArray());
@@ -311,13 +300,13 @@ public class PluginFilesTest {
   private File packAndUnpackJar(File source) throws IOException {
     File packed = temp.newFile();
     try (JarInputStream in = new JarInputStream(new BufferedInputStream(Files.newInputStream(source.toPath())));
-      OutputStream out = new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(packed.toPath())))) {
+         OutputStream out = new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(packed.toPath())))) {
       Pack200.newPacker().pack(in, out);
     }
 
     File to = temp.newFile();
     try (InputStream input = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(packed.toPath())));
-      JarOutputStream output = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(to.toPath())))) {
+         JarOutputStream output = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(to.toPath())))) {
       Pack200.newUnpacker().unpack(input, output);
     } catch (IOException e) {
       throw new IllegalStateException(e);
@@ -326,18 +315,11 @@ public class PluginFilesTest {
     return to;
   }
 
-  private void expectISE(String pluginKey, String message) {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(new TypeSafeMatcher<String>() {
-      @Override
-      protected boolean matchesSafely(String item) {
-        return item.startsWith("Fail to download plugin [" + pluginKey + "]") && item.contains(message);
-      }
-
-      @Override
-      public void describeTo(Description description) {
-      }
-    });
+  private void expectISE(String pluginKey, String message, ThrowingCallable shouldRaiseThrowable) {
+    assertThatThrownBy(shouldRaiseThrowable)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageStartingWith("Fail to download plugin [" + pluginKey + "]")
+      .hasMessageContaining(message);
   }
 
   private class FileAndMd5 {

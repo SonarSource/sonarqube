@@ -26,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
@@ -49,8 +48,6 @@ public class DownloadActionTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
   private final WsAction underTest = new DownloadAction(serverPluginRepository);

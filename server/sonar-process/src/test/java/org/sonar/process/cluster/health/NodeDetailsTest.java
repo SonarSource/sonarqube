@@ -23,17 +23,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 
 public class NodeDetailsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Random random = new Random();
   private NodeDetailsTestSupport testSupport = new NodeDetailsTestSupport(random);
@@ -42,82 +39,72 @@ public class NodeDetailsTest {
 
   @Test
   public void setType_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("type can't be null");
-
-    builderUnderTest.setType(null);
+    assertThatThrownBy(() -> builderUnderTest.setType(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("type can't be null");
   }
 
   @Test
   public void setName_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can't be null");
-
-    builderUnderTest.setName(null);
+    assertThatThrownBy(() -> builderUnderTest.setName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name can't be null");
   }
 
   @Test
   public void setName_throws_IAE_if_arg_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("name can't be empty");
-
-    builderUnderTest.setName("");
+    assertThatThrownBy(() -> builderUnderTest.setName(""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("name can't be empty");
   }
 
   @Test
   public void setName_throws_IAE_if_arg_is_empty_after_trim() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("name can't be empty");
-
-    builderUnderTest.setName("  ");
+    assertThatThrownBy(() -> builderUnderTest.setName("  "))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("name can't be empty");
   }
 
   @Test
   public void setHost_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("host can't be null");
-
-    builderUnderTest.setHost(null);
+    assertThatThrownBy(() -> builderUnderTest.setHost(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("host can't be null");
   }
 
   @Test
   public void setHost_throws_IAE_if_arg_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("host can't be empty");
-
-    builderUnderTest.setHost("");
+    assertThatThrownBy(() -> builderUnderTest.setHost(""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("host can't be empty");
   }
 
   @Test
   public void setHost_throws_IAE_if_arg_is_empty_after_trim() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("host can't be empty");
-
-    builderUnderTest.setHost("  ");
+    assertThatThrownBy(() -> builderUnderTest.setHost("  "))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("host can't be empty");
   }
 
   @Test
   public void setPort_throws_IAE_if_arg_is_less_than_1() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("port must be > 0");
-
-    builderUnderTest.setPort(-random.nextInt(5));
+    assertThatThrownBy(() -> builderUnderTest.setPort(-random.nextInt(5)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("port must be > 0");
   }
 
   @Test
   public void setStarted_throws_IAE_if_arg_is_less_than_1() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("startedAt must be > 0");
-
-    builderUnderTest.setStartedAt(-random.nextInt(5));
+    assertThatThrownBy(() -> builderUnderTest.setStartedAt(-random.nextInt(5)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("startedAt must be > 0");
   }
 
   @Test
   public void build_throws_NPE_if_type_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("type can't be null");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("type can't be null");
   }
 
   @Test
@@ -125,10 +112,9 @@ public class NodeDetailsTest {
     builderUnderTest
       .setType(randomType);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can't be null");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name can't be null");
   }
 
   @Test
@@ -137,10 +123,9 @@ public class NodeDetailsTest {
       .setType(randomType)
       .setName(randomAlphanumeric(2));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("host can't be null");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("host can't be null");
   }
 
   @Test
@@ -150,10 +135,9 @@ public class NodeDetailsTest {
       .setName(randomAlphanumeric(2))
       .setHost(randomAlphanumeric(3));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("port must be > 0");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("port must be > 0");
   }
 
   @Test
@@ -164,10 +148,9 @@ public class NodeDetailsTest {
       .setHost(randomAlphanumeric(3))
       .setPort(1 + random.nextInt(33));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("startedAt must be > 0");
-
-    builderUnderTest.build();
+    assertThatThrownBy(() -> builderUnderTest.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("startedAt must be > 0");
   }
 
   @Test

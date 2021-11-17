@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -35,6 +34,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -53,8 +53,6 @@ public class DefaultExternalIssueTest {
       .setWorkDir(temp.newFolder()));
   }
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/Foo.php")
     .initMetadata("Foo\nBar\n")
@@ -127,9 +125,9 @@ public class DefaultExternalIssueTest {
       .remediationEffortMinutes(10l)
       .severity(Severity.BLOCKER);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Type is mandatory");
-    issue.save();
+    assertThatThrownBy(() -> issue.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Type is mandatory");
   }
 
   @Test
@@ -144,9 +142,9 @@ public class DefaultExternalIssueTest {
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("External issues must have a message");
-    issue.save();
+    assertThatThrownBy(() -> issue.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("External issues must have a message");
   }
 
   @Test
@@ -161,9 +159,9 @@ public class DefaultExternalIssueTest {
       .remediationEffortMinutes(10l)
       .type(RuleType.BUG);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Severity is mandatory");
-    issue.save();
+    assertThatThrownBy(() -> issue.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Severity is mandatory");
   }
 
 }

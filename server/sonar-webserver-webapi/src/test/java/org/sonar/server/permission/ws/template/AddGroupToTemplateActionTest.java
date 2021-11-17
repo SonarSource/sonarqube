@@ -43,6 +43,7 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -142,75 +143,67 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   public void fail_if_add_anyone_group_to_admin_permission() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'", UserRole.ADMIN));
-
-    newRequest(ANYONE, template.getUuid(), ADMIN);
+    assertThatThrownBy(() -> newRequest(ANYONE, template.getUuid(), ADMIN))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'.", UserRole.ADMIN));
   }
 
   @Test
   public void fail_if_not_a_project_permission() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(group.getName(), template.getUuid(), GlobalPermissions.PROVISIONING);
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), GlobalPermissions.PROVISIONING))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_not_admin() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(group.getName(), template.getUuid(), CODEVIEWER);
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), CODEVIEWER))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_group_params_missing() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(null, template.getUuid(), CODEVIEWER);
+    assertThatThrownBy(() -> newRequest(null, template.getUuid(), CODEVIEWER))
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_permission_missing() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(group.getName(), template.getUuid(), null);
+    assertThatThrownBy(() -> newRequest(group.getName(), template.getUuid(), null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_template_uuid_and_name_missing() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(group.getName(), null, CODEVIEWER);
+    assertThatThrownBy(() -> newRequest(group.getName(), null, CODEVIEWER))
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_group_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with name 'unknown-group-name'");
-
-    newRequest("unknown-group-name", template.getUuid(), CODEVIEWER);
+    assertThatThrownBy(() -> newRequest("unknown-group-name", template.getUuid(), CODEVIEWER))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No group with name 'unknown-group-name'");
   }
 
   @Test
   public void fail_if_template_key_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
-
-    newRequest(group.getName(), "unknown-key", CODEVIEWER);
+    assertThatThrownBy(() -> newRequest(group.getName(), "unknown-key", CODEVIEWER))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id 'unknown-key' is not found");
   }
 
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {

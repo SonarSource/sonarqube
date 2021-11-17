@@ -31,7 +31,6 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
@@ -53,8 +52,6 @@ public class ThreadLocalSettingsTest {
 
   private static final String A_KEY = "a_key";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 

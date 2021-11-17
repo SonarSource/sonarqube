@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.AnalyzeRequest;
 import org.elasticsearch.client.indices.AnalyzeResponse;

@@ -23,6 +23,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
@@ -36,11 +37,12 @@ public class ContextHelperTest {
     ContextHelper.closeQuietly(context);
   }
 
-  @Test(expected = NamingException.class)
+  @Test
   public void shouldNotSwallow() throws Exception {
     Context context = mock(Context.class);
     doThrow(new NamingException()).when(context).close();
-    ContextHelper.close(context, false);
+    assertThatThrownBy(() -> ContextHelper.close(context, false))
+      .isInstanceOf(NamingException.class);
   }
 
   @Test

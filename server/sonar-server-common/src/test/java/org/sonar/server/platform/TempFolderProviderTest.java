@@ -23,7 +23,6 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.TempFolder;
 
@@ -33,8 +32,6 @@ import static org.mockito.Mockito.when;
 
 public class TempFolderProviderTest {
 
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

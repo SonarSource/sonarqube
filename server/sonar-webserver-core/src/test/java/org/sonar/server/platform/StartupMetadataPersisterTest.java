@@ -21,7 +21,6 @@ package org.sonar.server.platform;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -32,8 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StartupMetadataPersisterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 

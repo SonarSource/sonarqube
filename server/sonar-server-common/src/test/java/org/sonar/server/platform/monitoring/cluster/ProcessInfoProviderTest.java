@@ -20,9 +20,7 @@
 package org.sonar.server.platform.monitoring.cluster;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
@@ -30,8 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProcessInfoProviderTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void remove_global_sections_from_results() {

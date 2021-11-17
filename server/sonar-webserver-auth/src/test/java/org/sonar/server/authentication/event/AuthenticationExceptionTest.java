@@ -19,16 +19,13 @@
  */
 package org.sonar.server.authentication.event;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AuthenticationExceptionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void build_fails_with_NPE_if_source_is_null() {
@@ -36,10 +33,9 @@ public class AuthenticationExceptionTest {
         .setLogin("login")
         .setMessage("message");
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("source can't be null");
-
-    builder.build();
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("source can't be null");
   }
 
   @Test

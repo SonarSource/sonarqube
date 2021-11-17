@@ -21,22 +21,18 @@ package org.sonar.api.server.profile;
 
 import java.util.Map;
 import java.util.function.Consumer;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInActiveRule;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 public class BuiltInQualityProfilesDefinitionTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void coverage() {
@@ -110,12 +106,12 @@ public class BuiltInQualityProfilesDefinitionTest {
 
   @Test
   public void duplicateProfile() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("There is already a quality profile with name 'Foo' for language 'xoo'");
-    define(c -> {
+    assertThatThrownBy(() -> define(c -> {
       c.createBuiltInQualityProfile("Foo", "xoo").done();
       c.createBuiltInQualityProfile("Foo", "xoo").done();
-    });
+    }))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("There is already a quality profile with name 'Foo' for language 'xoo'");
   }
 
   @Test
@@ -151,10 +147,9 @@ public class BuiltInQualityProfilesDefinitionTest {
       NewBuiltInQualityProfile profile = c.createBuiltInQualityProfile("Foo", "xoo");
       profile.activateRule("repo", "rule");
 
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("The rule 'repo:rule' is already activated");
-
-      profile.activateRule("repo", "rule");
+      assertThatThrownBy(() -> profile.activateRule("repo", "rule"))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("The rule 'repo:rule' is already activated");
     });
   }
 

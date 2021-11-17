@@ -22,6 +22,7 @@ package org.sonar.db.measure;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PastMeasureDtoTest {
 
@@ -48,8 +49,9 @@ public class PastMeasureDtoTest {
     assertThat(measureWithoutValue.hasValue()).isFalse();
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void get_value_throw_a_NPE_if_value_is_null() {
-    new PastMeasureDto().getValue();
+    assertThatThrownBy(() -> new PastMeasureDto().getValue())
+      .isInstanceOf(NullPointerException.class);
   }
 }

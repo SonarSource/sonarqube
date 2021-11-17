@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.sonar.api.measures.CoreMetrics;
@@ -54,8 +53,6 @@ public class PostMeasuresComputationChecksStepTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void execute_extensions() {

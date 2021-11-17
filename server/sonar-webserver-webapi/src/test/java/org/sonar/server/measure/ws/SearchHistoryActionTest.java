@@ -24,7 +24,6 @@ import java.util.stream.LongStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -56,6 +55,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -78,8 +78,6 @@ public class SearchHistoryActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
 
@@ -345,13 +343,12 @@ public class SearchHistoryActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_COMPONENT, branch.getDbKey())
       .setParam(PARAM_METRICS, "ncloc")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -361,10 +358,9 @@ public class SearchHistoryActionTest {
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"))
       .build();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metrics 42_METRIC, METRIC_42 are not found");
-
-    call(request);
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Metrics 42_METRIC, METRIC_42 are not found");
   }
 
   @Test
@@ -375,9 +371,8 @@ public class SearchHistoryActionTest {
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(request);
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -387,9 +382,8 @@ public class SearchHistoryActionTest {
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
-    expectedException.expect(NotFoundException.class);
-
-    call(request);
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -398,13 +392,12 @@ public class SearchHistoryActionTest {
     db.components().insertComponent(newFileDto(project).setDbKey("file-key").setEnabled(false));
     userSession.addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'file-key' not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_COMPONENT, "file-key")
       .setParam(PARAM_METRICS, "ncloc")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component key 'file-key' not found");
   }
 
   @Test
@@ -414,14 +407,13 @@ public class SearchHistoryActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, "another_branch")
       .setParam(PARAM_METRICS, "ncloc")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test

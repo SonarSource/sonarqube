@@ -21,18 +21,17 @@ package org.sonar.scanner;
 
 import java.util.List;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,9 +45,6 @@ public class DefaultFileLinesContextTest {
   private static final String HITS_METRIC_KEY = "hits";
   private static final String AUTHOR_METRIC_KEY = "author";
   private static final String BRANCHES_METRIC_KEY = "branches";
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private DefaultFileLinesContext fileLineMeasures;
 
@@ -96,14 +92,14 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void validateLineGreaterThanZero() {
-    thrown.expectMessage("Line number should be positive for file src/foo.php.");
-    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 0, 2);
+    assertThatThrownBy(() -> fileLineMeasures.setIntValue(HITS_METRIC_KEY, 0, 2))
+      .hasMessage("Line number should be positive for file src/foo.php.");
   }
 
   @Test
   public void validateLineLowerThanLineCount() {
-    thrown.expectMessage("Line 4 is out of range for file src/foo.php. File has 3 lines");
-    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 4, 2);
+    assertThatThrownBy(() -> fileLineMeasures.setIntValue(HITS_METRIC_KEY, 4, 2))
+      .hasMessageContaining("Line 4 is out of range for file src/foo.php. File has 3 lines");
   }
 
   @Test

@@ -22,19 +22,22 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class QualityGateStatusTest {
 
   private static final String SOME_TEXT = "some text";
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void one_arg_constructor_throws_NPE_if_Level_arg_is_null() {
-    new QualityGateStatus(null);
+    assertThatThrownBy(() -> new QualityGateStatus(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void two_args_constructor_throws_NPE_if_Level_arg_is_null() {
-    new QualityGateStatus(null, SOME_TEXT);
+    assertThatThrownBy(() -> new QualityGateStatus(null, SOME_TEXT))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

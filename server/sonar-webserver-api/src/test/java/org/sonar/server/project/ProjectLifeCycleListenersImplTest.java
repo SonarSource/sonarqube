@@ -26,9 +26,7 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -41,11 +39,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class ProjectLifeCycleListenersImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ProjectLifeCycleListener listener1 = mock(ProjectLifeCycleListener.class);
   private final ProjectLifeCycleListener listener2 = mock(ProjectLifeCycleListener.class);
@@ -56,18 +53,16 @@ public class ProjectLifeCycleListenersImplTest {
 
   @Test
   public void onProjectsDeleted_throws_NPE_if_set_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projects can't be null");
-
-    underTestWithListeners.onProjectsDeleted(null);
+    assertThatThrownBy(() -> underTestWithListeners.onProjectsDeleted(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projects can't be null");
   }
 
   @Test
   public void onProjectsDeleted_throws_NPE_if_set_is_null_even_if_no_listeners() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projects can't be null");
-
-    underTestNoListeners.onProjectsDeleted(null);
+    assertThatThrownBy(() -> underTestNoListeners.onProjectsDeleted(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projects can't be null");
   }
 
   @Test
@@ -131,18 +126,16 @@ public class ProjectLifeCycleListenersImplTest {
 
   @Test
   public void onProjectBranchesDeleted_throws_NPE_if_set_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projects can't be null");
-
-    underTestWithListeners.onProjectBranchesDeleted(null);
+    assertThatThrownBy(() -> underTestWithListeners.onProjectBranchesDeleted(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projects can't be null");
   }
 
   @Test
   public void onProjectBranchesDeleted_throws_NPE_if_set_is_null_even_if_no_listeners() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projects can't be null");
-
-    underTestNoListeners.onProjectBranchesDeleted(null);
+    assertThatThrownBy(() -> underTestNoListeners.onProjectBranchesDeleted(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projects can't be null");
   }
 
   @Test
@@ -215,18 +208,16 @@ public class ProjectLifeCycleListenersImplTest {
 
   @Test
   public void onProjectsRekeyed_throws_NPE_if_set_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("rekeyedProjects can't be null");
-
-    underTestWithListeners.onProjectsRekeyed(null);
+    assertThatThrownBy(() -> underTestWithListeners.onProjectsRekeyed(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("rekeyedProjects can't be null");
   }
 
   @Test
   public void onProjectsRekeyed_throws_NPE_if_set_is_null_even_if_no_listeners() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("rekeyedProjects can't be null");
-
-    underTestNoListeners.onProjectsRekeyed(null);
+    assertThatThrownBy(() -> underTestNoListeners.onProjectsRekeyed(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("rekeyedProjects can't be null");
   }
 
   @Test

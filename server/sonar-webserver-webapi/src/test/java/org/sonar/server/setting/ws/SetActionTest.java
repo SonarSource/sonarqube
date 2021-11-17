@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
@@ -80,8 +79,6 @@ public class SetActionTest {
 
   private static final Gson GSON = GsonHelper.create();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
@@ -632,52 +629,57 @@ public class SetActionTest {
 
   @Test
   public void fail_when_no_key() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    callForGlobalSetting(null, "my value");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting(null, "my value");
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_empty_key_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter is missing");
-
-    callForGlobalSetting("  ", "my value");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("  ", "my value");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'key' parameter is missing");
   }
 
   @Test
   public void fail_when_no_value() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'value', 'values' or 'fieldValues' must be provided");
-
-    callForGlobalSetting("my.key", null);
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("my.key", null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Either 'value', 'values' or 'fieldValues' must be provided");
   }
 
   @Test
   public void fail_when_empty_value() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A non empty value must be provided");
-
-    callForGlobalSetting("my.key", "");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("my.key", "");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("A non empty value must be provided");
   }
 
   @Test
   public void fail_when_one_empty_value_on_multi_value() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A non empty value must be provided");
-
-    callForMultiValueGlobalSetting("my.key", newArrayList("oneValue", "  ", "anotherValue"));
-
+    assertThatThrownBy(() -> {
+      callForMultiValueGlobalSetting("my.key", newArrayList("oneValue", "  ", "anotherValue"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("A non empty value must be provided");
   }
 
   @Test
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    callForGlobalSetting("my.key", "my value");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("my.key", "my value");
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -692,10 +694,12 @@ public class SetActionTest {
       .defaultValue("default")
       .build());
     i18n.put("property.error.notInteger", "Not an integer error message");
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Not an integer error message");
 
-    callForGlobalSetting("my.key", "My Value");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("my.key", "My Value");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Not an integer error message");
   }
 
   @Test
@@ -714,10 +718,11 @@ public class SetActionTest {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_disabled_key").setEnabled(false));
     dbSession.commit();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating metric setting with key 'my_key' and values [metric_key, metric_disabled_key]. A value is not a valid metric key.");
-
-    callForMultiValueGlobalSetting("my_key", newArrayList("metric_key", "metric_disabled_key"));
+    assertThatThrownBy(() -> {
+      callForMultiValueGlobalSetting("my_key", newArrayList("metric_key", "metric_disabled_key"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Error when validating metric setting with key 'my_key' and values [metric_key, metric_disabled_key]. A value is not a valid metric key.");
   }
 
   @Test
@@ -735,10 +740,11 @@ public class SetActionTest {
     db.users().insertUser(newUserDto().setLogin("login.1"));
     db.users().insertUser(newUserDto().setLogin("login.2").setActive(false));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating login setting with key 'my.key' and values [login.1, login.2]. A value is not a valid login.");
-
-    callForMultiValueGlobalSetting("my.key", newArrayList("login.1", "login.2"));
+    assertThatThrownBy(() -> {
+      callForMultiValueGlobalSetting("my.key", newArrayList("login.1", "login.2"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Error when validating login setting with key 'my.key' and values [login.1, login.2]. A value is not a valid login.");
   }
 
   @Test
@@ -752,10 +758,12 @@ public class SetActionTest {
       .type(PropertyType.INTEGER)
       .defaultValue("default")
       .build());
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating setting with key 'my.key' and value [My Value, My Other Value]");
 
-    callForMultiValueGlobalSetting("my.key", newArrayList("My Value", "My Other Value"));
+    assertThatThrownBy(() -> {
+      callForMultiValueGlobalSetting("my.key", newArrayList("My Value", "My Other Value"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Error when validating setting with key 'my.key' and value [My Value, My Other Value]");
   }
 
   @Test
@@ -770,10 +778,12 @@ public class SetActionTest {
       .defaultValue("default")
       .onlyOnQualifiers(Qualifiers.PROJECT)
       .build());
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'my.key' cannot be global");
 
-    callForGlobalSetting("my.key", "42");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("my.key", "42");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' cannot be global");
   }
 
   @Test
@@ -790,11 +800,13 @@ public class SetActionTest {
       .build());
     ComponentDto view = db.components().insertPublicPortfolio();
     i18n.put("qualifier." + Qualifiers.VIEW, "View");
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'my.key' cannot be set on a View");
-    logInAsProjectAdministrator(view);
 
-    callForProjectSettingByKey("my.key", "My Value", view.getDbKey());
+    assertThatThrownBy(() -> {
+      logInAsProjectAdministrator(view);
+      callForProjectSettingByKey("my.key", "My Value", view.getDbKey());
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' cannot be set on a View");
   }
 
   @Test
@@ -814,10 +826,11 @@ public class SetActionTest {
     i18n.put("qualifier." + file.qualifier(), "CptLabel");
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'my.key' cannot be set on a CptLabel");
-
-    callForProjectSettingByKey("my.key", "My Value", file.getDbKey());
+    assertThatThrownBy(() -> {
+      callForProjectSettingByKey("my.key", "My Value", file.getDbKey());
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' cannot be set on a CptLabel");
   }
 
   @Test
@@ -880,18 +893,20 @@ public class SetActionTest {
     i18n.put("qualifier." + component.qualifier(), "QualifierLabel");
     logInAsProjectAdministrator(root);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'my.key' cannot be set on a QualifierLabel");
-
-    callForProjectSettingByKey("my.key", "My Value", component.getDbKey());
+    assertThatThrownBy(() -> {
+      callForProjectSettingByKey("my.key", "My Value", component.getDbKey());
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' cannot be set on a QualifierLabel");
   }
 
   @Test
   public void fail_when_single_and_multi_value_provided() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'value', 'values' or 'fieldValues' must be provided");
-
-    call("my.key", "My Value", newArrayList("Another Value"), null, null);
+    assertThatThrownBy(() -> {
+      call("my.key", "My Value", newArrayList("Another Value"), null, null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Either 'value', 'values' or 'fieldValues' must be provided");
   }
 
   @Test
@@ -905,10 +920,11 @@ public class SetActionTest {
       .multiValues(true)
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Parameter 'value' must be used for single value setting. Parameter 'values' must be used for multi value setting.");
-
-    callForGlobalSetting("my.key", "My Value");
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("my.key", "My Value");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Parameter 'value' must be used for single value setting. Parameter 'values' must be used for multi value setting.");
   }
 
   @Test
@@ -922,10 +938,11 @@ public class SetActionTest {
       .multiValues(false)
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Parameter 'value' must be used for single value setting. Parameter 'values' must be used for multi value setting.");
-
-    callForMultiValueGlobalSetting("my.key", newArrayList("My Value"));
+    assertThatThrownBy(() -> {
+      callForMultiValueGlobalSetting("my.key", newArrayList("My Value"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Parameter 'value' must be used for single value setting. Parameter 'values' must be used for multi value setting.");
   }
 
   @Test
@@ -949,13 +966,14 @@ public class SetActionTest {
           .build()))
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A non empty value must be provided");
-
-    callForGlobalPropertySet("my.key", newArrayList(
-      GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
-      GSON.toJson(ImmutableMap.of("firstField", "", "secondField", "")),
-      GSON.toJson(ImmutableMap.of("firstField", "yetFirstValue", "secondField", "yetSecondValue"))));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", newArrayList(
+        GSON.toJson(ImmutableMap.of("firstField", "firstValue", "secondField", "secondValue")),
+        GSON.toJson(ImmutableMap.of("firstField", "", "secondField", "")),
+        GSON.toJson(ImmutableMap.of("firstField", "yetFirstValue", "secondField", "yetSecondValue"))));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("A non empty value must be provided");
   }
 
   @Test
@@ -989,10 +1007,11 @@ public class SetActionTest {
 
   @Test
   public void fail_when_property_set_setting_is_not_defined() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'my.key' is undefined");
-
-    callForGlobalPropertySet("my.key", singletonList("{\"field\":\"value\"}"));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", singletonList("{\"field\":\"value\"}"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' is undefined");
   }
 
   @Test
@@ -1012,10 +1031,11 @@ public class SetActionTest {
           .build()))
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Unknown field key 'unknownField' for setting 'my.key'");
-
-    callForGlobalPropertySet("my.key", newArrayList(GSON.toJson(ImmutableMap.of("field", "value", "unknownField", "anotherValue"))));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", newArrayList(GSON.toJson(ImmutableMap.of("field", "value", "unknownField", "anotherValue"))));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Unknown field key 'unknownField' for setting 'my.key'");
   }
 
   @Test
@@ -1035,10 +1055,11 @@ public class SetActionTest {
           .build()))
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating setting with key 'my.key'. Field 'field' has incorrect value 'notAnInt'.");
-
-    callForGlobalPropertySet("my.key", newArrayList(GSON.toJson(ImmutableMap.of("field", "notAnInt"))));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", newArrayList(GSON.toJson(ImmutableMap.of("field", "notAnInt"))));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Error when validating setting with key 'my.key'. Field 'field' has incorrect value 'notAnInt'.");
   }
 
   @Test
@@ -1058,10 +1079,11 @@ public class SetActionTest {
           .build()))
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A non empty value must be provided");
-
-    callForGlobalPropertySet("my.key", newArrayList("{\"field\": null}"));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", newArrayList("{\"field\": null}"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("A non empty value must be provided");
   }
 
   @Test
@@ -1081,11 +1103,12 @@ public class SetActionTest {
           .build()))
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("JSON 'incorrectJson:incorrectJson' does not respect expected format for setting 'my.key'. " +
-      "Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}");
-
-    callForGlobalPropertySet("my.key", newArrayList("incorrectJson:incorrectJson"));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", newArrayList("incorrectJson:incorrectJson"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("JSON 'incorrectJson:incorrectJson' does not respect expected format for setting 'my.key'. " +
+        "Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}");
   }
 
   @Test
@@ -1105,11 +1128,12 @@ public class SetActionTest {
           .build()))
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("JSON '[{\"field\":\"v1\"}, {\"field\":\"v2\"}]' does not respect expected format for setting 'my.key'. " +
-      "Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}");
-
-    callForGlobalPropertySet("my.key", newArrayList("[{\"field\":\"v1\"}, {\"field\":\"v2\"}]"));
+    assertThatThrownBy(() -> {
+      callForGlobalPropertySet("my.key", newArrayList("[{\"field\":\"v1\"}, {\"field\":\"v2\"}]"));
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("JSON '[{\"field\":\"v1\"}, {\"field\":\"v2\"}]' does not respect expected format for setting 'my.key'. " +
+        "Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}");
   }
 
   @Test
@@ -1128,11 +1152,12 @@ public class SetActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'my.key' cannot be set on a Project");
-
-    callForComponentPropertySet("my.key", newArrayList(
-      GSON.toJson(ImmutableMap.of("firstField", "firstValue"))), project.getDbKey());
+    assertThatThrownBy(() -> {
+      callForComponentPropertySet("my.key", newArrayList(
+        GSON.toJson(ImmutableMap.of("firstField", "firstValue"))), project.getDbKey());
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'my.key' cannot be set on a Project");
   }
 
   @Test
@@ -1141,22 +1166,24 @@ public class SetActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    callForProjectSettingByKey("my.key", "My Value", branch.getDbKey());
+    assertThatThrownBy(() -> {
+      callForProjectSettingByKey("my.key", "My Value", branch.getDbKey());
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
   public void fail_when_component_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
-
-    ws.newRequest()
-      .setParam("key", "foo")
-      .setParam("value", "2")
-      .setParam("component", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("key", "foo")
+        .setParam("value", "2")
+        .setParam("component", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'unknown' not found");
   }
 
   @Test
@@ -1165,14 +1192,15 @@ public class SetActionTest {
     logInAsProjectAdministrator(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
-
-    ws.newRequest()
-      .setParam("key", settingKey)
-      .setParam("value", "any value")
-      .setParam("component", project.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("key", settingKey)
+        .setParam("value", "any value")
+        .setParam("component", project.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
 
   @Test

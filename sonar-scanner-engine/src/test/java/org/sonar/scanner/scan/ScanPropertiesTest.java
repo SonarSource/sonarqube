@@ -25,13 +25,13 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,9 +42,6 @@ public class ScanPropertiesTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() throws IOException {
@@ -90,9 +87,8 @@ public class ScanPropertiesTest {
   public void validate_fails_if_metadata_file_location_is_not_absolute() {
     settings.setProperty("sonar.scanner.metadataFilePath", "relative");
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("Property 'sonar.scanner.metadataFilePath' must point to an absolute path: relative");
-    underTest.validate();
-
+    assertThatThrownBy(() -> underTest.validate())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Property 'sonar.scanner.metadataFilePath' must point to an absolute path: relative");
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.server.platform;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
@@ -33,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -42,8 +42,6 @@ public class StartupMetadataProviderTest {
 
   private static final long A_DATE = 1_500_000_000_000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -95,9 +93,9 @@ public class StartupMetadataProviderTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.COMPUTE_ENGINE, SonarEdition.COMMUNITY);
     when(webServer.isStartupLeader()).thenReturn(false);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property sonar.core.startTime is missing in database");
-    underTest.provide(system, runtime, webServer, dbTester.getDbClient());
+    assertThatThrownBy(() -> underTest.provide(system, runtime, webServer, dbTester.getDbClient()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Property sonar.core.startTime is missing in database");
   }
 
   private void testLoadingFromDatabase(SonarRuntime runtime, boolean isStartupLeader) {

@@ -28,7 +28,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.MessageException;
@@ -50,6 +49,7 @@ import org.sonar.server.project.Project;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,8 +66,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = db.getDbClient();
   private final TestPluginRepository pluginRepository = new TestPluginRepository();
@@ -176,10 +174,9 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     ComputationStep underTest = createStep(res);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("component missing on ce task");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("component missing on ce task");
   }
 
   @Test
@@ -192,11 +189,9 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     ComputationStep underTest = createStep(res);
 
-    expectedException.expect(MessageException.class);
-    expectedException
-      .expectMessage("Compute Engine task main component key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Compute Engine task main component key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
   }
 
   @Test
@@ -209,10 +204,9 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     ComputationStep underTest = createStep(res);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Compute Engine task component key is null. Project with UUID prj_uuid must have been deleted since report was uploaded. Can not proceed.");
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Compute Engine task component key is null. Project with UUID prj_uuid must have been deleted since report was uploaded. Can not proceed.");
   }
 
   @Test
@@ -223,11 +217,10 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setProjectKey(otherProject.getDbKey())
         .build());
 
-    expectedException.expect(MessageException.class);
-    expectedException
-      .expectMessage("ProjectKey in report (" + otherProject.getDbKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("ProjectKey in report (" + otherProject.getDbKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
 
-    underTest.execute(new TestComputationStepContext());
   }
 
   @Test

@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -56,6 +55,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
@@ -106,8 +106,6 @@ public class ProjectMeasuresIndexTest {
 
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -1686,19 +1684,17 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void fail_if_page_size_greater_than_500() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be lower than or equals to 100");
-
-    underTest.searchTags("whatever", 1, 101);
+  public void fail_if_page_size_greater_than_100() {
+    assertThatThrownBy(() -> underTest.searchTags("whatever", 1, 101))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Page size must be lower than or equals to 100");
   }
 
   @Test
   public void fail_if_page_greater_than_20() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page must be between 0 and 20");
-
-    underTest.searchTags("whatever", 21, 100);
+    assertThatThrownBy(() -> underTest.searchTags("whatever", 21, 100))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Page must be between 0 and 20");
   }
 
   private void index(ProjectMeasuresDoc... docs) {

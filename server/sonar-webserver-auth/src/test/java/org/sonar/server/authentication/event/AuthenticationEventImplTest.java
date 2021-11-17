@@ -28,12 +28,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -47,8 +47,6 @@ public class AuthenticationEventImplTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private AuthenticationEventImpl underTest = new AuthenticationEventImpl();
 
@@ -60,19 +58,19 @@ public class AuthenticationEventImplTest {
   @Test
   public void login_success_fails_with_NPE_if_request_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("request can't be null");
 
-    underTest.loginSuccess(null, "login", Source.sso());
+    assertThatThrownBy(() -> underTest.loginSuccess(null, "login", Source.sso()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("request can't be null");
   }
 
   @Test
   public void login_success_fails_with_NPE_if_source_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("source can't be null");
 
-    underTest.loginSuccess(mock(HttpServletRequest.class), "login", null);
+    assertThatThrownBy(() -> underTest.loginSuccess(mock(HttpServletRequest.class), "login", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("source can't be null");
   }
 
   @Test
@@ -133,19 +131,19 @@ public class AuthenticationEventImplTest {
   @Test
   public void login_failure_fails_with_NPE_if_request_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("request can't be null");
 
-    underTest.loginFailure(null, newBuilder().setSource(Source.sso()).build());
+    assertThatThrownBy(() -> underTest.loginFailure(null, newBuilder().setSource(Source.sso()).build()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("request can't be null");
   }
 
   @Test
   public void login_failure_fails_with_NPE_if_AuthenticationException_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("AuthenticationException can't be null");
 
-    underTest.loginFailure(mock(HttpServletRequest.class), null);
+    assertThatThrownBy(() -> underTest.loginFailure(mock(HttpServletRequest.class), null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("AuthenticationException can't be null");
   }
 
   @Test
@@ -241,10 +239,10 @@ public class AuthenticationEventImplTest {
   @Test
   public void logout_success_fails_with_NPE_if_request_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("request can't be null");
 
-    underTest.logoutSuccess(null, "foo");
+    assertThatThrownBy(() -> underTest.logoutSuccess(null, "foo"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("request can't be null");
   }
 
   @Test
@@ -297,19 +295,19 @@ public class AuthenticationEventImplTest {
   @Test
   public void logout_failure_with_NPE_if_request_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("request can't be null");
 
-    underTest.logoutFailure(null, "bad csrf");
+    assertThatThrownBy(() -> underTest.logoutFailure(null, "bad csrf"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("request can't be null");
   }
 
   @Test
   public void login_fails_with_NPE_if_error_message_is_null() {
     logTester.setLevel(LoggerLevel.INFO);
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("error message can't be null");
 
-    underTest.logoutFailure(mock(HttpServletRequest.class), null);
+    assertThatThrownBy(() -> underTest.logoutFailure(mock(HttpServletRequest.class), null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("error message can't be null");
   }
 
   @Test

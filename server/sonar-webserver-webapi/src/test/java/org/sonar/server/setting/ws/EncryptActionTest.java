@@ -22,12 +22,10 @@ package org.sonar.server.setting.ws;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.MapSettings;
@@ -40,11 +38,10 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
 
 public class EncryptActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -89,29 +86,26 @@ public class EncryptActionTest {
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call("my value");
+    assertThatThrownBy(() -> call("my value"))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void fail_if_value_is_not_provided() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(null);
+    assertThatThrownBy(() -> call(null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_value_is_empty() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'value' parameter is missing");
-
-    call("  ");
+    assertThatThrownBy(() ->  call("  "))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'value' parameter is missing");
   }
 
   @Test
@@ -120,10 +114,9 @@ public class EncryptActionTest {
 
     encryption.setPathToSecretKey("unknown/path/to/secret/key");
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("No secret key available");
-
-    call("my value");
+    assertThatThrownBy(() ->  call("my value"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("No secret key available");
   }
 
   private EncryptWsResponse call(@Nullable String value) {

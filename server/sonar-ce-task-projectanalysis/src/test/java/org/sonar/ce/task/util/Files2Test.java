@@ -26,20 +26,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
 public class Files2Test {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -76,8 +72,8 @@ public class Files2Test {
     File file = temp.newFile();
     doThrow(new IOException("failure")).when(underTest).deleteIfExistsOrThrowIOE(file);
 
-    expectedException.expect(IllegalStateException.class);
-    underTest.deleteIfExists(file);
+    assertThatThrownBy(() -> underTest.deleteIfExists(file))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -95,20 +91,20 @@ public class Files2Test {
     final File file = temp.newFile();
     assertThat(file.delete()).isTrue();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not open file " + file);
-    expectCauseMessage("File " + file + " does not exist");
-    underTest.openInputStream(file);
+    assertThatThrownBy(() -> underTest.openInputStream(file))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Can not open file " + file)
+      .hasRootCauseMessage("File " + file + " does not exist");
   }
 
   @Test
   public void openInputStream_throws_ISE_if_file_is_a_directory() throws Exception {
     File dir = temp.newFolder();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not open file " + dir);
-    expectCauseMessage("File " + dir + " exists but is a directory");
-    underTest.openInputStream(dir);
+    assertThatThrownBy(() -> underTest.openInputStream(dir))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Can not open file " + dir)
+      .hasRootCauseMessage("File " + dir + " exists but is a directory");
   }
 
   @Test
@@ -148,10 +144,10 @@ public class Files2Test {
   public void openOutputStream_throws_ISE_if_file_is_a_directory() throws Exception {
     File dir = temp.newFolder();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not open file " + dir);
-    expectCauseMessage("File " + dir + " exists but is a directory");
-    underTest.openOutputStream(dir, false);
+    assertThatThrownBy(() -> underTest.openOutputStream(dir, false))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Can not open file " + dir)
+      .hasRootCauseMessage("File " + dir + " exists but is a directory");
   }
 
   @Test
@@ -173,20 +169,20 @@ public class Files2Test {
     File dir = temp.newFolder();
     underTest.deleteIfExists(dir);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not zip directory " + dir);
-    expectCauseMessage("Directory " + dir + " does not exist");
-    underTest.zipDir(dir, temp.newFile());
+    assertThatThrownBy(() -> underTest.zipDir(dir, temp.newFile()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Can not zip directory " + dir)
+      .hasRootCauseMessage("Directory " + dir + " does not exist");
   }
 
   @Test
   public void zipDir_throws_ISE_if_directory_is_a_file() throws Exception {
     File file = temp.newFile();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not zip directory " + file);
-    expectCauseMessage("File " + file + " exists but is not a directory");
-    underTest.zipDir(file, temp.newFile());
+    assertThatThrownBy(() -> underTest.zipDir(file, temp.newFile()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Can not zip directory " + file)
+      .hasRootCauseMessage("File " + file + " exists but is not a directory");
   }
 
   @Test
@@ -221,32 +217,17 @@ public class Files2Test {
   public void createDir_throws_ISE_if_File_is_an_existing_file() throws IOException {
     File file = temp.newFile();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(file.toPath() + " is not a directory");
-
-    underTest.createDir(file);
+    assertThatThrownBy(() -> underTest.createDir(file))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(file.toPath() + " is not a directory");
   }
 
   @Test
   public void createDir_throws_ISE_if_File_is_an_existing_link() throws IOException {
     File file = Files.createLink(new File(temp.newFolder(), "toto.lnk").toPath(), temp.newFile().toPath()).toFile();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(file.toPath() + " is not a directory");
-
-    underTest.createDir(file);
-  }
-
-  private void expectCauseMessage(final String msg) {
-    expectedException.expectCause(new TypeSafeMatcher<Throwable>() {
-      @Override
-      protected boolean matchesSafely(Throwable throwable) {
-        return throwable.getMessage().contains(msg);
-      }
-
-      @Override
-      public void describeTo(Description description) {
-      }
-    });
+    assertThatThrownBy(() -> underTest.createDir(file))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(file.toPath() + " is not a directory");
   }
 }

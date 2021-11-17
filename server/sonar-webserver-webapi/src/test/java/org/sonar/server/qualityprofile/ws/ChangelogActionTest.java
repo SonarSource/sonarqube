@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -58,8 +57,6 @@ public class ChangelogActionTest {
   public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
   private final WsActionTester ws = new WsActionTester(new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));

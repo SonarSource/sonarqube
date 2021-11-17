@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.formula.CounterInitializationContext;
@@ -33,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.formula.coverage.CoverageUtils.getLongMeasureValue;
 import static org.sonar.ce.task.projectanalysis.formula.coverage.CoverageUtils.getMeasureVariations;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
@@ -44,8 +44,6 @@ public class CoverageUtilsTest {
 
   @Rule
   public CounterInitializationContextRule fileAggregateContext = new CounterInitializationContextRule();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void verify_calculate_coverage() {
@@ -80,12 +78,12 @@ public class CoverageUtilsTest {
 
   @Test
   public void getLongMeasureValue_throws_ISE_if_measure_is_DOUBLE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("value can not be converted to long because current value type is a DOUBLE");
-
-    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152d, 1));
-
-    getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY);
+    assertThatThrownBy(() -> {
+      fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152d, 1));
+      getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("value can not be converted to long because current value type is a DOUBLE");
   }
 
   @Test

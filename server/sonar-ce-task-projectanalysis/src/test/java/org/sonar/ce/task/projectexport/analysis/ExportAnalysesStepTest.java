@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -47,6 +46,7 @@ import org.sonar.db.component.SnapshotDto;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
@@ -103,8 +103,6 @@ public class ExportAnalysesStepTest {
     .setModuleUuidPath("." + PROJECT_UUID + ".MODULE_UUID.")
     .setProjectUuid(PROJECT_UUID);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
@@ -196,9 +194,9 @@ public class ExportAnalysesStepTest {
     dbTester.commit();
     dumpWriter.failIfMoreThan(1, DumpElement.ANALYSES);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis Export failed after processing 1 analyses successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis Export failed after processing 1 analyses successfully");
   }
 
   private static SnapshotDto newAnalysis(String uuid, long date, String componentUuid, @Nullable String version, boolean isLast, @Nullable String buildString, long buildDate) {

@@ -26,7 +26,6 @@ import java.util.TimeZone;
 import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -50,7 +49,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
@@ -79,8 +77,6 @@ public class IssueIndexFacetsTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = none();
   private final TimeZone defaultTimezone = getTimeZone("GMT-01:00");
   private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(defaultTimezone);
   @Rule

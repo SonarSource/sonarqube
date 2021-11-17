@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -49,6 +48,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.sonar.api.rule.Severity.BLOCKER;
@@ -94,8 +94,6 @@ public class RuleIndexTest {
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create(system2);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
@@ -738,10 +736,9 @@ public class RuleIndexTest {
 
   @Test
   public void fail_to_list_tags_when_size_greater_than_500() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be lower than or equals to 500");
-
-    underTest.listTags(null, 501);
+    assertThatThrownBy(() -> underTest.listTags(null, 501))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Page size must be lower than or equals to 500");
   }
 
   @Test

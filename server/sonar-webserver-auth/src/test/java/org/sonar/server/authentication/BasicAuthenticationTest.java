@@ -24,28 +24,26 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class BasicAuthenticationTest {
 
@@ -57,8 +55,6 @@ public class BasicAuthenticationTest {
 
   private static final UserDto USER = UserTesting.newUserDto().setLogin(A_LOGIN);
 
-  @Rule
-  public ExpectedException expectedException = none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -118,21 +114,21 @@ public class BasicAuthenticationTest {
   public void fail_to_authenticate_when_no_login() {
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64(":" + A_PASSWORD));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withoutLogin().andNoPublicMessage());
-    try {
-      underTest.authenticate(request);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC));
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
   public void fail_to_authenticate_when_invalid_header() {
     when(request.getHeader("Authorization")).thenReturn("Basic Invàlid");
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withoutLogin().andNoPublicMessage());
-    expectedException.expectMessage("Invalid basic header");
-    underTest.authenticate(request);
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessage("Invalid basic header")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC));
   }
 
   @Test
@@ -153,12 +149,12 @@ public class BasicAuthenticationTest {
     when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.empty());
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
-    try {
-      underTest.authenticate(request);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessage("Token doesn't exist")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -166,12 +162,12 @@ public class BasicAuthenticationTest {
     when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of("Unknown user"));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
-    expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
-    try {
-      underTest.authenticate(request);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessageContaining("User doesn't exist")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   @Test
@@ -180,12 +176,12 @@ public class BasicAuthenticationTest {
     when(userTokenAuthentication.authenticate("token")).thenReturn(Optional.of(user.getUuid()));
     when(request.getHeader("Authorization")).thenReturn("Basic " + toBase64("token:"));
 
-    expectedException.expect(authenticationException().from(Source.local(Method.BASIC_TOKEN)).withoutLogin().andNoPublicMessage());
-    try {
-      underTest.authenticate(request);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> underTest.authenticate(request))
+      .hasMessageContaining("User doesn't exist")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN));
+
+    verifyZeroInteractions(authenticationEvent);
   }
 
   private static String toBase64(String text) {

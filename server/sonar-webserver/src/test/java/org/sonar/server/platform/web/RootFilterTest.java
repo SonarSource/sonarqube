@@ -30,12 +30,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -45,8 +45,6 @@ import static org.mockito.Mockito.when;
 
 public class RootFilterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -119,8 +117,9 @@ public class RootFilterTest {
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
     verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
 
-    expectedException.expect(UnsupportedOperationException.class);
-    ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession();
+
+    assertThatThrownBy(() -> ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession())
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
@@ -129,8 +128,8 @@ public class RootFilterTest {
     ArgumentCaptor<ServletRequest> requestArgumentCaptor = ArgumentCaptor.forClass(ServletRequest.class);
     verify(chain).doFilter(requestArgumentCaptor.capture(), any(ServletResponse.class));
 
-    expectedException.expect(UnsupportedOperationException.class);
-    ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession(true);
+    assertThatThrownBy(() -> ((HttpServletRequest) requestArgumentCaptor.getValue()).getSession(true))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   private HttpServletRequest request(String method, String path, String query) {

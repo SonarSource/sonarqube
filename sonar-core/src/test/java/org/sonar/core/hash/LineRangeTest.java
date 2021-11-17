@@ -19,28 +19,25 @@
  */
 package org.sonar.core.hash;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LineRangeTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void should_throw_ISE_if_range_is_invalid() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Line range is not valid: 1 must be greater or equal than 2");
-    new LineRange(2, 1);
+    assertThatThrownBy(() -> new LineRange(2, 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Line range is not valid: 1 must be greater or equal than 2");
   }
-  
+
   @Test
   public void should_throw_ISE_if_startOffset_is_invalid() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Start offset not valid: -1");
-    new LineRange(-1, 1);
+    assertThatThrownBy(() -> new LineRange(-1, 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Start offset not valid: -1");
   }
 
   @Test

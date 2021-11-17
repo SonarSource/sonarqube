@@ -24,14 +24,13 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.measure.Measure.ValueType;
 import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 @RunWith(DataProviderRunner.class)
@@ -49,8 +48,6 @@ public class MeasureTest {
   private static final List<Measure> MEASURES = ImmutableList.of(
     INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE);
 
-  @Rule
-  public final ExpectedException expectedException = ExpectedException.none();
 
   @DataProvider
   public static Object[][] all_but_INT_MEASURE() {
@@ -94,9 +91,10 @@ public class MeasureTest {
       .toArray(Object[][]::new);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void create_from_String_throws_NPE_if_arg_is_null() {
-    newMeasureBuilder().create((String) null);
+    assertThatThrownBy(() -> newMeasureBuilder().create((String) null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -125,10 +123,11 @@ public class MeasureTest {
     assertThat(STRING_MEASURE.getValueType()).isEqualTo(ValueType.STRING);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all_but_INT_MEASURE")
   public void getIntValue_throws_ISE_for_all_value_types_except_INT(Measure measure) {
-    measure.getIntValue();
+    assertThatThrownBy(measure::getIntValue)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -136,10 +135,11 @@ public class MeasureTest {
     assertThat(INT_MEASURE.getIntValue()).isEqualTo(1);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all_but_LONG_MEASURE")
   public void getLongValue_throws_ISE_for_all_value_types_except_LONG(Measure measure) {
-    measure.getLongValue();
+    assertThatThrownBy(measure::getLongValue)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -147,10 +147,11 @@ public class MeasureTest {
     assertThat(LONG_MEASURE.getLongValue()).isEqualTo(1);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all_but_DOUBLE_MEASURE")
   public void getDoubleValue_throws_ISE_for_all_value_types_except_DOUBLE(Measure measure) {
-    measure.getDoubleValue();
+    assertThatThrownBy(measure::getDoubleValue)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -158,10 +159,11 @@ public class MeasureTest {
     assertThat(DOUBLE_MEASURE.getDoubleValue()).isEqualTo(1d);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all_but_BOOLEAN_MEASURE")
   public void getBooleanValue_throws_ISE_for_all_value_types_except_BOOLEAN(Measure measure) {
-    measure.getBooleanValue();
+    assertThatThrownBy(measure::getBooleanValue)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -170,16 +172,18 @@ public class MeasureTest {
     assertThat(FALSE_MEASURE.getBooleanValue()).isFalse();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all_but_STRING_MEASURE")
   public void getStringValue_throws_ISE_for_all_value_types_except_STRING(Measure measure) {
-    measure.getStringValue();
+    assertThatThrownBy(measure::getStringValue)
+      .isInstanceOf(IllegalStateException.class);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all_but_LEVEL_MEASURE")
   public void getLevelValue_throws_ISE_for_all_value_types_except_LEVEL(Measure measure) {
-    measure.getLevelValue();
+    assertThatThrownBy(measure::getLevelValue)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -204,10 +208,11 @@ public class MeasureTest {
     assertThat(measure.hasQualityGateStatus()).isFalse();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   @UseDataProvider("all")
   public void getAlertStatus_throws_ISE_for_all_value_types_when_not_set(Measure measure) {
-    measure.getQualityGateStatus();
+    assertThatThrownBy(measure::getQualityGateStatus)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -223,26 +228,33 @@ public class MeasureTest {
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(Measure.Level.OK).getQualityGateStatus()).isEqualTo(someStatus);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void newMeasureBuilder_setQualityGateStatus_throws_NPE_if_arg_is_null() {
-    newMeasureBuilder().setQualityGateStatus(null);
+    assertThatThrownBy(() -> newMeasureBuilder().setQualityGateStatus(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void updateMeasureBuilder_setQualityGateStatus_throws_NPE_if_arg_is_null() {
-    Measure.updatedMeasureBuilder(newMeasureBuilder().createNoValue()).setQualityGateStatus(null);
+    assertThatThrownBy(() -> {
+      Measure.updatedMeasureBuilder(newMeasureBuilder().createNoValue()).setQualityGateStatus(null);
+    })
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void updateMeasureBuilder_setQualityGateStatus_throws_USO_if_measure_already_has_a_QualityGateStatus() {
-    QualityGateStatus qualityGateStatus = new QualityGateStatus(Measure.Level.ERROR);
-
-    Measure.updatedMeasureBuilder(newMeasureBuilder().setQualityGateStatus(qualityGateStatus).createNoValue()).setQualityGateStatus(qualityGateStatus);
+    assertThatThrownBy(() -> {
+      QualityGateStatus qualityGateStatus = new QualityGateStatus(Measure.Level.ERROR);
+      Measure.updatedMeasureBuilder(newMeasureBuilder().setQualityGateStatus(qualityGateStatus).createNoValue()).setQualityGateStatus(qualityGateStatus);
+    })
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void updateMeasureBuilder_setVariations_throws_USO_if_measure_already_has_Variations() {
-    Measure.updatedMeasureBuilder(newMeasureBuilder().setVariation(1d).createNoValue()).setVariation(2d);
+    assertThatThrownBy(() -> Measure.updatedMeasureBuilder(newMeasureBuilder().setVariation(1d).createNoValue()).setVariation(2d))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
@@ -281,18 +293,16 @@ public class MeasureTest {
 
   @Test
   public void create_with_double_value_throws_IAE_if_value_is_NaN() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("NaN is not allowed as a Measure value");
-
-    newMeasureBuilder().create(Double.NaN, 1);
+    assertThatThrownBy(() -> newMeasureBuilder().create(Double.NaN, 1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("NaN is not allowed as a Measure value");
   }
 
   @Test
   public void create_with_double_value_data_throws_IAE_if_value_is_NaN() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("NaN is not allowed as a Measure value");
-
-    newMeasureBuilder().create(Double.NaN, 1, "some data");
+    assertThatThrownBy(() -> newMeasureBuilder().create(Double.NaN, 1, "some data"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("NaN is not allowed as a Measure value");
   }
 
 }

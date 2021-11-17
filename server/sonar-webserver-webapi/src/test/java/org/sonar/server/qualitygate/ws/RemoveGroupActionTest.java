@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -37,13 +36,12 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 
 public class RemoveGroupActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -132,13 +130,12 @@ public class RemoveGroupActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Group with name 'unknown' is not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_GROUP_NAME, "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Group with name 'unknown' is not found");
   }
 
   @Test
@@ -146,13 +143,12 @@ public class RemoveGroupActionTest {
     GroupDto group = db.users().insertGroup();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("No quality gate has been found for name unknown"));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, "unknown")
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(String.format("No quality gate has been found for name unknown"));
   }
 
   @Test
@@ -161,13 +157,12 @@ public class RemoveGroupActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(String.format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -176,11 +171,10 @@ public class RemoveGroupActionTest {
     GroupDto group = db.users().insertGroup();
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 }

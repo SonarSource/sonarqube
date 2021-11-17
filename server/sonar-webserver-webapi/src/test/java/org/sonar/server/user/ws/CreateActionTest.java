@@ -24,7 +24,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.WebService;
@@ -52,6 +51,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.Mockito.mock;
@@ -72,8 +72,6 @@ public class CreateActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private GroupDto defaultGroup;
@@ -104,12 +102,12 @@ public class CreateActionTest {
 
     // exists in index
     assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-      .source(new SearchSourceBuilder()
-        .query(boolQuery()
-          .must(termQuery(FIELD_LOGIN, "john"))
-          .must(termQuery(FIELD_NAME, "John"))
-          .must(termQuery(FIELD_EMAIL, "john@email.com"))
-          .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))))
+        .source(new SearchSourceBuilder()
+          .query(boolQuery()
+            .must(termQuery(FIELD_LOGIN, "john"))
+            .must(termQuery(FIELD_NAME, "John"))
+            .must(termQuery(FIELD_EMAIL, "john@email.com"))
+            .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))))
       .getHits().getHits()).hasSize(1);
 
     // exists in db
@@ -206,106 +204,116 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("An active user with login '%s' already exists", user.getLogin()));
-
-    call(CreateRequest.builder()
-      .setLogin(user.getLogin())
-      .setName("John")
-      .setPassword("1234")
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin(user.getLogin())
+        .setName("John")
+        .setPassword("1234")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("An active user with login '%s' already exists", user.getLogin()));
   }
 
   @Test
   public void fail_when_missing_login() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Login is mandatory and must not be empty");
-    call(CreateRequest.builder()
-      .setLogin(null)
-      .setName("John")
-      .setPassword("1234")
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin(null)
+        .setName("John")
+        .setPassword("1234")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Login is mandatory and must not be empty");
   }
 
   @Test
   public void fail_when_login_is_too_short() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'login' length (1) is shorter than the minimum authorized (2)");
-    call(CreateRequest.builder()
-      .setLogin("a")
-      .setName("John")
-      .setPassword("1234")
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("a")
+        .setName("John")
+        .setPassword("1234")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'login' length (1) is shorter than the minimum authorized (2)");
   }
 
   @Test
   public void fail_when_missing_name() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name is mandatory and must not be empty");
-    call(CreateRequest.builder()
-      .setLogin("john")
-      .setName(null)
-      .setPassword("1234")
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("john")
+        .setName(null)
+        .setPassword("1234")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Name is mandatory and must not be empty");
   }
 
   @Test
   public void fail_when_missing_password() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Password is mandatory and must not be empty");
-    call(CreateRequest.builder()
-      .setLogin("john")
-      .setName("John")
-      .setPassword(null)
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("john")
+        .setName("John")
+        .setPassword(null)
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Password is mandatory and must not be empty");
   }
 
   @Test
   public void fail_when_password_is_set_on_none_local_user() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Password should only be set on local user");
-    call(CreateRequest.builder()
-      .setLogin("john")
-      .setName("John")
-      .setPassword("1234")
-      .setLocal(false)
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("john")
+        .setName("John")
+        .setPassword("1234")
+        .setLocal(false)
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Password should only be set on local user");
   }
 
   @Test
   public void fail_when_email_is_invalid() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Email 'invalid-email' is not valid");
-
-    call(CreateRequest.builder()
-      .setLogin("pipo")
-      .setName("John")
-      .setPassword("1234")
-      .setEmail("invalid-email")
-      .build());
+    assertThatThrownBy(() -> {
+      call(CreateRequest.builder()
+        .setLogin("pipo")
+        .setName("John")
+        .setPassword("1234")
+        .setEmail("invalid-email")
+        .build());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Email 'invalid-email' is not valid");
   }
 
   @Test
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("");
-
-    expectedException.expect(ForbiddenException.class);
-    executeRequest("john");
+    assertThatThrownBy(() -> executeRequest("john"))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

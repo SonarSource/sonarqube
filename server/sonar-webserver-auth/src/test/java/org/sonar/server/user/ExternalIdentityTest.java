@@ -19,16 +19,13 @@
  */
 package org.sonar.server.user;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ExternalIdentityTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void create_external_identity() {
@@ -48,18 +45,16 @@ public class ExternalIdentityTest {
 
   @Test
   public void fail_with_NPE_when_identity_provider_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Identity provider cannot be null");
-
-    new ExternalIdentity(null, "login", "ABCD");
+    assertThatThrownBy(() -> new ExternalIdentity(null, "login", "ABCD"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Identity provider cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_identity_login_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Identity login cannot be null");
-
-    new ExternalIdentity("github", null, "ABCD");
+    assertThatThrownBy(() -> new ExternalIdentity("github", null, "ABCD"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Identity login cannot be null");
   }
 
 }

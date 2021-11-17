@@ -39,7 +39,6 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
@@ -117,8 +116,6 @@ public class PurgeDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(system2);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

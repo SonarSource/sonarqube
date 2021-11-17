@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.component;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -32,7 +31,6 @@ import org.sonar.db.project.ProjectDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -53,8 +51,6 @@ public class ProjectPersisterTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
   public TestSystem2 system2 = new TestSystem2();
 
   private ProjectPersister underTest = new ProjectPersister(dbTester.getDbClient(), treeRootHolder, system2);

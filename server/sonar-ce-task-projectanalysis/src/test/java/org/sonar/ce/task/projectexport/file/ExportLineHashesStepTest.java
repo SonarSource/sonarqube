@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -54,8 +53,6 @@ public class ExportLineHashesStepTest {
   private static final String FILE_UUID = "file uuid";
   private static final String FILE_UUID_2 = "file-2-uuid";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule

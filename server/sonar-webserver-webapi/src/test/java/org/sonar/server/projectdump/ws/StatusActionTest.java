@@ -29,7 +29,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -49,6 +48,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Comparator.reverseOrder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -63,8 +63,6 @@ public class StatusActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -100,42 +98,46 @@ public class StatusActionTest {
 
   @Test
   public void fails_with_BRE_if_no_param_is_provided() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key must be provided, not both.");
-
-    underTest.newRequest().execute();
+    assertThatThrownBy(() -> underTest.newRequest().execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Project id or project key must be provided, not both.");
   }
 
   @Test
   public void fails_with_BRE_if_both_params_are_provided() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key must be provided, not both.");
-
-    underTest.newRequest()
-      .setParam(ID_PARAM, SOME_UUID).setParam(KEY_PARAM, SOME_KEY)
-      .execute();
+    assertThatThrownBy(() -> {
+      underTest.newRequest()
+        .setParam(ID_PARAM, SOME_UUID).setParam(KEY_PARAM, SOME_KEY)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Project id or project key must be provided, not both.");
   }
 
   @Test
   public void fails_with_NFE_if_component_with_uuid_does_not_exist() {
     String UNKOWN_UUID = "UNKOWN_UUID";
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project '" + UNKOWN_UUID + "' not found");
 
-    underTest.newRequest()
-      .setParam(ID_PARAM, UNKOWN_UUID)
-      .execute();
+    assertThatThrownBy(() -> {
+      underTest.newRequest()
+        .setParam(ID_PARAM, UNKOWN_UUID)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + UNKOWN_UUID + "' not found");
   }
 
   @Test
   public void fails_with_NFE_if_component_with_key_does_not_exist() {
     String UNKNOWN_KEY = "UNKNOWN_KEY";
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project '" + UNKNOWN_KEY + "' not found");
 
-    underTest.newRequest()
-      .setParam(KEY_PARAM, UNKNOWN_KEY)
-      .execute();
+    assertThatThrownBy(() -> {
+      underTest.newRequest()
+        .setParam(KEY_PARAM, UNKNOWN_KEY)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + UNKNOWN_KEY + "' not found");
   }
 
   @Test
@@ -261,11 +263,12 @@ public class StatusActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-
-    underTest.newRequest()
-      .setParam(KEY_PARAM, branch.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      underTest.newRequest()
+        .setParam(KEY_PARAM, branch.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -273,11 +276,12 @@ public class StatusActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-
-    underTest.newRequest()
-      .setParam(ID_PARAM, branch.uuid())
-      .execute();
+    assertThatThrownBy(() -> {
+      underTest.newRequest()
+        .setParam(ID_PARAM, branch.uuid())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   private ProjectDto insertProject(String uuid, String key) {

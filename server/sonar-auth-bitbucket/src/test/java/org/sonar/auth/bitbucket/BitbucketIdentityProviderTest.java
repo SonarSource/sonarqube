@@ -19,21 +19,18 @@
  */
 package org.sonar.auth.bitbucket;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class BitbucketIdentityProviderTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private final MapSettings settings = new MapSettings();
   private final BitbucketSettings bitbucketSettings = new BitbucketSettings(settings.asConfig());
@@ -75,9 +72,9 @@ public class BitbucketIdentityProviderTest {
     enableBitbucketAuthentication(false);
     OAuth2IdentityProvider.InitContext context = mock(OAuth2IdentityProvider.InitContext.class);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Bitbucket authentication is disabled");
-    underTest.init(context);
+    assertThatThrownBy(() -> underTest.init(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Bitbucket authentication is disabled");
   }
 
   private void enableBitbucketAuthentication(boolean enabled) {

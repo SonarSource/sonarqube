@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.resources.Qualifiers;
@@ -35,12 +33,11 @@ import org.sonar.api.utils.System2;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PropertyDefinitionsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void should_build_with_predefined_list_of_definitions() {
@@ -182,20 +179,18 @@ public class PropertyDefinitionsTest {
   public void validKey_throws_NPE_if_key_is_null() {
     PropertyDefinitions underTest = new PropertyDefinitions(System2.INSTANCE);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can't be null");
-
-    underTest.validKey(null);
+    assertThatThrownBy(() -> underTest.validKey(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key can't be null");
   }
 
   @Test
   public void get_throws_NPE_if_key_is_null() {
     PropertyDefinitions underTest = new PropertyDefinitions(System2.INSTANCE);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can't be null");
-
-    underTest.get(null);
+    assertThatThrownBy(() -> underTest.get(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key can't be null");
   }
 
   @Test

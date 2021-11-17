@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -62,6 +61,7 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -73,9 +73,6 @@ public class DefaultSensorStorageTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private DefaultSensorStorage underTest;
   private MapSettings settings;
@@ -141,13 +138,12 @@ public class DefaultSensorStorageTest {
   public void shouldFailIfUnknownMetric() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
-    thrown.expect(UnsupportedOperationException.class);
-    thrown.expectMessage("Unknown metric: lines");
-
-    underTest.store(new DefaultMeasure()
+    assertThatThrownBy(() -> underTest.store(new DefaultMeasure()
       .on(file)
       .forMetric(CoreMetrics.LINES)
-      .withValue(10));
+      .withValue(10)))
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Unknown metric: lines");
   }
 
   @Test

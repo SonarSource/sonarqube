@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -40,14 +39,13 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class DeselectActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -122,11 +120,10 @@ public class DeselectActionTest {
   public void fail_when_no_project_key() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectKey", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -134,10 +131,10 @@ public class DeselectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.anonymous();
 
-    expectedException.expect(ForbiddenException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -145,11 +142,10 @@ public class DeselectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -158,12 +154,10 @@ public class DeselectActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
-
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectKey", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -172,12 +166,11 @@ public class DeselectActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectKey", branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
   }
 
   @Test

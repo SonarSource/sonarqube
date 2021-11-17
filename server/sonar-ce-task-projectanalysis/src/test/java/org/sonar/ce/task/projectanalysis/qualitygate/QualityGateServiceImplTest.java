@@ -36,6 +36,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -124,11 +125,12 @@ public class QualityGateServiceImplTest {
       new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold()));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void findDefaultQualityGate_by_property_not_found() {
     when(propertiesDao.selectGlobalProperty(any(), any())).thenReturn(null);
 
-    underTest.findDefaultQualityGate();
+    assertThatThrownBy(() -> underTest.findDefaultQualityGate())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

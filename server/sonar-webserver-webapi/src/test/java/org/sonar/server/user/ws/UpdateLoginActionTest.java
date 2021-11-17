@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -39,6 +38,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 
@@ -52,8 +52,6 @@ public class UpdateLoginActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(new UpdateLoginAction(db.getDbClient(), userSession,
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), null, null, null, null)));
@@ -140,13 +138,14 @@ public class UpdateLoginActionTest {
     UserDto user = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("A user with login '%s' already exists", user2.getLogin()));
-
-    ws.newRequest()
-      .setParam("login", user.getLogin())
-      .setParam("newLogin", user2.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", user.getLogin())
+        .setParam("newLogin", user2.getLogin())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("A user with login '%s' already exists", user2.getLogin()));
   }
 
   @Test
@@ -154,38 +153,41 @@ public class UpdateLoginActionTest {
     userSession.logIn().setSystemAdministrator();
     UserDto user = db.users().insertDisabledUser();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("User '%s' doesn't exist", user.getLogin()));
-
-    ws.newRequest()
-      .setParam("login", user.getLogin())
-      .setParam("newLogin", "new_login")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", user.getLogin())
+        .setParam("newLogin", "new_login")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("User '%s' doesn't exist", user.getLogin()));
   }
 
   @Test
   public void fail_with_NFE_when_login_does_not_match_existing_user() {
     userSession.logIn().setSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'unknown' doesn't exist");
-
-    ws.newRequest()
-      .setParam("login", "unknown")
-      .setParam("newLogin", "new_login")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "unknown")
+        .setParam("newLogin", "new_login")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'unknown' doesn't exist");
   }
 
   @Test
   public void fail_when_not_system_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam("login", "old_login")
-      .setParam("newLogin", "new_login")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "old_login")
+        .setParam("newLogin", "new_login")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

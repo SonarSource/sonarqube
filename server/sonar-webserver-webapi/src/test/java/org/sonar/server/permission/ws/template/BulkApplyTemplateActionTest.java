@@ -46,6 +46,7 @@ import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -121,23 +122,25 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   public void request_throws_NotFoundException_if_template_with_specified_name_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with name 'unknown' is not found (case insensitive)");
-
-    newRequest()
-      .setParam(PARAM_TEMPLATE_NAME, "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_TEMPLATE_NAME, "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with name 'unknown' is not found (case insensitive)");
   }
 
   @Test
   public void request_throws_IAE_if_more_than_1000_projects() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'projects' can contains only 1000 values, got 1001");
-
-    newRequest()
-      .setParam(PARAM_TEMPLATE_NAME, template1.getName())
-      .setParam(PARAM_PROJECTS, StringUtils.join(Collections.nCopies(1_001, "foo"), ","))
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_TEMPLATE_NAME, template1.getName())
+        .setParam(PARAM_PROJECTS, StringUtils.join(Collections.nCopies(1_001, "foo"), ","))
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'projects' can contains only 1000 values, got 1001");
   }
 
   @Test
@@ -290,20 +293,18 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   public void fail_if_no_template_parameter() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Template name or template id must be provided, not both.");
-
-    newRequest().execute();
+    assertThatThrownBy(() -> newRequest().execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Template name or template id must be provided, not both.");
   }
 
   @Test
   public void fail_if_template_name_is_incorrect() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
-
-    newRequest().setParam(PARAM_TEMPLATE_ID, "unknown-template-uuid").execute();
+    assertThatThrownBy(() -> newRequest().setParam(PARAM_TEMPLATE_ID, "unknown-template-uuid").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id 'unknown-template-uuid' is not found");
   }
 
   private void assertTemplate1AppliedToPublicProject(ComponentDto project) {

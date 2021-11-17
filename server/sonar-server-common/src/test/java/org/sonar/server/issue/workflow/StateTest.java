@@ -19,40 +19,35 @@
  */
 package org.sonar.server.issue.workflow;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StateTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
 
   @Test
   public void key_should_be_set() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("State key must be set");
-
-    new State("", new Transition[0]);
+    assertThatThrownBy(() -> new State("", new Transition[0]))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("State key must be set");
   }
 
   @Test
   public void no_duplicated_out_transitions() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
-
-    new State("CLOSE", new Transition[] {t1, t1});
+    assertThatThrownBy(() -> new State("CLOSE", new Transition[] {t1, t1}))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
   }
 
   @Test
   public void fail_when_transition_is_unknown() {
     State state = new State("VALIDATED", new Transition[0]);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Transition from state VALIDATED does not exist: Unknown Transition");
-
-    state.transition("Unknown Transition");
+    assertThatThrownBy(() -> state.transition("Unknown Transition"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Transition from state VALIDATED does not exist: Unknown Transition");
   }
 }

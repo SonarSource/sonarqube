@@ -22,9 +22,7 @@ package org.sonar.server.plugins;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
@@ -42,10 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ServerExtensionInstallerTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.parse("8.0"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
   private TestPluginRepository pluginRepository = new TestPluginRepository();
 

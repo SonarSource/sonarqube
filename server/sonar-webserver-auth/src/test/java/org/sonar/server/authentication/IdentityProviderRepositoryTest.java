@@ -20,18 +20,15 @@
 package org.sonar.server.authentication;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.authentication.IdentityProvider;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IdentityProviderRepositoryTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   static IdentityProvider GITHUB = new TestIdentityProvider()
     .setKey("github")
@@ -60,9 +57,9 @@ public class IdentityProviderRepositoryTest {
   public void fail_on_disabled_provider() {
     IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET, DISABLED));
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Identity provider disabled does not exist or is not enabled");
-    underTest.getEnabledByKey(DISABLED.getKey());
+    assertThatThrownBy(() -> underTest.getEnabledByKey(DISABLED.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Identity provider disabled does not exist or is not enabled");
   }
 
   @Test

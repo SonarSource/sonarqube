@@ -39,6 +39,7 @@ import org.sonar.server.permission.PermissionServiceImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -47,7 +48,6 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -276,36 +276,40 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
+    assertThatThrownBy(() ->  {
+      userSession.anonymous();
 
-    newRequest()
-      .setParam(PARAM_PERMISSION, SCAN.getKey())
-      .execute();
+      newRequest()
+        .setParam(PARAM_PERMISSION, SCAN.getKey())
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
-    expectedException.expect(ForbiddenException.class);
-
-    userSession.logIn("login");
-    newRequest()
-      .setParam(PARAM_PERMISSION, SCAN.getKey())
-      .execute();
+    assertThatThrownBy(() ->  {
+      userSession.logIn("login");
+      newRequest()
+        .setParam(PARAM_PERMISSION, SCAN.getKey())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(BadRequestException.class);
-
-    loginAsAdmin();
-    newRequest()
-      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .execute();
+    assertThatThrownBy(() ->  {
+      loginAsAdmin();
+      newRequest()
+        .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+        .setParam(PARAM_PROJECT_ID, project.uuid())
+        .setParam(PARAM_PROJECT_KEY, project.getKey())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -316,13 +320,14 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_ID, branch.uuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .setParam(PARAM_PROJECT_ID, branch.uuid())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project id '%s' not found", branch.uuid()));
   }
 
   @Test
@@ -333,13 +338,14 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
   }
 
 }

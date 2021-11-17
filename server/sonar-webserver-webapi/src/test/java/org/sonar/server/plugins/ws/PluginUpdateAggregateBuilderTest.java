@@ -26,6 +26,8 @@ import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class PluginUpdateAggregateBuilderTest {
 
   private static final Plugin PLUGIN_1 = Plugin.factory("key1");
@@ -33,16 +35,18 @@ public class PluginUpdateAggregateBuilderTest {
   private static final Version SOME_VERSION = Version.create("1.0");
   private static final PluginUpdate.Status SOME_STATUS = PluginUpdate.Status.COMPATIBLE;
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void plugin_can_not_be_null_and_builderFor_enforces_it_with_NPE() {
-    PluginUpdateAggregateBuilder.builderFor(null);
+    assertThatThrownBy(() -> PluginUpdateAggregateBuilder.builderFor(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void add_throws_IAE_when_plugin_is_not_equal_to_the_one_of_the_builder() {
     PluginUpdateAggregateBuilder builder = PluginUpdateAggregateBuilder.builderFor(PLUGIN_1);
 
-    builder.add(createPluginUpdate(PLUGIN_2));
+    assertThatThrownBy(() -> builder.add(createPluginUpdate(PLUGIN_2)))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

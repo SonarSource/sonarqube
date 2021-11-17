@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -35,6 +34,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -43,8 +43,6 @@ import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class IssueFinderTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -74,9 +72,9 @@ public class IssueFinderTest {
     IssueDto issueDto = insertIssue();
     addProjectPermission(issueDto, USER);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Issue with key 'UNKNOWN' does not exist");
-    underTest.getByKey(db.getSession(), "UNKNOWN");
+    assertThatThrownBy(() ->  underTest.getByKey(db.getSession(), "UNKNOWN"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key 'UNKNOWN' does not exist");
   }
 
   @Test
@@ -84,8 +82,8 @@ public class IssueFinderTest {
     IssueDto issueDto = insertIssue();
     addProjectPermission(issueDto, CODEVIEWER);
 
-    expectedException.expect(ForbiddenException.class);
-    underTest.getByKey(db.getSession(), issueDto.getKey());
+    assertThatThrownBy(() -> underTest.getByKey(db.getSession(), issueDto.getKey()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private IssueDto insertIssue() {

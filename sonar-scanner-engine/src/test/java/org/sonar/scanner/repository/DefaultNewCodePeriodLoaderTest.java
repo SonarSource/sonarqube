@@ -23,9 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.NewCodePeriods;
@@ -33,8 +31,6 @@ import org.sonarqube.ws.NewCodePeriods;
 import static org.mockito.Mockito.mock;
 
 public class DefaultNewCodePeriodLoaderTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private DefaultNewCodePeriodLoader underTest = new DefaultNewCodePeriodLoader(wsClient);

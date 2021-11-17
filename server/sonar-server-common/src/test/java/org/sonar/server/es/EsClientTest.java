@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -162,10 +163,11 @@ public class EsClientTest {
     verify(restClient).close();
   }
 
-  @Test(expected = ElasticsearchException.class)
+  @Test
   public void should_rethrow_ex_when_close_client_throws() throws IOException {
     doThrow(IOException.class).when(restClient).close();
-    underTest.close();
+    assertThatThrownBy(() -> underTest.close())
+      .isInstanceOf(ElasticsearchException.class);
   }
 
   @Test
@@ -182,13 +184,15 @@ public class EsClientTest {
     assertThat(underTest.nodesStats()).isNotNull();
   }
 
-  @Test(expected = ElasticsearchException.class)
+  @Test
   public void should_rethrow_ex_on_node_stat_fail() throws Exception {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_nodes/stats/fs,process,jvm,indices,breaker"))))
         .thenThrow(IOException.class);
-    underTest.nodesStats();
+
+    assertThatThrownBy(() -> underTest.nodesStats())
+      .isInstanceOf(ElasticsearchException.class);
   }
 
   @Test
@@ -205,13 +209,15 @@ public class EsClientTest {
     assertThat(underTest.indicesStats()).isNotNull();
   }
 
-  @Test(expected = ElasticsearchException.class)
+  @Test
   public void should_rethrow_ex_on_indices_stat_fail() throws Exception {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_stats"))))
         .thenThrow(IOException.class);
-    underTest.indicesStats();
+
+    assertThatThrownBy(() -> underTest.indicesStats())
+      .isInstanceOf(ElasticsearchException.class);
   }
 
   @Test
@@ -229,13 +235,15 @@ public class EsClientTest {
     assertThat(underTest.clusterStats()).isNotNull();
   }
 
-  @Test(expected = ElasticsearchException.class)
+  @Test
   public void should_rethrow_ex_on_cluster_stat_fail() throws Exception {
     when(restClient.performRequest(argThat(new RawRequestMatcher(
       "GET",
       "/_cluster/stats"))))
         .thenThrow(IOException.class);
-    underTest.clusterStats();
+
+    assertThatThrownBy(() -> underTest.clusterStats())
+      .isInstanceOf(ElasticsearchException.class);
   }
 
   @Test

@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -37,6 +36,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -53,8 +53,6 @@ public class DeleteActionTest {
   public DbTester dbTester = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
   private RuleIndexer ruleIndexer = spy(new RuleIndexer(es.client(), dbClient));
@@ -94,22 +92,24 @@ public class DeleteActionTest {
   public void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
-    thrown.expect(ForbiddenException.class);
-
-    tester.newRequest()
-      .setMethod("POST")
-      .setParam("key", "anyRuleKey")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .setParam("key", "anyRuleKey")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    thrown.expect(UnauthorizedException.class);
-
-    tester.newRequest()
-      .setMethod("POST")
-      .setParam("key", "anyRuleKey")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .setParam("key", "anyRuleKey")
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -117,13 +117,14 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator();
     RuleDefinitionDto rule = dbTester.rules().insert();
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Rule '" + rule.getKey().toString() + "' cannot be deleted because it is not a custom rule");
-
-    tester.newRequest()
-      .setMethod("POST")
-      .setParam("key", rule.getKey().toString())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .setParam("key", rule.getKey().toString())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Rule '" + rule.getKey().toString() + "' cannot be deleted because it is not a custom rule");
   }
 
   private void logInAsQProfileAdministrator() {

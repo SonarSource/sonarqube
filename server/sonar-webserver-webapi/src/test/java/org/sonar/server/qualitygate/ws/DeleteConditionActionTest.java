@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import java.util.Collection;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
@@ -40,6 +39,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -51,8 +51,6 @@ public class DeleteConditionActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(
     new DeleteConditionAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, TestComponentFinder.from(db))));
@@ -137,12 +135,11 @@ public class DeleteConditionActionTest {
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, qualityGateCondition.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -152,11 +149,10 @@ public class DeleteConditionActionTest {
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, qualityGateCondition.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -167,12 +163,11 @@ public class DeleteConditionActionTest {
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
     String unknownConditionUuid = "unknown";
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate condition with uuid '" + unknownConditionUuid + "'");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, unknownConditionUuid)
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate condition with uuid '" + unknownConditionUuid + "'");
   }
 
   @Test
@@ -182,12 +177,11 @@ public class DeleteConditionActionTest {
     db.getDbClient().gateConditionDao().insert(condition, db.getSession());
     db.commit();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
   }
 
   private Collection<QualityGateConditionDto> searchConditionsOf(QualityGateDto qualityGate) {

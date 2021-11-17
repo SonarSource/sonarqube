@@ -22,7 +22,6 @@ package org.sonar.server.usertoken;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
@@ -38,8 +37,6 @@ import static org.mockito.Mockito.when;
 
 public class UserTokenAuthenticationTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);

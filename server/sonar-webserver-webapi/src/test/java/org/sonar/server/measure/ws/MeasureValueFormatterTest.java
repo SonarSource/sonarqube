@@ -19,14 +19,13 @@
  */
 package org.sonar.server.measure.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
@@ -40,8 +39,6 @@ import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalV
 
 public class MeasureValueFormatterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_formatNumericalValue() {
@@ -65,10 +62,9 @@ public class MeasureValueFormatterTest {
 
   @Test
   public void fail_if_text_value_type_for_numeric_formatter() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported metric type 'DATA' for numerical value");
-
-    formatNumericalValue(42.0d, newMetric(DATA));
+    assertThatThrownBy(() -> formatNumericalValue(42.0d, newMetric(DATA)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported metric type 'DATA' for numerical value");
   }
 
   private static MetricDto newMetric(Metric.ValueType valueType) {

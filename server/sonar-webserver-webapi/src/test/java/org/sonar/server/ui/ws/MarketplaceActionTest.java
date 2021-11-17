@@ -22,7 +22,6 @@ package org.sonar.server.ui.ws;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
@@ -38,6 +37,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Navigation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -47,8 +47,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 @RunWith(DataProviderRunner.class)
 public class MarketplaceActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
@@ -77,10 +75,9 @@ public class MarketplaceActionTest {
     userSessionRule.anonymous();
     TestRequest request = ws.newRequest();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    request.execute();
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("Authentication is required");
   }
 
   @Test
@@ -88,10 +85,9 @@ public class MarketplaceActionTest {
     userSessionRule.logIn();
     TestRequest request = ws.newRequest();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    request.execute();
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

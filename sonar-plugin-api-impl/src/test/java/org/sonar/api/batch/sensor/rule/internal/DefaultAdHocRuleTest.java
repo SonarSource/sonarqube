@@ -19,24 +19,19 @@
  */
 package org.sonar.api.batch.sensor.rule.internal;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
-import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DefaultAdHocRuleTest {
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void store() {
@@ -86,9 +81,9 @@ public class DefaultAdHocRuleTest {
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Engine id is mandatory");
-    rule.save();
+    assertThatThrownBy(() -> rule.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Engine id is mandatory");
   }
 
   @Test
@@ -102,9 +97,9 @@ public class DefaultAdHocRuleTest {
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Rule id is mandatory");
-    rule.save();
+    assertThatThrownBy(() -> rule.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Rule id is mandatory");
   }
 
   @Test
@@ -118,9 +113,9 @@ public class DefaultAdHocRuleTest {
       .severity(Severity.BLOCKER)
       .type(RuleType.CODE_SMELL);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Name is mandatory");
-    rule.save();
+    assertThatThrownBy(() -> rule.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Name is mandatory");
   }
 
 
@@ -134,9 +129,9 @@ public class DefaultAdHocRuleTest {
       .description("desc")
       .type(RuleType.CODE_SMELL);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Severity is mandatory");
-    rule.save();
+    assertThatThrownBy(() -> rule.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Severity is mandatory");
   }
 
   @Test
@@ -149,9 +144,9 @@ public class DefaultAdHocRuleTest {
       .description("desc")
       .severity(Severity.BLOCKER);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Type is mandatory");
-    rule.save();
+    assertThatThrownBy(() -> rule.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Type is mandatory");
   }
 
 }

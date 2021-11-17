@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -39,6 +38,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -54,8 +54,6 @@ public class DeactivateRulesActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private QProfileRules qProfileRules = mock(QProfileRules.class, RETURNS_DEEP_STUBS);
@@ -131,8 +129,8 @@ public class DeactivateRulesActionTest {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, randomAlphanumeric(UUID_SIZE));
 
-    thrown.expect(UnauthorizedException.class);
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -143,9 +141,8 @@ public class DeactivateRulesActionTest {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
 
-    thrown.expect(BadRequestException.class);
-
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -156,7 +153,7 @@ public class DeactivateRulesActionTest {
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
 
-    thrown.expect(ForbiddenException.class);
-    request.execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
   }
 }

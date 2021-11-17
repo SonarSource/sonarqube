@@ -29,7 +29,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -47,6 +46,7 @@ import org.sonar.db.project.ProjectExportMapper;
 
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
@@ -68,8 +68,6 @@ public class ExportBranchesStepTest {
     .setModuleUuidPath("." + PROJECT_UUID + ".")
     .setProjectUuid(PROJECT_UUID);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
   @Rule
@@ -149,9 +147,9 @@ public class ExportBranchesStepTest {
   public void throws_ISE_if_error() {
     dumpWriter.failIfMoreThan(1, DumpElement.BRANCHES);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Branch export failed after processing 1 branch(es) successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Branch export failed after processing 1 branch(es) successfully");
   }
 
   @Test

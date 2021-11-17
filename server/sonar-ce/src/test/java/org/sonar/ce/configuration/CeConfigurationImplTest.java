@@ -20,20 +20,17 @@
 package org.sonar.ce.configuration;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.Math.abs;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeConfigurationImplTest {
   public static final ConfigurationBridge EMPTY_CONFIGURATION = new ConfigurationBridge(new MapSettings());
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SimpleWorkerCountProvider workerCountProvider = new SimpleWorkerCountProvider();
 
@@ -67,9 +64,10 @@ public class CeConfigurationImplTest {
   public void constructor_throws_MessageException_when_WorkerCountProvider_returns_0() {
     workerCountProvider.set(0);
 
-    expectMessageException(0);
-
-    new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
+    assertThatThrownBy(() -> new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Worker count '0' is invalid. " +
+        "It must be an integer strictly greater than 0 and less or equal to 10");
   }
 
   @Test
@@ -77,9 +75,10 @@ public class CeConfigurationImplTest {
     int value = -1 - abs(new Random().nextInt());
     workerCountProvider.set(value);
 
-    expectMessageException(value);
-
-    new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
+    assertThatThrownBy(() -> new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Worker count '" + value + "' is invalid. " +
+        "It must be an integer strictly greater than 0 and less or equal to 10");
   }
 
   @Test
@@ -87,15 +86,10 @@ public class CeConfigurationImplTest {
     int value = 10 + abs(new Random().nextInt());
     workerCountProvider.set(value);
 
-    expectMessageException(value);
-
-    new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
-  }
-
-  private void expectMessageException(int value) {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Worker count '" + value + "' is invalid. " +
-      "It must be an integer strictly greater than 0 and less or equal to 10");
+    assertThatThrownBy(() ->  new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Worker count '" + value + "' is invalid. " +
+        "It must be an integer strictly greater than 0 and less or equal to 10");
   }
 
   @Test

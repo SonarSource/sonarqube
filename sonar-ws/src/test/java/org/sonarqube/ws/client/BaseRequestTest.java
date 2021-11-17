@@ -22,20 +22,16 @@ package org.sonarqube.ws.client;
 import java.util.Arrays;
 import java.util.List;
 import org.assertj.core.data.MapEntry;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 
 public class BaseRequestTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private FakeRequest underTest = new FakeRequest("api/foo");
 
@@ -99,8 +95,8 @@ public class BaseRequestTest {
 
   @Test
   public void fail_if_null_param_key() {
-    expectedException.expect(IllegalArgumentException.class);
-    underTest.setParam(null, "val");
+    assertThatThrownBy(() -> underTest.setParam(null, "val"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

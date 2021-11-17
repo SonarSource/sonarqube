@@ -42,6 +42,7 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -127,74 +128,80 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void fail_if_not_a_project_permission() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(user.getLogin(), template.getUuid(), GlobalPermissions.PROVISIONING);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), template.getUuid(), GlobalPermissions.PROVISIONING);
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_not_logged_in() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_user_missing() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(null, template.getUuid(), DEFAULT_PERMISSION);
+    assertThatThrownBy(() -> {
+      newRequest(null, template.getUuid(), DEFAULT_PERMISSION);
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_permission_missing() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest(user.getLogin(), template.getUuid(), null);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), template.getUuid(), null);
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_template_missing() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest(user.getLogin(), null, DEFAULT_PERMISSION);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), null, DEFAULT_PERMISSION);
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_user_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'unknown-login' is not found");
-
-    newRequest("unknown-login", template.getUuid(), DEFAULT_PERMISSION);
+    assertThatThrownBy(() -> newRequest("unknown-login", template.getUuid(), DEFAULT_PERMISSION))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("User with login 'unknown-login' is not found");
   }
 
   @Test
   public void fail_if_template_key_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
-
-    newRequest(user.getLogin(), "unknown-key", DEFAULT_PERMISSION);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), "unknown-key", DEFAULT_PERMISSION);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id 'unknown-key' is not found");
   }
 
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {

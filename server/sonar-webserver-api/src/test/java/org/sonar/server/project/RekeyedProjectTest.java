@@ -19,33 +19,28 @@
  */
 package org.sonar.server.project;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class RekeyedProjectTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_NPE_if_project_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project can't be null");
-
-    new RekeyedProject(null, randomAlphanumeric(3));
+    assertThatThrownBy(() -> new RekeyedProject(null, randomAlphanumeric(3)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("project can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_previousKey_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("previousKey can't be null");
-
-    new RekeyedProject(newRandomProject(), null);
+    assertThatThrownBy(() -> new RekeyedProject(newRandomProject(), null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("previousKey can't be null");
   }
 
   @Test

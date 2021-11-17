@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.Project;
 import org.sonar.alm.client.bitbucketserver.Repository;
@@ -46,6 +45,7 @@ import org.sonarqube.ws.AlmIntegrations;
 import org.sonarqube.ws.AlmIntegrations.SearchBitbucketserverReposWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -55,8 +55,6 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class SearchBitbucketServerReposActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -187,12 +185,13 @@ public class SearchBitbucketServerReposActionTest {
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No personal access token found");
-
-    ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", almSetting.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("No personal access token found");
   }
 
   @Test
@@ -202,34 +201,37 @@ public class SearchBitbucketServerReposActionTest {
     AlmPatDto almPatDto = newAlmPatDto();
     db.getDbClient().almPatDao().insert(db.getSession(), almPatDto, user.getLogin(), null);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("ALM Setting 'testKey' not found");
-
-    ws.newRequest()
-      .setParam("almSetting", "testKey")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "testKey")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("ALM Setting 'testKey' not found");
   }
 
   @Test
   public void fail_when_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest()
-      .setParam("almSetting", "anyvalue")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "anyvalue")
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_when_no_creation_project_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("almSetting", "anyvalue")
-      .execute();
+    
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "anyvalue")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

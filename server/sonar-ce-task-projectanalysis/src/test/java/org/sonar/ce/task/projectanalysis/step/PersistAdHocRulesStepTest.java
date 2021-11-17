@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.issue.NewAdHocRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;

@@ -26,9 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -58,8 +56,6 @@ public class OAuth2ContextFactoryTest {
     .setEmail("john@email.com")
     .build();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
   private TestUserRegistrar userIdentityAuthenticator = new TestUserRegistrar();

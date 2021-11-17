@@ -20,9 +20,9 @@
 package org.sonar.server.root.ws;
 
 import java.util.List;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -38,6 +38,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Roots;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -46,8 +47,6 @@ public class SearchActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private UserDao userDao = dbTester.getDbClient().userDao();
   private DbSession dbSession = dbTester.getSession();
@@ -72,18 +71,14 @@ public class SearchActionTest {
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectInsufficientPrivilegesForbiddenException();
-
-    executeRequest();
+    expectInsufficientPrivilegesForbiddenException(() -> executeRequest());
   }
 
   @Test
   public void execute_fails_with_ForbiddenException_when_user_is_not_root() {
     userSessionRule.logIn().setNonRoot();
 
-    expectInsufficientPrivilegesForbiddenException();
-
-    executeRequest();
+    expectInsufficientPrivilegesForbiddenException(() -> executeRequest());
   }
 
   @Test
@@ -146,9 +141,10 @@ public class SearchActionTest {
       .getRootsList();
   }
 
-  private void expectInsufficientPrivilegesForbiddenException() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+  private void expectInsufficientPrivilegesForbiddenException(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
 }

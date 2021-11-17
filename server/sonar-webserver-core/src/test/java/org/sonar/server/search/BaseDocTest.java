@@ -24,22 +24,19 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 public class BaseDocTest {
   private final IndexType.IndexMainType someType = IndexType.main(Index.simple("bar"), "donut");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void getField() {
@@ -128,10 +125,9 @@ public class BaseDocTest {
 
     };
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("parent must be set on a doc associated to a IndexRelationType (see BaseDoc#setParent(String))");
-
-    doc.getFields();
+    assertThatThrownBy(() -> doc.getFields())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("parent must be set on a doc associated to a IndexRelationType (see BaseDoc#setParent(String))");
   }
 
   @Test

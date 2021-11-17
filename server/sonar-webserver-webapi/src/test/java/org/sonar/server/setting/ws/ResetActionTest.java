@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ws.WebService;
@@ -57,6 +56,7 @@ import org.sonarqube.ws.MediaTypes;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -67,8 +67,6 @@ import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
 public class ResetActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -248,10 +246,9 @@ public class ResetActionTest {
     userSession.logIn().setNonSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    executeRequestOnGlobalSetting("foo");
+    assertThatThrownBy(() -> executeRequestOnGlobalSetting("foo"))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -259,10 +256,11 @@ public class ResetActionTest {
     userSession.logIn().addProjectPermission(USER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    executeRequestOnComponentSetting("foo", project);
+    assertThatThrownBy(() -> {
+      executeRequestOnComponentSetting("foo", project);
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -270,10 +268,11 @@ public class ResetActionTest {
     logInAsSystemAdministrator();
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    executeRequestOnComponentSetting("foo", project);
+    assertThatThrownBy(() -> {
+      executeRequestOnComponentSetting("foo", project);
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -283,10 +282,11 @@ public class ResetActionTest {
       .onlyOnQualifiers(VIEW)
       .build());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'foo' cannot be global");
-
-    executeRequestOnGlobalSetting("foo");
+    assertThatThrownBy(() -> {
+      executeRequestOnGlobalSetting("foo");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'foo' cannot be global");
   }
 
   @Test
@@ -297,10 +297,11 @@ public class ResetActionTest {
       .build());
     i18n.put("qualifier." + PROJECT, "project");
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'foo' cannot be set on a project");
-
-    executeRequestOnComponentSetting("foo", project);
+    assertThatThrownBy(() -> {
+      executeRequestOnComponentSetting("foo", project);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'foo' cannot be set on a project");
   }
 
   @Test
@@ -310,10 +311,11 @@ public class ResetActionTest {
     definitions.addComponent(PropertyDefinition.builder("foo").build());
     i18n.put("qualifier." + PROJECT, "project");
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'foo' cannot be set on a project");
-
-    executeRequestOnComponentSetting("foo", project);
+    assertThatThrownBy(() -> {
+      executeRequestOnComponentSetting("foo", project);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'foo' cannot be set on a project");
   }
 
   @Test
@@ -371,24 +373,26 @@ public class ResetActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     definitions.addComponent(PropertyDefinition.builder("foo").onQualifiers(PROJECT).build());
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam("keys", "foo")
-      .setParam("component", branch.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("keys", "foo")
+        .setParam("component", branch.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
   public void fail_when_component_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
-
-    ws.newRequest()
-      .setParam("keys", "foo")
-      .setParam("component", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("keys", "foo")
+        .setParam("component", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'unknown' not found");
   }
 
   @Test
@@ -398,14 +402,15 @@ public class ResetActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     String settingKey = "not_allowed_on_branch";
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
-
-    ws.newRequest()
-      .setParam("keys", settingKey)
-      .setParam("component", branch.getKey())
-      .setParam("branch", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("keys", settingKey)
+        .setParam("component", branch.getKey())
+        .setParam("branch", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' on branch 'unknown' not found", branch.getKey()));
   }
 
   @Test
@@ -414,13 +419,14 @@ public class ResetActionTest {
     logInAsProjectAdmin(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
-
-    ws.newRequest()
-      .setParam("keys", settingKey)
-      .setParam("component", project.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("keys", settingKey)
+        .setParam("component", project.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
 
   private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto root, ComponentDto module) {
@@ -433,10 +439,11 @@ public class ResetActionTest {
     i18n.put("qualifier." + component.qualifier(), "QualifierLabel");
     logInAsProjectAdmin(root);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Setting 'foo' cannot be set on a QualifierLabel");
-
-    executeRequestOnComponentSetting("foo", component);
+    assertThatThrownBy(() -> {
+      executeRequestOnComponentSetting("foo", component);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'foo' cannot be set on a QualifierLabel");
   }
 
   private void executeRequestOnGlobalSetting(String key) {
@@ -495,9 +502,9 @@ public class ResetActionTest {
 
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey(key)
-      .setUserUuid(user.getUuid())
-      .build(),
+        .setKey(key)
+        .setUserUuid(user.getUuid())
+        .build(),
       dbSession)).isNotEmpty();
   }
 

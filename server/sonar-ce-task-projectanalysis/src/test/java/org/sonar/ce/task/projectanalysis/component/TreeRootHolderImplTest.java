@@ -19,11 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
@@ -46,49 +45,43 @@ public class TreeRootHolderImplTest {
         .build())
     .build();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private TreeRootHolderImpl underTest = new TreeRootHolderImpl();
 
   @Test
   public void setRoots_throws_NPE_if_root_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("root can not be null");
-
-    underTest.setRoots(null, DUMB_PROJECT);
+    assertThatThrownBy(() -> underTest.setRoots(null, DUMB_PROJECT))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("root can not be null");
   }
 
   @Test
   public void setRoots_throws_NPE_if_reportRoot_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("root can not be null");
-
-    underTest.setRoots(DUMB_PROJECT, null);
+    assertThatThrownBy(() -> underTest.setRoots(DUMB_PROJECT, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("root can not be null");
   }
 
   @Test
   public void setRoot_throws_ISE_when_called_twice() {
     underTest.setRoots(DUMB_PROJECT, DUMB_PROJECT);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("root can not be set twice in holder");
-
-    underTest.setRoots(null, DUMB_PROJECT);
+    assertThatThrownBy(() -> underTest.setRoots(null, DUMB_PROJECT))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("root can not be set twice in holder");
   }
 
   @Test
   public void getRoot_throws_ISE_if_root_has_not_been_set_yet() {
-    expectNotInitialized_ISE();
-
-    underTest.getRoot();
+    assertThatThrownBy(() -> underTest.getRoot())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Holder has not been initialized yet");
   }
 
   @Test
   public void getComponentByRef_throws_ISE_if_root_has_not_been_set() {
-    expectNotInitialized_ISE();
-
-    underTest.getComponentByRef(12);
+    assertThatThrownBy(() -> underTest.getComponentByRef(12))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Holder has not been initialized yet");
   }
 
   @Test
@@ -113,10 +106,9 @@ public class TreeRootHolderImplTest {
   public void getComponentByRef_throws_IAE_if_holder_does_not_contain_specified_component() {
     underTest.setRoots(SOME_REPORT_COMPONENT_TREE, DUMB_PROJECT);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component with ref '6' can't be found");
-
-    underTest.getComponentByRef(6);
+    assertThatThrownBy(() -> underTest.getComponentByRef(6))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Component with ref '6' can't be found");
   }
 
   @Test
@@ -130,10 +122,9 @@ public class TreeRootHolderImplTest {
   public void getComponentByRef_throws_IAE_if_holder_contains_View_tree() {
     underTest.setRoots(SOME_VIEWS_COMPONENT_TREE, DUMB_PROJECT);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component with ref '1' can't be found");
-
-    underTest.getComponentByRef(1);
+    assertThatThrownBy(() -> underTest.getComponentByRef(1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Component with ref '1' can't be found");
   }
 
   @Test
@@ -150,9 +141,9 @@ public class TreeRootHolderImplTest {
 
   @Test
   public void getSize_throws_ISE_if_not_initialized() {
-    expectNotInitialized_ISE();
-
-    underTest.getSize();
+    assertThatThrownBy(() -> underTest.getSize())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Holder has not been initialized yet");
   }
 
   @Test
@@ -160,10 +151,4 @@ public class TreeRootHolderImplTest {
     underTest.setRoots(SOME_REPORT_COMPONENT_TREE, DUMB_PROJECT);
     assertThat(underTest.getSize()).isEqualTo(3);
   }
-
-  private void expectNotInitialized_ISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Holder has not been initialized yet");
-  }
-
 }

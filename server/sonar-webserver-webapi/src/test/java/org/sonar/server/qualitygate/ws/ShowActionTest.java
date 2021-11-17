@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -40,6 +39,7 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse.Condition;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -48,8 +48,6 @@ import static org.sonarqube.ws.Qualitygates.Actions;
 
 public class ShowActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -238,23 +236,21 @@ public class ShowActionTest {
   public void fail_when_no_name_or_id() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'name' must be provided");
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Either 'id' or 'name' must be provided");
   }
 
   @Test
   public void fail_when_both_name_or_id() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'name' must be provided");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", qualityGate.getName())
       .setParam("id", qualityGate.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Either 'id' or 'name' must be provided");
   }
 
   @Test
@@ -266,36 +262,33 @@ public class ShowActionTest {
     db.getDbClient().metricDao().disableByKey(db.getSession(), metric.getKey());
     db.commit();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Could not find metric with id %s", metric.getUuid()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", qualityGate.getName())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining(format("Could not find metric with id %s", metric.getUuid()));
   }
 
   @Test
   public void fail_when_quality_name_does_not_exist() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for name UNKNOWN");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", "UNKNOWN")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate has been found for name UNKNOWN");
   }
 
   @Test
   public void fail_when_quality_id_does_not_exist() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for id 123");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("id", "123")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate has been found for id 123");
   }
 
   @Test

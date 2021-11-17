@@ -19,32 +19,27 @@
  */
 package org.sonar.server.webhook;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeTask underTest = new CeTask("A", CeTask.Status.SUCCESS);
 
   @Test
   public void constructor_throws_NPE_if_id_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can't be null");
-
-    new CeTask(null, CeTask.Status.SUCCESS);
+    assertThatThrownBy(() -> new CeTask(null, CeTask.Status.SUCCESS))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    new CeTask("B", null);
+    assertThatThrownBy(() -> new CeTask("B", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test

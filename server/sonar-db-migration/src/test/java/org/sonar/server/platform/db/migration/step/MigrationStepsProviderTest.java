@@ -20,13 +20,12 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
@@ -35,8 +34,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class MigrationStepsProviderTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private InternalMigrationStepRegistry internalMigrationStepRegistry = mock(InternalMigrationStepRegistry.class);
   private MigrationStepsProvider underTest = new MigrationStepsProvider();
@@ -46,10 +43,9 @@ public class MigrationStepsProviderTest {
     IllegalStateException expected = new IllegalStateException("faking ISE because registry is empty");
     when(internalMigrationStepRegistry.build()).thenThrow(expected);
 
-    expectedException.expect(expected.getClass());
-    expectedException.expectMessage(expected.getMessage());
-
-    underTest.provide(internalMigrationStepRegistry);
+    assertThatThrownBy(() -> underTest.provide(internalMigrationStepRegistry))
+      .isInstanceOf(expected.getClass())
+      .hasMessage(expected.getMessage());
   }
 
   @Test

@@ -19,21 +19,17 @@
  */
 package org.sonar.db.user;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UserTokenDtoTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fail_if_token_hash_is_longer_than_255_characters() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Token hash length (256) is longer than the maximum authorized (255)");
-
-    new UserTokenDto().setTokenHash(randomAlphabetic(256));
+    assertThatThrownBy(() -> new UserTokenDto().setTokenHash(randomAlphabetic(256)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Token hash length (256) is longer than the maximum authorized (255)");
   }
 }

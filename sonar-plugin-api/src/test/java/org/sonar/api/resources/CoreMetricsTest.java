@@ -21,21 +21,17 @@ package org.sonar.api.resources;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.getMetric;
 import static org.sonar.api.measures.CoreMetrics.getMetrics;
 
 public class CoreMetricsTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void read_metrics_from_class_reflection() {
@@ -52,7 +48,7 @@ public class CoreMetricsTest {
 
   @Test
   public void fail_get_unknown_metric_by_key() {
-    expectedException.expect(NoSuchElementException.class);
-    getMetric("unknown");
+    assertThatThrownBy(() -> getMetric("unknown"))
+      .isInstanceOf(NoSuchElementException.class);
   }
 }

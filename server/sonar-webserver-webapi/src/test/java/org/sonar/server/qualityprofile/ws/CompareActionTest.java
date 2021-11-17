@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -48,6 +47,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CompareActionTest {
 
@@ -55,8 +55,6 @@ public class CompareActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -141,36 +139,50 @@ public class CompareActionTest {
       .execute().assertJson(this.getClass(), "compare_param_on_right.json");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_on_missing_left_param() {
-    ws.newRequest()
-      .setParam("rightKey", "polop")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("rightKey", "polop")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_on_missing_right_param() {
-    ws.newRequest()
-      .setParam("leftKey", "polop")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("leftKey", "polop")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_on_left_profile_not_found() {
     createProfile("xoo", "Right", "xoo-right-12345");
-    ws.newRequest()
-      .setParam("leftKey", "polop")
-      .setParam("rightKey", "xoo-right-12345")
-      .execute();
+
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("leftKey", "polop")
+        .setParam("rightKey", "xoo-right-12345")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_on_right_profile_not_found() {
     createProfile("xoo", "Left", "xoo-left-12345");
-    ws.newRequest()
-      .setParam("leftKey", "xoo-left-12345")
-      .setParam("rightKey", "polop")
-      .execute();
+
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("leftKey", "xoo-left-12345")
+        .setParam("rightKey", "polop")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

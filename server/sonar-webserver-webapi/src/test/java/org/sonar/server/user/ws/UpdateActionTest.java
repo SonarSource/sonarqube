@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -45,6 +44,7 @@ import org.sonar.server.ws.WsActionTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -59,8 +59,6 @@ public class UpdateActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -91,26 +89,28 @@ public class UpdateActionTest {
   public void fail_on_update_name_non_local_user() {
     createUser(false);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name cannot be updated for a non-local user");
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .setParam("name", "Jean Neige")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .setParam("name", "Jean Neige")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Name cannot be updated for a non-local user");
   }
 
   @Test
   public void fail_on_update_email_non_local_user() {
     createUser(false);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Email cannot be updated for a non-local user");
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .setParam("email", "jean.neige@thegreatw.all")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .setParam("email", "jean.neige@thegreatw.all")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Email cannot be updated for a non-local user");
   }
 
   @Test
@@ -220,46 +220,50 @@ public class UpdateActionTest {
     createUser();
     userSession.logIn("polop");
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_on_unknown_user() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'john' doesn't exist");
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'john' doesn't exist");
   }
 
   @Test
   public void fail_on_disabled_user() {
     db.users().insertUser(u -> u.setLogin("john").setActive(false));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'john' doesn't exist");
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'john' doesn't exist");
   }
 
   @Test
   public void fail_on_invalid_email() {
     createUser();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Email 'invalid-email' is not valid");
-
-    ws.newRequest()
-      .setParam("login", "john")
-      .setParam("email", "invalid-email")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("login", "john")
+        .setParam("email", "invalid-email")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Email 'invalid-email' is not valid");
   }
 
   @Test

@@ -19,22 +19,18 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class InnerDuplicateTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructors_throws_NPE_if_textBlock_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("textBlock of duplicate can not be null");
-
-    new InnerDuplicate(null);
+    assertThatThrownBy(() -> new InnerDuplicate(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("textBlock of duplicate can not be null");
   }
 
   @Test

@@ -26,7 +26,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -58,8 +57,6 @@ public class CurrentActionHomepageTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = db.getDbClient();
 

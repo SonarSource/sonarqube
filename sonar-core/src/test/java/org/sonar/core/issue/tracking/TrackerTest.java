@@ -26,9 +26,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 
 import static java.util.Arrays.asList;
@@ -44,8 +42,6 @@ public class TrackerTest {
   public static final RuleKey RULE_USE_DIAMOND = RuleKey.of("java", "UseDiamond");
   public static final RuleKey RULE_MISSING_PACKAGE_INFO = RuleKey.of("java", "MissingPackageInfo");
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   Tracker<Issue, Issue> tracker = new Tracker<>();
 

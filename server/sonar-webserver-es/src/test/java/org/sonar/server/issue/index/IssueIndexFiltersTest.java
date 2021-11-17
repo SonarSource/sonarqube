@@ -28,7 +28,6 @@ import org.assertj.core.api.Fail;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
@@ -54,7 +53,7 @@ import static java.util.Collections.singletonList;
 import static java.util.TimeZone.getTimeZone;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.DateUtils.addDays;
@@ -72,8 +71,6 @@ public class IssueIndexFiltersTest {
   public EsTester es = EsTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = none();
   private final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -428,20 +425,20 @@ public class IssueIndexFiltersTest {
 
     // Search for issues of project 1 having less than 15 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
+        .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
       project1Issue1.key());
 
     // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
-        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
+        .createdAfterByProjectUuids(ImmutableMap.of(
+          project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+          project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
       project1Issue1.key(), project2Issue1.key());
 
     // Search for issues of project 1 having less than 30 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
+        .createdAfterByProjectUuids(ImmutableMap.of(
+          project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
       project1Issue1.key(), project1Issue2.key());
 
     // Search for issues of project 1 and project 2 having less than 5 days
@@ -477,23 +474,23 @@ public class IssueIndexFiltersTest {
 
     // Search for issues of project 1 branch 1 having less than 15 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .mainBranch(false)
-      .createdAfterByProjectUuids(ImmutableMap.of(project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
+        .mainBranch(false)
+        .createdAfterByProjectUuids(ImmutableMap.of(project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
       project1Branch1Issue1.key());
 
     // Search for issues of project 1 branch 1 having less than 14 days and project 2 branch 1 having less then 25 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .mainBranch(false)
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
-        project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
+        .mainBranch(false)
+        .createdAfterByProjectUuids(ImmutableMap.of(
+          project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+          project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
       project1Branch1Issue1.key(), project2Branch1Issue1.key());
 
     // Search for issues of project 1 branch 1 having less than 30 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .mainBranch(false)
-      .createdAfterByProjectUuids(ImmutableMap.of(
-        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
+        .mainBranch(false)
+        .createdAfterByProjectUuids(ImmutableMap.of(
+          project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
       project1Branch1Issue1.key(), project1Branch1Issue2.key());
 
     // Search for issues of project 1 branch 1 and project 2 branch 2 having less than 5 days
@@ -698,10 +695,10 @@ public class IssueIndexFiltersTest {
       .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-21")), "I1");
 
     // 20 < createdAt < 20: exception
-    expectedException.expect(IllegalArgumentException.class);
-    underTest.search(IssueQuery.builder()
+    assertThatThrownBy(() -> underTest.search(IssueQuery.builder()
       .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20"))
-      .build(), new SearchOptions());
+      .build(), new SearchOptions()))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -732,10 +729,10 @@ public class IssueIndexFiltersTest {
 
   @Test
   public void fail_if_created_before_equals_created_after() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Start bound cannot be larger or equal to end bound");
-
-    underTest.search(IssueQuery.builder().createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20")).build(), new SearchOptions());
+    assertThatThrownBy(() -> underTest.search(IssueQuery.builder().createdAfter(parseDate("2014-09-20"))
+      .createdBefore(parseDate("2014-09-20")).build(), new SearchOptions()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Start bound cannot be larger or equal to end bound");
   }
 
   @Test

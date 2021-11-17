@@ -24,11 +24,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -36,8 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MemoryCacheTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CacheLoader<String, String> loader = mock(CacheLoader.class);
   private MemoryCache<String, String> cache = new MemoryCache<>(loader);
@@ -65,10 +62,9 @@ public class MemoryCacheTest {
     assertThat(cache.get("foo")).isEqualTo("bar");
     verify(loader, times(1)).load("foo");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("No cache entry found for key: not_exists");
-
-    cache.get("not_exists");
+    assertThatThrownBy(() -> cache.get("not_exists"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No cache entry found for key: not_exists");
   }
 
   @Test

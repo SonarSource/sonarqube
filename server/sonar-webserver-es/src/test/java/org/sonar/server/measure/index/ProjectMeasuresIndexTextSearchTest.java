@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.EsTester;
@@ -54,8 +53,6 @@ public class ProjectMeasuresIndexTextSearchTest {
 
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

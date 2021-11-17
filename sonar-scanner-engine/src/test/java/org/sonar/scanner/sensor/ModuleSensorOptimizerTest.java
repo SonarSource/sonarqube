@@ -22,7 +22,6 @@ package org.sonar.scanner.sensor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -40,9 +39,6 @@ public class ModuleSensorOptimizerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private DefaultFileSystem fs;
   private ModuleSensorOptimizer optimizer;

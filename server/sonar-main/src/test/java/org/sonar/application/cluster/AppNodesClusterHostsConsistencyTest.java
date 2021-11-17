@@ -38,15 +38,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.DistributedCallback;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -54,8 +53,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 
 public class AppNodesClusterHostsConsistencyTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @SuppressWarnings("unchecked")
   private final Consumer<String> logger = mock(Consumer.class);
@@ -115,10 +112,9 @@ public class AppNodesClusterHostsConsistencyTest {
     TestAppSettings settings = new TestAppSettings();
     AppNodesClusterHostsConsistency.setInstance(member, settings);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Instance is already set");
-
-    AppNodesClusterHostsConsistency.setInstance(member, settings);
+    assertThatThrownBy(() -> AppNodesClusterHostsConsistency.setInstance(member, settings))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Instance is already set");
   }
 
   @Test
@@ -127,10 +123,9 @@ public class AppNodesClusterHostsConsistencyTest {
     TestHazelcastMember member2 = new TestHazelcastMember(Collections.emptyMap(), newLocalHostMember(2, true));
     AppNodesClusterHostsConsistency.setInstance(member1, new TestAppSettings());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Instance is already set");
-
-    AppNodesClusterHostsConsistency.setInstance(member2, new TestAppSettings());
+    assertThatThrownBy(() -> AppNodesClusterHostsConsistency.setInstance(member2, new TestAppSettings()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Instance is already set");
   }
 
   private Member newLocalHostMember(int port) throws UnknownHostException {

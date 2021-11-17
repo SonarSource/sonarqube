@@ -22,7 +22,6 @@ package org.sonar.server.usergroups.ws;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -36,6 +35,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
@@ -44,8 +44,6 @@ public class CreateActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupWsSupport(), new SequenceUuidFactory());
   private final WsActionTester tester = new WsActionTester(underTest);
@@ -103,36 +101,49 @@ public class CreateActionTest {
   public void fail_if_not_administrator() {
     userSession.logIn("not-admin");
 
-    expectedException.expect(ForbiddenException.class);
-
-    tester.newRequest()
-      .setParam("name", "some-product-bu")
-      .setParam("description", "Business Unit for Some Awesome Product")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("name", "some-product-bu")
+        .setParam("description", "Business Unit for Some Awesome Product")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_name_is_too_short() {
     loginAsAdmin();
-    tester.newRequest()
-      .setParam("name", "")
-      .execute();
+
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("name", "")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_name_is_too_long() {
     loginAsAdmin();
-    tester.newRequest()
-      .setParam("name", StringUtils.repeat("a", 255 + 1))
-      .execute();
+
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("name", StringUtils.repeat("a", 255 + 1))
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_name_is_anyone() {
     loginAsAdmin();
-    tester.newRequest()
-      .setParam("name", "AnYoNe")
-      .execute();
+
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("name", "AnYoNe")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -140,21 +151,26 @@ public class CreateActionTest {
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
 
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage("Group '" + group.getName() + "' already exists");
-
-    tester.newRequest()
-      .setParam("name", group.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("name", group.getName())
+        .execute();
+    })
+      .isInstanceOf(ServerException.class)
+      .hasMessage("Group '" + group.getName() + "' already exists");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_description_is_too_long() {
     loginAsAdmin();
-    tester.newRequest()
-      .setParam("name", "long-desc")
-      .setParam("description", StringUtils.repeat("a", 1_000))
-      .execute();
+
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("name", "long-desc")
+        .setParam("description", StringUtils.repeat("a", 1_000))
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private void loginAsAdmin() {

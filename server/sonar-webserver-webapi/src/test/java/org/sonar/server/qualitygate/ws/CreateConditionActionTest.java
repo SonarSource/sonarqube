@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
@@ -58,8 +58,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPE
 @RunWith(DataProviderRunner.class)
 public class CreateConditionActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -112,15 +110,14 @@ public class CreateConditionActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
     MetricDto metric = insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_ID, qualityGate.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -129,15 +126,14 @@ public class CreateConditionActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(0));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_ID, qualityGate.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
   }
 
   @Test
@@ -147,15 +143,14 @@ public class CreateConditionActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(direction));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Operator %s is not allowed for this metric.", operator));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_ID, qualityGate.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, operator)
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Operator %s is not allowed for this metric.", operator));
   }
 
   @Test
@@ -221,15 +216,14 @@ public class CreateConditionActionTest {
     MetricDto metric = insertMetric();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_ID, qualityGate.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

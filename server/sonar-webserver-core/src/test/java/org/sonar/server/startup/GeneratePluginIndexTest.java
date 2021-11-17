@@ -35,6 +35,7 @@ import org.sonar.server.plugins.ServerPluginRepository;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.plugins.PluginType.BUNDLED;
@@ -71,14 +72,15 @@ public class GeneratePluginIndexTest {
     underTest.stop();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void shouldThrowWhenUnableToWrite() throws IOException {
     File wrongParent = temp.newFile();
     wrongParent.createNewFile();
     File wrongIndex = new File(wrongParent, "index.txt");
     when(serverFileSystem.getPluginIndex()).thenReturn(wrongIndex);
 
-    new GeneratePluginIndex(serverFileSystem, serverPluginRepository).start();
+    assertThatThrownBy(() -> new GeneratePluginIndex(serverFileSystem, serverPluginRepository).start())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   private ServerPlugin newInstalledPlugin(String key, boolean supportSonarLint) throws IOException {

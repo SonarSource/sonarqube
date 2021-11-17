@@ -25,27 +25,24 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class CoreExtensionRepositoryImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CoreExtensionRepositoryImpl underTest = new CoreExtensionRepositoryImpl();
 
   @Test
   public void loadedCoreExtensions_fails_with_ISE_if_called_before_setLoadedCoreExtensions() {
-    expectRepositoryNotInitializedISE();
-
-    underTest.loadedCoreExtensions();
+    assertThatThrownBy(() -> underTest.loadedCoreExtensions())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Repository has not been initialized yet");
   }
 
   @Test
@@ -59,9 +56,8 @@ public class CoreExtensionRepositoryImplTest {
 
   @Test
   public void setLoadedCoreExtensions_fails_with_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest.setLoadedCoreExtensions(null);
+    assertThatThrownBy(() ->  underTest.setLoadedCoreExtensions(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -69,19 +65,18 @@ public class CoreExtensionRepositoryImplTest {
   public void setLoadedCoreExtensions_fails_with_ISE_if_called_twice(Set<CoreExtension> coreExtensions) {
     underTest.setLoadedCoreExtensions(coreExtensions);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Repository has already been initialized");
-
-    underTest.setLoadedCoreExtensions(coreExtensions);
+    assertThatThrownBy(() -> underTest.setLoadedCoreExtensions(coreExtensions))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Repository has already been initialized");
   }
 
   @Test
   public void installed_fails_with_ISE_if_called_before_setLoadedCoreExtensions() {
     CoreExtension coreExtension = newCoreExtension();
 
-    expectRepositoryNotInitializedISE();
-
-    underTest.installed(coreExtension);
+    assertThatThrownBy(() -> underTest.installed(coreExtension))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Repository has not been initialized yet");
   }
 
   @Test
@@ -90,10 +85,9 @@ public class CoreExtensionRepositoryImplTest {
     underTest.setLoadedCoreExtensions(coreExtensions);
     CoreExtension coreExtension = newCoreExtension();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Specified CoreExtension has not been loaded first");
-
-    underTest.installed(coreExtension);
+    assertThatThrownBy(() -> underTest.installed(coreExtension))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Specified CoreExtension has not been loaded first");
   }
 
   @Test
@@ -101,17 +95,16 @@ public class CoreExtensionRepositoryImplTest {
   public void installed_fails_with_NPE_if_CoreExtension_is_null(Set<CoreExtension> coreExtensions) {
     underTest.setLoadedCoreExtensions(coreExtensions);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("coreExtension can't be null");
-
-    underTest.installed(null);
+    assertThatThrownBy(() ->  underTest.installed(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("coreExtension can't be null");
   }
 
   @Test
   public void isInstalled_fails_with_ISE_if_called_before_setLoadedCoreExtensions() {
-    expectRepositoryNotInitializedISE();
-
-    underTest.isInstalled("foo");
+    assertThatThrownBy(() -> underTest.isInstalled("foo"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Repository has not been initialized yet");
   }
 
   @Test
@@ -137,11 +130,6 @@ public class CoreExtensionRepositoryImplTest {
     underTest.installed(coreExtension);
 
     assertThat(underTest.isInstalled(coreExtension.getName())).isTrue();
-  }
-
-  private void expectRepositoryNotInitializedISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Repository has not been initialized yet");
   }
 
   @DataProvider

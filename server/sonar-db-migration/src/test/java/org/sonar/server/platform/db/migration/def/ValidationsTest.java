@@ -19,19 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.Validations.validateColumnName;
 import static org.sonar.server.platform.db.migration.def.Validations.validateIndexName;
 
 public class ValidationsTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void accept_valid_table_name() {
     validateColumnName("date_in_ms");
@@ -40,42 +35,37 @@ public class ValidationsTest {
 
   @Test
   public void fail_with_NPE_if_name_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Column name cannot be null");
-
-    validateColumnName(null);
+    assertThatThrownBy(() -> validateColumnName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Column name cannot be null");
   }
 
   @Test
   public void fail_when_column_name_is_in_upper_case() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'DATE_IN_MS'");
-
-    validateColumnName("DATE_IN_MS");
+    assertThatThrownBy(() -> validateColumnName("DATE_IN_MS"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'DATE_IN_MS'");
   }
 
   @Test
   public void fail_when_column_name_contains_invalid_character() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'date-in/ms'");
-
-    validateColumnName("date-in/ms");
+    assertThatThrownBy(() -> validateColumnName("date-in/ms"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Column name must be lower case and contain only alphanumeric chars or '_', got 'date-in/ms'");
   }
 
   @Test
   public void validateIndexName_throws_IAE_when_index_name_contains_invalid_characters() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Index name must be lower case and contain only alphanumeric chars or '_', got '(not/valid)'");
-
-    validateIndexName("(not/valid)");
+    assertThatThrownBy(() -> validateIndexName("(not/valid)"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must be lower case and contain only alphanumeric chars or '_', got '(not/valid)'");
   }
 
   @Test
   public void validateIndexName_throws_NPE_when_index_name_is_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Index name can't be null");
-
-    validateIndexName(null);
+    assertThatThrownBy(() -> validateIndexName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Index name can't be null");
   }
 
   @Test

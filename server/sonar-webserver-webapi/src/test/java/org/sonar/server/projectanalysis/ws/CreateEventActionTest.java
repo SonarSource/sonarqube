@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -46,6 +45,7 @@ import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -60,8 +60,6 @@ import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class CreateEventActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -231,20 +229,18 @@ public class CreateEventActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    call(OTHER.name(), "    ", analysis.getUuid());
+    assertThatThrownBy(() -> call(OTHER.name(), "    ", analysis.getUuid()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'name' parameter is missing");
   }
 
   @Test
   public void fail_if_analysis_is_not_found() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Analysis 'A42' not found");
-
-    call(OTHER.name(), "Project Import", "A42");
+    assertThatThrownBy(() -> call(OTHER.name(), "Project Import", "A42"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Analysis 'A42' not found");
   }
 
   @Test
@@ -254,10 +250,9 @@ public class CreateEventActionTest {
     logInAsProjectAdministrator(project);
     call(VERSION.name(), "5.6.3", analysis.getUuid());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A version event already exists on analysis '" + analysis.getUuid() + "'");
-
-    call(VERSION.name(), "6.3", analysis.getUuid());
+    assertThatThrownBy(() -> call(VERSION.name(), "6.3", analysis.getUuid()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("A version event already exists on analysis '" + analysis.getUuid() + "'");
   }
 
   @Test
@@ -267,10 +262,9 @@ public class CreateEventActionTest {
     logInAsProjectAdministrator(project);
     call(OTHER.name(), "Project Import", analysis.getUuid());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
-
-    call(OTHER.name(), "Project Import", analysis.getUuid());
+    assertThatThrownBy(() -> call(OTHER.name(), "Project Import", analysis.getUuid()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
   }
 
   @Test
@@ -279,12 +273,12 @@ public class CreateEventActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ANALYSIS, analysis.getUuid())
       .setParam(PARAM_NAME, "Project Import")
       .setParam(PARAM_CATEGORY, "QP")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -293,10 +287,9 @@ public class CreateEventActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(application);
     logInAsProjectAdministrator(application);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A version event must be created on a project");
-
-    call(VERSION.name(), "5.6.3", analysis.getUuid());
+    assertThatThrownBy(() -> call(VERSION.name(), "5.6.3", analysis.getUuid()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("A version event must be created on a project");
   }
 
   @Test
@@ -305,10 +298,9 @@ public class CreateEventActionTest {
     SnapshotDto analysis = dbClient.snapshotDao().insert(dbSession, newSnapshot().setUuid("A1"));
     db.commit();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Project of analysis 'A1' not found");
-
-    call(VERSION.name(), "5.6.3", analysis.getUuid());
+    assertThatThrownBy(() -> call(VERSION.name(), "5.6.3", analysis.getUuid()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Project of analysis 'A1' not found");
   }
 
   @Test
@@ -316,10 +308,9 @@ public class CreateEventActionTest {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newPrivateProjectDto("P1"));
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(VERSION.name(), "5.6.3", analysis.getUuid());
+    assertThatThrownBy(() -> call(VERSION.name(), "5.6.3", analysis.getUuid()))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

@@ -23,11 +23,8 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.sonar.api.CoreProperties;
@@ -40,6 +37,7 @@ import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -64,9 +62,6 @@ public class ScmConfigurationTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   public ScmConfigurationTest() {
     when(scmProvider.key()).thenReturn(scmProviderKey);
@@ -146,33 +141,20 @@ public class ScmConfigurationTest {
     ScmProvider[] providers = {scmProvider, scmProvider};
     ScmConfiguration underTest = new ScmConfiguration(inputModuleHierarchy, settings, analysisWarnings, providers);
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage(
-      new BaseMatcher<String>() {
-        @Override
-        public void describeTo(Description description) {
-
-        }
-
-        @Override
-        public boolean matches(Object item) {
-          return ((String) item).matches("SCM provider autodetection failed. "
-            + "Both .* and .* claim to support this project. "
-            + "Please use \"sonar.scm.provider\" to define SCM of your project.");
-        }
-      });
-
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("SCM provider autodetection failed. "
+        + "Both key2 and key2 claim to support this project. "
+        + "Please use \"sonar.scm.provider\" to define SCM of your project.");
   }
 
   @Test
   public void fail_when_considerOldScmUrl_finds_invalid_provider_in_link() {
     when(settings.get(ScannerProperties.LINKS_SOURCES_DEV)).thenReturn(Optional.of("scm:invalid"));
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("no SCM provider found for this key");
-
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("no SCM provider found for this key");
   }
 
   @Test

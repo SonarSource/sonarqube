@@ -24,7 +24,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.process.LoggingRule;
 
@@ -41,8 +40,6 @@ import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.ERROR;
 
 public class HealthStateRefresherTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LoggingRule logging = new LoggingRule(HealthStateRefresher.class);
 

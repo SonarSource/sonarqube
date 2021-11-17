@@ -19,15 +19,12 @@
  */
 package org.sonar.db.source;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LineHashVersionTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void should_create_from_int() {
@@ -37,15 +34,15 @@ public class LineHashVersionTest {
 
   @Test
   public void should_throw_exception_if_version_is_too_high() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Unknown line hash version: 2");
-    LineHashVersion.valueOf(2);
+    assertThatThrownBy(() -> LineHashVersion.valueOf(2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unknown line hash version: 2");
   }
 
   @Test
   public void should_throw_exception_if_version_is_too_low() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Unknown line hash version: -1");
-    LineHashVersion.valueOf(-1);
+    assertThatThrownBy(() -> LineHashVersion.valueOf(-1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unknown line hash version: -1");
   }
 }

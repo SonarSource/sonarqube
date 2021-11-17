@@ -19,9 +19,7 @@
  */
 package org.sonar.server.language;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.server.plugins.ServerPluginRepository;
 
@@ -30,8 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class LanguageValidationTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void fail_if_conflicting_languages() {

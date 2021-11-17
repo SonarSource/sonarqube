@@ -26,7 +26,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class DoPrivilegedTest {
 

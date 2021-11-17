@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.mail.EmailException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -33,6 +32,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -41,8 +41,6 @@ import static org.mockito.Mockito.verify;
 
 public class SendActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -73,28 +71,29 @@ public class SendActionTest {
   public void fail_when_to_param_is_missing() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    executeRequest(null, "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
+    assertThatThrownBy(() -> {
+      executeRequest(null, "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_message_param_is_missing() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    executeRequest("john@doo.com", "Test Message from SonarQube", null);
+    assertThatThrownBy(() -> {
+      executeRequest("john@doo.com", "Test Message from SonarQube", null);
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -41,6 +40,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,8 +56,6 @@ public class GenerateActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private TokenGenerator tokenGenerator = mock(TokenGenerator.class);
 
@@ -112,10 +110,11 @@ public class GenerateActionTest {
   public void fail_if_login_does_not_exist() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'unknown-login' doesn't exist");
-
-    newRequest("unknown-login", "any-name");
+    assertThatThrownBy(() -> {
+      newRequest("unknown-login", "any-name");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User with login 'unknown-login' doesn't exist");
   }
 
   @Test
@@ -123,10 +122,11 @@ public class GenerateActionTest {
     UserDto user = db.users().insertUser();
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    newRequest(user.getLogin(), "   ");
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), "   ");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'name' parameter is missing");
   }
 
   @Test
@@ -135,10 +135,11 @@ public class GenerateActionTest {
     logInAsSystemAdministrator();
     db.users().insertToken(user, t -> t.setName(TOKEN_NAME));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(String.format("A user token for login '%s' and name 'Third Party Application' already exists", user.getLogin()));
-
-    newRequest(user.getLogin(), TOKEN_NAME);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), TOKEN_NAME);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(String.format("A user token for login '%s' and name 'Third Party Application' already exists", user.getLogin()));
   }
 
   @Test
@@ -148,10 +149,11 @@ public class GenerateActionTest {
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
     db.users().insertToken(user, t -> t.setTokenHash("987654321"));
 
-    expectedException.expect(ServerException.class);
-    expectedException.expectMessage("Error while generating token. Please try again.");
-
-    newRequest(user.getLogin(), TOKEN_NAME);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), TOKEN_NAME);
+    })
+      .isInstanceOf(ServerException.class)
+      .hasMessage("Error while generating token. Please try again.");
   }
 
   @Test
@@ -159,9 +161,10 @@ public class GenerateActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest(user.getLogin(), TOKEN_NAME);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), TOKEN_NAME);
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -169,9 +172,10 @@ public class GenerateActionTest {
     UserDto user = db.users().insertUser();
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(user.getLogin(), TOKEN_NAME);
+    assertThatThrownBy(() -> {
+      newRequest(user.getLogin(), TOKEN_NAME);
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private GenerateWsResponse newRequest(@Nullable String login, String name) {

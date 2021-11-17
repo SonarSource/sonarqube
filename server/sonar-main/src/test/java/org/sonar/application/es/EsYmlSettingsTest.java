@@ -24,17 +24,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EsYmlSettingsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_generation_of_file() throws IOException {
@@ -55,9 +53,8 @@ public class EsYmlSettingsTest {
     File yamlFile = temp.newFile();
     yamlFile.setReadOnly();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cannot write Elasticsearch yml settings file");
-
-    new EsYmlSettings(new HashMap<>()).writeToYmlSettingsFile(yamlFile);
+    assertThatThrownBy(() -> new EsYmlSettings(new HashMap<>()).writeToYmlSettingsFile(yamlFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cannot write Elasticsearch yml settings file");
   }
 }

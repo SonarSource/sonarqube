@@ -21,19 +21,16 @@ package org.sonar.db.component;
 
 import java.util.Date;
 import java.util.function.Supplier;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentQueryTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void build_query() {
@@ -87,17 +84,15 @@ public class ComponentQueryTest {
 
   @Test
   public void fail_if_no_qualifier_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("At least one qualifier must be provided");
-
-    ComponentQuery.builder().build();
+    assertThatThrownBy(() -> ComponentQuery.builder().build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one qualifier must be provided");
   }
 
   @Test
   public void fail_if_partial_match_on_key_without_a_query() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A query must be provided if a partial match on key is specified.");
-
-    ComponentQuery.builder().setQualifiers(PROJECT).setPartialMatchOnKey(false).build();
+    assertThatThrownBy(() -> ComponentQuery.builder().setQualifiers(PROJECT).setPartialMatchOnKey(false).build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A query must be provided if a partial match on key is specified.");
   }
 }

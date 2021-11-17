@@ -19,16 +19,13 @@
  */
 package org.sonar.api.rules;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RuleTypeTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_valueOf_db_constant() {
@@ -38,9 +35,9 @@ public class RuleTypeTest {
 
   @Test
   public void valueOf_throws_ISE_if_unsupported_db_constant() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported type value : 5");
-    RuleType.valueOf(5);
+    assertThatThrownBy(() -> RuleType.valueOf(5))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported type value : 5");
   }
 
   @Test
@@ -50,7 +47,7 @@ public class RuleTypeTest {
 
   @Test
   public void ALL_NAMES_is_immutable() {
-    expectedException.expect(UnsupportedOperationException.class);
-    RuleType.names().add("foo");
+    assertThatThrownBy(() -> RuleType.names().add("foo"))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 }

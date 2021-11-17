@@ -36,12 +36,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.join;
@@ -72,8 +71,6 @@ public class MoreCollectorsTest {
   private static final List<MyObj> LIST = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_3_C);
   private static final List<MyObj2> LIST2 = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_3_C);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void toList_builds_an_ImmutableList() {
@@ -197,126 +194,120 @@ public class MoreCollectorsTest {
   public void uniqueIndex_fails_when_there_is_duplicate_keys() {
     Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
 
-    expectedDuplicateKey1IAE();
-
-    stream.collect(uniqueIndex(MyObj::getId));
+    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate key 1");
   }
 
   @Test
   public void uniqueIndex_with_expected_size_fails_when_there_is_duplicate_keys() {
     Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
 
-    expectedDuplicateKey1IAE();
-
-    stream.collect(uniqueIndex(MyObj::getId, 1));
+    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId, 1)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate key 1");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_fails_when_there_is_duplicate_keys() {
     Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
 
-    expectedDuplicateKey1IAE();
-
-    stream.collect(uniqueIndex(MyObj::getId, MyObj::getText));
+    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId, MyObj::getText)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate key 1");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_and_expected_size_fails_when_there_is_duplicate_keys() {
     Stream<MyObj> stream = LIST_WITH_DUPLICATE_ID.stream();
 
-    expectedDuplicateKey1IAE();
-
-    stream.collect(uniqueIndex(MyObj::getId, MyObj::getText, 10));
+    assertThatThrownBy(() -> stream.collect(uniqueIndex(MyObj::getId, MyObj::getText, 10)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate key 1");
   }
 
   @Test
   public void uniqueIndex_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    uniqueIndex(null);
+    assertThatThrownBy(() -> uniqueIndex(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void uniqueIndex_with_expected_size_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    uniqueIndex(null, 2);
+    assertThatThrownBy(() -> uniqueIndex(null, 2))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    uniqueIndex(null, MyObj::getText);
+    assertThatThrownBy(() -> uniqueIndex(null, MyObj::getText))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    uniqueIndex(null, MyObj::getText, 9);
+    assertThatThrownBy(() ->  uniqueIndex(null, MyObj::getText, 9))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_fails_if_value_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Value function can't be null");
-
-    uniqueIndex(MyObj::getId, null);
+    assertThatThrownBy(() ->  uniqueIndex(MyObj::getId, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't be null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_value_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Value function can't be null");
-
-    uniqueIndex(MyObj::getId, null, 9);
+    assertThatThrownBy(() ->  uniqueIndex(MyObj::getId, null, 9))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't be null");
   }
 
   @Test
   public void uniqueIndex_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void uniqueIndex_with_expected_size_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, 90));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, 90)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, MyObj::getText));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, MyObj::getText)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, MyObj::getText, 9));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(s -> null, MyObj::getText, 9)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_fails_if_value_function_returns_null() {
-    expectValueFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(MyObj::getId, s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(MyObj::getId, s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't return null");
   }
 
   @Test
   public void uniqueIndex_with_valueFunction_and_expected_size_fails_if_value_function_returns_null() {
-    expectValueFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(MyObj::getId, s -> null, 9));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(uniqueIndex(MyObj::getId, s -> null, 9)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't return null");
   }
 
   @Test
@@ -384,47 +375,44 @@ public class MoreCollectorsTest {
 
   @Test
   public void index_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    index(null);
+    assertThatThrownBy(() -> index(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void index_with_valueFunction_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    index(null, MyObj::getText);
+    assertThatThrownBy(() -> index(null, MyObj::getText))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void index_with_valueFunction_fails_if_value_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Value function can't be null");
-
-    index(MyObj::getId, null);
+    assertThatThrownBy(() ->  index(MyObj::getId, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't be null");
   }
 
   @Test
   public void index_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(index(s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(index(s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void index_with_valueFunction_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(index(s -> null, MyObj::getText));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(index(s -> null, MyObj::getText)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void index_with_valueFunction_fails_if_value_function_returns_null() {
-    expectValueFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(index(MyObj::getId, s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(index(MyObj::getId, s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't return null");
   }
 
   @Test
@@ -480,47 +468,44 @@ public class MoreCollectorsTest {
 
   @Test
   public void unorderedIndex_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    unorderedIndex(null);
+    assertThatThrownBy(() -> unorderedIndex(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void unorderedIndex_with_valueFunction_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    unorderedIndex(null, MyObj::getText);
+    assertThatThrownBy(() -> unorderedIndex(null, MyObj::getText))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void unorderedIndex_with_valueFunction_fails_if_value_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Value function can't be null");
-
-    unorderedIndex(MyObj::getId, null);
+    assertThatThrownBy(() ->  unorderedIndex(MyObj::getId, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't be null");
   }
 
   @Test
   public void unorderedIndex_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void unorderedIndex_with_valueFunction_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(s -> null, MyObj::getText));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(s -> null, MyObj::getText)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void unorderedIndex_with_valueFunction_fails_if_value_function_returns_null() {
-    expectValueFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(MyObj::getId, s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT_LIST.stream().collect(unorderedIndex(MyObj::getId, s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't return null");
   }
 
   @Test
@@ -577,32 +562,30 @@ public class MoreCollectorsTest {
 
   @Test
   public void unorderedFlattenIndex_with_valueFunction_fails_if_key_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't be null");
-
-    unorderedFlattenIndex(null, MyObj2::getTexts);
+    assertThatThrownBy(() -> unorderedFlattenIndex(null, MyObj2::getTexts))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't be null");
   }
 
   @Test
   public void unorderedFlattenIndex_with_valueFunction_fails_if_value_function_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Value function can't be null");
-
-    unorderedFlattenIndex(MyObj2::getId, null);
+    assertThatThrownBy(() -> unorderedFlattenIndex(MyObj2::getId, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't be null");
   }
 
   @Test
   public void unorderedFlattenIndex_with_valueFunction_fails_if_key_function_returns_null() {
-    expectKeyFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT2_LIST.stream().collect(unorderedFlattenIndex(s -> null, MyObj2::getTexts));
+    assertThatThrownBy(() -> SINGLE_ELEMENT2_LIST.stream().collect(unorderedFlattenIndex(s -> null, MyObj2::getTexts)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key function can't return null");
   }
 
   @Test
   public void unorderedFlattenIndex_with_valueFunction_fails_if_value_function_returns_null() {
-    expectValueFunctionCantReturnNullNPE();
-
-    SINGLE_ELEMENT2_LIST.stream().collect(unorderedFlattenIndex(MyObj2::getId, s -> null));
+    assertThatThrownBy(() -> SINGLE_ELEMENT2_LIST.stream().collect(unorderedFlattenIndex(MyObj2::getId, s -> null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Value function can't return null");
   }
 
   @Test
@@ -641,10 +624,9 @@ public class MoreCollectorsTest {
 
   @Test
   public void join_fails_with_NPE_if_joiner_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Joiner can't be null");
-
-    join(null);
+    assertThatThrownBy(() -> join(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Joiner can't be null");
   }
 
   @Test
@@ -657,34 +639,17 @@ public class MoreCollectorsTest {
   public void join_does_not_support_parallel_stream_and_fails_with_ISE() {
     Stream<String> hugeStream = HUGE_LIST.parallelStream();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Parallel processing is not supported");
-
-    hugeStream.collect(join(Joiner.on(" ")));
+    assertThatThrownBy(() -> hugeStream.collect(join(Joiner.on(" "))))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Parallel processing is not supported");
   }
 
   @Test
   public void join_supports_null_if_joiner_does() {
     Stream<String> stream = Stream.of("1", null);
 
-    expectedException.expect(NullPointerException.class);
-
-    stream.collect(join(Joiner.on(",")));
-  }
-
-  private void expectedDuplicateKey1IAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Duplicate key 1");
-  }
-
-  private void expectKeyFunctionCantReturnNullNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Key function can't return null");
-  }
-
-  private void expectValueFunctionCantReturnNullNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Value function can't return null");
+    assertThatThrownBy(() -> stream.collect(join(Joiner.on(","))))
+      .isInstanceOf(NullPointerException.class);
   }
 
   private static final class MyObj {

@@ -19,11 +19,10 @@
  */
 package org.sonar.api.ce.posttask;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   private static final String SOME_METRIC_KEY = "some metric key";
@@ -32,55 +31,47 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   private static final QualityGate.EvaluationStatus SOME_STATUS_BUT_NO_VALUE = QualityGate.EvaluationStatus.OK;
   private static final String SOME_VALUE = "some value";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private PostProjectAnalysisTaskTester.ConditionBuilder underTest = PostProjectAnalysisTaskTester.newConditionBuilder();
 
   @Test
   public void setMetricKey_throws_NPE_if_operator_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey cannot be null");
-
-    underTest.setMetricKey(null);
+    assertThatThrownBy(() -> underTest.setMetricKey(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("metricKey cannot be null");
   }
 
   @Test
   public void setOperator_throws_NPE_if_operator_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator cannot be null");
-
-    underTest.setOperator(null);
+    assertThatThrownBy(() -> underTest.setOperator(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("operator cannot be null");
   }
 
   @Test
   public void buildNoValue_throws_NPE_if_metricKey_is_null() {
     underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey cannot be null");
-
-    underTest.buildNoValue();
+    assertThatThrownBy(() -> underTest.buildNoValue())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("metricKey cannot be null");
   }
 
   @Test
   public void buildNoValue_throws_NPE_if_operator_is_null() {
     underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator cannot be null");
-
-    underTest.buildNoValue();
+    assertThatThrownBy(() -> underTest.buildNoValue())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("operator cannot be null");
   }
 
   @Test
   public void buildNoValue_throws_NPE_if_errorThreshold_is_null() {
     underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("errorThreshold cannot be null");
-
-    underTest.buildNoValue();
+    assertThatThrownBy(() -> underTest.buildNoValue())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("errorThreshold cannot be null");
   }
 
   @Test
@@ -95,10 +86,9 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     initValidBuilder();
     QualityGate.Condition condition = underTest.buildNoValue();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("There is no value when status is NO_VALUE");
-
-    condition.getValue();
+    assertThatThrownBy(() -> condition.getValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("There is no value when status is NO_VALUE");
   }
 
   @Test
@@ -133,60 +123,54 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   public void build_throws_NPE_if_status_is_null() {
     initValidBuilder();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status cannot be null");
-
-    underTest.build(null, SOME_VALUE);
+    assertThatThrownBy(() -> underTest.build(null, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status cannot be null");
   }
 
   @Test
   public void build_throws_IAE_if_status_is_NO_VALUE() {
     initValidBuilder();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("status cannot be NO_VALUE, use method buildNoValue() instead");
-
-    underTest.build(QualityGate.EvaluationStatus.NO_VALUE, SOME_VALUE);
+    assertThatThrownBy(() -> underTest.build(QualityGate.EvaluationStatus.NO_VALUE, SOME_VALUE))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("status cannot be NO_VALUE, use method buildNoValue() instead");
   }
 
   @Test
   public void build_throws_NPE_if_value_is_null() {
     initValidBuilder();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value cannot be null, use method buildNoValue() instead");
-
-    underTest.build(SOME_STATUS_BUT_NO_VALUE, null);
+    assertThatThrownBy(() -> underTest.build(SOME_STATUS_BUT_NO_VALUE, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("value cannot be null, use method buildNoValue() instead");
   }
 
   @Test
   public void build_throws_NPE_if_metricKey_is_null() {
     underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey cannot be null");
-
-    underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
+    assertThatThrownBy(() -> underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("metricKey cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_operator_is_null() {
     underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator cannot be null");
-
-    underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
+    assertThatThrownBy(() -> underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("operator cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_errorThreshold_is_null() {
     underTest.setMetricKey(SOME_METRIC_KEY).setOperator(SOME_OPERATOR);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("errorThreshold cannot be null");
-
-    underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
+    assertThatThrownBy(() -> underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("errorThreshold cannot be null");
   }
 
   @Test
@@ -218,10 +202,9 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     initValidBuilder();
     QualityGate.Condition condition = underTest.buildNoValue();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("There is no value when status is NO_VALUE");
-
-    condition.getValue();
+    assertThatThrownBy(() -> condition.getValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("There is no value when status is NO_VALUE");
   }
 
   @Test

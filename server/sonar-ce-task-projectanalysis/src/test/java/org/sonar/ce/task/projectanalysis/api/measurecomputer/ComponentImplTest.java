@@ -19,17 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.api.measurecomputer;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ComponentImplTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void create_project() {
@@ -59,43 +55,40 @@ public class ComponentImplTest {
 
   @Test
   public void fail_with_ISE_when_calling_get_file_attributes_on_not_file() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only component of type FILE have a FileAttributes object");
-
-    ComponentImpl component = new ComponentImpl("Project", Component.Type.PROJECT, null);
-    component.getFileAttributes();
+    assertThatThrownBy(() -> {
+      ComponentImpl component = new ComponentImpl("Project", Component.Type.PROJECT, null);
+      component.getFileAttributes();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Only component of type FILE have a FileAttributes object");
   }
 
   @Test
   public void fail_with_IAE_when_trying_to_create_a_file_without_file_attributes() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("omponent of type FILE must have a FileAttributes object");
-
-    new ComponentImpl("File", Component.Type.FILE, null);
+    assertThatThrownBy(() -> new ComponentImpl("File", Component.Type.FILE, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("omponent of type FILE must have a FileAttributes object");
   }
 
   @Test
   public void fail_with_IAE_when_trying_to_create_not_a_file_with_file_attributes() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only component of type FILE have a FileAttributes object");
-
-    new ComponentImpl("Project", Component.Type.PROJECT, new ComponentImpl.FileAttributesImpl(null, true));
+    assertThatThrownBy(() -> new ComponentImpl("Project", Component.Type.PROJECT, new ComponentImpl.FileAttributesImpl(null, true)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only component of type FILE have a FileAttributes object");
   }
 
   @Test
   public void fail_with_NPE_when_creating_component_without_key() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Key cannot be null");
-
-    new ComponentImpl(null, Component.Type.PROJECT, null);
+    assertThatThrownBy(() -> new ComponentImpl(null, Component.Type.PROJECT, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Key cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_creating_component_without_type() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Type cannot be null");
-
-    new ComponentImpl("Project", null, null);
+    assertThatThrownBy(() -> new ComponentImpl("Project", null, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Type cannot be null");
   }
 
   @Test

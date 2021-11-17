@@ -19,36 +19,31 @@
  */
 package org.sonar.server.notification;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.notification.NotificationManager.EmailRecipient;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EmailRecipientTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_fails_with_NPE_if_login_is_null() {
     String email = randomAlphabetic(12);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("login can't be null");
-
-    new EmailRecipient(null, email);
+    assertThatThrownBy(() -> new EmailRecipient(null, email))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("login can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_email_is_null() {
     String login = randomAlphabetic(12);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("email can't be null");
-
-    new EmailRecipient(login, null);
+    assertThatThrownBy(() -> new EmailRecipient(login, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("email can't be null");
   }
 
   @Test

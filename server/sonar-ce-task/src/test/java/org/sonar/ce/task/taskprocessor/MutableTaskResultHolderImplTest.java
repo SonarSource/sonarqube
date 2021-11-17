@@ -20,25 +20,21 @@
 package org.sonar.ce.task.taskprocessor;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.CeTaskResult;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class MutableTaskResultHolderImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MutableTaskResultHolder underTest = new MutableTaskResultHolderImpl();
 
   @Test
   public void getResult_throws_ISE_if_no_CeTaskResult_is_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("No CeTaskResult has been set in the holder");
-
-    underTest.getResult();
+    assertThatThrownBy(() -> underTest.getResult())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No CeTaskResult has been set in the holder");
   }
 
   @Test
@@ -52,19 +48,17 @@ public class MutableTaskResultHolderImplTest {
 
   @Test
   public void setResult_throws_NPE_if_CeTaskResult_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("taskResult can not be null");
-
-    underTest.setResult(null);
+    assertThatThrownBy(() -> underTest.setResult(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("taskResult can not be null");
   }
 
   @Test
   public void setResult_throws_ISE_if_called_twice() {
     underTest.setResult(mock(CeTaskResult.class));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("CeTaskResult has already been set in the holder");
-
-    underTest.setResult(mock(CeTaskResult.class));
+    assertThatThrownBy(() -> underTest.setResult(mock(CeTaskResult.class)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("CeTaskResult has already been set in the holder");
   }
 }

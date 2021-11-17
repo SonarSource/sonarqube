@@ -27,7 +27,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -47,6 +46,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
@@ -60,8 +60,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
@@ -286,10 +284,9 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'metricKeys' parameter is missing");
-
-    call(singletonList(project.uuid()), null);
+    assertThatThrownBy(() ->  call(singletonList(project.uuid()), null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'metricKeys' parameter is missing");
   }
 
   @Test
@@ -297,10 +294,9 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metric keys must be provided");
-
-    call(singletonList(project.uuid()), emptyList());
+    assertThatThrownBy(() -> call(singletonList(project.uuid()), emptyList()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metric keys must be provided");
   }
 
   @Test
@@ -309,30 +305,27 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The following metrics are not found: ncloc, violations");
-
-    call(singletonList(project.getDbKey()), newArrayList("violations", metric.getKey(), "ncloc"));
+    assertThatThrownBy(() ->  call(singletonList(project.getDbKey()), newArrayList("violations", metric.getKey(), "ncloc")))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The following metrics are not found: ncloc, violations");
   }
 
   @Test
   public void fail_if_no_project() {
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Project keys must be provided");
-
-    call(null, singletonList(metric.getKey()));
+    assertThatThrownBy(() -> call(null, singletonList(metric.getKey())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Project keys must be provided");
   }
 
   @Test
   public void fail_if_empty_project_key() {
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Project keys must be provided");
-
-    call(emptyList(), singletonList(metric.getKey()));
+    assertThatThrownBy(() -> call(emptyList(), singletonList(metric.getKey())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Project keys must be provided");
   }
 
   @Test
@@ -343,10 +336,9 @@ public class SearchActionTest {
       .collect(Collectors.toList());
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("101 projects provided, more than maximum authorized (100)");
-
-    call(keys, singletonList(metric.getKey()));
+    assertThatThrownBy(() -> call(keys, singletonList(metric.getKey())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("101 projects provided, more than maximum authorized (100)");
   }
 
   @Test
@@ -367,10 +359,9 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
-
-    call(singletonList(module.getDbKey()), singletonList(metric.getKey()));
+    assertThatThrownBy(() -> call(singletonList(module.getDbKey()), singletonList(metric.getKey())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }
 
   @Test
@@ -380,10 +371,9 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
-
-    call(singletonList(dir.getDbKey()), singletonList(metric.getKey()));
+    assertThatThrownBy(() -> call(singletonList(dir.getDbKey()), singletonList(metric.getKey())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }
 
   @Test
@@ -393,10 +383,9 @@ public class SearchActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto metric = db.measures().insertMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
-
-    call(singletonList(file.getDbKey()), singletonList(metric.getKey()));
+    assertThatThrownBy(() -> call(singletonList(file.getDbKey()), singletonList(metric.getKey())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
   }
 
   @Test

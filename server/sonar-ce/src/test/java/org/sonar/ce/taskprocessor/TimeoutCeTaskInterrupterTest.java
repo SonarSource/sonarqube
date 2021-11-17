@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -33,12 +32,11 @@ import org.sonar.ce.task.CeTaskTimeoutException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TimeoutCeTaskInterrupterTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -52,19 +50,18 @@ public class TimeoutCeTaskInterrupterTest {
 
   @Test
   public void constructor_fails_with_IAE_if_timeout_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("threshold must be >= 1");
-
-    new TimeoutCeTaskInterrupter(0, ceWorkerController, system2);
+    assertThatThrownBy(() -> new TimeoutCeTaskInterrupter(0, ceWorkerController, system2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("threshold must be >= 1");
   }
 
   @Test
   public void constructor_fails_with_IAE_if_timeout_is_less_than_0() {
     long timeout = - (1 + new Random().nextInt(299));
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("threshold must be >= 1");
 
-    new TimeoutCeTaskInterrupter(timeout, ceWorkerController, system2);
+    assertThatThrownBy(() -> new TimeoutCeTaskInterrupter(timeout, ceWorkerController, system2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("threshold must be >= 1");
   }
 
   @Test
@@ -82,10 +79,9 @@ public class TimeoutCeTaskInterrupterTest {
   public void check_fails_with_ISE_if_thread_is_not_running_a_CeWorker() {
     Thread t = newThreadWithRandomName();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Could not find the CeTask being executed in thread '" + t.getName() + "'");
-
-    underTest.check(t);
+    assertThatThrownBy(() -> underTest.check(t))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Could not find the CeTask being executed in thread '" + t.getName() + "'");
   }
 
   @Test
@@ -93,10 +89,9 @@ public class TimeoutCeTaskInterrupterTest {
     Thread t = newThreadWithRandomName();
     mockWorkerOnThread(t, ceWorker);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Could not find the CeTask being executed in thread '" + t.getName() + "'");
-
-    underTest.check(t);
+    assertThatThrownBy(() -> underTest.check(t))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Could not find the CeTask being executed in thread '" + t.getName() + "'");
   }
 
   @Test
@@ -107,10 +102,9 @@ public class TimeoutCeTaskInterrupterTest {
     mockWorkerWithTask(ceTask);
     when(ceTask.getUuid()).thenReturn(taskUuid);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("No start time recorded for task " + taskUuid);
-
-    underTest.check(t);
+    assertThatThrownBy(() -> underTest.check(t))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No start time recorded for task " + taskUuid);
   }
 
   @Test
@@ -123,10 +117,9 @@ public class TimeoutCeTaskInterrupterTest {
     underTest.onStart(this.ceTask);
     underTest.onEnd(this.ceTask);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("No start time recorded for task " + taskUuid);
-
-    underTest.check(t);
+    assertThatThrownBy(() -> underTest.check(t))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No start time recorded for task " + taskUuid);
   }
 
   @Test
@@ -145,10 +138,9 @@ public class TimeoutCeTaskInterrupterTest {
 
       t.interrupt();
 
-      expectedException.expect(CeTaskCanceledException.class);
-      expectedException.expectMessage("CeWorker executing in Thread '" + threadName + "' has been interrupted");
-
-      underTest.check(t);
+      assertThatThrownBy(() -> underTest.check(t))
+        .isInstanceOf(CeTaskCanceledException.class)
+        .hasMessage("CeWorker executing in Thread '" + threadName + "' has been interrupted");
     } finally {
       t.kill();
       t.join(1_000);
@@ -172,10 +164,9 @@ public class TimeoutCeTaskInterrupterTest {
     int afterTimeoutOffset = new Random().nextInt(7_112);
     when(system2.now()).thenReturn(now + timeoutInMs + afterTimeoutOffset);
 
-    expectedException.expect(CeTaskTimeoutException.class);
-    expectedException.expectMessage("Execution of task timed out after " + (timeoutInMs + afterTimeoutOffset) + " ms");
-
-    underTest.check(thread);
+    assertThatThrownBy(() -> underTest.check(thread))
+      .isInstanceOf(CeTaskTimeoutException.class)
+      .hasMessage("Execution of task timed out after " + (timeoutInMs + afterTimeoutOffset) + " ms");
   }
 
   @Test
@@ -196,10 +187,9 @@ public class TimeoutCeTaskInterrupterTest {
       int afterTimeoutOffset = new Random().nextInt(7_112);
       when(system2.now()).thenReturn(now + timeoutInMs + afterTimeoutOffset);
 
-      expectedException.expect(CeTaskCanceledException.class);
-      expectedException.expectMessage("CeWorker executing in Thread '" + threadName + "' has been interrupted");
-
-      underTest.check(t);
+      assertThatThrownBy(() -> underTest.check(t))
+        .isInstanceOf(CeTaskCanceledException.class)
+        .hasMessage("CeWorker executing in Thread '" + threadName + "' has been interrupted");
     } finally {
       t.kill();
       t.join(1_000);

@@ -25,21 +25,18 @@ import java.io.IOException;
 import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.process.Props;
-import org.sonar.test.ExceptionCauseMatcher;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class EsJvmOptionsTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Properties properties = new Properties();
 
@@ -162,10 +159,9 @@ public class EsJvmOptionsTest {
     File notAFile = temporaryFolder.newFolder();
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), temporaryFolder.newFolder());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Cannot write Elasticsearch jvm options file");
-    expectedException.expectCause(ExceptionCauseMatcher.hasType(IOException.class));
-
-    underTest.writeToJvmOptionFile(notAFile);
+    assertThatThrownBy(() -> underTest.writeToJvmOptionFile(notAFile))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cannot write Elasticsearch jvm options file")
+      .hasRootCauseInstanceOf(IOException.class);
   }
 }

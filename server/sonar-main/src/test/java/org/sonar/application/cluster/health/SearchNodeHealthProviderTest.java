@@ -22,9 +22,7 @@ package org.sonar.application.cluster.health;
 import java.util.Properties;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.application.cluster.ClusterAppState;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
@@ -34,16 +32,15 @@ import org.sonar.process.cluster.health.NodeHealth;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 
 public class SearchNodeHealthProviderTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private SearchNodeHealthProvider.Clock clock = mock(SearchNodeHealthProvider.Clock.class);
@@ -54,10 +51,9 @@ public class SearchNodeHealthProviderTest {
   public void constructor_throws_IAE_if_property_node_name_is_not_set() {
     Props props = new Props(new Properties());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing property: sonar.cluster.node.name");
-
-    new SearchNodeHealthProvider(props, clusterAppState, networkUtils);
+    assertThatThrownBy(() -> new SearchNodeHealthProvider(props, clusterAppState, networkUtils))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing property: sonar.cluster.node.name");
   }
 
   @Test
@@ -66,9 +62,8 @@ public class SearchNodeHealthProviderTest {
     properties.put(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
     Props props = new Props(properties);
 
-    expectedException.expect(NullPointerException.class);
-
-    new SearchNodeHealthProvider(props, clusterAppState, networkUtils, clock);
+    assertThatThrownBy(() -> new SearchNodeHealthProvider(props, clusterAppState, networkUtils, clock))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -78,10 +73,9 @@ public class SearchNodeHealthProviderTest {
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing property: sonar.cluster.node.port");
-
-    new SearchNodeHealthProvider(props, clusterAppState, networkUtils, clock);
+    assertThatThrownBy(() -> new SearchNodeHealthProvider(props, clusterAppState, networkUtils, clock))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing property: sonar.cluster.node.port");
   }
 
   @Test
@@ -93,10 +87,9 @@ public class SearchNodeHealthProviderTest {
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(34));
     Props props = new Props(properties);
 
-    expectedException.expect(NumberFormatException.class);
-    expectedException.expectMessage("For input string: \"" + port + "\"");
-
-    new SearchNodeHealthProvider(props, clusterAppState, networkUtils, clock);
+    assertThatThrownBy(() -> new SearchNodeHealthProvider(props, clusterAppState, networkUtils, clock))
+      .isInstanceOf(NumberFormatException.class)
+      .hasMessage("For input string: \"" + port + "\"");
   }
 
   @Test

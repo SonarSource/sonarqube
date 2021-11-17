@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.ws.WebService;
@@ -45,6 +44,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ExportActionTest {
 
@@ -55,8 +55,6 @@ public class ExportActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = db.getDbClient();
   private final QProfileBackuper backuper = new TestBackuper();
@@ -105,23 +103,25 @@ public class ExportActionTest {
 
   @Test
   public void throw_NotFoundException_if_profile_with_specified_name_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-
-    newWsActionTester().newRequest()
-      .setParam("language", XOO_LANGUAGE)
-      .setParam("exporterKey", "polop").execute();
+    assertThatThrownBy(() -> {
+      newWsActionTester().newRequest()
+        .setParam("language", XOO_LANGUAGE)
+        .setParam("exporterKey", "polop").execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void throw_IAE_if_export_with_specified_key_does_not_exist() {
     QProfileDto profile = createProfile(true);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'exporterKey' (unknown) must be one of: [polop, palap]");
-
-    newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest()
-      .setParam("language", XOO_LANGUAGE)
-      .setParam("exporterKey", "unknown").execute();
+    assertThatThrownBy(() -> {
+      newWsActionTester(newExporter("polop"), newExporter("palap")).newRequest()
+        .setParam("language", XOO_LANGUAGE)
+        .setParam("exporterKey", "unknown").execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'exporterKey' (unknown) must be one of: [polop, palap]");
   }
 
   @Test

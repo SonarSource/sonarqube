@@ -22,8 +22,8 @@ package org.sonar.db.component;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static java.util.Arrays.asList;

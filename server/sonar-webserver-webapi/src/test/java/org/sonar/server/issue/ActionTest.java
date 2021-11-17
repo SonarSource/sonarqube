@@ -21,31 +21,27 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.user.UserSession;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class ActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void key_should_not_be_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Action key must be set");
-
-    new FakeAction("");
+    assertThatThrownBy(() -> new FakeAction(""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Action key must be set");
   }
 
   @Test
   public void key_should_not_be_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Action key must be set");
-
-    new FakeAction(null);
+    assertThatThrownBy(() -> new FakeAction(null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Action key must be set");
   }
 
   private static class FakeAction extends Action {

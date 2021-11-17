@@ -25,9 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -42,8 +40,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueMetricFormulaFactoryImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private IssueMetricFormulaFactoryImpl underTest = new IssueMetricFormulaFactoryImpl();
 

@@ -20,15 +20,14 @@
 package org.sonar.ce.task.projectanalysis.formula;
 
 import java.util.Optional;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,43 +48,44 @@ public class AverageFormulaTest {
   CreateMeasureContext createMeasureContext = new DumbCreateMeasureContext(
     ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class));
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void fail_with_NPE_when_building_formula_without_output_metric() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Output metric key cannot be null");
-
-    Builder.newBuilder()
-      .setOutputMetricKey(null)
-      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-      .setByMetricKey(FUNCTIONS_KEY)
-      .build();
+    assertThatThrownBy(() -> {
+      Builder.newBuilder()
+        .setOutputMetricKey(null)
+        .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
+        .setByMetricKey(FUNCTIONS_KEY)
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Output metric key cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_building_formula_without_main_metric() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Main metric Key cannot be null");
-
-    Builder.newBuilder()
-      .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-      .setMainMetricKey(null)
-      .setByMetricKey(FUNCTIONS_KEY)
-      .build();
+    assertThatThrownBy(() -> {
+      Builder.newBuilder()
+        .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
+        .setMainMetricKey(null)
+        .setByMetricKey(FUNCTIONS_KEY)
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Main metric Key cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_building_formula_without_by_metric() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("By metric Key cannot be null");
-
-    Builder.newBuilder()
-      .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-      .setByMetricKey(null)
-      .build();
+    assertThatThrownBy(() -> {
+      Builder.newBuilder()
+        .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
+        .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
+        .setByMetricKey(null)
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("By metric Key cannot be null");
   }
 
   @Test
@@ -163,15 +163,16 @@ public class AverageFormulaTest {
 
   @Test
   public void fail_with_IAE_when_aggregate_from_component_and_context_with_not_numeric_measures() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Measure of type 'STRING' are not supported");
+    assertThatThrownBy(() -> {
+      AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
+      addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10L);
+      when(counterInitializationContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create("data")));
+      counter.initialize(counterInitializationContext);
 
-    AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
-    addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10L);
-    when(counterInitializationContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create("data")));
-    counter.initialize(counterInitializationContext);
-
-    BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext);
+      BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Measure of type 'STRING' are not supported");
   }
 
   @Test

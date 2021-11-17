@@ -22,7 +22,6 @@ package org.sonar.server.branch.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -39,12 +38,11 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class SetAutomaticDeletionProtectionActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -68,43 +66,39 @@ public class SetAutomaticDeletionProtectionActionTest {
   public void fail_if_missing_project_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'project' parameter is missing");
   }
 
   @Test
   public void fail_if_missing_branch_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'branch' parameter is missing");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", "projectName")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'branch' parameter is missing");
   }
 
   @Test
   public void fail_if_missing_value_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'value' parameter is missing");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", "projectName")
       .setParam("branch", "foobar")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'value' parameter is missing");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("Authentication is required");
   }
 
   @Test
@@ -112,14 +106,13 @@ public class SetAutomaticDeletionProtectionActionTest {
     userSession.logIn();
     ComponentDto project = db.components().insertPublicProject();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch1")
       .setParam("value", "true")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
@@ -128,14 +121,14 @@ public class SetAutomaticDeletionProtectionActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(UserRole.ADMIN, project);
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Main branch of the project is always excluded from automatic deletion.");
 
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "master")
       .setParam("value", "false")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Main branch of the project is always excluded from automatic deletion.");
   }
 
   @Test
@@ -166,28 +159,26 @@ public class SetAutomaticDeletionProtectionActionTest {
     userSession.logIn();
     ComponentDto project = db.components().insertPublicProject();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'value' (foobar) must be one of: [true, false, yes, no]");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch1")
       .setParam("value", "foobar")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Value of parameter 'value' (foobar) must be one of: [true, false, yes, no]");
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'foo' not found");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", "foo")
       .setParam("branch", "branch1")
       .setParam("value", "true")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'foo' not found");
   }
 
   @Test
@@ -196,13 +187,12 @@ public class SetAutomaticDeletionProtectionActionTest {
     ComponentDto project = db.components().insertPublicProject();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Branch 'branch1' not found for project '" + project.getKey() + "'");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch1")
       .setParam("value", "true")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Branch 'branch1' not found for project '" + project.getKey() + "'");
   }
 }

@@ -27,7 +27,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -40,15 +39,13 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class AssignActionTest {
 
   private static final String ISSUE_CURRENT_ASSIGNEE_UUID = "current assignee uuid";
 
-  @Rule
-  public ExpectedException expectedException = none();
 
   @Rule
   public UserSessionRule userSession = standalone();
@@ -105,28 +102,25 @@ public class AssignActionTest {
 
   @Test
   public void fail_if_assignee_is_not_verified() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Assignee is missing from the execution parameters");
-
-    underTest.execute(emptyMap(), context);
+    assertThatThrownBy(() -> underTest.execute(emptyMap(), context))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Assignee is missing from the execution parameters");
   }
 
   @Test
   public void fail_if_assignee_does_not_exists() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Unknown user: arthur");
-
-    underTest.verify(ImmutableMap.of("assignee", "arthur"), singletonList(issue), userSession);
+    assertThatThrownBy(() -> underTest.verify(ImmutableMap.of("assignee", "arthur"), singletonList(issue), userSession))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Unknown user: arthur");
   }
 
   @Test
   public void fail_if_assignee_is_disabled() {
     db.users().insertUser(user -> user.setLogin("arthur").setActive(false));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Unknown user: arthur");
-
-    underTest.verify(new HashMap<>(ImmutableMap.of("assignee", "arthur")), singletonList(issue), userSession);
+    assertThatThrownBy(() -> underTest.verify(new HashMap<>(ImmutableMap.of("assignee", "arthur")), singletonList(issue), userSession))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Unknown user: arthur");
   }
 
   @Test

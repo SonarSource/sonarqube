@@ -22,7 +22,6 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
@@ -36,14 +35,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CreateAzureActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -86,14 +84,13 @@ public class CreateAzureActionTest {
     userSession.logIn(user).setSystemAdministrator();
     AlmSettingDto azureAlmSetting = db.almSettings().insertAzureAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("An ALM setting with key '%s' already exist", azureAlmSetting.getKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", azureAlmSetting.getKey())
       .setParam("personalAccessToken", "98765432100")
       .setParam("url", "https://ado.sonarqube.com/")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(String.format("An ALM setting with key '%s' already exist", azureAlmSetting.getKey()));
   }
 
   @Test
@@ -103,14 +100,13 @@ public class CreateAzureActionTest {
     userSession.logIn(user).setSystemAdministrator();
     db.almSettings().insertAzureAlmSetting();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A AZURE_DEVOPS setting is already defined");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "key")
       .setParam("personalAccessToken", "98765432100")
       .setParam("url", "https://ado.sonarqube.com/")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("A AZURE_DEVOPS setting is already defined");
   }
 
   @Test
@@ -118,12 +114,11 @@ public class CreateAzureActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("key", "Azure Server - Dev Team")
       .setParam("personalAccessToken", "98765432100")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

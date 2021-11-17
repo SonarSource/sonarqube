@@ -23,7 +23,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -52,7 +51,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.rules.ExpectedException.none;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -71,8 +69,6 @@ public class AssignActionTest {
 
   private TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public ExpectedException expectedException = none();
   @Rule
   public UserSessionRule userSession = standalone();
   @Rule
@@ -194,12 +190,13 @@ public class AssignActionTest {
   public void fail_when_assignee_does_not_exist() {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam("issue", issue.getKey())
-      .setParam("assignee", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("issue", issue.getKey())
+        .setParam("assignee", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -226,12 +223,13 @@ public class AssignActionTest {
     IssueDto issue = newIssueWithBrowsePermission();
     db.users().insertUser(user -> user.setActive(false));
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam("issue", issue.getKey())
-      .setParam("assignee", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("issue", issue.getKey())
+        .setParam("assignee", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -239,12 +237,13 @@ public class AssignActionTest {
     IssueDto issue = newIssue(PREVIOUS_ASSIGNEE);
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest()
-      .setParam("issue", issue.getKey())
-      .setParam("assignee", "_me")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("issue", issue.getKey())
+        .setParam("assignee", "_me")
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -252,12 +251,13 @@ public class AssignActionTest {
     IssueDto issue = newIssue(PREVIOUS_ASSIGNEE);
     setUserWithPermission(issue, CODEVIEWER);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam("issue", issue.getKey())
-      .setParam("assignee", "_me")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("issue", issue.getKey())
+        .setParam("assignee", "_me")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private UserDto insertUser(String login) {

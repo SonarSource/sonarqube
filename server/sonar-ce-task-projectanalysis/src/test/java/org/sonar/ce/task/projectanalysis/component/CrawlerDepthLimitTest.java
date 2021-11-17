@@ -28,9 +28,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.component.Component.Type;
 
@@ -40,14 +38,13 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class CrawlerDepthLimitTest {
   private static final Set<Type> REPORT_TYPES = Arrays.stream(Type.values()).filter(Type::isReportType).collect(Collectors.toSet());
   private static final Set<Type> VIEWS_TYPES = Arrays.stream(Type.values()).filter(Type::isViewsType).collect(Collectors.toSet());
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void PROJECT_isSameAs_only_PROJECT_type() {
@@ -283,10 +280,9 @@ public class CrawlerDepthLimitTest {
   @Test
   @UseDataProvider("viewsTypes")
   public void reportMaxDepth_throws_IAE_if_type_is_views(Type viewsType) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A Report max depth must be a report type");
-
-    CrawlerDepthLimit.reportMaxDepth(viewsType);
+    assertThatThrownBy(() -> CrawlerDepthLimit.reportMaxDepth(viewsType))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A Report max depth must be a report type");
   }
 
   @Test
@@ -298,10 +294,9 @@ public class CrawlerDepthLimitTest {
   @Test
   @UseDataProvider("reportTypes")
   public void withViewsMaxDepth_throws_IAE_if_type_is_report(Type reportType) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A Views max depth must be a views type");
-
-    CrawlerDepthLimit.reportMaxDepth(reportType).withViewsMaxDepth(reportType);
+    assertThatThrownBy(() -> CrawlerDepthLimit.reportMaxDepth(reportType).withViewsMaxDepth(reportType))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A Views max depth must be a views type");
   }
 
   @DataProvider

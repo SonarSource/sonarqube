@@ -23,23 +23,19 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class JwtCsrfVerifierTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final int TIMEOUT = 30;
   private static final String CSRF_STATE = "STATE";
@@ -80,9 +76,11 @@ public class JwtCsrfVerifierTest {
     mockRequestCsrf("other value");
     mockPostJavaWsRequest();
 
-    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("Wrong CSFR in request");
-    underTest.verifyState(request, CSRF_STATE, LOGIN);
+    assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Wrong CSFR in request")
+      .hasFieldOrPropertyWithValue("login", LOGIN)
+      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
   }
 
   @Test
@@ -90,9 +88,11 @@ public class JwtCsrfVerifierTest {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
-    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("Missing reference CSRF value");
-    underTest.verifyState(request, null, LOGIN);
+    assertThatThrownBy(() -> underTest.verifyState(request, null, LOGIN))
+      .hasMessage("Missing reference CSRF value")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("login", LOGIN)
+      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
   }
 
   @Test
@@ -100,9 +100,11 @@ public class JwtCsrfVerifierTest {
     mockRequestCsrf(CSRF_STATE);
     mockPostJavaWsRequest();
 
-    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("Missing reference CSRF value");
-    underTest.verifyState(request, "", LOGIN);
+    assertThatThrownBy(() -> underTest.verifyState(request, "", LOGIN))
+      .hasMessage("Missing reference CSRF value")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("login", LOGIN)
+      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
   }
 
   @Test
@@ -111,9 +113,11 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("POST");
 
-    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("Wrong CSFR in request");
-    underTest.verifyState(request, CSRF_STATE, LOGIN);
+    assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
+      .hasMessage("Wrong CSFR in request")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("login", LOGIN)
+      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
   }
 
   @Test
@@ -122,9 +126,11 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("PUT");
 
-    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("Wrong CSFR in request");
-    underTest.verifyState(request, CSRF_STATE, LOGIN);
+    assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
+      .hasMessage("Wrong CSFR in request")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("login", LOGIN)
+      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
   }
 
   @Test
@@ -133,9 +139,11 @@ public class JwtCsrfVerifierTest {
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
     when(request.getMethod()).thenReturn("DELETE");
 
-    thrown.expect(authenticationException().from(Source.local(Method.JWT)).withLogin(LOGIN).andNoPublicMessage());
-    thrown.expectMessage("Wrong CSFR in request");
-    underTest.verifyState(request, CSRF_STATE, LOGIN);
+    assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
+      .hasMessage("Wrong CSFR in request")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("login", LOGIN)
+      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
   }
 
   @Test

@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.net.HttpURLConnection;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -46,6 +45,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
@@ -58,8 +58,6 @@ public class DeleteActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -116,13 +114,14 @@ public class DeleteActionTest {
     QProfileDto profile1 = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage(A_LANGUAGE));
     logInAsQProfileAdministrator();
 
-    expectedException.expect(BadRequestException.class);
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_LANGUAGE, profile1.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_LANGUAGE, profile1.getLanguage())
+        .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -130,38 +129,41 @@ public class DeleteActionTest {
     QProfileDto qprofile = createProfile();
     userSession.logIn(db.users().insertUser());
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_LANGUAGE, qprofile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qprofile.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_LANGUAGE, qprofile.getLanguage())
+        .setParam(PARAM_QUALITY_PROFILE, qprofile.getName())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void fail_if_not_logged_in() {
     QProfileDto profile = createProfile();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_KEY, profile.getKee())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_KEY, profile.getKee())
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_missing_parameters() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'language' parameter is missing");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'language' parameter is missing");
   }
 
   @Test
@@ -169,13 +171,14 @@ public class DeleteActionTest {
     QProfileDto profile = createProfile();
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'language' parameter is missing");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam("profileName", profile.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam("profileName", profile.getName())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'language' parameter is missing");
   }
 
   @Test
@@ -183,27 +186,29 @@ public class DeleteActionTest {
     QProfileDto profile = createProfile();
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'qualityProfile' parameter is missing");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_LANGUAGE, profile.getLanguage())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_LANGUAGE, profile.getLanguage())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'qualityProfile' parameter is missing");
   }
 
   @Test
   public void fail_if_profile_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'does_not_exist' does not exist");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_QUALITY_PROFILE, "does_not_exist")
-      .setParam(PARAM_LANGUAGE, "xoo")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_QUALITY_PROFILE, "does_not_exist")
+        .setParam(PARAM_LANGUAGE, "xoo")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile for language 'xoo' and name 'does_not_exist' does not exist");
   }
 
   @Test
@@ -212,14 +217,15 @@ public class DeleteActionTest {
     db.qualityProfiles().setAsDefault(profile);
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Profile '" + profile.getName() + "' cannot be deleted because it is marked as default");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_LANGUAGE, profile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_LANGUAGE, profile.getLanguage())
+        .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Profile '" + profile.getName() + "' cannot be deleted because it is marked as default");
   }
 
   @Test
@@ -229,15 +235,16 @@ public class DeleteActionTest {
     db.qualityProfiles().setAsDefault(childProfile);
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Profile '" + parentProfile.getName() + "' cannot be deleted because its descendant named '" + childProfile.getName() +
-      "' is marked as default");
-
-    ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_LANGUAGE, parentProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, parentProfile.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setMethod("POST")
+        .setParam(PARAM_LANGUAGE, parentProfile.getLanguage())
+        .setParam(PARAM_QUALITY_PROFILE, parentProfile.getName())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Profile '" + parentProfile.getName() + "' cannot be deleted because its descendant named '" + childProfile.getName() +
+        "' is marked as default");
   }
 
   @Test

@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -41,13 +40,11 @@ import static java.nio.charset.StandardCharsets.UTF_16BE;
 import static java.nio.charset.StandardCharsets.UTF_16LE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CharsetDetectorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void should_detect_charset_from_BOM() {
@@ -75,7 +72,7 @@ public class CharsetDetectorTest {
   @Test
   public void always_try_utf8() throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    // this is a valid 2 byte UTF-8. 
+    // this is a valid 2 byte UTF-8.
     out.write(194);
     out.write(128);
 
@@ -86,9 +83,9 @@ public class CharsetDetectorTest {
 
   @Test
   public void fail_if_file_doesnt_exist() {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unable to read file " + Paths.get("non_existing").toAbsolutePath());
-    detectCharset(Paths.get("non_existing"), UTF_8);
+    assertThatThrownBy(() -> detectCharset(Paths.get("non_existing"), UTF_8))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unable to read file " + Paths.get("non_existing").toAbsolutePath());
   }
 
   @Test
@@ -98,16 +95,16 @@ public class CharsetDetectorTest {
     new Random().nextBytes(b);
     // avoid accidental BOM matching
     b[0] = 1;
-    
+
     // avoid UTF-8 / UTF-16
     b[100] = 0;
     b[101] = 0;
     b[102] = 0;
     b[103] = 0;
-    
+
     // invalid in win-1258
     b[200] = (byte) 129;
-    
+
     Files.write(filePath, b);
 
     CharsetDetector detector = new CharsetDetector(filePath, UTF_8);

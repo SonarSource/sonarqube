@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
@@ -36,33 +35,34 @@ import org.sonar.process.System2;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 public class AbstractCommandTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_NPE_of_ProcessId_is_null() throws IOException {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ProcessId can't be null");
+    assertThatThrownBy(() -> {
+      new AbstractCommand<AbstractCommand>(null, temp.newFolder(), System2.INSTANCE) {
 
-    new AbstractCommand<AbstractCommand>(null, temp.newFolder(), System2.INSTANCE) {
-
-    };
+      };
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("ProcessId can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_of_workDir_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("workDir can't be null");
+    assertThatThrownBy(() -> {
+      new AbstractCommand<AbstractCommand>(ProcessId.WEB_SERVER, null, System2.INSTANCE) {
 
-    new AbstractCommand<AbstractCommand>(ProcessId.WEB_SERVER, null, System2.INSTANCE) {
-
-    };
+      };
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("workDir can't be null");
   }
 
   @Test
@@ -72,10 +72,9 @@ public class AbstractCommandTest {
 
     };
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can't be null");
-
-    underTest.setEnvVariable(null, randomAlphanumeric(30));
+    assertThatThrownBy(() -> underTest.setEnvVariable(null, randomAlphanumeric(30)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key can't be null");
   }
 
   @Test
@@ -85,10 +84,9 @@ public class AbstractCommandTest {
 
     };
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value can't be null");
-
-    underTest.setEnvVariable(randomAlphanumeric(30), null);
+    assertThatThrownBy(() -> underTest.setEnvVariable(randomAlphanumeric(30), null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("value can't be null");
   }
 
   @Test

@@ -19,15 +19,12 @@
  */
 package org.sonar.core.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ComponentKeysTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_key_from_module_key_path_and_branch() {
@@ -64,30 +61,26 @@ public class ComponentKeysTest {
 
   @Test
   public void checkProjectKey_fail_if_key_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ComponentKeys.checkProjectKey("");
+    assertThatThrownBy(() -> ComponentKeys.checkProjectKey(""))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void checkProjectKey_fail_if_space() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ComponentKeys.checkProjectKey("ab 12");
+    assertThatThrownBy(() -> ComponentKeys.checkProjectKey("ab 12"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void checkProjectKey_fail_if_only_digit() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for '0123'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-
-    ComponentKeys.checkProjectKey("0123");
+    assertThatThrownBy(() -> ComponentKeys.checkProjectKey("0123"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Malformed key for '0123'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
   public void checkProjectKey_fail_if_special_characters_not_allowed() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ComponentKeys.checkProjectKey("ab/12");
+    assertThatThrownBy(() -> ComponentKeys.checkProjectKey("0123"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 }

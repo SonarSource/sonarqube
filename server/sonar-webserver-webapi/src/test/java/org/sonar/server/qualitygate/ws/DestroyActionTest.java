@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -43,6 +42,7 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -52,8 +52,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 
 public class DestroyActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -169,23 +167,21 @@ public class DestroyActionTest {
     db.commit();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", builtInQualityGate.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, valueOf(builtInQualityGate.getUuid()))
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", builtInQualityGate.getName()));
   }
 
   @Test
   public void fail_when_missing_id() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, EMPTY)
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -193,23 +189,21 @@ public class DestroyActionTest {
     QualityGateDto defaultQualityGate = db.qualityGates().createDefaultQualityGate();
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The default quality gate cannot be removed");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, valueOf(defaultQualityGate.getUuid()))
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The default quality gate cannot be removed");
   }
 
   @Test
   public void fail_on_unknown_quality_gate() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, "123")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -218,11 +212,10 @@ public class DestroyActionTest {
     db.qualityGates().createDefaultQualityGate();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getUuid())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

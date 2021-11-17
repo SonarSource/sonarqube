@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
@@ -54,6 +53,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -76,8 +76,6 @@ public class PropertiesDaoTest {
   private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2(INITIAL_DATE, 1);
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2, auditPersister);
 
@@ -1269,14 +1267,14 @@ public class PropertiesDaoTest {
 
   @Test
   public void should_not_rename_with_empty_key() {
-    thrown.expect(IllegalArgumentException.class);
-    underTest.renamePropertyKey("foo", "");
+    assertThatThrownBy(() -> underTest.renamePropertyKey("foo", ""))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void should_not_rename_an_empty_key() {
-    thrown.expect(IllegalArgumentException.class);
-    underTest.renamePropertyKey(null, "foo");
+    assertThatThrownBy(() -> underTest.renamePropertyKey(null, "foo"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private PropertyDto findByKey(List<PropertyDto> properties, String key) {

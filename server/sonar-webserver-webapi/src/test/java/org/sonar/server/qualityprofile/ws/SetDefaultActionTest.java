@@ -23,7 +23,6 @@ import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
@@ -39,6 +38,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -49,8 +49,6 @@ public class SetDefaultActionTest {
   private static final String XOO_1_KEY = "xoo1";
   private static final String XOO_2_KEY = "xoo2";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -134,23 +132,25 @@ public class SetDefaultActionTest {
   public void throw_ForbiddenException_if_not_profile_administrator() {
     userSessionRule.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest().setMethod("POST")
-      .setParam(PARAM_QUALITY_PROFILE, xoo2Profile.getName())
-      .setParam(PARAM_LANGUAGE, xoo2Profile.getLanguage())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest().setMethod("POST")
+        .setParam(PARAM_QUALITY_PROFILE, xoo2Profile.getName())
+        .setParam(PARAM_LANGUAGE, xoo2Profile.getLanguage())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    ws.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, xoo2Profile.getKee())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest().setMethod("POST")
+        .setParam(PARAM_KEY, xoo2Profile.getKee())
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   private void logInAsQProfileAdministrator() {

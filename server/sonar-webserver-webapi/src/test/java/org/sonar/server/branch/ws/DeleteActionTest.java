@@ -21,7 +21,6 @@ package org.sonar.server.branch.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -42,13 +41,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DeleteActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -81,28 +79,25 @@ public class DeleteActionTest {
   public void fail_if_missing_project_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'project' parameter is missing");
   }
 
   @Test
   public void fail_if_missing_branch_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'branch' parameter is missing");
-
-    tester.newRequest().setParam("project", "projectName").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("project", "projectName").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'branch' parameter is missing");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("Authentication is required");
   }
 
   @Test
@@ -110,26 +105,24 @@ public class DeleteActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Branch 'branch1' not found");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getDbKey())
       .setParam("branch", "branch1")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Branch 'branch1' not found");
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'foo' not found");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", "foo")
       .setParam("branch", "branch1")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'foo' not found");
   }
 
   @Test
@@ -139,13 +132,12 @@ public class DeleteActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     // not found because the DB keys don't contain the name
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only non-main branches can be deleted");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "main")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Only non-main branches can be deleted");
   }
 
   @Test

@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.period;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,8 +29,6 @@ public class PeriodTest {
   private static final String SOME_MODE_PARAM = "mode_para";
   private static final long SOME_SNAPSHOT_DATE = 1000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_some_setters_and_getters() {

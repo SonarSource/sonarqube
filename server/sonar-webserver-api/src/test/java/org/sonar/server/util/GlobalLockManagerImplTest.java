@@ -24,10 +24,9 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -35,6 +34,7 @@ import org.sonar.db.property.InternalPropertiesDao;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -45,10 +45,6 @@ import static org.sonar.server.util.GlobalLockManager.DEFAULT_LOCK_DURATION_SECO
 public class GlobalLockManagerImplTest {
 
   private static final int LOCK_NAME_MAX_LENGTH = 15;
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private final DbClient dbClient = mock(DbClient.class);
   private final InternalPropertiesDao internalPropertiesDao = mock(InternalPropertiesDao.class);
   private final DbSession dbSession = mock(DbSession.class);
@@ -64,18 +60,14 @@ public class GlobalLockManagerImplTest {
   public void tryLock_fails_with_IAE_if_name_is_empty() {
     String badLockName = "";
 
-    expectBadLockNameIAE(badLockName);
-
-    underTest.tryLock(badLockName);
+    expectBadLockNameIAE(() -> underTest.tryLock(badLockName), badLockName);
   }
 
   @Test
   public void tryLock_fails_with_IAE_if_name_length_is_16_or_more() {
     String badLockName = RandomStringUtils.random(LOCK_NAME_MAX_LENGTH + 1 + new Random().nextInt(96));
 
-    expectBadLockNameIAE(badLockName);
-
-    underTest.tryLock(badLockName);
+    expectBadLockNameIAE(() -> underTest.tryLock(badLockName), badLockName);
   }
 
   @Test
@@ -105,9 +97,7 @@ public class GlobalLockManagerImplTest {
   public void tryLock_with_duration_fails_with_IAE_if_name_is_empty(int randomValidDuration) {
     String badLockName = "";
 
-    expectBadLockNameIAE(badLockName);
-
-    underTest.tryLock(badLockName, randomValidDuration);
+    expectBadLockNameIAE(() -> underTest.tryLock(badLockName, randomValidDuration), badLockName);
   }
 
   @Test
@@ -123,17 +113,13 @@ public class GlobalLockManagerImplTest {
   public void tryLock_with_duration_fails_with_IAE_if_name_length_is_16_or_more(int randomValidDuration) {
     String badLockName = RandomStringUtils.random(LOCK_NAME_MAX_LENGTH + 1 + new Random().nextInt(65));
 
-    expectBadLockNameIAE(badLockName);
-
-    underTest.tryLock(badLockName, randomValidDuration);
+    expectBadLockNameIAE(() -> underTest.tryLock(badLockName, randomValidDuration), badLockName);
   }
 
   @Test
   @UseDataProvider("randomValidLockName")
   public void tryLock_with_duration_fails_with_IAE_if_duration_is_0(String randomValidLockName) {
-    expectBadDuration(0);
-
-    underTest.tryLock(randomValidLockName, 0);
+    expectBadDuration(() ->  underTest.tryLock(randomValidLockName, 0),0);
   }
 
   @Test
@@ -141,9 +127,7 @@ public class GlobalLockManagerImplTest {
   public void tryLock_with_duration_fails_with_IAE_if_duration_is_less_than_0(String randomValidLockName) {
     int negativeDuration = -1 - new Random().nextInt(100);
 
-    expectBadDuration(negativeDuration);
-
-    underTest.tryLock(randomValidLockName, negativeDuration);
+    expectBadDuration(() -> underTest.tryLock(randomValidLockName, negativeDuration), negativeDuration);
   }
 
   @Test
@@ -176,14 +160,16 @@ public class GlobalLockManagerImplTest {
     };
   }
 
-  private void expectBadLockNameIAE(String badLockName) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("name's length must be > 0 and <= " + LOCK_NAME_MAX_LENGTH + ": '" + badLockName + "'");
+  private void expectBadLockNameIAE(ThrowingCallable callback, String badLockName) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("name's length must be > 0 and <= " + LOCK_NAME_MAX_LENGTH + ": '" + badLockName + "'");
   }
 
-  private void expectBadDuration(int badDuration) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("duration must be > 0: " + badDuration);
+  private void expectBadDuration(ThrowingCallable callback, int badDuration) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("duration must be > 0: " + badDuration);
   }
 
 }

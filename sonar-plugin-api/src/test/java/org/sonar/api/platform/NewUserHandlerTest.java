@@ -19,16 +19,12 @@
  */
 package org.sonar.api.platform;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NewUserHandlerTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void build_context() {
@@ -41,8 +37,7 @@ public class NewUserHandlerTest {
 
   @Test
   public void login_is_mandatory() {
-    thrown.expect(NullPointerException.class);
-
-    NewUserHandler.Context.builder().setName("Marius").build();
+    assertThatThrownBy(() -> NewUserHandler.Context.builder().setName("Marius").build())
+      .isInstanceOf(NullPointerException.class);
   }
 }

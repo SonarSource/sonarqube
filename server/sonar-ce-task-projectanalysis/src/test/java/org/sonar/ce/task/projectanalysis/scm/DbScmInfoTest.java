@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,8 +27,6 @@ import static org.sonar.server.source.index.FileSourceTesting.newFakeData;
 
 public class DbScmInfoTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void create_scm_info_with_some_changesets() {

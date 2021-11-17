@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -38,6 +37,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 
@@ -57,8 +57,6 @@ public class ExportEventsStepTest {
     .setDbKey("the_project")
     .setEnabled(true);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -108,9 +106,9 @@ public class ExportEventsStepTest {
     insertEvent(snapshot, "E2", "two");
     dumpWriter.failIfMoreThan(1, DumpElement.EVENTS);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Event Export failed after processing 1 events successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Event Export failed after processing 1 events successfully");
   }
 
   @Test

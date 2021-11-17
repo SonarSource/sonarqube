@@ -24,9 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Properties;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.dialect.PostgreSql;
@@ -34,7 +32,7 @@ import org.sonar.process.logging.LogbackHelper;
 
 import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 @RunWith(DataProviderRunner.class)
@@ -43,8 +41,6 @@ public class DefaultDatabaseTest {
   private LogbackHelper logbackHelper = mock(LogbackHelper.class);
   private static final String SONAR_JDBC = "sonar.jdbc.";
 
-  @Rule
-  public ExpectedException expectedException = none();
 
   @Test
   public void shouldLoadDefaultValues() {
@@ -92,10 +88,9 @@ public class DefaultDatabaseTest {
     props.setProperty(jdbcProperty, "100");
     props.setProperty(dbcpProperty, "200");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Duplicate property declaration for resolved jdbc key '%s': conflicting values are", removeStart(dbcpProperty, SONAR_JDBC)));
-
-    DefaultDatabase.extractCommonsDbcpProperties(props);
+    assertThatThrownBy(() -> DefaultDatabase.extractCommonsDbcpProperties(props))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining(String.format("Duplicate property declaration for resolved jdbc key '%s': conflicting values are", removeStart(dbcpProperty, SONAR_JDBC)));
   }
 
   @Test

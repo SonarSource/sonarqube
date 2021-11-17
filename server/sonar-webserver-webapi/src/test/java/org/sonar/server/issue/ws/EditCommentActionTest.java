@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -59,8 +58,6 @@ public class EditCommentActionTest {
 
   private static final long NOW = 10_000_000_000L;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
@@ -119,9 +116,9 @@ public class EditCommentActionTest {
     UserDto another = dbTester.users().insertUser();
     loginWithBrowsePermission(another, USER, issueDto);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("You can only edit your own comments");
-    call(commentDto.getKey(), "please have a look");
+    assertThatThrownBy(() -> call(commentDto.getKey(), "please have a look"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You can only edit your own comments");
   }
 
   @Test
@@ -131,33 +128,33 @@ public class EditCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("You can only edit your own comments");
-    call(commentDto.getKey(), "please have a look");
+    assertThatThrownBy(() ->  call(commentDto.getKey(), "please have a look"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You can only edit your own comments");
   }
 
   @Test
   public void fail_when_missing_comment_key() {
     userSession.logIn("john");
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(null, "please fix it");
+    assertThatThrownBy(() -> call(null, "please fix it"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_comment_does_not_exist() {
     userSession.logIn("john");
 
-    expectedException.expect(NotFoundException.class);
-    call("ABCD", "please fix it");
+    assertThatThrownBy(() -> call("ABCD", "please fix it"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_when_missing_comment_text() {
     userSession.logIn("john");
 
-    expectedException.expect(IllegalArgumentException.class);
-    call("ABCD", null);
+    assertThatThrownBy(() -> call("ABCD", null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -167,14 +164,14 @@ public class EditCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, USER, issueDto);
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(commentDto.getKey(), "");
+    assertThatThrownBy(() -> call(commentDto.getKey(), ""))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_not_authenticated() {
-    expectedException.expect(UnauthorizedException.class);
-    call("ABCD", "please fix it");
+    assertThatThrownBy(() -> call("ABCD", "please fix it"))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -184,8 +181,8 @@ public class EditCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, CODEVIEWER, issueDto);
 
-    expectedException.expect(ForbiddenException.class);
-    call(commentDto.getKey(), "please have a look");
+    assertThatThrownBy(() -> call(commentDto.getKey(), "please have a look"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -195,9 +192,9 @@ public class EditCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, CODEVIEWER, issueDto);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Issue with key '%s' does not exist", issueDto.getKey()));
-    call(commentDto.getKey(), "please have a look");
+    assertThatThrownBy(() -> call(commentDto.getKey(), "please have a look"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Issue with key '%s' does not exist", issueDto.getKey()));
   }
 
   @Test

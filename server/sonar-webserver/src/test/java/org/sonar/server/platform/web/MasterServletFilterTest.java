@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.ServletFilter;
@@ -40,6 +39,7 @@ import org.sonar.api.web.ServletFilter.UrlPattern;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -48,8 +48,6 @@ import static org.mockito.Mockito.when;
 
 public class MasterServletFilterTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -77,22 +75,22 @@ public class MasterServletFilterTest {
   public void servlet_container_should_instantiate_only_a_single_master_instance() {
     new MasterServletFilter();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Servlet filter org.sonar.server.platform.web.MasterServletFilter is already instantiated");
-    new MasterServletFilter();
+    assertThatThrownBy(() -> new MasterServletFilter())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Servlet filter org.sonar.server.platform.web.MasterServletFilter is already instantiated");
   }
 
   @Test
   public void should_propagate_initialization_failure() throws Exception {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("foo");
-
     ServletFilter filter = createMockFilter();
     doThrow(new IllegalStateException("foo")).when(filter).init(any(FilterConfig.class));
 
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter filters = new MasterServletFilter();
-    filters.init(config, singletonList(filter));
+
+    assertThatThrownBy(() -> filters.init(config, singletonList(filter)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("foo");
   }
 
   @Test

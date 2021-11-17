@@ -23,37 +23,29 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Locale;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class IndexTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   @UseDataProvider("nullOrEmpty")
   public void simple_index_constructor_fails_with_IAE_if_index_name_is_null_or_empty(String nullOrEmpty) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name can't be null nor empty");
-
-    Index.simple(nullOrEmpty);
+    assertThatThrownBy(() -> Index.simple(nullOrEmpty))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name can't be null nor empty");
   }
 
   @Test
   @UseDataProvider("nullOrEmpty")
   public void withRelations_index_constructor_fails_with_IAE_if_index_name_is_null_or_empty(String nullOrEmpty) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name can't be null nor empty");
-
-    Index.withRelations(nullOrEmpty);
-
+    assertThatThrownBy(() -> Index.withRelations(nullOrEmpty))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name can't be null nor empty");
   }
 
   @DataProvider
@@ -66,18 +58,16 @@ public class IndexTest {
 
   @Test
   public void simple_index_name_must_not_contain_upper_case_char() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name must be lower-case letters or '_all': Issues");
-
-    Index.simple("Issues");
+    assertThatThrownBy(() -> Index.simple("Issues"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must be lower-case letters or '_all': Issues");
   }
 
   @Test
   public void withRelations_index_name_must_not_contain_upper_case_char() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name must be lower-case letters or '_all': Issues");
-
-    Index.withRelations("Issues");
+    assertThatThrownBy(() -> Index.withRelations("Issues"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must be lower-case letters or '_all': Issues");
   }
 
   @Test
@@ -85,10 +75,9 @@ public class IndexTest {
     // doesn't fail
     Index.simple("_all");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name must be lower-case letters or '_all': _");
-
-    Index.simple("_");
+    assertThatThrownBy(() -> Index.simple("_"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must be lower-case letters or '_all': _");
   }
 
   @Test
@@ -96,10 +85,9 @@ public class IndexTest {
     // doesn't fail
     Index.withRelations("_all");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name must be lower-case letters or '_all': _");
-
-    Index.withRelations("_");
+    assertThatThrownBy(() -> Index.withRelations("_"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must be lower-case letters or '_all': _");
   }
 
   @Test
@@ -128,10 +116,9 @@ public class IndexTest {
   public void getJoinField_throws_ISE_on_simple_index() {
     Index underTest = Index.simple("foo");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Only index accepting relations has a join field");
-
-    underTest.getJoinField();
+    assertThatThrownBy(underTest::getJoinField)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Only index accepting relations has a join field");
   }
 
   @Test

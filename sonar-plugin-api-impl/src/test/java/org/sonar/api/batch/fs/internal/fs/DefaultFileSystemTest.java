@@ -24,20 +24,17 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultFileSystemTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private DefaultFileSystem fs;
 
@@ -122,13 +119,12 @@ public class DefaultFileSystemTest {
 
   @Test
   public void input_file_fails_if_too_many_results() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("expected one element");
-
     fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
     fs.add(new TestInputFileBuilder("foo", "src/Baz.java").setLanguage("java").build());
 
-    fs.inputFile(fs.predicates().all());
+    assertThatThrownBy(() -> fs.inputFile(fs.predicates().all()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("expected one element");
   }
 
   @Test

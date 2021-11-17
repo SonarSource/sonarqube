@@ -21,7 +21,6 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.ce.http.CeHttpClient;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -29,6 +28,7 @@ import org.sonar.server.log.ServerLogging;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -36,8 +36,6 @@ public class ChangeLogLevelActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClient.class);
@@ -46,18 +44,16 @@ public class ChangeLogLevelActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().setMethod("POST").execute();
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().setMethod("POST").execute();
+    assertThatThrownBy(() -> actionTester.newRequest().setMethod("POST").execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -90,23 +86,21 @@ public class ChangeLogLevelActionTest {
   public void fail_if_unsupported_level() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    actionTester.newRequest()
+    assertThatThrownBy(() -> actionTester.newRequest()
       .setParam("level", "ERROR")
       .setMethod("POST")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_missing_level() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    actionTester.newRequest()
+    assertThatThrownBy(() -> actionTester.newRequest()
       .setMethod("POST")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private void logInAsSystemAdministrator() {

@@ -30,12 +30,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
@@ -47,8 +47,6 @@ public class AppFileSystemTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private File homeDir;
   private File dataDir;
@@ -179,10 +177,9 @@ public class AppFileSystemTest {
     assertThat(file.createNewFile()).isTrue();
     settings.getProps().set(property, file.getAbsolutePath());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property '" + property + "' is not valid, not a directory: " + file.getAbsolutePath());
-
-    underTest.reset();
+    assertThatThrownBy(() -> underTest.reset())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Property '" + property + "' is not valid, not a directory: " + file.getAbsolutePath());
   }
 
   @Test
@@ -192,10 +189,9 @@ public class AppFileSystemTest {
     FileUtils.forceMkdir(logsDir);
     FileUtils.touch(dataDir);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property 'sonar.path.data' is not valid, not a directory: " + dataDir.getAbsolutePath());
-
-    underTest.reset();
+    assertThatThrownBy(() -> underTest.reset())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Property 'sonar.path.data' is not valid, not a directory: " + dataDir.getAbsolutePath());
   }
 
 }

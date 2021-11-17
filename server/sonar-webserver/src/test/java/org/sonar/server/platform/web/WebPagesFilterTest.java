@@ -26,9 +26,7 @@ import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_MOCKS;
@@ -40,8 +38,6 @@ import static org.mockito.Mockito.when;
 public class WebPagesFilterTest {
 
   private static final String TEST_CONTEXT = "/sonarqube";
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
   private WebPagesCache webPagesCache = mock(WebPagesCache.class);

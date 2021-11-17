@@ -34,7 +34,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.tmatesoft.svn.core.SVNCancelException;
@@ -82,9 +81,6 @@ public class SvnScmProviderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private FindFork findFork = mock(FindFork.class);
   private SvnConfiguration config = mock(SvnConfiguration.class);

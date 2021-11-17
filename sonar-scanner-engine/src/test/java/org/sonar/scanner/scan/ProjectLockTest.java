@@ -26,19 +26,17 @@ import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ProjectLockTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
   private ProjectLock lock;
   private File baseDir;
   private File worDir;
@@ -63,10 +61,11 @@ public class ProjectLockTest {
 
   @Test
   public void tryLockConcurrently() {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Another SonarQube analysis is already in progress for this project");
     lock.tryLock();
-    lock.tryLock();
+
+    assertThatThrownBy(() -> lock.tryLock())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Another SonarQube analysis is already in progress for this project");
   }
 
   @Test

@@ -23,11 +23,13 @@ import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EvaluationResultTest {
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_Level_arg_is_null() {
-    new EvaluationResult(null, 11);
+    assertThatThrownBy(() -> new EvaluationResult(null, 11))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

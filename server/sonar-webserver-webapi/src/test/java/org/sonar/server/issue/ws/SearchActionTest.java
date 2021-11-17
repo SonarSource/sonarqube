@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -89,7 +88,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.rules.ExpectedException.none;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
@@ -124,8 +122,6 @@ public class SearchActionTest {
   public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException expectedException = none();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
@@ -1261,12 +1257,14 @@ public class SearchActionTest {
 
   @Test
   public void paging_with_page_size_to_minus_one() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be between 1 and 500 (got -1)");
-    ws.newRequest()
-      .setParam(WebService.Param.PAGE, "1")
-      .setParam(WebService.Param.PAGE_SIZE, "-1")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(WebService.Param.PAGE, "1")
+        .setParam(WebService.Param.PAGE_SIZE, "-1")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page size must be between 1 and 500 (got -1)");
   }
 
   @Test
@@ -1301,12 +1299,13 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_invalid_format() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Date 'wrong-date-input' cannot be parsed as either a date or date+time");
-
-    ws.newRequest()
-      .setParam(PARAM_CREATED_AFTER, "wrong-date-input")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_CREATED_AFTER, "wrong-date-input")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Date 'wrong-date-input' cannot be parsed as either a date or date+time");
   }
 
   @Test

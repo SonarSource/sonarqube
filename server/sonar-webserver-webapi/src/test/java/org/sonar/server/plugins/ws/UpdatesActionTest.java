@@ -21,7 +21,6 @@ package org.sonar.server.plugins.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -33,6 +32,7 @@ import org.sonar.updatecenter.common.Release;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
@@ -77,8 +77,6 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private UpdatesAction underTest = new UpdatesAction(userSession, updateCenterFactory, new PluginUpdateAggregator());
   private WsActionTester tester = new WsActionTester(underTest);
@@ -94,17 +92,16 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

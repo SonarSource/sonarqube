@@ -23,16 +23,14 @@ import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DirectoryLockTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private DirectoryLock lock;
 
   @Before
@@ -57,9 +55,8 @@ public class DirectoryLockTest {
   public void errorTryLock() {
     lock = new DirectoryLock(Paths.get("non", "existing", "path"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Failed to create lock");
-
-    lock.tryLock();
+    assertThatThrownBy(() -> lock.tryLock())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to create lock");
   }
 }

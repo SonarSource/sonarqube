@@ -19,11 +19,10 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus.ERROR;
 import static org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus.OK;
@@ -31,25 +30,21 @@ import static org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus.O
 public class EvaluatedConditionTest {
   private static final Condition CONDITION_1 = new Condition("metricKey", GREATER_THAN, "2");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private EvaluatedCondition underTest = new EvaluatedCondition(CONDITION_1, ERROR, "value");
 
   @Test
   public void constructor_throws_NPE_if_condition_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("condition can't be null");
-
-    new EvaluatedCondition(null, ERROR, "value");
+    assertThatThrownBy(() -> new EvaluatedCondition(null, ERROR, "value"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("condition can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_EvaluationStatus_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    new EvaluatedCondition(CONDITION_1, null, "value");
+    assertThatThrownBy(() -> new EvaluatedCondition(CONDITION_1, null, "value"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test

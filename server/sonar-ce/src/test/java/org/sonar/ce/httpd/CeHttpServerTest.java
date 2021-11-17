@@ -33,11 +33,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
@@ -45,8 +45,6 @@ public class CeHttpServerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private static final RuntimeException FAILING_ACTION = new IllegalStateException("Simulating the action failed");
   private CeHttpServer underTest;
@@ -110,8 +108,9 @@ public class CeHttpServerTest {
   @Test
   public void stop_stops_http_server() throws Exception {
     underTest.stop();
-    expectedException.expect(ConnectException.class);
-    call(underTest.getUrl());
+
+    assertThatThrownBy(() -> call(underTest.getUrl()))
+      .isInstanceOf(ConnectException.class);
   }
 
   @Test

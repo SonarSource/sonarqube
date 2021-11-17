@@ -23,9 +23,8 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.Health;
@@ -38,6 +37,7 @@ import org.sonarqube.ws.System;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,8 +45,6 @@ import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SafeModeHealthActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private HealthChecker healthChecker = mock(HealthChecker.class);
@@ -71,9 +69,7 @@ public class SafeModeHealthActionTest {
     when(systemPasscode.isValid(any())).thenReturn(false);
     TestRequest request = underTest.newRequest();
 
-    expectForbiddenException();
-
-    request.execute();
+    expectForbiddenException(() -> request.execute());
   }
 
   @Test
@@ -137,9 +133,10 @@ public class SafeModeHealthActionTest {
       .containsOnly(causes);
   }
 
-  private void expectForbiddenException() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
+  private void expectForbiddenException(ThrowingCallable shouldRaiseThrowable) {
+    assertThatThrownBy(shouldRaiseThrowable)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   private void authenticateWithPasscode() {

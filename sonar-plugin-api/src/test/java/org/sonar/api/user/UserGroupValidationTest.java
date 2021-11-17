@@ -20,52 +20,44 @@
 package org.sonar.api.user;
 
 import com.google.common.base.Strings;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UserGroupValidationTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void fail_when_group_name_is_Anyone() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Anyone group cannot be used");
-
-    UserGroupValidation.validateGroupName("AnyOne");
+    assertThatThrownBy(() -> UserGroupValidation.validateGroupName("AnyOne"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Anyone group cannot be used");
   }
 
   @Test
   public void fail_when_group_name_is_empty() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be empty");
-
-    UserGroupValidation.validateGroupName("");
+    assertThatThrownBy(() -> UserGroupValidation.validateGroupName(""))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 
   @Test
   public void fail_when_group_name_contains_only_blank() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be empty");
-
-    UserGroupValidation.validateGroupName("     ");
+    assertThatThrownBy(() -> UserGroupValidation.validateGroupName("     "))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 
   @Test
   public void fail_when_group_name_is_too_big() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be longer than 255 characters");
-
-    UserGroupValidation.validateGroupName(Strings.repeat("name", 300));
+    assertThatThrownBy(() -> UserGroupValidation.validateGroupName(Strings.repeat("name", 300)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be longer than 255 characters");
   }
 
   @Test
   public void fail_when_group_name_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be empty");
-
-    UserGroupValidation.validateGroupName(null);
+    assertThatThrownBy(() -> UserGroupValidation.validateGroupName(null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 }

@@ -19,55 +19,47 @@
  */
 package org.sonar.api.ce.posttask;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskBuilder_PostProjectAnalysisTaskTesterTest {
   private static final CeTask.Status SOME_STATUS = CeTask.Status.SUCCESS;
   private static final String SOME_ID = "some id";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private PostProjectAnalysisTaskTester.CeTaskBuilder underTest = PostProjectAnalysisTaskTester.newCeTaskBuilder();
 
   @Test
   public void setId_throws_NPE_if_id_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id cannot be null");
-
-    underTest.setId(null);
+    assertThatThrownBy(() -> underTest.setId(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id cannot be null");
   }
 
   @Test
   public void setStatus_throws_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status cannot be null");
-
-    underTest.setStatus(null);
+    assertThatThrownBy(() -> underTest.setStatus(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_id_is_null() {
     underTest.setStatus(SOME_STATUS);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_status_is_null() {
     underTest.setId(SOME_ID);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status cannot be null");
   }
 
   @Test

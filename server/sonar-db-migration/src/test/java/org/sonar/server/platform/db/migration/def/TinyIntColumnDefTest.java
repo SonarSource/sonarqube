@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -29,14 +27,11 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TinyIntColumnDefTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void build_string_column_def() {
     TinyIntColumnDef def = new TinyIntColumnDef.Builder()
@@ -64,16 +59,17 @@ public class TinyIntColumnDefTest {
 
   @Test
   public void fail_with_UOE_to_generate_sql_type_when_unknown_dialect() {
-    thrown.expect(UnsupportedOperationException.class);
-    thrown.expectMessage("Unknown dialect 'unknown'");
+    assertThatThrownBy(() -> {
+      TinyIntColumnDef def = new TinyIntColumnDef.Builder()
+        .setColumnName("foo")
+        .setIsNullable(true)
+        .build();
 
-    TinyIntColumnDef def = new TinyIntColumnDef.Builder()
-      .setColumnName("foo")
-      .setIsNullable(true)
-      .build();
-
-    Dialect dialect = mock(Dialect.class);
-    when(dialect.getId()).thenReturn("unknown");
-    def.generateSqlType(dialect);
+      Dialect dialect = mock(Dialect.class);
+      when(dialect.getId()).thenReturn("unknown");
+      def.generateSqlType(dialect);
+    })
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("Unknown dialect 'unknown'");
   }
 }

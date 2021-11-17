@@ -29,7 +29,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -52,18 +51,16 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
-import static org.sonar.test.Matchers.regexMatcher;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 @RunWith(DataProviderRunner.class)
 public class SetBaselineActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -119,19 +116,17 @@ public class SetBaselineActionTest {
     ComponentDto project = tester.insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(project.getKey(), "master", analysis.getUuid());
+    assertThatThrownBy(() -> call(project.getKey(), "master", analysis.getUuid()))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   @UseDataProvider("missingOrEmptyParamsAndFailureMessage")
   public void fail_with_IAE_when_required_param_missing_or_empty(Map<String, String> params, String message) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(message);
-
-    call(params);
+    assertThatThrownBy(() -> call(params))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(message);
   }
 
   @DataProvider
@@ -162,10 +157,8 @@ public class SetBaselineActionTest {
     params.put(PARAM_ANALYSIS, analysis.getUuid());
     params.putAll(nonexistentParams);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(regexMatcher(regex));
-
-    call(params);
+    assertThatThrownBy(() -> call(params))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @DataProvider
@@ -188,10 +181,9 @@ public class SetBaselineActionTest {
     ComponentDto otherProject = tester.insertPrivateProjectWithCustomBranch("main");
     BranchDto branchOfOtherProject = branchDao.selectByUuid(dbSession, otherProject.uuid()).get();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Branch '%s' in project '%s' not found", branchOfOtherProject.getKey(), project.getKey()));
-
-    call(project.getKey(), branchOfOtherProject.getKey(), analysis.getUuid());
+    assertThatThrownBy(() -> call(project.getKey(), branchOfOtherProject.getKey(), analysis.getUuid()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Branch '%s' in project '%s' not found", branchOfOtherProject.getKey(), project.getKey()));
   }
 
   @Test
@@ -202,11 +194,10 @@ public class SetBaselineActionTest {
     ComponentDto otherProject = ComponentTesting.newPrivateProjectDto();
     SnapshotDto otherAnalysis = db.components().insertProjectAndSnapshot(otherProject);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Analysis '%s' does not belong to branch '%s' of project '%s'",
-      otherAnalysis.getUuid(), "branch1", project.getKey()));
-
-    call(project.getKey(), "branch1", otherAnalysis.getUuid());
+    assertThatThrownBy(() ->  call(project.getKey(), "branch1", otherAnalysis.getUuid()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Analysis '%s' does not belong to branch '%s' of project '%s'",
+        otherAnalysis.getUuid(), "branch1", project.getKey()));
   }
 
   @Test
@@ -218,11 +209,10 @@ public class SetBaselineActionTest {
     ComponentDto otherProject = ComponentTesting.newPrivateProjectDto();
     SnapshotDto otherAnalysis = db.components().insertProjectAndSnapshot(otherProject);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("Analysis '%s' does not belong to branch '%s' of project '%s'",
-      otherAnalysis.getUuid(), "branch1", project.getKey()));
-
-    call(project.getKey(), "branch1", otherAnalysis.getUuid());
+    assertThatThrownBy(() -> call(project.getKey(), "branch1", otherAnalysis.getUuid()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("Analysis '%s' does not belong to branch '%s' of project '%s'",
+        otherAnalysis.getUuid(), "branch1", project.getKey()));
   }
 
   @Test

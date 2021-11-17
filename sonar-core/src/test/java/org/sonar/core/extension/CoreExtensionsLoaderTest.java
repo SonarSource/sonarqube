@@ -25,19 +25,16 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CoreExtensionsLoaderTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
   private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
@@ -73,10 +70,9 @@ public class CoreExtensionsLoaderTest {
     Set<CoreExtension> coreExtensions = ImmutableSet.of(newCoreExtension("a"), newCoreExtension("a"));
     when(serviceLoaderWrapper.load(any())).thenReturn(coreExtensions);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Multiple core extensions declare the following names: a");
-
-    underTest.load();
+    assertThatThrownBy(() -> underTest.load())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Multiple core extensions declare the following names: a");
   }
 
   @Test
@@ -84,10 +80,9 @@ public class CoreExtensionsLoaderTest {
     Set<CoreExtension> coreExtensions = ImmutableSet.of(newCoreExtension("a"), newCoreExtension("a"), newCoreExtension("b"), newCoreExtension("b"));
     when(serviceLoaderWrapper.load(any())).thenReturn(coreExtensions);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Multiple core extensions declare the following names: a, b");
-
-    underTest.load();
+    assertThatThrownBy(() -> underTest.load())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Multiple core extensions declare the following names: a, b");
   }
 
   private static CoreExtension newCoreExtension(String name) {

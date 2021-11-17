@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -46,8 +45,8 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertFalse;
-import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -66,8 +65,6 @@ public class IssueDaoTest {
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
     .toArray(RuleType[]::new);
 
-  @Rule
-  public ExpectedException expectedException = none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -113,12 +110,12 @@ public class IssueDaoTest {
 
   @Test
   public void selectByKeyOrFail_fails_if_key_not_found() {
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("Issue with key 'DOES_NOT_EXIST' does not exist");
-
-    prepareTables();
-
-    underTest.selectOrFailByKey(db.getSession(), "DOES_NOT_EXIST");
+    assertThatThrownBy(() -> {
+      prepareTables();
+      underTest.selectOrFailByKey(db.getSession(), "DOES_NOT_EXIST");
+    })
+      .isInstanceOf(RowNotFoundException.class)
+      .hasMessage("Issue with key 'DOES_NOT_EXIST' does not exist");
   }
 
   @Test

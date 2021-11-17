@@ -20,19 +20,16 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ConditionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private static final Metric SOME_METRIC = mock(Metric.class);
   private static final String SOME_OPERATOR = "LT";
@@ -42,22 +39,23 @@ public class ConditionTest {
     when(SOME_METRIC.getKey()).thenReturn("dummy key");
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_for_null_metric_argument() {
-    new Condition(null, SOME_OPERATOR, null);
+    assertThatThrownBy(() -> new Condition(null, SOME_OPERATOR, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_for_null_operator_argument() {
-    new Condition(SOME_METRIC, null, null);
+    assertThatThrownBy(() -> new Condition(SOME_METRIC, null, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void constructor_throws_IAE_if_operator_is_not_valid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported operator value: 'troloto'");
-
-    new Condition(SOME_METRIC, "troloto", null);
+    assertThatThrownBy(() ->  new Condition(SOME_METRIC, "troloto", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported operator value: 'troloto'");
   }
 
   @Test

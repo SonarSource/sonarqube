@@ -21,15 +21,12 @@ package org.sonar.scm.git;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ChangedLinesComputerTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
   private final ChangedLinesComputer underTest = new ChangedLinesComputer();
 
   @Test
@@ -142,8 +139,8 @@ public class ChangedLinesComputerTest {
       + "+added line 1\n"
       + "+added line 2\n";
 
-    exception.expect(IllegalStateException.class);
-    printDiff(example);
+    assertThatThrownBy(() -> printDiff(example))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   private void printDiff(String unifiedDiff) throws IOException {

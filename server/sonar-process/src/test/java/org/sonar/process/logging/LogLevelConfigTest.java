@@ -22,28 +22,24 @@ package org.sonar.process.logging;
 import ch.qos.logback.classic.Level;
 import java.util.Collections;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Fail.fail;
 import static org.sonar.process.logging.LogLevelConfig.newBuilder;
 
 public class LogLevelConfigTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final String rootLoggerName = RandomStringUtils.randomAlphabetic(20);
   private LogLevelConfig.Builder underTest = newBuilder(rootLoggerName);
 
   @Test
   public void newBuilder_throws_NPE_if_rootLoggerName_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("rootLoggerName can't be null");
-
-    newBuilder(null);
+    assertThatThrownBy(() -> newBuilder(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("rootLoggerName can't be null");
   }
 
   @Test
@@ -75,52 +71,46 @@ public class LogLevelConfigTest {
 
   @Test
   public void builder_rootLevelFor_fails_with_ProcessId_if_loggerName_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ProcessId can't be null");
-
-    underTest.rootLevelFor(null);
+    assertThatThrownBy(() -> underTest.rootLevelFor(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("ProcessId can't be null");
   }
 
   @Test
   public void builder_rootLevelFor_fails_with_ISE_if_called_twice() {
     underTest.rootLevelFor(ProcessId.ELASTICSEARCH);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration by property already registered for " + rootLoggerName);
-
-    underTest.rootLevelFor(ProcessId.WEB_SERVER);
+    assertThatThrownBy(() -> underTest.rootLevelFor(ProcessId.WEB_SERVER))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Configuration by property already registered for " + rootLoggerName);
   }
 
   @Test
   public void builder_levelByDomain_fails_with_NPE_if_loggerName_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("loggerName can't be null");
-
-    underTest.levelByDomain(null, ProcessId.WEB_SERVER, LogDomain.JMX);
+    assertThatThrownBy(() -> underTest.levelByDomain(null, ProcessId.WEB_SERVER, LogDomain.JMX))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("loggerName can't be null");
   }
 
   @Test
   public void builder_levelByDomain_fails_with_IAE_if_loggerName_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("loggerName can't be empty");
-
-    underTest.levelByDomain("", ProcessId.WEB_SERVER, LogDomain.JMX);
+    assertThatThrownBy(() -> underTest.levelByDomain("", ProcessId.WEB_SERVER, LogDomain.JMX))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("loggerName can't be empty");
   }
 
   @Test
   public void builder_levelByDomain_fails_with_NPE_if_ProcessId_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ProcessId can't be null");
-
-    underTest.levelByDomain("bar", null, LogDomain.JMX);
+    assertThatThrownBy(() -> underTest.levelByDomain("bar", null, LogDomain.JMX))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("ProcessId can't be null");
   }
 
   @Test
   public void builder_levelByDomain_fails_with_NPE_if_LogDomain_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("LogDomain can't be null");
-
-    underTest.levelByDomain("bar", ProcessId.WEB_SERVER, null);
+    assertThatThrownBy(() -> underTest.levelByDomain("bar", ProcessId.WEB_SERVER, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("LogDomain can't be null");
   }
 
   @Test
@@ -139,34 +129,30 @@ public class LogLevelConfigTest {
   public void builder_levelByDomain_fails_with_ISE_if_loggerName_has_immutableLevel() {
     underTest.immutableLevel("bar", Level.INFO);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration hardcoded level already registered for bar");
-
-    underTest.levelByDomain("bar", ProcessId.WEB_SERVER, LogDomain.JMX);
+    assertThatThrownBy(() ->  underTest.levelByDomain("bar", ProcessId.WEB_SERVER, LogDomain.JMX))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Configuration hardcoded level already registered for bar");
   }
 
   @Test
   public void builder_immutableLevel_fails_with_NPE_if_logger_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("loggerName can't be null");
-
-    underTest.immutableLevel(null, Level.ERROR);
+    assertThatThrownBy(() -> underTest.immutableLevel(null, Level.ERROR))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("loggerName can't be null");
   }
 
   @Test
   public void builder_immutableLevel_fails_with_IAE_if_logger_name_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("loggerName can't be empty");
-
-    underTest.immutableLevel("", Level.ERROR);
+    assertThatThrownBy(() ->  underTest.immutableLevel("", Level.ERROR))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("loggerName can't be empty");
   }
 
   @Test
   public void builder_immutableLevel_fails_with_NPE_if_level_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("level can't be null");
-
-    underTest.immutableLevel("foo", null);
+    assertThatThrownBy(() -> underTest.immutableLevel("foo", null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("level can't be null");
   }
 
   @Test
@@ -182,20 +168,18 @@ public class LogLevelConfigTest {
   public void builder_fails_with_ISE_if_immutableLevel_called_twice_for_same_logger() {
     underTest.immutableLevel("foo", Level.INFO);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration hardcoded level already registered for foo");
-
-    underTest.immutableLevel("foo", Level.DEBUG);
+    assertThatThrownBy(() -> underTest.immutableLevel("foo", Level.DEBUG))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Configuration hardcoded level already registered for foo");
   }
 
   @Test
   public void builder_fails_with_ISE_if_logger_has_domain_config() {
     underTest.levelByDomain("pop", ProcessId.WEB_SERVER, LogDomain.JMX);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration by property already registered for pop");
-
-    underTest.immutableLevel("pop", Level.DEBUG);
+    assertThatThrownBy(() -> underTest.immutableLevel("pop", Level.DEBUG))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Configuration by property already registered for pop");
   }
 
   private static void expectUnsupportedOperationException(Runnable runnable) {

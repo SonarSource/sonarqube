@@ -21,23 +21,19 @@ package org.sonar.api.internal;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import org.sonar.api.SonarEdition;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MetadataLoaderTest {
   private System2 system = mock(System2.class);
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void load_version_from_file_in_classpath() {
@@ -61,19 +57,18 @@ public class MetadataLoaderTest {
 
   @Test
   public void throw_ISE_if_edition_is_invalid() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Invalid edition found in '/sonar-edition.txt': 'TRASH'");
-
-    MetadataLoader.parseEdition("trash");
+    assertThatThrownBy(() -> MetadataLoader.parseEdition("trash"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Invalid edition found in '/sonar-edition.txt': 'TRASH'");
   }
 
   @Test
   public void throw_ISE_if_fail_to_load_version() throws Exception {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can not load /sonar-api-version.txt from classpath");
-
     when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
-    MetadataLoader.loadVersion(system);
+
+    assertThatThrownBy(() -> MetadataLoader.loadVersion(system))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Can not load /sonar-api-version.txt from classpath");
   }
 
 }

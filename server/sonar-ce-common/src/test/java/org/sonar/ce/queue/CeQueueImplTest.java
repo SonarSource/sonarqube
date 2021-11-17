@@ -27,7 +27,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTaskSubmit.Component;
@@ -50,9 +49,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.hamcrest.Matchers.startsWith;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_MAIN_COMPONENT;
 
 public class CeQueueImplTest {
@@ -62,8 +61,6 @@ public class CeQueueImplTest {
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -395,10 +392,9 @@ public class CeQueueImplTest {
     submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(11)));
     CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false, false).get();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
-
-    underTest.cancel(db.getSession(), ceQueueDto);
+    assertThatThrownBy(() -> underTest.cancel(db.getSession(), ceQueueDto))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageStartingWith("Task is in progress and can't be canceled");
   }
 
   @Test

@@ -23,31 +23,27 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class AddedFileRepositoryImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private AddedFileRepositoryImpl underTest = new AddedFileRepositoryImpl(analysisMetadataHolder);
 
   @Test
   public void isAdded_fails_with_NPE_if_component_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("component can't be null");
-
-    underTest.isAdded(null);
+    assertThatThrownBy(() -> underTest.isAdded(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("component can't be null");
   }
 
   @Test
@@ -85,10 +81,9 @@ public class AddedFileRepositoryImplTest {
 
   @Test
   public void register_fails_with_NPE_if_component_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("component can't be null");
-
-    underTest.register(null);
+    assertThatThrownBy(() -> underTest.register(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("component can't be null");
   }
 
   @Test
@@ -96,10 +91,9 @@ public class AddedFileRepositoryImplTest {
   public void register_fails_with_IAE_if_component_is_not_a_file(Component.Type anyTypeButFile) {
     Component component = newComponent(anyTypeButFile);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("component must be a file");
-
-    underTest.register(component);
+    assertThatThrownBy(() -> underTest.register(component))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("component must be a file");
   }
 
   @DataProvider
@@ -115,10 +109,9 @@ public class AddedFileRepositoryImplTest {
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
     Component component = newComponent(Component.Type.FILE);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("No file can be registered on first analysis");
-
-    underTest.register(component);
+    assertThatThrownBy(() -> underTest.register(component))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No file can be registered on first analysis");
   }
 
   private static Component newComponent(Component.Type type) {

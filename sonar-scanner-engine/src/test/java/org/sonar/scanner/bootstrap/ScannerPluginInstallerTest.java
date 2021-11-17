@@ -31,11 +31,11 @@ import java.util.jar.Manifest;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.WsTestUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -44,8 +44,6 @@ public class ScannerPluginInstallerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private PluginFiles pluginFiles = mock(PluginFiles.class);
   private DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
@@ -75,10 +73,9 @@ public class ScannerPluginInstallerTest {
   public void fail_if_json_of_installed_plugins_is_not_valid() {
     WsTestUtil.mockReader(wsClient, "api/plugins/installed", new StringReader("not json"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to parse response of api/plugins/installed");
-
-    underTest.installRemotes();
+    assertThatThrownBy(() -> underTest.installRemotes())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to parse response of api/plugins/installed");
   }
 
   @Test
@@ -104,10 +101,9 @@ public class ScannerPluginInstallerTest {
     enqueueDownload("cobol", "ghi");
     enqueueNotFoundDownload("java", "def");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to download plugin [java]. Not found.");
-
-    underTest.installRemotes();
+    assertThatThrownBy(() -> underTest.installRemotes())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to download plugin [java]. Not found.");
   }
 
   @Test

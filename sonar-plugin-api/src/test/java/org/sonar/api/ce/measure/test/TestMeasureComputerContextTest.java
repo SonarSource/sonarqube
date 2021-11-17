@@ -20,9 +20,7 @@
 package org.sonar.api.ce.measure.test;
 
 import java.util.Arrays;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.ce.measure.Settings;
@@ -32,12 +30,10 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 
 public class TestMeasureComputerContextTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   static final String INPUT_METRIC = "INPUT_METRIC";
   static final String OUTPUT_METRIC = "OUTPUT_METRIC";
@@ -100,10 +96,9 @@ public class TestMeasureComputerContextTest {
 
   @Test
   public void fail_with_IAE_when_trying_to_get_measure_on_unknown_metric() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [INPUT_METRIC] can be used to load measures");
-
-    underTest.getMeasure("unknown");
+    assertThatThrownBy(() -> underTest.getMeasure("unknown"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [INPUT_METRIC] can be used to load measures");
   }
 
   @Test
@@ -136,10 +131,9 @@ public class TestMeasureComputerContextTest {
 
   @Test
   public void fail_with_IAE_when_trying_to_get_children_measures_on_unknown_metric() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [INPUT_METRIC] can be used to load measures");
-
-    underTest.getChildrenMeasures("unknown");
+    assertThatThrownBy(() -> underTest.getChildrenMeasures("unknown"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [INPUT_METRIC] can be used to load measures");
   }
 
   @Test
@@ -172,27 +166,25 @@ public class TestMeasureComputerContextTest {
 
   @Test
   public void fail_with_IAE_when_trying_to_add_measure_on_unknown_metric() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [OUTPUT_METRIC] can be used to add measures. Metric 'unknown' is not allowed");
-
-    underTest.addMeasure("unknown", 10);
+    assertThatThrownBy(() -> underTest.addMeasure("unknown", 10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [OUTPUT_METRIC] can be used to add measures. Metric 'unknown' is not allowed.");
   }
 
   @Test
   public void fail_with_IAE_when_trying_to_add_measure_on_input_metric() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [OUTPUT_METRIC] can be used to add measures. Metric 'INPUT_METRIC' is not allowed");
-
-    underTest.addMeasure(INPUT_METRIC, 10);
+    assertThatThrownBy(() -> underTest.addMeasure(INPUT_METRIC, 10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Only metrics in [OUTPUT_METRIC] can be used to add measures. Metric 'INPUT_METRIC' is not allowed.");
   }
 
   @Test
   public void fail_with_UOE_when_trying_to_add_same_measures_twice() {
-    thrown.expect(UnsupportedOperationException.class);
-    thrown.expectMessage("A measure on metric 'OUTPUT_METRIC' already exists");
-
     underTest.addMeasure(OUTPUT_METRIC, 10);
-    underTest.addMeasure(OUTPUT_METRIC, 20);
+
+    assertThatThrownBy(() -> underTest.addMeasure(OUTPUT_METRIC, 20))
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("A measure on metric 'OUTPUT_METRIC' already exists");
   }
 
   @Test

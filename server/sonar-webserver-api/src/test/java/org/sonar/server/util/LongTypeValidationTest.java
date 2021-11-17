@@ -19,19 +19,16 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LongTypeValidationTest {
 
   LongTypeValidation underTest = new LongTypeValidation();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void key_is_long_type_name() {
@@ -46,17 +43,15 @@ public class LongTypeValidationTest {
 
   @Test
   public void fail_when_float() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value '3.14' must be a long.");
-
-    underTest.validate("3.14", null);
+    assertThatThrownBy(() -> underTest.validate("3.14", null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value '3.14' must be a long.");
   }
 
   @Test
   public void fail_when_string() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value 'original string' must be a long.");
-
-    underTest.validate("original string", null);
+    assertThatThrownBy(() -> underTest.validate("original string", null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value 'original string' must be a long.");
   }
 }

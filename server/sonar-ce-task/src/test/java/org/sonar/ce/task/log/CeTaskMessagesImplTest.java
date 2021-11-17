@@ -28,7 +28,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
@@ -41,6 +40,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -49,8 +49,6 @@ import static org.mockito.Mockito.when;
 public class CeTaskMessagesImplTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
@@ -65,9 +63,9 @@ public class CeTaskMessagesImplTest {
 
   @Test
   public void add_fails_with_NPE_if_arg_is_null() {
-    expectMessageCantBeNullNPE();
-
-    underTest.add(null);
+    assertThatThrownBy(() -> underTest.add(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("message can't be null");
   }
 
   @Test
@@ -85,9 +83,8 @@ public class CeTaskMessagesImplTest {
 
   @Test
   public void addAll_fails_with_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    underTest.addAll(null);
+    assertThatThrownBy(() -> underTest.addAll(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -102,9 +99,9 @@ public class CeTaskMessagesImplTest {
       .flatMap(t -> t)
       .collect(toList());
 
-    expectMessageCantBeNullNPE();
-
-    underTest.addAll(messages);
+    assertThatThrownBy(() -> underTest.addAll(messages))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("message can't be null");
   }
 
   @Test
@@ -145,10 +142,5 @@ public class CeTaskMessagesImplTest {
         tuple(uuids[2], taskUuid, messages[2].getText(), messages[2].getTimestamp()),
         tuple(uuids[3], taskUuid, messages[3].getText(), messages[3].getTimestamp()),
         tuple(uuids[4], taskUuid, messages[4].getText(), messages[4].getTimestamp()));
-  }
-
-  private void expectMessageCantBeNullNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("message can't be null");
   }
 }

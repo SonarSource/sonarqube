@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -41,8 +39,6 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 
 public class NodeSystemSectionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private Server server = mock(Server.class, RETURNS_DEEP_STUBS);

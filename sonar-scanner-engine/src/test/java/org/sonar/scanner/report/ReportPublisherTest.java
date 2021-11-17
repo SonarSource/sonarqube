@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -52,6 +51,7 @@ import org.sonarqube.ws.client.WsResponse;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -67,9 +67,6 @@ public class ReportPublisherTest {
 
   @Rule
   public JUnitTempFolder reportTempFolder = new JUnitTempFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private GlobalAnalysisMode mode = mock(GlobalAnalysisMode.class);
   private ScanProperties properties = mock(ScanProperties.class);
@@ -103,7 +100,7 @@ public class ReportPublisherTest {
 
     underTest.start();
     underTest.execute();
-    
+
     verify(wsClient).call(argThat(req -> req.getWriteTimeOutInMs().orElse(0) == 30_000));
   }
 
@@ -127,9 +124,9 @@ public class ReportPublisherTest {
     when(response.failIfNotSuccessful()).thenThrow(ex);
     when(wsClient.call(any(WsRequest.class))).thenThrow(new IllegalStateException("timeout"));
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to upload report: timeout");
-    underTest.upload(reportTempFolder.newFile());
+    assertThatThrownBy(() -> underTest.upload(reportTempFolder.newFile()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to upload report: timeout");
   }
 
   @Test
@@ -139,9 +136,9 @@ public class ReportPublisherTest {
     when(response.failIfNotSuccessful()).thenThrow(ex);
     when(wsClient.call(any(WsRequest.class))).thenReturn(response);
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("Server failed to process report. Please check server logs: Organization with key 'MyOrg' does not exist");
-    underTest.upload(reportTempFolder.newFile());
+    assertThatThrownBy(() -> underTest.upload(reportTempFolder.newFile()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Server failed to process report. Please check server logs: Organization with key 'MyOrg' does not exist");
   }
 
   @Test
@@ -203,9 +200,9 @@ public class ReportPublisherTest {
   public void fail_if_public_url_malformed() {
     when(server.getPublicRootUrl()).thenReturn("invalid");
 
-    exception.expect(MessageException.class);
-    exception.expectMessage("Failed to parse public URL set in SonarQube server: invalid");
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Failed to parse public URL set in SonarQube server: invalid");
   }
 
   @Test

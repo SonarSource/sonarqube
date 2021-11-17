@@ -19,9 +19,7 @@
  */
 package org.sonar.scanner.rule;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -30,10 +28,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ActiveRulesBuilderTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void no_rules() {
@@ -98,9 +95,8 @@ public class ActiveRulesBuilderTest {
       .build();
     builder.addRule(rule);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Rule 'squid:S0001' is already activated");
-
-    builder.addRule(rule);
+    assertThatThrownBy(() -> builder.addRule(rule))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Rule 'squid:S0001' is already activated");
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.server.usergroups.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
@@ -38,6 +37,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -46,8 +46,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class UsersActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -70,12 +68,13 @@ public class UsersActionTest {
   public void fail_if_unknown_group_uuid() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with id '42'");
-
-    newUsersRequest()
-      .setParam("id", "42")
-      .setParam("login", "john").execute();
+    assertThatThrownBy(() -> {
+      newUsersRequest()
+        .setParam("id", "42")
+        .setParam("login", "john").execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No group with id '42'");
   }
 
   @Test
@@ -83,11 +82,12 @@ public class UsersActionTest {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
 
-    expectedException.expect(ForbiddenException.class);
-
-    newUsersRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", "john").execute();
+    assertThatThrownBy(() -> {
+      newUsersRequest()
+        .setParam("id", group.getUuid())
+        .setParam("login", "john").execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

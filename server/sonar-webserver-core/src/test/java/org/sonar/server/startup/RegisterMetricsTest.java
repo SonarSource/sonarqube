@@ -38,6 +38,7 @@ import org.sonar.db.metric.MetricDto;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class RegisterMetricsTest {
@@ -140,19 +141,21 @@ public class RegisterMetricsTest {
     assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size());
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void fail_if_duplicated_plugin_metrics() {
     Metrics plugin1 = new TestMetrics(new Metric.Builder("m1", "In first plugin", Metric.ValueType.FLOAT).create());
     Metrics plugin2 = new TestMetrics(new Metric.Builder("m1", "In second plugin", Metric.ValueType.FLOAT).create());
 
-    new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin1, plugin2}).start();
+    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin1, plugin2}).start())
+      .isInstanceOf(IllegalStateException.class);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void fail_if_plugin_duplicates_core_metric() {
     Metrics plugin = new TestMetrics(new Metric.Builder("ncloc", "In plugin", Metric.ValueType.FLOAT).create());
 
-    new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin}).start();
+    assertThatThrownBy(() -> new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin}).start())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   private static class TestMetrics implements Metrics {

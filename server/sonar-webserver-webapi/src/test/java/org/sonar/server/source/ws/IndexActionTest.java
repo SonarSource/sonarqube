@@ -21,7 +21,6 @@ package org.sonar.server.source.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -38,6 +37,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -45,8 +45,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class IndexActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -101,20 +99,18 @@ public class IndexActionTest {
     userSession.addProjectPermission(USER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    expectedException.expect(ForbiddenException.class);
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("resource", file.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_component_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("resource", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -123,12 +119,11 @@ public class IndexActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     userSession.addProjectPermission(USER, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("resource", branch.getDbKey())
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   private static DbFileSources.Data newData(String... lines) {

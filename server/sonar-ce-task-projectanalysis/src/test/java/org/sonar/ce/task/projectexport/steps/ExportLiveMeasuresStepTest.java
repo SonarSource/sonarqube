@@ -23,7 +23,6 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -44,8 +43,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 
 public class ExportLiveMeasuresStepTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
   @Rule

@@ -19,25 +19,20 @@
  */
 package org.sonar.api.utils;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UriReaderTest {
 
   private static URI testFile;
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void init() throws URISyntaxException {
@@ -65,16 +60,17 @@ public class UriReaderTest {
 
   @Test
   public void file_readString_fails_if_file_not_found() throws Exception {
-    thrown.expect(RuntimeException.class);
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    uriReader.readString(new URI("file:/notfound"), StandardCharsets.UTF_8);
+
+    assertThatThrownBy(() -> uriReader.readString(new URI("file:/notfound"), StandardCharsets.UTF_8))
+      .isInstanceOf(RuntimeException.class);
   }
 
   @Test
   public void file_readBytes_fails_if_file_not_found() throws Exception {
-    thrown.expect(RuntimeException.class);
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    uriReader.readBytes(new URI("file:/notfound"));
+    assertThatThrownBy(() -> uriReader.readBytes(new URI("file:/notfound")))
+      .isInstanceOf(RuntimeException.class);
   }
 
   @Test
@@ -87,10 +83,11 @@ public class UriReaderTest {
   }
 
   @Test
-  public void fail_if_unknown_scheme() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+  public void fail_if_unknown_scheme() {
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    uriReader.readBytes(new URI("ftp://sonarsource.org"));
+
+    assertThatThrownBy(() -> uriReader.readBytes(new URI("ftp://sonarsource.org")))
+      .isInstanceOf(RuntimeException.class);
   }
 
   @Test

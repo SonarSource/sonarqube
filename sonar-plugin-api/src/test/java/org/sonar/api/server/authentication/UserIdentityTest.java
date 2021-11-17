@@ -20,17 +20,13 @@
 package org.sonar.api.server.authentication;
 
 import com.google.common.base.Strings;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UserIdentityTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void create_user() {
@@ -66,88 +62,88 @@ public class UserIdentityTest {
 
   @Test
   public void fail_when_id_is_too_long() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("ID is too big (255 characters max)");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderId(Strings.repeat("1", 256))
       .setProviderLogin("john")
       .setName("John")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("ID is too big (255 characters max)");
   }
 
   @Test
   public void fail_when_provider_login_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Provider login must not be blank");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setName("John")
       .setEmail("john@email.com")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provider login must not be blank");
   }
 
   @Test
   public void fail_when_provider_login_is_empty() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Provider login must not be blank");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("")
       .setName("John")
       .setEmail("john@email.com")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provider login must not be blank");
   }
 
   @Test
   public void fail_when_provider_login_is_too_long() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Provider login size is incorrect (maximum 255 characters)");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin(Strings.repeat("1", 256))
       .setName("John")
       .setEmail("john@email.com")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provider login size is incorrect (maximum 255 characters)");
   }
 
   @Test
   public void fail_when_name_is_null() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User name must not be blank");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setEmail("john@email.com")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("User name must not be blank");
   }
 
   @Test
   public void fail_when_name_is_empty() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User name must not be blank");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName("")
       .setEmail("john@email.com")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("User name must not be blank");
   }
 
   @Test
   public void fail_when_name_is_loo_long() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User name size is too big (200 characters max)");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName(Strings.repeat("1", 201))
       .setEmail("john@email.com")
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("User name size is too big (200 characters max)");
   }
 
   @Test
   public void fail_when_email_is_loo_long() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("User email size is too big (100 characters max)");
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName("John")
       .setEmail(Strings.repeat("1", 101))
-      .build();
+      .build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("User email size is too big (100 characters max)");
   }
 
   @Test
@@ -165,74 +161,66 @@ public class UserIdentityTest {
 
   @Test
   public void fail_when_groups_are_null() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Groups cannot be null, please don't use this method if groups should not be synchronized.");
-
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
-      .setName("John")
       .setEmail("john@email.com")
-      .setGroups(null);
+      .setGroups(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Groups cannot be null, please don't use this method if groups should not be synchronized.");
   }
 
   @Test
   public void fail_when_groups_contain_empty_group_name() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be empty");
-
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
-      .setName("John")
       .setEmail("john@email.com")
-      .setGroups(newHashSet(""));
+      .setGroups(newHashSet("")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 
   @Test
   public void fail_when_groups_contain_only_blank_space() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be empty");
-
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName("John")
       .setEmail("john@email.com")
-      .setGroups(newHashSet("      "));
+      .setGroups(newHashSet("      ")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 
   @Test
   public void fail_when_groups_contain_null_group_name() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be empty");
-
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName("John")
       .setEmail("john@email.com")
-      .setGroups(newHashSet((String)null));
+      .setGroups(newHashSet((String)null)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be empty");
   }
 
   @Test
   public void fail_when_groups_contain_anyone() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Anyone group cannot be used");
-
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName("John")
       .setEmail("john@email.com")
-      .setGroups(newHashSet("Anyone"));
+      .setGroups(newHashSet("Anyone")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Anyone group cannot be used");
   }
 
   @Test
   public void fail_when_groups_contain_too_long_group_name() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Group name cannot be longer than 255 characters");
-
-    UserIdentity.builder()
+    assertThatThrownBy(() -> UserIdentity.builder()
       .setProviderLogin("john")
       .setName("John")
       .setEmail("john@email.com")
-      .setGroups(newHashSet(Strings.repeat("group", 300)));
+      .setGroups(newHashSet(Strings.repeat("group", 300))))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Group name cannot be longer than 255 characters");
   }
 
 }

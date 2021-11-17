@@ -25,6 +25,7 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,14 +39,16 @@ public class EvaluatedConditionTest {
   private static final Measure.Level SOME_LEVEL = Measure.Level.OK;
   private static final String SOME_VALUE = "some value";
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_Condition_arg_is_null() {
-    new EvaluatedCondition(null, SOME_LEVEL, SOME_VALUE);
+    assertThatThrownBy(() -> new EvaluatedCondition(null, SOME_LEVEL, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void constructor_throws_NPE_if_Level_arg_is_null() {
-    new EvaluatedCondition(SOME_CONDITION, null, SOME_VALUE);
+    assertThatThrownBy(() -> new EvaluatedCondition(SOME_CONDITION, null, SOME_VALUE))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

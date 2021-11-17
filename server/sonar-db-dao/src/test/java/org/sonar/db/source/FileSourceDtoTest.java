@@ -25,12 +25,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class FileSourceDtoTest {
   private static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ac magna libero. " +
@@ -39,8 +38,6 @@ public class FileSourceDtoTest {
     "Curabitur sit amet dignissim magna, at efficitur dolor. Ut non felis aliquam justo euismod gravida. Morbi eleifend vitae ante eu pulvinar. " +
     "Aliquam rhoncus magna quis lorem posuere semper.";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void getSourceData_throws_ISE_with_id_fileUuid_and_projectUuid_in_message_when_data_cant_be_read() {
@@ -53,10 +50,9 @@ public class FileSourceDtoTest {
       .setFileUuid(fileUuid)
       .setProjectUuid(projectUuid);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to decompress and deserialize source data [uuid=" + uuid + ",fileUuid=" + fileUuid + ",projectUuid=" + projectUuid + "]");
-
-    underTest.getSourceData();
+    assertThatThrownBy(underTest::getSourceData)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to decompress and deserialize source data [uuid=" + uuid + ",fileUuid=" + fileUuid + ",projectUuid=" + projectUuid + "]");
   }
 
   @Test

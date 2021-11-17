@@ -22,9 +22,7 @@ package org.sonar.server.platform.web;
 import java.io.InputStream;
 import javax.servlet.ServletContext;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.platform.OfficialDistribution;
@@ -33,6 +31,7 @@ import org.sonar.server.platform.Platform;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.Platform.Status.BOOTING;
@@ -43,8 +42,6 @@ public class WebPagesCacheTest {
 
   private static final String TEST_CONTEXT = "/sonarqube";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ServletContext servletContext = mock(ServletContext.class);
 
@@ -151,10 +148,9 @@ public class WebPagesCacheTest {
 
   @Test
   public void fail_to_get_content_when_init_has_not_been_called() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("init has not been called");
-
-    underTest.getContent("/foo");
+    assertThatThrownBy(() -> underTest.getContent("/foo"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("init has not been called");
   }
 
   private void doInit() {

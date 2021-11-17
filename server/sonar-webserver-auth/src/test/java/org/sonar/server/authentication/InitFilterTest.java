@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
@@ -54,8 +53,6 @@ public class InitFilterTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
 

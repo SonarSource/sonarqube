@@ -20,10 +20,10 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -32,14 +32,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
 public class RoleDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = db.getSession();
   private RoleDao underTest = db.getDbClient().roleDao();
@@ -59,21 +58,18 @@ public class RoleDaoTest {
 
   @Test
   public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission();
-
-    underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.USER, Uuids.createFast());
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.USER, Uuids.createFast()));
   }
 
   @Test
   public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission();
-
-    underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.CODEVIEWER, Uuids.createFast());
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectComponentUuidsByPermissionAndUserUuid(dbSession, UserRole.CODEVIEWER, Uuids.createFast()));
   }
 
-  private void expectUnsupportedUserAndCodeViewerPermission() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Permissions [user, codeviewer] are not supported by selectComponentUuidsByPermissionAndUserUuid");
+  private void expectUnsupportedUserAndCodeViewerPermission(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Permissions [user, codeviewer] are not supported by selectComponentUuidsByPermissionAndUserUuid");
   }
 
   @Test

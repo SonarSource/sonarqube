@@ -25,21 +25,18 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Fail.fail;
 
 @RunWith(DataProviderRunner.class)
 public class AuthorizationDocTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void idOf_returns_argument_with_a_prefix() {
@@ -50,17 +47,15 @@ public class AuthorizationDocTest {
 
   @Test
   public void idOf_fails_with_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projectUuid can't be null");
-
-    AuthorizationDoc.idOf(null);
+    assertThatThrownBy(() -> AuthorizationDoc.idOf(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projectUuid can't be null");
   }
 
   @Test
   public void projectUuidOf_fails_with_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    AuthorizationDoc.projectUuidOf(null);
+    assertThatThrownBy(() ->  AuthorizationDoc.projectUuidOf(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -84,10 +79,9 @@ public class AuthorizationDocTest {
     IndexType.IndexMainType mainType = IndexType.main(Index.simple("foo"), "bar");
     AuthorizationDoc underTest = AuthorizationDoc.fromDto(mainType, dto);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projectUuid can't be null");
-
-    underTest.getId();
+    assertThatThrownBy(() -> underTest.getId())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projectUuid can't be null");
   }
 
   @Test

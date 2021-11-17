@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Change;
@@ -50,6 +49,7 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -72,8 +72,6 @@ public class SearchActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private final QualityProfileDbTester qualityProfileDb = db.qualityProfiles();
   private final DbClient dbClient = db.getDbClient();
 
@@ -364,10 +362,11 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_project_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'unknown-project' not found");
-
-    call(ws.newRequest().setParam(PARAM_PROJECT, "unknown-project"));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam(PARAM_PROJECT, "unknown-project"));
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'unknown-project' not found");
   }
 
   @Test

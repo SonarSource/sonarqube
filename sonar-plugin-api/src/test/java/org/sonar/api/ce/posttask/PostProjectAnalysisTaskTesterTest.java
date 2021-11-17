@@ -24,11 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -36,8 +35,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.ce.posttask.Branch.Type.BRANCH;
 
 public class PostProjectAnalysisTaskTesterTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeTask ceTask = mock(CeTask.class);
   private Project project = mock(Project.class);
@@ -50,34 +47,30 @@ public class PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void of_throws_NPE_if_PostProjectAnalysisTask_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("PostProjectAnalysisTask instance cannot be null");
-
-    PostProjectAnalysisTaskTester.of(null);
+    assertThatThrownBy(() -> PostProjectAnalysisTaskTester.of(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("PostProjectAnalysisTask instance cannot be null");
   }
 
   @Test
   public void withCeTask_throws_NPE_if_ceTask_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ceTask cannot be null");
-
-    underTest.withCeTask(null);
+    assertThatThrownBy(() -> underTest.withCeTask(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("ceTask cannot be null");
   }
 
   @Test
   public void withProject_throws_NPE_if_project_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project cannot be null");
-
-    underTest.withProject(null);
+    assertThatThrownBy(() -> underTest.withProject(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("project cannot be null");
   }
 
   @Test
   public void at_throws_NPE_if_date_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("date cannot be null");
-
-    underTest.at(null);
+    assertThatThrownBy(() -> underTest.at(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("date cannot be null");
   }
 
   @Test
@@ -89,20 +82,18 @@ public class PostProjectAnalysisTaskTesterTest {
   public void execute_throws_NPE_if_ceTask_is_null() {
     underTest.withProject(project).at(someDate);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ceTask cannot be null");
-
-    underTest.execute();
+    assertThatThrownBy(() -> underTest.execute())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("ceTask cannot be null");
   }
 
   @Test
   public void execute_throws_NPE_if_project_is_null() {
     underTest.withCeTask(ceTask).at(someDate);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project cannot be null");
-
-    underTest.execute();
+    assertThatThrownBy(() -> underTest.execute())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("project cannot be null");
   }
 
   @Test
@@ -137,18 +128,16 @@ public class PostProjectAnalysisTaskTesterTest {
   public void execute_throws_NPE_if_date_is_null() {
     underTest.withCeTask(ceTask).withProject(project);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("date cannot be null");
-
-    underTest.execute();
+    assertThatThrownBy(() -> underTest.execute())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("date cannot be null");
   }
 
   @Test
   public void getLogStatistics_throws_ISE_if_called_before_execute() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("execute must be called first");
-
-    underTest.getLogStatistics();
+    assertThatThrownBy(() -> underTest.getLogStatistics())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("execute must be called first");
   }
 
   @Test

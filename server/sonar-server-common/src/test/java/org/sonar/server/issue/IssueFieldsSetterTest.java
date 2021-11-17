@@ -24,9 +24,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -34,7 +32,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
 import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
@@ -45,8 +43,6 @@ import static org.sonar.server.issue.IssueFieldsSetter.UNUSED;
 
 public class IssueFieldsSetterTest {
 
-  @Rule
-  public ExpectedException thrown = none();
 
   private DefaultIssue issue = new DefaultIssue();
   private IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
@@ -125,9 +121,9 @@ public class IssueFieldsSetterTest {
   public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() {
     issue.setAssigneeUuid("user_uuid");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("It's not possible to update the assignee with this method, please use assign()");
-    underTest.setNewAssignee(issue, "another_user_uuid", context);
+    assertThatThrownBy(() -> underTest.setNewAssignee(issue, "another_user_uuid", context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("It's not possible to update the assignee with this method, please use assign()");
   }
 
   @Test
@@ -507,9 +503,9 @@ public class IssueFieldsSetterTest {
   public void fail_with_ISE_when_setting_new_author_on_issue() {
     issue.setAuthorLogin("simon");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("It's not possible to update the author with this method, please use setAuthorLogin()");
-    underTest.setNewAuthor(issue, "julien", context);
+    assertThatThrownBy(() -> underTest.setNewAuthor(issue, "julien", context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("It's not possible to update the author with this method, please use setAuthorLogin()");
   }
 
   @Test

@@ -23,7 +23,6 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump.Link;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -37,6 +36,7 @@ import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.project.ProjectExportMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,8 +63,6 @@ public class ExportLinksStepTest {
   @Rule
   public DbTester db = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -114,9 +112,9 @@ public class ExportLinksStepTest {
 
     dumpWriter.failIfMoreThan(2, DumpElement.LINKS);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Link export failed after processing 2 link(s) successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Link export failed after processing 2 link(s) successfully");
   }
 
   @Test

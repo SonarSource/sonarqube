@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,8 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CeTaskMessageDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final CeTaskMessageDao underTest = new CeTaskMessageDao();
 

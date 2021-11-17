@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.ws.WebService;
@@ -34,8 +33,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class IdentityProvidersActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule()
     .addIdentityProvider(GITHUB)

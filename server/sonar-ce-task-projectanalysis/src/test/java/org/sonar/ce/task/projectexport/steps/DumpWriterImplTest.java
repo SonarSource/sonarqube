@@ -25,7 +25,6 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -34,14 +33,13 @@ import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.projectexport.util.ProjectExportDumpFS;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectexport.steps.DumpElement.COMPONENTS;
 
 public class DumpWriterImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TemporaryFolder junitTemp = new TemporaryFolder();
@@ -81,9 +79,9 @@ public class DumpWriterImplTest {
   public void writeMetadata_fails_if_called_twice() {
     underTest.write(newMetadata());
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metadata has already been written");
-    underTest.write(newMetadata());
+    assertThatThrownBy(() -> underTest.write(newMetadata()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metadata has already been written");
   }
 
   @Test
@@ -102,16 +100,16 @@ public class DumpWriterImplTest {
     underTest.write(newMetadata());
     underTest.publish();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Dump is already published");
-    underTest.publish();
+    assertThatThrownBy(() -> underTest.publish())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Dump is already published");
   }
 
   @Test
   public void publish_fails_if_metadata_is_missing() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metadata is missing");
-    underTest.publish();
+    assertThatThrownBy(() -> underTest.publish())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metadata is missing");
   }
 
   @Test

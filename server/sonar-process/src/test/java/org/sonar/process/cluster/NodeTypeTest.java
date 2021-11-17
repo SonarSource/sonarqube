@@ -19,16 +19,13 @@
  */
 package org.sonar.process.cluster;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NodeTypeTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_parse() {
@@ -38,9 +35,8 @@ public class NodeTypeTest {
 
   @Test
   public void parse_an_unknown_value_must_throw_IAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid value: XYZ");
-
-    NodeType.parse("XYZ");
+    assertThatThrownBy(() -> NodeType.parse("XYZ"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid value: XYZ");
   }
 }

@@ -24,20 +24,15 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class UpdateIfTest {
   private static final String STR_40_CHARS = "0123456789012345678901234567890123456789";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void newProperties_constructor_accepts_null_workerUuid() {
     UpdateIf.NewProperties newProperties = new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, null, 123, 456);
@@ -47,20 +42,18 @@ public class UpdateIfTest {
 
   @Test
   public void newProperties_constructor_fails_with_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    new UpdateIf.NewProperties(null, "foo", 123, 456);
+    assertThatThrownBy(() ->  new UpdateIf.NewProperties(null, "foo", 123, 456))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test
   public void newProperties_constructor_fails_with_IAE_if_workerUuid_is_41_or_more() {
     String workerUuid = RandomStringUtils.randomAlphanumeric(41 + new Random().nextInt(5));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("worker uuid is too long: " + workerUuid);
-
-    new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, workerUuid, 123, 456);
+    assertThatThrownBy(() -> new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, workerUuid, 123, 456))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("worker uuid is too long: " + workerUuid);
   }
 
   @Test
@@ -83,9 +76,8 @@ public class UpdateIfTest {
   public void newProperties_constructor_IAE_if_workerUuid_is_41_chars() {
     String str_41_chars = STR_40_CHARS + "a";
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("worker uuid is too long: " + str_41_chars);
-
-    new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, str_41_chars, 123, 345);
+    assertThatThrownBy(() -> new UpdateIf.NewProperties(CeQueueDto.Status.PENDING, str_41_chars, 123, 345))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("worker uuid is too long: " + str_41_chars);
   }
 }

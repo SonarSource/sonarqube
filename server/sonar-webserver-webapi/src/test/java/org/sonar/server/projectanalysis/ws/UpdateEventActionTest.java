@@ -22,7 +22,6 @@ package org.sonar.server.projectanalysis.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -44,20 +43,19 @@ import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
-import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_EVENT;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_NAME;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class UpdateEventActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -166,19 +164,17 @@ public class UpdateEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    call("E1", "name");
+    assertThatThrownBy(() -> call("E1", "name"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_event_is_not_found() {
     userSession.logIn().setSystemAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Event 'E42' not found");
-
-    call("E42", "name");
+    assertThatThrownBy(() -> call("E42", "name"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Event 'E42' not found");
   }
 
   @Test
@@ -186,9 +182,9 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-    call("E1", null);
+    assertThatThrownBy(() -> call("E1", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'name' parameter is missing");
   }
 
   @Test
@@ -196,10 +192,9 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A non empty name is required");
-
-    call("E1", "     ");
+    assertThatThrownBy(() -> call("E1", "     "))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("A non empty name is required");
   }
 
   @Test
@@ -207,10 +202,9 @@ public class UpdateEventActionTest {
     SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event of category 'QUALITY_PROFILE' cannot be modified. Authorized categories: VERSION, OTHER");
-
-    call("E1", "name");
+    assertThatThrownBy(() -> call("E1", "name"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Event of category 'QUALITY_PROFILE' cannot be modified.");
   }
 
   @Test
@@ -219,10 +213,9 @@ public class UpdateEventActionTest {
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()).setName("E1 name"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2").setCategory(OTHER.getLabel()).setName("E2 name"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
-
-    call("E2", "E1 name");
+    assertThatThrownBy(() -> call("E2", "E1 name"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
   }
 
   @Test
@@ -235,10 +228,11 @@ public class UpdateEventActionTest {
     call("E1", repeat("a", 101));
     call("E2", repeat("a", 100));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event name length (101) is longer than the maximum authorized (100). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided");
 
-    call("E2", repeat("a", 101));
+    assertThatThrownBy(() -> call("E2", repeat("a", 101)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Event name length (101) is longer than the maximum authorized (100). " +
+        "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided");
   }
 
   private UpdateEventResponse call(@Nullable String eventUuid, @Nullable String name) {

@@ -21,7 +21,6 @@ package org.sonar.db.plugin;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -38,8 +37,6 @@ import static org.sonar.db.plugin.PluginDto.Type.EXTERNAL;
 public class PluginDaoWithPersisterTest {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 

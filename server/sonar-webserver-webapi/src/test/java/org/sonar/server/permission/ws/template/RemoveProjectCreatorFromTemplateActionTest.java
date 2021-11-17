@@ -41,6 +41,7 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.ws.WsParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -105,46 +106,50 @@ public class RemoveProjectCreatorFromTemplateActionTest extends BasePermissionWs
 
   @Test
   public void fail_when_template_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, "42")
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, "42")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_if_permission_is_not_a_project_permission() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_not_authenticated() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private void assertWithoutProjectCreatorFor(String permission) {

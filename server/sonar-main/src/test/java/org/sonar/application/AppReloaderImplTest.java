@@ -21,15 +21,14 @@ package org.sonar.application;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -43,8 +42,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_WEB;
 
 public class AppReloaderImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final AppSettingsLoader settingsLoader = mock(AppSettingsLoader.class);
   private final FileSystem fs = mock(FileSystem.class);
@@ -72,14 +69,15 @@ public class AppReloaderImplTest {
   public void throw_ISE_if_cluster_is_enabled() throws IOException {
     AppSettings settings = new TestAppSettings(ImmutableMap.of(CLUSTER_ENABLED.getKey(), "true"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Restart is not possible with cluster mode");
+    assertThatThrownBy(() -> {
+      underTest.reload(settings);
 
-    underTest.reload(settings);
-
-    verifyZeroInteractions(logging);
-    verifyZeroInteractions(state);
-    verifyZeroInteractions(fs);
+      verifyZeroInteractions(logging);
+      verifyZeroInteractions(state);
+      verifyZeroInteractions(fs);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Restart is not possible with cluster mode");
   }
 
   @Test
@@ -100,13 +98,14 @@ public class AppReloaderImplTest {
     AppSettings newSettings = new TestAppSettings(ImmutableMap.of(propertyKey, "val2"));
     when(settingsLoader.load()).thenReturn(newSettings);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Property [" + propertyKey + "] cannot be changed on restart: [val1] => [val2]");
+    assertThatThrownBy(() -> {
+      underTest.reload(settings);
 
-    underTest.reload(settings);
-
-    verifyZeroInteractions(logging);
-    verifyZeroInteractions(state);
-    verifyZeroInteractions(fs);
+      verifyZeroInteractions(logging);
+      verifyZeroInteractions(state);
+      verifyZeroInteractions(fs);
+    })
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Property [" + propertyKey + "] cannot be changed on restart: [val1] => [val2]");
   }
 }

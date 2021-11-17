@@ -23,9 +23,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.process.NetworkUtils;
@@ -35,15 +33,14 @@ import org.sonar.process.cluster.health.NodeHealth;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 
 public class NodeHealthProviderImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private MapSettings mapSettings = new MapSettings();
@@ -53,19 +50,17 @@ public class NodeHealthProviderImplTest {
 
   @Test
   public void constructor_throws_ISE_if_node_name_property_is_not_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property sonar.cluster.node.name is not defined");
-
-    new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
+    assertThatThrownBy(() -> new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Property sonar.cluster.node.name is not defined");
   }
 
   @Test
   public void constructor_thows_NPE_if_NetworkUtils_getHostname_returns_null() {
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
 
-    expectedException.expect(NullPointerException.class);
-
-    new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
+    assertThatThrownBy(() -> new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -73,19 +68,17 @@ public class NodeHealthProviderImplTest {
     mapSettings.setProperty(CLUSTER_NODE_NAME.getKey(), randomAlphanumeric(3));
     when(networkUtils.getHostname()).thenReturn(randomAlphanumeric(23));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Property sonar.cluster.node.port is not defined");
-
-    new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
+    assertThatThrownBy(() -> new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Property sonar.cluster.node.port is not defined");
   }
 
   @Test
   public void constructor_throws_NPE_is_Server_getStartedAt_is_null() {
     setRequiredPropertiesForConstructor();
 
-    expectedException.expect(NullPointerException.class);
-
-    new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils);
+    assertThatThrownBy(() -> new NodeHealthProviderImpl(mapSettings.asConfig(), healthChecker, server, networkUtils))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

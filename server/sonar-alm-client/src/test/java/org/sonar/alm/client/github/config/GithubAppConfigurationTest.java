@@ -22,24 +22,19 @@ package org.sonar.alm.client.github.config;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.ArrayUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class GithubAppConfigurationTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   @UseDataProvider("incompleteConfigurationParametersSonarQube")
@@ -54,9 +49,9 @@ public class GithubAppConfigurationTest {
   public void getId_throws_ISE_if_config_is_incomplete(@Nullable Long applicationId, @Nullable String privateKey, @Nullable String apiEndpoint) {
     GithubAppConfiguration underTest = new GithubAppConfiguration(applicationId, privateKey, apiEndpoint);
 
-    expectConfigurationIncompleteISE();
-
-    underTest.getId();
+    assertThatThrownBy(underTest::getId)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Configuration is not complete");
   }
 
   @Test
@@ -72,9 +67,9 @@ public class GithubAppConfigurationTest {
   public void getPrivateKeyFile_throws_ISE_if_config_is_incomplete(@Nullable Long applicationId, @Nullable String privateKey, @Nullable String apiEndpoint) {
     GithubAppConfiguration underTest = new GithubAppConfiguration(applicationId, privateKey, apiEndpoint);
 
-    expectConfigurationIncompleteISE();
-
-    underTest.getPrivateKey();
+    assertThatThrownBy(underTest::getPrivateKey)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Configuration is not complete");
   }
 
   @DataProvider
@@ -142,11 +137,6 @@ public class GithubAppConfigurationTest {
 
     assertThat(underTest).hasSameHashCodeAs(underTest);
     assertThat(underTest.hashCode()).isNotEqualTo(new GithubAppConfiguration(applicationId, privateKey, apiEndpoint));
-  }
-
-  private void expectConfigurationIncompleteISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Configuration is not complete");
   }
 
   private GithubAppConfiguration newValidConfiguration(long applicationId) {

@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
@@ -41,6 +40,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
@@ -50,8 +50,6 @@ public class GroupPermissionChangerTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
@@ -204,10 +202,9 @@ public class GroupPermissionChangerTest {
   public void apply_fails_with_BadRequestException_when_adding_permission_ADMIN_to_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("It is not possible to add the 'admin' permission to group 'Anyone'");
-
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ADMIN, publicProject, groupUuid, permissionService));
+    assertThatThrownBy(() -> apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ADMIN, publicProject, groupUuid, permissionService)))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("It is not possible to add the 'admin' permission to group 'Anyone'.");
   }
 
   @Test
@@ -232,20 +229,18 @@ public class GroupPermissionChangerTest {
   public void apply_fails_with_BadRequestException_when_removing_USER_permission_from_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission user can't be removed from a public component");
-
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, publicProject, groupUuid, permissionService));
+    assertThatThrownBy(() -> apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, publicProject, groupUuid, permissionService)))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission user can't be removed from a public component");
   }
 
   @Test
   public void apply_fails_with_BadRequestException_when_removing_CODEVIEWER_permission_from_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
-
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService));
+    assertThatThrownBy(() -> apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService)))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test
@@ -276,20 +271,18 @@ public class GroupPermissionChangerTest {
   public void apply_fails_with_BadRequestException_when_removing_USER_permission_from_a_group_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission user can't be removed from a public component");
-
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, publicProject, groupUuid, permissionService));
+    assertThatThrownBy(() -> apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, publicProject, groupUuid, permissionService)))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission user can't be removed from a public component");
   }
 
   @Test
   public void apply_fails_with_BadRequestException_when_removing_CODEVIEWER_permission_from_a_group_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
-
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService));
+    assertThatThrownBy(() -> apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService)))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test
@@ -404,10 +397,9 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
     db.users().insertPermissionOnGroup(group, ADMINISTER);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last group with permission 'admin'. Permission cannot be removed.");
-
-    underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.REMOVE, ADMINISTER.getKey(), null, groupUuid, permissionService));
+    assertThatThrownBy(() -> underTest.apply(db.getSession(), new GroupPermissionChange(PermissionChange.Operation.REMOVE, ADMINISTER.getKey(), null, groupUuid, permissionService)))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Last group with permission 'admin'. Permission cannot be removed.");
   }
 
   @Test

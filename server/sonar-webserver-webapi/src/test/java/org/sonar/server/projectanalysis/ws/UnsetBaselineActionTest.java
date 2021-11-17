@@ -27,7 +27,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -52,6 +51,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
@@ -59,8 +59,6 @@ import static org.sonarqube.ws.client.WsRequest.Method.POST;
 @RunWith(DataProviderRunner.class)
 public class UnsetBaselineActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -131,10 +129,9 @@ public class UnsetBaselineActionTest {
     ComponentDto project = db.components().insertPublicProject();
     db.components().insertProjectBranch(project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(project.getKey(), null);
+    assertThatThrownBy(() -> call(project.getKey(), null))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -142,10 +139,9 @@ public class UnsetBaselineActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(project.getKey(), branch.getBranch());
+    assertThatThrownBy(() ->  call(project.getKey(), branch.getBranch()))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -155,10 +151,9 @@ public class UnsetBaselineActionTest {
     db.components().insertProjectBranch(project);
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    call(null, branchParam);
+    assertThatThrownBy(() -> call(null, branchParam))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'project' parameter is missing");
   }
 
   @Test
@@ -168,10 +163,9 @@ public class UnsetBaselineActionTest {
     db.components().insertProjectBranch(project);
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    call("", branchParam);
+    assertThatThrownBy(() -> call("", branchParam))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'project' parameter is missing");
   }
 
   @DataProvider
@@ -217,10 +211,9 @@ public class UnsetBaselineActionTest {
     ComponentDto otherBranch = db.components().insertProjectBranch(otherProject);
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Branch '%s' in project '%s' not found", otherBranch.getKey(), project.getKey()));
-
-    call(project.getKey(), otherBranch.getKey());
+    assertThatThrownBy(() -> call(project.getKey(), otherBranch.getKey()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Branch '%s' in project '%s' not found", otherBranch.getKey(), project.getKey()));
   }
 
   @Test
@@ -229,10 +222,9 @@ public class UnsetBaselineActionTest {
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Branch '%s' in project '%s' not found", pullRequest.getKey(), project.getKey()));
-
-    call(project.getKey(), pullRequest.getKey());
+    assertThatThrownBy(() -> call(project.getKey(), pullRequest.getKey()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Branch '%s' in project '%s' not found", pullRequest.getKey(), project.getKey()));
   }
 
   @Test

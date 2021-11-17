@@ -38,6 +38,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -118,10 +119,12 @@ public class ShowActionTest {
     verify(sourceService).getLinesAsHtml(session, file.uuid(), 1, 5);
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void require_code_viewer() {
     String fileKey = "src/Foo.java";
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
-    tester.newRequest().setParam("key", fileKey).execute();
+
+    assertThatThrownBy(() -> tester.newRequest().setParam("key", fileKey).execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 }

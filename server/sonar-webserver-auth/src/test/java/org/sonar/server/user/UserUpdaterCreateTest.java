@@ -26,7 +26,6 @@ import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -35,7 +34,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
@@ -49,6 +47,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -63,8 +62,6 @@ public class UserUpdaterCreateTest {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -327,100 +324,107 @@ public class UserUpdaterCreateTest {
 
   @Test
   public void fail_to_create_user_with_invalid_login() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("/marius/")
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin("/marius/")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Use only letters, numbers, and .-_@ please.");
   }
 
   @Test
   public void fail_to_create_user_with_space_in_login() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("mari us")
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin("mari us")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Use only letters, numbers, and .-_@ please.");
   }
 
   @Test
   public void fail_to_create_user_with_too_short_login() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login is too short (minimum is 2 characters)");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("m")
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin("m")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login is too short (minimum is 2 characters)");
   }
 
   @Test
   public void fail_to_create_user_with_too_long_login() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login is too long (maximum is 255 characters)");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(Strings.repeat("m", 256))
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(Strings.repeat("m", 256))
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login is too long (maximum is 255 characters)");
   }
 
   @Test
   public void fail_to_create_user_with_missing_name() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Name can't be empty");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName(null)
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName(null)
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Name can't be empty");
   }
 
   @Test
   public void fail_to_create_user_with_too_long_name() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Name is too long (maximum is 200 characters)");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName(Strings.repeat("m", 201))
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName(Strings.repeat("m", 201))
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Name is too long (maximum is 200 characters)");
   }
 
   @Test
   public void fail_to_create_user_with_too_long_email() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Email is too long (maximum is 100 characters)");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius")
-      .setEmail(Strings.repeat("m", 101))
-      .setPassword("password")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName("Marius")
+        .setEmail(Strings.repeat("m", 101))
+        .setPassword("password")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Email is too long (maximum is 100 characters)");
   }
 
   @Test
@@ -443,17 +447,18 @@ public class UserUpdaterCreateTest {
   public void fail_to_create_user_when_scm_account_is_already_used() {
     db.users().insertUser(newLocalUser("john", "John", null).setScmAccounts(singletonList("jo")));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .setScmAccounts(singletonList("jo"))
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .setScmAccounts(singletonList("jo"))
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
   }
 
   @Test
@@ -461,47 +466,50 @@ public class UserUpdaterCreateTest {
     db.users().insertUser(newLocalUser("john", "John", null).setScmAccounts(singletonList("john@email.com")));
     db.users().insertUser(newLocalUser("technical-account", "Technical account", null).setScmAccounts(singletonList("john@email.com")));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The scm account 'john@email.com' is already used by user(s) : 'John (john), Technical account (technical-account)'");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius")
-      .setEmail("marius@mail.com")
-      .setPassword("password")
-      .setScmAccounts(asList("john@email.com"))
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password")
+        .setScmAccounts(asList("john@email.com"))
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The scm account 'john@email.com' is already used by user(s) : 'John (john), Technical account (technical-account)'");
   }
 
   @Test
   public void fail_to_create_user_when_scm_account_is_user_login() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .setScmAccounts(singletonList(DEFAULT_LOGIN))
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setScmAccounts(singletonList(DEFAULT_LOGIN))
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login and email are automatically considered as SCM accounts");
   }
 
   @Test
   public void fail_to_create_user_when_scm_account_is_user_email() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(DEFAULT_LOGIN)
-      .setName("Marius2")
-      .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .setScmAccounts(singletonList("marius2@mail.com"))
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(DEFAULT_LOGIN)
+        .setName("Marius2")
+        .setEmail("marius2@mail.com")
+        .setPassword("password2")
+        .setScmAccounts(singletonList("marius2@mail.com"))
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Login and email are automatically considered as SCM accounts");
   }
 
   @Test
@@ -509,15 +517,16 @@ public class UserUpdaterCreateTest {
     createDefaultGroup();
     UserDto existingUser = db.users().insertUser(u -> u.setLogin("existing_login"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A user with login 'existing_login' already exists");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin(existingUser.getLogin())
-      .setName("User")
-      .setPassword("PASSWORD")
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin(existingUser.getLogin())
+        .setName("User")
+        .setPassword("PASSWORD")
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user with login 'existing_login' already exists");
   }
 
   @Test
@@ -525,15 +534,16 @@ public class UserUpdaterCreateTest {
     createDefaultGroup();
     UserDto existingUser = db.users().insertUser(u -> u.setExternalId("existing_external_id").setExternalIdentityProvider("existing_external_provider"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("new_login")
-      .setName("User")
-      .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin("new_login")
+        .setName("User")
+        .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
   }
 
   @Test
@@ -573,17 +583,18 @@ public class UserUpdaterCreateTest {
 
   @Test
   public void fail_to_associate_default_group_when_default_group_does_not_exist() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group cannot be found");
-
-    underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("user")
-      .setName("User")
-      .setEmail("user@mail.com")
-      .setPassword("password")
-      .setScmAccounts(asList("u1", "u_1"))
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
+        .setLogin("user")
+        .setName("User")
+        .setEmail("user@mail.com")
+        .setPassword("password")
+        .setScmAccounts(asList("u1", "u_1"))
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Default group cannot be found");
   }
 
   private GroupDto createDefaultGroup() {

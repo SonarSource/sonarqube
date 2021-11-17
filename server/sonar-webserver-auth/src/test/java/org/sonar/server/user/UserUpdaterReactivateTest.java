@@ -22,7 +22,6 @@ package org.sonar.server.user;
 import com.google.common.collect.Multimap;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
@@ -42,6 +41,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -53,8 +53,6 @@ public class UserUpdaterReactivateTest {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public EsTester es = EsTester.create();
   @Rule
@@ -210,14 +208,15 @@ public class UserUpdaterReactivateTest {
     UserDto user = db.users().insertUser();
     createDefaultGroup();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("An active user with login '%s' already exists", user.getLogin()));
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName(user.getName())
-      .build(), u -> {
+    assertThatThrownBy(() -> {
+      underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
+        .setLogin(user.getLogin())
+        .setName(user.getName())
+        .build(), u -> {
       });
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("An active user with login '%s' already exists", user.getLogin()));
   }
 
   @Test
@@ -288,16 +287,17 @@ public class UserUpdaterReactivateTest {
     UserDto user = db.users().insertUser(u -> u.setActive(false));
     UserDto existingUser = db.users().insertUser(u -> u.setLogin("existing_login"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A user with login 'existing_login' already exists");
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(existingUser.getLogin())
-      .setName("Marius2")
-      .setPassword("password2")
-      .build(),
-      u -> {
-      });
+    assertThatThrownBy(() -> {
+      underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
+          .setLogin(existingUser.getLogin())
+          .setName("Marius2")
+          .setPassword("password2")
+          .build(),
+        u -> {
+        });
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user with login 'existing_login' already exists");
   }
 
   @Test
@@ -306,16 +306,17 @@ public class UserUpdaterReactivateTest {
     UserDto user = db.users().insertUser(u -> u.setActive(false));
     UserDto existingUser = db.users().insertUser(u -> u.setExternalId("existing_external_id").setExternalIdentityProvider("existing_external_provider"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName("Marius2")
-      .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
-      .build(),
-      u -> {
-      });
+    assertThatThrownBy(() -> {
+      underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
+          .setLogin(user.getLogin())
+          .setName("Marius2")
+          .setExternalIdentity(new ExternalIdentity(existingUser.getExternalIdentityProvider(), existingUser.getExternalLogin(), existingUser.getExternalId()))
+          .build(),
+        u -> {
+        });
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A user with provider id 'existing_external_id' and identity provider 'existing_external_provider' already exists");
   }
 
   private GroupDto createDefaultGroup() {

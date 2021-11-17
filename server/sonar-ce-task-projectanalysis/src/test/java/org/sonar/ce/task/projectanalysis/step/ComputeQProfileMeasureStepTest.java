@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
@@ -74,8 +73,6 @@ public class ComputeQProfileMeasureStepTest {
         .build())
     .build();
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

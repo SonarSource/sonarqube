@@ -19,19 +19,19 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MetricRepositoryImplTest {
   private static final String SOME_KEY = "some_key";
@@ -39,33 +39,31 @@ public class MetricRepositoryImplTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public final ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
   private MetricRepositoryImpl underTest = new MetricRepositoryImpl(dbClient);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void getByKey_throws_NPE_if_arg_is_null() {
-    underTest.getByKey(null);
+    assertThatThrownBy(() -> underTest.getByKey(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void getByKey_throws_ISE_if_start_has_not_been_called() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metric cache has not been initialized");
-
-    underTest.getByKey(SOME_KEY);
+    assertThatThrownBy(() -> underTest.getByKey(SOME_KEY))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric cache has not been initialized");
   }
 
   @Test
   public void getByKey_throws_ISE_of_Metric_does_not_exist() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with key '%s' does not exist", SOME_KEY));
-
-    underTest.start();
-
-    underTest.getByKey(SOME_KEY);
+    assertThatThrownBy(() -> {
+      underTest.start();
+      underTest.getByKey(SOME_KEY);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(String.format("Metric with key '%s' does not exist", SOME_KEY));
   }
 
   @Test
@@ -74,10 +72,9 @@ public class MetricRepositoryImplTest {
 
     underTest.start();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with key '%s' does not exist", "complexity"));
-
-    underTest.getByKey("complexity");
+    assertThatThrownBy(() -> underTest.getByKey("complexity"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(String.format("Metric with key '%s' does not exist", "complexity"));
   }
 
   @Test
@@ -93,20 +90,18 @@ public class MetricRepositoryImplTest {
 
   @Test
   public void getById_throws_ISE_if_start_has_not_been_called() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metric cache has not been initialized");
-
-    underTest.getByUuid(SOME_UUID);
+    assertThatThrownBy(() -> underTest.getByUuid(SOME_UUID))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric cache has not been initialized");
   }
 
   @Test
   public void getById_throws_ISE_of_Metric_does_not_exist() {
     underTest.start();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with uuid '%s' does not exist", SOME_UUID));
-
-    underTest.getByUuid(SOME_UUID);
+    assertThatThrownBy(() -> underTest.getByUuid(SOME_UUID))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(String.format("Metric with uuid '%s' does not exist", SOME_UUID));
   }
 
   @Test
@@ -115,10 +110,9 @@ public class MetricRepositoryImplTest {
 
     underTest.start();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with uuid '%s' does not exist", SOME_UUID));
-
-    underTest.getByUuid(SOME_UUID);
+    assertThatThrownBy(() -> underTest.getByUuid(SOME_UUID))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(String.format("Metric with uuid '%s' does not exist", SOME_UUID));
   }
 
   @Test
@@ -134,10 +128,9 @@ public class MetricRepositoryImplTest {
 
   @Test
   public void getOptionalById_throws_ISE_if_start_has_not_been_called() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Metric cache has not been initialized");
-
-    underTest.getOptionalByUuid(SOME_UUID);
+    assertThatThrownBy(() -> underTest.getOptionalByUuid(SOME_UUID))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric cache has not been initialized");
   }
 
   @Test
@@ -214,9 +207,8 @@ public class MetricRepositoryImplTest {
 
   @Test
   public void getMetricsByType_givenMetricsAreNull_throwException() {
-    expectedException.expect(IllegalStateException.class);
-
-    underTest.getMetricsByType(Metric.MetricType.RATING);
+    assertThatThrownBy(() -> underTest.getMetricsByType(Metric.MetricType.RATING))
+      .isInstanceOf(IllegalStateException.class);
   }
 
 }

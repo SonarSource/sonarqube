@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.log.ServerLogging;
@@ -36,6 +35,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,8 +45,6 @@ public class LogsActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private LogsAction underTest = new LogsAction(userSession, serverLogging);
@@ -61,18 +59,16 @@ public class LogsActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().execute();
+    assertThatThrownBy(() -> actionTester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().execute();
+    assertThatThrownBy(() -> actionTester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

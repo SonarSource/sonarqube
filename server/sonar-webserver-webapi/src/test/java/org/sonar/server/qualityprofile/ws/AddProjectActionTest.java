@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.net.HttpURLConnection;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -44,6 +43,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class AddProjectActionTest {
@@ -53,8 +53,6 @@ public class AddProjectActionTest {
 
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -153,10 +151,9 @@ public class AddProjectActionTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(project, profile);
+    assertThatThrownBy(() -> call(project, profile))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -165,10 +162,9 @@ public class AddProjectActionTest {
     ProjectDto project = db.components().insertPrivateProjectDto();
     QProfileDto profile = db.qualityProfiles().insert();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    call(project, profile);
+    assertThatThrownBy(() -> call(project, profile))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
@@ -176,13 +172,14 @@ public class AddProjectActionTest {
     logInAsProfileAdmin();
     QProfileDto profile = db.qualityProfiles().insert();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'unknown' not found");
-
-    tester.newRequest()
-      .setParam("project", "unknown")
-      .setParam("profileKey", profile.getKee())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("project", "unknown")
+        .setParam("profileKey", profile.getKee())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'unknown' not found");
   }
 
   @Test
@@ -190,14 +187,15 @@ public class AddProjectActionTest {
     logInAsProfileAdmin();
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
-
-    tester.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("language", "xoo")
-      .setParam("qualityProfile", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("project", project.getKey())
+        .setParam("language", "xoo")
+        .setParam("qualityProfile", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
   }
 
   @Test
@@ -207,13 +205,14 @@ public class AddProjectActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     QProfileDto profile = db.qualityProfiles().insert();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    tester.newRequest()
-      .setParam("project", branch.getDbKey())
-      .setParam("profileKey", profile.getKee())
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("project", branch.getDbKey())
+        .setParam("profileKey", profile.getKee())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project '%s' not found", branch.getDbKey()));
   }
 
   private void assertProjectIsAssociatedToProfile(ProjectDto project, QProfileDto profile) {

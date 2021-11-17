@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
@@ -38,6 +37,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,7 +46,6 @@ import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.AN
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.builder;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class QProfileEditUsersDaoTest {
 
@@ -56,8 +55,6 @@ public class QProfileEditUsersDaoTest {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2, auditPersister);
 
@@ -259,13 +256,14 @@ public class QProfileEditUsersDaoTest {
         .setQProfileUuid(qualityProfileUuid),
       qualityProfileName, userLogin);
 
-    expectedException.expectCause(hasType(SQLException.class));
-
-    underTest.insert(db.getSession(), new QProfileEditUsersDto()
-        .setUuid("UUID-2")
-        .setUserUuid(userUuid)
-        .setQProfileUuid(qualityProfileUuid),
-      qualityProfileName, userLogin);
+    assertThatThrownBy(() ->  {
+      underTest.insert(db.getSession(), new QProfileEditUsersDto()
+          .setUuid("UUID-2")
+          .setUserUuid(userUuid)
+          .setQProfileUuid(qualityProfileUuid),
+        qualityProfileName, userLogin);
+    })
+      .hasCauseInstanceOf(SQLException.class);
   }
 
   @Test

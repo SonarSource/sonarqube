@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
@@ -37,6 +36,7 @@ import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,9 +44,6 @@ public class DefaultScannerWsClientTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
 
@@ -91,54 +88,54 @@ public class DefaultScannerWsClientTest {
 
   @Test
   public void fail_if_requires_credentials() {
-    expectedException.expect(MessageException.class);
-    expectedException
-      .expectMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other credentials in sonar.login and sonar.password.");
-
     WsRequest request = newRequest();
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
+    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, false,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Not authorized. Analyzing this project requires authentication. Please provide a user token in sonar.login or other " +
+        "credentials in sonar.login and sonar.password.");
   }
 
   @Test
   public void fail_if_credentials_are_not_valid() {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
-
     WsRequest request = newRequest();
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new DefaultScannerWsClient(wsClient, /* credentials are configured */true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
+    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
   }
 
   @Test
   public void fail_if_requires_permission() {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("You're not authorized to run analysis. Please contact the project administrator.");
-
     WsRequest request = newRequest();
     WsResponse response = newResponse()
       .setCode(403);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new DefaultScannerWsClient(wsClient, true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
+    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("You're not authorized to run analysis. Please contact the project administrator.");
   }
 
   @Test
   public void fail_if_bad_request() {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Boo! bad request! bad!");
-
     WsRequest request = newRequest();
     WsResponse response = newResponse()
       .setCode(400)
       .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new DefaultScannerWsClient(wsClient, true, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request);
+    assertThatThrownBy(() -> new DefaultScannerWsClient(wsClient, true,
+      new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()))).call(request))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Boo! bad request! bad!");
   }
 
   private MockWsResponse newResponse() {

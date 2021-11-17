@@ -22,18 +22,15 @@ package org.sonar.db.property;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class InternalComponentPropertyDtoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void setter_and_getter() {
@@ -56,30 +53,27 @@ public class InternalComponentPropertyDtoTest {
   @Test
   @DataProvider({"null", ""})
   public void setKey_throws_IAE_if_key_is_null_or_empty(String key) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("key can't be null nor empty");
-
-    new InternalComponentPropertyDto().setKey(key);
+    assertThatThrownBy(() -> new InternalComponentPropertyDto().setKey(key))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("key can't be null nor empty");
   }
 
   @Test
   public void setKey_throws_IAE_if_key_is_too_long() {
     String veryLongKey = StringUtils.repeat("a", 513);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("key length (513) is longer than the maximum authorized (512). '%s' was provided", veryLongKey));
-
-    new InternalComponentPropertyDto().setKey(veryLongKey);
+    assertThatThrownBy(() -> new InternalComponentPropertyDto().setKey(veryLongKey))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("key length (513) is longer than the maximum authorized (512). '%s' was provided", veryLongKey));
   }
 
   @Test
   public void setValue_throws_IAE_if_value_is_too_long() {
     String veryLongValue = StringUtils.repeat("a", 4001);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(String.format("value length (4001) is longer than the maximum authorized (4000). '%s' was provided", veryLongValue));
-
-    new InternalComponentPropertyDto().setValue(veryLongValue);
+    assertThatThrownBy(() -> new InternalComponentPropertyDto().setValue(veryLongValue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(String.format("value length (4001) is longer than the maximum authorized (4000). '%s' was provided", veryLongValue));
   }
 
   @Test

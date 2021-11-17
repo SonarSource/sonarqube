@@ -21,7 +21,6 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.SystemInfoWriter;
 import org.sonar.server.tester.UserSessionRule;
@@ -29,14 +28,13 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class InfoActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone()
     .logIn("login")
     .setName("name");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SystemInfoWriter jsonWriter = json -> json.prop("key", "value");
   private InfoAction underTest = new InfoAction(userSessionRule, jsonWriter);
@@ -52,18 +50,16 @@ public class InfoActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

@@ -27,7 +27,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
@@ -67,8 +66,6 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT
 
 public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final String XOO_LANGUAGE = "xoo";
   private static final int PROJECT_REF = 1;

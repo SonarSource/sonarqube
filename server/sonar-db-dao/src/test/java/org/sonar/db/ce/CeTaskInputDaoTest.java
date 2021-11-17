@@ -24,12 +24,12 @@ import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,10 +42,6 @@ public class CeTaskInputDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private System2 system = mock(System2.class);
   private CeTaskInputDao underTest = new CeTaskInputDao(system);
 
@@ -67,8 +63,8 @@ public class CeTaskInputDaoTest {
 
   @Test
   public void fail_to_insert_invalid_row() {
-    expectedException.expectMessage("Fail to insert data of CE task null");
-    underTest.insert(dbTester.getSession(), null, IOUtils.toInputStream(SOME_DATA));
+    assertThatThrownBy(() -> underTest.insert(dbTester.getSession(), null, IOUtils.toInputStream(SOME_DATA)))
+      .hasMessage("Fail to insert data of CE task null");
   }
 
   @Test

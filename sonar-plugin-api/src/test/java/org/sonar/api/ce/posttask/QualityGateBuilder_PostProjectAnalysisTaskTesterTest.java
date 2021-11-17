@@ -19,11 +19,10 @@
  */
 package org.sonar.api.ce.posttask;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,43 +31,36 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
   private static final QualityGate.Status SOME_STATUS = QualityGate.Status.ERROR;
   private static final String SOME_ID = "some id";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private QualityGate.Condition condition1 = mock(QualityGate.Condition.class);
   private QualityGate.Condition condition2 = mock(QualityGate.Condition.class);
   private PostProjectAnalysisTaskTester.QualityGateBuilder underTest = PostProjectAnalysisTaskTester.newQualityGateBuilder();
 
   @Test
   public void setId_throws_NPE_if_id_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id cannot be null");
-
-    underTest.setId(null);
+    assertThatThrownBy(() -> underTest.setId(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id cannot be null");
   }
 
   @Test
   public void setStatus_throws_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status cannot be null");
-
-    underTest.setStatus(null);
+    assertThatThrownBy(() -> underTest.setStatus(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status cannot be null");
   }
 
   @Test
   public void setName_throws_NPE_if_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name cannot be null");
-
-    underTest.setName(null);
+    assertThatThrownBy(() -> underTest.setName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name cannot be null");
   }
 
   @Test
   public void addCondition_throws_NPE_if_condition_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("condition cannot be null");
-
-    underTest.add(null);
+    assertThatThrownBy(() -> underTest.add(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("condition cannot be null");
   }
 
   @Test
@@ -91,30 +83,27 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
   public void build_throws_NPE_if_id_is_null() {
     underTest.setStatus(SOME_STATUS).setName(SOME_NAME);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("id cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_status_is_null() {
     underTest.setId(SOME_ID).setName(SOME_NAME);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status cannot be null");
   }
 
   @Test
   public void build_throws_NPE_if_name_is_null() {
     underTest.setId(SOME_ID).setStatus(SOME_STATUS);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name cannot be null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name cannot be null");
   }
 
   @Test

@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -42,6 +41,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectExportMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
@@ -78,8 +78,6 @@ public class ExportNewCodePeriodsStepTest {
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(ANOTHER_PROJECT_UUID).setKey("branch-3").setUuid("branch-uuid-3").setMergeBranchUuid("master")
       .setExcludeFromPurge(true));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
@@ -150,9 +148,9 @@ public class ExportNewCodePeriodsStepTest {
       newDto("uuid1", PROJECT.uuid(), null, SPECIFIC_ANALYSIS, "analysis-uuid"),
       newDto("uuid2", PROJECT.uuid(), "branch-uuid-1", SPECIFIC_ANALYSIS, "analysis-uuid"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("New Code Periods Export failed after processing 1 new code periods successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("New Code Periods Export failed after processing 1 new code periods successfully");
   }
 
   @Test

@@ -32,7 +32,6 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -51,6 +50,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.db.rule.RuleTesting.newRuleMetadata;
@@ -58,8 +58,6 @@ import static org.sonar.db.rule.RuleTesting.newRuleMetadata;
 public class RuleDaoTest {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -179,18 +177,16 @@ public class RuleDaoTest {
 
   @Test
   public void selectOrFailByKey_fails_if_rule_not_found() {
-    thrown.expect(RowNotFoundException.class);
-    thrown.expectMessage("Rule with key 'NOT:FOUND' does not exist");
-
-    underTest.selectOrFailByKey(db.getSession(), RuleKey.of("NOT", "FOUND"));
+    assertThatThrownBy(() -> underTest.selectOrFailByKey(db.getSession(), RuleKey.of("NOT", "FOUND")))
+      .isInstanceOf(RowNotFoundException.class)
+      .hasMessage("Rule with key 'NOT:FOUND' does not exist");
   }
 
   @Test
   public void selectOrFailDefinitionByKey_fails_if_rule_not_found() {
-    thrown.expect(RowNotFoundException.class);
-    thrown.expectMessage("Rule with key 'NOT:FOUND' does not exist");
-
-    underTest.selectOrFailDefinitionByKey(db.getSession(), RuleKey.of("NOT", "FOUND"));
+    assertThatThrownBy(() -> underTest.selectOrFailDefinitionByKey(db.getSession(), RuleKey.of("NOT", "FOUND")))
+      .isInstanceOf(RowNotFoundException.class)
+      .hasMessage("Rule with key 'NOT:FOUND' does not exist");
   }
 
   @Test
@@ -738,8 +734,8 @@ public class RuleDaoTest {
 
     underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param);
 
-    thrown.expect(PersistenceException.class);
-    underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param);
+    assertThatThrownBy(() -> underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param))
+      .isInstanceOf(PersistenceException.class);
   }
 
   @Test
@@ -1035,10 +1031,11 @@ public class RuleDaoTest {
     db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
       .setOldRuleKey(ruleKey));
 
-    thrown.expect(PersistenceException.class);
-
-    db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
-      .setOldRuleKey(ruleKey));
+    assertThatThrownBy(() -> {
+      db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
+        .setOldRuleKey(ruleKey));
+    })
+      .isInstanceOf(PersistenceException.class);
   }
 
   private static class Accumulator<T> implements Consumer<T> {

@@ -27,9 +27,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +35,6 @@ import static org.junit.Assume.assumeThat;
 
 public class NetworkUtilsImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private NetworkUtilsImpl underTest = new NetworkUtilsImpl();
 

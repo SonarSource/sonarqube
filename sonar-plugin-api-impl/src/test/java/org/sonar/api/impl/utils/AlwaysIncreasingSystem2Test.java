@@ -20,15 +20,12 @@
 package org.sonar.api.impl.utils;
 
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AlwaysIncreasingSystem2Test {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void default_constructor_makes_now_start_with_random_number_and_increase_returned_value_by_100_with_each_call() {
@@ -52,10 +49,9 @@ public class AlwaysIncreasingSystem2Test {
 
   @Test
   public void constructor_with_initial_value_and_increment_throws_IAE_if_initial_value_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Initial value must be >= 0");
-    
-    new AlwaysIncreasingSystem2(-1, 100);
+    assertThatThrownBy(() -> new AlwaysIncreasingSystem2(-1, 100))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Initial value must be >= 0");
   }
 
   @Test
@@ -67,34 +63,30 @@ public class AlwaysIncreasingSystem2Test {
 
   @Test
   public void constructor_with_initial_value_and_increment_throws_IAE_if_increment_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("increment must be > 0");
-
-    new AlwaysIncreasingSystem2(10, 0);
+    assertThatThrownBy(() -> new AlwaysIncreasingSystem2(10, 0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("increment must be > 0");
   }
 
   @Test
   public void constructor_with_initial_value_and_increment_throws_IAE_if_increment_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("increment must be > 0");
-
-    new AlwaysIncreasingSystem2(10, -66);
+    assertThatThrownBy(() -> new AlwaysIncreasingSystem2(10, -66))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("increment must be > 0");
   }
 
   @Test
   public void constructor_with_increment_throws_IAE_if_increment_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("increment must be > 0");
-
-    new AlwaysIncreasingSystem2(0);
+    assertThatThrownBy(() -> new AlwaysIncreasingSystem2(0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("increment must be > 0");
   }
 
   @Test
   public void constructor_with_increment_throws_IAE_if_increment_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("increment must be > 0");
-
-    new AlwaysIncreasingSystem2(-20);
+    assertThatThrownBy(() -> new AlwaysIncreasingSystem2(-20))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("increment must be > 0");
   }
 
   private void verifyValuesReturnedByNow(AlwaysIncreasingSystem2 underTest, @Nullable Long initialValue, int increment) {

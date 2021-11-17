@@ -22,7 +22,6 @@ package org.sonar.server.almsettings.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -38,6 +37,7 @@ import org.sonarqube.ws.AlmSettings;
 import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -45,8 +45,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class GetBindingActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -143,11 +141,10 @@ public class GetBindingActionTest {
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -156,11 +153,10 @@ public class GetBindingActionTest {
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

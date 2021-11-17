@@ -21,16 +21,13 @@ package org.sonar.scanner.externalissue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.scanner.externalissue.ReportParser.Report;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportParserTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void parse_sample() {
@@ -73,72 +70,81 @@ public class ReportParserTest {
   @Test
   public void fail_if_report_doesnt_exist() {
     ReportParser parser = new ReportParser(Paths.get("unknown.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to read external issues report 'unknown.json'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to read external issues report 'unknown.json'");
   }
 
   @Test
   public void fail_if_report_is_not_valid_json() {
     ReportParser parser = new ReportParser(path("report_invalid_json.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("invalid JSON syntax");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("invalid JSON syntax");
   }
 
   @Test
   public void fail_if_primaryLocation_not_set() {
     ReportParser parser = new ReportParser(path("report_missing_primaryLocation.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'primaryLocation'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'primaryLocation'");
   }
 
   @Test
   public void fail_if_engineId_not_set() {
     ReportParser parser = new ReportParser(path("report_missing_engineId.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'engineId'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'engineId'");
   }
 
   @Test
   public void fail_if_ruleId_not_set() {
     ReportParser parser = new ReportParser(path("report_missing_ruleId.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'ruleId'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'ruleId'");
   }
 
   @Test
   public void fail_if_severity_not_set() {
     ReportParser parser = new ReportParser(path("report_missing_severity.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'severity'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'severity'");
   }
 
   @Test
   public void fail_if_type_not_set() {
     ReportParser parser = new ReportParser(path("report_missing_type.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'type'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'type'");
   }
 
   @Test
   public void fail_if_filePath_not_set_in_primaryLocation() {
     ReportParser parser = new ReportParser(path("report_missing_filePath.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'filePath'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'filePath'");
   }
-  
+
   @Test
   public void fail_if_message_not_set_in_primaryLocation() {
     ReportParser parser = new ReportParser(path("report_missing_message.json"));
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("missing mandatory field 'message'");
-    parser.parse();
+
+    assertThatThrownBy(() -> parser.parse())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("missing mandatory field 'message'");
   }
 }

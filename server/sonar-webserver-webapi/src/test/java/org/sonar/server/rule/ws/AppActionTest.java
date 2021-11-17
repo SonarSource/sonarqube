@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
@@ -42,8 +41,6 @@ public class AppActionTest {
   private static final Language LANG1 = LanguageTesting.newLanguage("xoo", "Xoo");
   private static final Language LANG2 = LanguageTesting.newLanguage("ws", "Whitespace");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule

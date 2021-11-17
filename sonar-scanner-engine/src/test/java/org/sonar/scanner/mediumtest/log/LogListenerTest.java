@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.batch.bootstrapper.LogOutput.Level;
@@ -49,9 +48,6 @@ import static org.assertj.core.api.Assertions.fail;
 public class LogListenerTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private Pattern simpleTimePattern = Pattern.compile("\\d{2}:\\d{2}:\\d{2}");
   private List<LogEvent> logOutput;

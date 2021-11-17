@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -35,6 +34,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_COMPONENT;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_TYPE;
 
@@ -45,9 +45,6 @@ public class SetHomepageActionTest {
 
   @Rule
   public DbTester db = DbTester.create();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbClient dbClient = db.getDbClient();
   private final WsActionTester ws = new WsActionTester(new SetHomepageAction(userSession, dbClient, TestComponentFinder.from(db)));
@@ -221,14 +218,12 @@ public class SetHomepageActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Type PROJECT requires a parameter");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, "PROJECT")
-      .execute();
-
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Type PROJECT requires a parameter");
   }
 
   @Test
@@ -236,23 +231,22 @@ public class SetHomepageActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException
-      .expectMessage("Value of parameter 'type' (PIPO) must be one of: [PROJECT, PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION]");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, "PIPO")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Value of parameter 'type' (PIPO) must be one of: [PROJECT, PROJECTS, ISSUES, PORTFOLIOS, PORTFOLIO, APPLICATION]");
   }
 
   @Test
   public void fail_for_anonymous() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    ws.newRequest().setMethod("POST").execute();
+    assertThatThrownBy(() -> ws.newRequest()
+      .setMethod("POST")
+      .execute())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("Authentication is required");
   }
 }

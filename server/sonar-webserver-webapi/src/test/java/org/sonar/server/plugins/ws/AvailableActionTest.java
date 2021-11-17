@@ -22,7 +22,6 @@ package org.sonar.server.plugins.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -35,6 +34,7 @@ import org.sonar.updatecenter.common.Release;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -63,8 +63,6 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private AvailableAction underTest = new AvailableAction(userSession, updateCenterFactory);
   private WsActionTester tester = new WsActionTester(underTest);
@@ -83,24 +81,24 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
     logInAsSystemAdministrator();
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(release(Plugin.factory("abap")
-        .setName("ABAP")
-        .setCategory("Languages")
-        .setDescription("Enable analysis and reporting on ABAP projects")
-        .setLicense("Commercial")
-        .setOrganization("SonarSource")
-        .setOrganizationUrl("http://www.sonarsource.com")
-        .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf"),
-        "3.2")
+            .setName("ABAP")
+            .setCategory("Languages")
+            .setDescription("Enable analysis and reporting on ABAP projects")
+            .setLicense("Commercial")
+            .setOrganization("SonarSource")
+            .setOrganizationUrl("http://www.sonarsource.com")
+            .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf"),
+          "3.2")
           .setDate(DateUtils.parseDate("2015-03-10")),
         COMPATIBLE),
       pluginUpdate(release(Plugin.factory("android")
-        .setName("Android")
-        .setCategory("Languages")
-        .setDescription("Import Android Lint reports.")
-        .setLicense("GNU LGPL 3")
-        .setOrganization("SonarSource and Jerome Van Der Linden, Stephane Nicolas, Florian Roncari, Thomas Bores")
-        .setOrganizationUrl("http://www.sonarsource.com"),
-        "1.0")
+            .setName("Android")
+            .setCategory("Languages")
+            .setDescription("Import Android Lint reports.")
+            .setLicense("GNU LGPL 3")
+            .setOrganization("SonarSource and Jerome Van Der Linden, Stephane Nicolas, Florian Roncari, Thomas Bores")
+            .setOrganizationUrl("http://www.sonarsource.com"),
+          "1.0")
           .setDate(DateUtils.parseDate("2014-03-31"))
           .addOutgoingDependency(release(Plugin.factory("java").setName("Java").setDescription("SonarQube rule engine."), "0.3.6")),
         COMPATIBLE)));
@@ -112,18 +110,16 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -154,41 +150,41 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
     TestResponse response = tester.newRequest().execute();
 
     response.assertJson(
-        "{" +
-          "  \"plugins\": [" +
-          "    {" +
-          "      \"key\": \"pkey\"," +
-          "      \"name\": \"p_name\"," +
-          "      \"category\": \"p_category\"," +
-          "      \"description\": \"p_description\"," +
-          "      \"license\": \"p_license\"," +
-          "      \"termsAndConditionsUrl\": \"p_t_and_c_url\"," +
-          "      \"organizationName\": \"p_orga_name\"," +
-          "      \"organizationUrl\": \"p_orga_url\"," +
-          "      \"homepageUrl\": \"p_homepage_url\"," +
-          "      \"issueTrackerUrl\": \"p_issue_url\"," +
-          "      \"release\": {" +
-          "        \"version\": \"1.12.1\"," +
-          "        \"date\": \"2015-04-16\"" +
-          "      }," +
-          "      \"update\": {" +
-          "        \"status\": \"COMPATIBLE\"," +
-          "        \"requires\": [" +
-          "          {" +
-          "            \"key\": \"pkey1\"," +
-          "            \"name\": \"p_name_1\"" +
-          "          }," +
-          "          {" +
-          "            \"key\": \"pkey2\"," +
-          "            \"name\": \"p_name_2\"," +
-          "            \"description\": \"p_desc_2\"" +
-          "          }" +
-          "        ]" +
-          "      }" +
-          "    }" +
-          "  ]," +
-          "  \"updateCenterRefresh\": \"2015-04-24T16:08:36+0200\"" +
-          "}");
+      "{" +
+        "  \"plugins\": [" +
+        "    {" +
+        "      \"key\": \"pkey\"," +
+        "      \"name\": \"p_name\"," +
+        "      \"category\": \"p_category\"," +
+        "      \"description\": \"p_description\"," +
+        "      \"license\": \"p_license\"," +
+        "      \"termsAndConditionsUrl\": \"p_t_and_c_url\"," +
+        "      \"organizationName\": \"p_orga_name\"," +
+        "      \"organizationUrl\": \"p_orga_url\"," +
+        "      \"homepageUrl\": \"p_homepage_url\"," +
+        "      \"issueTrackerUrl\": \"p_issue_url\"," +
+        "      \"release\": {" +
+        "        \"version\": \"1.12.1\"," +
+        "        \"date\": \"2015-04-16\"" +
+        "      }," +
+        "      \"update\": {" +
+        "        \"status\": \"COMPATIBLE\"," +
+        "        \"requires\": [" +
+        "          {" +
+        "            \"key\": \"pkey1\"," +
+        "            \"name\": \"p_name_1\"" +
+        "          }," +
+        "          {" +
+        "            \"key\": \"pkey2\"," +
+        "            \"name\": \"p_name_2\"," +
+        "            \"description\": \"p_desc_2\"" +
+        "          }" +
+        "        ]" +
+        "      }" +
+        "    }" +
+        "  ]," +
+        "  \"updateCenterRefresh\": \"2015-04-24T16:08:36+0200\"" +
+        "}");
   }
 
   @Test

@@ -716,16 +716,17 @@ public class ComponentActionTest {
     assertThat(componentId.exampleValue()).isNotNull();
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void fail_on_module_key_as_param() {
     ComponentDto project = insertProject();
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
     init();
 
-    execute(module.getKey());
+    assertThatThrownBy(() -> execute(module.getKey()))
+      .isInstanceOf(BadRequestException.class);
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void fail_on_directory_key_as_param() {
     ComponentDto project = insertProject();
     ComponentDto module = componentDbTester.insertComponent(newModuleDto("bcde", project).setDbKey("palap").setName("Palap"));
@@ -733,7 +734,8 @@ public class ComponentActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     init();
 
-    execute(directory.getDbKey());
+    assertThatThrownBy(() -> execute(directory.getDbKey()))
+      .isInstanceOf(BadRequestException.class);
   }
 
   private ComponentDto insertProject() {

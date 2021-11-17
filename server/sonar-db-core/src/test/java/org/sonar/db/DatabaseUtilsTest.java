@@ -36,7 +36,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
@@ -66,8 +65,6 @@ public class DatabaseUtilsTest {
 
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createForSchema(DatabaseUtilsTest.class, "sql.sql", false);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -196,23 +193,20 @@ public class DatabaseUtilsTest {
 
   @Test
   public void toUniqueAndSortedList_throws_NPE_if_arg_is_null() {
-    expectedException.expect(NullPointerException.class);
-
-    toUniqueAndSortedList(null);
+    assertThatThrownBy(() -> toUniqueAndSortedList(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void toUniqueAndSortedList_throws_NPE_if_arg_contains_a_null() {
-    expectedException.expect(NullPointerException.class);
-
-    toUniqueAndSortedList(asList("A", null, "C"));
+    assertThatThrownBy(() -> toUniqueAndSortedList(asList("A", null, "C")))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void toUniqueAndSortedList_throws_NPE_if_arg_is_a_set_containing_a_null() {
-    expectedException.expect(NullPointerException.class);
-
-    toUniqueAndSortedList(new HashSet<>(asList("A", null, "C")));
+    assertThatThrownBy(() ->  toUniqueAndSortedList(new HashSet<>(asList("A", null, "C"))))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -536,9 +530,8 @@ public class DatabaseUtilsTest {
 
   @Test
   public void checkThatNotTooManyConditions_throws_IAE_if_strictly_more_than_1000_conditions() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("the message");
-
-    DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(1_001, "foo"), "the message");
+    assertThatThrownBy(() -> DatabaseUtils.checkThatNotTooManyConditions(Collections.nCopies(1_001, "foo"), "the message"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("the message");
   }
 }

@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
@@ -38,8 +38,6 @@ public class ProcessCommandWrapperImplTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
 
@@ -47,10 +45,9 @@ public class ProcessCommandWrapperImplTest {
   public void requestSQRestart_throws_IAE_if_process_index_property_not_set() {
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.index is not set");
-
-    processCommandWrapper.requestSQRestart();
+    assertThatThrownBy(processCommandWrapper::requestSQRestart)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property process.index is not set");
   }
 
   @Test
@@ -58,10 +55,9 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.sharedDir is not set");
-
-    processCommandWrapper.requestSQRestart();
+    assertThatThrownBy(processCommandWrapper::requestSQRestart)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property process.sharedDir is not set");
   }
 
   @Test
@@ -83,10 +79,9 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.sharedDir is not set");
-
-    processCommandWrapper.requestHardStop();
+    assertThatThrownBy(processCommandWrapper::requestHardStop)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property process.sharedDir is not set");
   }
 
   @Test
@@ -108,20 +103,18 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.sharedDir is not set");
-
-    processCommandWrapper.notifyOperational();
+    assertThatThrownBy(processCommandWrapper::notifyOperational)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property process.sharedDir is not set");
   }
 
   @Test
   public void notifyOperational_throws_IAE_if_process_index_property_not_set() {
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.index is not set");
-
-    processCommandWrapper.notifyOperational();
+    assertThatThrownBy(processCommandWrapper::notifyOperational)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property process.index is not set");
   }
 
   @Test

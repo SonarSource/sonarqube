@@ -51,6 +51,7 @@ import org.sonar.server.project.Project;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,11 +97,12 @@ public class BuildComponentTreeStepTest {
   private DbClient dbClient = dbTester.getDbClient();
   private BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void fails_if_root_component_does_not_exist_in_reportReader() {
     setAnalysisMetadataHolder();
 
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

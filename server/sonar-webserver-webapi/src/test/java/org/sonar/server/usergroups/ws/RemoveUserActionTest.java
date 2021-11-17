@@ -21,7 +21,6 @@ package org.sonar.server.usergroups.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
@@ -40,6 +39,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
@@ -51,8 +51,6 @@ public class RemoveUserActionTest {
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(
     new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
@@ -164,13 +162,14 @@ public class RemoveUserActionTest {
   public void fail_if_unknown_group() {
     UserDto user = db.users().insertUser("my-admin");
 
-    expectedException.expect(NotFoundException.class);
-
-    loginAsAdmin();
-    newRequest()
-      .setParam("id", "42")
-      .setParam("login", user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      loginAsAdmin();
+      newRequest()
+        .setParam("id", "42")
+        .setParam("login", user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -178,13 +177,14 @@ public class RemoveUserActionTest {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup("admins");
 
-    expectedException.expect(NotFoundException.class);
-
-    loginAsAdmin();
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", "my-admin")
-      .execute();
+    assertThatThrownBy(() -> {
+      loginAsAdmin();
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("login", "my-admin")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -194,13 +194,14 @@ public class RemoveUserActionTest {
     db.users().insertMember(group, user);
     userSession.logIn("admin");
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("login", user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -212,13 +213,14 @@ public class RemoveUserActionTest {
     db.users().insertMember(adminGroup, adminUser);
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The last administrator user cannot be removed");
-
-    newRequest()
-      .setParam("id", adminGroup.getUuid())
-      .setParam("login", adminUser.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", adminGroup.getUuid())
+        .setParam("login", adminUser.getLogin())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The last administrator user cannot be removed");
   }
 
   @Test
@@ -228,13 +230,14 @@ public class RemoveUserActionTest {
     db.users().insertMember(defaultGroup, user);
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
-
-    newRequest()
-      .setParam("id", defaultGroup.getUuid())
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", defaultGroup.getUuid())
+        .setParam(PARAM_LOGIN, user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
 
   private TestRequest newRequest() {

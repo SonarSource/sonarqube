@@ -24,7 +24,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -48,6 +47,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -64,8 +64,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class IssueSnippetsActionTest {
   private static final String SCM_AUTHOR_JSON_FIELD = "scmAuthor";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -161,8 +159,9 @@ public class IssueSnippetsActionTest {
     userSession.logIn().addProjectPermission(USER, project, file);
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
-    expectedException.expect(ForbiddenException.class);
-    actionTester.newRequest().setParam("issueKey", issueKey).execute();
+
+    assertThatThrownBy(() -> actionTester.newRequest().setParam("issueKey", issueKey).execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -171,9 +170,9 @@ public class IssueSnippetsActionTest {
     insertIssue(file, newLocation(file.uuid(), 5, 5));
     userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Issue with key 'invalid' does not exist");
-    actionTester.newRequest().setParam("issueKey", "invalid").execute();
+    assertThatThrownBy(() -> actionTester.newRequest().setParam("issueKey", "invalid").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Issue with key 'invalid' does not exist");
   }
 
   @Test
@@ -181,10 +180,9 @@ public class IssueSnippetsActionTest {
     ComponentDto file = insertFile(project, "file");
     userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'issueKey' parameter is missing");
-
-    actionTester.newRequest().execute();
+    assertThatThrownBy(() -> actionTester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'issueKey' parameter is missing");
   }
 
   @Test

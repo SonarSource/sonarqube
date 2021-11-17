@@ -20,9 +20,7 @@
 package org.sonar.server.platform.db.migration.sql;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -30,11 +28,10 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableAsBuilderTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_table() {
@@ -59,18 +56,18 @@ public class CreateTableAsBuilderTest {
       "ALTER TABLE issues_copy ALTER COLUMN rule_uuid TYPE VARCHAR (40), ALTER COLUMN rule_uuid SET NOT NULL");
   }
 
-
   @Test
   public void fail_if_columns_not_set() {
-    expectedException.expect(IllegalStateException.class);
-    new CreateTableAsBuilder(new H2(), "issues_copy", "issues")
-      .build();
+    assertThatThrownBy(() -> new CreateTableAsBuilder(new H2(), "issues_copy", "issues")
+      .build())
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void fail_if_table_not_set() {
-    expectedException.expect(NullPointerException.class);
-    new CreateTableAsBuilder(new H2(), null, "issues");
+    assertThatThrownBy(() -> new CreateTableAsBuilder(new H2(), null, "issues")
+      .build())
+      .isInstanceOf(NullPointerException.class);
   }
 
   private static void verifySqlWithCast(Dialect dialect, String... expectedSql) {

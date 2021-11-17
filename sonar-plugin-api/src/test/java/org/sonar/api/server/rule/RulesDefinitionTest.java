@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.rule.RuleKey;
@@ -44,6 +43,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
@@ -53,9 +53,6 @@ public class RulesDefinitionTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void define_repositories() {
@@ -268,10 +265,9 @@ public class RulesDefinitionTest {
     RulesDefinition.NewRepository newRepository = context.createRepository("foo", "bar");
     RulesDefinition.NewRule newRule = newRepository.createRule("doh");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Repository must be set");
-
-    newRule.addDeprecatedRuleKey(nullOrEmpty, "oldKey");
+    assertThatThrownBy(() -> newRule.addDeprecatedRuleKey(nullOrEmpty, "oldKey"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Repository must be set");
   }
 
   @Test
@@ -280,10 +276,9 @@ public class RulesDefinitionTest {
     RulesDefinition.NewRepository newRepository = context.createRepository("foo", "bar");
     RulesDefinition.NewRule newRule = newRepository.createRule("doh");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Rule must be set");
-
-    newRule.addDeprecatedRuleKey("oldRepo", nullOrEmpty);
+    assertThatThrownBy(() -> newRule.addDeprecatedRuleKey("oldRepo", nullOrEmpty))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Rule must be set");
   }
 
   @DataProvider
@@ -431,11 +426,11 @@ public class RulesDefinitionTest {
 
   @Test
   public void fail_if_duplicated_rule_keys_in_the_same_repository() {
-    expectedException.expect(IllegalArgumentException.class);
-
     RulesDefinition.NewRepository findbugs = context.createRepository("findbugs", "java");
     findbugs.createRule("NPE");
-    findbugs.createRule("NPE");
+
+    assertThatThrownBy(() -> findbugs.createRule("NPE"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

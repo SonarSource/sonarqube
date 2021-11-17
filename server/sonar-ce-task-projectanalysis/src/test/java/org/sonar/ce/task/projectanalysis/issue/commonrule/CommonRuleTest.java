@@ -20,22 +20,19 @@
 package org.sonar.ce.task.projectanalysis.issue.commonrule;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.Severity;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CommonRuleTest {
 
   private static final String PLUGIN_KEY = "java";
   private static final String QP_KEY = "qp1";
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void test_getMinDensityParam() {
@@ -47,28 +44,31 @@ public class CommonRuleTest {
 
   @Test
   public void getMinDensityParam_fails_if_param_value_is_absent() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Required parameter [minDensity] is missing on rule [xoo:x1]");
-
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of(), 1_000L, PLUGIN_KEY, QP_KEY);
-    CommonRule.getMinDensityParam(activeRule, "minDensity");
+    assertThatThrownBy(() -> {
+      ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of(), 1_000L, PLUGIN_KEY, QP_KEY);
+      CommonRule.getMinDensityParam(activeRule, "minDensity");
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Required parameter [minDensity] is missing on rule [xoo:x1]");
   }
 
   @Test
   public void getMinDensityParam_fails_if_param_value_is_negative() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Minimum density of rule [xoo:x1] is incorrect. Got [-30.5] but must be between 0 and 100.");
-
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "-30.5"), 1_000L, PLUGIN_KEY, QP_KEY);
-    CommonRule.getMinDensityParam(activeRule, "minDensity");
+    assertThatThrownBy(() -> {
+      ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "-30.5"), 1_000L, PLUGIN_KEY, QP_KEY);
+      CommonRule.getMinDensityParam(activeRule, "minDensity");
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Minimum density of rule [xoo:x1] is incorrect. Got [-30.5] but must be between 0 and 100.");
   }
 
   @Test
   public void getMinDensityParam_fails_if_param_value_is_greater_than_100() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Minimum density of rule [xoo:x1] is incorrect. Got [305] but must be between 0 and 100.");
-
-    ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "305"), 1_000L, PLUGIN_KEY, QP_KEY);
-    CommonRule.getMinDensityParam(activeRule, "minDensity");
+    assertThatThrownBy(() -> {
+      ActiveRule activeRule = new ActiveRule(RuleTesting.XOO_X1, Severity.MAJOR, ImmutableMap.of("minDensity", "305"), 1_000L, PLUGIN_KEY, QP_KEY);
+      CommonRule.getMinDensityParam(activeRule, "minDensity");
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Minimum density of rule [xoo:x1] is incorrect. Got [305] but must be between 0 and 100.");
   }
 }

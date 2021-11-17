@@ -19,18 +19,15 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
 public class SnapshotDtoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_getter_and_setter() {
@@ -61,12 +58,11 @@ public class SnapshotDtoTest {
     snapshotDto.setProjectVersion("1.0");
     snapshotDto.setProjectVersion(repeat("a", 100));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("projectVersion" +
-      " length (101) is longer than the maximum authorized (100). " +
-      "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
-
-    snapshotDto.setProjectVersion(repeat("a", 101));
+    assertThatThrownBy(() -> snapshotDto.setProjectVersion(repeat("a", 101)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("projectVersion" +
+        " length (101) is longer than the maximum authorized (100). " +
+        "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
   }
 
   @Test
@@ -76,11 +72,10 @@ public class SnapshotDtoTest {
     snapshotDto.setBuildString("1.0");
     snapshotDto.setBuildString(repeat("a", 100));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("buildString" +
-      " length (101) is longer than the maximum authorized (100). " +
-      "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
-
-    snapshotDto.setBuildString(repeat("a", 101));
+    assertThatThrownBy(() ->  snapshotDto.setBuildString(repeat("a", 101)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("buildString" +
+        " length (101) is longer than the maximum authorized (100). " +
+        "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
   }
 }

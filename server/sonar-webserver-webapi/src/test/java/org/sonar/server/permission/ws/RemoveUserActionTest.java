@@ -130,13 +130,14 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     db.users().insertPermissionOnUser(user, ADMINISTER);
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last user with permission 'admin'. Permission cannot be removed.");
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, ADMIN)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Last user with permission 'admin'. Permission cannot be removed.");
   }
 
   @Test
@@ -191,25 +192,27 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   public void fail_when_project_does_not_exist() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
+        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_when_project_permission_without_permission() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -247,49 +250,53 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   private void failIfComponentIsNotAProjectOrView(ComponentDto file) {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, file.uuid())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, file.uuid())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Component '" + file.getDbKey() + "' (id: " + file.uuid() + ") must be a project or a view.");
   }
 
   @Test
   public void fail_when_get_request() {
     loginAsAdmin();
 
-    expectedException.expect(ServerException.class);
-
-    newRequest()
-      .setMethod("GET")
-      .setParam(PARAM_USER_LOGIN, "george.orwell")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setMethod("GET")
+        .setParam(PARAM_USER_LOGIN, "george.orwell")
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(ServerException.class);
   }
 
   @Test
   public void fail_when_user_login_is_missing() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_permission_is_missing() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -297,27 +304,29 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Project id or project key can be provided, not both.");
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, project.uuid())
+        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Project id or project key can be provided, not both.");
   }
 
   @Test
   public void removing_global_permission_fails_if_not_system_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, PROVISIONING)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, PROVISIONING)
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -325,13 +334,14 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_KEY, project.getDbKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+        .setParam(PARAM_PROJECT_KEY, project.getDbKey())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   /**
@@ -358,14 +368,16 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission user can't be removed from a public component");
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, project.uuid())
+        .setParam(PARAM_PERMISSION, USER)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission user can't be removed from a public component");
 
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, USER)
-      .execute();
   }
 
   @Test
@@ -373,14 +385,15 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
-
-    newRequest()
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_PERMISSION, CODEVIEWER)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PROJECT_ID, project.uuid())
+        .setParam(PARAM_PERMISSION, CODEVIEWER)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test
@@ -389,14 +402,15 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
-
-    newRequest()
-      .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -405,14 +419,15 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
-
-    newRequest()
-      .setParam(PARAM_PROJECT_ID, branch.uuid())
-      .setParam(PARAM_USER_LOGIN, user.getLogin())
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_PROJECT_ID, branch.uuid())
+        .setParam(PARAM_USER_LOGIN, user.getLogin())
+        .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project id '%s' not found", branch.uuid()));
   }
 
 }

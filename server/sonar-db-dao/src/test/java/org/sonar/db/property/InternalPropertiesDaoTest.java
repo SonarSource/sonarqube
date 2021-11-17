@@ -34,10 +34,10 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
@@ -50,6 +50,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -82,8 +83,6 @@ public class InternalPropertiesDaoTest {
   private final String DEFAULT_PROJECT_TEMPLATE = "defaultTemplate.prj";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public DbTester dbTester = DbTester.create(system2);
 
   private final DbSession dbSession = dbTester.getSession();
@@ -98,30 +97,22 @@ public class InternalPropertiesDaoTest {
 
   @Test
   public void save_throws_IAE_if_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.save(dbSession, null, VALUE_SMALL);
+    expectKeyNullOrEmptyIAE(() -> underTest.save(dbSession, null, VALUE_SMALL));
   }
 
   @Test
   public void save_throws_IAE_if_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.save(dbSession, EMPTY_STRING, VALUE_SMALL);
+    expectKeyNullOrEmptyIAE(() -> underTest.save(dbSession, EMPTY_STRING, VALUE_SMALL));
   }
 
   @Test
   public void save_throws_IAE_if_value_is_null() {
-    expectValueNullOrEmptyIAE();
-
-    underTest.save(dbSession, A_KEY, null);
+    expectValueNullOrEmptyIAE(() -> underTest.save(dbSession, A_KEY, null));
   }
 
   @Test
   public void save_throws_IAE_if_value_is_empty() {
-    expectValueNullOrEmptyIAE();
-
-    underTest.save(dbSession, A_KEY, EMPTY_STRING);
+    expectValueNullOrEmptyIAE(() -> underTest.save(dbSession, A_KEY, EMPTY_STRING));
   }
 
   @Test
@@ -140,7 +131,7 @@ public class InternalPropertiesDaoTest {
     dbSession.commit();
     assertThat(dbTester.countRowsOfTable("internal_properties")).isOne();
     clearInvocations(auditPersister);
-    
+
     underTest.delete(dbSession, A_KEY);
     dbSession.commit();
 
@@ -266,16 +257,12 @@ public class InternalPropertiesDaoTest {
 
   @Test
   public void saveAsEmpty_throws_IAE_if_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.saveAsEmpty(dbSession, null);
+    expectKeyNullOrEmptyIAE(() -> underTest.saveAsEmpty(dbSession, null));
   }
 
   @Test
   public void saveAsEmpty_throws_IAE_if_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.saveAsEmpty(dbSession, EMPTY_STRING);
+    expectKeyNullOrEmptyIAE(() -> underTest.saveAsEmpty(dbSession, EMPTY_STRING));
   }
 
   @Test
@@ -337,16 +324,12 @@ public class InternalPropertiesDaoTest {
 
   @Test
   public void selectByKey_throws_IAE_when_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.selectByKey(dbSession, null);
+    expectKeyNullOrEmptyIAE(() -> underTest.selectByKey(dbSession, null));
   }
 
   @Test
   public void selectByKey_throws_IAE_when_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.selectByKey(dbSession, EMPTY_STRING);
+    expectKeyNullOrEmptyIAE(() -> underTest.selectByKey(dbSession, EMPTY_STRING));
   }
 
   @Test
@@ -395,9 +378,7 @@ public class InternalPropertiesDaoTest {
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
-    expectKeyNullOrEmptyIAE();
-
-    underTest.selectByKeys(dbSession, keysIncludingANull);
+    expectKeyNullOrEmptyIAE(() -> underTest.selectByKeys(dbSession, keysIncludingANull));
   }
 
   @Test
@@ -410,9 +391,7 @@ public class InternalPropertiesDaoTest {
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
-    expectKeyNullOrEmptyIAE();
-
-    underTest.selectByKeys(dbSession, keysIncludingAnEmptyString);
+    expectKeyNullOrEmptyIAE(() ->  underTest.selectByKeys(dbSession, keysIncludingAnEmptyString));
   }
 
   @Test
@@ -563,20 +542,18 @@ public class InternalPropertiesDaoTest {
 
   @Test
   public void tryLock_throws_IAE_if_lock_name_is_empty() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("lock name can't be empty");
-
-    underTest.tryLock(dbSession, "", 60);
+    assertThatThrownBy(() -> underTest.tryLock(dbSession, "", 60))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("lock name can't be empty");
   }
 
   @Test
   public void tryLock_throws_IAE_if_lock_name_length_is_16_or_more() {
     String tooLongName = randomAlphabetic(16 + new Random().nextInt(30));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("lock name is too long");
-
-    underTest.tryLock(dbSession, tooLongName, 60);
+    assertThatThrownBy(() -> underTest.tryLock(dbSession, tooLongName, 60))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("lock name is too long");
   }
 
   private void assertAuditValue(String key, @Nullable String value) {
@@ -591,14 +568,16 @@ public class InternalPropertiesDaoTest {
     return "lock." + lockName;
   }
 
-  private void expectKeyNullOrEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("key can't be null nor empty");
+  private void expectKeyNullOrEmptyIAE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("key can't be null nor empty");
   }
 
-  private void expectValueNullOrEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("value can't be null nor empty");
+  private void expectValueNullOrEmptyIAE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("value can't be null nor empty");
   }
 
   private InternalPropertyAssert assertThatInternalProperty(String key) {

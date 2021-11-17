@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
@@ -31,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.CoreProperties.DEVELOPMENT_COST;
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS;
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
@@ -40,8 +39,6 @@ public class RatingSettingsTest {
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void load_rating_grid() {
@@ -86,10 +83,12 @@ public class RatingSettingsTest {
 
   @Test
   public void fail_on_invalid_rating_grid_configuration() {
-    expectedException.expect(IllegalArgumentException.class);
-    settings.setProperty(CoreProperties.RATING_GRID, "a b c");
+    assertThatThrownBy(() -> {
+      settings.setProperty(CoreProperties.RATING_GRID, "a b c");
+      new RatingSettings(settings.asConfig());
+    })
+      .isInstanceOf(IllegalArgumentException.class);
 
-    new RatingSettings(settings.asConfig());
   }
 
   @Test
@@ -112,10 +111,9 @@ public class RatingSettingsTest {
     settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS, "0");
     settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
-      "Contact your administrator to update this configuration in the global administration section of SonarQube.");
-
-    new RatingSettings(settings.asConfig());
+    assertThatThrownBy(() -> new RatingSettings(settings.asConfig()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
+        "Contact your administrator to update this configuration in the global administration section of SonarQube.");
   }
 }

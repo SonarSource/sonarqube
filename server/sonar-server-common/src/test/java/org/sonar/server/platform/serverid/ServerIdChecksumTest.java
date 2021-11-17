@@ -19,28 +19,24 @@
  */
 package org.sonar.server.platform.serverid;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 
 public class ServerIdChecksumTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void compute_throws_ISE_if_jdbcUrl_property_is_not_set() {
     ServerIdChecksum underTest = new ServerIdChecksum(new MapSettings().asConfig(), null /*doesn't matter*/);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Missing JDBC URL");
-
-    underTest.computeFor("foo");
+    assertThatThrownBy(() -> underTest.computeFor("foo"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Missing JDBC URL");
   }
 
   @Test

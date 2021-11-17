@@ -24,15 +24,16 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,8 +50,6 @@ public class ProjectMappingsDaoTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public DbTester dbTester = DbTester.create(system2);
 
   private DbSession dbSession = dbTester.getSession();
@@ -59,37 +58,27 @@ public class ProjectMappingsDaoTest {
 
   @Test
   public void put_throws_IAE_if_key_type_is_null() {
-    expectKeyTypeNullOrEmptyIAE();
-
-    underTest.put(dbSession, null, A_KEY, PROJECT_UUID);
+    expectKeyTypeNullOrEmptyIAE(() -> underTest.put(dbSession, null, A_KEY, PROJECT_UUID));
   }
 
   @Test
   public void put_throws_IAE_if_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.put(dbSession, A_KEY_TYPE, null, PROJECT_UUID);
+    expectKeyNullOrEmptyIAE(() -> underTest.put(dbSession, A_KEY_TYPE, null, PROJECT_UUID));
   }
 
   @Test
   public void put_throws_IAE_if_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.put(dbSession, A_KEY_TYPE, EMPTY_STRING, PROJECT_UUID);
+    expectKeyNullOrEmptyIAE(() -> underTest.put(dbSession, A_KEY_TYPE, EMPTY_STRING, PROJECT_UUID));
   }
 
   @Test
   public void save_throws_IAE_if_project_uuid_is_null() {
-    expectValueNullOrEmptyIAE();
-
-    underTest.put(dbSession, A_KEY_TYPE, A_KEY, null);
+    expectValueNullOrEmptyIAE(() -> underTest.put(dbSession, A_KEY_TYPE, A_KEY, null));
   }
 
   @Test
   public void put_throws_IAE_if_project_uuid_is_empty() {
-    expectValueNullOrEmptyIAE();
-
-    underTest.put(dbSession, A_KEY_TYPE, A_KEY, EMPTY_STRING);
+    expectValueNullOrEmptyIAE(() -> underTest.put(dbSession, A_KEY_TYPE, A_KEY, EMPTY_STRING));
   }
 
   @Test
@@ -133,23 +122,17 @@ public class ProjectMappingsDaoTest {
 
   @Test
   public void get_throws_IAE_when_key_type_is_null() {
-    expectKeyTypeNullOrEmptyIAE();
-
-    underTest.get(dbSession, null, A_KEY);
+    expectKeyTypeNullOrEmptyIAE(() -> underTest.get(dbSession, null, A_KEY));
   }
 
   @Test
   public void get_throws_IAE_when_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.get(dbSession, A_KEY_TYPE, null);
+    expectKeyNullOrEmptyIAE(() -> underTest.get(dbSession, A_KEY_TYPE, null));
   }
 
   @Test
   public void get_throws_IAE_when_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.get(dbSession, A_KEY_TYPE, EMPTY_STRING);
+    expectKeyNullOrEmptyIAE(() -> underTest.get(dbSession, A_KEY_TYPE, EMPTY_STRING));
   }
 
   @Test
@@ -164,19 +147,22 @@ public class ProjectMappingsDaoTest {
     assertThat(underTest.get(dbSession, A_KEY_TYPE, A_KEY).get().getProjectUuid()).isEqualTo(PROJECT_UUID);
   }
 
-  private void expectKeyTypeNullOrEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("key type can't be null nor empty");
+  private void expectKeyTypeNullOrEmptyIAE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("key type can't be null nor empty");
   }
 
-  private void expectKeyNullOrEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("key can't be null nor empty");
+  private void expectKeyNullOrEmptyIAE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("key can't be null nor empty");
   }
 
-  private void expectValueNullOrEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("projectUuid can't be null nor empty");
+  private void expectValueNullOrEmptyIAE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("projectUuid can't be null nor empty");
   }
 
   private ProjectMappingAssert assertThatProjectMapping(String keyType, String key) {

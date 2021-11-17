@@ -19,15 +19,14 @@
  */
 package org.sonar.server.platform;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 
 public class UrlSettingsTest {
@@ -36,8 +35,6 @@ public class UrlSettingsTest {
   private static final String PORT_PORPERTY = "sonar.web.port";
   private static final String CONTEXT_PROPERTY = "sonar.web.context";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
 
@@ -161,8 +158,9 @@ public class UrlSettingsTest {
   public void getBaseUrl_throws_when_port_not_an_int() {
     settings.setProperty(PORT_PORPERTY, "not a number");
 
-    expectedException.expect(IllegalStateException.class);
-    underTest().getBaseUrl();
+    assertThatThrownBy(() ->  underTest().getBaseUrl())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("The property 'sonar.web.port' is not an int value");
   }
 
   @Test

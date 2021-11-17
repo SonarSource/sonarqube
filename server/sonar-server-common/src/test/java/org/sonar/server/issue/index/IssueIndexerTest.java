@@ -30,7 +30,6 @@ import org.assertj.core.api.Assertions;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -57,7 +56,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
@@ -70,8 +69,6 @@ public class IssueIndexerTest {
   public EsTester es = EsTester.create();
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public ExpectedException expectedException = none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -162,8 +159,8 @@ public class IssueIndexerTest {
 
     try {
       // FIXME : test also message
-      expectedException.expect(IllegalStateException.class);
-      underTest.indexOnStartup(emptySet());
+      assertThatThrownBy(() -> underTest.indexOnStartup(emptySet()))
+        .isInstanceOf(IllegalStateException.class);
     } finally {
       assertThatIndexHasSize(0);
       assertThatEsQueueTableHasSize(0);
@@ -213,8 +210,8 @@ public class IssueIndexerTest {
 
     try {
       // FIXME : test also message
-      expectedException.expect(IllegalStateException.class);
-      underTest.indexOnAnalysis(issue.getProjectUuid());
+      assertThatThrownBy(() -> underTest.indexOnAnalysis(issue.getProjectUuid()))
+        .isInstanceOf(IllegalStateException.class);
     } finally {
       assertThatIndexHasSize(0);
       assertThatEsQueueTableHasSize(0);
@@ -447,8 +444,8 @@ public class IssueIndexerTest {
 
     try {
       // FIXME : test also message
-      expectedException.expect(IllegalStateException.class);
-      underTest.deleteByKeys("P1", asList("Issue1"));
+      assertThatThrownBy(() -> underTest.deleteByKeys("P1", asList("Issue1")))
+        .isInstanceOf(IllegalStateException.class);
     } finally {
       assertThatIndexHasOnly("Issue1");
       assertThatEsQueueTableHasSize(0);

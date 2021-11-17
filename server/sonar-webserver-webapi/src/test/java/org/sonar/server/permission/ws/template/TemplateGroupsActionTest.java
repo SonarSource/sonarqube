@@ -43,6 +43,7 @@ import org.sonar.server.permission.ws.WsParameters;
 import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -291,12 +292,13 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto template1 = addTemplate();
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, USER)
-      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -304,12 +306,13 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto template1 = addTemplate();
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, USER)
-      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -317,36 +320,39 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto template1 = addTemplate();
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, USER)
-      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .setParam(PARAM_TEMPLATE_NAME, template1.getName())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+        .setParam(PARAM_TEMPLATE_NAME, template1.getName())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_template_uuid_nor_name_provided() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, USER)
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, USER)
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_template_is_not_found() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, USER)
-      .setParam(PARAM_TEMPLATE_ID, "unknown-uuid")
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, USER)
+        .setParam(PARAM_TEMPLATE_ID, "unknown-uuid")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -354,12 +360,13 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin();
     PermissionTemplateDto template1 = addTemplate();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
-      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .execute();
+    assertThatThrownBy(() ->  {
+      newRequest()
+        .setParam(PARAM_PERMISSION, GlobalPermissions.QUALITY_GATE_ADMIN)
+        .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   private GroupDto insertGroup(String name, String description) {

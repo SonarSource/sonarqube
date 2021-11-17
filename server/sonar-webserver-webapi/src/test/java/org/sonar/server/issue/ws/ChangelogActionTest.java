@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -61,8 +60,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class ChangelogActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -291,8 +288,8 @@ public class ChangelogActionTest {
     IssueDto issueDto = insertNewIssue();
     userSession.logIn("john").addProjectPermission(CODEVIEWER, project, file);
 
-    expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey());
+    assertThatThrownBy(() -> call(issueDto.getKey()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

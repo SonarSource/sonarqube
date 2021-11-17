@@ -19,18 +19,15 @@
  */
 package org.sonar.db.permission;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 
 public class PermissionQueryTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_query() {
@@ -68,11 +65,12 @@ public class PermissionQueryTest {
 
   @Test
   public void fail_when_search_query_length_is_less_than_3_characters() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Search query should contains at least 3 characters");
-
-    PermissionQuery.builder()
-      .setSearchQuery("so")
-      .build();
+    assertThatThrownBy(() -> {
+      PermissionQuery.builder()
+        .setSearchQuery("so")
+        .build();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Search query should contains at least 3 characters");
   }
 }

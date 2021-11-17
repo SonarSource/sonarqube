@@ -21,7 +21,6 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.LogTester;
@@ -34,14 +33,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RestartActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -56,9 +54,9 @@ public class RestartActionTest {
   @Test
   public void request_fails_in_production_mode_with_ForbiddenException_when_user_is_not_logged_in() {
     when(webServer.isStandalone()).thenReturn(true);
-    expectedException.expect(ForbiddenException.class);
 
-    actionTester.newRequest().execute();
+    assertThatThrownBy(() -> actionTester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -66,19 +64,17 @@ public class RestartActionTest {
     when(webServer.isStandalone()).thenReturn(true);
     userSessionRule.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-
-    actionTester.newRequest().execute();
+    assertThatThrownBy(() -> actionTester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void request_fails_in_cluster_mode_with_IllegalArgumentException() {
     when(webServer.isStandalone()).thenReturn(false);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Restart not allowed for cluster nodes");
-
-    actionTester.newRequest().execute();
+    assertThatThrownBy(() -> actionTester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Restart not allowed for cluster nodes");
   }
 
   @Test

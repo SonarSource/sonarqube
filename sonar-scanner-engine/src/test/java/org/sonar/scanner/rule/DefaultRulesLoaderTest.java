@@ -25,17 +25,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class DefaultRulesLoaderTest {
-  @org.junit.Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testParseServerResponse() throws IOException {
@@ -54,9 +52,8 @@ public class DefaultRulesLoaderTest {
     WsTestUtil.mockStream(wsClient, is);
     DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unable to get rules");
-
-    loader.load();
+    assertThatThrownBy(() -> loader.load())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Unable to get rules");
   }
 }

@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -40,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -103,8 +103,6 @@ public class ExportComponentsStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public LogTester logTester = new LogTester();
 
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
@@ -158,9 +156,9 @@ public class ExportComponentsStepTest {
     when(projectHolder.projectDto()).thenReturn(dbTester.components().getProjectDto(PROJECT));
     dumpWriter.failIfMoreThan(1, DumpElement.COMPONENTS);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Component Export failed after processing 1 components successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Component Export failed after processing 1 components successfully");
   }
 
   @Test

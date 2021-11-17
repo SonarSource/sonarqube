@@ -19,12 +19,11 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
@@ -33,8 +32,6 @@ public class ComponentTreeQueryTest {
 
   private static final String BASE_UUID = "ABCD";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_query() {
@@ -77,17 +74,21 @@ public class ComponentTreeQueryTest {
 
   @Test
   public void fail_when_no_base_uuid() {
-    expectedException.expect(NullPointerException.class);
-    ComponentTreeQuery.builder()
-      .setStrategy(CHILDREN)
-      .build();
+    assertThatThrownBy(() -> {
+      ComponentTreeQuery.builder()
+        .setStrategy(CHILDREN)
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void fail_when_no_strategy() {
-    expectedException.expect(NullPointerException.class);
-    ComponentTreeQuery.builder()
-      .setBaseUuid(BASE_UUID)
-      .build();
+    assertThatThrownBy(() -> {
+      ComponentTreeQuery.builder()
+        .setBaseUuid(BASE_UUID)
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class);
   }
 }

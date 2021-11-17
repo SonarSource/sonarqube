@@ -25,7 +25,6 @@ import java.util.Random;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -34,6 +33,7 @@ import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class AnalysisPropertiesDaoTest {
@@ -41,8 +41,6 @@ public class AnalysisPropertiesDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final System2 system2 = new TestSystem2().setNow(NOW);
   private final DbSession dbSession = dbTester.getSession();
@@ -56,10 +54,9 @@ public class AnalysisPropertiesDaoTest {
       .setKey(randomAlphanumeric(10))
       .setValue(randomAlphanumeric(10));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid cannot be null");
-
-    underTest.insert(dbSession, analysisPropertyDto);
+    assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid cannot be null");
   }
 
   @Test
@@ -69,10 +66,9 @@ public class AnalysisPropertiesDaoTest {
       .setUuid(randomAlphanumeric(10))
       .setValue(randomAlphanumeric(10));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key cannot be null");
-
-    underTest.insert(dbSession, analysisPropertyDto);
+    assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key cannot be null");
   }
 
   @Test
@@ -82,10 +78,9 @@ public class AnalysisPropertiesDaoTest {
       .setKey(randomAlphanumeric(10))
       .setValue(randomAlphanumeric(10));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("analysis uuid cannot be null");
-
-    underTest.insert(dbSession, analysisPropertyDto);
+    assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("analysis uuid cannot be null");
   }
 
   @Test
@@ -95,10 +90,9 @@ public class AnalysisPropertiesDaoTest {
       .setUuid(randomAlphanumeric(10))
       .setKey(randomAlphanumeric(10));
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value cannot be null");
-
-    underTest.insert(dbSession, analysisPropertyDto);
+    assertThatThrownBy(() -> underTest.insert(dbSession, analysisPropertyDto))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("value cannot be null");
   }
 
   @Test

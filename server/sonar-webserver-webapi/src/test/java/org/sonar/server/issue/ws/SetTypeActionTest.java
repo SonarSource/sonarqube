@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rules.RuleType;
@@ -82,8 +81,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 @RunWith(DataProviderRunner.class)
 public class SetTypeActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
@@ -170,8 +167,8 @@ public class SetTypeActionTest {
 
   @Test
   public void fail_when_not_authenticated() {
-    expectedException.expect(UnauthorizedException.class);
-    call("ABCD", BUG.name());
+    assertThatThrownBy(() -> call("ABCD", BUG.name()))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -181,8 +178,9 @@ public class SetTypeActionTest {
     String permission = ISSUE_ADMIN;
     logInAndAddProjectPermission(login, issueDto, permission);
 
-    expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), BUG.name());
+    assertThatThrownBy(() -> call(issueDto.getKey(), BUG.name()))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -191,8 +189,8 @@ public class SetTypeActionTest {
     IssueDto issueDto = issueDbTester.insertIssue(issue -> issue.setType(type));
     logInAndAddProjectPermission("john", issueDto, USER);
 
-    expectedException.expect(ForbiddenException.class);
-    call(issueDto.getKey(), type.name());
+    assertThatThrownBy(() -> call(issueDto.getKey(), type.name()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -263,7 +261,7 @@ public class SetTypeActionTest {
     return EnumSet.allOf(RuleType.class)
       .stream()
       .filter(ruleType -> SECURITY_HOTSPOT != ruleType)
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 
@@ -275,7 +273,7 @@ public class SetTypeActionTest {
       .collect(Collectors.toSet());
     return Sets.cartesianProduct(set, set)
       .stream()
-      .map(ruleTypes -> new Object[] {ruleTypes.get(0), ruleTypes.get(1)})
+      .map(ruleTypes -> new Object[]{ruleTypes.get(0), ruleTypes.get(1)})
       .toArray(Object[][]::new);
   }
 }

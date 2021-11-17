@@ -24,16 +24,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NoLanguagesPluginsMediumTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester();
@@ -42,12 +40,11 @@ public class NoLanguagesPluginsMediumTest {
   public void testNoLanguagePluginsInstalled() throws Exception {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("No language plugins are installed");
-
-    tester
+    assertThatThrownBy(() -> tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No language plugins are installed.");
   }
 
   private File copyProject(String path) throws Exception {

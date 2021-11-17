@@ -21,9 +21,7 @@ package org.sonar.ce.task.projectanalysis.formula;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.formula.counter.LongSumCounter;
@@ -31,6 +29,7 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
@@ -42,8 +41,6 @@ public class LongSumFormulaTest {
   private static final SumFormula.LongSumFormula LONG_SUM_FORMULA_NULL_DEFAULT_INPUT_VALUE = createLongSumFormula(LINES_KEY, null);
   private static final SumFormula.LongSumFormula LONG_SUM_FORMULA_DEFAULT_INPUT_VALUE_15 = createLongSumFormula(LINES_KEY, 15L);
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
     ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class));
@@ -57,10 +54,9 @@ public class LongSumFormulaTest {
 
   @Test
   public void fail_with_NPE_when_creating_formula_with_null_metric() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Metric key cannot be null");
-
-    createLongSumFormula(null);
+    assertThatThrownBy(() -> createLongSumFormula(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Metric key cannot be null");
   }
 
   @Test

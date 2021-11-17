@@ -23,7 +23,6 @@ import java.time.Instant;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -50,11 +49,10 @@ import org.sonarqube.ws.NewCodePeriods.ListWSResponse;
 import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ListActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -83,23 +81,22 @@ public class ListActionTest {
 
   @Test
   public void throw_NFE_if_project_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'unknown' not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'unknown' not found");
   }
 
   @Test
   public void throw_FE_if_no_project_permission() {
     ComponentDto project = componentDb.insertPublicProject();
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
 
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

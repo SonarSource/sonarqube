@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.System2;
@@ -42,6 +41,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
@@ -56,8 +56,6 @@ public class RegisterQualityProfilesTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
   @Rule
   public LogTester logTester = new LogTester();
@@ -70,10 +68,9 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("initialize must be called first");
-
-    underTest.start();
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("initialize must be called first");
   }
 
   @Test

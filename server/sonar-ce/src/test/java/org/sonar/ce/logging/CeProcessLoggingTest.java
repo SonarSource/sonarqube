@@ -35,13 +35,13 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.PatternLayoutEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
@@ -49,8 +49,6 @@ public class CeProcessLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private File logDir;
   private Props props = new Props(new Properties());
@@ -356,50 +354,45 @@ public class CeProcessLoggingTest {
   public void fail_with_IAE_if_global_property_unsupported_level() {
     props.set("sonar.log.level", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_ce_property_unsupported_level() {
     props.set("sonar.log.level.ce", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.ce is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.ce is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_ce_sql_property_unsupported_level() {
     props.set("sonar.log.level.ce.sql", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.ce.sql is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.ce.sql is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_ce_es_property_unsupported_level() {
     props.set("sonar.log.level.ce.es", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.ce.es is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.ce.es is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test
   public void fail_with_IAE_if_ce_jmx_property_unsupported_level() {
     props.set("sonar.log.level.ce.jmx", "ERROR");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("log level ERROR in property sonar.log.level.ce.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
-
-    underTest.configure(props);
+    assertThatThrownBy(() -> underTest.configure(props))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("log level ERROR in property sonar.log.level.ce.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
 
   @Test

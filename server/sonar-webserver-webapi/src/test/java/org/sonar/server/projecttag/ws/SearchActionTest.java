@@ -22,7 +22,6 @@ package org.sonar.server.projecttag.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -52,8 +51,6 @@ public class SearchActionTest {
   @Rule
   public EsTester es = EsTester.create();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

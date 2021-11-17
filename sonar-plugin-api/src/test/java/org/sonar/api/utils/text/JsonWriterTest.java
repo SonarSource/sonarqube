@@ -26,12 +26,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,9 +38,6 @@ import static org.mockito.Mockito.when;
 public class JsonWriterTest {
 
   private static final String EMPTY_STRING = "";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private StringWriter stringWriter = new StringWriter();
 
@@ -198,24 +194,24 @@ public class JsonWriterTest {
 
   @Test
   public void fail_on_NaN_value() {
-    expectedException.expect(WriterException.class);
-    underTest.beginObject().prop("foo", Double.NaN).endObject().close();
+    assertThatThrownBy(() -> underTest.beginObject().prop("foo", Double.NaN).endObject().close())
+      .isInstanceOf(WriterException.class);
   }
 
   @Test
   public void fail_if_not_valid() {
-    expectedException.expect(WriterException.class);
-    underTest.beginObject().endArray().close();
+    assertThatThrownBy(() -> underTest.beginObject().endArray().close())
+      .isInstanceOf(WriterException.class);
   }
 
   @Test
   public void fail_to_begin_array() throws Exception {
     com.google.gson.stream.JsonWriter gson = mock(com.google.gson.stream.JsonWriter.class);
     when(gson.beginArray()).thenThrow(new IOException("the reason"));
-    expectedException.expect(WriterException.class);
-    expectedException.expectMessage("Fail to write JSON");
 
-    new JsonWriter(gson).beginArray();
+    assertThatThrownBy(() -> new JsonWriter(gson).beginArray())
+      .isInstanceOf(WriterException.class)
+      .hasMessage("Fail to write JSON");
   }
 
   private void expect(String s) {

@@ -30,9 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -43,10 +41,9 @@ import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NewIssuesStatisticsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private RuleType randomRuleTypeExceptHotspot = RuleType.values()[random.nextInt(RuleType.values().length - 1)];
@@ -57,9 +54,8 @@ public class NewIssuesStatisticsTest {
     String assignee = randomAlphanumeric(10);
     DefaultIssue issue = new DefaultIssue().setType(null).setAssigneeUuid(assignee).setNew(new Random().nextBoolean());
 
-    expectedException.expect(NullPointerException.class);
-
-    underTest.add(issue);
+    assertThatThrownBy(() -> underTest.add(issue))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test

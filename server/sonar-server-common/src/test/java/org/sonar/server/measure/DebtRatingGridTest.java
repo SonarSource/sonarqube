@@ -20,11 +20,10 @@
 package org.sonar.server.measure;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
@@ -34,10 +33,6 @@ import static org.sonar.server.measure.Rating.E;
 public class DebtRatingGridTest {
 
   private DebtRatingGrid ratingGrid;
-
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
-
   @Before
   public void setUp() {
     double[] gridValues = new double[] {0.1, 0.2, 0.5, 1};
@@ -78,23 +73,23 @@ public class DebtRatingGridTest {
 
   @Test
   public void fail_on_invalid_density() {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("Invalid value '-1.0'");
-
-    ratingGrid.getRatingForDensity(-1);
+    assertThatThrownBy(() -> ratingGrid.getRatingForDensity(-1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Invalid value '-1.0'");
   }
 
   @Test
   public void fail_to_concert_invalid_value() {
-    throwable.expect(IllegalArgumentException.class);
-    Rating.valueOf(10);
+    assertThatThrownBy(() -> Rating.valueOf(10))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_on_invalid_grid() {
-    throwable.expect(IllegalStateException.class);
-    throwable.expectMessage("Rating grid should contains 4 values");
-
-    ratingGrid = new DebtRatingGrid(new double[] {0.1, 0.2, 0.5});
+    assertThatThrownBy(() -> {
+      ratingGrid = new DebtRatingGrid(new double[] {0.1, 0.2, 0.5});
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Rating grid should contains 4 values");
   }
 }

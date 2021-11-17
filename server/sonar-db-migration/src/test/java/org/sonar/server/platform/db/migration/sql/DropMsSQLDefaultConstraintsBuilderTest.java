@@ -29,9 +29,9 @@ import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
-import org.sonar.server.platform.db.migration.sql.DropMsSQLDefaultConstraintsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,22 +40,31 @@ public class DropMsSQLDefaultConstraintsBuilderTest {
 
   private final Database db = mock(Database.class);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_oracle() throws Exception {
     when(db.getDialect()).thenReturn(new Oracle());
-    new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
+    assertThatThrownBy(() -> {
+      new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_h2() throws Exception {
     when(db.getDialect()).thenReturn(new H2());
-    new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
+    assertThatThrownBy(() -> {
+      new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_if_postgres() throws Exception {
     when(db.getDialect()).thenReturn(new PostgreSql());
-    new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
+    assertThatThrownBy(() -> {
+      new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

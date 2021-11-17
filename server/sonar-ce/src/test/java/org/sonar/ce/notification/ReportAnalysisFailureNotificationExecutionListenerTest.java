@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.System2;
@@ -50,6 +49,7 @@ import org.sonar.server.notification.NotificationService;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
@@ -63,8 +63,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 public class ReportAnalysisFailureNotificationExecutionListenerTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private final DbClient dbClient = dbTester.getDbClient();
@@ -140,10 +138,9 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
     when(notificationService.hasProjectSubscribersForTypes(componentUuid, singleton(ReportAnalysisFailureNotification.class)))
       .thenReturn(true);
 
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("Component with uuid '" + componentUuid + "' not found");
-
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
+    assertThatThrownBy(() -> underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+      .isInstanceOf(RowNotFoundException.class)
+      .hasMessage("Component with uuid '" + componentUuid + "' not found");
   }
 
   @Test
@@ -186,10 +183,9 @@ public class ReportAnalysisFailureNotificationExecutionListenerTest {
       .thenReturn(true);
     dbTester.components().insertPrivateProject(s -> s.setUuid(componentUuid));
 
-    expectedException.expect(RowNotFoundException.class);
-    expectedException.expectMessage("CeActivity with uuid '" + taskUuid + "' not found");
-
-    underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock);
+    assertThatThrownBy(() ->  underTest.onEnd(ceTaskMock, CeActivityDto.Status.FAILED, randomDuration(), ceTaskResultMock, throwableMock))
+      .isInstanceOf(RowNotFoundException.class)
+      .hasMessage("CeActivity with uuid '" + taskUuid + "' not found");
   }
 
   @Test

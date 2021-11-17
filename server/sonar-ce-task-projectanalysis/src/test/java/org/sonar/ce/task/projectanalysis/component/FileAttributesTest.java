@@ -19,16 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class FileAttributesTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_production_file() {
@@ -59,16 +56,16 @@ public class FileAttributesTest {
 
   @Test
   public void fail_with_IAE_when_lines_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Number of lines must be greater than zero");
-    new FileAttributes(true, "java", 0);
+    assertThatThrownBy(() -> new FileAttributes(true, "java", 0))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Number of lines must be greater than zero");
   }
 
   @Test
   public void fail_with_IAE_when_lines_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Number of lines must be greater than zero");
-    new FileAttributes(true, "java", -10);
+    assertThatThrownBy(() -> new FileAttributes(true, "java", -10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Number of lines must be greater than zero");
   }
 
   @Test

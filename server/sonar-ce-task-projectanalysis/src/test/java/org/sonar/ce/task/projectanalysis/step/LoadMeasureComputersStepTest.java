@@ -24,9 +24,7 @@ import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
@@ -37,6 +35,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.util.Arrays.array;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -47,8 +46,6 @@ import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
 
 public class LoadMeasureComputersStepTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private static final String NEW_METRIC_1 = "metric1";
   private static final String NEW_METRIC_2 = "metric2";
@@ -117,32 +114,35 @@ public class LoadMeasureComputersStepTest {
 
   @Test
   public void fail_with_ISE_when_input_metric_is_unknown() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'unknown' cannot be used as an input metric as it's not a core metric and no plugin declare this metric");
-
-    MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array("unknown"), array(NEW_METRIC_4))};
-    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> {
+      MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array("unknown"), array(NEW_METRIC_4))};
+      ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
+      underTest.execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric 'unknown' cannot be used as an input metric as it's not a core metric and no plugin declare this metric");
   }
 
   @Test
   public void fail_with_ISE_when_output_metric_is_not_define_by_plugin() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'unknown' cannot be used as an output metric because no plugins declare this metric");
-
-    MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array("unknown"))};
-    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> {
+      MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array("unknown"))};
+      ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
+      underTest.execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric 'unknown' cannot be used as an output metric because no plugins declare this metric");
   }
 
   @Test
   public void fail_with_ISE_when_output_metric_is_a_core_metric() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'ncloc' cannot be used as an output metric because it's a core metric");
-
-    MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array(NCLOC_KEY))};
-    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> {
+      MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array(NCLOC_KEY))};
+      ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
+      underTest.execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric 'ncloc' cannot be used as an output metric because it's a core metric");
   }
 
   @Test
@@ -172,56 +172,59 @@ public class LoadMeasureComputersStepTest {
 
   @Test
   public void fail_with_ISE_when_no_metrics_are_defined_by_plugin_but_measure_computer_use_a_new_metric() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Metric 'metric1' cannot be used as an output metric because no plugins declare this metric");
-
-    MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
-    ComputationStep underTest = new LoadMeasureComputersStep(holder, computers);
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> {
+      MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
+      ComputationStep underTest = new LoadMeasureComputersStep(holder, computers);
+      underTest.execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Metric 'metric1' cannot be used as an output metric because no plugins declare this metric");
   }
 
   @Test
   public void fail_with_ISE_when_two_measure_computers_generate_the_same_output_metric() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Output metric 'metric1' is already defined by another measure computer 'TestMeasureComputer'");
-
-    MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1)), newMeasureComputer(array(CLASSES_KEY), array(NEW_METRIC_1))};
-    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> {
+      MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1)), newMeasureComputer(array(CLASSES_KEY), array(NEW_METRIC_1))};
+      ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
+      underTest.execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Output metric 'metric1' is already defined by another measure computer 'TestMeasureComputer'");
   }
 
   @Test
   public void fail_with_IAE_when_creating_measure_computer_definition_without_using_the_builder_and_with_invalid_output_metrics() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one output metric must be defined");
+    assertThatThrownBy(() -> {
+      MeasureComputer measureComputer = new MeasureComputer() {
+        @Override
+        public MeasureComputerDefinition define(MeasureComputerDefinitionContext defContext) {
+          // Create a instance of MeasureComputerDefinition without using the builder
+          return new MeasureComputer.MeasureComputerDefinition() {
+            @Override
+            public Set<String> getInputMetrics() {
+              return ImmutableSet.of(NCLOC_KEY);
+            }
 
-    MeasureComputer measureComputer = new MeasureComputer() {
-      @Override
-      public MeasureComputerDefinition define(MeasureComputerDefinitionContext defContext) {
-        // Create a instance of MeasureComputerDefinition without using the builder
-        return new MeasureComputer.MeasureComputerDefinition() {
-          @Override
-          public Set<String> getInputMetrics() {
-            return ImmutableSet.of(NCLOC_KEY);
-          }
+            @Override
+            public Set<String> getOutputMetrics() {
+              // Empty output metric is not allowed !
+              return Collections.emptySet();
+            }
+          };
+        }
 
-          @Override
-          public Set<String> getOutputMetrics() {
-            // Empty output metric is not allowed !
-            return Collections.emptySet();
-          }
-        };
-      }
+        @Override
+        public void compute(MeasureComputerContext context) {
+          // Nothing needs to be done as we're only testing metada
+        }
+      };
 
-      @Override
-      public void compute(MeasureComputerContext context) {
-        // Nothing needs to be done as we're only testing metada
-      }
-    };
-
-    MeasureComputer[] computers = new MeasureComputer[] {measureComputer};
-    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
-    underTest.execute(new TestComputationStepContext());
+      MeasureComputer[] computers = new MeasureComputer[] {measureComputer};
+      ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
+      underTest.execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("At least one output metric must be defined");
   }
 
   private static MeasureComputer newMeasureComputer(final String[] inputMetrics, final String[] outputMetrics) {

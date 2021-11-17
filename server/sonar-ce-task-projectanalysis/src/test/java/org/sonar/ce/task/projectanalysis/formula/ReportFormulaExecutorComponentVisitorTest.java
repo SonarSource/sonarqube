@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
@@ -36,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
@@ -46,7 +46,6 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class ReportFormulaExecutorComponentVisitorTest {
   private static final int ROOT_REF = 1;
@@ -69,8 +68,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
         .build())
     .build();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -222,11 +219,13 @@ public class ReportFormulaExecutorComponentVisitorTest {
     treeRootHolder.setRoot(root);
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(2));
 
-    expectedException.expectCause(hasType(UnsupportedOperationException.class)
-      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY)));
+//    expectedException.expectCause(
+//      hasType(UnsupportedOperationException.class)
+//      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY))
+//    );
 
-    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
-      .visit(root);
+    assertThatThrownBy(() -> new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula())).visit(root))
+      .hasCause( new UnsupportedOperationException(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", FILE_1_REF, NCLOC_KEY)));
   }
 
   @Test
@@ -235,11 +234,14 @@ public class ReportFormulaExecutorComponentVisitorTest {
     treeRootHolder.setRoot(root);
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(10));
 
-    expectedException.expectCause(hasType(UnsupportedOperationException.class)
-      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
+//    expectedException.expectCause(hasType(UnsupportedOperationException.class)
+//      .andMessage(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
 
-    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
-      .visit(root);
+    assertThatThrownBy(() -> {
+      new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+        .visit(root);
+    })
+      .hasCause(new UnsupportedOperationException(String.format("A measure can only be set once for Component (ref=%s), Metric (key=%s)", ROOT_REF, NCLOC_KEY)));
   }
 
   private FormulaExecutorComponentVisitor formulaExecutorComponentVisitor(Formula formula) {

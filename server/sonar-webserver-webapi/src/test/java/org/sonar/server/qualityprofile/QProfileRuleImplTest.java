@@ -28,7 +28,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleStatus;
@@ -60,6 +59,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
@@ -69,9 +69,6 @@ import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 
 public class QProfileRuleImplTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   @Rule
@@ -627,9 +624,9 @@ public class QProfileRuleImplTest {
     assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Cannot deactivate inherited rule");
-    deactivate(childProfile, rule);
+    assertThatThrownBy(() -> deactivate(childProfile, rule))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Cannot deactivate inherited rule");
   }
 
   @Test
@@ -853,10 +850,11 @@ public class QProfileRuleImplTest {
     RuleDefinitionDto rule = createRule();
     QProfileDto builtInProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The built-in profile " + builtInProfile.getName() + " is read-only and can't be updated");
-
-    underTest.activateAndCommit(db.getSession(), builtInProfile, singleton(RuleActivation.create(rule.getUuid())));
+    assertThatThrownBy(() -> {
+      underTest.activateAndCommit(db.getSession(), builtInProfile, singleton(RuleActivation.create(rule.getUuid())));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The built-in profile " + builtInProfile.getName() + " is read-only and can't be updated");
   }
 
   private void assertThatProfileHasNoActiveRules(QProfileDto profile) {

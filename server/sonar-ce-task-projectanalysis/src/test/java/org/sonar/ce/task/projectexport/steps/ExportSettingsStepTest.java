@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -39,6 +38,7 @@ import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.property.PropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
 
 public class ExportSettingsStepTest {
@@ -57,8 +57,6 @@ public class ExportSettingsStepTest {
     .setProjectUuid("another_project_uuid")
     .setDbKey("another_project");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
@@ -143,9 +141,9 @@ public class ExportSettingsStepTest {
     insertProperties(PROJECT.getKey(), PROJECT.name(), newDto("p1", null, PROJECT),
       newDto("p2", null, PROJECT));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Settings Export failed after processing 1 settings successfully");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Settings Export failed after processing 1 settings successfully");
   }
 
   @Test

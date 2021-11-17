@@ -23,7 +23,6 @@ import java.io.StringWriter;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.process.systeminfo.SystemInfoSection;
@@ -45,8 +44,6 @@ public class StandaloneSystemInfoWriterTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone()
     .logIn("login")
     .setName("name");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final SystemInfoSection section1 = mock(SystemInfoSection.class);
   private final SystemInfoSection section2 = mock(SystemInfoSection.class);

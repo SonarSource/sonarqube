@@ -19,21 +19,17 @@
  */
 package org.sonar.server.measure.index;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
 
 public class ProjectMeasuresQueryTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ProjectMeasuresQuery underTest = new ProjectMeasuresQuery();
 
@@ -84,25 +80,22 @@ public class ProjectMeasuresQueryTest {
 
   @Test
   public void fail_to_set_null_sort() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Sort cannot be null");
-
-    underTest.setSort(null);
+    assertThatThrownBy(() -> underTest.setSort(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("Sort cannot be null");
   }
 
   @Test
   public void fail_to_get_value_when_no_data() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The criterion for metric coverage has no data");
-
-    MetricCriterion.createNoData("coverage").getValue();
+    assertThatThrownBy(() -> MetricCriterion.createNoData("coverage").getValue())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("The criterion for metric coverage has no data");
   }
 
   @Test
   public void fail_to_get_operator_when_no_data() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The criterion for metric coverage has no data");
-
-    MetricCriterion.createNoData("coverage").getOperator();
+    assertThatThrownBy(() -> MetricCriterion.createNoData("coverage").getOperator())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("The criterion for metric coverage has no data");
   }
 }

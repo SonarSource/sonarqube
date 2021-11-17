@@ -19,17 +19,14 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.test.TestUtils.hasOnlyPrivateConstructors;
 
 public class ComponentValidatorTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void check_name() {
@@ -40,10 +37,9 @@ public class ComponentValidatorTest {
 
   @Test
   public void fail_when_name_longer_than_500_characters() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component name length");
-
-    ComponentValidator.checkComponentName(repeat("a", 500 + 1));
+    assertThatThrownBy(() -> ComponentValidator.checkComponentName(repeat("a", 500 + 1)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Component name length");
   }
 
   @Test
@@ -55,11 +51,12 @@ public class ComponentValidatorTest {
 
   @Test
   public void fail_when_key_longer_than_400_characters() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component key length");
-    String key = repeat("a", 400 + 1);
-
-    ComponentValidator.checkComponentKey(key);
+    assertThatThrownBy(() -> {
+      String key = repeat("a", 400 + 1);
+      ComponentValidator.checkComponentKey(key);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Component key length");
   }
 
   @Test
@@ -71,10 +68,9 @@ public class ComponentValidatorTest {
 
   @Test
   public void fail_when_qualifier_is_longer_than_10_characters() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component qualifier length");
-
-    ComponentValidator.checkComponentQualifier(repeat("a", 10 + 1));
+    assertThatThrownBy(() -> ComponentValidator.checkComponentQualifier(repeat("a", 10 + 1)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Component qualifier length");
   }
 
   @Test

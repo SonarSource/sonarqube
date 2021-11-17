@@ -28,10 +28,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.ce.task.util.Files2.FILES2;
 
 public class Protobuf2Test {
@@ -41,9 +41,6 @@ public class Protobuf2Test {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   Protobuf2 underTest = Protobuf2.PROTOBUF2;
 
@@ -76,36 +73,36 @@ public class Protobuf2Test {
   @Test
   public void writeTo_throws_ISE_on_error() throws Exception {
     try (FailureOutputStream output = new FailureOutputStream()) {
-      expectedException.expect(IllegalStateException.class);
-      expectedException.expectMessage("Can not write message");
-      underTest.writeTo(newMetadata(PROJECT_KEY_1), output);
+      assertThatThrownBy(() -> underTest.writeTo(newMetadata(PROJECT_KEY_1), output))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Can not write message");
     }
   }
 
   @Test
   public void writeDelimitedTo_throws_ISE_on_error() throws Exception {
     try (FailureOutputStream output = new FailureOutputStream()) {
-      expectedException.expect(IllegalStateException.class);
-      expectedException.expectMessage("Can not write message");
-      underTest.writeDelimitedTo(newMetadata(PROJECT_KEY_1), output);
+      assertThatThrownBy(() -> underTest.writeDelimitedTo(newMetadata(PROJECT_KEY_1), output))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Can not write message");
     }
   }
 
   @Test
   public void parseFrom_throws_ISE_on_error() throws Exception {
     try (FailureInputStream input = new FailureInputStream()) {
-      expectedException.expect(IllegalStateException.class);
-      expectedException.expectMessage("Can not parse message");
-      underTest.parseFrom(Metadata.parser(), input);
+      assertThatThrownBy(() -> underTest.parseFrom(Metadata.parser(), input))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Can not parse message");
     }
   }
 
   @Test
   public void parseDelimitedFrom_throws_ISE_on_error() throws Exception {
     try (FailureInputStream input = new FailureInputStream()) {
-      expectedException.expect(IllegalStateException.class);
-      expectedException.expectMessage("Can not parse message");
-      underTest.parseDelimitedFrom(Metadata.parser(), input);
+      assertThatThrownBy(() -> underTest.parseDelimitedFrom(Metadata.parser(), input))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Can not parse message");
     }
   }
 

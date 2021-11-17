@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
@@ -77,8 +76,6 @@ public class DoTransitionActionTest {
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -136,10 +133,9 @@ public class DoTransitionActionTest {
     IssueDto externalIssue = db.issues().insertIssue(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(USER, project, file);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Transition is not allowed on issues imported from external rule engines");
-
-    call(externalIssue.getKey(), "confirm");
+    assertThatThrownBy(() -> call(externalIssue.getKey(), "confirm"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Transition is not allowed on issues imported from external rule engines");
   }
 
   @Test
@@ -160,16 +156,16 @@ public class DoTransitionActionTest {
   public void fail_if_issue_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    call("UNKNOWN", "confirm");
+    assertThatThrownBy(() -> call("UNKNOWN", "confirm"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_if_no_issue_param() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(null, "confirm");
+    assertThatThrownBy(() -> call(null, "confirm"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -180,8 +176,8 @@ public class DoTransitionActionTest {
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(USER, project, file);
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(issue.getKey(), null);
+    assertThatThrownBy(() -> call(issue.getKey(), null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -192,9 +188,8 @@ public class DoTransitionActionTest {
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(issue.getKey(), "confirm");
+    assertThatThrownBy(() -> call(issue.getKey(), "confirm"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -206,16 +201,14 @@ public class DoTransitionActionTest {
     userSession.logIn().addProjectPermission(USER, project, file);
 
     // False-positive transition is requiring issue admin permission
-    expectedException.expect(ForbiddenException.class);
-
-    call(issue.getKey(), "falsepositive");
+    assertThatThrownBy(() -> call(issue.getKey(), "falsepositive"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_not_authenticated() {
-    expectedException.expect(UnauthorizedException.class);
-
-    call("ISSUE_KEY", "confirm");
+    assertThatThrownBy(() -> call("ISSUE_KEY", "confirm"))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   private TestResponse call(@Nullable String issueKey, @Nullable String transition) {

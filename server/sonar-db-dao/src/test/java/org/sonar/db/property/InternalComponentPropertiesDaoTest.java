@@ -22,7 +22,6 @@ package org.sonar.db.property;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -42,8 +41,6 @@ public class InternalComponentPropertiesDaoTest {
 
   private System2 system2 = mock(System2.class);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
   private DbSession dbSession = dbTester.getSession();

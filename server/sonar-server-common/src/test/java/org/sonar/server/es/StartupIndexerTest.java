@@ -21,16 +21,13 @@ package org.sonar.server.es;
 
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.es.StartupIndexer.Type.SYNCHRONOUS;
 
 public class StartupIndexerTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private StartupIndexer underTest = () -> null;
 
@@ -41,18 +38,16 @@ public class StartupIndexerTest {
 
   @Test
   public void triggerAsyncIndexOnStartup() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("ASYNCHRONE StartupIndexer must implement initAsyncIndexOnStartup");
-
-    underTest.triggerAsyncIndexOnStartup(Collections.emptySet());
+    assertThatThrownBy(() -> underTest.triggerAsyncIndexOnStartup(Collections.emptySet()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("ASYNCHRONE StartupIndexer must implement initAsyncIndexOnStartup");
   }
 
   @Test
   public void indexOnStartup() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("SYNCHRONE StartupIndexer must implement indexOnStartup");
-
-    underTest.indexOnStartup(Collections.emptySet());
+    assertThatThrownBy(() -> underTest.indexOnStartup(Collections.emptySet()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("SYNCHRONE StartupIndexer must implement indexOnStartup");
   }
 
 }

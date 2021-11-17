@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbSession;
@@ -45,14 +44,13 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RestoreActionTest {
 
   private static final String A_LANGUAGE = "xoo";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -102,32 +100,35 @@ public class RestoreActionTest {
   public void throw_IAE_if_backup_is_missing() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("A backup file must be provided");
-
-    tester.newRequest()
-      .setMethod("POST")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setMethod("POST")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A backup file must be provided");
   }
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    restore("<backup/>");
+    assertThatThrownBy(() -> {
+      restore("<backup/>");
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    restore("<backup/>");
+    assertThatThrownBy(() -> {
+      restore("<backup/>");
+    })
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   private void logInAsQProfileAdministrator() {

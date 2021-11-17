@@ -22,9 +22,7 @@ package org.sonar.server.ws;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,8 +34,6 @@ import static org.sonarqube.ws.MediaTypes.XML;
 
 public class ServletResponseTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ServletOutputStream output = mock(ServletOutputStream.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);

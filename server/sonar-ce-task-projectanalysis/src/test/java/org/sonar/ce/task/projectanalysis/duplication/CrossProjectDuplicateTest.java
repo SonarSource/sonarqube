@@ -19,33 +19,27 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CrossProjectDuplicateTest {
   private static final String FILE_KEY_1 = "file key 1";
   private static final String FILE_KEY_2 = "file key 2";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void constructors_throws_NPE_if_fileKey_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("fileKey can not be null");
-
-    new CrossProjectDuplicate(null, new TextBlock(1, 1));
+    assertThatThrownBy(() -> new CrossProjectDuplicate(null, new TextBlock(1, 1)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("fileKey can not be null");
   }
 
   @Test
   public void constructors_throws_NPE_if_textBlock_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("textBlock of duplicate can not be null");
-
-    new CrossProjectDuplicate(FILE_KEY_1, null);
+    assertThatThrownBy(() -> new CrossProjectDuplicate(FILE_KEY_1, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("textBlock of duplicate can not be null");
   }
 
   @Test

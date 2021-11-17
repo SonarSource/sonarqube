@@ -26,21 +26,17 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 
 @RunWith(DataProviderRunner.class)
 public class DateUtilsTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void parseDate_valid_format() {
@@ -50,14 +46,14 @@ public class DateUtilsTest {
 
   @Test
   public void parseDate_not_valid_format() {
-    expectedException.expect(MessageException.class);
-    DateUtils.parseDate("2010/05/18");
+    assertThatThrownBy(() -> DateUtils.parseDate("2010/05/18"))
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
   public void parseDate_not_lenient() {
-    expectedException.expect(MessageException.class);
-    DateUtils.parseDate("2010-13-18");
+    assertThatThrownBy(() -> DateUtils.parseDate("2010-13-18"))
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
@@ -69,8 +65,8 @@ public class DateUtilsTest {
 
   @Test
   public void parseDate_fail_if_additional_characters() {
-    expectedException.expect(MessageException.class);
-    DateUtils.parseDate("1986-12-04foo");
+    assertThatThrownBy(() -> DateUtils.parseDate("1986-12-04foo"))
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
@@ -81,14 +77,14 @@ public class DateUtilsTest {
 
   @Test
   public void parseDateTime_not_valid_format() {
-    expectedException.expect(MessageException.class);
-    DateUtils.parseDate("2010/05/18 10:55");
+    assertThatThrownBy(() -> DateUtils.parseDate("2010/05/18 10:55"))
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
   public void parseDateTime_fail_if_additional_characters() {
-    expectedException.expect(MessageException.class);
-    DateUtils.parseDateTime("1986-12-04T01:02:03+0300foo");
+    assertThatThrownBy(() -> DateUtils.parseDate("1986-12-04T01:02:03+0300foo"))
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
@@ -139,7 +135,7 @@ public class DateUtilsTest {
 
   @DataProvider
   public static Object[][] date_times() {
-    return new Object[][] {
+    return new Object[][]{
       {"2014-05-27", Date.from(LocalDate.parse("2014-05-27").atStartOfDay(ZoneId.systemDefault()).toInstant())},
       {"2014-05-27T15:50:45+0100", Date.from(OffsetDateTime.parse("2014-05-27T15:50:45+01:00").toInstant())},
       {null, null}
@@ -177,26 +173,23 @@ public class DateUtilsTest {
 
   @Test
   public void fail_when_param_as_date_or_datetime_not_a_datetime() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Date 'polop' cannot be parsed as either a date or date+time");
-
-    parseDateOrDateTime("polop");
+    assertThatThrownBy(() -> parseDateOrDateTime("polop"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Date 'polop' cannot be parsed as either a date or date+time");
   }
 
   @Test
   public void fail_when_param_as_starting_datetime_not_a_datetime() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Date 'polop' cannot be parsed as either a date or date+time");
-
-    parseStartingDateOrDateTime("polop");
+    assertThatThrownBy(() -> parseStartingDateOrDateTime("polop"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Date 'polop' cannot be parsed as either a date or date+time");
   }
 
   @Test
   public void fail_when_param_as_ending_datetime_not_a_datetime() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'polop' cannot be parsed as either a date or date+time");
-
-    parseEndingDateOrDateTime("polop");
+    assertThatThrownBy(() -> parseEndingDateOrDateTime("polop"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("'polop' cannot be parsed as either a date or date+time");
   }
 
 }

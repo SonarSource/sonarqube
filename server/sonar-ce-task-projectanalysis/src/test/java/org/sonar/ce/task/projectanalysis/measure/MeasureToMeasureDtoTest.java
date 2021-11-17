@@ -36,6 +36,7 @@ import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureToMeasureDtoTest {
@@ -65,14 +66,16 @@ public class MeasureToMeasureDtoTest {
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void toMeasureDto_throws_NPE_if_Measure_arg_is_null() {
-    underTest.toMeasureDto(null, SOME_METRIC, SOME_COMPONENT);
+    assertThatThrownBy(() -> underTest.toMeasureDto(null, SOME_METRIC, SOME_COMPONENT))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void toMeasureDto_throws_NPE_if_Metric_arg_is_null() {
-    underTest.toMeasureDto(Measure.newMeasureBuilder().createNoValue(), null, SOME_COMPONENT);
+    assertThatThrownBy(() -> underTest.toMeasureDto(Measure.newMeasureBuilder().createNoValue(), null, SOME_COMPONENT))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @DataProvider

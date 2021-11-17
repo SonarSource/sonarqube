@@ -19,16 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.scm;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ChangesetTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create_changeset() {
@@ -56,21 +53,21 @@ public class ChangesetTest {
 
   @Test
   public void fail_with_NPE_when_setting_null_date() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Date cannot be null");
-
-    Changeset.newChangesetBuilder().setDate(null);
+    assertThatThrownBy(() -> Changeset.newChangesetBuilder().setDate(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Date cannot be null");
   }
 
   @Test
   public void fail_with_NPE_when_building_without_date() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Date cannot be null");
-
-    Changeset.newChangesetBuilder()
-      .setAuthor("john")
-      .setRevision("rev-1")
-      .build();
+    assertThatThrownBy(() -> {
+      Changeset.newChangesetBuilder()
+        .setAuthor("john")
+        .setRevision("rev-1")
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Date cannot be null");
   }
 
   @Test

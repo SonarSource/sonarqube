@@ -21,21 +21,16 @@ package org.sonar.scanner.mediumtest.log;
 
 import java.util.Collections;
 import java.util.Map;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class ExceptionHandlingMediumTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private Batch batch;
   private static ErrorGlobalSettingsLoader loader;
@@ -62,11 +57,10 @@ public class ExceptionHandlingMediumTest {
   public void test() throws Exception {
     setUp(false);
     loader.withCause = false;
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Error loading settings");
-    thrown.expectCause(CoreMatchers.nullValue(Throwable.class));
 
-    batch.execute();
+    assertThatThrownBy(() -> batch.execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Error loading settings");
   }
 
   @Test
@@ -74,28 +68,20 @@ public class ExceptionHandlingMediumTest {
     setUp(false);
     loader.withCause = true;
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Error loading settings");
-    thrown.expectCause(new TypeSafeMatcher<Throwable>() {
-      @Override
-      public void describeTo(Description description) {
-      }
-
-      @Override
-      protected boolean matchesSafely(Throwable item) {
-        return item instanceof IllegalStateException && item.getMessage().equals("Code 401");
-      }
-    });
-
-    batch.execute();
+    assertThatThrownBy(() -> batch.execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Error loading settings")
+      .hasCauseInstanceOf(Throwable.class)
+      .hasRootCauseMessage("Code 401");
   }
 
   @Test
-  public void testWithVerbose() throws Exception {
+  public void testWithVerbose() {
     setUp(true);
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unable to load component class");
-    batch.execute();
+
+    assertThatThrownBy(() -> batch.execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Unable to load component class");
   }
 
   private static class ErrorGlobalSettingsLoader implements GlobalSettingsLoader {

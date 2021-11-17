@@ -26,9 +26,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 
@@ -36,29 +34,26 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class ClusterHealthTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
 
   @Test
   public void constructor_fails_with_NPE_if_Health_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("health can't be null");
-
-    new ClusterHealth(null, Collections.emptySet());
+    assertThatThrownBy(() -> new ClusterHealth(null, Collections.emptySet()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("health can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_NodeHealth_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("nodes can't be null");
-
-    new ClusterHealth(Health.GREEN, null);
+    assertThatThrownBy(() -> new ClusterHealth(Health.GREEN, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("nodes can't be null");
   }
 
   @Test

@@ -21,19 +21,15 @@ package org.sonar.api.impl.utils;
 
 import java.util.TimeZone;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class TestSystem2Test {
 
   private TestSystem2 underTest;
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Before
   public void setup() {
@@ -64,39 +60,35 @@ public class TestSystem2Test {
   public void throw_ISE_if_now_equal_zero() {
     underTest.setNow(0);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method setNow() was not called by test");
-
-    underTest.now();
+    assertThatThrownBy(() -> underTest.now())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Method setNow() was not called by test");
   }
 
   @Test
   public void throw_ISE_if_now_lesser_than_zero() {
     underTest.setNow(-1);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method setNow() was not called by test");
-
-    underTest.now();
+    assertThatThrownBy(() -> underTest.now())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Method setNow() was not called by test");
   }
 
   @Test
   public void throw_ISE_if_now_equal_zero_and_try_to_tick() {
     underTest.setNow(0);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method setNow() was not called by test");
-
-    underTest.tick();
+    assertThatThrownBy(() -> underTest.tick())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Method setNow() was not called by test");
   }
 
   @Test
   public void throw_ISE_if_now_lesser_than_zero_and_try_to_tick() {
     underTest.setNow(-1);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method setNow() was not called by test");
-
-    underTest.tick();
+    assertThatThrownBy(() -> underTest.tick())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Method setNow() was not called by test");
   }
 }

@@ -19,17 +19,14 @@
  */
 package org.sonar.server.issue;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class AvatarResolverImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private AvatarResolverImpl underTest = new AvatarResolverImpl();
 
@@ -47,25 +44,22 @@ public class AvatarResolverImplTest {
 
   @Test
   public void fail_with_NP_when_user_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("User cannot be null");
-
-    underTest.create(null);
+    assertThatThrownBy(() -> underTest.create(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("User cannot be null");
   }
 
   @Test
   public void fail_with_NP_when_email_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Email cannot be null");
-
-    underTest.create(newUserDto("john", "John", null));
+    assertThatThrownBy(() -> underTest.create(newUserDto("john", "John", null)))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Email cannot be null");
   }
 
   @Test
   public void fail_when_email_is_empty() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Email cannot be null");
-
-    underTest.create(newUserDto("john", "John", ""));
+    assertThatThrownBy(() -> underTest.create(newUserDto("john", "John", "")))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Email cannot be null");
   }
 }

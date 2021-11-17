@@ -30,7 +30,6 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
@@ -52,6 +51,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -63,8 +63,6 @@ import static org.sonar.db.component.BranchType.BRANCH;
 @RunWith(DataProviderRunner.class)
 public class QualityGateActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -338,12 +336,13 @@ public class QualityGateActionTest {
     MetricDto metric = createQualityGateMetric();
     db.measures().insertLiveMeasure(project, metric, m -> m.setData("UNKNOWN"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No enum constant org.sonar.api.measures.Metric.Level.UNKNOWN");
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("project", project.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("No enum constant org.sonar.api.measures.Metric.Level.UNKNOWN");
   }
 
   @Test

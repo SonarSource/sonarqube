@@ -20,15 +20,15 @@
 package org.sonar.server.property;
 
 import java.util.Optional;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.InternalPropertiesDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,9 +38,7 @@ public class InternalPropertiesImplTest {
   public static final String SOME_VALUE = "a value";
   public static final String SOME_KEY = "some key";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  
+
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private InternalPropertiesDao internalPropertiesDao = mock(InternalPropertiesDao.class);
@@ -54,16 +52,12 @@ public class InternalPropertiesImplTest {
 
   @Test
   public void reads_throws_IAE_if_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.read(null);
+    expectKeyNullOrEmptyIAE(() -> underTest.read(null));
   }
 
   @Test
   public void reads_throws_IAE_if_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.read(EMPTY_STRING);
+    expectKeyNullOrEmptyIAE(() ->  underTest.read(EMPTY_STRING));
   }
 
   @Test
@@ -77,16 +71,12 @@ public class InternalPropertiesImplTest {
 
   @Test
   public void write_throws_IAE_if_key_is_null() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.write(null, SOME_VALUE);
+    expectKeyNullOrEmptyIAE(() -> underTest.write(null, SOME_VALUE));
   }
 
   @Test
   public void writes_throws_IAE_if_key_is_empty() {
-    expectKeyNullOrEmptyIAE();
-
-    underTest.write(EMPTY_STRING, SOME_VALUE);
+    expectKeyNullOrEmptyIAE(() -> underTest.write(EMPTY_STRING, SOME_VALUE));
   }
 
   @Test
@@ -113,8 +103,9 @@ public class InternalPropertiesImplTest {
     verify(dbSession).commit();
   }
 
-  private void expectKeyNullOrEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("key can't be null nor empty");
+  private void expectKeyNullOrEmptyIAE(ThrowingCallable callback) {
+    assertThatThrownBy(callback)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("key can't be null nor empty");
   }
 }

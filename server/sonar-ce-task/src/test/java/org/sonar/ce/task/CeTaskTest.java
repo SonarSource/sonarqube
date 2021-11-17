@@ -23,18 +23,15 @@ import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
 @RunWith(DataProviderRunner.class)
 public class CeTaskTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeTask.Builder underTest = new CeTask.Builder();
 
@@ -46,10 +43,9 @@ public class CeTaskTest {
     underTest.setComponent(component);
     underTest.setMainComponent(mainComponent);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("None or both component and main component must be non null");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("None or both component and main component must be non null");
   }
 
   @DataProvider

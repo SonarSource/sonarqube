@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -54,8 +53,6 @@ import static org.sonar.api.web.UserRole.USER;
 
 public class DeleteCommentActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
@@ -91,9 +88,9 @@ public class DeleteCommentActionTest {
     UserDto another = dbTester.users().insertUser();
     loginAndAddProjectPermission(another, issueDto, USER);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("You can only delete your own comments");
-    call(commentDto.getKey());
+    assertThatThrownBy(() -> call(commentDto.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You can only delete your own comments");
   }
 
   @Test
@@ -103,31 +100,31 @@ public class DeleteCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
     loginAndAddProjectPermission(user, issueDto, USER);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("You can only delete your own comments");
-    call(commentDto.getKey());
+    assertThatThrownBy(() -> call(commentDto.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("You can only delete your own comments");
   }
 
   @Test
   public void fail_when_missing_comment_key() {
     userSession.logIn("john");
 
-    expectedException.expect(IllegalArgumentException.class);
-    call(null);
+    assertThatThrownBy(() -> call(null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_comment_does_not_exist() {
     userSession.logIn("john");
 
-    expectedException.expect(NotFoundException.class);
-    call("ABCD");
+    assertThatThrownBy(() -> call("ABCD"))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
   public void fail_when_not_authenticated() {
-    expectedException.expect(UnauthorizedException.class);
-    call("ABCD");
+    assertThatThrownBy(() -> call("ABCD"))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -137,8 +134,9 @@ public class DeleteCommentActionTest {
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginAndAddProjectPermission(user, issueDto, CODEVIEWER);
 
-    expectedException.expect(ForbiddenException.class);
-    call(commentDto.getKey());
+    assertThatThrownBy(() -> call(commentDto.getKey()))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

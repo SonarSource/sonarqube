@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.ws.SimpleGetRequest;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,6 +37,7 @@ import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.Severity.CRITICAL;
@@ -72,8 +72,6 @@ public class RuleQueryFactoryTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -148,9 +146,11 @@ public class RuleQueryFactoryTest {
     db.qualityProfiles().insert();
     Request request = new SimpleGetRequest();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'include_external' parameter is missing");
-    underTest.createRuleSearchQuery(db.getSession(), request);
+    assertThatThrownBy(() -> {
+      underTest.createRuleSearchQuery(db.getSession(), request);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'include_external' parameter is missing");
   }
 
   @Test
@@ -228,21 +228,23 @@ public class RuleQueryFactoryTest {
   }
 
   public void fail_when_profile_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("The specified qualityProfile 'unknown' does not exist");
-
-    execute(PARAM_QPROFILE, "unknown");
+    assertThatThrownBy(() -> {
+      execute(PARAM_QPROFILE, "unknown");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("The specified qualityProfile 'unknown' does not exist");
   }
 
   @Test
   public void fail_when_compare_to_profile_does_not_exist() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("The specified qualityProfile 'unknown' does not exist");
-
-    execute(PARAM_QPROFILE, qualityProfile.getKee(),
-      PARAM_COMPARE_TO_PROFILE, "unknown");
+    assertThatThrownBy(() -> {
+      execute(PARAM_QPROFILE, qualityProfile.getKee(),
+        PARAM_COMPARE_TO_PROFILE, "unknown");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("The specified qualityProfile 'unknown' does not exist");
   }
 
   private void assertResult(RuleQuery result, QProfileDto qualityProfile, QProfileDto compareToQualityProfile) {

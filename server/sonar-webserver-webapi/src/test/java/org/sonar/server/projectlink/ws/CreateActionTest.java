@@ -22,7 +22,6 @@ package org.sonar.server.projectlink.ws;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -37,12 +36,12 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.ProjectLinks;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_NAME;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
@@ -51,8 +50,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class CreateActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -113,51 +110,50 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_no_name() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_long_name() {
-    expectedException.expect(IllegalArgumentException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
       .setParam(PARAM_NAME, StringUtils.leftPad("", 129, "*"))
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_no_url() {
-    expectedException.expect(IllegalArgumentException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
       .setParam(PARAM_NAME, "Custom")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_long_url() {
-    expectedException.expect(IllegalArgumentException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
       .setParam(PARAM_NAME, "random")
       .setParam(PARAM_URL, StringUtils.leftPad("", 2049, "*"))
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_when_no_project() {
-    expectedException.expect(NotFoundException.class);
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "unknown")
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -166,13 +162,12 @@ public class CreateActionTest {
     ComponentDto project = db.components().insertPublicProject();
     userSession.registerComponents(project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -180,13 +175,12 @@ public class CreateActionTest {
     userSession.logIn();
     ComponentDto project = db.components().insertPrivateProject();
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -227,14 +221,13 @@ public class CreateActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -243,14 +236,13 @@ public class CreateActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.uuid()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_ID, branch.uuid())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Project '%s' not found", branch.uuid()));
   }
 
   @Test
@@ -266,29 +258,25 @@ public class CreateActionTest {
   private void failIfNotAProjectWithKey(ComponentDto root, ComponentDto component) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project '" + component.getDbKey() + "' not found");
-
-    TestRequest testRequest = ws.newRequest();
-    testRequest.setParam(PARAM_PROJECT_KEY, component.getDbKey());
-    testRequest
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .setParam(PARAM_PROJECT_KEY, component.getDbKey())
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project '" + component.getDbKey() + "' not found");
   }
 
   private void failIfNotAProjectWithUuid(ComponentDto root, ComponentDto component) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project '" + component.uuid() + "' not found");
-
-    TestRequest testRequest = ws.newRequest();
-    testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
-    testRequest
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
-      .execute();
+      .setParam(PARAM_PROJECT_ID, component.uuid())
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project '" + component.uuid() + "' not found");
   }
 
   private void createAndTest(ComponentDto project, String name, String url, String type) {

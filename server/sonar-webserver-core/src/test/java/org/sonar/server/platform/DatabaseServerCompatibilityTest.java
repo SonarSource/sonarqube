@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
@@ -38,8 +37,6 @@ public class DatabaseServerCompatibilityTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   private MapSettings settings = new MapSettings();
 
   @Test

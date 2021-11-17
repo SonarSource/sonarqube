@@ -20,9 +20,7 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -30,11 +28,10 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DropIndexBuilderTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void drop_index_in_table() {
@@ -54,43 +51,47 @@ public class DropIndexBuilderTest {
 
   @Test
   public void throw_NPE_if_table_name_is_missing() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name can't be null");
-
-    new DropIndexBuilder(new H2())
-      .setName("issues_key")
-      .build();
+    assertThatThrownBy(() -> {
+      new DropIndexBuilder(new H2())
+        .setName("issues_key")
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Table name can't be null");
   }
 
   @Test
   public void throw_IAE_if_table_name_is_not_valid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
-
-    new DropIndexBuilder(new H2())
-      .setTable("(not valid)")
-      .setName("issues_key")
-      .build();
+    assertThatThrownBy(() -> {
+      new DropIndexBuilder(new H2())
+        .setTable("(not valid)")
+        .setName("issues_key")
+        .build();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
   }
 
   @Test
   public void throw_NPE_if_index_name_is_missing() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Index name can't be null");
-
-    new DropIndexBuilder(new H2())
-      .setTable("issues")
-      .build();
+    assertThatThrownBy(() -> {
+      new DropIndexBuilder(new H2())
+        .setTable("issues")
+        .build();
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Index name can't be null");
   }
 
   @Test
   public void throw_IAE_if_index_name_is_not_valid() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name must contain only alphanumeric chars or '_', got '(not valid)'");
-
-    new DropIndexBuilder(new H2())
-      .setTable("issues")
-      .setName("(not valid)")
-      .build();
+    assertThatThrownBy(() -> {
+      new DropIndexBuilder(new H2())
+        .setTable("issues")
+        .setName("(not valid)")
+        .build();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must contain only alphanumeric chars or '_', got '(not valid)'");
   }
 }

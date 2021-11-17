@@ -23,27 +23,23 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
 
 public class HighlightingMediumTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
@@ -89,9 +85,7 @@ public class HighlightingMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\ncontent plop");
 
-    exception.expect(UnsupportedOperationException.class);
-    exception.expectMessage("Trying to save highlighting twice for the same file is not supported");
-    tester.newAnalysis()
+    AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
@@ -100,9 +94,11 @@ public class HighlightingMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .put("sonar.it.savedatatwice", "true")
-        .build())
-      .execute();
+        .build());;
 
+    assertThatThrownBy(() -> analysisBuilder.execute())
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessageContaining("Trying to save highlighting twice for the same file is not supported");
   }
 
   @Test
@@ -117,21 +113,7 @@ public class HighlightingMediumTest {
     FileUtils.write(xooFile, "Sample xoo\ncontent plop");
     FileUtils.write(xoohighlightingFile, "1:0:1:10:s\n2:18:2:18:k");
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Error processing line 2");
-    exception.expectCause(new TypeSafeMatcher<IllegalArgumentException>() {
-      @Override
-      public void describeTo(Description description) {
-        description.appendText("Invalid cause");
-      }
-
-      @Override
-      protected boolean matchesSafely(IllegalArgumentException e) {
-        return e.getMessage().contains("Unable to highlight file");
-      }
-    });
-
-    tester.newAnalysis()
+    AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
@@ -139,8 +121,12 @@ public class HighlightingMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
-        .build())
-      .execute();
+        .build());
+
+    assertThatThrownBy(() -> analysisBuilder.execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Error processing line 2")
+      .hasCauseInstanceOf(IllegalArgumentException.class);
   }
 
 }

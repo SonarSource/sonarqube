@@ -22,9 +22,7 @@ package org.sonar.ce.task.projectanalysis.filemove;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -32,8 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SourceSimilarityImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SourceSimilarityImpl underTest = new SourceSimilarityImpl();
 

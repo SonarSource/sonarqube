@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -56,6 +55,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.RuleUpdate.createForCustomRule;
@@ -67,8 +67,6 @@ public class RuleUpdaterTest {
 
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -93,10 +91,11 @@ public class RuleUpdaterTest {
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setTags(Sets.newHashSet("java9"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Rule with REMOVED status cannot be updated: squid:S001");
-
-    underTest.update(dbSession, update, userSessionRule);
+    assertThatThrownBy(() -> {
+      underTest.update(dbSession, update, userSessionRule);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
   }
 
   @Test
@@ -500,10 +499,11 @@ public class RuleUpdaterTest {
       .setName("")
       .setMarkdownDescription("New desc");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The name is missing");
-
-    underTest.update(dbSession, update, userSessionRule);
+    assertThatThrownBy(() -> {
+      underTest.update(dbSession, update, userSessionRule);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The name is missing");
   }
 
   @Test
@@ -518,12 +518,13 @@ public class RuleUpdaterTest {
 
     dbSession.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The description is missing");
-
-    underTest.update(dbSession,
-      createForCustomRule(customRule.getKey()).setName("New name").setMarkdownDescription(""),
-      userSessionRule);
+    assertThatThrownBy(() -> {
+      underTest.update(dbSession,
+        createForCustomRule(customRule.getKey()).setName("New name").setMarkdownDescription(""),
+        userSessionRule);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The description is missing");
   }
 
   @Test
@@ -531,10 +532,11 @@ public class RuleUpdaterTest {
     RuleDefinitionDto ruleDefinition = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
     dbSession.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a custom rule");
-
-    createForPluginRule(ruleDefinition.getKey()).setName("New name");
+    assertThatThrownBy(() -> {
+      createForPluginRule(ruleDefinition.getKey()).setName("New name");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Not a custom rule");
   }
 
   @Test
@@ -542,10 +544,11 @@ public class RuleUpdaterTest {
     RuleDefinitionDto ruleDefinition = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
     dbSession.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a custom rule");
-
-    createForPluginRule(ruleDefinition.getKey()).setMarkdownDescription("New description");
+    assertThatThrownBy(() -> {
+      createForPluginRule(ruleDefinition.getKey()).setMarkdownDescription("New description");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Not a custom rule");
   }
 
   @Test
@@ -553,10 +556,11 @@ public class RuleUpdaterTest {
     RuleDefinitionDto ruleDefinition = db.rules().insert(newRule(RuleKey.of("squid", "S01")));
     dbSession.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Not a custom rule");
-
-    createForPluginRule(ruleDefinition.getKey()).setSeverity(CRITICAL);
+    assertThatThrownBy(() -> {
+      createForPluginRule(ruleDefinition.getKey()).setSeverity(CRITICAL);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Not a custom rule");
   }
 
   private static Map<String, RuleParamDto> paramsByName(List<RuleParamDto> params) {

@@ -24,7 +24,6 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
@@ -49,6 +48,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
 
@@ -56,9 +56,6 @@ public class SensorContextTesterTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private SensorContextTester tester;
   private File baseDir;
@@ -261,21 +258,21 @@ public class SensorContextTesterTest {
     assertThat(tester.lineHits("foo:src/Foo.java", 1)).isNull();
     assertThat(tester.lineHits("foo:src/Foo.java", 4)).isNull();
 
-    exception.expect(IllegalStateException.class);
-    tester.newCoverage()
+    assertThatThrownBy(() -> tester.newCoverage()
       .onFile(new TestInputFileBuilder("foo", "src/Foo.java").initMetadata("annot dsf fds foo bar").build())
-      .lineHits(0, 3);
+      .lineHits(0, 3))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void testCoverageAtLineOutOfRange() {
     assertThat(tester.lineHits("foo:src/Foo.java", 1)).isNull();
     assertThat(tester.lineHits("foo:src/Foo.java", 4)).isNull();
-    exception.expect(IllegalStateException.class);
 
-    tester.newCoverage()
+    assertThatThrownBy(() -> tester.newCoverage()
       .onFile(new TestInputFileBuilder("foo", "src/Foo.java").initMetadata("annot dsf fds foo bar").build())
-      .lineHits(4, 3);
+      .lineHits(4, 3))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

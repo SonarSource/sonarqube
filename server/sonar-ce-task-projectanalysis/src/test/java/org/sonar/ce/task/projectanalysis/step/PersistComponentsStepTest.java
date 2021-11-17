@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
@@ -36,15 +34,13 @@ import org.sonar.db.component.ComponentDao;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class PersistComponentsStepTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_fail_if_project_is_not_stored_in_database_yet() {
@@ -59,16 +55,17 @@ public class PersistComponentsStepTest {
     doReturn(componentDao).when(dbClient).componentDao();
     doReturn(emptyList()).when(componentDao).selectAllComponentsFromProjectKey(any(DbSession.class), eq(projectKey));
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The project '" + projectKey + "' is not stored in the database, during a project analysis");
-
-    new PersistComponentsStep(
-      dbClient,
-      treeRootHolder,
-      System2.INSTANCE,
-      mock(MutableDisabledComponentsHolder.class),
-      mock(AnalysisMetadataHolder.class),
-      mock(BranchPersister.class),
-      mock(ProjectPersister.class)).execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> {
+      new PersistComponentsStep(
+        dbClient,
+        treeRootHolder,
+        System2.INSTANCE,
+        mock(MutableDisabledComponentsHolder.class),
+        mock(AnalysisMetadataHolder.class),
+        mock(BranchPersister.class),
+        mock(ProjectPersister.class)).execute(new TestComputationStepContext());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("The project '" + projectKey + "' is not stored in the database, during a project analysis");
   }
 }

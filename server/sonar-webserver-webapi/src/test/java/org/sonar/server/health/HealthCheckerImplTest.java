@@ -28,9 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
@@ -38,20 +36,19 @@ import org.sonar.server.platform.WebServer;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
-import static org.sonar.server.health.Health.newHealthCheckBuilder;
 import static org.sonar.server.health.Health.Status.GREEN;
 import static org.sonar.server.health.Health.Status.RED;
 import static org.sonar.server.health.Health.Status.YELLOW;
+import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class HealthCheckerImplTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WebServer webServer = mock(WebServer.class);
   private final SharedHealthState sharedHealthState = mock(SharedHealthState.class);
@@ -92,10 +89,10 @@ public class HealthCheckerImplTest {
   public void checkNode_returns_RED_status_if_at_least_one_RED_status_returned_by_NodeHealthCheck() {
     List<Health.Status> statuses = new ArrayList<>();
     Stream.of(
-      IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
-    ).flatMap(s -> s)
+        IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
+      ).flatMap(s -> s)
       .forEach(statuses::add);
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newNodeHealthCheckerImpl(statuses.stream());
@@ -123,10 +120,9 @@ public class HealthCheckerImplTest {
     when(webServer.isStandalone()).thenReturn(true);
     HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], sharedHealthState);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Clustering is not enabled");
-
-    underTest.checkCluster();
+    assertThatThrownBy(() -> underTest.checkCluster())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Clustering is not enabled");
   }
 
   @Test
@@ -134,10 +130,9 @@ public class HealthCheckerImplTest {
     when(webServer.isStandalone()).thenReturn(false);
     HealthCheckerImpl underTest = new HealthCheckerImpl(webServer, new NodeHealthCheck[0], new ClusterHealthCheck[0], null);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("HealthState instance can't be null when clustering is enabled");
-
-    underTest.checkCluster();
+    assertThatThrownBy(() -> underTest.checkCluster())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("HealthState instance can't be null when clustering is enabled");
   }
 
   @Test
@@ -179,10 +174,10 @@ public class HealthCheckerImplTest {
     when(webServer.isStandalone()).thenReturn(false);
     List<Health.Status> statuses = new ArrayList<>();
     Stream.of(
-      IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
-      IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
-    ).flatMap(s -> s)
+        IntStream.range(0, 1 + random.nextInt(20)).mapToObj(i -> RED), // at least 1 RED
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> YELLOW), // between 0 and 19 YELLOW
+        IntStream.range(0, random.nextInt(20)).mapToObj(i -> GREEN) // between 0 and 19 GREEN
+      ).flatMap(s -> s)
       .forEach(statuses::add);
     Collections.shuffle(statuses);
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());

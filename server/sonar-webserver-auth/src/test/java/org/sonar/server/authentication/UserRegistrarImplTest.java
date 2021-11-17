@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -54,7 +53,6 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class UserRegistrarImplTest {
   private static final String USER_LOGIN = "johndoo";
@@ -74,8 +72,6 @@ public class UserRegistrarImplTest {
 
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
@@ -227,14 +223,14 @@ public class UserRegistrarImplTest {
     db.users().insertUser(u -> u.setEmail("john@email.com"));
     Source source = Source.local(BASIC);
 
-    expectedException.expect(authenticationException().from(source)
-      .withLogin(USER_IDENTITY.getProviderLogin())
-      .andPublicMessage("This account is already associated with another authentication method."
+    assertThatThrownBy(() -> underTest.register(newUserRegistration()))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Email 'john@email.com' is already used")
+      .hasFieldOrPropertyWithValue("source", source)
+      .hasFieldOrPropertyWithValue("login", USER_IDENTITY.getProviderLogin())
+      .hasFieldOrPropertyWithValue("publicMessage", "This account is already associated with another authentication method."
         + " Sign in using the current authentication method,"
-        + " or contact your administrator to transfer your account to a different authentication method."));
-    expectedException.expectMessage("Email 'john@email.com' is already used");
-
-    underTest.register(newUserRegistration());
+        + " or contact your administrator to transfer your account to a different authentication method.");
   }
 
   @Test
@@ -243,14 +239,14 @@ public class UserRegistrarImplTest {
     db.users().insertUser(u -> u.setEmail("john@email.com"));
     Source source = Source.realm(AuthenticationEvent.Method.FORM, GH_IDENTITY_PROVIDER.getName());
 
-    expectedException.expect(authenticationException().from(source)
-      .withLogin(USER_IDENTITY.getProviderLogin())
-      .andPublicMessage("This account is already associated with another authentication method."
-        + " Sign in using the current authentication method,"
-        + " or contact your administrator to transfer your account to a different authentication method."));
-    expectedException.expectMessage("Email 'john@email.com' is already used");
-
-    underTest.register(newUserRegistration(source));
+    assertThatThrownBy(() -> underTest.register(newUserRegistration(source)))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Email 'john@email.com' is already used")
+      .hasFieldOrPropertyWithValue("source", source)
+      .hasFieldOrPropertyWithValue("login", USER_IDENTITY.getProviderLogin())
+      .hasFieldOrPropertyWithValue("publicMessage", "This account is already associated with another authentication method."
+          + " Sign in using the current authentication method,"
+          + " or contact your administrator to transfer your account to a different authentication method.");
   }
 
   @Test
@@ -262,14 +258,18 @@ public class UserRegistrarImplTest {
       .setAllowsUsersToSignUp(false);
     Source source = Source.realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
 
-    expectedException.expect(authenticationException().from(source).withLogin(USER_IDENTITY.getProviderLogin()).andPublicMessage("'github' users are not allowed to sign up"));
-    expectedException.expectMessage("User signup disabled for provider 'github'");
-
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(USER_IDENTITY)
-      .setProvider(identityProvider)
-      .setSource(source)
-      .build());
+    assertThatThrownBy(() -> {
+      underTest.register(UserRegistration.builder()
+        .setUserIdentity(USER_IDENTITY)
+        .setProvider(identityProvider)
+        .setSource(source)
+        .build());
+    })
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("User signup disabled for provider 'github'")
+      .hasFieldOrPropertyWithValue("source", source)
+      .hasFieldOrPropertyWithValue("login", USER_IDENTITY.getProviderLogin())
+      .hasFieldOrPropertyWithValue("publicMessage", "'github' users are not allowed to sign up");
   }
 
   @Test
@@ -512,14 +512,15 @@ public class UserRegistrarImplTest {
       .build();
 
     Source source = Source.realm(AuthenticationEvent.Method.FORM, GH_IDENTITY_PROVIDER.getName());
-    expectedException.expect(authenticationException().from(source)
-      .withLogin(userIdentity.getProviderLogin())
-      .andPublicMessage("This account is already associated with another authentication method."
-        + " Sign in using the current authentication method,"
-        + " or contact your administrator to transfer your account to a different authentication method."));
-    expectedException.expectMessage("Email 'john@email.com' is already used");
 
-    underTest.register(newUserRegistration(userIdentity, source));
+    assertThatThrownBy(() -> underTest.register(newUserRegistration(userIdentity, source)))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Email 'john@email.com' is already used")
+      .hasFieldOrPropertyWithValue("source", source)
+      .hasFieldOrPropertyWithValue("login", USER_IDENTITY.getProviderLogin())
+      .hasFieldOrPropertyWithValue("publicMessage", "This account is already associated with another authentication method."
+          + " Sign in using the current authentication method,"
+          + " or contact your administrator to transfer your account to a different authentication method.");
   }
 
   @Test
@@ -619,7 +620,7 @@ public class UserRegistrarImplTest {
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
-    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(Collectors.toList()).toArray(new String[] {}));
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(Collectors.toList()).toArray(new String[]{}));
   }
 
   private GroupDto insertDefaultGroup() {

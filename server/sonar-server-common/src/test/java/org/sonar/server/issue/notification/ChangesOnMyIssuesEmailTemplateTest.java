@@ -34,7 +34,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.elasticsearch.common.util.set.Sets;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
@@ -55,6 +54,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -80,8 +80,6 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   private static final String[] ISSUE_STATUSES = {STATUS_OPEN, STATUS_RESOLVED, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_CLOSED};
   private static final String[] SECURITY_HOTSPOTS_STATUSES = {STATUS_TO_REVIEW, STATUS_REVIEWED};
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private I18n i18n = mock(I18n.class);
   private EmailSettings emailSettings = mock(EmailSettings.class);
@@ -98,10 +96,9 @@ public class ChangesOnMyIssuesEmailTemplateTest {
   public void formats_fails_with_ISE_if_change_from_Analysis_and_no_issue() {
     AnalysisChange analysisChange = newAnalysisChange();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("changedIssues can't be empty");
-
-    underTest.format(new ChangesOnMyIssuesNotification(analysisChange, Collections.emptySet()));
+    assertThatThrownBy(() -> underTest.format(new ChangesOnMyIssuesNotification(analysisChange, Collections.emptySet())))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("changedIssues can't be empty");
   }
 
   @Test

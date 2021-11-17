@@ -28,11 +28,11 @@ import java.util.Properties;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
@@ -40,8 +40,6 @@ public class PropsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   @UseDataProvider("beforeAndAfterBlanks")
@@ -89,10 +87,9 @@ public class PropsTest {
   public void nonNullValue_throws_IAE_on_non_existing_key() {
     Props props = new Props(new Properties());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Missing property: other");
-
-    props.nonNullValue("other");
+    assertThatThrownBy(() -> props.nonNullValue("other"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing property: other");
   }
 
   @Test

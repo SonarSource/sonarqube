@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.taskprocessor;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
@@ -32,6 +31,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,8 +41,6 @@ public class IndexIssuesStepTest {
 
   private String BRANCH_UUID = "branch_uuid";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -111,10 +109,9 @@ public class IndexIssuesStepTest {
       .build();
     IndexIssuesStep underTest = new IndexIssuesStep(ceTask, dbClient, issueIndexer);
 
-    expectedException.expect(UnsupportedOperationException.class);
-    expectedException.expectMessage("component not found in task");
-
-    underTest.execute(() -> null);
+    assertThatThrownBy(() -> underTest.execute(() -> null))
+      .isInstanceOf(UnsupportedOperationException.class)
+      .hasMessage("component not found in task");
   }
 
 }

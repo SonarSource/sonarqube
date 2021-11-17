@@ -19,16 +19,13 @@
  */
 package org.sonar.server.metric.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MetricKeyValidatorTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void isMetricKeyValid() {
@@ -41,9 +38,8 @@ public class MetricKeyValidatorTest {
 
   @Test
   public void checkMetricKeyFormat() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed metric key '123456'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
-
-    MetricKeyValidator.checkMetricKeyFormat("123456");
+    assertThatThrownBy(() -> MetricKeyValidator.checkMetricKeyFormat("123456"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Malformed metric key '123456'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
   }
 }

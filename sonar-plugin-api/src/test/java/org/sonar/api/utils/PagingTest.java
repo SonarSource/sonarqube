@@ -19,16 +19,13 @@
  */
 package org.sonar.api.utils;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.utils.Paging.forPageIndex;
 
 public class PagingTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_pagination() {
@@ -58,25 +55,22 @@ public class PagingTest {
 
   @Test
   public void page_size_should_be_strictly_positive() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be strictly positive. Got 0");
-
-    forPageIndex(5).withPageSize(0).andTotal(5);
+    assertThatThrownBy(() -> forPageIndex(5).withPageSize(0).andTotal(5))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page size must be strictly positive. Got 0");
   }
 
   @Test
   public void page_index_should_be_strictly_positive() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page index must be strictly positive. Got 0");
-
-    forPageIndex(0).withPageSize(5).andTotal(5);
+    assertThatThrownBy(() -> forPageIndex(0).withPageSize(5).andTotal(5))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page index must be strictly positive. Got 0");
   }
 
   @Test
   public void total_items_should_be_positive() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Total items must be positive. Got -1");
-
-    forPageIndex(5).withPageSize(5).andTotal(-1);
+    assertThatThrownBy(() -> forPageIndex(5).withPageSize(5).andTotal(-1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Total items must be positive. Got -1");
   }
 }

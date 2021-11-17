@@ -21,7 +21,6 @@ package org.sonar.server.branch.pr.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -39,14 +38,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class DeleteActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -88,28 +86,25 @@ public class DeleteActionTest {
   public void fail_if_missing_project_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'project' parameter is missing");
   }
 
   @Test
   public void fail_if_missing_pull_request_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'pullRequest' parameter is missing");
-
-    ws.newRequest().setParam("project", "projectName").execute();
+    assertThatThrownBy(() -> ws.newRequest().setParam("project", "projectName").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'pullRequest' parameter is missing");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("Authentication is required");
   }
 
   @Test
@@ -117,26 +112,24 @@ public class DeleteActionTest {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("orwell"));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Pull request '1984' is not found for project 'orwell'");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getDbKey())
       .setParam("pullRequest", "1984")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Pull request '1984' is not found for project 'orwell'");
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'foo' not found");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", "foo")
       .setParam("pullRequest", "123")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'foo' not found");
   }
 
   private void verifyDeletedKey(String key) {

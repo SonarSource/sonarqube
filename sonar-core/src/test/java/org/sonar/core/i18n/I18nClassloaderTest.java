@@ -23,19 +23,15 @@ import com.google.common.collect.Lists;
 import java.net.URL;
 import java.net.URLClassLoader;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.core.platform.PluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class I18nClassloaderTest {
   private I18nClassloader i18nClassloader;
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void init() {
@@ -63,8 +59,8 @@ public class I18nClassloaderTest {
 
   @Test
   public void not_support_lookup_of_java_classes() throws ClassNotFoundException {
-    thrown.expect(UnsupportedOperationException.class);
-    i18nClassloader.loadClass("java.lang.String");
+    assertThatThrownBy(() -> i18nClassloader.loadClass("java.lang.String"))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test

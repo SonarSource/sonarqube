@@ -19,73 +19,64 @@
  */
 package org.sonar.ce.task.projectexport.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ComponentRepositoryImplTest {
   private static final int SOME_REF = 121;
   private static final String SOME_UUID = "uuid";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ComponentRepositoryImpl underTest = new ComponentRepositoryImpl();
 
   @Test
   public void register_throws_NPE_if_uuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can not be null");
-
-    underTest.register(SOME_REF, null, true);
+    assertThatThrownBy(() -> underTest.register(SOME_REF, null, true))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid can not be null");
   }
 
   @Test
   public void register_throws_IAE_same_uuid_added_with_different_refs() {
     underTest.register(SOME_REF, SOME_UUID, true);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Uuid '" + SOME_UUID + "' already registered under ref '" + SOME_REF + "' in repository");
-
-    underTest.register(946512, SOME_UUID, true);
+    assertThatThrownBy(() -> underTest.register(946512, SOME_UUID, true))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Uuid '" + SOME_UUID + "' already registered under ref '" + SOME_REF + "' in repository");
   }
 
   @Test
   public void register_throws_IAE_same_uuid_added_with_as_file() {
     underTest.register(SOME_REF, SOME_UUID, true);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Uuid '" + SOME_UUID + "' already registered but as a File");
-
-    underTest.register(SOME_REF, SOME_UUID, false);
+    assertThatThrownBy(() -> underTest.register(SOME_REF, SOME_UUID, false))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Uuid '" + SOME_UUID + "' already registered but as a File");
   }
 
   @Test
   public void register_throws_IAE_same_uuid_added_with_as_not_file() {
     underTest.register(SOME_REF, SOME_UUID, false);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Uuid '" + SOME_UUID + "' already registered but not as a File");
-
-    underTest.register(SOME_REF, SOME_UUID, true);
+    assertThatThrownBy(() -> underTest.register(SOME_REF, SOME_UUID, true))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Uuid '" + SOME_UUID + "' already registered but not as a File");
   }
 
   @Test
   public void getRef_throws_NPE_if_uuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can not be null");
-
-    underTest.getRef(null);
+    assertThatThrownBy(() -> underTest.getRef(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid can not be null");
   }
 
   @Test
   public void getRef_throws_ISE_if_uuid_not_in_repository() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("No reference registered in the repository for uuid '" + SOME_UUID + "'");
-
-    underTest.getRef(SOME_UUID);
+    assertThatThrownBy(() -> underTest.getRef(SOME_UUID))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("No reference registered in the repository for uuid '" + SOME_UUID + "'");
   }
 
   @Test

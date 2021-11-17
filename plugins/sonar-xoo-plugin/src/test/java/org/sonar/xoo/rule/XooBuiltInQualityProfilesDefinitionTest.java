@@ -19,9 +19,7 @@
  */
 package org.sonar.xoo.rule;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
@@ -29,9 +27,6 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQual
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XooBuiltInQualityProfilesDefinitionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private XooBuiltInQualityProfilesDefinition underTest = new XooBuiltInQualityProfilesDefinition();
 

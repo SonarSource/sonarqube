@@ -19,11 +19,15 @@
  */
 package org.sonar.server.almintegration.ws.bitbucketserver;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.Branch;
 import org.sonar.alm.client.bitbucketserver.BranchesList;
@@ -57,6 +61,7 @@ import org.sonarqube.ws.Projects;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -65,16 +70,8 @@ import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 public class ImportBitbucketServerProjectActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -174,28 +171,30 @@ public class ImportBitbucketServerProjectActionTest {
     String projectKey = project.getKey() + "_" + repo.getSlug();
     db.components().insertPublicProject(p -> p.setDbKey(projectKey));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Could not create null, key already exists: " + projectKey);
+    assertThatThrownBy(() -> {
+      when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
+      when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
 
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
-
-    ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .setParam("projectKey", "projectKey")
-      .setParam("repositorySlug", "repo-slug")
-      .execute();
+      ws.newRequest()
+        .setParam("almSetting", almSetting.getKey())
+        .setParam("projectKey", "projectKey")
+        .setParam("repositorySlug", "repo-slug")
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Could not create null, key already exists: " + projectKey);
   }
 
   @Test
   public void fail_when_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest()
-      .setParam("almSetting", "sdgfdshfjztutz")
-      .setParam("projectKey", "projectKey")
-      .setParam("repositorySlug", "repo-slug")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "sdgfdshfjztutz")
+        .setParam("projectKey", "projectKey")
+        .setParam("repositorySlug", "repo-slug")
+        .execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -203,14 +202,15 @@ public class ImportBitbucketServerProjectActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("almSetting", "sdgfdshfjztutz")
-      .setParam("projectKey", "projectKey")
-      .setParam("repositorySlug", "repo-slug")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "sdgfdshfjztutz")
+        .setParam("projectKey", "projectKey")
+        .setParam("repositorySlug", "repo-slug")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -219,12 +219,13 @@ public class ImportBitbucketServerProjectActionTest {
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("personal access token for '" + almSetting.getKey() + "' is missing");
-
-    ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", almSetting.getKey())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("personal access token for '" + almSetting.getKey() + "' is missing");
   }
 
   @Test
@@ -234,12 +235,13 @@ public class ImportBitbucketServerProjectActionTest {
     AlmPatDto almPatDto = newAlmPatDto();
     db.getDbClient().almPatDao().insert(db.getSession(), almPatDto, user.getLogin(), null);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("ALM Setting 'testKey' not found");
-
-    ws.newRequest()
-      .setParam("almSetting", "testKey")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "testKey")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("ALM Setting 'testKey' not found");
   }
 
   @Test
@@ -247,12 +249,13 @@ public class ImportBitbucketServerProjectActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("almSetting", "anyvalue")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("almSetting", "anyvalue")
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test

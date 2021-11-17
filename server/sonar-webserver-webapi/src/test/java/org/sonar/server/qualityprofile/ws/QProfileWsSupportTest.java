@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
@@ -32,11 +31,10 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class QProfileWsSupportTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -57,10 +55,9 @@ public class QProfileWsSupportTest {
 
   @Test
   public void getProfile_throws_NotFoundException_if_specified_key_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'missing' does not exist");
-
-    underTest.getProfile(db.getSession(), QProfileReference.fromKey("missing"));
+    assertThatThrownBy(() -> underTest.getProfile(db.getSession(), QProfileReference.fromKey("missing")))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile with key 'missing' does not exist");
   }
 
   @Test
@@ -80,19 +77,17 @@ public class QProfileWsSupportTest {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto();
     db.qualityProfiles().insert(profile);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language 'java' and name 'missing' does not exist");
-
-    underTest.getProfile(db.getSession(), QProfileReference.fromName("java", "missing"));
+    assertThatThrownBy(() -> underTest.getProfile(db.getSession(), QProfileReference.fromName("java", "missing")))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile for language 'java' and name 'missing' does not exist");
   }
 
   @Test
   public void getRule_throws_BadRequest_if_rule_is_external() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
-
-    underTest.getRule(db.getSession(), rule.getKey());
+    assertThatThrownBy(() -> underTest.getRule(db.getSession(), rule.getKey()))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
   }
 }

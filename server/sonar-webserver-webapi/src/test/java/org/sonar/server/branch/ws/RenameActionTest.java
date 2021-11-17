@@ -22,7 +22,6 @@ package org.sonar.server.branch.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -39,11 +38,10 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class RenameActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -67,28 +65,25 @@ public class RenameActionTest {
   public void fail_if_missing_project_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'project' parameter is missing");
   }
 
   @Test
   public void fail_if_missing_branch_parameter() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    tester.newRequest().setParam("project", "projectName").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("project", "projectName").execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'name' parameter is missing");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("Authentication is required");
   }
 
   @Test
@@ -96,13 +91,12 @@ public class RenameActionTest {
     userSession.logIn();
     ComponentDto project = db.components().insertPublicProject();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("name", "branch1")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
@@ -157,25 +151,23 @@ public class RenameActionTest {
     userSession.addProjectPermission(UserRole.ADMIN, project);
     db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Impossible to update branch name: a branch with name \"branch\" already exists");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("name", "branch")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Impossible to update branch name: a branch with name \"branch\" already exists");
   }
 
   @Test
   public void fail_if_project_does_not_exist() {
     userSession.logIn();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'foo' not found");
-
-    tester.newRequest()
+    assertThatThrownBy(() -> tester.newRequest()
       .setParam("project", "foo")
       .setParam("name", "branch1")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project 'foo' not found");
   }
 }

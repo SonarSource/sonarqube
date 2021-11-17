@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -34,6 +32,7 @@ import org.sonar.db.metric.MetricDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class MeasureMatrixTest {
@@ -43,8 +42,6 @@ public class MeasureMatrixTest {
   private static final MetricDto METRIC_1 = newMetricDto().setUuid("100");
   private static final MetricDto METRIC_2 = newMetricDto().setUuid("200");
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void getMetric() {
@@ -60,10 +57,9 @@ public class MeasureMatrixTest {
     Collection<MetricDto> metrics = asList(METRIC_1);
     MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT, FILE), metrics, new ArrayList<>());
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Metric with uuid " + METRIC_2.getUuid() + " not found");
-
-    underTest.getMetricByUuid(METRIC_2.getUuid());
+    assertThatThrownBy(() -> underTest.getMetricByUuid(METRIC_2.getUuid()))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Metric with uuid " + METRIC_2.getUuid() + " not found");
   }
 
   @Test
@@ -79,10 +75,9 @@ public class MeasureMatrixTest {
   public void getMeasure_throws_IAE_if_metric_is_not_registered() {
     MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT), asList(METRIC_1), emptyList());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metric with key _missing_ is not registered");
-
-    underTest.getMeasure(PROJECT, "_missing_");
+    assertThatThrownBy(() -> underTest.getMeasure(PROJECT, "_missing_"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metric with key _missing_ is not registered");
   }
 
   @Test

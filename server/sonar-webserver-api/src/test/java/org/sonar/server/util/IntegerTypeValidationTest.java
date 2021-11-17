@@ -19,18 +19,13 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IntegerTypeValidationTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private IntegerTypeValidation validation = new IntegerTypeValidation();
 
   @Test
@@ -46,18 +41,17 @@ public class IntegerTypeValidationTest {
 
   @Test
   public void fail_on_string() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value 'abc' must be an integer.");
-
-    validation.validate("abc", null);
+    assertThatThrownBy(() -> validation.validate("abc", null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value 'abc' must be an integer.");
   }
 
   @Test
   public void fail_on_float() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value '10.1' must be an integer.");
 
-    validation.validate("10.1", null);
+    assertThatThrownBy(() -> validation.validate("10.1", null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value '10.1' must be an integer.");
   }
 
 }

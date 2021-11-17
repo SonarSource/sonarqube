@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -37,6 +36,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
@@ -44,8 +44,6 @@ public class MetricDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = db.getSession();
   private MetricDao underTest = new MetricDao();
@@ -66,9 +64,8 @@ public class MetricDaoTest {
 
   @Test
   public void select_or_fail_by_key() {
-    expectedException.expect(RowNotFoundException.class);
-
-    underTest.selectOrFailByKey(dbSession, "unknown");
+    assertThatThrownBy(() -> underTest.selectOrFailByKey(dbSession, "unknown"))
+      .isInstanceOf(RowNotFoundException.class);
   }
 
   @Test

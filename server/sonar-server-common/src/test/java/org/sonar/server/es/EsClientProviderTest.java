@@ -26,13 +26,13 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
@@ -43,8 +43,6 @@ import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class EsClientProviderTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -112,10 +110,9 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_NODE_TYPE.getKey(), "application");
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s:100000,%s:8081", localhostHostname, localhostHostname));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Port number out of range: %s:100000", localhostHostname));
-
-    underTest.provide(settings.asConfig());
+    assertThatThrownBy(() -> underTest.provide(settings.asConfig()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Port number out of range: %s:100000", localhostHostname));
   }
 
   @Test
@@ -125,10 +122,9 @@ public class EsClientProviderTest {
     settings.setProperty(SEARCH_HOST.getKey(), "localhost");
     settings.setProperty(SEARCH_PORT.getKey(), "100000");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Port out of range: 100000");
-
-    underTest.provide(settings.asConfig());
+    assertThatThrownBy(() -> underTest.provide(settings.asConfig()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Port out of range: 100000");
   }
 
   @Test

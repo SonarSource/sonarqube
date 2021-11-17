@@ -28,7 +28,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
@@ -43,6 +42,7 @@ import org.sonar.db.DbTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -52,8 +52,6 @@ import static org.mockito.Mockito.when;
 public class MapBasedRawMeasureRepositoryTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private static final String FILE_COMPONENT_KEY = "file cpt key";
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1)
@@ -92,45 +90,53 @@ public class MapBasedRawMeasureRepositoryTest {
     when(metricRepository.getByKey(METRIC_KEY_2)).thenReturn(metric2);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_Component_argument_is_null() {
-    underTest.add(null, metric1, SOME_MEASURE);
+    assertThatThrownBy(() ->  underTest.add(null, metric1, SOME_MEASURE))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_Component_metric_is_null() {
-    underTest.add(FILE_COMPONENT, null, SOME_MEASURE);
+    assertThatThrownBy(() -> underTest.add(FILE_COMPONENT, null, SOME_MEASURE))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_Component_measure_is_null() {
-    underTest.add(FILE_COMPONENT, metric1, null);
+    assertThatThrownBy(() -> underTest.add(FILE_COMPONENT, metric1, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void add_throws_UOE_if_measure_already_exists() {
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
-    underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
+    assertThatThrownBy(() -> underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void update_throws_NPE_if_Component_argument_is_null() {
-    underTest.update(null, metric1, SOME_MEASURE);
+    assertThatThrownBy(() -> underTest.update(null, metric1, SOME_MEASURE))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void update_throws_NPE_if_Component_metric_is_null() {
-    underTest.update(FILE_COMPONENT, null, SOME_MEASURE);
+    assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, null, SOME_MEASURE))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void update_throws_NPE_if_Component_measure_is_null() {
-    underTest.update(FILE_COMPONENT, metric1, null);
+    assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, metric1, null))
+      .isInstanceOf(NullPointerException.class);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void update_throws_UOE_if_measure_does_not_exists() {
-    underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE);
+    assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE))
+      .isInstanceOf(UnsupportedOperationException.class);
   }
 
   private static final List<Measure> MEASURES = ImmutableList.of(

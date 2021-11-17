@@ -21,7 +21,6 @@ package org.sonar.server.usergroups.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
@@ -38,6 +37,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
@@ -49,8 +49,6 @@ public class AddUserActionTest {
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final WsActionTester ws = new WsActionTester(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport()));
 
@@ -167,13 +165,14 @@ public class AddUserActionTest {
     UserDto user = db.users().insertUser();
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with id '42'");
-
-    newRequest()
-      .setParam("id", "42")
-      .setParam("login", user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", "42")
+        .setParam("login", user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No group with id '42'");
   }
 
   @Test
@@ -181,13 +180,14 @@ public class AddUserActionTest {
     GroupDto group = db.users().insertGroup("admins");
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Could not find a user with login 'my-admin'");
-
-    newRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", "my-admin")
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", group.getUuid())
+        .setParam("login", "my-admin")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Could not find a user with login 'my-admin'");
   }
 
   @Test
@@ -195,9 +195,10 @@ public class AddUserActionTest {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
 
-    expectedException.expect(UnauthorizedException.class);
-
-    executeRequest(group, user);
+    assertThatThrownBy(() -> {
+      executeRequest(group, user);
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -206,13 +207,14 @@ public class AddUserActionTest {
     GroupDto defaultGroup = db.users().insertDefaultGroup();
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
-
-    newRequest()
-      .setParam("id", defaultGroup.getUuid())
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam("id", defaultGroup.getUuid())
+        .setParam(PARAM_LOGIN, user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
   }
 
   @Test
@@ -221,13 +223,14 @@ public class AddUserActionTest {
     UserDto user = db.users().insertUser();
     loginAsAdmin();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group cannot be found");
-
-    newRequest()
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .setParam(PARAM_GROUP_NAME, group.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      newRequest()
+        .setParam(PARAM_LOGIN, user.getLogin())
+        .setParam(PARAM_GROUP_NAME, group.getName())
+        .execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Default group cannot be found");
   }
 
   private void executeRequest(GroupDto groupDto, UserDto userDto) {

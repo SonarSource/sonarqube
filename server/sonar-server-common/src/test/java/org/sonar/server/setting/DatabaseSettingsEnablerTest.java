@@ -20,17 +20,13 @@
 package org.sonar.server.setting;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DatabaseSettingsEnablerTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ThreadLocalSettings settings = mock(ThreadLocalSettings.class);
   private DatabaseSettingLoader loader = mock(DatabaseSettingLoader.class);

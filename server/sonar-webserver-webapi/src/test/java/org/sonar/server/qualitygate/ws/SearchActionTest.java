@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -38,6 +37,7 @@ import org.sonarqube.ws.Qualitygates.SearchResponse.Result;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
@@ -51,8 +51,6 @@ import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_SELECTED;
 
 public class SearchActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -199,8 +197,8 @@ public class SearchActionTest {
       .setParam(PARAM_PAGE_SIZE, "1")
       .executeProtobuf(SearchResponse.class)
       .getResultsList())
-        .extracting(Result::getName)
-        .containsExactlyInAnyOrder(project1.getName());
+      .extracting(Result::getName)
+      .containsExactlyInAnyOrder(project1.getName());
 
     // Return partial result on second page
     assertThat(ws.newRequest()
@@ -210,8 +208,8 @@ public class SearchActionTest {
       .setParam(PARAM_PAGE_SIZE, "1")
       .executeProtobuf(SearchResponse.class)
       .getResultsList())
-        .extracting(Result::getName)
-        .containsExactlyInAnyOrder(project2.getName());
+      .extracting(Result::getName)
+      .containsExactlyInAnyOrder(project2.getName());
 
     // Return partial result on first page
     assertThat(ws.newRequest()
@@ -221,8 +219,8 @@ public class SearchActionTest {
       .setParam(PARAM_PAGE_SIZE, "2")
       .executeProtobuf(SearchResponse.class)
       .getResultsList())
-        .extracting(Result::getName)
-        .containsExactlyInAnyOrder(project1.getName(), project2.getName());
+      .extracting(Result::getName)
+      .containsExactlyInAnyOrder(project1.getName(), project2.getName());
 
     // Return all result on first page
     assertThat(ws.newRequest()
@@ -232,8 +230,8 @@ public class SearchActionTest {
       .setParam(PARAM_PAGE_SIZE, "3")
       .executeProtobuf(SearchResponse.class)
       .getResultsList())
-        .extracting(Result::getName)
-        .containsExactlyInAnyOrder(project1.getName(), project2.getName(), project3.getName());
+      .extracting(Result::getName)
+      .containsExactlyInAnyOrder(project1.getName(), project2.getName(), project3.getName());
 
     // Return no result as page index is off limit
     assertThat(ws.newRequest()
@@ -243,8 +241,8 @@ public class SearchActionTest {
       .setParam(PARAM_PAGE_SIZE, "3")
       .executeProtobuf(SearchResponse.class)
       .getResultsList())
-        .extracting(Result::getName)
-        .isEmpty();
+      .extracting(Result::getName)
+      .isEmpty();
   }
 
   @Test
@@ -295,12 +293,11 @@ public class SearchActionTest {
 
   @Test
   public void fail_on_unknown_quality_gate() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for id 42");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_ID, "42")
-      .executeProtobuf(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate has been found for id 42");
   }
 
   @Test

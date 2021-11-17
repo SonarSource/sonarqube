@@ -25,9 +25,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Locale;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;
@@ -35,6 +33,7 @@ import org.sonar.server.es.IndexType;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.NORMS;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.STORE;
@@ -45,8 +44,6 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 public class NewRegularIndexTest {
   private static final String SOME_INDEX_NAME = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings();
   private SettingsConfiguration defaultSettingsConfiguration = newBuilder(settings.asConfig()).build();
@@ -56,10 +53,9 @@ public class NewRegularIndexTest {
   public void getMainType_fails_with_ISE_if_createTypeMapping_with_IndexMainType_has_not_been_called(Index index) {
     NewRegularIndex newIndex = new NewRegularIndex(index, defaultSettingsConfiguration);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Main type has not been defined");
-
-    newIndex.getMainType();
+    assertThatThrownBy(() ->  newIndex.getMainType())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Main type has not been defined");
   }
 
   @Test
@@ -68,10 +64,9 @@ public class NewRegularIndexTest {
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
     underTest.createTypeMapping(IndexType.main(index, "foo"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Main type can only be defined once");
-
-    underTest.createTypeMapping(IndexType.main(index, "foo"));
+    assertThatThrownBy(() -> underTest.createTypeMapping(IndexType.main(index, "foo")))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Main type can only be defined once");
   }
 
   @Test
@@ -79,10 +74,9 @@ public class NewRegularIndexTest {
     Index index = Index.withRelations(SOME_INDEX_NAME);
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Mapping for main type must be created first");
-
-    underTest.createTypeMapping(IndexType.relation(IndexType.main(index, "foo"), "bar"));
+    assertThatThrownBy(() -> underTest.createTypeMapping(IndexType.relation(IndexType.main(index, "foo"), "bar")))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Mapping for main type must be created first");
   }
 
   @Test
@@ -92,10 +86,9 @@ public class NewRegularIndexTest {
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
     underTest.createTypeMapping(mainType);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("main type of relation must be "+ mainType);
-
-    underTest.createTypeMapping(IndexType.relation(IndexType.main(index, "donut"), "bar"));
+    assertThatThrownBy(() -> underTest.createTypeMapping(IndexType.relation(IndexType.main(index, "donut"), "bar")))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("main type of relation must be "+ mainType);
   }
 
   @Test
@@ -103,10 +96,9 @@ public class NewRegularIndexTest {
   public void build_fails_with_ISE_if_no_mainType_is_defined(Index index) {
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Mapping for main type must be defined");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Mapping for main type must be defined");
   }
 
   @DataProvider
@@ -123,10 +115,9 @@ public class NewRegularIndexTest {
     NewRegularIndex underTest = new NewRegularIndex(index, defaultSettingsConfiguration);
     underTest.createTypeMapping(IndexType.main(index, "foo"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("At least one relation must be defined when index accepts relations");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("At least one relation must be defined when index accepts relations");
   }
 
   @Test

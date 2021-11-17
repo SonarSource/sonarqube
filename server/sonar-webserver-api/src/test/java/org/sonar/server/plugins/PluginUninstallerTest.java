@@ -28,7 +28,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.LogTester;
@@ -46,8 +45,6 @@ import static org.sonar.server.plugins.PluginType.EXTERNAL;
 public class PluginUninstallerTest {
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
   @Rule
   public LogTester logs = new LogTester();
 

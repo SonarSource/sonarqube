@@ -20,16 +20,13 @@
 package org.sonar.api.web.page;
 
 import java.util.Collection;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 public class ContextTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Context underTest = new Context();
 
@@ -39,10 +36,9 @@ public class ContextTest {
   public void no_pages_with_the_same_path() {
     underTest.addPage(page);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page 'Project Export' cannot be loaded. Another page with key 'governance/project_export' already exists.");
-
-    underTest.addPage(page);
+    assertThatThrownBy(() -> underTest.addPage(page))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Page 'Project Export' cannot be loaded. Another page with key 'governance/project_export' already exists.");
   }
 
   @Test

@@ -21,9 +21,7 @@ package org.sonar.ce.task.log;
 
 import ch.qos.logback.core.joran.spi.JoranException;
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.slf4j.MDC;
 import org.sonar.ce.task.CeTask;
@@ -35,8 +33,6 @@ import static org.sonar.ce.task.log.CeTaskLogging.MDC_CE_TASK_UUID;
 
 public class CeTaskLoggingTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private LogbackHelper helper = new LogbackHelper();
   private CeTaskLogging underTest = new CeTaskLogging();

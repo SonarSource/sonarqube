@@ -19,17 +19,14 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnalysisPropertyDtoTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private AnalysisPropertyDto underTest;
 
@@ -37,40 +34,36 @@ public class AnalysisPropertyDtoTest {
   public void null_key_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key cannot be null");
-
-    underTest.setKey(null);
+    assertThatThrownBy(() ->  underTest.setKey(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("key cannot be null");
   }
 
   @Test
   public void null_value_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value cannot be null");
-
-    underTest.setValue(null);
+    assertThatThrownBy(() -> underTest.setValue(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("value cannot be null");
   }
 
   @Test
   public void null_uuid_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid cannot be null");
-
-    underTest.setUuid(null);
+    assertThatThrownBy(() -> underTest.setUuid(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid cannot be null");
   }
 
   @Test
   public void null_analysis_uuid_should_throw_NPE() {
     underTest = new AnalysisPropertyDto();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("analysisUuid cannot be null");
-
-    underTest.setAnalysisUuid(null);
+    assertThatThrownBy(() -> underTest.setAnalysisUuid(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("analysisUuid cannot be null");
   }
 
   @Test

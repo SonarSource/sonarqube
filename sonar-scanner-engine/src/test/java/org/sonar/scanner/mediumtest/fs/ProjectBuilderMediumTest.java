@@ -24,11 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
@@ -40,6 +37,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -49,9 +47,6 @@ public class ProjectBuilderMediumTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private ProjectBuilder projectBuilder = mock(ProjectBuilder.class);
 
@@ -82,33 +77,18 @@ public class ProjectBuilderMediumTest {
     File baseDir = prepareProject();
 
     doThrow(new IllegalStateException("My error message")).when(projectBuilder).build(any(ProjectBuilder.Context.class));
-    exception.expectMessage("Failed to execute project builder");
-    exception.expect(MessageException.class);
-    exception.expectCause(new BaseMatcher<Throwable>() {
 
-      @Override
-      public boolean matches(Object item) {
-        if (!(item instanceof IllegalStateException)) {
-          return false;
-        }
-        IllegalStateException e = (IllegalStateException) item;
-        return "My error message".equals(e.getMessage());
-      }
-
-      @Override
-      public void describeTo(Description description) {
-      }
-    });
-
-    tester.newAnalysis()
+    assertThatThrownBy(() -> tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.sources", ".")
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
-      .execute();
-
+      .execute())
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("Failed to execute project builder")
+      .hasCauseInstanceOf(IllegalStateException.class);
   }
 
   @Test

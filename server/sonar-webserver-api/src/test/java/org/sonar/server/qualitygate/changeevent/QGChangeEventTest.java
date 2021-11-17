@@ -22,9 +22,7 @@ package org.sonar.server.qualitygate.changeevent;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
@@ -35,10 +33,9 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class QGChangeEventTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ProjectDto project = new ProjectDto()
     .setKey("foo")
@@ -57,34 +54,30 @@ public class QGChangeEventTest {
 
   @Test
   public void constructor_fails_with_NPE_if_project_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project can't be null");
-
-    new QGChangeEvent(null, branch, analysis, configuration, previousStatus, supplier);
+    assertThatThrownBy(() -> new QGChangeEvent(null, branch, analysis, configuration, previousStatus, supplier))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("project can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_branch_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("branch can't be null");
-
-    new QGChangeEvent(project, null, analysis, configuration, previousStatus, supplier);
+    assertThatThrownBy(() -> new QGChangeEvent(project, null, analysis, configuration, previousStatus, supplier))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("branch can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_analysis_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("analysis can't be null");
-
-    new QGChangeEvent(project, branch, null, configuration, previousStatus, supplier);
+    assertThatThrownBy(() -> new QGChangeEvent(project, branch, null, configuration, previousStatus, supplier))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("analysis can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_configuration_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("projectConfiguration can't be null");
-
-    new QGChangeEvent(project, branch, analysis, null, previousStatus, supplier);
+    assertThatThrownBy(() -> new QGChangeEvent(project, branch, analysis, null, previousStatus, supplier))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("projectConfiguration can't be null");
   }
 
   @Test
@@ -94,10 +87,9 @@ public class QGChangeEventTest {
 
   @Test
   public void constructor_fails_with_NPE_if_supplier_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("qualityGateSupplier can't be null");
-
-    new QGChangeEvent(project, branch, analysis, configuration, previousStatus, null);
+    assertThatThrownBy(() -> new QGChangeEvent(project, branch, analysis, configuration, previousStatus, null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("qualityGateSupplier can't be null");
   }
 
   @Test

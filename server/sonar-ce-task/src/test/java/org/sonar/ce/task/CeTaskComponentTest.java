@@ -22,26 +22,22 @@ package org.sonar.ce.task;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class CeTaskComponentTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   @UseDataProvider("nullOrEmpty")
   public void constructor_fails_with_NPE_if_uuid_is_null_or_empty(String str) {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can't be null nor empty");
-
-    new CeTask.Component(str, "foo", "bar");
+    assertThatThrownBy(() -> new CeTask.Component(str, "foo", "bar"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("uuid can't be null nor empty");
   }
 
   @Test

@@ -21,9 +21,7 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
@@ -33,6 +31,7 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -43,8 +42,6 @@ import static org.mockito.Mockito.when;
 
 public class DatabaseCharsetCheckerTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Database db = mock(Database.class, Mockito.RETURNS_MOCKS);
   private CharsetHandler handler = mock(CharsetHandler.class);
@@ -67,9 +64,9 @@ public class DatabaseCharsetCheckerTest {
     when(db.getDialect()).thenReturn(dialect);
     doThrow(new SQLException("failure")).when(handler).handle(any(Connection.class), any(DatabaseCharsetChecker.State.class));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("failure");
-    underTest.check(DatabaseCharsetChecker.State.UPGRADE);
+    assertThatThrownBy(() -> underTest.check(DatabaseCharsetChecker.State.UPGRADE))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("failure");
   }
 
   @Test
@@ -97,8 +94,8 @@ public class DatabaseCharsetCheckerTest {
     Dialect unsupportedDialect = mock(Dialect.class);
     when(unsupportedDialect.getId()).thenReturn("foo");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Database not supported: foo");
-    underTest.getHandler(unsupportedDialect);
+    assertThatThrownBy(() -> underTest.getHandler(unsupportedDialect))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Database not supported: foo");
   }
 }

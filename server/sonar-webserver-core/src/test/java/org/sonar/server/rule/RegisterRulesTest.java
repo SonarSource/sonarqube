@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Language;
@@ -72,6 +71,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -104,8 +104,6 @@ public class RegisterRulesTest {
 
   private final TestSystem2 system = new TestSystem2().setNow(DATE1.getTime());
 
-  @org.junit.Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @org.junit.Rule
   public DbTester db = DbTester.create(system);
   @org.junit.Rule
@@ -903,31 +901,33 @@ public class RegisterRulesTest {
 
   @Test
   public void declaring_two_rules_with_same_deprecated_RuleKey_should_throw_ISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The following deprecated rule keys are declared at least twice [fake:old]");
-
-    execute(context -> {
-      NewRepository repo = context.createRepository("fake", "java");
-      createRule(repo, "newKey1")
-        .addDeprecatedRuleKey("fake", "old");
-      createRule(repo, "newKey2")
-        .addDeprecatedRuleKey("fake", "old");
-      repo.done();
-    });
+    assertThatThrownBy(() -> {
+      execute(context -> {
+        NewRepository repo = context.createRepository("fake", "java");
+        createRule(repo, "newKey1")
+          .addDeprecatedRuleKey("fake", "old");
+        createRule(repo, "newKey2")
+          .addDeprecatedRuleKey("fake", "old");
+        repo.done();
+      });
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The following deprecated rule keys are declared at least twice [fake:old]");
   }
 
   @Test
   public void declaring_a_rule_with_a_deprecated_RuleKey_still_used_should_throw_ISE() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("The following rule keys are declared both as deprecated and used key [fake:newKey1]");
-
-    execute(context -> {
-      NewRepository repo = context.createRepository("fake", "java");
-      createRule(repo, "newKey1");
-      createRule(repo, "newKey2")
-        .addDeprecatedRuleKey("fake", "newKey1");
-      repo.done();
-    });
+    assertThatThrownBy(() -> {
+      execute(context -> {
+        NewRepository repo = context.createRepository("fake", "java");
+        createRule(repo, "newKey1");
+        createRule(repo, "newKey2")
+          .addDeprecatedRuleKey("fake", "newKey1");
+        repo.done();
+      });
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The following rule keys are declared both as deprecated and used key [fake:newKey1]");
   }
 
   @Test
@@ -936,13 +936,14 @@ public class RegisterRulesTest {
     execute(context -> createRule(context, "javascript", "javascript", "s103",
       r -> r.addDeprecatedRuleKey("javascript", "linelength")));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("An incorrect state of deprecated rule keys has been detected.\n " +
-      "The deprecated rule key [javascript:linelength] was previously deprecated by [javascript:s103]. [javascript:s103] should be a deprecated key of [sonarjs:s103],");
-
-    // This rule should have been moved to another repository
-    execute(context -> createRule(context, "javascript", "sonarjs", "s103",
-      r -> r.addDeprecatedRuleKey("javascript", "linelength")));
+    assertThatThrownBy(() -> {
+      // This rule should have been moved to another repository
+      execute(context -> createRule(context, "javascript", "sonarjs", "s103",
+        r -> r.addDeprecatedRuleKey("javascript", "linelength")));
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("An incorrect state of deprecated rule keys has been detected.\n " +
+        "The deprecated rule key [javascript:linelength] was previously deprecated by [javascript:s103]. [javascript:s103] should be a deprecated key of [sonarjs:s103],");
   }
 
   @Test
@@ -959,15 +960,16 @@ public class RegisterRulesTest {
 
   @Test
   public void declaring_a_rule_with_an_existing_RuleKey_still_used_should_throw_IAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The rule 'newKey1' of repository 'fake' is declared several times");
-
-    execute(context -> {
-      NewRepository repo = context.createRepository("fake", "java");
-      createRule(repo, "newKey1");
-      createRule(repo, "newKey1");
-      repo.done();
-    });
+    assertThatThrownBy(() -> {
+      execute(context -> {
+        NewRepository repo = context.createRepository("fake", "java");
+        createRule(repo, "newKey1");
+        createRule(repo, "newKey1");
+        repo.done();
+      });
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The rule 'newKey1' of repository 'fake' is declared several times");
   }
 
   private void execute(RulesDefinition... defs) {

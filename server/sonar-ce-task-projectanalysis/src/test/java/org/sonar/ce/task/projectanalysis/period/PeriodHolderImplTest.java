@@ -19,16 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.period;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PeriodHolderImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private PeriodHolderImpl underTest = new PeriodHolderImpl();
 
@@ -42,19 +39,19 @@ public class PeriodHolderImplTest {
 
   @Test
   public void get_period_throws_illegal_state_exception_if_not_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Period have not been initialized yet");
-
-    new PeriodHolderImpl().getPeriod();
+    assertThatThrownBy(() ->  new PeriodHolderImpl().getPeriod())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Period have not been initialized yet");
   }
 
   @Test
   public void setPeriod_throws_ISE_if_already_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Period have already been initialized");
-
-    underTest.setPeriod(createPeriod());
-    underTest.setPeriod(createPeriod());
+    assertThatThrownBy(() -> {
+      underTest.setPeriod(createPeriod());
+      underTest.setPeriod(createPeriod());
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Period have already been initialized");
   }
 
   @Test
@@ -79,10 +76,9 @@ public class PeriodHolderImplTest {
 
   @Test
   public void hasPeriod_throws_ISE_if_not_initialized() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Period have not been initialized yet");
-
-    underTest.hasPeriod();
+    assertThatThrownBy(() -> underTest.hasPeriod())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Period have not been initialized yet");
   }
 
   private static Period createPeriod() {

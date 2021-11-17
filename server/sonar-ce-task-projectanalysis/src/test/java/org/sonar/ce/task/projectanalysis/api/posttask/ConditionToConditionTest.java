@@ -24,9 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collections;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -35,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,26 +45,22 @@ public class ConditionToConditionTest {
   private static final String SOME_VALUE = "some value";
   private static final ConditionStatus SOME_CONDITION_STATUS = ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, SOME_VALUE);
   private static final Condition SOME_CONDITION = new Condition(newMetric(METRIC_KEY), Condition.Operator.LESS_THAN.getDbValue(), ERROR_THRESHOLD);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void apply_throws_NPE_if_Condition_argument_is_null() {
     ConditionToCondition underTest = new ConditionToCondition(NO_STATUS_PER_CONDITIONS);
 
-    expectedException.expect(NullPointerException.class);
-
-    underTest.apply(null);
+    assertThatThrownBy(() -> underTest.apply(null))
+      .isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void apply_throws_ISE_if_there_is_no_ConditionStatus_for_Condition_argument() {
     ConditionToCondition underTest = new ConditionToCondition(NO_STATUS_PER_CONDITIONS);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Missing ConditionStatus for condition on metric key " + METRIC_KEY);
-
-    underTest.apply(SOME_CONDITION);
+    assertThatThrownBy(() -> underTest.apply(SOME_CONDITION))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Missing ConditionStatus for condition on metric key " + METRIC_KEY);
   }
 
   @Test
@@ -112,10 +107,9 @@ public class ConditionToConditionTest {
 
     QualityGate.Condition res = underTest.apply(otherCondition);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("There is no value when status is NO_VALUE");
-
-    res.getValue();
+    assertThatThrownBy(res::getValue)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("There is no value when status is NO_VALUE");
   }
 
   @DataProvider

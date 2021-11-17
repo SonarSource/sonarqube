@@ -30,12 +30,12 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.Select.Row;
 import org.sonar.server.platform.db.migration.step.Select.RowReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 public class DataChangeTest {
@@ -45,8 +45,6 @@ public class DataChangeTest {
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DataChangeTest.class, "schema.sql");
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -113,36 +111,36 @@ public class DataChangeTest {
   public void display_current_row_details_if_error_during_get() throws Exception {
     insertPersons();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Error during processing of row: [id=2]");
-
-    new DataChange(db.database()) {
-      @Override
-      public void execute(Context context) throws SQLException {
-        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).get((RowReader<Long>) row -> {
-          throw new IllegalStateException("Unexpected error");
-        });
-      }
-    }.execute();
-
+    assertThatThrownBy(() -> {
+      new DataChange(db.database()) {
+        @Override
+        public void execute(Context context) throws SQLException {
+          context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).get((RowReader<Long>) row -> {
+            throw new IllegalStateException("Unexpected error");
+          });
+        }
+      }.execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Error during processing of row: [id=2]");
   }
 
   @Test
   public void display_current_row_details_if_error_during_list() throws Exception {
     insertPersons();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Error during processing of row: [id=2]");
-
-    new DataChange(db.database()) {
-      @Override
-      public void execute(Context context) throws SQLException {
-        context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list((RowReader<Long>) row -> {
-          throw new IllegalStateException("Unexpected error");
-        });
-      }
-    }.execute();
-
+    assertThatThrownBy(() -> {
+      new DataChange(db.database()) {
+        @Override
+        public void execute(Context context) throws SQLException {
+          context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list((RowReader<Long>) row -> {
+            throw new IllegalStateException("Unexpected error");
+          });
+        }
+      }.execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Error during processing of row: [id=2]");
   }
 
   @Test
@@ -157,9 +155,8 @@ public class DataChangeTest {
       }
     };
 
-    thrown.expect(SQLException.class);
-
-    change.execute();
+    assertThatThrownBy(() -> change.execute())
+      .isInstanceOf(SQLException.class);
   }
 
   @Test
@@ -353,19 +350,20 @@ public class DataChangeTest {
   public void display_current_row_details_if_error_during_scroll() throws Exception {
     insertPersons();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Error during processing of row: [id=1]");
-
-    new DataChange(db.database()) {
-      @Override
-      public void execute(Context context) throws SQLException {
-        final Upsert upsert = context.prepareUpsert("update persons set login=?, age=? where id=?");
-        context.prepareSelect("select id from persons").scroll(row -> {
-          throw new IllegalStateException("Unexpected error");
-        });
-        upsert.commit().close();
-      }
-    }.execute();
+    assertThatThrownBy(() -> {
+      new DataChange(db.database()) {
+        @Override
+        public void execute(Context context) throws SQLException {
+          final Upsert upsert = context.prepareUpsert("update persons set login=?, age=? where id=?");
+          context.prepareSelect("select id from persons").scroll(row -> {
+            throw new IllegalStateException("Unexpected error");
+          });
+          upsert.commit().close();
+        }
+      }.execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Error during processing of row: [id=1]");
   }
 
   @Test
@@ -398,20 +396,21 @@ public class DataChangeTest {
   public void display_current_row_details_if_error_during_mass_update() throws Exception {
     insertPersons();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Error during processing of row: [id=2]");
-
-    new DataChange(db.database()) {
-      @Override
-      public void execute(Context context) throws SQLException {
-        MassUpdate massUpdate = context.prepareMassUpdate();
-        massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
-        massUpdate.update("update persons set login=?, age=? where id=?");
-        massUpdate.execute((row, update) -> {
-          throw new IllegalStateException("Unexpected error");
-        });
-      }
-    }.execute();
+    assertThatThrownBy(() -> {
+      new DataChange(db.database()) {
+        @Override
+        public void execute(Context context) throws SQLException {
+          MassUpdate massUpdate = context.prepareMassUpdate();
+          massUpdate.select("select id from persons where id>=?").setLong(1, 2L);
+          massUpdate.update("update persons set login=?, age=? where id=?");
+          massUpdate.execute((row, update) -> {
+            throw new IllegalStateException("Unexpected error");
+          });
+        }
+      }.execute();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Error during processing of row: [id=2]");
   }
 
   @Test

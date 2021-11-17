@@ -28,7 +28,6 @@ import java.util.Random;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -83,8 +82,6 @@ public class RegisterQualityProfilesNotificationTest {
   public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
   @Rule

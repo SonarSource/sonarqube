@@ -19,26 +19,22 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventTesting;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.projectanalysis.ws.EventCategory.QUALITY_GATE;
 
 public class EventValidatorTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fail_with_WS_categories() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Event of category 'QUALITY_GATE' cannot be modified. Authorized categories: VERSION, OTHER");
-
-    EventValidator.checkModifiable().accept(newEvent().setCategory(QUALITY_GATE.getLabel()));
+    assertThatThrownBy(() -> EventValidator.checkModifiable().accept(newEvent().setCategory(QUALITY_GATE.getLabel())))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Event of category 'QUALITY_GATE' cannot be modified.");
   }
 
   private EventDto newEvent() {

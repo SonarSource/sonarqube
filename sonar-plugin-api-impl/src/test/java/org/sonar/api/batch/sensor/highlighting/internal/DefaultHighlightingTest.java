@@ -22,9 +22,7 @@ package org.sonar.api.batch.sensor.highlighting.internal;
 import java.util.Collection;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -33,6 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
@@ -40,15 +39,12 @@ public class DefaultHighlightingTest {
 
   private static final InputFile INPUT_FILE = new TestInputFileBuilder("foo", "src/Foo.java")
     .setLines(2)
-    .setOriginalLineStartOffsets(new int[] {0, 50})
-    .setOriginalLineEndOffsets(new int[] {49, 100})
+    .setOriginalLineStartOffsets(new int[]{0, 50})
+    .setOriginalLineEndOffsets(new int[]{49, 100})
     .setLastValidOffset(101)
     .build();
 
   private Collection<SyntaxHighlightingRule> highlightingRules;
-
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
 
   @Before
   public void setUpSampleRules() {
@@ -99,27 +95,24 @@ public class DefaultHighlightingTest {
 
   @Test
   public void should_prevent_start_equal_end() {
-    throwable.expect(IllegalArgumentException.class);
-    throwable
-      .expectMessage("Unable to highlight file");
-
-    new DefaultHighlighting(Mockito.mock(SensorStorage.class))
+    assertThatThrownBy(() -> new DefaultHighlighting(Mockito.mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(1, 10, 1, 10, KEYWORD)
-      .save();
+      .save())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Unable to highlight file");
   }
 
   @Test
   public void should_prevent_boudaries_overlapping() {
-    throwable.expect(IllegalStateException.class);
-    throwable
-      .expectMessage("Cannot register highlighting rule for characters at Range[from [line=1, lineOffset=8] to [line=1, lineOffset=15]] as it overlaps at least one existing rule");
-
-    new DefaultHighlighting(Mockito.mock(SensorStorage.class))
+    assertThatThrownBy(() -> new DefaultHighlighting(Mockito.mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(1, 0, 1, 10, KEYWORD)
       .highlight(1, 8, 1, 15, KEYWORD)
-      .save();
+      .save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Cannot register highlighting rule for characters at Range[from [line=1, lineOffset=8] to [line=1, lineOffset=15]] " +
+        "as it overlaps at least one existing rule");
   }
 
 }

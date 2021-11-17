@@ -24,9 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -37,6 +35,7 @@ import org.sonar.server.platform.db.migration.def.ColumnDef;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
@@ -56,42 +55,34 @@ public class CreateTableBuilderTest {
   private static final MsSql MS_SQL = new MsSql();
   private static final Dialect[] ALL_DIALECTS = {H2, MS_SQL, POSTGRESQL, ORACLE};
   private static final String TABLE_NAME = "table_42";
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private CreateTableBuilder underTest = new CreateTableBuilder(mock(Dialect.class), TABLE_NAME);
 
   @Test
   public void constructor_fails_with_NPE_if_dialect_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("dialect can't be null");
-
-    new CreateTableBuilder(null, TABLE_NAME);
+    assertThatThrownBy(() -> new CreateTableBuilder(null, TABLE_NAME))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("dialect can't be null");
   }
 
   @Test
   public void constructor_fails_with_NPE_if_tablename_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name can't be null");
-
-    new CreateTableBuilder(mock(Dialect.class), null);
+    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("Table name can't be null");
   }
 
   @Test
   public void constructor_throws_IAE_if_table_name_is_not_lowercase() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must be lower case and contain only alphanumeric chars or '_', got 'Tooo");
-
-    new CreateTableBuilder(mock(Dialect.class), "Tooo");
+    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "Tooo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Table name must be lower case and contain only alphanumeric chars or '_', got 'Tooo");
   }
 
   @Test
   public void constructor_throws_IAE_if_table_name_is_26_chars_long() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name length can't be more than 25");
-
-    new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxyz");
+    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxyz"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Table name length can't be more than 25");
   }
 
   @Test
@@ -107,19 +98,17 @@ public class CreateTableBuilderTest {
 
   @Test
   public void constructor_throws_IAE_if_table_name_starts_with_underscore() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must not start by a number or '_', got '_a'");
-
-    new CreateTableBuilder(mock(Dialect.class), "_a");
+    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "_a"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Table name must not start by a number or '_', got '_a'");
   }
 
   @Test
   @UseDataProvider("digitCharsDataProvider")
   public void constructor_throws_IAE_if_table_name_starts_with_number(char number) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Table name must not start by a number or '_', got '" + number + "a'");
-
-    new CreateTableBuilder(mock(Dialect.class), number + "a");
+    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), number + "a"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Table name must not start by a number or '_', got '" + number + "a'");
   }
 
   @DataProvider
@@ -146,44 +135,39 @@ public class CreateTableBuilderTest {
 
   @Test
   public void build_throws_ISE_if_no_column_has_been_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("at least one column must be specified");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("at least one column must be specified");
   }
 
   @Test
   public void addColumn_throws_NPE_if_ColumnDef_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("column def can't be null");
-
-    underTest.addColumn(null);
+    assertThatThrownBy(() -> underTest.addColumn(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("column def can't be null");
   }
 
   @Test
   public void addPkColumn_throws_NPE_if_ColumnDef_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("column def can't be null");
-
-    underTest.addPkColumn(null);
+    assertThatThrownBy(() -> underTest.addPkColumn(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("column def can't be null");
   }
 
   @Test
   public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_with_column_name_other_than_id() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Auto increment column name must be id");
-
-    underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("toto").build(), AUTO_INCREMENT);
+    assertThatThrownBy(() -> underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("toto").build(), AUTO_INCREMENT))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Auto increment column name must be id");
   }
 
   @Test
   public void addPkColumn_throws_ISE_when_adding_multiple_autoincrement_columns() {
     underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("There can't be more than one auto increment column");
-
-    underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT);
+    assertThatThrownBy(() -> underTest.addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("There can't be more than one auto increment column");
   }
 
   @Test
@@ -291,43 +275,38 @@ public class CreateTableBuilderTest {
 
   @Test
   public void withPkConstraintName_throws_NPE_if_name_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Constraint name can't be null");
-
-    underTest.withPkConstraintName(null);
+    assertThatThrownBy(() -> underTest.withPkConstraintName(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessageContaining("Constraint name can't be null");
   }
 
   @Test
   public void withPkConstraintName_throws_IAE_if_name_is_not_lowercase() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Constraint name must be lower case and contain only alphanumeric chars or '_', got 'Too'");
-
-    underTest.withPkConstraintName("Too");
+    assertThatThrownBy(() -> underTest.withPkConstraintName("Too"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Constraint name must be lower case and contain only alphanumeric chars or '_', got 'Too'");
   }
 
   @Test
   public void withPkConstraintName_throws_IAE_if_name_is_more_than_30_char_long() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Constraint name length can't be more than 30");
-
-    underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyzabcdf");
+    assertThatThrownBy(() -> underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyzabcdf"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Constraint name length can't be more than 30");
   }
 
   @Test
   public void withPkConstraintName_throws_IAE_if_name_starts_with_underscore() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Constraint name must not start by a number or '_', got '_a'");
-
-    underTest.withPkConstraintName("_a");
+    assertThatThrownBy(() -> underTest.withPkConstraintName("_a"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Constraint name must not start by a number or '_', got '_a'");
   }
 
   @Test
   @UseDataProvider("digitCharsDataProvider")
   public void withPkConstraintName_throws_IAE_if_name_starts_with_number(char number) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Constraint name must not start by a number or '_', got '" + number + "a'");
-
-    underTest.withPkConstraintName(number + "a");
+    assertThatThrownBy(() -> underTest.withPkConstraintName(number + "a"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Constraint name must not start by a number or '_', got '" + number + "a'");
   }
 
   @Test

@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
@@ -38,6 +37,7 @@ import org.sonarqube.ws.Users.GroupsWsResponse;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
@@ -51,8 +51,6 @@ public class GroupsActionTest {
 
   private static final String USER_LOGIN = "john";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create();
@@ -202,20 +200,22 @@ public class GroupsActionTest {
     GroupDto group = db.users().insertGroup("group1");
     addUserToGroup(user, group);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group cannot be found");
-
-    call(ws.newRequest().setParam("login", USER_LOGIN));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam("login", USER_LOGIN));
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Default group cannot be found");
   }
 
   @Test
   public void fail_on_unknown_user() {
     insertDefaultGroup();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Unknown user: john");
-
-    call(ws.newRequest().setParam("login", USER_LOGIN));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam("login", USER_LOGIN));
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Unknown user: john");
   }
 
   @Test
@@ -223,10 +223,11 @@ public class GroupsActionTest {
     UserDto userDto = db.users().insertUser(user -> user.setLogin("disabled").setActive(false));
     insertDefaultGroup();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Unknown user: disabled");
-
-    call(ws.newRequest().setParam("login", userDto.getLogin()));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam("login", userDto.getLogin()));
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Unknown user: disabled");
   }
 
   @Test
@@ -234,30 +235,33 @@ public class GroupsActionTest {
     UserDto user = insertUser();
     insertDefaultGroup();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'ps' parameter must be less than 500");
-
-    call(ws.newRequest()
-      .setParam("login", user.getLogin())
-      .setParam(Param.PAGE_SIZE, "501"));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest()
+        .setParam("login", user.getLogin())
+        .setParam(Param.PAGE_SIZE, "501"));
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'ps' parameter must be less than 500");
   }
 
   @Test
   public void fail_on_missing_permission() {
     userSession.logIn().addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(ws.newRequest().setParam("login", USER_LOGIN));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam("login", USER_LOGIN));
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_no_permission() {
     userSession.logIn("not-admin");
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(ws.newRequest().setParam("login", USER_LOGIN));
+    assertThatThrownBy(() -> {
+      call(ws.newRequest().setParam("login", USER_LOGIN));
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

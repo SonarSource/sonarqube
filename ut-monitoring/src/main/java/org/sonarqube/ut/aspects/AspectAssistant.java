@@ -42,7 +42,6 @@ public class AspectAssistant {
   private static final Path PATH = Paths.get("/tmp/ut-backend-monitoring.log");
   private static final Gson GSON = new Gson();
 
-
   static {
     try {
       if (!Files.exists(PATH, LinkOption.NOFOLLOW_LINKS)) {
@@ -62,25 +61,29 @@ public class AspectAssistant {
   }
 
   public static Object measure(ProceedingJoinPoint jp, Consumer<Measure> populator) throws Throwable {
-    try {
     long start = System.currentTimeMillis();
-    Object proceed = jp.proceed();
+    try {
+      Object proceed = jp.proceed();
+      getMeasure(populator, start);
+      return proceed;
+    } catch (Throwable t) {
+      getMeasure(populator, start);
+      throw t;
+    }
+  }
+
+  private static void getMeasure(Consumer<Measure> populator, long start) {
     long executionTime = System.currentTimeMillis() - start;
 
     if (executionTime > 0) {
       Measure measure = new Measure()
-              .setDuration(executionTime)
-              .setCommit(COMMIT_HASH)
-              .setBuild(BUILD_NUMBER)
-              .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        .setDuration(executionTime)
+        .setCommit(COMMIT_HASH)
+        .setBuild(BUILD_NUMBER)
+        .setTimestamp(LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
       populator.accept(measure);
       AspectAssistant.persistMeasure(measure);
-    }
-    return proceed; }
-    catch (Throwable t) {
-      System.out.println(t.getMessage());
-      return null;
     }
   }
 }

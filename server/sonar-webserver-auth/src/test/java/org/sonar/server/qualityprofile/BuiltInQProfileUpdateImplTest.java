@@ -63,7 +63,6 @@ import static org.sonar.api.rules.RulePriority.MAJOR;
 import static org.sonar.api.rules.RulePriority.MINOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
-import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
 public class BuiltInQProfileUpdateImplTest {
 

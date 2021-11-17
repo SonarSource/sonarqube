@@ -26,7 +26,6 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.RuleType;
@@ -57,6 +56,7 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -78,8 +78,6 @@ public class SearchActionFacetsTest {
   public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
@@ -207,12 +205,13 @@ public class SearchActionFacetsTest {
     indexPermissions();
     indexIssues();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Facet(s) 'directories' require to also filter by project");
-
-    ws.newRequest()
-      .setParam(WebService.Param.FACETS, "directories")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(WebService.Param.FACETS, "directories")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Facet(s) 'directories' require to also filter by project");
   }
 
   @Test
@@ -247,13 +246,14 @@ public class SearchActionFacetsTest {
     indexPermissions();
     indexIssues();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Facet(s) 'files' require to also filter by project");
-
-    ws.newRequest()
-      .setParam(PARAM_FILES, file.path())
-      .setParam(WebService.Param.FACETS, "files")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_FILES, file.path())
+        .setParam(WebService.Param.FACETS, "files")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Facet(s) 'files' require to also filter by project");
   }
 
   @Test

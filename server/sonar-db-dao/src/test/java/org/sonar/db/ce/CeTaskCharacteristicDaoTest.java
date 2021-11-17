@@ -22,7 +22,6 @@ package org.sonar.db.ce;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
@@ -35,8 +34,6 @@ import static org.assertj.core.api.Assertions.tuple;
 public class CeTaskCharacteristicDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private CeTaskCharacteristicDao underTest = new CeTaskCharacteristicDao();
 
@@ -54,8 +51,6 @@ public class CeTaskCharacteristicDaoTest {
         tuple("task2", "uuid2", "key2", "value2"));
     assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("unknown"))).isEmpty();
   }
-
-
   @Test
   public void deleteByTaskUuids() {
     insert("key1", "value1", "uuid1", "task1");

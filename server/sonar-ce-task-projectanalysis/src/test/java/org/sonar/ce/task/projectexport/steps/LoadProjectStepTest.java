@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectexport.steps;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -31,13 +30,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LoadProjectStepTest {
 
   private static final String PROJECT_KEY = "project_key";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -47,9 +45,9 @@ public class LoadProjectStepTest {
 
   @Test
   public void fails_if_project_does_not_exist() {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Project with key [project_key] does not exist");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Project with key [project_key] does not exist");
   }
 
   @Test
@@ -63,9 +61,9 @@ public class LoadProjectStepTest {
       "created_at", 1L,
       "updated_at", 1L);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Project with key [project_key] does not exist");
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Project with key [project_key] does not exist");
   }
 
   @Test

@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -42,6 +41,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
@@ -51,8 +51,6 @@ public class RenameActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
 
@@ -97,10 +95,11 @@ public class RenameActionTest {
     db.qualityProfiles().insert(qualityProfile2);
     String qualityProfileKey2 = qualityProfile2.getKee();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Quality profile already exists: Invalid, duplicated name");
-
-    call(qualityProfileKey1, "Invalid, duplicated name");
+    assertThatThrownBy(() -> {
+      call(qualityProfileKey1, "Invalid, duplicated name");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Quality profile already exists: Invalid, duplicated name");
   }
 
   @Test
@@ -120,20 +119,22 @@ public class RenameActionTest {
   public void fail_if_parameter_profile_is_missing() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter is missing");
-
-    call(null, "Other Sonar Way");
+    assertThatThrownBy(() -> {
+      call(null, "Other Sonar Way");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'key' parameter is missing");
   }
 
   @Test
   public void fail_if_parameter_name_is_missing() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    call("sonar-way-xoo1-13245", null);
+    assertThatThrownBy(() -> {
+      call("sonar-way-xoo1-13245", null);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'name' parameter is missing");
   }
 
   @Test
@@ -145,28 +146,31 @@ public class RenameActionTest {
     db.qualityProfiles().insert(qualityProfile);
     String qualityProfileKey = qualityProfile.getKee();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    call(qualityProfileKey, "Hey look I am not quality profile admin!");
+    assertThatThrownBy(() -> {
+      call(qualityProfileKey, "Hey look I am not quality profile admin!");
+    })
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Authentication is required");
-
-    call("sonar-way-xoo1-13245", "Not logged in");
+    assertThatThrownBy(() -> {
+      call("sonar-way-xoo1-13245", "Not logged in");
+    })
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
   public void fail_if_profile_does_not_exist() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'polop' does not exist");
-
-    call("polop", "Uh oh, I don't know this profile");
+    assertThatThrownBy(() -> {
+      call("polop", "Uh oh, I don't know this profile");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile with key 'polop' does not exist");
   }
 
   @Test
@@ -174,29 +178,32 @@ public class RenameActionTest {
     logInAsQProfileAdministrator();
     String qualityProfileKey = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true)).getKee();
 
-    expectedException.expect(BadRequestException.class);
-
-    call(qualityProfileKey, "the new name");
+    assertThatThrownBy(() -> {
+      call(qualityProfileKey, "the new name");
+    })
+      .isInstanceOf(BadRequestException.class);
   }
 
   @Test
   public void fail_if_blank_renaming() {
     String qualityProfileKey = createNewValidQualityProfileKey();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    call(qualityProfileKey, " ");
+    assertThatThrownBy(() -> {
+      call(qualityProfileKey, " ");
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'name' parameter is missing");
   }
 
   @Test
   public void fail_renaming_if_profile_not_found() {
     logInAsQProfileAdministrator();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile with key 'unknown' does not exist");
-
-    call("unknown", "the new name");
+    assertThatThrownBy(() -> {
+      call("unknown", "the new name");
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile with key 'unknown' does not exist");
   }
 
   @Test

@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -35,13 +34,12 @@ import org.sonar.db.DbTester;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RuleRepositoryDaoTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(system2);
 
@@ -116,11 +114,12 @@ public class RuleRepositoryDaoTest {
 
   @Test
   public void deleteIfKeyNotIn_fails_if_more_than_1000_keys() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("too many rule repositories: 1100");
-
-    Collection<String> keys = IntStream.range(0, 1_100).mapToObj(index -> "repo" + index).collect(Collectors.toSet());
-    underTest.deleteIfKeyNotIn(dbTester.getSession(), keys);
+    assertThatThrownBy(() -> {
+      Collection<String> keys = IntStream.range(0, 1_100).mapToObj(index -> "repo" + index).collect(Collectors.toSet());
+      underTest.deleteIfKeyNotIn(dbTester.getSession(), keys);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("too many rule repositories: 1100");
   }
 
   @Test

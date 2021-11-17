@@ -19,14 +19,12 @@
  */
 package org.sonar.api.batch.sensor.code.internal;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -36,9 +34,6 @@ public class DefaultSignificantCodeTest {
   private InputFile inputFile = TestInputFileBuilder.create("module", "file1.xoo")
     .setContents("this is\na file\n with some code")
     .build();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void should_save_ranges() {
@@ -50,9 +45,9 @@ public class DefaultSignificantCodeTest {
 
   @Test
   public void fail_if_save_without_file() {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Call onFile() first");
-    underTest.save();
+    assertThatThrownBy(() -> underTest.save())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Call onFile() first");
   }
 
   @Test
@@ -60,24 +55,24 @@ public class DefaultSignificantCodeTest {
     underTest.onFile(inputFile);
     underTest.addRange(inputFile.selectLine(1));
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Significant code was already reported for line '1'.");
-    underTest.addRange(inputFile.selectLine(1));
+    assertThatThrownBy(() -> underTest.addRange(inputFile.selectLine(1)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Significant code was already reported for line '1'.");
   }
 
   @Test
   public void fail_if_range_includes_many_lines() {
     underTest.onFile(inputFile);
 
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Ranges of significant code must be located in a single line");
-    underTest.addRange(inputFile.newRange(1, 1, 2, 1));
+    assertThatThrownBy(() -> underTest.addRange(inputFile.newRange(1, 1, 2, 1)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Ranges of significant code must be located in a single line");
   }
 
   @Test
   public void fail_if_add_range_before_setting_file() {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("addRange() should be called after on()");
-    underTest.addRange(inputFile.selectLine(1));
+    assertThatThrownBy(() -> underTest.addRange(inputFile.selectLine(1)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("addRange() should be called after on()");
   }
 }

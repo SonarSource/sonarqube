@@ -36,13 +36,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.DateUtils;
 
 import static com.google.common.base.Strings.repeat;
@@ -52,15 +50,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 @RunWith(DataProviderRunner.class)
 public class RequestTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private FakeRequest underTest = new FakeRequest();
 
@@ -82,10 +76,9 @@ public class RequestTest {
 
   @Test
   public void required_param_is_missing() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'required_param' parameter is missing");
-
-    underTest.mandatoryParam("required_param");
+    assertThatThrownBy(() -> underTest.mandatoryParam("required_param"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'required_param' parameter is missing");
   }
 
   @Test
@@ -118,10 +111,9 @@ public class RequestTest {
     String parameter = "maximum_length_param";
     defineParameterTestAction(newParam -> newParam.setMaximumLength(10), parameter);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("'%s' length (11) is longer than the maximum authorized (10)", parameter));
-
-    underTest.setParam(parameter, repeat("X", 11)).param(parameter);
+    assertThatThrownBy(() -> underTest.setParam(parameter, repeat("X", 11)).param(parameter))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("'%s' length (11) is longer than the maximum authorized (10)", parameter));
   }
 
   @Test
@@ -140,10 +132,9 @@ public class RequestTest {
     String param = "maximum_value_param";
     defineParameterTestAction(newParam -> newParam.setMaximumValue(10), param);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("'%s' value (11) must be less than 10", param));
-
-    underTest.setParam(param, "11").param(param);
+    assertThatThrownBy(() -> underTest.setParam(param, "11").param(param))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("'%s' value (11) must be less than 10", param));
   }
 
   @Test
@@ -151,10 +142,9 @@ public class RequestTest {
     String param = "maximum_value_param";
     defineParameterTestAction(newParam -> newParam.setMaximumValue(10), param);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'maximum_value_param' value 'foo' cannot be parsed as an integer");
-
-    underTest.setParam(param, "foo").paramAsInt(param);
+    assertThatThrownBy(() -> underTest.setParam(param, "foo").paramAsInt(param))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'maximum_value_param' value 'foo' cannot be parsed as an integer");
   }
 
   @Test
@@ -166,10 +156,9 @@ public class RequestTest {
 
   @Test
   public void fail_if_no_required_param_as_strings() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'a_required_string' parameter is missing");
-
-    underTest.mandatoryParamAsStrings("a_required_string");
+    assertThatThrownBy(() -> underTest.mandatoryParamAsStrings("a_required_string"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'a_required_string' parameter is missing");
   }
 
   @Test
@@ -184,10 +173,9 @@ public class RequestTest {
   public void fail_when_multi_param_has_more_values_than_maximum_values() {
     underTest.setMultiParam("has_maximum_values", newArrayList("firstValue", "secondValue", "thirdValue"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'has_maximum_values' can contains only 2 values, got 3");
-
-    underTest.multiParam("has_maximum_values");
+    assertThatThrownBy(() -> underTest.multiParam("has_maximum_values"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'has_maximum_values' can contains only 2 values, got 3");
   }
 
   @Test
@@ -201,10 +189,9 @@ public class RequestTest {
 
   @Test
   public void fail_when_no_multi_param() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'a_required_multi_param' parameter is missing");
-
-    underTest.mandatoryMultiParam("a_required_multi_param");
+    assertThatThrownBy(() -> underTest.mandatoryMultiParam("a_required_multi_param"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'a_required_multi_param' parameter is missing");
   }
 
   @Test
@@ -242,10 +229,9 @@ public class RequestTest {
 
   @Test
   public void fail_when_param_is_not_an_int() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as an integer value: not-an-int");
-
-    assertThat(underTest.setParam("a_number", "not-an-int").paramAsInt("a_number")).isEqualTo(123);
+    assertThatThrownBy(() -> underTest.setParam("a_number", "not-an-int").paramAsInt("a_number"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'a_number' parameter cannot be parsed as an integer value: not-an-int");
   }
 
   @Test
@@ -255,10 +241,9 @@ public class RequestTest {
 
   @Test
   public void fail_when_param_is_not_a_long() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as a long value: not_a_long");
-
-    underTest.setParam("a_number", "not_a_long").paramAsLong("a_number");
+    assertThatThrownBy(() -> underTest.setParam("a_number", "not_a_long").paramAsLong("a_number"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'a_number' parameter cannot be parsed as a long value: not_a_long");
   }
 
   @Test
@@ -271,10 +256,9 @@ public class RequestTest {
 
   @Test
   public void fail_if_incorrect_param_as_boolean() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property a_boolean is not a boolean value: oui");
-
-    underTest.setParam("a_boolean", "oui").paramAsBoolean("a_boolean");
+    assertThatThrownBy(() -> underTest.setParam("a_boolean", "oui").paramAsBoolean("a_boolean"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Property a_boolean is not a boolean value: oui");
   }
 
   @Test
@@ -295,10 +279,9 @@ public class RequestTest {
 
   @Test
   public void fail_when_param_as_enums_has_more_values_than_maximum_values() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'has_maximum_values' can contains only 2 values, got 3");
-
-    underTest.setParam("has_maximum_values", "BETA,READY,REMOVED").paramAsEnums("has_maximum_values", RuleStatus.class);
+    assertThatThrownBy(() -> underTest.setParam("has_maximum_values", "BETA,READY,REMOVED").paramAsEnums("has_maximum_values", RuleStatus.class))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'has_maximum_values' can contains only 2 values, got 3");
   }
 
   @Test
@@ -535,18 +518,16 @@ public class RequestTest {
 
   @Test
   public void fail_when_param_as_date_not_a_date() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The date 'polop' does not respect format 'yyyy-MM-dd'");
-
-    underTest.setParam("a_date", "polop").paramAsDate("a_date");
+    assertThatThrownBy(() -> underTest.setParam("a_date", "polop").paramAsDate("a_date"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The date 'polop' does not respect format 'yyyy-MM-dd'");
   }
 
   @Test
   public void fail_when_param_as_datetime_not_a_datetime() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'polop' cannot be parsed as either a date or date+time");
-
-    underTest.setParam("a_datetime", "polop").paramAsDateTime("a_datetime");
+    assertThatThrownBy(() -> underTest.setParam("a_datetime", "polop").paramAsDateTime("a_datetime"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'polop' cannot be parsed as either a date or date+time");
   }
 
   @Test
@@ -560,10 +541,9 @@ public class RequestTest {
 
   @Test
   public void fail_when_param_as_strings_has_more_values_than_maximum_values() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'has_maximum_values' can contains only 2 values, got 3");
-
-    underTest.setParam("has_maximum_values", "foo,bar,baz").paramAsStrings("has_maximum_values");
+    assertThatThrownBy(() -> underTest.setParam("has_maximum_values", "foo,bar,baz").paramAsStrings("has_maximum_values"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'has_maximum_values' can contains only 2 values, got 3");
   }
 
   @Test
@@ -573,18 +553,16 @@ public class RequestTest {
 
   @Test
   public void fail_if_param_is_not_defined() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("BUG - parameter 'unknown' is undefined for action 'my_action'");
-
-    underTest.param("unknown");
+    assertThatThrownBy(() -> underTest.param("unknown"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("BUG - parameter 'unknown' is undefined for action 'my_action'");
   }
 
   @Test
   public void fail_if_multi_param_is_not_defined() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'unknown' not found for action 'my_action'");
-
-    underTest.multiParam("unknown");
+    assertThatThrownBy(() -> underTest.multiParam("unknown"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter 'unknown' not found for action 'my_action'");
   }
 
   @Test
@@ -597,10 +575,9 @@ public class RequestTest {
   public void fail_if_not_a_possible_value() {
     underTest.setParam("has_possible_values", "not_possible");
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'has_possible_values' (not_possible) must be one of: [foo, bar]");
-
-    underTest.param("has_possible_values");
+    assertThatThrownBy(() -> underTest.param("has_possible_values"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'has_possible_values' (not_possible) must be one of: [foo, bar]");
   }
 
   @Test
@@ -624,10 +601,9 @@ public class RequestTest {
 
   @Test
   public void mandatory_param_as_part() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'required_param' parameter is missing");
-
-    underTest.mandatoryParamAsPart("required_param");
+    assertThatThrownBy(() -> underTest.mandatoryParamAsPart("required_param"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The 'required_param' parameter is missing");
   }
 
   private void defineParameterTestAction(Consumer<WebService.NewParam> newParam, String parameter) {

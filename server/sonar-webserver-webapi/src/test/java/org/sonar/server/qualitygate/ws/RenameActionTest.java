@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -35,14 +34,13 @@ import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RenameActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -110,13 +108,12 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("id", qualityGate.getUuid())
       .setParam("name", "name")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -124,13 +121,12 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("id", qualityGate.getUuid())
       .setParam("name", "")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("The 'name' parameter is missing");
   }
 
   @Test
@@ -139,25 +135,23 @@ public class RenameActionTest {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Name '%s' has already been taken", qualityGate2.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("id", qualityGate1.getUuid())
       .setParam("name", qualityGate2.getName())
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("Name '%s' has already been taken", qualityGate2.getName()));
   }
 
   @Test
   public void fail_on_unknown_quality_gate() {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("id", "123")
       .setParam("name", "new name")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -165,12 +159,11 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("old name"));
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam("id", qualityGate.getUuid())
       .setParam("name", "new name")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
 }

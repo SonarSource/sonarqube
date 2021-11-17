@@ -21,7 +21,6 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
@@ -56,8 +55,6 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   @Rule
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   protected UserSessionRule userSession = UserSessionRule.standalone();
   protected WsActionTester wsTester;

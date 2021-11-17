@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
@@ -68,8 +67,6 @@ public class IssueUpdaterTest {
 
   private System2 system2 = mock(System2.class);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(system2);

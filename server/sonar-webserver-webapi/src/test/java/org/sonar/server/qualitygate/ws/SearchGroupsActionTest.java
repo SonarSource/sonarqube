@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
@@ -37,6 +36,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -50,8 +50,6 @@ public class SearchGroupsActionTest {
   private static final String XOO = "xoo";
   private static final String FOO = "foo";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -283,12 +281,11 @@ public class SearchGroupsActionTest {
   public void fail_when_qgate_does_not_exist() {
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for name unknown");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, "unknown")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate has been found for name unknown");
   }
 
   @Test
@@ -296,11 +293,10 @@ public class SearchGroupsActionTest {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     userSession.logIn(db.users().insertUser());
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_GATE_NAME, gate.getName())
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
 }

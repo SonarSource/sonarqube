@@ -22,13 +22,12 @@ package org.sonar.ce.task.projectanalysis.api.posttask;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.ce.posttask.QualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class ConditionImplTest {
@@ -36,8 +35,6 @@ public class ConditionImplTest {
   private static final String ERROR_THRESHOLD = "error threshold";
   private static final String VALUE = "value";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private ConditionImpl.Builder builder = ConditionImpl.newBuilder()
     .setStatus(QualityGate.EvaluationStatus.OK)
@@ -50,40 +47,36 @@ public class ConditionImplTest {
   public void build_throws_NPE_if_status_is_null() {
     builder.setStatus(null);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can not be null");
   }
 
   @Test
   public void build_throws_NPE_if_metricKey_is_null() {
     builder.setMetricKey(null);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey can not be null");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("metricKey can not be null");
   }
 
   @Test
   public void build_throws_NPE_if_operator_is_null() {
     builder.setOperator(null);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator can not be null");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("operator can not be null");
   }
 
   @Test
   public void build_throws_NPE_if_error_threshold_is_null() {
     builder.setErrorThreshold(null);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("errorThreshold can not be null");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("errorThreshold can not be null");
   }
 
   @Test
@@ -91,10 +84,9 @@ public class ConditionImplTest {
     builder.setStatus(QualityGate.EvaluationStatus.NO_VALUE).setValue(null);
     ConditionImpl condition = builder.build();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("There is no value when status is NO_VALUE");
-
-    condition.getValue();
+    assertThatThrownBy(condition::getValue)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("There is no value when status is NO_VALUE");
   }
 
   @DataProvider
@@ -116,20 +108,18 @@ public class ConditionImplTest {
     builder.setStatus(status)
       .setValue(null);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("value can not be null when status is not NO_VALUE");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("value can not be null when status is not NO_VALUE");
   }
 
   @Test
   public void build_throws_IAE_if_value_is_not_null_but_status_is_NO_VALUE() {
     builder.setStatus(QualityGate.EvaluationStatus.NO_VALUE);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("value must be null when status is NO_VALUE");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("value must be null when status is NO_VALUE");
   }
 
   @Test

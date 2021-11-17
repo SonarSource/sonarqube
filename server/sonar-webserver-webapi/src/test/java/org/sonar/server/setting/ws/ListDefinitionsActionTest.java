@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
@@ -49,6 +48,7 @@ import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -72,8 +72,6 @@ import static org.sonarqube.ws.Settings.Type.TEXT;
 
 public class ListDefinitionsActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -392,19 +390,19 @@ public class ListDefinitionsActionTest {
     userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
-    expectedException.expect(ForbiddenException.class);
-
-    executeRequest(project.getDbKey());
+    assertThatThrownBy(() -> executeRequest(project.getDbKey()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_component_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'unknown' not found");
-
-    ws.newRequest()
-      .setParam("component", "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam("component", "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'unknown' not found");
   }
 
   @Test

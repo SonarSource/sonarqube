@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
@@ -42,12 +41,12 @@ import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class LoadDuplicationsFromReportStepTest {
   private static final int LINE = 2;
@@ -68,8 +67,6 @@ public class LoadDuplicationsFromReportStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
@@ -187,10 +184,10 @@ public class LoadDuplicationsFromReportStepTest {
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(666, line + 1)));
 
-    expectedException.expect(VisitException.class);
-    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("Component with ref '666' can't be found"));
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(VisitException.class)
+      .hasCauseInstanceOf(IllegalArgumentException.class)
+      .hasRootCauseMessage("Component with ref '666' can't be found");
   }
 
   @Test
@@ -198,10 +195,10 @@ public class LoadDuplicationsFromReportStepTest {
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(FILE_1_REF, line + 1)));
 
-    expectedException.expect(VisitException.class);
-    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("file and otherFile references can not be the same"));
-
-    underTest.execute(new TestComputationStepContext());
+    assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))
+      .isInstanceOf(VisitException.class)
+      .hasCauseInstanceOf(IllegalArgumentException.class)
+      .hasRootCauseMessage("file and otherFile references can not be the same");
   }
 
   private void assertDuplications(int fileRef, TextBlock original, Duplicate... duplicates) {

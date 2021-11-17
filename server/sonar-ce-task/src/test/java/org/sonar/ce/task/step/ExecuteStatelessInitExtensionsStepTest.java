@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.step;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,8 +32,6 @@ import static org.mockito.Mockito.verify;
 
 public class ExecuteStatelessInitExtensionsStepTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_getDescription() {

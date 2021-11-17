@@ -29,7 +29,6 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -38,6 +37,7 @@ import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.util.CloseableIterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,8 +52,6 @@ public class SourceHashRepositoryImplTest {
 
   @Rule
   public SourceLinesRepositoryRule sourceLinesRepository = new SourceLinesRepositoryRule();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private SourceLinesRepository mockedSourceLinesRepository = mock(SourceLinesRepository.class);
 
@@ -62,19 +60,17 @@ public class SourceHashRepositoryImplTest {
 
   @Test
   public void getRawSourceHash_throws_NPE_if_Component_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Specified component can not be null");
-
-    underTest.getRawSourceHash(null);
+    assertThatThrownBy(() -> underTest.getRawSourceHash(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Specified component can not be null");
   }
 
   @Test
   @UseDataProvider("componentsOfAllTypesButFile")
   public void getRawSourceHash_throws_IAE_if_Component_argument_is_not_FILE(Component component) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("File source information can only be retrieved from FILE components (got " + component.getType() + ")");
-
-    underTest.getRawSourceHash(component);
+    assertThatThrownBy(() -> underTest.getRawSourceHash(component))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("File source information can only be retrieved from FILE components (got " + component.getType() + ")");
   }
 
   @DataProvider
@@ -141,9 +137,8 @@ public class SourceHashRepositoryImplTest {
     IllegalArgumentException thrown = new IllegalArgumentException("this IAE will cause the hash computation to fail");
     when(mockedSourceLinesRepository.readLines(FILE_COMPONENT)).thenThrow(thrown);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(thrown.getMessage());
-
-    mockedUnderTest.getRawSourceHash(FILE_COMPONENT);
+    assertThatThrownBy(() -> mockedUnderTest.getRawSourceHash(FILE_COMPONENT))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(thrown.getMessage());
   }
 }

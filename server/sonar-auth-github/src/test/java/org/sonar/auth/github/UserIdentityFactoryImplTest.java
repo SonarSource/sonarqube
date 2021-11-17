@@ -19,9 +19,7 @@
  */
 package org.sonar.auth.github;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -31,8 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserIdentityFactoryImplTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
   private UserIdentityFactoryImpl underTest = new UserIdentityFactoryImpl();

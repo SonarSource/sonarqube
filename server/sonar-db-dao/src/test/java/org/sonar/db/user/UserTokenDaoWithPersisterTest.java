@@ -21,7 +21,6 @@ package org.sonar.db.user;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -46,8 +45,6 @@ public class UserTokenDaoWithPersisterTest {
 
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final DbSession dbSession = db.getSession();
   private final DbClient dbClient = db.getDbClient();

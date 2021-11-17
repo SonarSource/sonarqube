@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactory;
@@ -41,6 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
@@ -50,8 +50,6 @@ public class AddGroupActionTest {
   private static final String XOO = "xoo";
   private static final Languages LANGUAGES = LanguageTesting.newLanguages(XOO);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -173,14 +171,15 @@ public class AddGroupActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with name 'unknown'");
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_GROUP, "unknown")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+        .setParam(PARAM_LANGUAGE, XOO)
+        .setParam(PARAM_GROUP, "unknown")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No group with name 'unknown'");
   }
 
   @Test
@@ -188,14 +187,15 @@ public class AddGroupActionTest {
     GroupDto group = db.users().insertGroup();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, "unknown")
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_GROUP, group.getName())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, "unknown")
+        .setParam(PARAM_LANGUAGE, XOO)
+        .setParam(PARAM_GROUP, group.getName())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
   }
 
   @Test
@@ -204,14 +204,15 @@ public class AddGroupActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Quality Profile for language 'xoo' and name '%s' does not exist", profile.getName()));
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_GROUP, user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+        .setParam(PARAM_LANGUAGE, XOO)
+        .setParam(PARAM_GROUP, user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Quality Profile for language 'xoo' and name '%s' does not exist", profile.getName()));
   }
 
   @Test
@@ -220,14 +221,15 @@ public class AddGroupActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO).setIsBuiltIn(true));
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(String.format("Operation forbidden for built-in Quality Profile '%s' with language 'xoo'", profile.getName()));
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_GROUP, user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+        .setParam(PARAM_LANGUAGE, XOO)
+        .setParam(PARAM_GROUP, user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(String.format("Operation forbidden for built-in Quality Profile '%s' with language 'xoo'", profile.getName()));
   }
 
   @Test
@@ -236,12 +238,13 @@ public class AddGroupActionTest {
     UserDto user = db.users().insertUser();
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_GROUP, user.getLogin())
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+        .setParam(PARAM_LANGUAGE, XOO)
+        .setParam(PARAM_GROUP, user.getLogin())
+        .execute();
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.server.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.utils.log.LogTester;
@@ -34,8 +33,6 @@ import static org.mockito.Mockito.when;
 
 public class LogOAuthWarningTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 

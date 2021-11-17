@@ -24,15 +24,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.Level;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.qualitygate.EvaluatedQualityGate.newBuilder;
 
 public class EvaluatedQualityGateTest {
@@ -47,8 +46,6 @@ public class EvaluatedQualityGateTest {
   private static final QualityGate ALL_CONDITIONS_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME,
     new HashSet<>(Arrays.asList(CONDITION_1, CONDITION_2, CONDITION_3)));
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
   private final Level randomStatus = Level.values()[random.nextInt(Level.values().length)];
@@ -62,26 +59,23 @@ public class EvaluatedQualityGateTest {
   public void build_fails_with_NPE_if_status_not_set() {
     builder.setQualityGate(NO_CONDITION_QUALITY_GATE);
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test
   public void addCondition_fails_with_NPE_if_condition_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("condition can't be null");
-
-    builder.addEvaluatedCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value");
+    assertThatThrownBy(() ->  builder.addEvaluatedCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("condition can't be null");
   }
 
   @Test
   public void addCondition_fails_with_NPE_if_status_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    builder.addEvaluatedCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2"), null, "a_value");
+    assertThatThrownBy(() -> builder.addEvaluatedCondition(new Condition("metric_key", Condition.Operator.LESS_THAN, "2"), null, "a_value"))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("status can't be null");
   }
 
   @Test
@@ -103,10 +97,9 @@ public class EvaluatedQualityGateTest {
       .setStatus(randomStatus)
       .addEvaluatedCondition(CONDITION_1, randomEvaluationStatus, randomValue);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Evaluation provided for unknown conditions: [" + CONDITION_1 + "]");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Evaluation provided for unknown conditions: [" + CONDITION_1 + "]");
   }
 
   @Test
@@ -114,10 +107,9 @@ public class EvaluatedQualityGateTest {
     builder.setQualityGate(ONE_CONDITION_QUALITY_GATE)
       .setStatus(randomStatus);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Evaluation missing for the following conditions: [" + CONDITION_1 + "]");
-
-    builder.build();
+    assertThatThrownBy(() -> builder.build())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Evaluation missing for the following conditions: [" + CONDITION_1 + "]");
   }
 
   @Test

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService.Param;
@@ -56,6 +55,7 @@ import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
@@ -73,8 +73,6 @@ import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIOD;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_ADDITIONAL_PERIODS;
@@ -100,8 +98,6 @@ import static org.sonarqube.ws.Measures.Measure;
 public class ComponentTreeActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -731,13 +727,14 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'metricKeys' parameter must contain at least one metric key");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "")
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "")
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The 'metricKeys' parameter must contain at least one metric key");
   }
 
   @Test
@@ -746,12 +743,14 @@ public class ComponentTreeActionTest {
     db.components().insertSnapshot(project);
     insertNclocMetric();
     insertNewViolationsMetric();
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
 
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations, unknown-metric, another-unknown-metric").executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations, unknown-metric, another-unknown-metric").executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
   }
 
   @Test
@@ -762,13 +761,14 @@ public class ComponentTreeActionTest {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib2").setValueType(DISTRIB.name()));
     db.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metrics distrib1, distrib2 can't be requested in this web service. Please use api/measures/component");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "distrib1,distrib2")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "distrib1,distrib2")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metrics distrib1, distrib2 can't be requested in this web service. Please use api/measures/component");
   }
 
   @Test
@@ -780,13 +780,14 @@ public class ComponentTreeActionTest {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data2").setValueType(DISTRIB.name()));
     db.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Metrics data1, data2 can't be requested in this web service. Please use api/measures/component");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "data1,data2")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "data1,data2")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Metrics data1, data2 can't be requested in this web service. Please use api/measures/component");
   }
 
   @Test
@@ -798,13 +799,14 @@ public class ComponentTreeActionTest {
       .collect(MoreCollectors.toList());
     db.commit();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'metricKeys' can contains only 15 values, got 20");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, Joiner.on(",").join(metrics))
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, Joiner.on(",").join(metrics))
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'metricKeys' can contains only 15 values, got 20");
   }
 
   @Test
@@ -813,14 +815,16 @@ public class ComponentTreeActionTest {
     db.components().insertSnapshot(project);
     insertNclocMetric();
     insertNewViolationsMetric();
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
 
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations")
-      .setParam(Param.TEXT_QUERY, "fi")
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations")
+        .setParam(Param.TEXT_QUERY, "fi")
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'q' length (2) is shorter than the minimum authorized (3)");
   }
 
   @Test
@@ -829,28 +833,30 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_when_sort_by_metric_and_no_metric_sort_provided() {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
-    expectedException.expect(BadRequestException.class);
-    expectedException
-      .expectMessage("To sort by a metric, the 's' parameter must contain 'metric' or 'metricPeriod', and a metric key must be provided in the 'metricSort' parameter");
 
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      // PARAM_METRIC_SORT is not set
-      .setParam(SORT, METRIC_SORT)
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        // PARAM_METRIC_SORT is not set
+        .setParam(SORT, METRIC_SORT)
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("To sort by a metric, the 's' parameter must contain 'metric' or 'metricPeriod', and a metric key must be provided in the 'metricSort' parameter");
   }
 
   @Test
@@ -858,15 +864,16 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("To sort by the 'complexity' metric, it must be in the list of metric keys in the 'metricKeys' parameter");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc,violations")
-      .setParam(PARAM_METRIC_SORT, "complexity")
-      .setParam(SORT, METRIC_SORT)
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc,violations")
+        .setParam(PARAM_METRIC_SORT, "complexity")
+        .setParam(SORT, METRIC_SORT)
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("To sort by the 'complexity' metric, it must be in the list of metric keys in the 'metricKeys' parameter");
   }
 
   @Test
@@ -874,16 +881,17 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("To sort by a metric period, the 's' parameter must contain 'metricPeriod' and the 'metricPeriodSort' must be provided.");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_METRIC_SORT, "ncloc")
-      // PARAM_METRIC_PERIOD_SORT_IS_NOT_SET
-      .setParam(SORT, METRIC_PERIOD_SORT)
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .setParam(PARAM_METRIC_SORT, "ncloc")
+        // PARAM_METRIC_PERIOD_SORT_IS_NOT_SET
+        .setParam(SORT, METRIC_PERIOD_SORT)
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("To sort by a metric period, the 's' parameter must contain 'metricPeriod' and the 'metricPeriodSort' must be provided.");
   }
 
   @Test
@@ -892,14 +900,15 @@ public class ComponentTreeActionTest {
     db.components().insertSnapshot(project);
     insertNclocMetric();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'ps' value (2540) must be less than 500");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(Param.PAGE_SIZE, "2540")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .setParam(Param.PAGE_SIZE, "2540")
+        .execute();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'ps' value (2540) must be less than 500");
   }
 
   @Test
@@ -908,28 +917,29 @@ public class ComponentTreeActionTest {
     db.components().insertSnapshot(project);
     insertNclocMetric();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException
-      .expectMessage("To filter components based on the sort metric, the 's' parameter must contain 'metric' or 'metricPeriod' and the 'metricSort' parameter must be provided");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER)
-      .executeProtobuf(ComponentTreeWsResponse.class);
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, project.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER)
+        .executeProtobuf(ComponentTreeWsResponse.class);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("To filter components based on the sort metric, the 's' parameter must contain 'metric' or 'metricPeriod' and the 'metricSort' parameter must be provided");
   }
 
   @Test
   public void fail_when_component_does_not_exist() {
     insertNclocMetric();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'project-key' not found");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, "project-key")
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, "project-key")
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'project-key' not found");
   }
 
   @Test
@@ -940,13 +950,14 @@ public class ComponentTreeActionTest {
     userSession.anonymous().addProjectPermission(UserRole.USER, project);
     insertNclocMetric();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", file.getKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, file.getKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", file.getKey()));
   }
 
   @Test
@@ -956,14 +967,15 @@ public class ComponentTreeActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
     db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_BRANCH, "another_branch")
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, file.getKey())
+        .setParam(PARAM_BRANCH, "another_branch")
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -973,13 +985,14 @@ public class ComponentTreeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     insertNclocMetric();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .execute();
+    assertThatThrownBy(() -> {
+      ws.newRequest()
+        .setParam(PARAM_COMPONENT, branch.getDbKey())
+        .setParam(PARAM_METRIC_KEYS, "ncloc")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   private static MetricDto newMetricDto() {

@@ -19,15 +19,12 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MigrationStepExecutionExceptionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private RegisteredMigrationStep step = new RegisteredMigrationStep(1, "foo", MigrationStep.class);
   private MigrationStepExecutionException underTest = new MigrationStepExecutionException(
@@ -40,18 +37,20 @@ public class MigrationStepExecutionExceptionTest {
 
   @Test
   public void constructor_throws_NPE_if_step_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("RegisteredMigrationStep can't be null");
-
-    new MigrationStepExecutionException(null, new NullPointerException("Some cause"));
+    assertThatThrownBy(() -> {
+      new MigrationStepExecutionException(null, new NullPointerException("Some cause"));
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("RegisteredMigrationStep can't be null");
   }
 
   @Test
   public void constructor_throws_NPE_if_cause_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("cause can't be null");
-
-    new MigrationStepExecutionException(new RegisteredMigrationStep(1, "foo", MigrationStep.class), null);
+    assertThatThrownBy(() -> {
+      new MigrationStepExecutionException(new RegisteredMigrationStep(1, "foo", MigrationStep.class), null);
+    })
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("cause can't be null");
   }
 
   @Test

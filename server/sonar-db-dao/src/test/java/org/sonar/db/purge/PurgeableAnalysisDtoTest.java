@@ -19,15 +19,12 @@
  */
 package org.sonar.db.purge;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PurgeableAnalysisDtoTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void testEquals() {
@@ -49,8 +46,9 @@ public class PurgeableAnalysisDtoTest {
     // no uuid => NPE
     dto = new PurgeableAnalysisDto();
 
-    expectedException.expect(NullPointerException.class);
-    dto.hashCode();
+    assertThatThrownBy(dto::hashCode)
+      .isInstanceOf(NullPointerException.class);
+
   }
 
   @Test

@@ -22,19 +22,16 @@ package org.sonar.process.cluster.hz;
 import com.hazelcast.cluster.Member;
 import java.io.IOException;
 import java.util.UUID;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
 
 public class DistributedAnswerTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final Member member = newMember(UUID.randomUUID());
   private final DistributedAnswer<String> underTest = new DistributedAnswer<>();
@@ -117,10 +114,9 @@ public class DistributedAnswerTest {
     underTest.setAnswer(newMember(uuid), "baz");
     underTest.setTimedOut(newMember(otherUuid));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Distributed cluster action timed out in cluster nodes " + otherUuid);
-
-    underTest.propagateExceptions();
+    assertThatThrownBy(underTest::propagateExceptions)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Distributed cluster action timed out in cluster nodes " + otherUuid);
   }
 
   @Test
@@ -131,10 +127,9 @@ public class DistributedAnswerTest {
     underTest.setAnswer(newMember(bar), "baz");
     underTest.setFailed(newMember(foo), new IOException("BOOM"));
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Distributed cluster action in cluster nodes " + foo + " (other nodes may have timed out)");
-
-    underTest.propagateExceptions();
+    assertThatThrownBy(underTest::propagateExceptions)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Distributed cluster action in cluster nodes " + foo + " (other nodes may have timed out)");
   }
 
   private static Member newMember(UUID uuid) {

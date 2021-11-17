@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
@@ -38,6 +37,7 @@ import org.sonar.db.user.UserIdDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -55,8 +55,6 @@ public class UserPermissionChangerTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
@@ -150,20 +148,18 @@ public class UserPermissionChangerTest {
   public void apply_fails_with_BadRequestException_when_removing_permission_USER_from_a_public_project() {
     UserPermissionChange change = new UserPermissionChange(REMOVE, USER, publicProject, UserIdDto.from(user1), permissionService);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission user can't be removed from a public component");
-
-    apply(change);
+    assertThatThrownBy(() -> apply(change))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission user can't be removed from a public component");
   }
 
   @Test
   public void apply_fails_with_BadRequestException_when_removing_permission_CODEVIEWER_from_a_public_project() {
     UserPermissionChange change = new UserPermissionChange(REMOVE, CODEVIEWER, publicProject, UserIdDto.from(user1), permissionService);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
-
-    apply(change);
+    assertThatThrownBy(() -> apply(change))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test
@@ -252,20 +248,22 @@ public class UserPermissionChangerTest {
 
   @Test
   public void fail_to_add_global_permission_on_project() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Invalid project permission 'gateadmin'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
-
-    UserPermissionChange change = new UserPermissionChange(ADD, QUALITY_GATE_ADMIN, privateProject, UserIdDto.from(user1), permissionService);
-    apply(change);
+    assertThatThrownBy(() -> {
+      UserPermissionChange change = new UserPermissionChange(ADD, QUALITY_GATE_ADMIN, privateProject, UserIdDto.from(user1), permissionService);
+      apply(change);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Invalid project permission 'gateadmin'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
   }
 
   @Test
   public void fail_to_add_project_permission() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
-
-    UserPermissionChange change = new UserPermissionChange(ADD, ISSUE_ADMIN, null, UserIdDto.from(user1), permissionService);
-    apply(change);
+    assertThatThrownBy(() -> {
+      UserPermissionChange change = new UserPermissionChange(ADD, ISSUE_ADMIN, null, UserIdDto.from(user1), permissionService);
+      apply(change);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Invalid global permission 'issueadmin'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
   }
 
   @Test
@@ -320,11 +318,12 @@ public class UserPermissionChangerTest {
   public void fail_to_remove_admin_global_permission_if_no_more_admins() {
     db.users().insertPermissionOnUser(user1, SYSTEM_ADMIN);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Last user with permission 'admin'. Permission cannot be removed.");
-
-    UserPermissionChange change = new UserPermissionChange(REMOVE, SYSTEM_ADMIN, null, UserIdDto.from(user1), permissionService);
-    underTest.apply(db.getSession(), change);
+    assertThatThrownBy(() -> {
+      UserPermissionChange change = new UserPermissionChange(REMOVE, SYSTEM_ADMIN, null, UserIdDto.from(user1), permissionService);
+      underTest.apply(db.getSession(), change);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Last user with permission 'admin'. Permission cannot be removed.");
   }
 
   @Test

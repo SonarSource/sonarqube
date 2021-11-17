@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -49,6 +48,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -63,8 +63,6 @@ public class IssuesActionTest {
 
   private System2 system2 = System2.INSTANCE;
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
@@ -181,7 +179,7 @@ public class IssuesActionTest {
 
     RuleDefinitionDto external = db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setIsExternal(true));
     IssueDto issueFromExteralruleOnFile = db.issues().insert(external, project, file, i -> i.setKee("ON_FILE_FROM_EXTERNAL").setType(randomRuleTypeExceptHotspot()));
-    
+
     RuleDefinitionDto migrated = db.rules().insert();
     db.executeUpdateSql("update rules set is_external=? where rules.uuid = ?", false, migrated.getUuid());
     IssueDto issueFromMigratedRule = db.issues().insert(migrated, project, file, i -> i.setKee("MIGRATED").setType(randomRuleTypeExceptHotspot()));
@@ -281,10 +279,9 @@ public class IssuesActionTest {
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src/main/java"));
     addPermissionTo(project);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component of scope 'DIR' is not allowed");
-
-    call(directory.getKey());
+    assertThatThrownBy(() -> call(directory.getKey()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Component of scope 'DIR' is not allowed");
   }
 
   @Test
@@ -310,17 +307,15 @@ public class IssuesActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    expectedException.expect(ForbiddenException.class);
-
-    tester.newRequest().setParam("key", file.getKey()).execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("key", file.getKey()).execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_component_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component key 'does_not_exist' not found");
-
-    tester.newRequest().setParam("key", "does_not_exist").execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam("key", "does_not_exist").execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key 'does_not_exist' not found");
   }
 
   @Test
@@ -329,13 +324,14 @@ public class IssuesActionTest {
      db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     addPermissionTo(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component '%s' on branch 'does_not_exist' not found", project.getKey()));
-
-    tester.newRequest()
-      .setParam("key",project.getKey())
-      .setParam("branch", "does_not_exist")
-      .execute();
+    assertThatThrownBy(() -> {
+      tester.newRequest()
+        .setParam("key",project.getKey())
+        .setParam("branch", "does_not_exist")
+        .execute();
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Component '%s' on branch 'does_not_exist' not found", project.getKey()));
   }
 
   private void addPermissionTo(ComponentDto project) {

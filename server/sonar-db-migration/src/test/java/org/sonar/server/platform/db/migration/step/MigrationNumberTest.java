@@ -20,14 +20,12 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.util.Random;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.test.TestUtils;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 public class MigrationNumberTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_is_private() {
@@ -36,10 +34,9 @@ public class MigrationNumberTest {
 
   @Test
   public void validate_throws_IAE_if_argument_is_less_then_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Migration number must be >= 0");
-
-    MigrationNumber.validate(-(Math.abs(new Random().nextInt()) + 1));
+    assertThatThrownBy(() -> MigrationNumber.validate(-(Math.abs(new Random().nextInt()) + 1)))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Migration number must be >= 0");
   }
 
   @Test

@@ -22,7 +22,6 @@ package org.sonar.server.notification.ws;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.db.DbClient;
@@ -46,6 +45,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
@@ -61,8 +61,6 @@ public class AddActionTest {
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "Dispatcher3";
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
@@ -77,8 +75,8 @@ public class AddActionTest {
   private Dispatchers dispatchers = mock(Dispatchers.class);
 
   private WsActionTester ws = new WsActionTester(new AddAction(new NotificationCenter(
-    new NotificationDispatcherMetadata[] {},
-    new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel}),
+    new NotificationDispatcherMetadata[]{},
+    new NotificationChannel[]{emailChannel, twitterChannel, defaultChannel}),
     new NotificationUpdater(dbClient), dispatchers, dbClient, TestComponentFinder.from(db), userSession));
 
   @Test
@@ -207,21 +205,19 @@ public class AddActionTest {
     userSession.logIn(user).setSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User 'LOGIN 404' not found");
-
-    call(NOTIF_MY_NEW_ISSUES, null, null, "LOGIN 404");
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, "LOGIN 404"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("User 'LOGIN 404' not found");
   }
 
   @Test
-  public void fail_if_login_provided_and_not_system_administrator() {
+  public void fail_if_login_provided_and_not_system_administrsator() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setNonSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin());
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -231,17 +227,15 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Notification already added");
-
-    call(NOTIF_MY_NEW_ISSUES, null, null, null);
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Notification already added");
   }
 
   @Test
   public void fail_when_unknown_channel() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(NOTIF_MY_NEW_ISSUES, "Channel42", null, null);
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, "Channel42", null, null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -250,10 +244,9 @@ public class AddActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1]");
-
-    call("Dispatcher42", null, null, null);
+    assertThatThrownBy(() -> call("Dispatcher42", null, null, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1]");
   }
 
   @Test
@@ -263,10 +256,9 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
-
-    call("Dispatcher42", null, project.getKey(), null);
+    assertThatThrownBy(() -> call("Dispatcher42", null, project.getKey(), null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
   }
 
   @Test
@@ -277,17 +269,15 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
-
-    call("Dispatcher42", null, project.getKey(), null);
+    assertThatThrownBy(() -> call("Dispatcher42", null, project.getKey(), null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
   }
 
   @Test
   public void fail_when_no_dispatcher() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    ws.newRequest().execute();
+    assertThatThrownBy(() -> ws.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -297,9 +287,8 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(NotFoundException.class);
-
-    call(NOTIF_MY_NEW_ISSUES, null, "Project-42", null);
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, "Project-42", null))
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -310,10 +299,9 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Component 'VIEW_1' must be a project");
-
-    call(NOTIF_MY_NEW_ISSUES, null, "VIEW_1", null);
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, "VIEW_1", null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Component 'VIEW_1' must be a project");
   }
 
   @Test
@@ -321,9 +309,8 @@ public class AddActionTest {
     userSession.anonymous();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(UnauthorizedException.class);
-
-    call(NOTIF_MY_NEW_ISSUES, null, null, null);
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, null, null))
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -334,10 +321,9 @@ public class AddActionTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
-
-    call(NOTIF_MY_NEW_ISSUES, null, branch.getDbKey(), null);
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, branch.getDbKey(), null))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -347,9 +333,8 @@ public class AddActionTest {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), userSession.getLogin());
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), userSession.getLogin()))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private TestResponse call(String type, @Nullable String channel, @Nullable String project, @Nullable String login) {

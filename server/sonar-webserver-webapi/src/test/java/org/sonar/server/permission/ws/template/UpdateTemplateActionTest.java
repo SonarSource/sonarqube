@@ -33,6 +33,7 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
@@ -131,10 +132,11 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   public void fail_if_key_is_not_found() {
     loginAsAdmin();
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
-
-    call("unknown-key", null, null, null);
+    assertThatThrownBy(() ->  {
+      call("unknown-key", null, null, null);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id 'unknown-key' is not found");
   }
 
   @Test
@@ -142,49 +144,54 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
     loginAsAdmin();
     PermissionTemplateDto anotherTemplate = addTemplate();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A template with the name '" + anotherTemplate.getName() + "' already exists (case insensitive).");
-
-    call(this.template.getUuid(), anotherTemplate.getName(), null, null);
+    assertThatThrownBy(() ->  {
+      call(this.template.getUuid(), anotherTemplate.getName(), null, null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("A template with the name '" + anotherTemplate.getName() + "' already exists (case insensitive).");
   }
 
   @Test
   public void fail_if_key_is_not_provided() {
     loginAsAdmin();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(null, "Finance", null, null);
+    assertThatThrownBy(() ->  {
+      call(null, "Finance", null, null);
+    })
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_name_empty() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The template name must not be blank");
-
-    call(template.getUuid(), "", null, null);
+    assertThatThrownBy(() ->  {
+      call(template.getUuid(), "", null, null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The template name must not be blank");
   }
 
   @Test
   public void fail_if_name_has_just_whitespaces() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The template name must not be blank");
-
-    call(template.getUuid(), "  \r\n", null, null);
+    assertThatThrownBy(() ->  {
+      call(template.getUuid(), "  \r\n", null, null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The template name must not be blank");
   }
 
   @Test
   public void fail_if_regexp_if_not_valid() {
     loginAsAdmin();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
-
-    call(template.getUuid(), "Finance", null, "[azerty");
+    assertThatThrownBy(() ->  {
+      call(template.getUuid(), "Finance", null, "[azerty");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
   }
 
   @Test
@@ -193,27 +200,32 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
     PermissionTemplateDto anotherTemplate = addTemplate();
 
     String nameCaseInsensitive = anotherTemplate.getName().toUpperCase();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("A template with the name '" + nameCaseInsensitive + "' already exists (case insensitive).");
 
-    call(this.template.getUuid(), nameCaseInsensitive, null, null);
+    assertThatThrownBy(() ->  {
+      call(this.template.getUuid(), nameCaseInsensitive, null, null);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("A template with the name '" + nameCaseInsensitive + "' already exists (case insensitive).");
   }
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
+    assertThatThrownBy(() ->  {
+      userSession.anonymous();
 
-    call(template.getUuid(), "Finance", null, null);
+      call(template.getUuid(), "Finance", null, null);
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_if_not_admin() {
     userSession.logIn().addPermission(SCAN);
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(template.getUuid(), "Finance", null, null);
+    assertThatThrownBy(() ->  {
+      call(template.getUuid(), "Finance", null, null);
+    })
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private String call(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) {

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Language;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class LanguageRepositoryImplTest {
 
@@ -31,9 +32,10 @@ public class LanguageRepositoryImplTest {
   private static final String SOME_LANGUAGE_KEY = "SoMe language_Key";
   private static final Language SOME_LANGUAGE = createLanguage(SOME_LANGUAGE_KEY, "_name");
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void constructor_fails_is_language_have_the_same_key() {
-    new LanguageRepositoryImpl(createLanguage(SOME_LANGUAGE_KEY, " 1"), createLanguage(SOME_LANGUAGE_KEY, " 2"));
+    assertThatThrownBy(() -> new LanguageRepositoryImpl(createLanguage(SOME_LANGUAGE_KEY, " 1"), createLanguage(SOME_LANGUAGE_KEY, " 2")))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

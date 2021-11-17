@@ -21,7 +21,6 @@ package org.sonar.server.projectlink.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -37,13 +36,12 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_ID;
 
 public class DeleteActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -97,20 +95,18 @@ public class DeleteActionTest {
     ProjectLinkDto link = db.componentLinks().insertProvidedLink(project);
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Provided link cannot be deleted");
-
-    deleteLink(link);
+    assertThatThrownBy(() -> deleteLink(link))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Provided link cannot be deleted");
   }
 
   @Test
   public void fail_on_unknown_link() {
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_ID, "UNKNOWN")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -119,9 +115,8 @@ public class DeleteActionTest {
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.anonymous();
 
-    expectedException.expect(ForbiddenException.class);
-
-    deleteLink(link);
+    assertThatThrownBy(() -> deleteLink(link))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
@@ -130,8 +125,8 @@ public class DeleteActionTest {
     ProjectLinkDto link = db.componentLinks().insertCustomLink(project);
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    deleteLink(link);
+    assertThatThrownBy(() -> deleteLink(link))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

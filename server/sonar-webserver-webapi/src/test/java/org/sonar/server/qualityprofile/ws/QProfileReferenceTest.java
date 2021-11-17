@@ -19,20 +19,17 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.ws.SimpleGetRequest;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 
 public class QProfileReferenceTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fromKey_creates_reference_by_key() {
@@ -45,18 +42,18 @@ public class QProfileReferenceTest {
   public void getLanguage_throws_ISE_on_reference_by_key() {
     QProfileReference ref = QProfileReference.fromKey("foo");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Language is not defined. Please call hasKey().");
-    ref.getLanguage();
+    assertThatThrownBy(() -> ref.getLanguage())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Language is not defined. Please call hasKey().");
   }
 
   @Test
   public void getName_throws_ISE_on_reference_by_key() {
     QProfileReference ref = QProfileReference.fromKey("foo");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Name is not defined. Please call hasKey().");
-    ref.getName();
+    assertThatThrownBy(() -> ref.getName())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Name is not defined. Please call hasKey().");
   }
 
   @Test
@@ -71,10 +68,9 @@ public class QProfileReferenceTest {
   public void getKey_throws_ISE_on_reference_by_name() {
     QProfileReference ref = QProfileReference.fromName("js", "Sonar way");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Key is not defined. Please call hasKey().");
-
-    ref.getKey();
+    assertThatThrownBy(() -> ref.getKey())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Key is not defined. Please call hasKey().");
   }
 
   @Test
@@ -92,8 +88,8 @@ public class QProfileReferenceTest {
   public void throw_IAE_if_request_does_not_define_ref() {
     SimpleGetRequest req = new SimpleGetRequest();
 
-    expectedException.expect(IllegalArgumentException.class);
-    QProfileReference.fromName(req);
+    assertThatThrownBy(() -> QProfileReference.fromName(req))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

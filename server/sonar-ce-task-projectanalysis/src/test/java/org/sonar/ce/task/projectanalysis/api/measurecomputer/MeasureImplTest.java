@@ -19,17 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.api.measurecomputer;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MeasureImplTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void get_int_value() {
@@ -39,11 +36,12 @@ public class MeasureImplTest {
 
   @Test
   public void fail_with_ISE_when_not_int_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Value can not be converted to int because current value type is a DOUBLE");
-
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
-    measure.getIntValue();
+    assertThatThrownBy(() -> {
+      MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
+      measure.getIntValue();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Value can not be converted to int because current value type is a DOUBLE");
   }
 
   @Test
@@ -54,11 +52,12 @@ public class MeasureImplTest {
 
   @Test
   public void fail_with_ISE_when_not_double_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Value can not be converted to double because current value type is a INT");
-
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1));
-    measure.getDoubleValue();
+    assertThatThrownBy(() -> {
+      MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1));
+      measure.getDoubleValue();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Value can not be converted to double because current value type is a INT");
   }
 
   @Test
@@ -69,11 +68,12 @@ public class MeasureImplTest {
 
   @Test
   public void fail_with_ISE_when_not_long_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Value can not be converted to long because current value type is a STRING");
-
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create("value"));
-    measure.getLongValue();
+    assertThatThrownBy(() -> {
+      MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create("value"));
+      measure.getLongValue();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Value can not be converted to long because current value type is a STRING");
   }
 
   @Test
@@ -84,11 +84,12 @@ public class MeasureImplTest {
 
   @Test
   public void fail_with_ISE_when_not_string_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Value can not be converted to string because current value type is a LONG");
-
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1L));
-    measure.getStringValue();
+    assertThatThrownBy(() -> {
+      MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1L));
+      measure.getStringValue();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Value can not be converted to string because current value type is a LONG");
   }
 
   @Test
@@ -99,34 +100,32 @@ public class MeasureImplTest {
 
   @Test
   public void fail_with_ISE_when_not_boolean_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Value can not be converted to boolean because current value type is a DOUBLE");
-
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
-    measure.getBooleanValue();
+    assertThatThrownBy(() -> {
+      MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
+      measure.getBooleanValue();
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Value can not be converted to boolean because current value type is a DOUBLE");
   }
 
   @Test
   public void fail_with_ISE_when_creating_measure_with_no_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only following types are allowed [BOOLEAN, INT, LONG, DOUBLE, STRING]");
-
-    new MeasureImpl(Measure.newMeasureBuilder().createNoValue());
+    assertThatThrownBy(() -> new MeasureImpl(Measure.newMeasureBuilder().createNoValue()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Only following types are allowed [BOOLEAN, INT, LONG, DOUBLE, STRING]");
   }
 
   @Test
   public void fail_with_ISE_when_creating_measure_with_not_allowed_value() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only following types are allowed [BOOLEAN, INT, LONG, DOUBLE, STRING]");
-
-    new MeasureImpl(Measure.newMeasureBuilder().create(Measure.Level.ERROR));
+    assertThatThrownBy(() -> new MeasureImpl(Measure.newMeasureBuilder().create(Measure.Level.ERROR)))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Only following types are allowed [BOOLEAN, INT, LONG, DOUBLE, STRING]");
   }
 
   @Test
   public void fail_with_NPE_when_creating_measure_with_null_measure() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Measure couldn't be null");
-
-    new MeasureImpl(null);
+    assertThatThrownBy(() -> new MeasureImpl(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Measure couldn't be null");
   }
 }

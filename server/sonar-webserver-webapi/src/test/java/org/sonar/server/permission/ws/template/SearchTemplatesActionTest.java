@@ -44,6 +44,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
@@ -208,10 +209,11 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void fail_if_not_logged_in() {
-    expectedException.expect(UnauthorizedException.class);
-    userSession.anonymous();
-
-    newRequest().execute();
+    assertThatThrownBy(() ->  {
+      userSession.anonymous();
+      newRequest().execute();
+    })
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test

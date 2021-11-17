@@ -34,8 +34,6 @@ import static org.mockito.Mockito.verify;
 public class CeTaskInterrupterWorkerExecutionListenerTest {
   private CeTaskInterrupter ceTaskInterrupter = mock(CeTaskInterrupter.class);
   private CeTaskInterrupterWorkerExecutionListener underTest = new CeTaskInterrupterWorkerExecutionListener(ceTaskInterrupter);
-
-
   @Test
   public void onStart_delegates_to_ceTaskInterrupter_onStart() {
     CeTask ceTask = mock(CeTask.class);

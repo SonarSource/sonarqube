@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
@@ -40,6 +39,7 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,8 +59,6 @@ public class UpdateActionTest {
   private UpdateAction underTest = new UpdateAction(updateCenterFactory, pluginDownloader, userSessionRule);
   private WsActionTester tester = new WsActionTester(underTest);
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -69,20 +67,18 @@ public class UpdateActionTest {
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test
@@ -104,21 +100,17 @@ public class UpdateActionTest {
   public void IAE_is_raised_when_key_param_is_not_provided() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-
-    tester.newRequest().execute();
+    assertThatThrownBy(() -> tester.newRequest().execute())
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void IAE_is_raised_when_there_is_no_plugin_update_for_the_key() {
     logInAsSystemAdministrator();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No plugin with key 'pluginKey'");
-
-    tester.newRequest()
-      .setParam(KEY_PARAM, PLUGIN_KEY)
-      .execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam(KEY_PARAM, PLUGIN_KEY).execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("No plugin with key 'pluginKey'");
   }
 
   @Test
@@ -126,12 +118,9 @@ public class UpdateActionTest {
     logInAsSystemAdministrator();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No plugin with key 'pluginKey'");
-
-    tester.newRequest()
-      .setParam(KEY_PARAM, PLUGIN_KEY)
-      .execute();
+    assertThatThrownBy(() -> tester.newRequest().setParam(KEY_PARAM, PLUGIN_KEY).execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("No plugin with key 'pluginKey'");
   }
 
   @Test

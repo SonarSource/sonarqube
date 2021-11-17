@@ -25,12 +25,12 @@ import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.JUnitTempFolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,8 +42,6 @@ public class SourceLinesHashCacheTest {
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   private SourceLinesHashCache underTest;
 
@@ -73,9 +71,9 @@ public class SourceLinesHashCacheTest {
   public void get_throws_ISE_if_not_cached() {
     Component component = createComponent(1);
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Source line hashes for component ReportComponent{ref=1, key='FILE_KEY', type=FILE} not cached");
-    underTest.get(component);
+    assertThatThrownBy(() -> underTest.get(component))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Source line hashes for component ReportComponent{ref=1, key='FILE_KEY', type=FILE} not cached");
   }
 
   @Test

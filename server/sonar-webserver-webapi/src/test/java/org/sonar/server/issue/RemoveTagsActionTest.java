@@ -22,20 +22,17 @@ package org.sonar.server.issue;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.core.issue.DefaultIssue;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RemoveTagsActionTest {
 
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
 
   private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
   private RemoveTagsAction action = new RemoveTagsAction(issueUpdater);
@@ -57,18 +54,19 @@ public class RemoveTagsActionTest {
 
   @Test
   public void should_fail_if_tag_is_not_valid() {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
+    assertThatThrownBy(() -> {
+      Map<String, Object> properties = new HashMap<>();
+      properties.put("tags", "th ag");
 
-    Map<String, Object> properties = new HashMap<>();
-    properties.put("tags", "th ag");
+      DefaultIssue issue = mock(DefaultIssue.class);
+      when(issue.tags()).thenReturn(ImmutableSet.of("tag1", "tag3"));
 
-    DefaultIssue issue = mock(DefaultIssue.class);
-    when(issue.tags()).thenReturn(ImmutableSet.of("tag1", "tag3"));
+      Action.Context context = mock(Action.Context.class);
+      when(context.issue()).thenReturn(issue);
 
-    Action.Context context = mock(Action.Context.class);
-    when(context.issue()).thenReturn(issue);
-
-    action.execute(properties, context);
+      action.execute(properties, context);
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
   }
 }

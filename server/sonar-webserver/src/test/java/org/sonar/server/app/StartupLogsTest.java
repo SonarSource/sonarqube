@@ -21,12 +21,11 @@ package org.sonar.server.app;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,8 +33,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class StartupLogsTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
   private Logger logger = mock(Logger.class);
@@ -46,10 +43,9 @@ public class StartupLogsTest {
     Connector connector = newConnector("AJP/1.3", "ajp");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unsupported connector: Connector[AJP/1.3-1234]");
-    
-    underTest.log(tomcat);
+    assertThatThrownBy(() -> underTest.log(tomcat))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Unsupported connector: Connector[AJP/1.3-1234]");
   }
 
   @Test

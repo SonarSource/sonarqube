@@ -24,7 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -48,6 +47,7 @@ import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
@@ -59,8 +59,6 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPE
 @RunWith(DataProviderRunner.class)
 public class UpdateConditionActionTest {
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -160,15 +158,14 @@ public class UpdateConditionActionTest {
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "10")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
 
   @Test
@@ -178,15 +175,14 @@ public class UpdateConditionActionTest {
     MetricDto metric = insertMetric();
     db.qualityGates().addCondition(qualityGate, metric);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate condition with uuid '123'");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, "123")
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("No quality gate condition with uuid '123'");
   }
 
   @Test
@@ -199,15 +195,14 @@ public class UpdateConditionActionTest {
     db.getDbClient().gateConditionDao().insert(condition, dbSession);
     db.commit();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
   }
 
   @Test
@@ -218,15 +213,14 @@ public class UpdateConditionActionTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("LT").setErrorThreshold("80"));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "ABC")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Value of parameter 'op' (ABC) must be one of: [LT, GT]");
   }
 
   @Test
@@ -238,15 +232,14 @@ public class UpdateConditionActionTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator(validOperator).setErrorThreshold("80"));
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage(format("Operator %s is not allowed for this metric.", updateOperator));
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, updateOperator)
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining(format("Operator %s is not allowed for this metric.", updateOperator));
   }
 
   @Test
@@ -256,15 +249,14 @@ public class UpdateConditionActionTest {
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
+    assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
-      .execute();
+      .execute())
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessageContaining("Insufficient privileges");
   }
 
   @Test

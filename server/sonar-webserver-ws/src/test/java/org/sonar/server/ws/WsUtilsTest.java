@@ -21,7 +21,6 @@ package org.sonar.server.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.Issues;
@@ -29,12 +28,9 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.test.ExceptionCauseMatcher.hasType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class WsUtilsTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public LogTester logger = new LogTester();
@@ -74,11 +70,11 @@ public class WsUtilsTest {
 
     Permissions.Permission message = Permissions.Permission.newBuilder().setName("permission-name").build();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectCause(hasType(NullPointerException.class));
-    expectedException.expectMessage("Error while writing protobuf message");
     // provoke NullPointerException
-    WsUtils.writeProtobuf(message, null, new DumbResponse());
+    assertThatThrownBy(() -> WsUtils.writeProtobuf(message, null, new DumbResponse()))
+      .isInstanceOf(IllegalStateException.class)
+      .hasCauseInstanceOf(NullPointerException.class)
+      .hasMessageContaining("Error while writing protobuf message");
   }
 
   @Test
@@ -89,10 +85,9 @@ public class WsUtilsTest {
 
   @Test
   public void checkRequest_ko() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Missing param: foo");
-
-    BadRequestException.checkRequest(false, "Missing param: %s", "foo");
+    assertThatThrownBy(() -> BadRequestException.checkRequest(false, "Missing param: %s", "foo"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessageContaining("Missing param: foo");
   }
 
 }

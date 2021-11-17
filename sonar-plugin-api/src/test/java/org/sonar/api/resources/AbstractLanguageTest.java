@@ -19,16 +19,13 @@
  */
 package org.sonar.api.resources;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AbstractLanguageTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void test_equals_and_hashcode() {
@@ -63,10 +60,9 @@ public class AbstractLanguageTest {
 
   @Test
   public void should_not_define_language_with_too_long_key() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("The following language key exceeds 20 characters: 'aKeyWhichIsVeryVeryVeryVeryVeryLong'");
-
-    new TooLongKeyLanguage();
+    assertThatThrownBy(() -> new TooLongKeyLanguage())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("The following language key exceeds 20 characters: 'aKeyWhichIsVeryVeryVeryVeryVeryLong'");
   }
 
   static class TooLongKeyLanguage extends AbstractLanguage {
