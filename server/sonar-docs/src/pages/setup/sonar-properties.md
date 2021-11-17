@@ -351,6 +351,10 @@ The name of the cluster. Required if multiple clusters are present on the same n
 
 Comma-delimited list of search hosts in the cluster. The list can contain either the host or the host and port, but not both. The item format is `ip/hostname` for host only or`ip/hostname:port` for host and port. `ip/hostname` can also be set to the service name of the search containers .
 
+**`SONAR_CLUSTER_SEARCH_PASSWORD`**
+
+Password for Elasticsearch built-in user (elastic) which will be used on the client site. If provided, it enables authentication. This property needs to be set to the same value throughout the cluster.
+
 ### Search Nodes Only
 
 **`SONAR_CLUSTER_ES_HOSTS`**
@@ -360,6 +364,22 @@ Comma-delimited list of search hosts in the cluster. The list can contain either
 **`SONAR_CLUSTER_NODE_NAME`**
 
 The name of the node that is used on Elasticsearch and stored in Hazelcast member attribute (NODE_NAME)
+
+**`SONAR_CLUSTER_ES_SSL_KEYSTORE`**
+
+File path to a keystore in PKCS#12 format. Can be the same PKCS#12 container as the `SONAR_CLUSTER_ES_SSL_TRUSTSTORE`. The user running SonarQube must have READ permission to that file. Required if password provided.
+
+**`SONAR_CLUSTER_ES_SSL_KEYSTOREPASSWORD`**
+
+Password to the keystore.
+
+**`SONAR_CLUSTER_ES_SSL_TRUSTSTORE`**
+
+File path to a truststore in PKCS#12 format. Can be the same PKCS#12 container as the `SONAR_CLUSTER_ES_SSL_KEYSTORE`. The user running SonarQube must have READ permission to that file. Required if password provided.	
+
+**`SONAR_CLUSTER_ES_SSL_TRUSTSTOREPASSWORD`**
+
+Password to the truststore.
 
 ### Application Nodes Only
 
