@@ -20,6 +20,7 @@
 package org.sonar.server.badge.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -30,6 +31,8 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
+import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -44,10 +47,12 @@ public class ProjectBadgesSupport {
 
   private final ComponentFinder componentFinder;
   private final DbClient dbClient;
+  private final Configuration config;
 
-  public ProjectBadgesSupport(ComponentFinder componentFinder, DbClient dbClient) {
+  public ProjectBadgesSupport(ComponentFinder componentFinder, DbClient dbClient, Configuration config) {
     this.componentFinder = componentFinder;
     this.dbClient = dbClient;
+    this.config = config;
   }
 
   void addProjectAndBranchParams(WebService.NewAction action) {
@@ -101,8 +106,9 @@ public class ProjectBadgesSupport {
       } catch (NotFoundException e) {
         throw new NotFoundException(PROJECT_HAS_NOT_BEEN_FOUND);
       }
-      String token = request.param(PARAM_TOKEN);
-      if (projectDto.isPrivate() && !isTokenValid(dbSession, projectDto, token)) {
+      boolean tokenInvalid = !isTokenValid(dbSession, projectDto, request.param(PARAM_TOKEN));
+      boolean forceAuthEnabled = config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
+      if ((projectDto.isPrivate() || forceAuthEnabled) && tokenInvalid) {
         throw new NotFoundException(PROJECT_HAS_NOT_BEEN_FOUND);
       }
     }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

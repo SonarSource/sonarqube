@@ -19,23 +19,32 @@
  */
 package org.sonar.server.badge.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,6 +60,7 @@ import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchType.BRANCH;
 
+@RunWith(DataProviderRunner.class)
 public class QualityGateActionTest {
 
   @Rule
@@ -60,12 +70,19 @@ public class QualityGateActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false);
+  private final MapSettings mapSettings = new MapSettings().setProperty("sonar.sonarcloud.enabled", false).setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
+  private final Configuration config = mapSettings.asConfig();
 
-  private WsActionTester ws = new WsActionTester(
+  private final WsActionTester ws = new WsActionTester(
     new QualityGateAction(db.getDbClient(),
-      new ProjectBadgesSupport(new ComponentFinder(db.getDbClient(), null), db.getDbClient()),
+      new ProjectBadgesSupport(new ComponentFinder(db.getDbClient(), null), db.getDbClient(), config),
       new SvgGenerator(mapSettings.asConfig())));
+
+
+  @Before
+  public void before(){
+    mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
+  }
 
   @Test
   public void quality_gate_passed() {
@@ -93,6 +110,58 @@ public class QualityGateActionTest {
       .execute();
 
     checkResponse(response, ERROR);
+  }
+
+
+  @DataProvider
+  public static Object[][] publicProject_forceAuth_validToken_accessGranted(){
+    return new Object[][] {
+      // public project, force auth : access granted depending on token's validity
+      {true, true, true, true},
+      {true, true, false, false},
+
+      // public project, no force auth : access always granted
+      {true, false, true, true},
+      {true, false, false, true},
+
+      // private project, regardless of force auth, access granted depending on token's validity:
+      {false, true, true, true},
+      {false, true, false, false},
+      {false, false, true, true},
+      {false, false, false, false},
+    };
+  }
+
+  @Test
+  @UseDataProvider("publicProject_forceAuth_validToken_accessGranted")
+  public void badge_accessible_on_private_project_with_token(boolean publicProject, boolean forceAuth,
+                                                               boolean validToken, boolean accessGranted) throws ParseException {
+    ComponentDto projectAsComponent = publicProject ? db.components().insertPublicProject() : db.components().insertPrivateProject();
+    userSession.registerComponents(projectAsComponent);
+    MetricDto metric = createQualityGateMetric();
+
+    db.measures().insertLiveMeasure(projectAsComponent, metric, m -> m.setData(OK.name()));
+    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), projectAsComponent.getKey())
+      .orElseThrow(() -> new IllegalStateException("project not found"));
+
+    String token = db.getDbClient().projectBadgeTokenDao()
+      .insert(db.getSession(), UuidFactoryFast.getInstance().create(), project, "user-uuid", "user-login")
+      .getToken();
+    db.commit();
+
+    mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, forceAuth);
+
+    TestResponse response = ws.newRequest()
+      .setParam("project", projectAsComponent.getKey())
+      .setParam("token", validToken ? token : "invalid-token")
+      .execute();
+
+    if(accessGranted){
+      checkResponse(response, OK);
+    }else{
+      checkError(response, "Project has not been found");
+    }
+
   }
 
   @Test
