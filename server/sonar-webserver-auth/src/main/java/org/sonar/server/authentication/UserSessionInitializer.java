@@ -60,8 +60,11 @@ public class UserSessionInitializer {
     "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate",
     "/api/project_badges/measure", "/api/project_badges/quality_gate");
 
-  private static final Set<String> URL_USING_PASSCODE = ImmutableSet.of(
-    "/api/ce/info", "/api/ce/pause", "/api/ce/resume", "/api/system/health", "/api/system/analytics", "/api/system/migrate_es");
+  private static final Set<String> URL_USING_PASSCODE = Set.of(
+    "/api/ce/info", "/api/ce/pause",
+    "/api/ce/resume", "/api/system/health",
+    "/api/system/analytics", "/api/system/migrate_es",
+    "/api/system/liveness");
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
