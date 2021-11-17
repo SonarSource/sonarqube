@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -57,7 +57,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
     return (
       <div className="display-inline-block">
         <label className="spacer-right">{translate('quality_profiles.compare_with')}</label>
-        <Select
+        <SelectLegacy
           className="input-large"
           clearable={false}
           onChange={this.handleChange}

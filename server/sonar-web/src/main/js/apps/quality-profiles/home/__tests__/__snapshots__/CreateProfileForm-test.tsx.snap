@@ -53,7 +53,7 @@ exports[`should render correctly: default 1`] = `
           language
           <MandatoryFieldMarker />
         </label>
-        <Select
+        <SelectLegacy
           clearable={false}
           id="create-profile-language"
           name="language"
@@ -81,7 +81,7 @@ exports[`should render correctly: default 1`] = `
         >
           quality_profiles.parent
         </label>
-        <Select
+        <SelectLegacy
           clearable={true}
           id="create-profile-parent"
           name="parentKey"
@@ -180,7 +180,7 @@ exports[`should render correctly: with query filter 1`] = `
           language
           <MandatoryFieldMarker />
         </label>
-        <Select
+        <SelectLegacy
           clearable={false}
           id="create-profile-language"
           name="language"
@@ -208,7 +208,7 @@ exports[`should render correctly: with query filter 1`] = `
         >
           quality_profiles.parent
         </label>
-        <Select
+        <SelectLegacy
           clearable={true}
           id="create-profile-parent"
           name="parentKey"

@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit } from 'lodash';
 import * as React from 'react';
+import { components, OptionProps } from 'react-select';
 import Select from '../../../components/controls/Select';
+import BubblesIcon from '../../../components/icons/BubblesIcon';
+import ListIcon from '../../../components/icons/ListIcon';
 import { translate } from '../../../helpers/l10n';
 import { VIEWS, VISUALIZATIONS } from '../utils';
-import PerspectiveSelectOption, { Option } from './PerspectiveSelectOption';
 
 interface Props {
   className?: string;
@@ -30,19 +33,38 @@ interface Props {
   visualization?: string;
 }
 
+export interface PerspectiveOption {
+  type: string;
+  value: string;
+  label: string;
+}
+
 export default class PerspectiveSelect extends React.PureComponent<Props> {
-  handleChange = (option: Option) => {
-    if (option.type === 'view') {
+  handleChange = (option: PerspectiveOption) => {
+    if (option && option.type === 'view') {
       this.props.onChange({ view: option.value });
-    } else if (option.type === 'visualization') {
+    } else if (option && option.type === 'visualization') {
       this.props.onChange({ view: 'visualizations', visualization: option.value });
     }
+  };
+
+  perspectiveOptionRender = (props: OptionProps<PerspectiveOption, false>) => {
+    const { data, className } = props;
+    return (
+      <components.Option
+        {...omit(props, ['children', 'className'])}
+        className={`it__projects-perspective-option-${data.value} ${className}`}>
+        {data.type === 'view' && <ListIcon className="little-spacer-right" />}
+        {data.type === 'visualization' && <BubblesIcon className="little-spacer-right" />}
+        {props.children}
+      </components.Option>
+    );
   };
 
   render() {
     const { view, visualization } = this.props;
     const perspective = view === 'visualizations' ? visualization : view;
-    const options = [
+    const options: PerspectiveOption[] = [
       ...VIEWS.map(opt => ({
         type: 'view',
         value: opt.value,
@@ -56,15 +78,18 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
     ];
     return (
       <div className={this.props.className}>
-        <label>{translate('projects.perspective')}:</label>
+        <label id="aria-projects-perspective">{translate('projects.perspective')}:</label>
         <Select
-          className="little-spacer-left input-medium"
-          clearable={false}
+          aria-labelledby="aria-projects-perspective"
+          className="little-spacer-left input-medium it__projects-perspective-select"
+          isClearable={false}
           onChange={this.handleChange}
-          optionComponent={PerspectiveSelectOption}
+          components={{
+            Option: this.perspectiveOptionRender
+          }}
           options={options}
-          searchable={false}
-          value={perspective}
+          isSearchable={false}
+          value={options.find(option => option.value === perspective)}
         />
       </div>
     );

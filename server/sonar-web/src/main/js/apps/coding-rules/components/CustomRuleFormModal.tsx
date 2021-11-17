@@ -22,7 +22,7 @@ import { createRule, updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { Alert } from '../../../components/ui/Alert';
@@ -218,7 +218,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   renderTypeField = () => (
     <div className="modal-field flex-1 spacer-right">
       <label htmlFor="coding-rules-custom-rule-type">{translate('type')}</label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-type"
@@ -240,7 +240,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   renderSeverityField = () => (
     <div className="modal-field flex-1 spacer-right">
       <label htmlFor="coding-rules-custom-rule-severity">{translate('severity')}</label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-severity"
@@ -262,7 +262,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       <label htmlFor="coding-rules-custom-rule-status">
         {translate('coding_rules.filters.status')}
       </label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-status"

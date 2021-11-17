@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
+import { omit, sortBy } from 'lodash';
 import * as React from 'react';
+import { components, OptionProps } from 'react-select';
 import { colors } from '../../../app/theme';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import Select from '../../../components/controls/Select';
@@ -27,7 +28,6 @@ import SortAscIcon from '../../../components/icons/SortAscIcon';
 import SortDescIcon from '../../../components/icons/SortDescIcon';
 import { translate } from '../../../helpers/l10n';
 import { parseSorting, SORTING_LEAK_METRICS, SORTING_METRICS } from '../utils';
-import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
 
 interface Props {
   className?: string;
@@ -37,8 +37,19 @@ interface Props {
   view: string;
 }
 
+export interface Option {
+  label: string;
+  value: string;
+  className?: string;
+  short?: string;
+}
+
 export default class ProjectsSortingSelect extends React.PureComponent<Props> {
-  getSorting = () => parseSorting(this.props.selectedSort);
+  getSorting = () => {
+    const options = this.getOptions();
+    const { sortDesc, sortValue } = parseSorting(this.props.selectedSort);
+    return { sortDesc, value: options.find(o => o.value === sortValue) };
+  };
 
   getOptions = () => {
     const sortMetrics = this.props.view === 'leak' ? SORTING_LEAK_METRICS : SORTING_METRICS;
@@ -46,39 +57,59 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
       option => ({
         value: option.value,
         label: translate('projects.sorting', option.value),
-        class: option.class
+        className: option.class
       })
     );
   };
 
   handleDescToggle = () => {
-    const sorting = this.getSorting();
-    this.props.onChange(sorting.sortValue, !sorting.sortDesc);
+    const { sortDesc, sortValue } = parseSorting(this.props.selectedSort);
+    this.props.onChange(sortValue, !sortDesc);
   };
 
-  handleSortChange = (option: Option) =>
+  handleSortChange = (option: Option) => {
     this.props.onChange(option.value, this.getSorting().sortDesc);
+  };
+
+  projectsSortingSelectOption = (props: OptionProps<Option, false>) => {
+    const { data, children } = props;
+    return (
+      <components.Option
+        {...omit(props, ['children'])}
+        className={`it__project-sort-option-${data.value} ${data.className}`}>
+        {data.short ? data.short : children}
+      </components.Option>
+    );
+  };
 
   render() {
-    const { sortDesc, sortValue } = this.getSorting();
+    const { sortDesc, value } = this.getSorting();
 
     return (
       <div className={this.props.className}>
-        <label>{translate('projects.sort_by')}:</label>
+        <label id="aria-projects-sort">{translate('projects.sort_by')}:</label>
         <Select
-          className="little-spacer-left input-medium"
-          clearable={false}
+          aria-labelledby="aria-projects-sort"
+          className="little-spacer-left input-medium it__projects-sort-select"
+          isClearable={false}
           onChange={this.handleSortChange}
-          optionComponent={ProjectsSortingSelectOption}
+          components={{
+            Option: this.projectsSortingSelectOption
+          }}
           options={this.getOptions()}
-          searchable={false}
-          value={sortValue}
+          isSearchable={false}
+          value={value}
         />
         <Tooltip
           overlay={
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
           }>
           <ButtonIcon
+            aria-label={
+              sortDesc
+                ? translate('projects.sort_descending')
+                : translate('projects.sort_ascending')
+            }
             className="js-projects-sorting-invert spacer-left"
             color={colors.gray60}
             onClick={this.handleDescToggle}>

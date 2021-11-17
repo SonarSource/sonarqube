@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
@@ -56,7 +56,7 @@ export function Languages(props: LanguagesProps) {
     <>
       <h2 className="settings-sub-category-name">{translate('property.category.languages')}</h2>
       <div data-test="language-select">
-        <Select
+        <SelectLegacy
           className="input-large"
           onChange={handleOnChange}
           options={availableLanguages}

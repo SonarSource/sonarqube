@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
 import { getPossibleOperators } from '../utils';
 
@@ -49,7 +49,7 @@ export default class ConditionOperator extends React.PureComponent<Props> {
       });
 
       return (
-        <Select
+        <SelectLegacy
           autoFocus={true}
           className="input-medium"
           clearable={false}

@@ -20,7 +20,7 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import Radio from '../../../../components/controls/Radio';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
@@ -35,7 +35,7 @@ it('should render correctly', () => {
 it('should render select options correctly', () => {
   return new Promise<void>((resolve, reject) => {
     const wrapper = shallowRender();
-    const render = wrapper.find(Select).props().optionRenderer;
+    const render = wrapper.find(SelectLegacy).props().optionRenderer;
     if (!render) {
       reject();
       return;
@@ -66,7 +66,7 @@ it('should correctly handle changes', () => {
   expect(onSubmit).toHaveBeenLastCalledWith('foo', 'foo');
 
   const change = diveIntoSimpleModal(wrapper)
-    .find(Select)
+    .find(SelectLegacy)
     .props().onChange;
 
   expect(change).toBeDefined();

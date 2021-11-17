@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
@@ -52,7 +52,7 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
     return (
       <header className="quality-profiles-list-header clearfix">
         <span className="spacer-right">{translate('quality_profiles.filter_by')}:</span>
-        <Select
+        <SelectLegacy
           className="input-medium"
           clearable={true}
           onChange={this.handleChange}

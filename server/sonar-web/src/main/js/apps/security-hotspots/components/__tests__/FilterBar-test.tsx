@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import RadioToggle from '../../../../components/controls/RadioToggle';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
@@ -60,7 +60,7 @@ it('should trigger onChange for status', () => {
   const wrapper = shallowRender({ onChangeFilters });
 
   const { onChange } = wrapper
-    .find(Select)
+    .find(SelectLegacy)
     .at(0)
     .props();
 
@@ -83,7 +83,7 @@ it('should trigger onChange for leak period', () => {
   const wrapper = shallowRender({ onChangeFilters });
 
   const { onChange } = wrapper
-    .find(Select)
+    .find(SelectLegacy)
     .at(1)
     .props();
 

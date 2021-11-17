@@ -25,13 +25,13 @@ import { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
 import { ButtonIcon, ClearButton } from '../../components/controls/buttons';
 import OutsideClickHandler from '../../components/controls/OutsideClickHandler';
-import Select from '../../components/controls/Select';
 import CalendarIcon from '../../components/icons/CalendarIcon';
 import ChevronLeftIcon from '../../components/icons/ChevronLeftIcon';
 import ChevronRightIcon from '../../components/icons/ChevronRightIcon';
 import { getShortMonthName, getShortWeekDayName, getWeekDayName } from '../../helpers/l10n';
 import { lazyLoadComponent } from '../lazyLoadComponent';
 import './DayPicker.css';
+import SelectLegacy from './SelectLegacy';
 import './styles.css';
 
 const DayPicker = lazyLoadComponent(() => import('react-day-picker'), 'DayPicker');
@@ -172,7 +172,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                   <ChevronLeftIcon />
                 </ButtonIcon>
                 <div className="date-input-calender-month">
-                  <Select
+                  <SelectLegacy
                     className="date-input-calender-month-select"
                     onChange={this.handleCurrentMonthChange}
                     options={months.map(month => ({
@@ -181,7 +181,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                     }))}
                     value={this.state.currentMonth.getMonth()}
                   />
-                  <Select
+                  <SelectLegacy
                     className="date-input-calender-month-select spacer-left"
                     onChange={this.handleCurrentYearChange}
                     options={years.map(year => ({ label: String(year), value: year }))}

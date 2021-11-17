@@ -107,7 +107,7 @@ exports[`should render correctly: always use system default 1`] = `
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={true}
@@ -257,7 +257,7 @@ exports[`should render correctly: default 1`] = `
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={false}
@@ -413,7 +413,7 @@ exports[`should render correctly: show new code warning 1`] = `
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={false}
@@ -593,7 +593,7 @@ exports[`should render correctly: show warning 1`] = `
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={false}
@@ -749,7 +749,7 @@ exports[`should render correctly: show warning if not using default 1`] = `
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={true}
@@ -905,7 +905,7 @@ exports[`should render correctly: submitting 1`] = `
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={true}

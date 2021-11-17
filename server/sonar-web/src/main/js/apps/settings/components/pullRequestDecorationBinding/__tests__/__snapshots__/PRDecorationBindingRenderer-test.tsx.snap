@@ -129,7 +129,7 @@ exports[`should render correctly: when there are configuration errors (admin use
       <div
         className="settings-definition-right"
       >
-        <Select
+        <SelectLegacy
           autosize={true}
           className="abs-width-400 big-spacer-top"
           clearable={false}
@@ -331,7 +331,7 @@ exports[`should render correctly: when there are configuration errors (admin use
       <div
         className="settings-definition-right"
       >
-        <Select
+        <SelectLegacy
           autosize={true}
           className="abs-width-400 big-spacer-top"
           clearable={false}
@@ -473,7 +473,7 @@ exports[`should render correctly: when there are configuration errors (non-admin
       <div
         className="settings-definition-right"
       >
-        <Select
+        <SelectLegacy
           autosize={true}
           className="abs-width-400 big-spacer-top"
           clearable={false}
@@ -618,7 +618,7 @@ exports[`should render correctly: with a single ALM instance 1`] = `
       <div
         className="settings-definition-right"
       >
-        <Select
+        <SelectLegacy
           autosize={true}
           className="abs-width-400 big-spacer-top"
           clearable={false}
@@ -700,7 +700,7 @@ exports[`should render correctly: with a valid and saved form 1`] = `
       <div
         className="settings-definition-right"
       >
-        <Select
+        <SelectLegacy
           autosize={true}
           className="abs-width-400 big-spacer-top"
           clearable={false}
@@ -859,7 +859,7 @@ exports[`should render correctly: with an empty form 1`] = `
       <div
         className="settings-definition-right"
       >
-        <Select
+        <SelectLegacy
           autosize={true}
           className="abs-width-400 big-spacer-top"
           clearable={false}

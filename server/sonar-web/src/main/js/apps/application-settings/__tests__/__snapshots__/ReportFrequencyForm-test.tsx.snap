@@ -13,7 +13,7 @@ exports[`should render correctly: changed 1`] = `
       }
     }
   />
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={false}
     onChange={[Function]}
@@ -61,7 +61,7 @@ exports[`should render correctly: default 1`] = `
       }
     }
   />
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={false}
     onChange={[Function]}
@@ -94,7 +94,7 @@ exports[`should render correctly: no description 1`] = `
   <h2>
     application_settings.report.frequency
   </h2>
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={false}
     onChange={[Function]}

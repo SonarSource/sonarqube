@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
 import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -125,7 +125,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
                       <MandatoryFieldMarker />
                     </label>
                     {this.state.permissionTemplates && (
-                      <Select
+                      <SelectLegacy
                         clearable={false}
                         id="project-permissions-template"
                         onChange={this.handlePermissionTemplateChange}

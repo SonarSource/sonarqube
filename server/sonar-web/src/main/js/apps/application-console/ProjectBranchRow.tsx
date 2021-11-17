@@ -21,7 +21,7 @@ import { orderBy } from 'lodash';
 import * as React from 'react';
 import { getBranches } from '../../api/branches';
 import Checkbox from '../../components/controls/Checkbox';
-import Select from '../../components/controls/Select';
+import SelectLegacy from '../../components/controls/SelectLegacy';
 import Tooltip from '../../components/controls/Tooltip';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
@@ -117,7 +117,7 @@ export default class ProjectBranchRow extends React.PureComponent<Props, State> 
           </Tooltip>
         </td>
         <td>
-          <Select
+          <SelectLegacy
             className="width100"
             clearable={false}
             disabled={!checked}

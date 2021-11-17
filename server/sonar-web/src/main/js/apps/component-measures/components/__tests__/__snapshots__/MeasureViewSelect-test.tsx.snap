@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: has no list 1`] = `
-<Select
+<SelectLegacy
   autoBlur={true}
   clearable={false}
   onChange={[Function]}
@@ -27,7 +27,7 @@ exports[`should render correctly: has no list 1`] = `
 `;
 
 exports[`should render correctly: has no tree 1`] = `
-<Select
+<SelectLegacy
   autoBlur={true}
   clearable={false}
   onChange={[Function]}
@@ -48,7 +48,7 @@ exports[`should render correctly: has no tree 1`] = `
 `;
 
 exports[`should render correctly: has no treemap 1`] = `
-<Select
+<SelectLegacy
   autoBlur={true}
   clearable={false}
   onChange={[Function]}

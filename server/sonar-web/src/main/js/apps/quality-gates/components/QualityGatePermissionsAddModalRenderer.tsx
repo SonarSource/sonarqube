@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -59,7 +59,7 @@ export default function QualityGatePermissionsAddModalRenderer(
         <div className="modal-body">
           <div className="modal-field">
             <label>{translate('quality_gates.permissions.search')}</label>
-            <Select
+            <SelectLegacy
               autoFocus={true}
               className="Select-big"
               clearable={false}

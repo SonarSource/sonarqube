@@ -21,7 +21,7 @@ import * as React from 'react';
 import { bulkActivateRules, bulkDeactivateRules, Profile } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -182,7 +182,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       value: profile.key
     }));
     return (
-      <Select
+      <SelectLegacy
         multi={true}
         onChange={this.handleProfileSelect}
         options={options}

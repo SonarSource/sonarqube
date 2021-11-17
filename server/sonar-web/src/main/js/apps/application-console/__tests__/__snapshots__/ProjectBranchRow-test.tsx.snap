@@ -30,7 +30,7 @@ exports[`Should render correctly 1`] = `
     </Tooltip>
   </td>
   <td>
-    <Select
+    <SelectLegacy
       className="width100"
       clearable={false}
       disabled={false}

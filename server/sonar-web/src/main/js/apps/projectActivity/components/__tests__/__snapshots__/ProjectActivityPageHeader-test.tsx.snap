@@ -4,7 +4,7 @@ exports[`should render correctly the list of series 1`] = `
 <header
   className="page-header"
 >
-  <Select
+  <SelectLegacy
     className="pull-left big-spacer-right input-medium"
     clearable={true}
     onChange={[Function]}

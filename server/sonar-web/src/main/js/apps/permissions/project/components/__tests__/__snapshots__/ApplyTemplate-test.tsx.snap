@@ -43,7 +43,7 @@ exports[`render correctly 2`] = `
           template
           <MandatoryFieldMarker />
         </label>
-        <Select
+        <SelectLegacy
           clearable={false}
           id="project-permissions-template"
           onChange={[Function]}

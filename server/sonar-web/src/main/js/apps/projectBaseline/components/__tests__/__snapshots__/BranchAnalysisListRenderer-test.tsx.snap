@@ -6,7 +6,7 @@ exports[`should render correctly: Analyses 1`] = `
     className="spacer-bottom"
   >
     baseline.analysis_from
-    <Select
+    <SelectLegacy
       autoBlur={true}
       className="input-medium spacer-left"
       clearable={false}
@@ -302,7 +302,7 @@ exports[`should render correctly: empty 1`] = `
     className="spacer-bottom"
   >
     baseline.analysis_from
-    <Select
+    <SelectLegacy
       autoBlur={true}
       className="input-medium spacer-left"
       clearable={false}
@@ -346,7 +346,7 @@ exports[`should render correctly: loading 1`] = `
     className="spacer-bottom"
   >
     baseline.analysis_from
-    <Select
+    <SelectLegacy
       autoBlur={true}
       className="input-medium spacer-left"
       clearable={false}

@@ -63,7 +63,7 @@ exports[`bulk applies template to all results 2`] = `
         template
         <MandatoryFieldMarker />
       </label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={false}
         onChange={[Function]}
@@ -132,7 +132,7 @@ exports[`bulk applies template to all results 3`] = `
         template
         <MandatoryFieldMarker />
       </label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={true}
         onChange={[Function]}
@@ -270,7 +270,7 @@ exports[`bulk applies template to selected results 2`] = `
         template
         <MandatoryFieldMarker />
       </label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={false}
         onChange={[Function]}
@@ -339,7 +339,7 @@ exports[`bulk applies template to selected results 3`] = `
         template
         <MandatoryFieldMarker />
       </label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={true}
         onChange={[Function]}

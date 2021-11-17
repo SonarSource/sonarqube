@@ -18,21 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { GroupTypeBase, Props } from 'react-select';
-import Select from '../Select';
+import { GroupTypeBase, OptionProps } from 'react-select';
 
-describe('Select', () => {
-  it('should render correctly', () => {
-    expect(shallowRender()).toMatchSnapshot('default');
-  });
-
-  function shallowRender<
-    Option,
-    IsMulti extends boolean = false,
-    Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
-  >(props: Partial<Props<Option, IsMulti, Group>> = {}) {
-    return shallow<Props<Option, IsMulti, Group>>(<Select {...props} />);
-  }
-});
+export function mockReactSelectOptionProps<
+  OptionType,
+  IsMulti extends boolean,
+  GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
+>(
+  data: OptionType,
+  overrides?: OptionProps<OptionType, IsMulti, GroupType>
+): OptionProps<OptionType, IsMulti, GroupType> {
+  return {
+    ...overrides,
+    data
+  } as OptionProps<OptionType, IsMulti, GroupType>;
+}

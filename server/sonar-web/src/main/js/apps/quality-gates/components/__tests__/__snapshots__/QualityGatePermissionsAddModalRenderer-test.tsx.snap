@@ -24,7 +24,7 @@ exports[`should render correctly: default 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SelectLegacy
           autoFocus={true}
           className="Select-big"
           clearable={false}
@@ -83,7 +83,7 @@ exports[`should render correctly: query and results 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SelectLegacy
           autoFocus={true}
           className="Select-big"
           clearable={false}
@@ -153,7 +153,7 @@ exports[`should render correctly: selection 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SelectLegacy
           autoFocus={true}
           className="Select-big"
           clearable={false}
@@ -217,7 +217,7 @@ exports[`should render correctly: short query 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SelectLegacy
           autoFocus={true}
           className="Select-big"
           clearable={false}
@@ -276,7 +276,7 @@ exports[`should render correctly: submitting 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <Select
+        <SelectLegacy
           autoFocus={true}
           className="Select-big"
           clearable={false}

@@ -19,7 +19,7 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { AddLanguageModal, AddLanguageModalProps } from '../AddLanguageModal';
@@ -95,13 +95,13 @@ function diveIntoSimpleModal(wrapper: ShallowWrapper) {
 
 function getLanguageSelect(wrapper: ShallowWrapper) {
   return diveIntoSimpleModal(wrapper)
-    .find(Select)
+    .find(SelectLegacy)
     .at(0);
 }
 
 function getProfileSelect(wrapper: ShallowWrapper) {
   return diveIntoSimpleModal(wrapper)
-    .find(Select)
+    .find(SelectLegacy)
     .at(1);
 }
 

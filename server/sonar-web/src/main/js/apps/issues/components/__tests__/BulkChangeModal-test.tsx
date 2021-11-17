@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchIssueTags } from '../../../../api/issues';
 import { SubmitButton } from '../../../../components/controls/buttons';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { change, waitAndUpdate } from '../../../../helpers/testUtils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
@@ -113,7 +113,7 @@ it('should disable the submit button unless some change is configured', async ()
     expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
 
     const { onChange } = wrapper
-      .find(Select)
+      .find(SelectLegacy)
       .at(0)
       .props();
     if (!onChange) {

@@ -19,7 +19,7 @@
  */
 import { debounce } from 'lodash';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -110,7 +110,7 @@ export default class UsersSelectSearch extends React.PureComponent<Props, State>
         ? translateWithParameters('select2.tooShort', 2)
         : translate('no_results');
     return (
-      <Select
+      <SelectLegacy
         autoFocus={this.props.autoFocus}
         className="Select-big"
         clearable={false}

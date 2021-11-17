@@ -100,7 +100,7 @@ exports[`should render 3`] = `
         <div
           className="date-input-calender-month"
         >
-          <Select
+          <SelectLegacy
             className="date-input-calender-month-select"
             onChange={[Function]}
             options={
@@ -157,7 +157,7 @@ exports[`should render 3`] = `
             }
             value={0}
           />
-          <Select
+          <SelectLegacy
             className="date-input-calender-month-select spacer-left"
             onChange={[Function]}
             options={

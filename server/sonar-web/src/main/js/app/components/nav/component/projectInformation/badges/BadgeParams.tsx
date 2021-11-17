@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { fetchWebApi } from '../../../../../../api/web-api';
-import Select from '../../../../../../components/controls/Select';
+import SelectLegacy from '../../../../../../components/controls/SelectLegacy';
 import { getLocalizedMetricName, translate } from '../../../../../../helpers/l10n';
 import { BadgeFormats, BadgeOptions, BadgeType } from './utils';
 
@@ -105,7 +105,7 @@ export default class BadgeParams extends React.PureComponent<Props> {
           <label className="spacer-right" htmlFor="badge-metric">
             {translate('overview.badges.metric')}:
           </label>
-          <Select
+          <SelectLegacy
             className="input-medium"
             clearable={false}
             menuStyle={{ maxHeight: 100 }}
@@ -135,7 +135,7 @@ export default class BadgeParams extends React.PureComponent<Props> {
           htmlFor="badge-format">
           {translate('format')}:
         </label>
-        <Select
+        <SelectLegacy
           className="input-medium"
           clearable={false}
           name="badge-format"

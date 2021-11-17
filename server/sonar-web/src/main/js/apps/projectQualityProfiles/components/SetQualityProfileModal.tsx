@@ -23,7 +23,7 @@ import { Profile } from '../../../api/quality-profiles';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Radio from '../../../components/controls/Radio';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -119,7 +119,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                       {translate('project_quality_profile.always_use_specific')}
                     </div>
                     <div className="display-flex-center">
-                      <Select
+                      <SelectLegacy
                         className="abs-width-300"
                         clearable={false}
                         disabled={submitting || hasSelectedSysDefault}

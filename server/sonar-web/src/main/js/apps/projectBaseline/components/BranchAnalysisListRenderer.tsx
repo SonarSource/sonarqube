@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import Radio from '../../../components/controls/Radio';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -98,7 +98,7 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
     <>
       <div className="spacer-bottom">
         {translate('baseline.analysis_from')}
-        <Select
+        <SelectLegacy
           autoBlur={true}
           className="input-medium spacer-left"
           clearable={false}

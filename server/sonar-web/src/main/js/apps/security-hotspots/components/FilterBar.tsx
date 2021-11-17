@@ -20,7 +20,7 @@
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import RadioToggle from '../../../components/controls/RadioToggle';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
@@ -107,7 +107,7 @@ export function FilterBar(props: FilterBarProps) {
                 )}
 
                 <span className="spacer-right">{translate('status')}</span>
-                <Select
+                <SelectLegacy
                   className="input-medium big-spacer-right"
                   clearable={false}
                   onChange={(option: { value: HotspotStatusFilter }) =>
@@ -119,7 +119,7 @@ export function FilterBar(props: FilterBarProps) {
                 />
 
                 {onBranch && (
-                  <Select
+                  <SelectLegacy
                     className="input-medium big-spacer-right"
                     clearable={false}
                     onChange={(option: { value: boolean }) =>

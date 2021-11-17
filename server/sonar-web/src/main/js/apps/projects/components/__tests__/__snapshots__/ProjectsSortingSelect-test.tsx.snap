@@ -2,71 +2,78 @@
 
 exports[`should handle the descending sort direction 1`] = `
 <div>
-  <label>
+  <label
+    id="aria-projects-sort"
+  >
     projects.sort_by
     :
   </label>
   <Select
-    className="little-spacer-left input-medium"
-    clearable={false}
+    aria-labelledby="aria-projects-sort"
+    className="little-spacer-left input-medium it__projects-sort-select"
+    components={
+      Object {
+        "Option": [Function],
+      }
+    }
+    isClearable={false}
+    isSearchable={false}
     onChange={[Function]}
-    optionComponent={[Function]}
     options={
       Array [
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.name",
           "value": "name",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.analysis_date",
           "value": "analysis_date",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.reliability",
           "value": "reliability",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.security",
           "value": "security",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.security_review",
           "value": "security_review",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.maintainability",
           "value": "maintainability",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.coverage",
           "value": "coverage",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.duplications",
           "value": "duplications",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.size",
           "value": "size",
         },
       ]
     }
-    searchable={false}
-    value="vulnerability"
   />
   <Tooltip
     overlay="projects.sort_descending"
   >
     <ButtonIcon
+      aria-label="projects.sort_descending"
       className="js-projects-sorting-invert spacer-left"
       color="#999"
       onClick={[Function]}
@@ -81,71 +88,85 @@ exports[`should handle the descending sort direction 1`] = `
 
 exports[`should render correctly for leak view 1`] = `
 <div>
-  <label>
+  <label
+    id="aria-projects-sort"
+  >
     projects.sort_by
     :
   </label>
   <Select
-    className="little-spacer-left input-medium"
-    clearable={false}
+    aria-labelledby="aria-projects-sort"
+    className="little-spacer-left input-medium it__projects-sort-select"
+    components={
+      Object {
+        "Option": [Function],
+      }
+    }
+    isClearable={false}
+    isSearchable={false}
     onChange={[Function]}
-    optionComponent={[Function]}
     options={
       Array [
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.analysis_date",
           "value": "analysis_date",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.name",
           "value": "name",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_reliability",
           "value": "new_reliability",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_security",
           "value": "new_security",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_security_review",
           "value": "new_security_review",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_maintainability",
           "value": "new_maintainability",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_coverage",
           "value": "new_coverage",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_duplications",
           "value": "new_duplications",
         },
         Object {
-          "class": "projects-leak-sorting-option",
+          "className": "projects-leak-sorting-option",
           "label": "projects.sorting.new_lines",
           "value": "new_lines",
         },
       ]
     }
-    searchable={false}
-    value="new_coverage"
+    value={
+      Object {
+        "className": "projects-leak-sorting-option",
+        "label": "projects.sorting.new_coverage",
+        "value": "new_coverage",
+      }
+    }
   />
   <Tooltip
     overlay="projects.sort_ascending"
   >
     <ButtonIcon
+      aria-label="projects.sort_ascending"
       className="js-projects-sorting-invert spacer-left"
       color="#999"
       onClick={[Function]}
@@ -160,71 +181,85 @@ exports[`should render correctly for leak view 1`] = `
 
 exports[`should render correctly for overall view 1`] = `
 <div>
-  <label>
+  <label
+    id="aria-projects-sort"
+  >
     projects.sort_by
     :
   </label>
   <Select
-    className="little-spacer-left input-medium"
-    clearable={false}
+    aria-labelledby="aria-projects-sort"
+    className="little-spacer-left input-medium it__projects-sort-select"
+    components={
+      Object {
+        "Option": [Function],
+      }
+    }
+    isClearable={false}
+    isSearchable={false}
     onChange={[Function]}
-    optionComponent={[Function]}
     options={
       Array [
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.name",
           "value": "name",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.analysis_date",
           "value": "analysis_date",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.reliability",
           "value": "reliability",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.security",
           "value": "security",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.security_review",
           "value": "security_review",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.maintainability",
           "value": "maintainability",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.coverage",
           "value": "coverage",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.duplications",
           "value": "duplications",
         },
         Object {
-          "class": undefined,
+          "className": undefined,
           "label": "projects.sorting.size",
           "value": "size",
         },
       ]
     }
-    searchable={false}
-    value="name"
+    value={
+      Object {
+        "className": undefined,
+        "label": "projects.sorting.name",
+        "value": "name",
+      }
+    }
   />
   <Tooltip
     overlay="projects.sort_ascending"
   >
     <ButtonIcon
+      aria-label="projects.sort_ascending"
       className="js-projects-sorting-invert spacer-left"
       color="#999"
       onClick={[Function]}
@@ -235,4 +270,31 @@ exports[`should render correctly for overall view 1`] = `
     </ButtonIcon>
   </Tooltip>
 </div>
+`;
+
+exports[`should render option correctly 1`] = `
+<Option
+  className="it__project-sort-option-foo undefined"
+  data={
+    Object {
+      "label": "foo",
+      "short": "fo",
+      "value": "foo",
+    }
+  }
+>
+  fo
+</Option>
+`;
+
+exports[`should render option correctly 2`] = `
+<Option
+  className="it__project-sort-option-foo undefined"
+  data={
+    Object {
+      "label": "foo",
+      "value": "foo",
+    }
+  }
+/>
 `;

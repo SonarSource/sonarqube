@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import ComparisonForm from '../ComparisonForm';
 
@@ -40,7 +40,7 @@ it('should render Select with right options', () => {
       profiles={profiles}
       withKey="another"
     />
-  ).find(Select);
+  ).find(SelectLegacy);
   expect(output.props().valueRenderer!(profileDefault)).toMatchSnapshot('Render default for value');
   expect(output.props().valueRenderer!(profile)).toMatchSnapshot('Render for value');
 

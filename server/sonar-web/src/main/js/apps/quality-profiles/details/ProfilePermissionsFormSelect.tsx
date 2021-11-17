@@ -19,7 +19,7 @@
  */
 import { debounce, identity } from 'lodash';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -91,7 +91,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     const options = this.state.searchResults.map(r => ({ ...r, value: getStringValue(r) }));
 
     return (
-      <Select
+      <SelectLegacy
         autoFocus={true}
         className="Select-big"
         clearable={false}

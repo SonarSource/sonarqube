@@ -21,7 +21,7 @@ import * as React from 'react';
 import { setWorkerCount } from '../../../api/ce';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 
@@ -96,7 +96,7 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
-            <Select
+            <SelectLegacy
               className="input-tiny spacer-top"
               clearable={false}
               onChange={this.handleWorkerCountChange}

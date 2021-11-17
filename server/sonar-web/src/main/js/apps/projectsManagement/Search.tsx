@@ -25,7 +25,7 @@ import Checkbox from '../../components/controls/Checkbox';
 import DateInput from '../../components/controls/DateInput';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import SearchBox from '../../components/controls/SearchBox';
-import Select from '../../components/controls/Select';
+import SelectLegacy from '../../components/controls/SelectLegacy';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
@@ -136,7 +136,7 @@ export default class Search extends React.PureComponent<Props, State> {
     }
     return (
       <td className="thin nowrap text-middle">
-        <Select
+        <SelectLegacy
           className="input-medium"
           clearable={false}
           disabled={!this.props.ready}
@@ -155,7 +155,7 @@ export default class Search extends React.PureComponent<Props, State> {
   renderVisibilityFilter = () => {
     return (
       <td className="thin nowrap text-middle">
-        <Select
+        <SelectLegacy
           className="input-small"
           clearable={false}
           disabled={!this.props.ready}

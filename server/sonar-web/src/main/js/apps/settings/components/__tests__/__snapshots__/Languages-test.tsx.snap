@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
   <div
     data-test="language-select"
   >
-    <Select
+    <SelectLegacy
       className="input-large"
       onChange={[Function]}
       options={
@@ -56,7 +56,7 @@ exports[`should render correctly with an unknow language 1`] = `
   <div
     data-test="language-select"
   >
-    <Select
+    <SelectLegacy
       className="input-large"
       onChange={[Function]}
       options={

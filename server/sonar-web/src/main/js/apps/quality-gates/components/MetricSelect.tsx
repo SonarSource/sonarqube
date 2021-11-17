@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { getLocalizedMetricDomain, translate } from '../../../helpers/l10n';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 
@@ -73,7 +73,7 @@ export default class MetricSelect extends React.PureComponent<Props> {
     });
 
     return (
-      <Select
+      <SelectLegacy
         className="text-middle quality-gate-metric-select"
         id="condition-metric"
         onChange={this.handleChange}

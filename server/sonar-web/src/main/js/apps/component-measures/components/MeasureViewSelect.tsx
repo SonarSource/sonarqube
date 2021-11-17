@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import ListIcon from '../../../components/icons/ListIcon';
 import TreeIcon from '../../../components/icons/TreeIcon';
 import TreemapIcon from '../../../components/icons/TreemapIcon';
@@ -76,7 +76,7 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
 
   render() {
     return (
-      <Select
+      <SelectLegacy
         autoBlur={true}
         className={this.props.className}
         clearable={false}

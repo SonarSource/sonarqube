@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
     quality_profiles.filter_by
     :
   </span>
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={true}
     onChange={[Function]}

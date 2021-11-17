@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { mockDefinition } from '../../../helpers/mocks/settings';
 import ReportFrequencyForm, { ReportFrequencyFormProps } from '../ReportFrequencyForm';
 
@@ -34,7 +34,7 @@ it('should handle changes', () => {
   const onSave = jest.fn();
   const wrapper = shallowRender({ onSave });
 
-  wrapper.find(Select).simulate('change', { value: 'Daily' });
+  wrapper.find(SelectLegacy).simulate('change', { value: 'Daily' });
 
   expect(wrapper.find('.button-success').exists()).toBe(true);
   expect(wrapper.find(ResetButtonLink).exists()).toBe(true);

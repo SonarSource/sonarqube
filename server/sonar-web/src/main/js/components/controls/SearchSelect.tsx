@@ -20,7 +20,7 @@
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import Select, { Creatable } from './Select';
+import SelectLegacy, { CreatableLegacy } from './SelectLegacy';
 
 interface Props<T> {
   autofocus?: boolean;
@@ -123,7 +123,7 @@ export default class SearchSelect<T extends { value: string }> extends React.Pur
   handleFilterOption = () => true;
 
   render() {
-    const Component = this.props.canCreate ? Creatable : Select;
+    const Component = this.props.canCreate ? CreatableLegacy : SelectLegacy;
     return (
       <Component
         autoFocus={this.autofocus}

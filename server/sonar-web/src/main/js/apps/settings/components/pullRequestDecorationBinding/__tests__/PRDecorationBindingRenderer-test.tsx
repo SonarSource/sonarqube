@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Select from '../../../../../components/controls/Select';
+import SelectLegacy from '../../../../../components/controls/SelectLegacy';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import {
   AlmKeys,
@@ -129,7 +129,7 @@ it('should render select options correctly', async () => {
 
   await waitAndUpdate(wrapper);
 
-  const { optionRenderer } = wrapper.find(Select).props();
+  const { optionRenderer } = wrapper.find(SelectLegacy).props();
 
   expect(optionRenderer!(instances[0])).toMatchSnapshot();
 

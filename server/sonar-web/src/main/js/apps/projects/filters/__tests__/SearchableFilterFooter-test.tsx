@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import SearchableFilterFooter from '../SearchableFilterFooter';
 
 const options = [
@@ -36,7 +37,7 @@ it('should render items without the ones in the facet', () => {
       query={{ languages: ['java'] }}
     />
   );
-  expect(wrapper.find('Select').prop('options')).toMatchSnapshot();
+  expect(wrapper.find(SelectLegacy).prop('options')).toMatchSnapshot();
 });
 
 it('should properly handle a change of the facet value', () => {
@@ -49,6 +50,6 @@ it('should properly handle a change of the facet value', () => {
       query={{ languages: ['java'] }}
     />
   );
-  (wrapper.find('Select').prop('onChange') as Function)({ value: 'js' });
+  (wrapper.find(SelectLegacy).prop('onChange') as Function)({ value: 'js' });
   expect(onQueryChange).toBeCalledWith({ languages: 'java,js' });
 });

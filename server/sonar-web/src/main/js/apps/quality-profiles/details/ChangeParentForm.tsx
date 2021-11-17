@@ -22,7 +22,7 @@ import * as React from 'react';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
@@ -108,7 +108,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
                 {translate('quality_profiles.parent')}
                 <MandatoryFieldMarker />
               </label>
-              <Select
+              <SelectLegacy
                 clearable={false}
                 id="change-profile-parent"
                 name="parentKey"

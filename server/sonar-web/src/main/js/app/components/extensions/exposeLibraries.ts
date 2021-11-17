@@ -40,7 +40,7 @@ import RadioToggle from '../../../components/controls/RadioToggle';
 import ReloadButton from '../../../components/controls/ReloadButton';
 import SearchBox from '../../../components/controls/SearchBox';
 import SearchSelect from '../../../components/controls/SearchSelect';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import SelectList, { SelectListFilter } from '../../../components/controls/SelectList';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -219,7 +219,7 @@ const exposeLibraries = () => {
         SearchBox,
         SearchSelect,
         SecurityHotspotIcon,
-        Select,
+        SelectLegacy,
         SelectList,
         SelectListFilter,
         SimpleModal,

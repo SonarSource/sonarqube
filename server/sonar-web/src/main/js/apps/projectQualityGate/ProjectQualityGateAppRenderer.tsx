@@ -27,7 +27,7 @@ import DisableableSelectOption from '../../components/common/DisableableSelectOp
 import { SubmitButton } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import Radio from '../../components/controls/Radio';
-import Select from '../../components/controls/Select';
+import SelectLegacy from '../../components/controls/SelectLegacy';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
@@ -146,7 +146,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                   {translate('project_quality_gate.always_use_specific')}
                 </div>
                 <div className="display-flex-center">
-                  <Select
+                  <SelectLegacy
                     className="abs-width-300"
                     clearable={false}
                     disabled={submitting || usesDefault}

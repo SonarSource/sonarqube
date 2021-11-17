@@ -43,7 +43,9 @@ it('render qualifiers filter', () => {
 it('updates qualifier', () => {
   const onQualifierChanged = jest.fn();
   const wrapper = shallowRender({ onQualifierChanged, topLevelQualifiers: ['TRK', 'VW', 'APP'] });
-  wrapper.find('Select[name="projects-qualifier"]').prop<Function>('onChange')({ value: 'VW' });
+  wrapper.find('SelectLegacy[name="projects-qualifier"]').prop<Function>('onChange')({
+    value: 'VW'
+  });
   expect(onQualifierChanged).toBeCalledWith('VW');
 });
 

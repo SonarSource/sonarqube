@@ -19,9 +19,9 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import Select from '../../components/controls/Select';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
+import SelectLegacy from '../controls/SelectLegacy';
 import AddGraphMetric from './AddGraphMetric';
 import './styles.css';
 import { getGraphTypes, isCustomGraph } from './utils';
@@ -64,7 +64,7 @@ export default class GraphsHeader extends React.PureComponent<Props> {
 
     return (
       <div className={classNames(className, 'position-relative')}>
-        <Select
+        <SelectLegacy
           className="pull-left input-medium"
           clearable={false}
           onChange={this.handleGraphChange}

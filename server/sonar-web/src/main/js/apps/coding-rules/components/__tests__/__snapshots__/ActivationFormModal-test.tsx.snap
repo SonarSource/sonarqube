@@ -30,7 +30,7 @@ exports[`should render correctly: custom rule 1`] = `
         <label>
           coding_rules.quality_profile
         </label>
-        <Select
+        <SelectLegacy
           className="js-profile"
           clearable={false}
           disabled={false}
@@ -45,7 +45,7 @@ exports[`should render correctly: custom rule 1`] = `
         <label>
           severity
         </label>
-        <Select
+        <SelectLegacy
           className="js-severity"
           clearable={false}
           disabled={false}
@@ -139,7 +139,7 @@ exports[`should render correctly: default 1`] = `
         <label>
           coding_rules.quality_profile
         </label>
-        <Select
+        <SelectLegacy
           className="js-profile"
           clearable={false}
           disabled={false}
@@ -154,7 +154,7 @@ exports[`should render correctly: default 1`] = `
         <label>
           severity
         </label>
-        <Select
+        <SelectLegacy
           className="js-severity"
           clearable={false}
           disabled={false}
@@ -283,7 +283,7 @@ exports[`should render correctly: submitting 1`] = `
         <label>
           coding_rules.quality_profile
         </label>
-        <Select
+        <SelectLegacy
           className="js-profile"
           clearable={false}
           disabled={true}
@@ -298,7 +298,7 @@ exports[`should render correctly: submitting 1`] = `
         <label>
           severity
         </label>
-        <Select
+        <SelectLegacy
           className="js-severity"
           clearable={false}
           disabled={true}
@@ -425,7 +425,7 @@ exports[`should render correctly: update mode 1`] = `
         <label>
           coding_rules.quality_profile
         </label>
-        <Select
+        <SelectLegacy
           className="js-profile"
           clearable={false}
           disabled={false}
@@ -440,7 +440,7 @@ exports[`should render correctly: update mode 1`] = `
         <label>
           severity
         </label>
-        <Select
+        <SelectLegacy
           className="js-severity"
           clearable={false}
           disabled={false}
@@ -564,7 +564,7 @@ exports[`should render correctly: with deep profiles 1`] = `
         <label>
           coding_rules.quality_profile
         </label>
-        <Select
+        <SelectLegacy
           className="js-profile"
           clearable={false}
           disabled={true}
@@ -586,7 +586,7 @@ exports[`should render correctly: with deep profiles 1`] = `
         <label>
           severity
         </label>
-        <Select
+        <SelectLegacy
           className="js-severity"
           clearable={false}
           disabled={false}

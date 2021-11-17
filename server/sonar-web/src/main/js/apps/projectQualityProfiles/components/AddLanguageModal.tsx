@@ -24,7 +24,7 @@ import { Link } from 'react-router';
 import { Profile } from '../../../api/quality-profiles';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
@@ -85,7 +85,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                     {translate('project_quality_profile.add_language_modal.choose_language')}
                   </label>
                 </div>
-                <Select
+                <SelectLegacy
                   className="abs-width-300"
                   clearable={false}
                   disabled={submitting}
@@ -102,7 +102,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                     {translate('project_quality_profile.add_language_modal.choose_profile')}
                   </label>
                 </div>
-                <Select
+                <SelectLegacy
                   className="abs-width-300"
                   clearable={false}
                   disabled={submitting || !language}

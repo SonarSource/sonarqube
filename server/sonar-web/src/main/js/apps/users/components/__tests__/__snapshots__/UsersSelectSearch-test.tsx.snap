@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`UsersSelectSearch should render correctly 1`] = `
-<Select
+<SelectLegacy
   className="Select-big"
   clearable={false}
   filterOptions={[Function]}
@@ -42,7 +42,7 @@ Array [
 `;
 
 exports[`UsersSelectSearch should render correctly 3`] = `
-<Select
+<SelectLegacy
   className="Select-big"
   clearable={false}
   filterOptions={[Function]}

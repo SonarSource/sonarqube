@@ -21,7 +21,7 @@ import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
-import Select from '../../components/controls/Select';
+import SelectLegacy from '../../components/controls/SelectLegacy';
 import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
@@ -137,7 +137,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         {translate('template')}
         <MandatoryFieldMarker />
       </label>
-      <Select
+      <SelectLegacy
         clearable={false}
         disabled={this.state.submitting}
         onChange={this.handlePermissionTemplateChange}

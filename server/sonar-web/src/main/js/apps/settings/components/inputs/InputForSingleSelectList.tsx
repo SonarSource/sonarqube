@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { SettingCategoryDefinition } from '../../../../types/settings';
 import { DefaultSpecializedInputProps } from '../../utils';
 
@@ -36,7 +36,7 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
     }));
 
     return (
-      <Select
+      <SelectLegacy
         className="settings-large-input"
         clearable={false}
         name={this.props.name}

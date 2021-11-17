@@ -32,7 +32,7 @@ exports[`should render correctly 1`] = `
           quality_profiles.parent
           <MandatoryFieldMarker />
         </label>
-        <Select
+        <SelectLegacy
           clearable={false}
           id="change-profile-parent"
           name="parentKey"

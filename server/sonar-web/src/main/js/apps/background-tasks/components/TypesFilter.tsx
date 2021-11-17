@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
 import { ALL_TYPES } from '../constants';
 
@@ -48,7 +48,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
     ];
 
     return (
-      <Select
+      <SelectLegacy
         className="input-large"
         clearable={false}
         onChange={this.handleChange}

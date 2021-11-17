@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { change } from '../../../../helpers/testUtils';
 import ThresholdInput from '../ThresholdInput';
 
@@ -48,7 +49,7 @@ describe('on ratings', () => {
   it('should render Select', () => {
     const select = shallow(
       <ThresholdInput metric={metric} name="foo" onChange={jest.fn()} value="2" />
-    ).find('Select');
+    ).find(SelectLegacy);
     expect(select.length).toEqual(1);
     expect(select.prop('value')).toEqual('2');
   });
@@ -57,7 +58,7 @@ describe('on ratings', () => {
     const onChange = jest.fn();
     const select = shallow(
       <ThresholdInput metric={metric} name="foo" onChange={onChange} value="2" />
-    ).find('Select');
+    ).find(SelectLegacy);
     (select.prop('onChange') as Function)({ label: 'D', value: '4' });
     expect(onChange).toBeCalledWith('4');
   });
@@ -66,7 +67,7 @@ describe('on ratings', () => {
     const onChange = jest.fn();
     const select = shallow(
       <ThresholdInput metric={metric} name="foo" onChange={onChange} value="2" />
-    ).find('Select');
+    ).find(SelectLegacy);
     (select.prop('onChange') as Function)(null);
     expect(onChange).toBeCalledWith('');
   });

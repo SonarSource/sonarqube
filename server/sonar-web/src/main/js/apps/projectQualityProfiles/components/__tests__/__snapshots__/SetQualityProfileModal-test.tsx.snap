@@ -68,7 +68,7 @@ Array [
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={false}
@@ -182,7 +182,7 @@ Array [
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={true}
@@ -296,7 +296,7 @@ Array [
             <div
               className="display-flex-center"
             >
-              <Select
+              <SelectLegacy
                 className="abs-width-300"
                 clearable={false}
                 disabled={false}

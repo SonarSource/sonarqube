@@ -22,7 +22,7 @@ import * as React from 'react';
 import { activateRule, Profile } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
 import { SEVERITIES } from '../../../helpers/constants';
@@ -166,7 +166,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
 
             <div className="modal-field">
               <label>{translate('coding_rules.quality_profile')}</label>
-              <Select
+              <SelectLegacy
                 className="js-profile"
                 clearable={false}
                 disabled={submitting || profilesWithDepth.length === 1}
@@ -180,7 +180,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             </div>
             <div className="modal-field">
               <label>{translate('severity')}</label>
-              <Select
+              <SelectLegacy
                 className="js-severity"
                 clearable={false}
                 disabled={submitting}

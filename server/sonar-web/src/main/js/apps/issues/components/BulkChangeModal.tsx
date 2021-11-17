@@ -29,7 +29,7 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Modal from '../../../components/controls/Modal';
 import Radio from '../../../components/controls/Radio';
 import SearchSelect from '../../../components/controls/SearchSelect';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import Tooltip from '../../../components/controls/Tooltip';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -356,7 +356,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     );
 
     const input = (
-      <Select
+      <SelectLegacy
         className="input-super-large"
         clearable={true}
         onChange={this.handleSelectFieldChange('type')}
@@ -385,7 +385,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }));
 
     const input = (
-      <Select
+      <SelectLegacy
         className="input-super-large"
         clearable={true}
         onChange={this.handleSelectFieldChange('severity')}

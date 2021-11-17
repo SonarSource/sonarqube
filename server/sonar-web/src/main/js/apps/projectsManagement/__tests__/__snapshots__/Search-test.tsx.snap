@@ -50,7 +50,7 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <Select
+          <SelectLegacy
             className="input-medium"
             clearable={false}
             disabled={false}
@@ -91,7 +91,7 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <Select
+          <SelectLegacy
             className="input-small"
             clearable={false}
             disabled={false}
@@ -205,7 +205,7 @@ exports[`renders 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <Select
+          <SelectLegacy
             className="input-small"
             clearable={false}
             disabled={false}

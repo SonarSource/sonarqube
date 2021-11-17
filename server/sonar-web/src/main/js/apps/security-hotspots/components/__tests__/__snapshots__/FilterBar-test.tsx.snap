@@ -49,7 +49,7 @@ exports[`should render correctly: anonymous 1`] = `
           >
             status
           </span>
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -72,7 +72,7 @@ exports[`should render correctly: anonymous 1`] = `
             searchable={false}
             value="TO_REVIEW"
           />
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -165,7 +165,7 @@ exports[`should render correctly: logged-in 1`] = `
           >
             status
           </span>
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -188,7 +188,7 @@ exports[`should render correctly: logged-in 1`] = `
             searchable={false}
             value="TO_REVIEW"
           />
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -281,7 +281,7 @@ exports[`should render correctly: non-project 1`] = `
           >
             status
           </span>
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -304,7 +304,7 @@ exports[`should render correctly: non-project 1`] = `
             searchable={false}
             value="TO_REVIEW"
           />
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -356,7 +356,7 @@ exports[`should render correctly: on Pull request 1`] = `
           >
             status
           </span>
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -434,7 +434,7 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
           >
             status
           </span>
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}
@@ -457,7 +457,7 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
             searchable={false}
             value="TO_REVIEW"
           />
-          <Select
+          <SelectLegacy
             className="input-medium big-spacer-right"
             clearable={false}
             onChange={[Function]}

@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Button, ResetButtonLink } from '../../components/controls/buttons';
-import Select from '../../components/controls/Select';
+import SelectLegacy from '../../components/controls/SelectLegacy';
 import { translate } from '../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../helpers/sanitize';
 import { SettingCategoryDefinition } from '../../types/settings';
@@ -61,7 +61,7 @@ export default function ReportFrequencyForm(props: ReportFrequencyFormProps) {
         />
       )}
 
-      <Select
+      <SelectLegacy
         className="input-medium"
         clearable={false}
         name={definition.name}

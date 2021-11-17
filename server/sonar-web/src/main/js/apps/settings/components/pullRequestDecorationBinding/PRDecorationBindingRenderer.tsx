@@ -21,7 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button, SubmitButton } from '../../../../components/controls/buttons';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -143,7 +143,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             </div>
           </div>
           <div className="settings-definition-right">
-            <Select
+            <SelectLegacy
               autosize={true}
               className="abs-width-400 big-spacer-top"
               clearable={false}

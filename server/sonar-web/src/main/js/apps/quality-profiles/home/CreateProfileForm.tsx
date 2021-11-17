@@ -26,7 +26,7 @@ import {
 } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Location } from '../../../components/hoc/withRouter';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -174,7 +174,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   {translate('language')}
                   <MandatoryFieldMarker />
                 </label>
-                <Select
+                <SelectLegacy
                   clearable={false}
                   id="create-profile-language"
                   name="language"
@@ -191,7 +191,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   <label htmlFor="create-profile-parent">
                     {translate('quality_profiles.parent')}
                   </label>
-                  <Select
+                  <SelectLegacy
                     clearable={true}
                     id="create-profile-parent"
                     name="parentKey"

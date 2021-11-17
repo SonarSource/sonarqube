@@ -19,6 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import BubblesIcon from '../../../../components/icons/BubblesIcon';
+import ListIcon from '../../../../components/icons/ListIcon';
+import { mockReactSelectOptionProps } from '../../../../helpers/mocks/react-select';
 import PerspectiveSelect from '../PerspectiveSelect';
 
 it('should render correctly', () => {
@@ -26,20 +29,36 @@ it('should render correctly', () => {
 });
 
 it('should render with coverage selected', () => {
-  expect(
-    shallow(
-      <PerspectiveSelect onChange={jest.fn()} view="visualizations" visualization="coverage" />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ view: 'visualizations', visualization: 'coverage' })).toMatchSnapshot();
+});
+
+it('should render option correctly', () => {
+  const wrapper = shallowRender();
+  const OptionRender = wrapper.instance().perspectiveOptionRender;
+  let option = shallow(
+    <OptionRender {...mockReactSelectOptionProps({ type: 'view', value: 'test', label: 'test' })} />
+  );
+
+  expect(option.find(ListIcon).type).toBeDefined();
+  option = shallow(
+    <OptionRender
+      {...mockReactSelectOptionProps({ type: 'visualization', value: 'test', label: '' })}
+    />
+  );
+  expect(option.find(BubblesIcon).type).toBeDefined();
 });
 
 it('should handle perspective change correctly', () => {
   const onChange = jest.fn();
-  const instance = shallow(
-    <PerspectiveSelect onChange={onChange} view="visualizations" visualization="coverage" />
-  ).instance() as PerspectiveSelect;
+  const instance = shallowRender({ onChange }).instance();
   instance.handleChange({ label: 'overall', value: 'overall', type: 'view' });
   instance.handleChange({ label: 'leak', value: 'leak', type: 'view' });
   instance.handleChange({ label: 'coverage', value: 'coverage', type: 'visualization' });
   expect(onChange.mock.calls).toMatchSnapshot();
 });
+
+function shallowRender(overrides: Partial<PerspectiveSelect['props']> = {}) {
+  return shallow<PerspectiveSelect>(
+    <PerspectiveSelect onChange={jest.fn()} view="visualizations" {...overrides} />
+  );
+}

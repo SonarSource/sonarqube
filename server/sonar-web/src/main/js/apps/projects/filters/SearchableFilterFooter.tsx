@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -41,7 +41,7 @@ export default class SearchableFilterFooter extends React.PureComponent<Props> {
   render() {
     return (
       <div className="search-navigator-facet-footer projects-facet-footer">
-        <Select
+        <SelectLegacy
           className="input-super-large"
           clearable={false}
           isLoading={this.props.isLoading}

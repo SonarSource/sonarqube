@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
 import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
@@ -48,7 +48,7 @@ export default class ProjectActivityPageHeader extends React.PureComponent<Props
     return (
       <header className="page-header">
         {!['VW', 'SVW'].includes(this.props.project.qualifier) && (
-          <Select
+          <SelectLegacy
             className={classNames('pull-left big-spacer-right', {
               'input-medium': !isApp,
               'input-large': isApp

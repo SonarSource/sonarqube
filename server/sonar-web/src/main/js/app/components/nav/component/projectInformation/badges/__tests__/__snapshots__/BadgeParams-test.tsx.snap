@@ -9,7 +9,7 @@ exports[`should display measure badge params 1`] = `
     overview.badges.metric
     :
   </label>
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={false}
     menuStyle={
@@ -30,7 +30,7 @@ exports[`should display measure badge params 1`] = `
     format
     :
   </label>
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={false}
     name="badge-format"
@@ -62,7 +62,7 @@ exports[`should display quality gate badge params 1`] = `
     format
     :
   </label>
-  <Select
+  <SelectLegacy
     className="input-medium"
     clearable={false}
     name="badge-format"

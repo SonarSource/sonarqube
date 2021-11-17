@@ -19,43 +19,46 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { GroupTypeBase } from 'react-select';
+import { mockReactSelectOptionProps } from '../../../../helpers/mocks/react-select';
 import { click } from '../../../../helpers/testUtils';
-import ProjectsSortingSelect from '../ProjectsSortingSelect';
+import ProjectsSortingSelect, { Option } from '../ProjectsSortingSelect';
 
 it('should render correctly for overall view', () => {
-  expect(
-    shallow(
-      <ProjectsSortingSelect
-        defaultOption="name"
-        onChange={jest.fn()}
-        selectedSort="name"
-        view="overall"
-      />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render correctly for leak view', () => {
   expect(
-    shallow(
-      <ProjectsSortingSelect
-        defaultOption="analysis_date"
-        onChange={jest.fn()}
-        selectedSort="new_coverage"
-        view="leak"
-      />
-    )
+    shallowRender({ defaultOption: 'analysis_date', selectedSort: 'new_coverage', view: 'leak' })
   ).toMatchSnapshot();
 });
 
 it('should handle the descending sort direction', () => {
+  expect(shallowRender({ selectedSort: '-vulnerability' })).toMatchSnapshot();
+});
+
+it('should render option correctly', () => {
+  const wrapper = shallowRender();
+  const SortOption = wrapper.instance().projectsSortingSelectOption;
   expect(
     shallow(
-      <ProjectsSortingSelect
-        defaultOption="name"
-        onChange={jest.fn()}
-        selectedSort="-vulnerability"
-        view="overall"
+      <SortOption
+        {...mockReactSelectOptionProps<Option, false, GroupTypeBase<Option>>({
+          label: 'foo',
+          value: 'foo',
+          short: 'fo'
+        })}
+      />
+    )
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <SortOption
+        {...mockReactSelectOptionProps<Option, false, GroupTypeBase<Option>>({
+          label: 'foo',
+          value: 'foo'
+        })}
       />
     )
   ).toMatchSnapshot();
@@ -63,28 +66,29 @@ it('should handle the descending sort direction', () => {
 
 it('changes sorting', () => {
   const onChange = jest.fn();
-  const instance = shallow(
-    <ProjectsSortingSelect
-      defaultOption="name"
-      onChange={onChange}
-      selectedSort="-vulnerabilities"
-      view="overall"
-    />
-  ).instance() as ProjectsSortingSelect;
+  const instance = shallowRender({
+    selectedSort: '-vulnerability',
+    onChange
+  }).instance() as ProjectsSortingSelect;
   instance.handleSortChange({ label: 'size', value: 'size' });
   expect(onChange).toBeCalledWith('size', true);
 });
 
 it('reverses sorting', () => {
   const onChange = jest.fn();
-  const wrapper = shallow(
-    <ProjectsSortingSelect
-      defaultOption="name"
-      onChange={onChange}
-      selectedSort="-size"
-      view="overall"
-    />
-  );
+  const wrapper = shallowRender({ selectedSort: '-size', onChange });
   click(wrapper.find('ButtonIcon'));
   expect(onChange).toBeCalledWith('size', false);
 });
+
+function shallowRender(overrides: Partial<ProjectsSortingSelect['props']> = {}) {
+  return shallow<ProjectsSortingSelect>(
+    <ProjectsSortingSelect
+      defaultOption="name"
+      onChange={jest.fn()}
+      selectedSort="name"
+      view="overall"
+      {...overrides}
+    />
+  );
+}

@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
+import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import QualityGatePermissionsAddModalRenderer, {
   QualityGatePermissionsAddModalRendererProps
@@ -40,7 +40,7 @@ it('should render correctly', () => {
 it('should render options correctly', () => {
   const wrapper = shallowRender();
 
-  const { optionRenderer = () => null } = wrapper.find(Select).props();
+  const { optionRenderer = () => null } = wrapper.find(SelectLegacy).props();
 
   expect(optionRenderer({ avatar: 'A', name: 'name', login: 'login' })).toMatchSnapshot('user');
   expect(optionRenderer({ name: 'group name' })).toMatchSnapshot('group');
