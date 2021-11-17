@@ -151,14 +151,16 @@ public class EsSettings {
       int searchPort = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
       builder.put(ES_HTTP_HOST_KEY, searchHost.getHostAddress());
       builder.put(ES_HTTP_PORT_KEY, valueOf(searchPort));
-      builder.put(ES_NETWORK_HOST_KEY, searchHost.getHostAddress());
       builder.put("discovery.seed_hosts", searchHost.getHostAddress());
       builder.put("cluster.initial_master_nodes", searchHost.getHostAddress());
 
       int transportPort = Integer.parseInt(props.nonNullValue(ES_PORT.getKey()));
 
       // we have no use of transport port in non-DCE editions
-      builder.put(ES_TRANSPORT_HOST_KEY, this.loopbackAddress.getHostAddress());
+      // but specified host must be the one listed in: discovery.seed_hosts
+      // otherwise elasticsearch cannot elect master node
+      // by default it will be localhost, see: org.sonar.process.ProcessProperties.completeDefaults
+      builder.put(ES_TRANSPORT_HOST_KEY, searchHost.getHostAddress());
       builder.put(ES_TRANSPORT_PORT_KEY, valueOf(transportPort));
     }
 
