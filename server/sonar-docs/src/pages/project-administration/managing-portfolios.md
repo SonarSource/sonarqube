@@ -21,6 +21,10 @@ Users need to have either **Administer** permissions for any Portfolios that the
 ## Populating Portfolios
 After you've created a portfolio, you can populate it with projects, applications, and other portfolios.
 
+[[info]]
+|**Uniqueness in portfolios**<br/><br/>
+|Project branches, applications, and portfolios can only appear once in any given hierarchy in order to avoid magnifying their impacts on aggregated ratings. The portfolio configuration interface has some logic to prevent obvious duplications (such as manually adding the same project). However, in case of more subtle duplications (for example, due to regular expression or other bulk definition), the calculation of that portfolio will fail with a helpful error message.
+
 ### Adding another Portfolio to a Portfolio
 To add another Portfolio to your Portfolio, from **[Administration > Configuration > Portfolios](/#sonarqube-admin#/admin/extension/governance/views_console)** click the **Add Portfolio** button at the top of the third column, and choose:
 
@@ -64,10 +68,6 @@ To add an Application to a Portfolio, make sure your Application is [already cre
 3. Click **Add Portfolio**.
 4. Select **Local Reference**.
 5. Choose your Application from the drop-down menu and click **Add**.
-
-[[info]]
-|**Project unicity under a portfolio**<br/><br/>
-|Projects, applications, and portfolios can only appear once in any given hierarchy in order to avoid magnifying their impacts on aggregated ratings. The portfolio configuration interface has some logic to prevent obvious duplications (e.g. manually adding the same project), however in case of more subtle duplications (for example, due to regular expression or other bulk definition), then the calculation of that portfolio will fail with a helpful error message.
 
 ## Calculation
 By default, Portfolios are queued to be recalculated after each analysis of an included project. For each relevant Portfolio, a “Background Task” is created, and you can follow the progress on each in the **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)** by looking at the logs available for each item.
