@@ -75,7 +75,7 @@ public class DefaultProfilerTest {
     Thread.sleep(2);
     assertThat(tester.logs()).containsOnly("Register rules 1");
     long timing = underTest.stopTrace();
-    assertThat(timing).isGreaterThan(0);
+    assertThat(timing).isPositive();
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1)).startsWith("Register rules 1 (done) | time=" + timing);
     tester.clear();
@@ -85,7 +85,7 @@ public class DefaultProfilerTest {
     Thread.sleep(2);
     assertThat(tester.logs()).containsOnly("Register rules");
     timing = underTest.stopTrace();
-    assertThat(timing).isGreaterThan(0);
+    assertThat(timing).isPositive();
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1)).startsWith("Register rules (done) | time=" + timing);
     tester.clear();
@@ -95,7 +95,7 @@ public class DefaultProfilerTest {
     Thread.sleep(2);
     assertThat(tester.logs()).containsOnly("Register rules");
     timing = underTest.stopTrace();
-    assertThat(timing).isGreaterThan(0);
+    assertThat(timing).isPositive();
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1)).startsWith("Register rules (done) | time=" + timing);
   }

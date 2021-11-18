@@ -63,8 +63,9 @@ public class EventTest {
   @Test
   public void same_name_and_category_make_equal_events() {
     Event source = Event.createAlert(SOME_NAME, null, null);
-    assertThat(source).isEqualTo(Event.createAlert(SOME_NAME, null, null));
-    assertThat(source).isEqualTo(source);
-    assertThat(source).isNotEqualTo(null);
+    assertThat(source)
+      .isEqualTo(Event.createAlert(SOME_NAME, null, null))
+      .isEqualTo(source)
+      .isNotNull();
   }
 }

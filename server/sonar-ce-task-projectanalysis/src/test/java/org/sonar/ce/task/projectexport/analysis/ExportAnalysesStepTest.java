@@ -213,7 +213,7 @@ public class ExportAnalysesStepTest {
 
   private static void assertAnalysis(ProjectDump.Analysis analysis, ComponentDto component, SnapshotDto dto) {
     assertThat(analysis.getUuid()).isEqualTo(dto.getUuid());
-    assertThat(analysis.getComponentRef()).isEqualTo(1);
+    assertThat(analysis.getComponentRef()).isOne();
     assertThat(analysis.getDate()).isEqualTo(dto.getCreatedAt());
     assertThat(analysis.getProjectVersion()).isEqualTo(defaultString(dto.getProjectVersion()));
     assertThat(analysis.getBuildString()).isEqualTo(defaultString(dto.getBuildString()));

@@ -68,8 +68,8 @@ public class TextBlockTest {
 
   @Test
   public void hashcode_is_based__on_start_and_end() {
-    assertThat(new TextBlock(15, 15).hashCode()).isEqualTo(new TextBlock(15, 15).hashCode());
-    assertThat(new TextBlock(15, 300).hashCode()).isEqualTo(new TextBlock(15, 300).hashCode());
+    assertThat(new TextBlock(15, 15)).hasSameHashCodeAs(new TextBlock(15, 15));
+    assertThat(new TextBlock(15, 300)).hasSameHashCodeAs(new TextBlock(15, 300));
     assertThat(new TextBlock(15, 300).hashCode()).isNotEqualTo(new TextBlock(15, 15).hashCode());
   }
 
@@ -90,7 +90,7 @@ public class TextBlockTest {
 
   @Test
   public void verify_toString() {
-    assertThat(new TextBlock(13, 400).toString()).isEqualTo("TextBlock{start=13, end=400}");
+    assertThat(new TextBlock(13, 400)).hasToString("TextBlock{start=13, end=400}");
 
   }
 }

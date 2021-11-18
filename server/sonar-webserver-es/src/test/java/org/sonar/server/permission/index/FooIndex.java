@@ -21,7 +21,6 @@ package org.sonar.server.permission.index;
 
 import java.util.Arrays;
 import java.util.List;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;

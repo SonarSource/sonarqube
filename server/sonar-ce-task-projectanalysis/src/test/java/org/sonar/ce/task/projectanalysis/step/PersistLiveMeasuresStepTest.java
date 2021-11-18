@@ -213,14 +213,14 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     Optional<LiveMeasureDto> persisted = dbClient.liveMeasureDao().selectMeasure(db.getSession(),
       template.getComponentUuid(), metricRepository.getByUuid(template.getMetricUuid()).getKey());
     assertThat(persisted).isPresent();
-    assertThat(persisted.get().getValue()).isEqualTo((double) expectedValue);
+    assertThat(persisted.get().getValue()).isEqualTo(expectedValue);
   }
 
   private void assertThatMeasureHasValue(String componentUuid, Metric metric, int expectedValue) {
     Optional<LiveMeasureDto> persisted = dbClient.liveMeasureDao().selectMeasure(db.getSession(),
       componentUuid, metric.getKey());
     assertThat(persisted).isPresent();
-    assertThat(persisted.get().getValue()).isEqualTo((double) expectedValue);
+    assertThat(persisted.get().getValue()).isEqualTo(expectedValue);
   }
 
   private void assertThatMeasureDoesNotExist(LiveMeasureDto template) {

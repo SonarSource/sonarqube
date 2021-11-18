@@ -47,7 +47,7 @@ public class JavaCommandTest {
     command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
     command.addClasspath("lib/*.jar");
     command.addClasspath("conf/*.xml");
-    JvmOptions<JvmOptions> jvmOptions = new JvmOptions<JvmOptions>() {};
+    JvmOptions<JvmOptions> jvmOptions = new JvmOptions<>() {};
     command.setJvmOptions(jvmOptions);
 
     assertThat(command.toString()).isNotNull();
@@ -57,8 +57,8 @@ public class JavaCommandTest {
     assertThat(command.getClassName()).isEqualTo("org.sonar.ElasticSearch");
 
     // copy current env variables
-    assertThat(command.getEnvVariables().get("JAVA_COMMAND_TEST")).isEqualTo("1000");
-    assertThat(command.getEnvVariables().size()).isEqualTo(System.getenv().size() + 1);
+    assertThat(command.getEnvVariables()).containsEntry("JAVA_COMMAND_TEST", "1000");
+    assertThat(command.getEnvVariables()).hasSize(System.getenv().size() + 1);
   }
 
 }

@@ -52,7 +52,7 @@ public class SimpleFieldFilterScopeTest {
     assertThat(underTest)
       .isEqualTo(underTest)
       .isEqualTo(new SimpleFieldFilterScope(fieldName1))
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new Object())
       .isNotEqualTo(new SimpleFieldFilterScope(fieldName2))
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName1, "foo", "bar"))

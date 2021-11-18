@@ -38,7 +38,7 @@ public class JvmStateSectionTest {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     assertThat(section.getName()).isEqualTo(PROCESS_NAME);
-    assertThat(section.getAttributesCount()).isGreaterThan(0);
+    assertThat(section.getAttributesCount()).isPositive();
     assertThat(section.getAttributesList()).extracting("key")
       .contains(
         "Max Memory (MB)", "Free Memory (MB)",

@@ -254,7 +254,7 @@ public class QProfilesWsMediumTest {
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile, rule.getKey());
 
     Optional<ActiveRuleDto> activeRuleDto = dbClient.activeRuleDao().selectByKey(dbSession, activeRuleKey);
-    assertThat(activeRuleDto.isPresent()).isTrue();
+    assertThat(activeRuleDto).isPresent();
     assertThat(activeRuleDto.get().getSeverityString()).isEqualTo(Severity.MINOR);
   }
 
@@ -413,7 +413,7 @@ public class QProfilesWsMediumTest {
 
     // 0. assert rule child rule is minor
     Optional<ActiveRuleDto> activeRuleDto = dbClient.activeRuleDao().selectByKey(dbSession, active2.getKey());
-    assertThat(activeRuleDto.isPresent()).isTrue();
+    assertThat(activeRuleDto).isPresent();
     assertThat(activeRuleDto.get().getSeverityString()).isEqualTo(Severity.MINOR);
 
     // 1. reset child rule
@@ -426,7 +426,7 @@ public class QProfilesWsMediumTest {
 
     // 2. assert rule child rule is NOT minor
     activeRuleDto = dbClient.activeRuleDao().selectByKey(dbSession, active2.getKey());
-    assertThat(activeRuleDto.isPresent()).isTrue();
+    assertThat(activeRuleDto).isPresent();
     assertThat(activeRuleDto.get().getSeverityString()).isNotEqualTo(Severity.MINOR);
   }
 

@@ -54,11 +54,11 @@ public class PmdBridgeTest {
     addToIndex(file);
 
     List<CloneGroup> duplications = detect(file);
-    assertThat(duplications.size()).isEqualTo(1);
+    assertThat(duplications.size()).isOne();
 
     CloneGroup duplication = duplications.get(0);
     assertThat(duplication.getOriginPart().getResourceId()).isEqualTo(file.getAbsolutePath());
-    assertThat(duplication.getCloneParts().size()).isEqualTo(2);
+    assertThat(duplication.getCloneParts()).hasSize(2);
     assertThat(duplication.getLengthInUnits()).as("length in tokens").isEqualTo(157);
 
     ClonePart part = duplication.getCloneParts().get(0);
@@ -75,7 +75,7 @@ public class PmdBridgeTest {
     addToIndex(file2);
 
     List<CloneGroup> duplications = detect(file1);
-    assertThat(duplications.size()).isEqualTo(1);
+    assertThat(duplications.size()).isOne();
 
     CloneGroup duplication = duplications.get(0);
     assertThat(duplication.getOriginPart().getResourceId()).isEqualTo(file1.getAbsolutePath());

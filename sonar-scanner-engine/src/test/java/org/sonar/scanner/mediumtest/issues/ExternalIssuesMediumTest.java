@@ -174,7 +174,7 @@ public class ExternalIssuesMediumTest {
     assertThat(issue.getEngineId()).isEqualTo("externalXoo");
     assertThat(issue.getRuleId()).isEqualTo("rule1");
     assertThat(issue.getSeverity()).isEqualTo(Severity.MAJOR);
-    assertThat(issue.getEffort()).isEqualTo(50l);
+    assertThat(issue.getEffort()).isEqualTo(50L);
     assertThat(issue.getType()).isEqualTo(IssueType.CODE_SMELL);
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(5);
     assertThat(issue.getTextRange().getEndLine()).isEqualTo(5);

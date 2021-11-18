@@ -36,19 +36,19 @@ public class RuleParamTypeTest {
       .isNotEqualTo(RuleParamType.STRING)
       .isNotEqualTo("INTEGER")
       .isNotEqualTo(withOptions1)
-      .isNotEqualTo(null);
+      .isNotNull();
 
     assertThat(withOptions1)
       .isEqualTo(withOptions1)
       .isNotEqualTo(noOptions)
       .isNotEqualTo(withOptions2)
       .isNotEqualTo("SINGLE_SELECT_LIST,values=one,two,")
-      .isNotEqualTo(null);
+      .isNotNull();
   }
 
   @Test
   public void testHashCode() {
-    assertThat(RuleParamType.INTEGER.hashCode()).isEqualTo(RuleParamType.INTEGER.hashCode());
+    assertThat(RuleParamType.INTEGER).hasSameHashCodeAs(RuleParamType.INTEGER);
   }
 
   @Test

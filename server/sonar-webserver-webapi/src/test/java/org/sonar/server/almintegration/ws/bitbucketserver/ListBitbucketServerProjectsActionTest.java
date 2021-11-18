@@ -88,7 +88,7 @@ public class ListBitbucketServerProjectsActionTest {
       .setParam("almSetting", almSetting.getKey())
       .executeProtobuf(ListBitbucketserverProjectsWsResponse.class);
 
-    assertThat(response.getProjectsCount()).isEqualTo(1);
+    assertThat(response.getProjectsCount()).isOne();
     assertThat(response.getProjectsList())
       .extracting(AlmIntegrations.AlmProject::getKey, AlmIntegrations.AlmProject::getName)
       .containsExactly(tuple("key", "name"));

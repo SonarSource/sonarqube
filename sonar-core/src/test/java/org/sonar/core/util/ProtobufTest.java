@@ -89,7 +89,7 @@ public class ProtobufTest {
     CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.parser());
     Fake read = it.next();
     assertThat(read.getLabel()).isEqualTo("one");
-    assertThat(read.getLine()).isEqualTo(1);
+    assertThat(read.getLine()).isOne();
     read = it.next();
     assertThat(read.getLabel()).isEqualTo("two");
     assertThat(read.hasLine()).isFalse();

@@ -57,19 +57,21 @@ public class MessageTest {
     Message message4 = Message.of("key1%s", "param2");
     Message sameAsMessage1 = Message.of("key1%s", "param1");
 
-    assertThat(message1).isEqualTo(message1);
-    assertThat(message1).isNotEqualTo(message2);
-    assertThat(message1).isNotEqualTo(message3);
-    assertThat(message1).isNotEqualTo(message4);
-    assertThat(message1).isEqualTo(sameAsMessage1);
-    assertThat(message1).isNotEqualTo(null);
-    assertThat(message1).isNotEqualTo(new Object());
+    assertThat(message1)
+      .isEqualTo(message1)
+      .isNotEqualTo(message2)
+      .isNotEqualTo(message3)
+      .isNotEqualTo(message4)
+      .isEqualTo(sameAsMessage1)
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .hasSameHashCodeAs(message1)
+      .hasSameHashCodeAs(sameAsMessage1);
 
-    assertThat(message1.hashCode()).isEqualTo(message1.hashCode());
-    assertThat(message1.hashCode()).isNotEqualTo(message2.hashCode());
-    assertThat(message1.hashCode()).isNotEqualTo(message3.hashCode());
-    assertThat(message1.hashCode()).isNotEqualTo(message4.hashCode());
-    assertThat(message1.hashCode()).isEqualTo(sameAsMessage1.hashCode());
+    assertThat(message1.hashCode())
+      .isNotEqualTo(message2.hashCode())
+      .isNotEqualTo(message3.hashCode())
+      .isNotEqualTo(message4.hashCode());
   }
 
   @Test

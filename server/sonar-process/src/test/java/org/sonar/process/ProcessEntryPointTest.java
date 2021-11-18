@@ -111,8 +111,8 @@ public class ProcessEntryPointTest {
     entryPoint.stop();
 
     assertThat(process.getState()).isEqualTo(State.STOPPED);
-    assertThat(process.wasStopped()).isEqualTo(true);
-    assertThat(process.wasHardStopped()).isEqualTo(false);
+    assertThat(process.wasStopped()).isTrue();
+    assertThat(process.wasHardStopped()).isFalse();
   }
 
   @Test
@@ -131,7 +131,7 @@ public class ProcessEntryPointTest {
     entryPoint.hardStop();
 
     assertThat(process.getState()).isEqualTo(State.STOPPED);
-    assertThat(process.wasHardStopped()).isEqualTo(true);
+    assertThat(process.wasHardStopped()).isTrue();
   }
 
   @Test

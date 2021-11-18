@@ -113,7 +113,7 @@ public class ActivityStatusActionTest {
     Ce.ActivityStatusWsResponse result = callByComponentKey(projectKey);
 
     assertThat(result.getPending()).isEqualTo(2);
-    assertThat(result.getFailing()).isEqualTo(1);
+    assertThat(result.getFailing()).isOne();
   }
 
   @Test

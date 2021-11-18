@@ -156,14 +156,16 @@ public class DefaultInputFileTest {
     DefaultInputFile f1a = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), (f) -> mock(Metadata.class));
     DefaultInputFile f2 = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), "src/Bar.php", null), (f) -> mock(Metadata.class));
 
-    assertThat(f1).isEqualTo(f1);
-    assertThat(f1).isEqualTo(f1a);
-    assertThat(f1).isNotEqualTo(f2);
+    assertThat(f1)
+      .isEqualTo(f1)
+      .isEqualTo(f1a)
+      .isNotEqualTo(f2);
     assertThat(f1.equals("foo")).isFalse();
     assertThat(f1.equals(null)).isFalse();
 
-    assertThat(f1.hashCode()).isEqualTo(f1.hashCode());
-    assertThat(f1.hashCode()).isEqualTo(f1a.hashCode());
+    assertThat(f1)
+      .hasSameHashCodeAs(f1)
+      .hasSameHashCodeAs(f1a);
   }
 
   @Test
@@ -176,7 +178,7 @@ public class DefaultInputFileTest {
   public void checkValidPointer() {
     Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {9, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
-    assertThat(file.newPointer(1, 0).line()).isEqualTo(1);
+    assertThat(file.newPointer(1, 0).line()).isOne();
     assertThat(file.newPointer(1, 0).lineOffset()).isZero();
     // Don't fail
     file.newPointer(1, 9);
@@ -213,10 +215,10 @@ public class DefaultInputFileTest {
   public void checkValidPointerUsingGlobalOffset() {
     Metadata metadata = new Metadata(2, 2, "", new int[] {0, 10}, new int[] {8, 15}, 16);
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
-    assertThat(file.newPointer(0).line()).isEqualTo(1);
+    assertThat(file.newPointer(0).line()).isOne();
     assertThat(file.newPointer(0).lineOffset()).isZero();
 
-    assertThat(file.newPointer(9).line()).isEqualTo(1);
+    assertThat(file.newPointer(9).line()).isOne();
     // Ignore eol characters
     assertThat(file.newPointer(9).lineOffset()).isEqualTo(8);
 
@@ -250,7 +252,7 @@ public class DefaultInputFileTest {
     Metadata metadata = new FileMetadata(mock(AnalysisWarnings.class)).readMetadata(new StringReader("bla bla a\nabcde"));
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
 
-    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 1)).start().line()).isEqualTo(1);
+    assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 1)).start().line()).isOne();
     // Don't fail
     file.newRange(file.newPointer(1, 0), file.newPointer(1, 1));
     file.newRange(file.newPointer(1, 0), file.newPointer(1, 9));
@@ -276,9 +278,9 @@ public class DefaultInputFileTest {
     Metadata metadata = new FileMetadata(mock(AnalysisWarnings.class)).readMetadata(new StringReader("bla bla a\nabcde\n\nabc"));
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
 
-    assertThat(file.selectLine(1).start().line()).isEqualTo(1);
+    assertThat(file.selectLine(1).start().line()).isOne();
     assertThat(file.selectLine(1).start().lineOffset()).isZero();
-    assertThat(file.selectLine(1).end().line()).isEqualTo(1);
+    assertThat(file.selectLine(1).end().line()).isOne();
     assertThat(file.selectLine(1).end().lineOffset()).isEqualTo(9);
 
     // Don't fail when selecting empty line

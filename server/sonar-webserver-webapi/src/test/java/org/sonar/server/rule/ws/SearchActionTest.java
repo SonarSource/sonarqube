@@ -141,8 +141,8 @@ public class SearchActionTest {
       .setParam(WebService.Param.FIELDS, "actives")
       .executeProtobuf(Rules.SearchResponse.class);
 
-    assertThat(response.getTotal()).isEqualTo(0L);
-    assertThat(response.getP()).isEqualTo(1);
+    assertThat(response.getTotal()).isZero();
+    assertThat(response.getP()).isOne();
     assertThat(response.getRulesCount()).isZero();
   }
 
@@ -371,7 +371,7 @@ public class SearchActionTest {
       .setParam("f", "repo,name")
       .setParam("facets", "tags")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .contains(tuple("tag0", 1L), tuple("tag25", 1L), tuple("tag99", 1L))
       .doesNotContain(tuple("x", 1L));
   }
@@ -387,7 +387,7 @@ public class SearchActionTest {
       .setParam("f", "repo,name")
       .setParam("facets", "tags")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> v.getVal(), v -> v.getCount())
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactly(tuple("tag2", 2L), tuple("tag1", 1L), tuple("tag3", 1L), tuple("tag4", 1L), tuple("tag5", 1L), tuple("tag6", 1L), tuple("tag7", 1L), tuple("tag8", 1L),
         tuple("tag9", 1L), tuple("tagA", 1L));
   }
@@ -461,8 +461,8 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("f", "langName")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -486,8 +486,8 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -520,8 +520,8 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -554,8 +554,8 @@ public class SearchActionTest {
     SearchResponse result = ws.newRequest()
       .setParam("f", "debtRemFn,debtOverloaded,defaultDebtRemFn")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -584,8 +584,8 @@ public class SearchActionTest {
       .setParam("f", "isTemplate")
       .setParam("is_template", "true")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -606,8 +606,8 @@ public class SearchActionTest {
       .setParam("f", "templateKey")
       .setParam("template_key", templateRule.getRepositoryKey() + ":" + templateRule.getRuleKey())
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -639,8 +639,8 @@ public class SearchActionTest {
       .setParam("q", rule.getName())
       .setParam("activation", "true")
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
 
     Rule searchedRule = result.getRules(0);
     assertThat(searchedRule).isNotNull();
@@ -682,8 +682,8 @@ public class SearchActionTest {
       .setParam("activation", "true")
       .setParam("qprofile", profile.getKee())
       .executeProtobuf(SearchResponse.class);
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
     assertThat(result.getActives()).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString())).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString()).getActiveListList()).hasSize(1);
@@ -737,8 +737,8 @@ public class SearchActionTest {
       .setParam("qprofile", profile.getKee())
       .executeProtobuf(SearchResponse.class);
 
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getRulesCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getRulesCount()).isOne();
     assertThat(result.getActives()).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString())).isNotNull();
     assertThat(result.getActives().getActives().get(rule.getKey().toString()).getActiveListList()).hasSize(1);
@@ -927,7 +927,7 @@ public class SearchActionTest {
     Rules.SearchResponse response = request
       .executeProtobuf(Rules.SearchResponse.class);
 
-    assertThat(response.getP()).isEqualTo(1);
+    assertThat(response.getP()).isOne();
     RuleKey[] expectedRuleKeys = stream(expectedRules).map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList()).toArray(new RuleKey[0]);
     assertThat(response.getRulesList())
       .extracting(r -> RuleKey.parse(r.getKey()))

@@ -780,7 +780,7 @@ public class QProfileRuleImplTest {
       .setQProfile(childProfile);
     BulkChangeResult bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), childProfile, ruleQuery);
 
-    assertThat(bulkChangeResult.countFailed()).isEqualTo(1);
+    assertThat(bulkChangeResult.countFailed()).isOne();
     assertThat(bulkChangeResult.countSucceeded()).isZero();
     assertThat(bulkChangeResult.getChanges()).isEmpty();
     assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), null, emptyMap());
@@ -806,7 +806,7 @@ public class QProfileRuleImplTest {
     BulkChangeResult result = underTest.bulkActivateAndCommit(db.getSession(), parentProfile, query, "BLOCKER");
 
     assertThat(result.getChanges()).hasSize(3);
-    assertThat(result.countSucceeded()).isEqualTo(1);
+    assertThat(result.countSucceeded()).isOne();
     assertThat(result.countFailed()).isZero();
 
     // Rule1 must be activated with BLOCKER on all profiles

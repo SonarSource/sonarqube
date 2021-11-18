@@ -748,9 +748,9 @@ public class Log4JPropertiesBuilderTest {
   }
 
   private void verifyProperties(Properties properties, String... expectedPropertyKeysAndValuesOrdered) {
-    assertThat(properties.get("status")).isEqualTo("ERROR");
+    assertThat(properties).containsEntry("status", "ERROR");
     if (expectedPropertyKeysAndValuesOrdered.length == 0) {
-      assertThat(properties.size()).isEqualTo(1);
+      assertThat(properties.size()).isOne();
     } else {
       assertThat(expectedPropertyKeysAndValuesOrdered.length % 2).describedAs("Number of parameters must be even").isZero();
       Set<String> keys = new HashSet<>(expectedPropertyKeysAndValuesOrdered.length / 2 + 1);
@@ -761,7 +761,7 @@ public class Log4JPropertiesBuilderTest {
         assertThat(properties.get(key)).describedAs("Unexpected value for property " + key).isEqualTo(value);
         keys.add(key);
       }
-      assertThat(properties.keySet()).containsOnly(keys.toArray());
+      assertThat(properties).containsOnlyKeys(keys.toArray());
     }
   }
 
@@ -770,8 +770,8 @@ public class Log4JPropertiesBuilderTest {
   }
 
   private void verifyLoggerProperties(Properties properties, String loggerName, Level expectedLevel) {
-    assertThat(properties.get("logger." + loggerName + ".name")).isEqualTo(loggerName);
-    assertThat(properties.get("logger." + loggerName + ".level")).isEqualTo(expectedLevel.toString());
+    assertThat(properties).containsEntry("logger." + loggerName + ".name", loggerName);
+    assertThat(properties).containsEntry("logger." + loggerName + ".level", expectedLevel.toString());
   }
 
   private void verifyNoLoggerProperties(Properties properties, String loggerName) {
@@ -780,7 +780,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   private void verifyRootLoggerLevel(Log4JPropertiesBuilder underTest, Level expectedLevel) {
-    assertThat(underTest.build().get("rootLogger.level")).isEqualTo(expectedLevel.toString());
+    assertThat(underTest.build()).containsEntry("rootLogger.level", expectedLevel.toString());
   }
 
   @DataProvider

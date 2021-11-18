@@ -60,7 +60,7 @@ public class WorkerCountActionTest {
 
     WorkerCountResponse response = ws.newRequest().executeProtobuf(WorkerCountResponse.class);
 
-    assertThat(response.getValue()).isEqualTo(1);
+    assertThat(response.getValue()).isOne();
     assertThat(response.getCanSetWorkerCount()).isFalse();
   }
 

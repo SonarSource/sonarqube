@@ -118,7 +118,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isOne();
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(projectSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);

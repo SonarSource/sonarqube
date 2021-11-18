@@ -61,7 +61,7 @@ public class CeHttpClientImplTest {
   public void retrieveSystemInfo_returns_absent_if_process_is_down() {
     Optional<ProtobufSystemInfo.SystemInfo> info = underTest.retrieveSystemInfo();
 
-    assertThat(info.isPresent()).isFalse();
+    assertThat(info).isEmpty();
   }
 
   @Test

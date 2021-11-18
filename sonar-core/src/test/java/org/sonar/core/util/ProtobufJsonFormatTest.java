@@ -86,7 +86,7 @@ public class ProtobufJsonFormatTest {
 
     // field is present
     assertThat(msg.hasStringField()).isTrue();
-    assertThat(msg.getStringField()).isEqualTo("");
+    assertThat(msg.getStringField()).isEmpty();
 
     assertThat(toJson(msg)).isEqualTo("{\"stringField\":\"\"}");
   }

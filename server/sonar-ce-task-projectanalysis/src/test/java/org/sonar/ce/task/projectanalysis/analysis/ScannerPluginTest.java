@@ -38,24 +38,25 @@ public class ScannerPluginTest {
   public void verify_toString() {
     ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
-    assertThat(plugin.toString()).isEqualTo("ScannerPlugin{key='key', basePluginKey='base', updatedAt='12345'}");
+    assertThat(plugin).hasToString("ScannerPlugin{key='key', basePluginKey='base', updatedAt='12345'}");
   }
 
   @Test
   public void equals_is_based_on_key_only() {
     ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
-    assertThat(plugin).isEqualTo(plugin);
-    assertThat(plugin).isEqualTo(new ScannerPlugin("key", null, 45678L));
-    assertThat(plugin).isNotEqualTo(new ScannerPlugin("key2", "base", 12345L));
-    assertThat(plugin).isNotEqualTo(null);
-    assertThat(plugin).isNotEqualTo("toto");
+    assertThat(plugin)
+      .isEqualTo(plugin)
+      .isEqualTo(new ScannerPlugin("key", null, 45678L))
+      .isNotEqualTo(new ScannerPlugin("key2", "base", 12345L))
+      .isNotNull()
+      .isNotEqualTo("toto");
   }
 
   @Test
   public void hashcode_is_based_on_key_only() {
     ScannerPlugin plugin = new ScannerPlugin("key", "base", 12345L);
 
-    assertThat(plugin.hashCode()).isEqualTo("key".hashCode());
+    assertThat(plugin).hasSameHashCodeAs("key");
   }
 }

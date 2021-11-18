@@ -191,7 +191,7 @@ public class DefaultHttpDownloaderTest {
 
     new DefaultHttpDownloader(new MapSettings().asConfig()).download(new URI(baseUrl), toFile);
     assertThat(toFile).exists();
-    assertThat(toFile.length()).isGreaterThan(10l);
+    assertThat(toFile.length()).isGreaterThan(10L);
   }
 
   @Test

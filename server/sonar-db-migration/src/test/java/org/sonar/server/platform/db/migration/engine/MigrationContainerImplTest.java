@@ -53,7 +53,7 @@ public class MigrationContainerImplTest {
     StartCallCounter startCallCounter = underTest.getComponentByType(StartCallCounter.class);
 
     assertThat(startCallCounter).isNotNull();
-    assertThat(StartCallCounter.startCalls).isEqualTo(1);
+    assertThat(StartCallCounter.startCalls).isOne();
   }
 
   @Test

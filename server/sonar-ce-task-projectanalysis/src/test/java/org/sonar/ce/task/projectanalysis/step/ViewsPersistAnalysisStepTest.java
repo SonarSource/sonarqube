@@ -102,7 +102,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isOne();
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
     assertThat(viewSnapshot.getUuid()).isEqualTo(ANALYSIS_UUID);

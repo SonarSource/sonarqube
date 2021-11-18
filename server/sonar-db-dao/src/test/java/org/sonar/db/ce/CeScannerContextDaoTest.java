@@ -83,7 +83,7 @@ public class CeScannerContextDaoTest {
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("bla"));
     dbSession.commit();
 
-    assertThat(dbTester.countRowsOfTable(dbSession, TABLE_NAME)).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, TABLE_NAME)).isOne();
 
     assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("blo")))
       .isInstanceOf(IllegalStateException.class)

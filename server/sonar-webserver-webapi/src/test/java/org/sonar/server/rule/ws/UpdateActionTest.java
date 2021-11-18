@@ -192,7 +192,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getKey()).isEqualTo(rule.getKey().toString());
     assertThat(updatedRule.getDefaultRemFnType()).isEqualTo(rule.getDefRemediationFunction());
     assertThat(updatedRule.getDefaultRemFnGapMultiplier()).isEqualTo(rule.getDefRemediationGapMultiplier());
-    assertThat(updatedRule.getDefaultRemFnBaseEffort()).isEqualTo("");
+    assertThat(updatedRule.getDefaultRemFnBaseEffort()).isEmpty();
     assertThat(updatedRule.getGapDescription()).isEqualTo(rule.getGapDescription());
 
     assertThat(updatedRule.getRemFnType()).isEqualTo(newOffset);

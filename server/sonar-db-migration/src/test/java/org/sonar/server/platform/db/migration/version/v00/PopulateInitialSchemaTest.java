@@ -127,8 +127,8 @@ public class PopulateInitialSchemaTest {
     assertThat(rows).hasSize(1);
 
     Map<String, Object> row = rows.get(0);
-    assertThat(row.get("name")).isEqualTo(expectedName);
-    assertThat(row.get("description")).isEqualTo(expectedDescription);
+    assertThat(row).containsEntry("name", expectedName);
+    assertThat(row).containsEntry("description", expectedDescription);
     assertThat(((Date) row.get("CREATED_AT")).getTime()).isEqualTo(NOW);
     assertThat(((Date) row.get("UPDATED_AT")).getTime()).isEqualTo(NOW);
 
@@ -145,8 +145,8 @@ public class PopulateInitialSchemaTest {
     assertThat(rows).hasSize(1);
 
     Map<String, Object> row = rows.get(0);
-    assertThat(row.get("NAME")).isEqualTo("Sonar way");
-    assertThat(row.get("BUILTIN")).isEqualTo(true);
+    assertThat(row).containsEntry("NAME", "Sonar way");
+    assertThat(row).containsEntry("BUILTIN", true);
     assertThat(((Date) row.get("CREATED_AT")).getTime()).isEqualTo(NOW);
     assertThat(((Date) row.get("UPDATED_AT")).getTime()).isEqualTo(NOW);
     return (String) row.get("UUID");

@@ -100,7 +100,7 @@ public class FileSourceDtoTest {
     FileSourceDto underTest = new FileSourceDto();
     underTest.setLineHashes(Collections.emptyList());
 
-    assertThat(underTest.getLineCount()).isEqualTo(1);
+    assertThat(underTest.getLineCount()).isOne();
     assertThat(underTest.getLineHashes()).isEmpty();
     assertThat(underTest.getRawLineHashes()).isNull();
   }

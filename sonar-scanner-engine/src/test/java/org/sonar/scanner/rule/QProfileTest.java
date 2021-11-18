@@ -33,7 +33,7 @@ public class QProfileTest {
     assertThat(q1)
       .isEqualTo(q2)
       .isNotEqualTo(q3)
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo("str");
     assertThat(q2).isNotEqualTo(q3);
 

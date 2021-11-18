@@ -69,7 +69,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
   private static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
 
   private static final String LANGUAGE_1_KEY = "language 1 key";
-  private static final long LANGUAGE_1_DEV_COST = 30l;
+  private static final long LANGUAGE_1_DEV_COST = 30L;
   private static final int ROOT_REF = 1;
   private static final int LANGUAGE_1_FILE_REF = 11111;
   private static final Offset<Double> VARIATION_COMPARISON_OFFSET = Offset.offset(0.01);

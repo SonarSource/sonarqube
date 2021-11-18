@@ -95,7 +95,6 @@ public class InstallActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
-    ;
   }
 
   @Test

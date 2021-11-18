@@ -68,8 +68,6 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
-import static org.sonar.db.component.ComponentTesting.newPortfolio;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_PULL_REQUEST;
@@ -308,7 +306,7 @@ public class TreeActionTest {
     assertThat(response.getComponentsList()).isEmpty();
     assertThat(response.getPaging().getTotal()).isZero();
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
-    assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(response.getPaging().getPageIndex()).isOne();
   }
 
   @Test
@@ -326,7 +324,7 @@ public class TreeActionTest {
       .executeProtobuf(TreeWsResponse.class);
 
     assertThat(response.getBaseComponent().getKey()).isEqualTo(view.getDbKey());
-    assertThat(response.getComponentsCount()).isEqualTo(1);
+    assertThat(response.getComponentsCount()).isOne();
     assertThat(response.getComponents(0).getKey()).isEqualTo(projectCopy.getDbKey());
     assertThat(response.getComponents(0).getRefKey()).isEqualTo(project.getDbKey());
   }

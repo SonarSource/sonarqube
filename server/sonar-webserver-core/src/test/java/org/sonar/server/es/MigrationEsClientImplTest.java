@@ -81,7 +81,7 @@ public class MigrationEsClientImplTest {
     assertThat(loadExistingIndices()).toIterable().contains("as");
     ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
     MappingMetadata mapping = mappings.get("as").get("s");
-    assertThat(countMappingFields(mapping)).isEqualTo(1);
+    assertThat(countMappingFields(mapping)).isOne();
     assertThat(field(mapping, "new_field")).isNotNull();
 
     assertThat(logTester.logs(LoggerLevel.INFO))

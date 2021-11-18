@@ -165,7 +165,8 @@ public class RuleTesting {
    */
   @Deprecated
   public static RuleDto newDto(RuleKey ruleKey) {
-    RuleDto res = new RuleDto()
+
+    return new RuleDto()
       .setUuid("uuid_" + Uuids.createFast())
       .setRuleKey(ruleKey.rule())
       .setRepositoryKey(ruleKey.repository())
@@ -189,8 +190,6 @@ public class RuleTesting {
       .setTags(ImmutableSet.of("tag1", "tag2"))
       .setRemediationFunction("LINEAR")
       .setRemediationGapMultiplier("1h");
-
-    return res;
   }
 
   /**

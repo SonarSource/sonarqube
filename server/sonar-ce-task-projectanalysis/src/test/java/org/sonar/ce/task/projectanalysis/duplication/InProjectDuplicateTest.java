@@ -77,7 +77,7 @@ public class InProjectDuplicateTest {
   @Test
   public void hashcode_depends_on_file_and_TextBlock() {
     TextBlock textBlock = new TextBlock(1, 2);
-    assertThat(new InProjectDuplicate(FILE_1, textBlock).hashCode()).isEqualTo(new InProjectDuplicate(FILE_1, textBlock).hashCode());
+    assertThat(new InProjectDuplicate(FILE_1, textBlock)).hasSameHashCodeAs(new InProjectDuplicate(FILE_1, textBlock));
 
     assertThat(new InProjectDuplicate(FILE_1, textBlock).hashCode()).isNotEqualTo(new InProjectDuplicate(FILE_2, textBlock).hashCode());
     assertThat(new InProjectDuplicate(FILE_1, textBlock).hashCode()).isNotEqualTo(new InProjectDuplicate(FILE_2, new TextBlock(1, 1)).hashCode());

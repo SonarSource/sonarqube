@@ -304,7 +304,7 @@ public class FileSourceDaoTest {
     assertThat(fileSourceDto.getDataHash()).isEqualTo("NEW_DATA_HASH");
     assertThat(fileSourceDto.getRawLineHashes()).isEqualTo("NEW_LINE_HASHES");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(singletonList("NEW_LINE_HASHES"));
-    assertThat(fileSourceDto.getLineCount()).isEqualTo(1);
+    assertThat(fileSourceDto.getLineCount()).isOne();
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("NEW_FILE_HASH");
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(expected.getCreatedAt());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000002L);
@@ -335,6 +335,6 @@ public class FileSourceDaoTest {
 
     FileSourceDto res = underTest.selectByFileUuid(dbSession, fileSourceDto.getFileUuid());
     assertThat(res.getLineHashes()).isEmpty();
-    assertThat(res.getLineCount()).isEqualTo(1);
+    assertThat(res.getLineCount()).isOne();
   }
 }

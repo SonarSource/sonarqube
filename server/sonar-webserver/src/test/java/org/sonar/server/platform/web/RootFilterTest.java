@@ -86,7 +86,7 @@ public class RootFilterTest {
     underTest.doFilter(request("POST", "/context/service/call", "param=value"), response, chain);
 
     List<String> debugLogs = logTester.logs(LoggerLevel.DEBUG);
-    assertThat(debugLogs.size()).isEqualTo(1);
+    assertThat(debugLogs.size()).isOne();
     assertThat(debugLogs.get(0)).contains("Processing of request", "failed");
   }
 

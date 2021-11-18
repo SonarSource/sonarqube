@@ -33,7 +33,7 @@ public class ProjectServerSettings {
   private final Map<String, String> properties;
 
   public ProjectServerSettings(Map<String, String> properties) {
-    this.properties = Collections.unmodifiableMap(new HashMap<>(properties));
+    this.properties = Map.copyOf(properties);
   }
 
   public Map<String, String> properties() {

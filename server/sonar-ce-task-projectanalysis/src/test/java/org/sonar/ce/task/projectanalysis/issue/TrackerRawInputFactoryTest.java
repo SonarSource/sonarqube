@@ -231,7 +231,7 @@ public class TrackerRawInputFactoryTest {
       .setEngineId("eslint")
       .setRuleId("S001")
       .setSeverity(Constants.Severity.BLOCKER)
-      .setEffort(20l)
+      .setEffort(20L)
       .setType(issueType)
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
@@ -245,7 +245,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_eslint", "S001"));
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.line()).isEqualTo(2);
-    assertThat(issue.effort()).isEqualTo(Duration.create(20l));
+    assertThat(issue.effort()).isEqualTo(Duration.create(20L));
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.type()).isEqualTo(expectedRuleType);
 
@@ -288,7 +288,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_eslint", "S001"));
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.line()).isEqualTo(2);
-    assertThat(issue.effort()).isEqualTo(Duration.create(0l));
+    assertThat(issue.effort()).isEqualTo(Duration.create(0L));
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.type()).isEqualTo(expectedRuleType);
 

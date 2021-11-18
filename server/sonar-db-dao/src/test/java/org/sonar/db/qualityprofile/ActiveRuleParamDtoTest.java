@@ -37,6 +37,6 @@ public class ActiveRuleParamDtoTest {
       new ActiveRuleParamDto().setKey("foo"), new ActiveRuleParamDto().setKey("bar")
       );
     Map<String, ActiveRuleParamDto> group = ActiveRuleParamDto.groupByKey(dtos);
-    assertThat(group.keySet()).containsOnly("foo", "bar");
+    assertThat(group).containsOnlyKeys("foo", "bar");
   }
 }

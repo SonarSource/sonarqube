@@ -154,7 +154,7 @@ public class DuplicationTest {
   public void hashcode_is_based_on_original_only() {
     Duplication duplication = new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1)));
 
-    assertThat(duplication.hashCode()).isEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1))).hashCode());
+    assertThat(duplication).hasSameHashCodeAs(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_1))));
     assertThat(duplication.hashCode()).isNotEqualTo(new Duplication(SOME_ORIGINAL_TEXTBLOCK, Arrays.asList(new InnerDuplicate(TEXT_BLOCK_2))).hashCode());
     assertThat(duplication.hashCode()).isNotEqualTo(new Duplication(TEXT_BLOCK_1, Arrays.asList(new InnerDuplicate(SOME_ORIGINAL_TEXTBLOCK))).hashCode());
   }

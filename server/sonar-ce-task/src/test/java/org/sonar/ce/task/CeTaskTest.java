@@ -121,8 +121,9 @@ public class CeTaskTest {
     assertThat(task1.equals(task1)).isTrue();
     assertThat(task1.equals(task1bis)).isTrue();
     assertThat(task1.equals(task2)).isFalse();
-    assertThat(task1.hashCode()).isEqualTo(task1.hashCode());
-    assertThat(task1.hashCode()).isEqualTo(task1bis.hashCode());
+    assertThat(task1)
+      .hasSameHashCodeAs(task1)
+      .hasSameHashCodeAs(task1bis);
   }
 
   @Test
@@ -148,12 +149,13 @@ public class CeTaskTest {
     CeTask.User user2 = new CeTask.User("UUID_2", null);
     CeTask.User user1_diff_login = new CeTask.User("UUID_1", "LOGIN");
 
-    assertThat(user1).isEqualTo(user1);
-    assertThat(user1).isEqualTo(user1bis);
-    assertThat(user1).isNotEqualTo(user2);
     assertThat(user1.equals(null)).isFalse();
-    assertThat(user1.hashCode()).isEqualTo(user1.hashCode());
-    assertThat(user1.hashCode()).isEqualTo(user1bis.hashCode());
-    assertThat(user1.hashCode()).isEqualTo(user1_diff_login.hashCode());
+    assertThat(user1)
+      .isEqualTo(user1)
+      .isEqualTo(user1bis)
+      .isNotEqualTo(user2)
+      .hasSameHashCodeAs(user1)
+      .hasSameHashCodeAs(user1bis)
+      .hasSameHashCodeAs(user1_diff_login);
   }
 }

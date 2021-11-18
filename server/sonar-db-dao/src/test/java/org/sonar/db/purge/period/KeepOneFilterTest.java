@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class KeepOneFilterTest {
 
   private static List<String> analysisUuids(List<PurgeableAnalysisDto> snapshotDtos) {
-    return snapshotDtos.stream().map(input -> input.getAnalysisUuid()).collect(Collectors.toList());
+    return snapshotDtos.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(Collectors.toList());
   }
 
   @Test

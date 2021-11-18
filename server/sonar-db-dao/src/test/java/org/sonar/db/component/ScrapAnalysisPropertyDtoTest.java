@@ -34,7 +34,7 @@ public class ScrapAnalysisPropertyDtoTest {
     ScrapAnalysisPropertyDto underTest = new ScrapAnalysisPropertyDto();
     underTest.setEmpty(true);
 
-    assertThat(underTest.getValue()).isEqualTo("");
+    assertThat(underTest.getValue()).isEmpty();
   }
 
   @Test

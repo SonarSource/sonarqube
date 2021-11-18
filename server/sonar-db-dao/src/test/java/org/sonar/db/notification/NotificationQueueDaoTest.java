@@ -51,7 +51,7 @@ public class NotificationQueueDaoTest {
 
     dao.insert(Arrays.asList(notificationQueueDto));
 
-    assertThat(dao.count()).isEqualTo(1);
+    assertThat(dao.count()).isOne();
     assertThat(dao.selectOldest(1).get(0).toNotification().getType()).isEqualTo("email");
   }
 
@@ -63,7 +63,7 @@ public class NotificationQueueDaoTest {
 
     dao.insert(Arrays.asList(notificationQueueDto));
 
-    assertThat(dao.count()).isEqualTo(1);
+    assertThat(dao.count()).isOne();
   }
 
   @Test

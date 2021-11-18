@@ -55,7 +55,7 @@ public class QualityGateTest {
 
   @Test
   public void constructor_fails_with_NPE_if_conditions_is_null() {
-    assertThatThrownBy(() ->new QualityGate("id", "name", null))
+    assertThatThrownBy(() -> new QualityGate("id", "name", null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("conditions can't be null");
   }
@@ -65,17 +65,17 @@ public class QualityGateTest {
     Random random = new Random();
 
     Set<Condition> conditions = Stream.of(
-        IntStream.range(0, random.nextInt(5))
-          .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.GREATER_THAN, "10")),
-        Stream.of((Condition) null),
-        IntStream.range(0, random.nextInt(5))
-          .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.GREATER_THAN, "10")))
+      IntStream.range(0, random.nextInt(5))
+        .mapToObj(i -> new Condition("m_before_" + i, Condition.Operator.GREATER_THAN, "10")),
+      Stream.of((Condition) null),
+      IntStream.range(0, random.nextInt(5))
+        .mapToObj(i -> new Condition("m_after_" + i, Condition.Operator.GREATER_THAN, "10")))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
     assertThatThrownBy(() -> new QualityGate("id", "name", conditions))
       .isInstanceOf(NullPointerException.class)
-        .hasMessageContaining("condition can't be null");
+      .hasMessageContaining("condition can't be null");
   }
 
   @Test
@@ -96,31 +96,32 @@ public class QualityGateTest {
 
   @Test
   public void equals_is_based_on_all_fields() {
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)));
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(new QualityGate("other_id", QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)));
-    assertThat(underTest).isNotEqualTo(new QualityGate(QUALIGATE_ID, "other_name", ImmutableSet.of(CONDITION_2, CONDITION_1)));
-    assertThat(underTest).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, emptySet()));
-    assertThat(underTest).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1)));
-    assertThat(underTest).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2)));
-    assertThat(underTest).isNotEqualTo(
-      new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a"))));
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)))
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(new QualityGate("other_id", QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)))
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, "other_name", ImmutableSet.of(CONDITION_2, CONDITION_1)))
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, emptySet()))
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1)))
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2)))
+      .isNotEqualTo(
+        new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a"))));
   }
 
   @Test
   public void hashcode_is_based_on_all_fields() {
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(null);
-    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate("other_id", QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate(QUALIGATE_ID, "other_name", ImmutableSet.of(CONDITION_2, CONDITION_1)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, emptySet()).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(
-      new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a"))).hashCode());
+    assertThat(underTest)
+      .hasSameHashCodeAs(underTest)
+      .hasSameHashCodeAs(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)));
+    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode())
+      .isNotEqualTo(new QualityGate("other_id", QUALIGATE_NAME, ImmutableSet.of(CONDITION_2, CONDITION_1)).hashCode())
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, "other_name", ImmutableSet.of(CONDITION_2, CONDITION_1)).hashCode())
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, emptySet()).hashCode())
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1)).hashCode())
+      .isNotEqualTo(new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_2)).hashCode())
+      .isNotEqualTo(
+        new QualityGate(QUALIGATE_ID, QUALIGATE_NAME, ImmutableSet.of(CONDITION_1, CONDITION_2, new Condition("new", Condition.Operator.GREATER_THAN, "a"))).hashCode());
   }
 }

@@ -97,7 +97,7 @@ public class ProjectReactorBuilderTest {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-repeated-id");
 
     List<ProjectDefinition> modules = rootProject.getSubProjects();
-    assertThat(modules.size()).isEqualTo(1);
+    assertThat(modules.size()).isOne();
     // Module 1
     ProjectDefinition module1 = modules.get(0);
     assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
@@ -231,7 +231,7 @@ public class ProjectReactorBuilderTest {
   public void shouldDefineMultiModuleProjectWithBaseDir() {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-with-basedir");
     List<ProjectDefinition> modules = rootProject.getSubProjects();
-    assertThat(modules.size()).isEqualTo(1);
+    assertThat(modules.size()).isOne();
     assertThat(modules.get(0).getKey()).isEqualTo("com.foo.project:com.foo.project.module1");
   }
 
@@ -297,7 +297,7 @@ public class ProjectReactorBuilderTest {
     }
     assertThat(module11.properties().get("module1.module11.property")).isNull();
     assertThat(module11.properties().get("module11.property")).isNull();
-    assertThat(module11.properties().get("property")).isEqualTo("My module11 property");
+    assertThat(module11.properties()).containsEntry("property", "My module11 property");
     assertThat(module12.properties().get("module11.property")).isNull();
     assertThat(module12.properties().get("property")).isNull();
   }
@@ -368,10 +368,11 @@ public class ProjectReactorBuilderTest {
 
     ProjectReactorBuilder.mergeParentProperties(childProps, parentProps);
 
-    assertThat(childProps).hasSize(4);
-    assertThat(childProps.get("toBeMergeProps")).isEqualTo("fooParent");
-    assertThat(childProps.get("existingChildProp")).isEqualTo("barChild");
-    assertThat(childProps.get("otherProp")).isEqualTo("tutuChild");
+    assertThat(childProps)
+      .hasSize(4)
+      .containsEntry("toBeMergeProps", "fooParent")
+      .containsEntry("existingChildProp", "barChild")
+      .containsEntry("otherProp", "tutuChild");
     assertThat(childProps.get("sonar.projectDescription")).isNull();
     assertThat(childProps.get("duplicatedProp")).isSameAs(parentProps.get("duplicatedProp"));
   }
@@ -446,13 +447,15 @@ public class ProjectReactorBuilderTest {
 
     // should be set
     ProjectReactorBuilder.setModuleKeyAndNameIfNotDefined(props, "foo", "parent");
-    assertThat(props.get("sonar.moduleKey")).isEqualTo("parent:foo");
-    assertThat(props.get("sonar.projectName")).isEqualTo("foo");
+    assertThat(props)
+      .containsEntry("sonar.moduleKey", "parent:foo")
+      .containsEntry("sonar.projectName", "foo");
 
     // but not this 2nd time
     ProjectReactorBuilder.setModuleKeyAndNameIfNotDefined(props, "bar", "parent");
-    assertThat(props.get("sonar.moduleKey")).isEqualTo("parent:foo");
-    assertThat(props.get("sonar.projectName")).isEqualTo("foo");
+    assertThat(props)
+      .containsEntry("sonar.moduleKey", "parent:foo")
+      .containsEntry("sonar.projectName", "foo");
   }
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) {

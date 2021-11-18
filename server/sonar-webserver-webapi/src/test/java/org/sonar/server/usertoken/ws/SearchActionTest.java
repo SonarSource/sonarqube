@@ -90,7 +90,7 @@ public class SearchActionTest {
 
     SearchWsResponse response = newRequest(null);
 
-    assertThat(response.getUserTokensCount()).isEqualTo(1);
+    assertThat(response.getUserTokensCount()).isOne();
   }
 
   @Test

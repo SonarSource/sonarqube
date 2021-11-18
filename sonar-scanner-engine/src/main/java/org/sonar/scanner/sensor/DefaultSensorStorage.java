@@ -95,19 +95,19 @@ public class DefaultSensorStorage implements SensorStorage {
    * <p>
    * The metrics in this list should not be declared in {@link ScannerMetrics#ALLOWED_CORE_METRICS}.
    */
-  private static final Set<String> DEPRECATED_METRICS_KEYS = unmodifiableSet(new HashSet<>(asList(
-    COMMENT_LINES_DATA_KEY)));
+  private static final Set<String> DEPRECATED_METRICS_KEYS = Set.of(
+    COMMENT_LINES_DATA_KEY);
 
   /**
    * Metrics that were computed by analyzers and that are now computed
    * by core
    */
-  private static final Set<String> NEWLY_CORE_METRICS_KEYS = unmodifiableSet(new HashSet<>(asList(
+  private static final Set<String> NEWLY_CORE_METRICS_KEYS = Set.of(
     // Computed on Scanner side
     LINES_KEY,
     // Computed on CE side
     TEST_SUCCESS_DENSITY_KEY,
-    PUBLIC_DOCUMENTED_API_DENSITY_KEY)));
+    PUBLIC_DOCUMENTED_API_DENSITY_KEY);
 
   private final MetricFinder metricFinder;
   private final IssuePublisher moduleIssues;

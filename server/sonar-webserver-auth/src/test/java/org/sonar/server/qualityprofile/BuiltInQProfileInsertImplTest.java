@@ -216,7 +216,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(change.getUuid()).isNotEmpty();
     assertThat(change.getUserUuid()).isNull();
     assertThat(change.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
-    assertThat(change.getDataAsMap().get("severity")).isEqualTo(expectedSeverity);
+    assertThat(change.getDataAsMap()).containsEntry("severity", expectedSeverity);
   }
 
   private QProfileDto verifyProfileInDb(BuiltInQProfile builtIn) {

@@ -108,8 +108,8 @@ public class ExecuteVisitorsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(1);
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, TEST_METRIC_KEY).get().getIntValue()).isOne();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, TEST_METRIC_KEY).get().getIntValue()).isOne();
     assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, TEST_METRIC_KEY).get().getIntValue()).isEqualTo(2);
   }

@@ -199,10 +199,10 @@ public class PurgeCommandsTest {
     underTest.deleteComponents(component.uuid());
 
     assertThat(dbTester.countRowsOfTable("components")).isZero();
-    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isOne();
+    assertThat(dbTester.countRowsOfTable("events")).isOne();
+    assertThat(dbTester.countRowsOfTable("issues")).isOne();
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isOne();
   }
 
   @Test
@@ -222,10 +222,10 @@ public class PurgeCommandsTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("components")).isZero();
-    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isOne();
+    assertThat(dbTester.countRowsOfTable("events")).isOne();
+    assertThat(dbTester.countRowsOfTable("issues")).isOne();
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isOne();
   }
 
   @Test
@@ -359,14 +359,14 @@ public class PurgeCommandsTest {
 
     underTest.deleteAbortedAnalyses(projectOrView.uuid());
 
-    assertThat(countAnalysesOfRoot(projectOrView, STATUS_UNPROCESSED, true)).isEqualTo(1);
+    assertThat(countAnalysesOfRoot(projectOrView, STATUS_UNPROCESSED, true)).isOne();
     assertThat(countAnalysesOfRoot(projectOrView, STATUS_UNPROCESSED, false)).isZero();
-    assertThat(countAnalysesOfRoot(projectOrView, STATUS_PROCESSED, true)).isEqualTo(1);
-    assertThat(countAnalysesOfRoot(projectOrView, STATUS_PROCESSED, false)).isEqualTo(1);
-    assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, true)).isEqualTo(1);
-    assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, false)).isEqualTo(1);
-    assertThat(countAnalysesOfRoot(otherProject, STATUS_PROCESSED, true)).isEqualTo(1);
-    assertThat(countAnalysesOfRoot(otherProject, STATUS_PROCESSED, false)).isEqualTo(1);
+    assertThat(countAnalysesOfRoot(projectOrView, STATUS_PROCESSED, true)).isOne();
+    assertThat(countAnalysesOfRoot(projectOrView, STATUS_PROCESSED, false)).isOne();
+    assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, true)).isOne();
+    assertThat(countAnalysesOfRoot(otherProject, STATUS_UNPROCESSED, false)).isOne();
+    assertThat(countAnalysesOfRoot(otherProject, STATUS_PROCESSED, true)).isOne();
+    assertThat(countAnalysesOfRoot(otherProject, STATUS_PROCESSED, false)).isOne();
   }
 
   @Test
@@ -543,7 +543,7 @@ public class PurgeCommandsTest {
     purgeCommands.deletePermissions(project.uuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
-    assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
   }
 
   @Test
@@ -554,8 +554,8 @@ public class PurgeCommandsTest {
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(project.uuid());
 
-    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("group_roles")).isOne();
+    assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
   }
 
   @Test
@@ -567,7 +567,7 @@ public class PurgeCommandsTest {
     purgeCommands.deletePermissions(project.uuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
-    assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
   }
 
   @Test
@@ -611,7 +611,7 @@ public class PurgeCommandsTest {
     purgeCommands.deleteNewCodePeriods(project.uuid());
 
     // should delete branch and project settings only
-    assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("new_code_periods")).isOne();
   }
 
   @Test
@@ -649,7 +649,7 @@ public class PurgeCommandsTest {
 
     purgeCommands.deleteUserDismissedMessages(project.getUuid());
 
-    assertThat(dbTester.countRowsOfTable("user_dismissed_messages")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("user_dismissed_messages")).isOne();
   }
 
   @Test

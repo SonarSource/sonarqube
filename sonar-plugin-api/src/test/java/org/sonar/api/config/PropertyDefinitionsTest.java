@@ -89,7 +89,7 @@ public class PropertyDefinitionsTest {
     PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, Categories.class);
 
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
-    assertThat(def.getCategory("noCateg")).isEqualTo("");
+    assertThat(def.getCategory("noCateg")).isEmpty();
   }
 
   @Test
@@ -114,11 +114,11 @@ public class PropertyDefinitionsTest {
   public void should_return_special_categories() {
     PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE);
 
-    assertThat(def.propertiesByCategory(null).get(new Category("general")).keySet()).containsOnly(new SubCategory("email"));
+    assertThat(def.propertiesByCategory(null).get(new Category("general"))).containsOnlyKeys(new SubCategory("email"));
     assertThat(def.propertiesByCategory(null).get(new Category("general")).keySet().iterator().next().isSpecial()).isTrue();
-    assertThat(def.propertiesByCategory(null).get(new Category("security")).keySet()).containsOnly(new SubCategory("encryption"));
+    assertThat(def.propertiesByCategory(null).get(new Category("security"))).containsOnlyKeys(new SubCategory("encryption"));
     assertThat(def.propertiesByCategory(null).get(new Category("security")).keySet().iterator().next().isSpecial()).isTrue();
-    assertThat(def.propertiesByCategory(null).get(new Category("licenses")).keySet()).containsOnly(new SubCategory("server_id"));
+    assertThat(def.propertiesByCategory(null).get(new Category("licenses"))).containsOnlyKeys(new SubCategory("server_id"));
     assertThat(def.propertiesByCategory(null).get(new Category("licenses")).keySet().iterator().next().isSpecial()).isTrue();
   }
 
@@ -134,10 +134,10 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("app").name("Application").category("catApp").onlyOnQualifiers(Qualifiers.APP).build());
 
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catGlobal1"), new Category("catGlobal2"));
-    assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catProject"));
-    assertThat(def.propertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly(new Category("catModule"));
-    assertThat(def.propertiesByCategory(Qualifiers.VIEW).keySet()).containsOnly(new Category("catView"));
-    assertThat(def.propertiesByCategory(Qualifiers.APP).keySet()).containsOnly(new Category("catApp"));
+    assertThat(def.propertiesByCategory(Qualifiers.PROJECT)).containsOnlyKeys(new Category("catProject"));
+    assertThat(def.propertiesByCategory(Qualifiers.MODULE)).containsOnlyKeys(new Category("catModule"));
+    assertThat(def.propertiesByCategory(Qualifiers.VIEW)).containsOnlyKeys(new Category("catView"));
+    assertThat(def.propertiesByCategory(Qualifiers.APP)).containsOnlyKeys(new Category("catApp"));
     assertThat(def.propertiesByCategory("Unkown").keySet()).isEmpty();
   }
 
@@ -149,9 +149,9 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("global3").name("Global3").category("catGlobal1").build(),
       PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build());
 
-    assertThat(def.propertiesByCategory(null).get(new Category("catGlobal1")).keySet()).containsOnly(new SubCategory("catGlobal1"), new SubCategory("sub1"),
+    assertThat(def.propertiesByCategory(null).get(new Category("catGlobal1"))).containsOnlyKeys(new SubCategory("catGlobal1"), new SubCategory("sub1"),
       new SubCategory("sub2"));
-    assertThat(def.propertiesByCategory(null).get(new Category("catGlobal2")).keySet()).containsOnly(new SubCategory("catGlobal2"));
+    assertThat(def.propertiesByCategory(null).get(new Category("catGlobal2"))).containsOnlyKeys(new SubCategory("catGlobal2"));
   }
 
   @Test
@@ -159,8 +159,8 @@ public class PropertyDefinitionsTest {
     PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, ByCategory.class);
 
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catglobal1"), new Category("catglobal2"));
-    assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catproject"));
-    assertThat(def.propertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly(new Category("catmodule"));
+    assertThat(def.propertiesByCategory(Qualifiers.PROJECT)).containsOnlyKeys(new Category("catproject"));
+    assertThat(def.propertiesByCategory(Qualifiers.MODULE)).containsOnlyKeys(new Category("catmodule"));
   }
 
   private void assertProperties(PropertyDefinitions definitions) {
@@ -172,7 +172,7 @@ public class PropertyDefinitionsTest {
     assertThat(definitions.getDefaultValue("foo")).isNull();
     assertThat(definitions.getDefaultValue("two")).isEqualTo("2");
 
-    assertThat(definitions.getAll().size()).isEqualTo(3);
+    assertThat(definitions.getAll()).hasSize(3);
   }
 
   @Test

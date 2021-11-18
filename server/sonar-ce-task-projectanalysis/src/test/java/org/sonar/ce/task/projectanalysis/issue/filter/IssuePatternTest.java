@@ -61,7 +61,7 @@ public class IssuePatternTest {
   public void test_to_string() {
     IssuePattern pattern = new IssuePattern("*", "checkstyle:*");
 
-    assertThat(pattern.toString()).isEqualTo(
+    assertThat(pattern).hasToString(
       "IssuePattern{componentPattern=*, rulePattern=checkstyle:*}");
   }
 }

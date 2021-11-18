@@ -19,18 +19,17 @@
  */
 package org.sonar.server.metric;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
-
-import static com.google.common.collect.FluentIterable.from;
 
 public class MetricFinder {
 
@@ -63,21 +62,21 @@ public class MetricFinder {
   public Collection<Metric> findAll(List<String> metricKeys) {
     try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectByKeys(session, metricKeys);
-      return from(dtos).filter(IsEnabled.INSTANCE).transform(ToMetric.INSTANCE).toList();
+      return dtos.stream().filter(IsEnabled.INSTANCE).map(ToMetric.INSTANCE).collect(Collectors.toList());
     }
   }
 
   public Collection<Metric> findAll() {
     try (DbSession session = dbClient.openSession(false)) {
       List<MetricDto> dtos = dbClient.metricDao().selectEnabled(session);
-      return from(dtos).transform(ToMetric.INSTANCE).toList();
+      return dtos.stream().map(ToMetric.INSTANCE).collect(Collectors.toList());
     }
   }
 
   private enum IsEnabled implements Predicate<MetricDto> {
     INSTANCE;
     @Override
-    public boolean apply(@Nonnull MetricDto dto) {
+    public boolean test(@Nonnull MetricDto dto) {
       return dto.isEnabled();
     }
   }

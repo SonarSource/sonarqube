@@ -108,7 +108,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     loginAsAdmin();
 
     newRequest()
-      .setParam(PARAM_GROUP_ID, aGroup.getUuid().toString())
+      .setParam(PARAM_GROUP_ID, aGroup.getUuid())
       .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .execute();
 

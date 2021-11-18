@@ -188,7 +188,6 @@ public class RuleIndexer implements ResilientIndexer {
   }
 
   private static EsQueueDto createQueueDtoForRule(String ruleUuid) {
-    String docId = ruleUuid;
-    return EsQueueDto.create(TYPE_RULE.format(), docId, null, docId);
+    return EsQueueDto.create(TYPE_RULE.format(), ruleUuid, null, ruleUuid);
   }
 }

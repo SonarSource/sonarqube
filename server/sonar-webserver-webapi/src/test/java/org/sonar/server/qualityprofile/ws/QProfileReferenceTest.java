@@ -121,8 +121,9 @@ public class QProfileReferenceTest {
     assertThat(key1.equals(key2)).isFalse();
     assertThat(key1.equals(name)).isFalse();
 
-    assertThat(key1.hashCode()).isEqualTo(key1.hashCode());
-    assertThat(key1.hashCode()).isEqualTo(key1bis.hashCode());
+    assertThat(key1)
+      .hasSameHashCodeAs(key1)
+      .hasSameHashCodeAs(key1bis);
   }
 
   @Test
@@ -139,8 +140,9 @@ public class QProfileReferenceTest {
     assertThat(name1.equals(name1OtherLang)).isFalse();
     assertThat(name1.equals(key)).isFalse();
 
-    assertThat(name1.hashCode()).isEqualTo(name1.hashCode());
-    assertThat(name1.hashCode()).isEqualTo(name1bis.hashCode());
+    assertThat(name1)
+      .hasSameHashCodeAs(name1)
+      .hasSameHashCodeAs(name1bis);
   }
 
 }

@@ -654,7 +654,7 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
     Component dir = root.getChildren().iterator().next();
     Component file = dir.getChildren().iterator().next();
-    assertThat(file.getFileAttributes().getLines()).isEqualTo(1);
+    assertThat(file.getFileAttributes().getLines()).isOne();
     assertThat(file.getFileAttributes().getLanguageKey()).isNull();
     assertThat(file.getFileAttributes().isUnitTest()).isFalse();
   }
@@ -698,7 +698,7 @@ public class ComponentTreeBuilderTest {
     Component root = call(project);
     Component dir = root.getChildren().iterator().next();
     Component file = dir.getChildren().iterator().next();
-    assertThat(file.getFileAttributes().getLines()).isEqualTo(1);
+    assertThat(file.getFileAttributes().getLines()).isOne();
     assertThat(file.getFileAttributes().getLanguageKey()).isEqualTo("js");
     assertThat(file.getFileAttributes().isUnitTest()).isTrue();
   }

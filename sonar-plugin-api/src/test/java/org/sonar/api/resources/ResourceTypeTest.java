@@ -64,7 +64,7 @@ public class ResourceTypeTest {
     assertThat(foo1.equals(foo2)).isTrue();
     assertThat(foo1.equals(bar)).isFalse();
 
-    assertThat(foo1.hashCode()).isEqualTo(foo1.hashCode());
+    assertThat(foo1).hasSameHashCodeAs(foo1);
   }
 
   @Test

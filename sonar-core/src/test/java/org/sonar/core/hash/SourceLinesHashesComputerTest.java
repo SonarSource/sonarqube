@@ -38,14 +38,14 @@ public class SourceLinesHashesComputerTest {
 
   @Test
   public void hash_of_empty_string_is_empty_string() {
-    assertThat(hashSingleLine("")).isEqualTo("");
+    assertThat(hashSingleLine("")).isEmpty();
   }
 
   @Test
   public void tab_and_spaces_are_ignored_from_hash() {
-    assertThat(hashSingleLine(" ")).isEqualTo("");
-    assertThat(hashSingleLine("\t")).isEqualTo("");
-    assertThat(hashSingleLine("\t \t \t\t  ")).isEqualTo("");
+    assertThat(hashSingleLine(" ")).isEmpty();
+    assertThat(hashSingleLine("\t")).isEmpty();
+    assertThat(hashSingleLine("\t \t \t\t  ")).isEmpty();
 
     String abHash = hashSingleLine("ab");
     assertThat(hashSingleLine("a b")).isEqualTo(abHash);

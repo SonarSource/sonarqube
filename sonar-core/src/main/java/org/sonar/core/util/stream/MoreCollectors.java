@@ -184,7 +184,7 @@ public final class MoreCollectors {
    * @throws IllegalArgumentException if {@code keyFunction} returns the same value for multiple entries in the stream.
    */
   public static <K, E> Collector<E, Map<K, E>, ImmutableMap<K, E>> uniqueIndex(Function<? super E, K> keyFunction) {
-    return uniqueIndex(keyFunction, Function.<E>identity());
+    return uniqueIndex(keyFunction, Function.identity());
   }
 
   /**
@@ -204,7 +204,7 @@ public final class MoreCollectors {
    * @see #uniqueIndex(Function)
    */
   public static <K, E> Collector<E, Map<K, E>, ImmutableMap<K, E>> uniqueIndex(Function<? super E, K> keyFunction, int expectedSize) {
-    return uniqueIndex(keyFunction, Function.<E>identity(), expectedSize);
+    return uniqueIndex(keyFunction, Function.identity(), expectedSize);
   }
 
   /**
@@ -314,7 +314,7 @@ public final class MoreCollectors {
    * @throws NullPointerException if result of {@code keyFunction} or {@code valueFunction} is {@code null}.
    */
   public static <K, E> Collector<E, ImmutableListMultimap.Builder<K, E>, ImmutableListMultimap<K, E>> index(Function<? super E, K> keyFunction) {
-    return index(keyFunction, Function.<E>identity());
+    return index(keyFunction, Function.identity());
   }
 
   /**

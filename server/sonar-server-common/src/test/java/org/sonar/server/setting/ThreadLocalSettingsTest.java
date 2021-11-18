@@ -121,7 +121,7 @@ public class ThreadLocalSettingsTest {
     underTest = create(system, ImmutableMap.of("foo", "from_system"));
 
     assertThat(underTest.get("foo")).hasValue("from_system");
-    assertThat(underTest.getProperties().get("foo")).isEqualTo("from_system");
+    assertThat(underTest.getProperties()).containsEntry("foo", "from_system");
   }
 
   @Test

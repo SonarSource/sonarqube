@@ -30,9 +30,10 @@ public class DefaultUserTest {
     DefaultUser john = new DefaultUser().setLogin("john").setName("John");
     DefaultUser eric = new DefaultUser().setLogin("eric").setName("Eric");
 
-    assertThat(john).isEqualTo(john);
-    assertThat(john).isNotEqualTo(eric);
-    assertThat(john.hashCode()).isEqualTo(john.hashCode());
+    assertThat(john)
+      .isEqualTo(john)
+      .isNotEqualTo(eric)
+      .hasSameHashCodeAs(john);
     assertThat(john.toString()).contains("login=john").contains("name=John");
   }
 

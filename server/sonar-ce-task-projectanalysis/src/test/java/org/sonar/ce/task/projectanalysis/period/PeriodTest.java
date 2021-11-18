@@ -49,13 +49,13 @@ public class PeriodTest {
   public void equals_is_done_on_all_fields() {
     Period period = new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.3", 1420034400000L);
 
-    assertThat(period).isEqualTo(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.3", 1420034400000L));
-
-    assertThat(period).isNotEqualTo(null);
-    assertThat(period).isNotEqualTo("sdsd");
-    assertThat(period).isNotEqualTo(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), "2.3", 1420034400000L));
-    assertThat(period).isNotEqualTo(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.4", 1420034400000L));
-    assertThat(period).isNotEqualTo(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.3", 1420034410000L));
+    assertThat(period)
+      .isEqualTo(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.3", 1420034400000L))
+      .isNotNull()
+      .isNotEqualTo("sdsd")
+      .isNotEqualTo(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), "2.3", 1420034400000L))
+      .isNotEqualTo(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.4", 1420034400000L))
+      .isNotEqualTo(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "2.3", 1420034410000L));
 
   }
 }

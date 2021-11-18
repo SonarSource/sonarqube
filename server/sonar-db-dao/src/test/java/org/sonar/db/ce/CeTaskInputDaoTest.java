@@ -96,7 +96,7 @@ public class CeTaskInputDaoTest {
   @Test
   public void deleteByUuids() {
     insertData(A_UUID);
-    assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isOne();
 
     underTest.deleteByUuids(dbTester.getSession(), singleton(A_UUID));
     dbTester.commit();

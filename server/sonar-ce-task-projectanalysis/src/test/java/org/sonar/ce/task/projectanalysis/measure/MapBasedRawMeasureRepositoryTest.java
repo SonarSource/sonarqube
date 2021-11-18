@@ -141,7 +141,7 @@ public class MapBasedRawMeasureRepositoryTest {
 
   private static final List<Measure> MEASURES = ImmutableList.of(
     Measure.newMeasureBuilder().create(1),
-    Measure.newMeasureBuilder().create(1l),
+    Measure.newMeasureBuilder().create(1L),
     Measure.newMeasureBuilder().create(1d, 1),
     Measure.newMeasureBuilder().create(true),
     Measure.newMeasureBuilder().create(false),

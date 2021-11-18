@@ -71,7 +71,7 @@ public class DefaultIssueTest {
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
+    assertThat(issue.primaryLocation().textRange().start().line()).isOne();
     assertThat(issue.gap()).isEqualTo(10.0);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 

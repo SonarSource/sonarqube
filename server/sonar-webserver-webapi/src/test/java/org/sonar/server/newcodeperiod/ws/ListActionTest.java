@@ -189,7 +189,7 @@ public class ListActionTest {
       .executeProtobuf(ListWSResponse.class);
 
     assertThat(response).isNotNull();
-    assertThat(response.getNewCodePeriodsCount()).isEqualTo(1);
+    assertThat(response.getNewCodePeriodsCount()).isOne();
     assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
       .containsOnly("master");
 

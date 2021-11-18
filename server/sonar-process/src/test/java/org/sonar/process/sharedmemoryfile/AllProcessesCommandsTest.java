@@ -90,7 +90,7 @@ public class AllProcessesCommandsTest {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
       int offset = 5;
 
-      assertThat(readLong(commands, offset)).isEqualTo(0L);
+      assertThat(readLong(commands, offset)).isZero();
 
       long currentTime = System.currentTimeMillis();
       commands.ping(PROCESS_NUMBER);

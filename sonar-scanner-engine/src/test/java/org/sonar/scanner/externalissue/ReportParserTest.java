@@ -44,7 +44,7 @@ public class ReportParserTest {
     assertThat(report.issues[0].primaryLocation.filePath).isEqualTo("file1.js");
     assertThat(report.issues[0].primaryLocation.message).isEqualTo("fix the issue here");
     assertThat(report.issues[0].primaryLocation.textRange.startColumn).isEqualTo(2);
-    assertThat(report.issues[0].primaryLocation.textRange.startLine).isEqualTo(1);
+    assertThat(report.issues[0].primaryLocation.textRange.startLine).isOne();
     assertThat(report.issues[0].primaryLocation.textRange.endColumn).isEqualTo(4);
     assertThat(report.issues[0].primaryLocation.textRange.endLine).isEqualTo(3);
     assertThat(report.issues[0].secondaryLocations).isNull();
@@ -57,7 +57,7 @@ public class ReportParserTest {
     assertThat(report.issues[3].secondaryLocations).hasSize(2);
     assertThat(report.issues[3].secondaryLocations[0].filePath).isEqualTo("file1.js");
     assertThat(report.issues[3].secondaryLocations[0].message).isEqualTo("fix the bug here");
-    assertThat(report.issues[3].secondaryLocations[0].textRange.startLine).isEqualTo(1);
+    assertThat(report.issues[3].secondaryLocations[0].textRange.startLine).isOne();
     assertThat(report.issues[3].secondaryLocations[1].filePath).isEqualTo("file2.js");
     assertThat(report.issues[3].secondaryLocations[1].message).isNull();
     assertThat(report.issues[3].secondaryLocations[1].textRange.startLine).isEqualTo(2);

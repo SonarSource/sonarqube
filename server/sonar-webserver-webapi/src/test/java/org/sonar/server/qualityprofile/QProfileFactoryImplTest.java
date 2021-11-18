@@ -318,10 +318,10 @@ public class QProfileFactoryImplTest {
   private void assertThatCustomProfileExists(QProfileDto profile) {
     assertThat(db.countSql(dbSession, "select count(*) from org_qprofiles where uuid = '" + profile.getKee() + "'")).isPositive();
     // assertThat(db.countSql(dbSession, "select count(*) from project_qprofiles where profile_key = '" + profile.getKee() +
-    // "'")).isGreaterThan(0);
+    // "'")).isPositive();
     // assertThat(db.countSql(dbSession, "select count(*) from default_qprofiles where qprofile_uuid = '" + profile.getKee() +
-    // "'")).isGreaterThan(0);
-    assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where uuid = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(1);
+    // "'")).isPositive();
+    assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where uuid = '" + profile.getRulesProfileUuid() + "'")).isOne();
     assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isPositive();
     assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isPositive();
     // TODO active_rule_parameters

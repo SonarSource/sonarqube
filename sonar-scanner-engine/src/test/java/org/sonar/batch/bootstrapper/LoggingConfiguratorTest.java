@@ -148,7 +148,7 @@ public class LoggingConfiguratorTest {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     logger.info("info");
 
-    assertThat(new String(out.toByteArray(), StandardCharsets.UTF_8)).contains("info");
+    assertThat(out.toString(StandardCharsets.UTF_8)).contains("info");
   }
 
 }

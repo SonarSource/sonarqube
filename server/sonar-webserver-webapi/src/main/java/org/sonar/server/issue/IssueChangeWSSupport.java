@@ -77,7 +77,7 @@ public class IssueChangeWSSupport {
   }
 
   public enum Load {
-    CHANGE_LOG, COMMENTS, ALL;
+    CHANGE_LOG, COMMENTS, ALL
   }
 
   public interface FormattingContext {

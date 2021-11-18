@@ -134,7 +134,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_LOGIN, "unknown");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User with login 'unknown' is not found");
   }
@@ -148,7 +148,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_GATE_NAME, "unknown")
       .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("No quality gate has been found for name unknown");
   }
@@ -163,7 +163,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(String.format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
   }
@@ -178,7 +178,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_GATE_NAME, qualityGate.getName())
       .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 }

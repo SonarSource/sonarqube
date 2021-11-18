@@ -142,6 +142,6 @@ public class MetadataGeneratorTest {
     assertThat(inputFile.absolutePath()).isEqualTo(PathUtils.sanitize(srcFile.toAbsolutePath().toString()));
     assertThat(inputFile.key()).isEqualTo("struts:src/main/java/foo/Bar.java");
     assertThat(inputFile.relativePath()).isEqualTo("src/main/java/foo/Bar.java");
-    assertThat(inputFile.lines()).isEqualTo(1);
+    assertThat(inputFile.lines()).isOne();
   }
 }

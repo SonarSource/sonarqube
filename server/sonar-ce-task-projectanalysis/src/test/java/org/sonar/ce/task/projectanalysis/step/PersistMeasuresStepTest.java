@@ -113,7 +113,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     TestComputationStepContext context = execute();
 
     // project and dir measures are persisted, but not file measures
-    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("project_measures")).isOne();
     assertThat(selectMeasure("project-uuid", STRING_METRIC).get().getData()).isEqualTo("project-value");
     assertThatMeasuresAreNotPersisted("dir-uuid");
     assertThatMeasuresAreNotPersisted("file-uuid");

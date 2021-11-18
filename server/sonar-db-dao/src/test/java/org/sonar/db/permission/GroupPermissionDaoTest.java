@@ -173,13 +173,13 @@ public class GroupPermissionDaoTest {
     assertThat(underTest.countGroupsByQuery(dbSession,
       newQuery().build())).isEqualTo(4);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      newQuery().setPermission(PROVISION_PROJECTS.getKey()).build())).isEqualTo(1);
+      newQuery().setPermission(PROVISION_PROJECTS.getKey()).build())).isOne();
     assertThat(underTest.countGroupsByQuery(dbSession,
       newQuery().withAtLeastOnePermission().build())).isEqualTo(2);
     assertThat(underTest.countGroupsByQuery(dbSession,
       newQuery().setSearchQuery("Group-").build())).isEqualTo(3);
     assertThat(underTest.countGroupsByQuery(dbSession,
-      newQuery().setSearchQuery("Any").build())).isEqualTo(1);
+      newQuery().setSearchQuery("Any").build())).isOne();
   }
 
   @Test
@@ -701,7 +701,7 @@ public class GroupPermissionDaoTest {
 
     int deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, null, project);
 
-    assertThat(deletedCount).isEqualTo(1);
+    assertThat(deletedCount).isOne();
     assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
       .isEmpty();
     assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group.getUuid(), project.uuid()))
@@ -739,7 +739,7 @@ public class GroupPermissionDaoTest {
 
     int deletedCount = underTest.deleteByRootComponentUuidAndGroupUuid(dbSession, group1.getUuid(), project);
 
-    assertThat(deletedCount).isEqualTo(1);
+    assertThat(deletedCount).isOne();
     assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, null, project.uuid()))
       .containsOnly("p1");
     assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, group1.getUuid(), project.uuid()))

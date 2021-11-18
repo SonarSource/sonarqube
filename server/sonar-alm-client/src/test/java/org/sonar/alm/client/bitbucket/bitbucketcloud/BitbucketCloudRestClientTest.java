@@ -145,7 +145,7 @@ public class BitbucketCloudRestClientTest {
 
     RepositoryList repositoryList = underTest.searchRepos("user:apppwd", "", null, 1, 100);
     assertThat(repositoryList.getNext()).isNull();
-    assertThat(repositoryList.getPage()).isEqualTo(1);
+    assertThat(repositoryList.getPage()).isOne();
     assertThat(repositoryList.getPagelen()).isEqualTo(100);
     assertThat(repositoryList.getValues())
       .hasSize(1)

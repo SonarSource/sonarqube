@@ -159,7 +159,7 @@ public class MeasureComputerDefinitionImplTest {
     assertThat(computer).isEqualTo(computer)
       .isEqualTo(sameComputer)
       .isNotEqualTo(anotherComputer)
-      .isNotEqualTo(null);
+      .isNotNull();
 
     assertThat(computer)
       .hasSameHashCodeAs(computer)

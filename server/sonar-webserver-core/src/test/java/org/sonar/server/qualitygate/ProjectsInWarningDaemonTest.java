@@ -182,8 +182,8 @@ public class ProjectsInWarningDaemonTest {
     underTest.notifyStart();
 
     waitForValueToBeComputed(1L);
-    assertThat(projectsInWarning.count()).isEqualTo(1L);
-    assertThat(countNumberOfProjectsInWarning()).isEqualTo(0L);
+    assertThat(projectsInWarning.count()).isOne();
+    assertThat(countNumberOfProjectsInWarning()).isZero();
   }
 
   private void waitForValueToBeComputed(long expectedValue) throws InterruptedException {

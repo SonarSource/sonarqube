@@ -37,7 +37,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 public class MeasureTest {
 
   private static final Measure INT_MEASURE = newMeasureBuilder().create(1);
-  private static final Measure LONG_MEASURE = newMeasureBuilder().create(1l);
+  private static final Measure LONG_MEASURE = newMeasureBuilder().create(1L);
   private static final Measure DOUBLE_MEASURE = newMeasureBuilder().create(1d, 1);
   private static final Measure STRING_MEASURE = newMeasureBuilder().create("some_sT ring");
   private static final Measure TRUE_MEASURE = newMeasureBuilder().create(true);
@@ -132,7 +132,7 @@ public class MeasureTest {
 
   @Test
   public void getIntValue_returns_value_for_INT_value_type() {
-    assertThat(INT_MEASURE.getIntValue()).isEqualTo(1);
+    assertThat(INT_MEASURE.getIntValue()).isOne();
   }
 
   @Test
@@ -144,7 +144,7 @@ public class MeasureTest {
 
   @Test
   public void getLongValue_returns_value_for_LONG_value_type() {
-    assertThat(LONG_MEASURE.getLongValue()).isEqualTo(1);
+    assertThat(LONG_MEASURE.getLongValue()).isOne();
   }
 
   @Test

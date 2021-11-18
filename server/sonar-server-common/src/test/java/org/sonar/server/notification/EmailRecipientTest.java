@@ -54,7 +54,7 @@ public class EmailRecipientTest {
 
     assertThat(underTest)
       .isEqualTo(new EmailRecipient(login, email))
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new Object())
       .isNotEqualTo(new EmailRecipient(email, login))
       .isNotEqualTo(new EmailRecipient(randomAlphabetic(5), email))

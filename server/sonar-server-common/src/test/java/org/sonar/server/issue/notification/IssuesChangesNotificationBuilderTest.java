@@ -193,7 +193,7 @@ public class IssuesChangesNotificationBuilderTest {
   public void AnalysisChange_not_equal_with_null() {
     AnalysisChange analysisChange1 = new AnalysisChange(1_000_000_000L);
 
-    assertThat(analysisChange1).isNotEqualTo(null);
+    assertThat(analysisChange1).isNotNull();
   }
 
   @Test

@@ -202,7 +202,7 @@ public class WebhookDeliveryDaoTest {
 
     underTest.deleteByWebhook(dbSession, webhookDto);
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isOne();
   }
 
   @Test
@@ -231,7 +231,7 @@ public class WebhookDeliveryDaoTest {
 
     underTest.deleteComponentBeforeDate(dbSession, "COMPONENT_2", 1_500_000L);
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isOne();
   }
 
   private void verifyMandatoryFields(WebhookDeliveryDto expected, WebhookDeliveryDto actual) {

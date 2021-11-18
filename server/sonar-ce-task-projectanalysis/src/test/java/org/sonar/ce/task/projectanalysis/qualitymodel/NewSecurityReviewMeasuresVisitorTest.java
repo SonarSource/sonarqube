@@ -74,8 +74,8 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
   private static final Offset<Double> VARIATION_COMPARISON_OFFSET = Offset.offset(0.01);
 
-  private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323l;
-  private static final Date DEFAULT_CREATION_DATE = new Date(1000l);
+  private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323L;
+  private static final Date DEFAULT_CREATION_DATE = new Date(1000L);
   private static final Date BEFORE_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC - 5000L);
   private static final Date AFTER_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC + 5000L);
 

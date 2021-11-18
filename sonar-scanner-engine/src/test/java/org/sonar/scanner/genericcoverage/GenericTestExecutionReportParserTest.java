@@ -90,8 +90,8 @@ public class GenericTestExecutionReportParserTest {
   public void ut_empty_file() throws Exception {
     addFileToFs(emptyFile);
     GenericTestExecutionReportParser parser = parseReportFile("unittest.xml");
-    assertThat(parser.numberOfMatchedFiles()).isEqualTo(1);
-    assertThat(parser.numberOfUnknownFiles()).isEqualTo(1);
+    assertThat(parser.numberOfMatchedFiles()).isOne();
+    assertThat(parser.numberOfUnknownFiles()).isOne();
     assertThat(parser.firstUnknownFiles()).hasSize(1);
   }
 
@@ -99,7 +99,7 @@ public class GenericTestExecutionReportParserTest {
   public void file_with_unittests() throws Exception {
     addFileToFs(fileWithBranches);
     GenericTestExecutionReportParser parser = parseReportFile("unittest2.xml");
-    assertThat(parser.numberOfMatchedFiles()).isEqualTo(1);
+    assertThat(parser.numberOfMatchedFiles()).isOne();
 
     verify(testPlan).addTestCase("test1");
     verify(testPlan).addTestCase("test2");

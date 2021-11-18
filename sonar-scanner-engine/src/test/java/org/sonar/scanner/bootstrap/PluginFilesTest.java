@@ -107,7 +107,7 @@ public class PluginFilesTest {
     // get from cache on second call
     result = underTest.get(plugin).get();
     verifySameContent(result, tempJar);
-    assertThat(server.getRequestCount()).isEqualTo(1);
+    assertThat(server.getRequestCount()).isOne();
   }
 
   @Test
@@ -125,7 +125,7 @@ public class PluginFilesTest {
     // get from cache on second call
     result = underTest.get(plugin).get();
     verifySameContentAfterCompression(jar.file, result);
-    assertThat(server.getRequestCount()).isEqualTo(1);
+    assertThat(server.getRequestCount()).isOne();
   }
 
   @Test
@@ -203,7 +203,7 @@ public class PluginFilesTest {
     InstalledPlugin pluginV2 = newInstalledPlugin("foo", tempJar.md5);
     result = underTest.get(pluginV2).get();
     verifySameContent(result, tempJar);
-    assertThat(server.getRequestCount()).isEqualTo(1);
+    assertThat(server.getRequestCount()).isOne();
 
     // v1 still requests server and downloads v2
     enqueueDownload(tempJar);

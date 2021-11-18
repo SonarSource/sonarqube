@@ -223,7 +223,7 @@ public class GitlabHttpClientTest {
 
     ProjectList projectList = underTest.searchProjects(gitlabUrl, "pat", "example", 1, 10);
 
-    assertThat(projectList.getPageNumber()).isEqualTo(1);
+    assertThat(projectList.getPageNumber()).isOne();
     assertThat(projectList.getPageSize()).isEqualTo(10);
     assertThat(projectList.getTotal()).isEqualTo(3);
 
@@ -263,7 +263,7 @@ public class GitlabHttpClientTest {
 
     ProjectList projectList = underTest.searchProjects(gitlabUrl, "pat", "example", 1, 10);
 
-    assertThat(projectList.getPageNumber()).isEqualTo(1);
+    assertThat(projectList.getPageNumber()).isOne();
     assertThat(projectList.getPageSize()).isEqualTo(10);
     assertThat(projectList.getTotal()).isNull();
 
@@ -300,8 +300,8 @@ public class GitlabHttpClientTest {
 
     ProjectList projectList = underTest.searchProjects(gitlabUrl, "pat", "example", 1, 10);
 
-    assertThat(projectList.getPageNumber()).isEqualTo(1);
-    assertThat(projectList.getPageSize()).isEqualTo(1);
+    assertThat(projectList.getPageNumber()).isOne();
+    assertThat(projectList.getPageSize()).isOne();
     assertThat(projectList.getTotal()).isEqualTo(2);
 
     assertThat(projectList.getProjects()).hasSize(1);

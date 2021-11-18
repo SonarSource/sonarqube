@@ -82,7 +82,7 @@ public class CountBindingActionTest {
       .executeProtobuf(CountBindingWsResponse.class);
 
     assertThat(response.getKey()).isEqualTo(almSetting.getKey());
-    assertThat(response.getProjects()).isEqualTo(1);
+    assertThat(response.getProjects()).isOne();
   }
 
   @Test

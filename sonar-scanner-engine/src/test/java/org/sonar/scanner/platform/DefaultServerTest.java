@@ -37,13 +37,13 @@ public class DefaultServerTest {
 
   @Test
   public void shouldLoadServerProperties() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_ID, "123");
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
     DefaultScannerWsClient client = mock(DefaultScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com");
 
-    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client,
+    DefaultServer metadata = new DefaultServer((settings).asConfig(), client,
       SonarRuntimeImpl.forSonarQube(Version.parse("2.2"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
 
     assertThat(metadata.getId()).isEqualTo("123");
@@ -58,10 +58,10 @@ public class DefaultServerTest {
 
   @Test
   public void publicRootUrl() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     DefaultScannerWsClient client = mock(DefaultScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com/");
-    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client, null);
+    DefaultServer metadata = new DefaultServer(settings.asConfig(), client, null);
 
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://server.com/");
     assertThat(metadata.getPublicRootUrl()).isEqualTo("http://server.com");
@@ -72,10 +72,10 @@ public class DefaultServerTest {
 
   @Test(expected = RuntimeException.class)
   public void invalid_startup_date_throws_exception() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "invalid");
     DefaultScannerWsClient client = mock(DefaultScannerWsClient.class);
-    DefaultServer metadata = new DefaultServer(((MapSettings) settings).asConfig(), client, null);
+    DefaultServer metadata = new DefaultServer(settings.asConfig(), client, null);
     metadata.getStartedAt();
   }
 }

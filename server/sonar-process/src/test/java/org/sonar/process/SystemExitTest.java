@@ -50,6 +50,6 @@ public class SystemExitTest {
     assertThat(systemExit.isInShutdownHook()).isFalse();
     systemExit.exit(1);
 
-    assertThat(got.get()).isEqualTo(1);
+    assertThat(got.get()).isOne();
   }
 }

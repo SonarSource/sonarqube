@@ -194,7 +194,7 @@ public class QProfileChangeDaoTest {
     long end = system2.now();
 
     assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile1.getKee()))).isEqualTo(2);
-    assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile2.getKee()))).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile2.getKee()))).isOne();
     assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery("does_not_exist"))).isZero();
 
     QProfileChangeQuery query = new QProfileChangeQuery(profile1.getKee());
@@ -217,7 +217,7 @@ public class QProfileChangeDaoTest {
     underTest.deleteByRulesProfileUuids(dbSession, asList(profile1.getRulesProfileUuid()));
 
     assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile1.getKee()))).isZero();
-    assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile2.getKee()))).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile2.getKee()))).isOne();
   }
 
   @Test
@@ -227,7 +227,7 @@ public class QProfileChangeDaoTest {
 
     underTest.deleteByRulesProfileUuids(dbSession, asList("does not exist"));
 
-    assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile1.getKee()))).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, new QProfileChangeQuery(profile1.getKee()))).isOne();
   }
 
   private QProfileChangeDto insertChange(QProfileDto profile, String type, @Nullable String login, @Nullable String data) {

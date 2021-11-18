@@ -86,7 +86,7 @@ public class SearchBitbucketCloudReposActionTest {
       .executeProtobuf(SearchBitbucketcloudReposWsResponse.class);
 
     assertThat(response.getIsLastPage()).isFalse();
-    assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(response.getPaging().getPageIndex()).isOne();
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
     assertThat(response.getRepositoriesList())
       .extracting(BBCRepo::getUuid, BBCRepo::getName, BBCRepo::getSlug, BBCRepo::getProjectKey, BBCRepo::getSqProjectKey, BBCRepo::getWorkspace)

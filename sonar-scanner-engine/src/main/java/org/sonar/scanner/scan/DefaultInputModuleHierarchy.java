@@ -56,7 +56,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     }
 
     this.children = Collections.unmodifiableMap(childrenBuilder);
-    this.parents = Collections.unmodifiableMap(new HashMap<>(parents));
+    this.parents = Map.copyOf(parents);
     this.root = root;
   }
 

@@ -263,7 +263,7 @@ public class SearchActionTest {
 
     userSession.setRoot();
     result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));
-    assertThat(result.getMeasuresCount()).isEqualTo(1);
+    assertThat(result.getMeasuresCount()).isOne();
   }
 
   @Test

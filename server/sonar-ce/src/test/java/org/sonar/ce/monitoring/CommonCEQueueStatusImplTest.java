@@ -58,7 +58,7 @@ public abstract class CommonCEQueueStatusImplTest {
   public void addInProgress_increases_InProgress() {
     getUnderTest().addInProgress();
 
-    assertThat(getUnderTest().getInProgressCount()).isEqualTo(1);
+    assertThat(getUnderTest().getInProgressCount()).isOne();
     assertThat(getUnderTest().getErrorCount()).isZero();
     assertThat(getUnderTest().getSuccessCount()).isZero();
     assertThat(getUnderTest().getProcessingTime()).isZero();
@@ -87,7 +87,7 @@ public abstract class CommonCEQueueStatusImplTest {
     getUnderTest().addError(SOME_PROCESSING_TIME);
 
     assertThat(getUnderTest().getInProgressCount()).isEqualTo(-1);
-    assertThat(getUnderTest().getErrorCount()).isEqualTo(1);
+    assertThat(getUnderTest().getErrorCount()).isOne();
     assertThat(getUnderTest().getSuccessCount()).isZero();
     assertThat(getUnderTest().getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
@@ -117,7 +117,7 @@ public abstract class CommonCEQueueStatusImplTest {
 
     assertThat(getUnderTest().getInProgressCount()).isEqualTo(-1);
     assertThat(getUnderTest().getErrorCount()).isZero();
-    assertThat(getUnderTest().getSuccessCount()).isEqualTo(1);
+    assertThat(getUnderTest().getSuccessCount()).isOne();
     assertThat(getUnderTest().getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
 

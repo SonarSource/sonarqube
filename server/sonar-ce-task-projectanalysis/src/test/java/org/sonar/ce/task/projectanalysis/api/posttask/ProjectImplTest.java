@@ -62,8 +62,8 @@ public class ProjectImplTest {
 
   @Test
   public void verify_toString() {
-    assertThat(new ProjectImpl(SOME_UUID, SOME_KEY, SOME_NAME).toString())
-      .isEqualTo("ProjectImpl{uuid='some uuid', key='some key', name='some name'}");
+    assertThat(new ProjectImpl(SOME_UUID, SOME_KEY, SOME_NAME))
+      .hasToString("ProjectImpl{uuid='some uuid', key='some key', name='some name'}");
 
   }
 }

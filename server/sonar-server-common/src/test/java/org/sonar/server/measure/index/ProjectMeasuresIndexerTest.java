@@ -197,8 +197,8 @@ public class ProjectMeasuresIndexerTest {
     IndexingResult result = indexProject(project, PROJECT_KEY_UPDATE);
 
     assertThatIndexContainsOnly(project);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
   }
 
   @Test
@@ -208,8 +208,8 @@ public class ProjectMeasuresIndexerTest {
     IndexingResult result = indexProject(project, PROJECT_CREATION);
 
     assertThatIndexContainsOnly(project);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
   }
 
   @Test
@@ -225,8 +225,8 @@ public class ProjectMeasuresIndexerTest {
     IndexingResult result = indexProject(project, PROJECT_TAGS_UPDATE);
 
     assertThatProjectHasTag(project, "bar");
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
   }
 
   @Test
@@ -239,8 +239,8 @@ public class ProjectMeasuresIndexerTest {
     IndexingResult result = indexProject(project, PROJECT_DELETION);
 
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
   }
 
   @Test
@@ -260,21 +260,21 @@ public class ProjectMeasuresIndexerTest {
     es.lockWrites(TYPE_PROJECT_MEASURES);
 
     IndexingResult result = indexProject(project, PROJECT_CREATION);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
 
     // index is still read-only, fail to recover
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
     assertThat(es.countDocuments(TYPE_PROJECT_MEASURES)).isZero();
     assertThatEsQueueTableHasSize(1);
 
     es.unlockWrites(TYPE_PROJECT_MEASURES);
 
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isZero();
     assertThatEsQueueTableHasSize(0);
     assertThatIndexContainsOnly(project);
   }

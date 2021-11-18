@@ -64,14 +64,15 @@ public class CeTaskComponentTest {
     String somethingElse = randomAlphabetic(5);
     CeTask.Component underTest = new CeTask.Component(uuid, key, name);
 
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isEqualTo(new CeTask.Component(uuid, key, name));
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(new CeTask.Component(somethingElse, key, name));
-    assertThat(underTest).isNotEqualTo(new CeTask.Component(uuid, somethingElse, name));
-    assertThat(underTest).isNotEqualTo(new CeTask.Component(uuid, key, somethingElse));
-    assertThat(underTest).isNotEqualTo(new CeTask.Component(uuid, key, null));
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isEqualTo(new CeTask.Component(uuid, key, name))
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(new CeTask.Component(somethingElse, key, name))
+      .isNotEqualTo(new CeTask.Component(uuid, somethingElse, name))
+      .isNotEqualTo(new CeTask.Component(uuid, key, somethingElse))
+      .isNotEqualTo(new CeTask.Component(uuid, key, null));
   }
 
   @Test
@@ -82,13 +83,15 @@ public class CeTaskComponentTest {
     String somethingElse = randomAlphabetic(5);
     CeTask.Component underTest = new CeTask.Component(uuid, key, name);
 
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new CeTask.Component(uuid, key, name).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new CeTask.Component(somethingElse, key, name).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new CeTask.Component(uuid, somethingElse, name).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new CeTask.Component(uuid, key, somethingElse).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new CeTask.Component(uuid, key, null).hashCode());
+    assertThat(underTest)
+      .hasSameHashCodeAs(underTest)
+      .hasSameHashCodeAs(new CeTask.Component(uuid, key, name));
+    assertThat(underTest.hashCode())
+      .isNotEqualTo(new Object().hashCode())
+      .isNotEqualTo(new CeTask.Component(somethingElse, key, name).hashCode())
+      .isNotEqualTo(new CeTask.Component(uuid, somethingElse, name).hashCode())
+      .isNotEqualTo(new CeTask.Component(uuid, key, somethingElse).hashCode())
+      .isNotEqualTo(new CeTask.Component(uuid, key, null).hashCode());
   }
 
   @DataProvider

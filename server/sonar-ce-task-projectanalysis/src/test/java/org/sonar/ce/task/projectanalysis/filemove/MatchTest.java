@@ -75,6 +75,6 @@ public class MatchTest {
 
   @Test
   public void toString_prints_both_properties() {
-    assertThat(underTest.toString()).isEqualTo("{key=>reportKey}");
+    assertThat(underTest).hasToString("{key=>reportKey}");
   }
 }

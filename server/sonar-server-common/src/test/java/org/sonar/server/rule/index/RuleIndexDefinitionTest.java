@@ -98,7 +98,7 @@ public class RuleIndexDefinitionTest {
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "squid",
       FIELD_RULE_KEY, "squid:S001")));
-    assertThat(tester.countDocuments(TYPE_RULE)).isEqualTo(1);
+    assertThat(tester.countDocuments(TYPE_RULE)).isOne();
     assertThat(tester.client().search(EsClient.prepareSearch(TYPE_RULE)
       .source(new SearchSourceBuilder()
         .query(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))))

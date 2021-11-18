@@ -285,7 +285,7 @@ public class PurgeDaoTest {
     verify(purgeListener).onComponentsDisabling(project.uuid(), ImmutableSet.of(dir.uuid()));
 
     // set purge_status=1 for non-last snapshot
-    assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isEqualTo(1);
+    assertThat(db.countSql("select count(*) from snapshots where purge_status = 1")).isOne();
 
     // close open issues of selected
     assertThat(db.countSql("select count(*) from issues where status = 'CLOSED'")).isEqualTo(4);
@@ -301,7 +301,7 @@ public class PurgeDaoTest {
     }
 
     // delete file sources of selected
-    assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("file_sources")).isOne();
     assertThat(db.getDbClient().fileSourceDao().selectByFileUuid(dbSession, nonSelectedFileSource.getFileUuid())).isNotNull();
 
     // deletes live measure of selected
@@ -369,7 +369,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
       .containsOnly(projectAnalysis2.getUuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
-      .isEqualTo(1);
+      .isOne();
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent2.getUuid(), projectEvent3.getUuid());
 
@@ -377,7 +377,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
       .containsOnly(projectAnalysis2.getUuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
-      .isEqualTo(1);
+      .isOne();
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent2.getUuid(), projectEvent3.getUuid());
 
@@ -385,7 +385,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
       .containsOnly(projectAnalysis2.getUuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
-      .isEqualTo(1);
+      .isOne();
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent2.getUuid());
 
@@ -833,7 +833,7 @@ public class PurgeDaoTest {
     underTest.deleteProject(dbSession, projectToBeDeleted.uuid(), projectToBeDeleted.qualifier(), projectToBeDeleted.name(), projectToBeDeleted.getKey());
     dbSession.commit();
 
-    assertThat(db.countRowsOfTable("ce_queue")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("ce_queue")).isOne();
     assertThat(db.countSql("select count(*) from ce_queue where main_component_uuid='" + projectToBeDeleted.uuid() + "'")).isZero();
   }
 

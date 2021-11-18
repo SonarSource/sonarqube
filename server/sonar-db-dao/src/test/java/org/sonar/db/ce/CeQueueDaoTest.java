@@ -126,7 +126,7 @@ public class CeQueueDaoTest {
   public void test_selectByUuid() {
     CeQueueDto ceQueueDto = insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1);
 
-    assertThat(underTest.selectByUuid(db.getSession(), "TASK_UNKNOWN").isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_UNKNOWN")).isEmpty();
     CeQueueDto saved = underTest.selectByUuid(db.getSession(), TASK_UUID_1).get();
     assertThat(saved.getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(saved.getTaskType()).isEqualTo(CeTaskTypes.REPORT);
@@ -250,11 +250,11 @@ public class CeQueueDaoTest {
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isPresent();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
-    assertThat(deletedCount).isEqualTo(1);
+    assertThat(deletedCount).isOne();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isEmpty();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_2, null);
-    assertThat(deletedCount).isEqualTo(1);
+    assertThat(deletedCount).isOne();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isEmpty();
   }
 
@@ -276,11 +276,11 @@ public class CeQueueDaoTest {
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isPresent();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_1, new DeleteIf(PENDING));
-    assertThat(deletedCount).isEqualTo(1);
+    assertThat(deletedCount).isOne();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_1)).isEmpty();
 
     deletedCount = underTest.deleteByUuid(db.getSession(), TASK_UUID_2, new DeleteIf(IN_PROGRESS));
-    assertThat(deletedCount).isEqualTo(1);
+    assertThat(deletedCount).isOne();
     assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).isEmpty();
   }
 
@@ -445,7 +445,7 @@ public class CeQueueDaoTest {
 
     // do not peek second task as long as the first one is in progress
     peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
-    assertThat(peek.isPresent()).isFalse();
+    assertThat(peek).isEmpty();
 
     // first one is finished
     underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
@@ -577,7 +577,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    assertThat(underTest.countByStatusAndMainComponentUuid(db.getSession(), IN_PROGRESS, MAIN_COMPONENT_UUID_1)).isEqualTo(1);
+    assertThat(underTest.countByStatusAndMainComponentUuid(db.getSession(), IN_PROGRESS, MAIN_COMPONENT_UUID_1)).isOne();
     assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
   }
 

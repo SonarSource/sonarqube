@@ -141,8 +141,8 @@ public class ComponentCleanerServiceTest {
 
     underTest.delete(dbSession, asList(projectDto1, projectDto2));
 
-    assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isEqualTo(1);
-    assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isOne();
+    assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isOne();
   }
 
   @Test

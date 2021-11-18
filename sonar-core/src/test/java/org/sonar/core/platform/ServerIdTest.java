@@ -248,19 +248,21 @@ public class ServerIdTest {
     String otherDatasetId = randomAlphabetic(datasetIdLength - 1) + 'b';
 
     ServerId newServerId = ServerId.of(databaseId, datasetId);
-    assertThat(newServerId).isEqualTo(newServerId);
-    assertThat(newServerId).isEqualTo(ServerId.of(databaseId, datasetId));
-    assertThat(newServerId).isNotEqualTo(new Object());
-    assertThat(newServerId).isNotEqualTo(null);
-    assertThat(newServerId).isNotEqualTo(ServerId.of(otherDatabaseId, datasetId));
-    assertThat(newServerId).isNotEqualTo(ServerId.of(databaseId, otherDatasetId));
-    assertThat(newServerId).isNotEqualTo(ServerId.of(otherDatabaseId, otherDatasetId));
+    assertThat(newServerId)
+      .isEqualTo(newServerId)
+      .isEqualTo(ServerId.of(databaseId, datasetId))
+      .isNotEqualTo(new Object())
+      .isNotNull()
+      .isNotEqualTo(ServerId.of(otherDatabaseId, datasetId))
+      .isNotEqualTo(ServerId.of(databaseId, otherDatasetId))
+      .isNotEqualTo(ServerId.of(otherDatabaseId, otherDatasetId));
 
     ServerId oldServerId = ServerId.parse(datasetId);
-    assertThat(oldServerId).isEqualTo(oldServerId);
-    assertThat(oldServerId).isEqualTo(ServerId.parse(datasetId));
-    assertThat(oldServerId).isNotEqualTo(ServerId.parse(otherDatasetId));
-    assertThat(oldServerId).isNotEqualTo(ServerId.of(databaseId, datasetId));
+    assertThat(oldServerId)
+      .isEqualTo(oldServerId)
+      .isEqualTo(ServerId.parse(datasetId))
+      .isNotEqualTo(ServerId.parse(otherDatasetId))
+      .isNotEqualTo(ServerId.of(databaseId, datasetId));
   }
 
   @Test
@@ -272,19 +274,22 @@ public class ServerIdTest {
     String otherDatasetId = randomAlphabetic(datasetIdLength - 1) + 'b';
 
     ServerId newServerId = ServerId.of(databaseId, datasetId);
-    assertThat(newServerId.hashCode()).isEqualTo(newServerId.hashCode());
-    assertThat(newServerId.hashCode()).isEqualTo(ServerId.of(databaseId, datasetId).hashCode());
-    assertThat(newServerId.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(newServerId.hashCode()).isNotEqualTo(null);
-    assertThat(newServerId.hashCode()).isNotEqualTo(ServerId.of(otherDatabaseId, datasetId).hashCode());
-    assertThat(newServerId.hashCode()).isNotEqualTo(ServerId.of(databaseId, otherDatasetId).hashCode());
-    assertThat(newServerId.hashCode()).isNotEqualTo(ServerId.of(otherDatabaseId, otherDatasetId).hashCode());
+    assertThat(newServerId)
+      .hasSameHashCodeAs(newServerId)
+      .hasSameHashCodeAs(ServerId.of(databaseId, datasetId));
+    assertThat(newServerId.hashCode())
+      .isNotEqualTo(new Object().hashCode())
+      .isNotEqualTo(ServerId.of(otherDatabaseId, datasetId).hashCode())
+      .isNotEqualTo(ServerId.of(databaseId, otherDatasetId).hashCode())
+      .isNotEqualTo(ServerId.of(otherDatabaseId, otherDatasetId).hashCode());
 
     ServerId oldServerId = ServerId.parse(datasetId);
-    assertThat(oldServerId.hashCode()).isEqualTo(oldServerId.hashCode());
-    assertThat(oldServerId.hashCode()).isEqualTo(ServerId.parse(datasetId).hashCode());
-    assertThat(oldServerId.hashCode()).isNotEqualTo(ServerId.parse(otherDatasetId).hashCode());
-    assertThat(oldServerId.hashCode()).isNotEqualTo(ServerId.of(databaseId, datasetId).hashCode());
+    assertThat(oldServerId)
+      .hasSameHashCodeAs(oldServerId)
+      .hasSameHashCodeAs(ServerId.parse(datasetId));
+    assertThat(oldServerId.hashCode())
+      .isNotEqualTo(ServerId.parse(otherDatasetId).hashCode())
+      .isNotEqualTo(ServerId.of(databaseId, datasetId).hashCode());
   }
 
   @DataProvider

@@ -34,9 +34,9 @@ public class FastStringComparatorTest {
     String s1 = "Od";
     String s2 = "PE";
 
-    assertThat(s1.hashCode()).isEqualTo(s2.hashCode());
+    assertThat(s1).hasSameHashCodeAs(s2);
     assertThat(compare(s1, s2)).isLessThan(0);
-    assertThat(compare(s2, s1)).isGreaterThan(0);
+    assertThat(compare(s2, s1)).isPositive();
   }
 
   @Test
@@ -46,7 +46,7 @@ public class FastStringComparatorTest {
 
     assertThat(s1.hashCode()).isNotEqualTo(s2.hashCode());
     assertThat(compare(s1, s2)).isEqualTo(-1);
-    assertThat(compare(s2, s1)).isEqualTo(1);
+    assertThat(compare(s2, s1)).isOne();
   }
 
   @Test

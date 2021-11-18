@@ -19,14 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.base.Function;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 
 class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   final List<PathAwareCallRecord> callsRecords = new ArrayList<>();
@@ -86,13 +85,7 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   }
 
   private static List<Integer> toValueList(Path<Integer> path) {
-    return from(path.getCurrentPath()).transform(new Function<PathElement<Integer>, Integer>() {
-      @Nonnull
-      @Override
-      public Integer apply(@Nonnull PathElement<Integer> input) {
-        return input.getElement();
-      }
-    }).toList();
+    return StreamSupport.stream(path.getCurrentPath().spliterator(), false).map(PathElement::getElement).collect(Collectors.toList());
   }
 
   private static Integer getParent(Path<Integer> path) {

@@ -53,7 +53,7 @@ public class ChangesOnMyIssuesNotificationTest {
     assertThat(underTest)
       .isEqualTo(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)))
       .isNotEqualTo(mock(Notification.class))
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new ChangesOnMyIssuesNotification(new AnalysisChange(analysisChange.getDate() + 10), ImmutableSet.of(changedIssue)))
       .isNotEqualTo(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of()));
   }
@@ -68,7 +68,6 @@ public class ChangesOnMyIssuesNotificationTest {
     assertThat(underTest.hashCode())
       .isEqualTo(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of(changedIssue)).hashCode())
       .isNotEqualTo(mock(Notification.class).hashCode())
-      .isNotEqualTo(null)
       .isNotEqualTo(new ChangesOnMyIssuesNotification(new AnalysisChange(analysisChange.getDate() + 10), ImmutableSet.of(changedIssue)).hashCode())
       .isNotEqualTo(new ChangesOnMyIssuesNotification(analysisChange, ImmutableSet.of())).hashCode();
   }

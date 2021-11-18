@@ -271,7 +271,7 @@ public class SearchHistoryActionTest {
       .setMetrics(asList("optimized", "new_optimized"))
       .build();
     result = call(request);
-    assertThat(result.getMeasuresList().get(0).getHistoryCount()).isEqualTo(1);
+    assertThat(result.getMeasuresList().get(0).getHistoryCount()).isOne();
     assertThat(result.getMeasuresList().get(0).getHistory(0).hasDate()).isTrue();
     assertThat(result.getMeasuresList().get(0).getHistory(0).hasValue()).isFalse();
   }
@@ -288,7 +288,7 @@ public class SearchHistoryActionTest {
     SearchHistoryResponse result = call(request);
 
     // one analysis in setUp method
-    assertThat(result.getPaging().getTotal()).isEqualTo(1);
+    assertThat(result.getPaging().getTotal()).isOne();
   }
 
   @Test

@@ -184,8 +184,8 @@ public class PropsTest {
 
     assertThat(props.rawProperties()).hasSize(2);
     // do not decrypt
-    assertThat(props.rawProperties().get("encrypted_prop")).isEqualTo("{aes}abcde");
-    assertThat(props.rawProperties().get("clear_prop")).isEqualTo("foo");
+    assertThat(props.rawProperties()).containsEntry("encrypted_prop", "{aes}abcde");
+    assertThat(props.rawProperties()).containsEntry("clear_prop", "foo");
   }
 
   @Test

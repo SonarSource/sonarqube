@@ -143,29 +143,31 @@ public class NewIndexTest {
       .build();
 
     Map<String, Object> props = (Map) newIndex.getProperty("basic_field");
-    assertThat(props.get("type")).isEqualTo("keyword");
-    assertThat(props.get("index")).isEqualTo("true");
+    assertThat(props).containsEntry("type", "keyword")
+      .containsEntry("index", "true");
     assertThat(props.get("fields")).isNull();
 
     props = (Map) newIndex.getProperty("not_searchable_field");
-    assertThat(props.get("type")).isEqualTo("keyword");
-    assertThat(props.get("index")).isEqualTo("false");
-    assertThat(props.get("norms")).isEqualTo("true");
-    assertThat(props.get("store")).isEqualTo("false");
-    assertThat(props.get("doc_values")).isEqualTo("true");
+    assertThat(props)
+      .containsEntry("type", "keyword")
+      .containsEntry("index", "false")
+      .containsEntry("norms", "true")
+      .containsEntry("store", "false")
+      .containsEntry("doc_values", "true");
     assertThat(props.get("fields")).isNull();
 
     props = (Map) newIndex.getProperty("all_capabilities_field");
-    assertThat(props.get("type")).isEqualTo("keyword");
+    assertThat(props).containsEntry("type", "keyword");
     // no need to test values, it's not the scope of this test
     assertThat((Map) props.get("fields")).isNotEmpty();
 
     props = (Map) newIndex.getProperty("dumb_text_storage");
-    assertThat(props.get("type")).isEqualTo("keyword");
-    assertThat(props.get("index")).isEqualTo("false");
-    assertThat(props.get("norms")).isEqualTo("false");
-    assertThat(props.get("store")).isEqualTo("false");
-    assertThat(props.get("doc_values")).isEqualTo("false");
+    assertThat(props)
+      .containsEntry("type", "keyword")
+      .containsEntry("index", "false")
+      .containsEntry("norms", "false")
+      .containsEntry("store", "false")
+      .containsEntry("doc_values", "false");
     assertThat(props.get("fields")).isNull();
   }
 
@@ -178,10 +180,10 @@ public class NewIndexTest {
       .build();
     Map<String, Object> result = (Map) newIndex.getProperty("measures");
 
-    assertThat(result.get("type")).isEqualTo("nested");
+    assertThat(result).containsEntry("type", "nested");
     Map<String, Map<String, Object>> subProperties = (Map) result.get("properties");
-    assertThat(subProperties.get("key").get("type")).isEqualTo("keyword");
-    assertThat(subProperties.get("value").get("type")).isEqualTo("double");
+    assertThat(subProperties.get("key")).containsEntry("type", "keyword");
+    assertThat(subProperties.get("value")).containsEntry("type", "double");
   }
 
   @Test
@@ -200,8 +202,9 @@ public class NewIndexTest {
     typeMapping.keywordFieldBuilder("the_doc_value").build();
 
     Map<String, Object> props = (Map) newIndex.getProperty("the_doc_value");
-    assertThat(props.get("type")).isEqualTo("keyword");
-    assertThat(props.get("doc_values")).isEqualTo("true");
+    assertThat(props)
+      .containsEntry("type", "keyword")
+      .containsEntry("doc_values", "true");
   }
 
   @DataProvider

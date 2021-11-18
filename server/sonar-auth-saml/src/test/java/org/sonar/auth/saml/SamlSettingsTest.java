@@ -104,7 +104,7 @@ public class SamlSettingsTest {
   public void return_user_email_attribute() {
     settings.setProperty("sonar.auth.saml.user.email", "userEmail");
 
-    assertThat(underTest.getUserEmail().get()).isEqualTo("userEmail");
+    assertThat(underTest.getUserEmail()).contains("userEmail");
   }
 
   @Test
@@ -116,7 +116,7 @@ public class SamlSettingsTest {
   public void return_group_name_attribute() {
     settings.setProperty("sonar.auth.saml.group.name", "groupName");
 
-    assertThat(underTest.getGroupName().get()).isEqualTo("groupName");
+    assertThat(underTest.getGroupName()).contains("groupName");
   }
 
   @Test

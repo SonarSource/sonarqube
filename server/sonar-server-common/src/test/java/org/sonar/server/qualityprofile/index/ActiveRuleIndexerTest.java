@@ -139,7 +139,7 @@ public class ActiveRuleIndexerTest {
   public void commitAndIndex_deletes_the_documents_that_dont_exist_in_database() {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
     indexAll();
-    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isOne();
 
     db.getDbClient().activeRuleDao().delete(db.getSession(), ar.getKey());
     commitAndIndex(rule1, ar);
@@ -176,11 +176,11 @@ public class ActiveRuleIndexerTest {
   public void commitDeletionOfProfiles_does_nothing_if_profiles_are_not_indexed() {
     db.qualityProfiles().activateRule(profile1, rule1);
     indexAll();
-    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isOne();
 
     underTest.commitDeletionOfProfiles(db.getSession(), singletonList(profile2));
 
-    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isOne();
   }
 
   private void assertThatEsQueueTableIsEmpty() {

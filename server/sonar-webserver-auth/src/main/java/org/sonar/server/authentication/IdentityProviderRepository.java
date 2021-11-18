@@ -26,10 +26,9 @@ import com.google.common.collect.Ordering;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.authentication.IdentityProvider;
-
-import static com.google.common.collect.FluentIterable.from;
 
 public class IdentityProviderRepository {
 
@@ -43,7 +42,7 @@ public class IdentityProviderRepository {
    * Used by pico when no identity provider available
    */
   public IdentityProviderRepository() {
-    this.providersByKey.clear();
+      // nothing to do
   }
 
   public IdentityProvider getEnabledByKey(String key) {
@@ -55,11 +54,10 @@ public class IdentityProviderRepository {
   }
 
   public List<IdentityProvider> getAllEnabledAndSorted() {
-    return from(providersByKey.values())
+    return providersByKey.values().stream()
       .filter(IsEnabledFilter.INSTANCE)
-      .toSortedList(
-        Ordering.natural().onResultOf(ToName.INSTANCE)
-      );
+      .sorted(Ordering.natural().onResultOf(ToName.INSTANCE))
+      .collect(Collectors.toList());
   }
 
   private enum IsEnabledFilter implements Predicate<IdentityProvider> {

@@ -139,7 +139,7 @@ public class BasicAuthenticationTest {
 
     Optional<UserDto> userAuthenticated = underTest.authenticate(request);
 
-    assertThat(userAuthenticated.isPresent()).isTrue();
+    assertThat(userAuthenticated).isPresent();
     assertThat(userAuthenticated.get().getLogin()).isEqualTo(user.getLogin());
     verify(authenticationEvent).loginSuccess(request, user.getLogin(), Source.local(BASIC_TOKEN));
   }

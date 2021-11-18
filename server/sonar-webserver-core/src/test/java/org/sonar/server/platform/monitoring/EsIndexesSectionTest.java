@@ -49,8 +49,8 @@ public class EsIndexesSectionTest {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     // one index "issues"
-    assertThat(attribute(section, "Index issues - Docs").getLongValue()).isEqualTo(0L);
-    assertThat(attribute(section, "Index issues - Shards").getLongValue()).isGreaterThan(0);
+    assertThat(attribute(section, "Index issues - Docs").getLongValue()).isZero();
+    assertThat(attribute(section, "Index issues - Shards").getLongValue()).isPositive();
     assertThat(attribute(section, "Index issues - Store Size").getStringValue()).isNotNull();
   }
 

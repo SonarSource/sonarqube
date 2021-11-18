@@ -78,10 +78,10 @@ public class DebtCalculatorTest {
   public void copy_effort_for_external_issues() {
     issue.setGap(null);
     issue.setIsFromExternalRuleEngine(true);
-    issue.setEffort(Duration.create(20l));
+    issue.setEffort(Duration.create(20L));
     rule.setFunction(null);
 
-    assertThat(underTest.calculate(issue).toMinutes()).isEqualTo(20l);
+    assertThat(underTest.calculate(issue).toMinutes()).isEqualTo(20L);
   }
 
   @Test

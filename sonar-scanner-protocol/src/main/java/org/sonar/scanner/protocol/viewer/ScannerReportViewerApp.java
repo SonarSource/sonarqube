@@ -655,8 +655,7 @@ public class ScannerReportViewerApp {
    * @wbp.factory
    */
   public static JPanel createComponentPanel() {
-    JPanel panel = new JPanel();
-    return panel;
+    return new JPanel();
   }
 
   protected JEditorPane getComponentEditor() {
@@ -667,15 +666,13 @@ public class ScannerReportViewerApp {
    * @wbp.factory
    */
   public static JEditorPane createSourceEditor() {
-    JEditorPane editorPane = new JEditorPane();
-    return editorPane;
+    return new JEditorPane();
   }
 
   /**
    * @wbp.factory
    */
   public TextLineNumber createTextLineNumber() {
-    TextLineNumber textLineNumber = new TextLineNumber(sourceEditor);
-    return textLineNumber;
+    return new TextLineNumber(sourceEditor);
   }
 }

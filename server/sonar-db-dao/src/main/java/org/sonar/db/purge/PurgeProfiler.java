@@ -55,12 +55,7 @@ public class PurgeProfiler {
   }
 
   void stop() {
-    final Long cumulatedDuration;
-    if (durations.containsKey(currentTable)) {
-      cumulatedDuration = durations.get(currentTable);
-    } else {
-      cumulatedDuration = 0L;
-    }
+    Long cumulatedDuration = durations.getOrDefault(currentTable, 0L);
     durations.put(currentTable, cumulatedDuration + (clock.now() - startTime));
   }
 

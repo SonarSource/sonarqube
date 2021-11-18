@@ -100,7 +100,7 @@ public class JwtSerializerTest {
 
     assertThat(token).isNotEmpty();
     Claims claims = underTest.decode(token).get();
-    assertThat(claims.get("custom")).isEqualTo("property");
+    assertThat(claims).containsEntry("custom", "property");
   }
 
   @Test
@@ -290,7 +290,7 @@ public class JwtSerializerTest {
     assertThat(result.getIssuer()).isEqualTo("sonarqube");
     assertThat(result.getIssuedAt()).isEqualTo(createdAt);
     assertThat(((long) result.get("lastRefreshTime"))).isGreaterThanOrEqualTo(now.getTime());
-    assertThat(result.get("key")).isEqualTo("value");
+    assertThat(result).containsEntry("key", "value");
     // Expiration date has been changed
     assertThat(result.getExpiration()).isNotEqualTo(expiredAt)
       .isAfterOrEqualTo(addMinutes(new Date(), 19));

@@ -52,7 +52,7 @@ public class KeyValueFormatTest {
 
     reader = new KeyValueFormat.FieldParser("abc=;ghi=jkl");
     assertThat(reader.nextKey()).isEqualTo("abc");
-    assertThat(reader.nextVal()).isEqualTo("");
+    assertThat(reader.nextVal()).isEmpty();
     assertThat(reader.nextKey()).isEqualTo("ghi");
     assertThat(reader.nextVal()).isEqualTo("jkl");
     assertThat(reader.nextKey()).isNull();
@@ -86,7 +86,7 @@ public class KeyValueFormatTest {
 
     reader = new KeyValueFormat.FieldParser("abc=;def=");
     assertThat(reader.nextKey()).isEqualTo("abc");
-    assertThat(reader.nextVal()).isEqualTo("");
+    assertThat(reader.nextVal()).isEmpty();
     assertThat(reader.nextKey()).isEqualTo("def");
     assertThat(reader.nextVal()).isNull();
 
@@ -138,7 +138,7 @@ public class KeyValueFormatTest {
   public void shouldFormatBlank() {
     Map<Integer, String> map = new TreeMap<>();
     String s = KeyValueFormat.formatIntString(map);
-    assertThat(s).isEqualTo("");
+    assertThat(s).isEmpty();
   }
 
   @Test
@@ -155,8 +155,9 @@ public class KeyValueFormatTest {
   public void shouldParseStrings() {
     Map<String, String> map = KeyValueFormat.parse("one=un;two=deux");
     assertThat(map.size()).isEqualTo(2);
-    assertThat(map.get("one")).isEqualTo("un");
-    assertThat(map.get("two")).isEqualTo("deux");
+    assertThat(map)
+      .containsEntry("one", "un")
+      .containsEntry("two", "deux");
     assertThat(map.keySet().iterator().next()).isEqualTo("one");// same order as in string
   }
 
@@ -207,7 +208,7 @@ public class KeyValueFormatTest {
   @Test
   public void convert_deprecated_priority() {
     assertThat(KeyValueFormat.newPriorityConverter().format(RulePriority.BLOCKER)).isEqualTo("BLOCKER");
-    assertThat(KeyValueFormat.newPriorityConverter().format(null)).isEqualTo("");
+    assertThat(KeyValueFormat.newPriorityConverter().format(null)).isEmpty();
 
     assertThat(KeyValueFormat.newPriorityConverter().parse("MAJOR")).isEqualTo(RulePriority.MAJOR);
     assertThat(KeyValueFormat.newPriorityConverter().parse("")).isNull();
@@ -223,9 +224,10 @@ public class KeyValueFormatTest {
     assertThat(csv).isEqualTo("foo=\"a=b=c\";bar=\"a;b;c\";baz=double\"quote");
 
     Map<String, String> output = KeyValueFormat.parse(csv);
-    assertThat(output.get("foo")).isEqualTo("a=b=c");
-    assertThat(output.get("bar")).isEqualTo("a;b;c");
-    assertThat(output.get("baz")).isEqualTo("double\"quote");
+    assertThat(output)
+      .containsEntry("foo", "a=b=c")
+      .containsEntry("bar", "a;b;c")
+      .containsEntry("baz", "double\"quote");
   }
 
   @Test

@@ -83,7 +83,7 @@ public class BulkIndexerTest {
   @Test
   public void large_indexing() {
     // index has one replica
-    assertThat(replicas()).isEqualTo(1);
+    assertThat(replicas()).isOne();
 
     BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.LARGE);
     indexer.start();
@@ -102,7 +102,7 @@ public class BulkIndexerTest {
     assertThat(result.getTotal()).isEqualTo(10);
     assertThat(count()).isEqualTo(10);
     // replicas are re-enabled
-    assertThat(replicas()).isEqualTo(1);
+    assertThat(replicas()).isOne();
   }
 
   @Test
@@ -132,8 +132,8 @@ public class BulkIndexerTest {
     indexer.stop();
     assertThat(listener.calledDocIds)
       .containsExactlyInAnyOrder(newDocId(TYPE_FAKE, "foo"));
-    assertThat(listener.calledResult.getSuccess()).isEqualTo(1);
-    assertThat(listener.calledResult.getTotal()).isEqualTo(1);
+    assertThat(listener.calledResult.getSuccess()).isOne();
+    assertThat(listener.calledResult.getTotal()).isOne();
   }
 
   @Test
@@ -159,7 +159,7 @@ public class BulkIndexerTest {
     indexer.add(new IndexRequest("index_does_not_exist", "index_does_not_exist", "bar").source(emptyMap()));
     indexer.stop();
     assertThat(listener.calledDocIds).containsExactly(newDocId(TYPE_FAKE, "foo"));
-    assertThat(listener.calledResult.getSuccess()).isEqualTo(1);
+    assertThat(listener.calledResult.getSuccess()).isOne();
     assertThat(listener.calledResult.getTotal()).isEqualTo(2);
   }
 

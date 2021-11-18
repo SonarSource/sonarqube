@@ -57,7 +57,7 @@ public class MetricDtoTest {
     assertThat(metricDto.getWorstValue()).isEqualTo(0d);
     assertThat(metricDto.getBestValue()).isEqualTo(100d);
     assertThat(metricDto.isOptimizedBestValue()).isTrue();
-    assertThat(metricDto.getDirection()).isEqualTo(1);
+    assertThat(metricDto.getDirection()).isOne();
     assertThat(metricDto.isHidden()).isTrue();
     assertThat(metricDto.isDeleteHistoricalData()).isTrue();
     assertThat(metricDto.isEnabled()).isTrue();

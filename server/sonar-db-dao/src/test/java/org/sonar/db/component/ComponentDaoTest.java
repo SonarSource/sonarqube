@@ -1123,9 +1123,9 @@ public class ComponentDaoTest {
     db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio());
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setOnProvisionedOnly(true);
 
-    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT).build())).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT).build())).isOne();
     assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(Qualifiers.VIEW).build())).isZero();
-    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build())).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build())).isOne();
   }
 
   @Test
@@ -1245,18 +1245,20 @@ public class ComponentDaoTest {
 
     Map<String, Object> row = selectBColumnsForUuid("U1");
     assertThat(row.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
-    assertThat(row.get("bKey")).isEqualTo("key");
-    assertThat(row.get("bCopyComponentUuid")).isEqualTo("copy");
-    assertThat(row.get("bDescription")).isEqualTo("desc");
+    assertThat(row)
+      .containsEntry("bKey", "key")
+      .containsEntry("bCopyComponentUuid", "copy")
+      .containsEntry("bDescription", "desc");
     assertThat(row.get("bEnabled")).isIn(true, /* for Oracle */1L, 1);
-    assertThat(row.get("bUuidPath")).isEqualTo("uuid_path");
-    assertThat(row.get("bLanguage")).isEqualTo("lang");
-    assertThat(row.get("bLongName")).isEqualTo("longName");
-    assertThat(row.get("bModuleUuid")).isEqualTo("moduleUuid");
-    assertThat(row.get("bModuleUuidPath")).isEqualTo("moduleUuidPath");
-    assertThat(row.get("bName")).isEqualTo("name");
-    assertThat(row.get("bPath")).isEqualTo("path");
-    assertThat(row.get("bQualifier")).isEqualTo("qualifier");
+    assertThat(row)
+      .containsEntry("bUuidPath", "uuid_path")
+      .containsEntry("bLanguage", "lang")
+      .containsEntry("bLongName", "longName")
+      .containsEntry("bModuleUuid", "moduleUuid")
+      .containsEntry("bModuleUuidPath", "moduleUuidPath")
+      .containsEntry("bName", "name")
+      .containsEntry("bPath", "path")
+      .containsEntry("bQualifier", "qualifier");
   }
 
   @Test
@@ -1271,33 +1273,37 @@ public class ComponentDaoTest {
 
     Map<String, Object> row1 = selectBColumnsForUuid("U1");
     assertThat(row1.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
-    assertThat(row1.get("bKey")).isEqualTo(dto1.getDbKey());
-    assertThat(row1.get("bCopyComponentUuid")).isEqualTo(dto1.getCopyComponentUuid());
-    assertThat(row1.get("bDescription")).isEqualTo(dto1.description());
+    assertThat(row1)
+      .containsEntry("bKey", dto1.getDbKey())
+      .containsEntry("bCopyComponentUuid", dto1.getCopyComponentUuid())
+      .containsEntry("bDescription", dto1.description());
     assertThat(row1.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
-    assertThat(row1.get("bUuidPath")).isEqualTo(dto1.getUuidPath());
-    assertThat(row1.get("bLanguage")).isEqualTo(dto1.language());
-    assertThat(row1.get("bLongName")).isEqualTo(dto1.longName());
-    assertThat(row1.get("bModuleUuid")).isEqualTo(dto1.moduleUuid());
-    assertThat(row1.get("bModuleUuidPath")).isEqualTo(dto1.moduleUuidPath());
-    assertThat(row1.get("bName")).isEqualTo(dto1.name());
-    assertThat(row1.get("bPath")).isEqualTo(dto1.path());
-    assertThat(row1.get("bQualifier")).isEqualTo(dto1.qualifier());
+    assertThat(row1)
+      .containsEntry("bUuidPath", dto1.getUuidPath())
+      .containsEntry("bLanguage", dto1.language())
+      .containsEntry("bLongName", dto1.longName())
+      .containsEntry("bModuleUuid", dto1.moduleUuid())
+      .containsEntry("bModuleUuidPath", dto1.moduleUuidPath())
+      .containsEntry("bName", dto1.name())
+      .containsEntry("bPath", dto1.path())
+      .containsEntry("bQualifier", dto1.qualifier());
 
     Map<String, Object> row2 = selectBColumnsForUuid("U2");
     assertThat(row2.get("bChanged")).isIn(true, /* for Oracle */1L, 1);
-    assertThat(row2.get("bKey")).isEqualTo(dto2.getDbKey());
-    assertThat(row2.get("bCopyComponentUuid")).isEqualTo(dto2.getCopyComponentUuid());
-    assertThat(row2.get("bDescription")).isEqualTo(dto2.description());
+    assertThat(row2)
+      .containsEntry("bKey", dto2.getDbKey())
+      .containsEntry("bCopyComponentUuid", dto2.getCopyComponentUuid())
+      .containsEntry("bDescription", dto2.description());
     assertThat(row2.get("bEnabled")).isIn(false, /* for Oracle */0L, 0);
-    assertThat(row2.get("bUuidPath")).isEqualTo(dto2.getUuidPath());
-    assertThat(row2.get("bLanguage")).isEqualTo(dto2.language());
-    assertThat(row2.get("bLongName")).isEqualTo(dto2.longName());
-    assertThat(row2.get("bModuleUuid")).isEqualTo(dto2.moduleUuid());
-    assertThat(row2.get("bModuleUuidPath")).isEqualTo(dto2.moduleUuidPath());
-    assertThat(row2.get("bName")).isEqualTo(dto2.name());
-    assertThat(row2.get("bPath")).isEqualTo(dto2.path());
-    assertThat(row2.get("bQualifier")).isEqualTo(dto2.qualifier());
+    assertThat(row2)
+      .containsEntry("bUuidPath", dto2.getUuidPath())
+      .containsEntry("bLanguage", dto2.language())
+      .containsEntry("bLongName", dto2.longName())
+      .containsEntry("bModuleUuid", dto2.moduleUuid())
+      .containsEntry("bModuleUuidPath", dto2.moduleUuidPath())
+      .containsEntry("bName", dto2.name())
+      .containsEntry("bPath", dto2.path())
+      .containsEntry("bQualifier", dto2.qualifier());
 
     Map<String, Object> row3 = selectBColumnsForUuid("U3");
     assertThat(row3.get("bChanged")).isIn(false, /* for Oracle */0L, 0);
@@ -1370,7 +1376,7 @@ public class ComponentDaoTest {
     ComponentDto main = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(main);
 
-    assertThat(underTest.countByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY)).isEqualTo(1);
+    assertThat(underTest.countByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY)).isOne();
   }
 
   @Test

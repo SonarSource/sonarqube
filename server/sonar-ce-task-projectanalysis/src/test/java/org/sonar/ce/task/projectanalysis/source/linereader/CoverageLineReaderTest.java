@@ -41,7 +41,7 @@ public class CoverageLineReaderTest {
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     assertThat(computeCoverageLine.read(lineBuilder)).isEmpty();
 
-    assertThat(lineBuilder.getLineHits()).isEqualTo(1);
+    assertThat(lineBuilder.getLineHits()).isOne();
     assertThat(lineBuilder.getConditions()).isEqualTo(10);
     assertThat(lineBuilder.getCoveredConditions()).isEqualTo(2);
   }

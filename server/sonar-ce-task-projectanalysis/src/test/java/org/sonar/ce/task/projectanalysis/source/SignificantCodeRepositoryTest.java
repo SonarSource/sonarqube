@@ -81,7 +81,7 @@ public class SignificantCodeRepositoryTest {
     assertThat(underTest.getRangesPerLine(component)).isNotEmpty();
     LineRange[] lines = underTest.getRangesPerLine(component).get();
     assertThat(lines).hasSize(1);
-    assertThat(lines[0].startOffset()).isEqualTo(1);
+    assertThat(lines[0].startOffset()).isOne();
     assertThat(lines[0].endOffset()).isEqualTo(2);
   }
 

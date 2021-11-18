@@ -100,7 +100,7 @@ public class QProfileEditGroupsDaoTest {
     assertThat(underTest.countByQuery(db.getSession(), builder()
       .setProfile(profile)
       .setMembership(OUT).build()))
-      .isEqualTo(1);
+      .isOne();
   }
 
   @Test

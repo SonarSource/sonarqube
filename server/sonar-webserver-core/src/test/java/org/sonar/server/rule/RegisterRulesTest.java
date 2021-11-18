@@ -448,7 +448,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getName()).isEqualTo("Name2");
     assertThat(rule1.getDescription()).isEqualTo("Description");
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getTotal()).isEqualTo(1);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getTotal()).isOne();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
@@ -509,7 +509,7 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository, ruleKey1));
     SearchIdResult<String> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
     assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
-    assertThat(searchRule1.getTotal()).isEqualTo(1);
+    assertThat(searchRule1.getTotal()).isOne();
 
     system.setNow(DATE2.getTime());
     execute(context -> {
@@ -529,7 +529,7 @@ public class RegisterRulesTest {
 
     SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
-    assertThat(searchRule2.getTotal()).isEqualTo(1);
+    assertThat(searchRule2.getTotal()).isOne();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
@@ -551,7 +551,7 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of(repository1, ruleKey));
     SearchIdResult<String> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
     assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
-    assertThat(searchRule1.getTotal()).isEqualTo(1);
+    assertThat(searchRule1.getTotal()).isOne();
 
     system.setNow(DATE2.getTime());
     execute(context -> {
@@ -571,7 +571,7 @@ public class RegisterRulesTest {
 
     SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
     assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
-    assertThat(searchRule2.getTotal()).isEqualTo(1);
+    assertThat(searchRule2.getTotal()).isOne();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isZero();
   }
 
@@ -687,7 +687,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getName()).isEqualTo("Name");
     assertThat(rule1.getDescription()).isEqualTo("Desc2");
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc2"), new SearchOptions()).getTotal()).isEqualTo(1);
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc2"), new SearchOptions()).getTotal()).isOne();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Desc1"), new SearchOptions()).getTotal()).isZero();
   }
 
@@ -753,7 +753,7 @@ public class RegisterRulesTest {
 
     rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.BETA);
-    assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
+    assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isOne();
   }
 
   @Test

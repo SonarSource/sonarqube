@@ -76,7 +76,7 @@ public class ClusterHealthTest {
       .isEqualTo(underTest)
       .isEqualTo(new ClusterHealth(health, nodeHealths))
       .isNotEqualTo(new Object())
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new ClusterHealth(
         newHealthCheckBuilder()
           .setStatus(health.getStatus())
@@ -94,7 +94,7 @@ public class ClusterHealthTest {
     Set<NodeHealth> nodeHealths = randomNodeHealths();
     ClusterHealth underTest = new ClusterHealth(health, nodeHealths);
 
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
+    assertThat(underTest).hasSameHashCodeAs(underTest);
   }
 
   @Test

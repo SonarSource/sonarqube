@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLi
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class PersistProjectLinksStep implements ComputationStep {
-  private static final Map<ComponentLinkType, String> typesConverter = ImmutableMap.of(
+  private static final Map<ComponentLinkType, String> typesConverter = Map.of(
     ComponentLinkType.HOME, ProjectLinkDto.TYPE_HOME_PAGE,
     ComponentLinkType.SCM, ProjectLinkDto.TYPE_SOURCES,
     ComponentLinkType.CI, ProjectLinkDto.TYPE_CI,

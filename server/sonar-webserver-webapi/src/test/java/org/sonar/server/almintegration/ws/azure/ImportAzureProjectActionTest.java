@@ -189,7 +189,7 @@ public class ImportAzureProjectActionTest {
       .setParam("projectName", "project-name")
       .setParam("repositoryName", "repo-name");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
@@ -205,7 +205,7 @@ public class ImportAzureProjectActionTest {
       .setParam("projectName", "project-name")
       .setParam("repositoryName", "repo-name");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("personal access token for '" + almSetting.getKey() + "' is missing");
   }
@@ -220,7 +220,7 @@ public class ImportAzureProjectActionTest {
     TestRequest request = ws.newRequest()
       .setParam("almSetting", "testKey");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("ALM Setting 'testKey' not found");
   }
@@ -246,7 +246,7 @@ public class ImportAzureProjectActionTest {
       .setParam("projectName", "project-name")
       .setParam("repositoryName", "repo-name");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create null, key already exists: " + projectKey);
   }

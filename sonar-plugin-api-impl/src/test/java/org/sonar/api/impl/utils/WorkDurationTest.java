@@ -34,9 +34,9 @@ public class WorkDurationTest {
   @Test
   public void create_from_days_hours_minutes() {
     WorkDuration workDuration = WorkDuration.create(1, 1, 1, HOURS_IN_DAY);
-    assertThat(workDuration.days()).isEqualTo(1);
-    assertThat(workDuration.hours()).isEqualTo(1);
-    assertThat(workDuration.minutes()).isEqualTo(1);
+    assertThat(workDuration.days()).isOne();
+    assertThat(workDuration.hours()).isOne();
+    assertThat(workDuration.minutes()).isOne();
     assertThat(workDuration.toMinutes()).isEqualTo(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
     assertThat(workDuration.hoursInDay()).isEqualTo(HOURS_IN_DAY);
   }
@@ -44,7 +44,7 @@ public class WorkDurationTest {
   @Test
   public void create_from_value_and_unit() {
     WorkDuration result = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY);
-    assertThat(result.days()).isEqualTo(1);
+    assertThat(result.days()).isOne();
     assertThat(result.hours()).isZero();
     assertThat(result.minutes()).isZero();
     assertThat(result.hoursInDay()).isEqualTo(HOURS_IN_DAY);
@@ -60,15 +60,15 @@ public class WorkDurationTest {
     WorkDuration workDuration = WorkDuration.createFromMinutes(ONE_MINUTE, HOURS_IN_DAY);
     assertThat(workDuration.days()).isZero();
     assertThat(workDuration.hours()).isZero();
-    assertThat(workDuration.minutes()).isEqualTo(1);
+    assertThat(workDuration.minutes()).isOne();
 
     workDuration = WorkDuration.createFromMinutes(ONE_HOUR_IN_MINUTES, HOURS_IN_DAY);
     assertThat(workDuration.days()).isZero();
-    assertThat(workDuration.hours()).isEqualTo(1);
+    assertThat(workDuration.hours()).isOne();
     assertThat(workDuration.minutes()).isZero();
 
     workDuration = WorkDuration.createFromMinutes(ONE_DAY_IN_MINUTES, HOURS_IN_DAY);
-    assertThat(workDuration.days()).isEqualTo(1);
+    assertThat(workDuration.days()).isOne();
     assertThat(workDuration.hours()).isZero();
     assertThat(workDuration.minutes()).isZero();
   }
@@ -79,17 +79,17 @@ public class WorkDurationTest {
     WorkDuration workDuration = WorkDuration.createFromLong(1L, HOURS_IN_DAY);
     assertThat(workDuration.days()).isZero();
     assertThat(workDuration.hours()).isZero();
-    assertThat(workDuration.minutes()).isEqualTo(1);
+    assertThat(workDuration.minutes()).isOne();
 
     // 1 hour
     workDuration = WorkDuration.createFromLong(100L, HOURS_IN_DAY);
     assertThat(workDuration.days()).isZero();
-    assertThat(workDuration.hours()).isEqualTo(1);
+    assertThat(workDuration.hours()).isOne();
     assertThat(workDuration.minutes()).isZero();
 
     // 1 day
     workDuration = WorkDuration.createFromLong(10000L, HOURS_IN_DAY);
-    assertThat(workDuration.days()).isEqualTo(1);
+    assertThat(workDuration.days()).isOne();
     assertThat(workDuration.hours()).isZero();
     assertThat(workDuration.minutes()).isZero();
   }
@@ -113,26 +113,27 @@ public class WorkDurationTest {
 
   @Test
   public void convert_to_working_long() {
-    assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).toLong()).isEqualTo(2l);
-    assertThat(WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(400l);
-    assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(10200l);
-    assertThat(WorkDuration.createFromValueAndUnit(8, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(10000l);
-    assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, HOURS_IN_DAY).toLong()).isEqualTo(20000l);
+    assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).toLong()).isEqualTo(2L);
+    assertThat(WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(400L);
+    assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(10200L);
+    assertThat(WorkDuration.createFromValueAndUnit(8, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(10000L);
+    assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, HOURS_IN_DAY).toLong()).isEqualTo(20000L);
   }
 
   @Test
   public void add() {
     // 4h + 5h = 1d 1h
-    WorkDuration result = WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).add(WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY));
-    assertThat(result.days()).isEqualTo(1);
-    assertThat(result.hours()).isEqualTo(1);
+    WorkDuration result = WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY)
+      .add(WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY));
+    assertThat(result.days()).isOne();
+    assertThat(result.hours()).isOne();
     assertThat(result.minutes()).isZero();
     assertThat(result.hoursInDay()).isEqualTo(HOURS_IN_DAY);
 
     // 40 m + 30m = 1h 10m
     result = WorkDuration.createFromValueAndUnit(40, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).add(WorkDuration.createFromValueAndUnit(30, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY));
     assertThat(result.days()).isZero();
-    assertThat(result.hours()).isEqualTo(1);
+    assertThat(result.hours()).isOne();
     assertThat(result.minutes()).isEqualTo(10);
     assertThat(result.hoursInDay()).isEqualTo(HOURS_IN_DAY);
 
@@ -161,8 +162,9 @@ public class WorkDurationTest {
     assertThat(result.hoursInDay()).isEqualTo(HOURS_IN_DAY);
 
     // 30m - 20m = 10m
-    assertThat(WorkDuration.createFromValueAndUnit(30, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).subtract(WorkDuration.createFromValueAndUnit(20, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY))
-      .minutes()).isEqualTo(10);
+    assertThat(
+      WorkDuration.createFromValueAndUnit(30, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).subtract(WorkDuration.createFromValueAndUnit(20, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY))
+        .minutes()).isEqualTo(10);
 
     assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).subtract(null).minutes()).isEqualTo(10);
   }
@@ -171,7 +173,7 @@ public class WorkDurationTest {
   public void multiply() {
     // 5h * 2 = 1d 2h
     WorkDuration result = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).multiply(2);
-    assertThat(result.days()).isEqualTo(1);
+    assertThat(result.days()).isOne();
     assertThat(result.hours()).isEqualTo(2);
     assertThat(result.minutes()).isZero();
     assertThat(result.hoursInDay()).isEqualTo(HOURS_IN_DAY);
@@ -183,13 +185,14 @@ public class WorkDurationTest {
     WorkDuration durationWithSameValue = WorkDuration.createFromLong(28800, HOURS_IN_DAY);
     WorkDuration durationWithDifferentValue = WorkDuration.createFromLong(14400, HOURS_IN_DAY);
 
-    assertThat(duration).isEqualTo(duration);
-    assertThat(durationWithSameValue).isEqualTo(duration);
+    assertThat(duration)
+      .isNotNull()
+      .hasSameHashCodeAs(duration)
+      .isEqualTo(duration);
+    assertThat(durationWithSameValue)
+      .hasSameHashCodeAs(duration)
+      .isEqualTo(duration);
     assertThat(durationWithDifferentValue).isNotEqualTo(duration);
-    assertThat(duration).isNotEqualTo(null);
-
-    assertThat(duration.hashCode()).isEqualTo(duration.hashCode());
-    assertThat(durationWithSameValue.hashCode()).isEqualTo(duration.hashCode());
     assertThat(durationWithDifferentValue.hashCode()).isNotEqualTo(duration.hashCode());
   }
 

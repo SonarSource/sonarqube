@@ -333,7 +333,7 @@ public class UserRegistrarImplTest {
     underTest.register(newUserRegistration());
 
     // no new user should be created
-    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isOne();
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)

@@ -321,7 +321,7 @@ public class SnapshotDaoTest {
 
     Optional<SnapshotDto> dto = underTest.selectOldestSnapshot(dbSession, project.uuid());
     assertThat(dto).isNotEmpty();
-    assertThat(dto.get().getCreatedAt()).isEqualTo(1L);
+    assertThat(dto.get().getCreatedAt()).isOne();
 
     assertThat(underTest.selectOldestSnapshot(dbSession, "blabla")).isEmpty();
   }

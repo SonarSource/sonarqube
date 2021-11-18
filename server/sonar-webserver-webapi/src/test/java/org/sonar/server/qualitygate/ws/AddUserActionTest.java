@@ -133,7 +133,7 @@ public class AddUserActionTest {
       .setParam(PARAM_GATE_NAME, qualityGateDto.getName())
       .setParam(PARAM_LOGIN, "unknown");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User with login 'unknown' is not found");
 
@@ -148,7 +148,7 @@ public class AddUserActionTest {
       .setParam(PARAM_GATE_NAME, "unknown")
       .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("No quality gate has been found for name unknown");
   }
@@ -162,6 +162,6 @@ public class AddUserActionTest {
       .setParam(PARAM_GATE_NAME, qualityGateDto.getName())
       .setParam(PARAM_LOGIN, user.getLogin());
 
-    assertThatThrownBy(() -> request.execute()).isInstanceOf(ForbiddenException.class);
+    assertThatThrownBy(request::execute).isInstanceOf(ForbiddenException.class);
   }
 }

@@ -74,7 +74,7 @@ public class SourcePublisherTest {
     publisher.publish(writer);
 
     File out = writer.getSourceFile(inputFile.scannerId());
-    assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEqualTo("");
+    assertThat(FileUtils.readFileToString(out, StandardCharsets.UTF_8)).isEmpty();
   }
 
   @Test

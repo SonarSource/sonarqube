@@ -30,7 +30,6 @@ import static org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus.O
 public class EvaluatedConditionTest {
   private static final Condition CONDITION_1 = new Condition("metricKey", GREATER_THAN, "2");
 
-
   private EvaluatedCondition underTest = new EvaluatedCondition(CONDITION_1, ERROR, "value");
 
   @Test
@@ -81,25 +80,26 @@ public class EvaluatedConditionTest {
 
   @Test
   public void equals_is_based_on_all_fields() {
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "value"));
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", GREATER_THAN, "a"), ERROR, "value"));
-    assertThat(underTest).isNotEqualTo(new EvaluatedCondition(CONDITION_1, OK, "value"));
-    assertThat(underTest).isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, null));
-    assertThat(underTest).isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "other_value"));
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "value"))
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", GREATER_THAN, "a"), ERROR, "value"))
+      .isNotEqualTo(new EvaluatedCondition(CONDITION_1, OK, "value"))
+      .isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, null))
+      .isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "other_value"));
   }
 
   @Test
   public void hashcode_is_based_on_all_fields() {
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "value").hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(null);
-    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", GREATER_THAN, "a"), ERROR, "value").hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(CONDITION_1, OK, "value").hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, null).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "other_value").hashCode());
+    assertThat(underTest)
+      .hasSameHashCodeAs(underTest)
+      .hasSameHashCodeAs(new EvaluatedCondition(CONDITION_1, ERROR, "value"));
+    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode())
+      .isNotEqualTo(new EvaluatedCondition(new Condition("other_metric", GREATER_THAN, "a"), ERROR, "value").hashCode())
+      .isNotEqualTo(new EvaluatedCondition(CONDITION_1, OK, "value").hashCode())
+      .isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, null).hashCode())
+      .isNotEqualTo(new EvaluatedCondition(CONDITION_1, ERROR, "other_value").hashCode());
   }
 }

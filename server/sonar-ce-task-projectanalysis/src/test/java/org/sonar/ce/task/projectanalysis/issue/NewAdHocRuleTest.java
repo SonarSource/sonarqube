@@ -40,13 +40,13 @@ public class NewAdHocRuleTest {
     NewAdHocRule adHocRule2 = new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build());
     NewAdHocRule anotherAdHocRule = new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("another").build());
 
-    assertThat(adHocRule1).isEqualTo(adHocRule1);
-    assertThat(adHocRule1).isEqualTo(adHocRule2);
-    assertThat(adHocRule1).isNotEqualTo(null);
-    assertThat(adHocRule1).isNotEqualTo(anotherAdHocRule);
-
-    assertThat(adHocRule1.hashCode()).isEqualTo(adHocRule1.hashCode());
-    assertThat(adHocRule1.hashCode()).isEqualTo(adHocRule2.hashCode());
+    assertThat(adHocRule1)
+      .isEqualTo(adHocRule1)
+      .isEqualTo(adHocRule2)
+      .isNotNull()
+      .isNotEqualTo(anotherAdHocRule)
+      .hasSameHashCodeAs(adHocRule1)
+      .hasSameHashCodeAs(adHocRule2);
     assertThat(adHocRule1.hashCode()).isNotEqualTo(anotherAdHocRule.hashCode());
   }
 }

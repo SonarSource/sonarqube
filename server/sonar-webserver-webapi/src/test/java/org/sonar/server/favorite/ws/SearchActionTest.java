@@ -110,7 +110,7 @@ public class SearchActionTest {
 
     SearchResponse result = call();
 
-    assertThat(result.getFavoritesCount()).isEqualTo(1);
+    assertThat(result.getFavoritesCount()).isOne();
     assertThat(result.getFavorites(0).getKey()).isEqualTo("K1");
   }
 

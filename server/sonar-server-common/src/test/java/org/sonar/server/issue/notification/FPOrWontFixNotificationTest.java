@@ -57,7 +57,7 @@ public class FPOrWontFixNotificationTest {
       .isEqualTo(new FPOrWontFixNotification(change, changedIssues, WONT_FIX))
       .isEqualTo(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), WONT_FIX))
       .isNotEqualTo(new Object())
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new FPOrWontFixNotification(change, Collections.emptySet(), WONT_FIX))
       .isNotEqualTo(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssues.iterator().next()), WONT_FIX))
       .isNotEqualTo(new FPOrWontFixNotification(new AnalysisChange(14), changedIssues, WONT_FIX))

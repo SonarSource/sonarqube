@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunWith(DataProviderRunner.class)
 public class IndexTypeTest {
 
-
   @Test
   public void parseMainType_from_main_type_without_relations() {
     IndexMainType type1 = IndexType.main(Index.simple("foo"), "bar");
@@ -116,10 +115,9 @@ public class IndexTypeTest {
       .isEqualTo(type1)
       .isEqualTo(type1b)
       .isNotEqualTo(type1c)
-      .isNotEqualTo(type2);
-
-    assertThat(type1.hashCode()).isEqualTo(type1.hashCode());
-    assertThat(type1.hashCode()).isEqualTo(type1b.hashCode());
+      .isNotEqualTo(type2)
+      .hasSameHashCodeAs(type1)
+      .hasSameHashCodeAs(type1b);
     assertThat(type1.hashCode()).isNotEqualTo(type1c.hashCode());
     assertThat(type2.hashCode()).isNotEqualTo(type1.hashCode());
   }
@@ -137,10 +135,9 @@ public class IndexTypeTest {
       .isEqualTo(type1)
       .isEqualTo(type1b)
       .isNotEqualTo(type2)
-      .isNotEqualTo(type3);
-
-    assertThat(type1.hashCode()).isEqualTo(type1.hashCode());
-    assertThat(type1.hashCode()).isEqualTo(type1b.hashCode());
+      .isNotEqualTo(type3)
+      .hasSameHashCodeAs(type1)
+      .hasSameHashCodeAs(type1b);
     assertThat(type2.hashCode()).isNotEqualTo(type1.hashCode());
     assertThat(type3.hashCode())
       .isNotEqualTo(type2.hashCode())

@@ -40,7 +40,7 @@ public class UrlSettingsTest {
 
   @Test
   public void use_default_context_path() {
-    assertThat(underTest().getContextPath()).isEqualTo("");
+    assertThat(underTest().getContextPath()).isEmpty();
   }
 
   @Test

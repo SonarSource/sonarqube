@@ -43,7 +43,7 @@ public class LogsIteratorInputStreamTest {
 
   @Test
   public void read_from_ClosableIterator_with_single_empty_line() throws IOException {
-    assertThat(read(create(""))).isEqualTo("");
+    assertThat(read(create(""))).isEmpty();
   }
 
   @Test

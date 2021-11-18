@@ -52,14 +52,14 @@ public class CoverageUtilsTest {
 
   @Test
   public void getLongMeasureValue_returns_0_if_measure_does_not_exist() {
-    assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(0L);
+    assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isZero();
   }
 
   @Test
   public void getLongMeasureValue_returns_0_if_measure_is_NO_VALUE() {
     fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().createNoValue());
 
-    assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isEqualTo(0L);
+    assertThat(getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY)).isZero();
   }
 
   @Test

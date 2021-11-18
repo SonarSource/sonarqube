@@ -90,7 +90,7 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     assertThat(reloaded.getSeverity()).isNull();
     assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
 
-    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(1L);
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isOne();
     assertThat(es.getDocuments(RuleIndexDefinition.TYPE_RULE).iterator().next().getId()).isEqualTo(reloaded.getUuid());
   }
 

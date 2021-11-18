@@ -125,7 +125,7 @@ public class AbstractTrackerTest {
       assertThat(k1).isNotEqualTo(k2);
       assertThat(k2).isNotEqualTo(k1);
       assertThat(k1).isNotEqualTo(new Object());
-      assertThat(k1).isNotEqualTo(null);
+      assertThat(k1).isNotNull();
     }
   }
 }

@@ -72,7 +72,7 @@ public class LongValueTest {
 
   private static void verifyUnsetVariationValue(LongValue variationValue) {
     assertThat(variationValue.isSet()).isFalse();
-    assertThat(variationValue.getValue()).isEqualTo(0L);
+    assertThat(variationValue.getValue()).isZero();
   }
 
   private static void verifySetVariationValue(LongValue variationValue, long expected) {

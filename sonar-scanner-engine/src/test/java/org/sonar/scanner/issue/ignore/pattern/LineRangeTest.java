@@ -57,16 +57,17 @@ public class LineRangeTest {
   @Test
   public void testEquals() {
     LineRange range = new LineRange(12, 15);
-    assertThat(range).isEqualTo(range);
-    assertThat(range).isEqualTo(new LineRange(12, 15));
-    assertThat(range).isNotEqualTo(new LineRange(12, 2000));
-    assertThat(range).isNotEqualTo(new LineRange(1000, 2000));
-    assertThat(range).isNotEqualTo(null);
-    assertThat(range).isNotEqualTo(new StringBuffer());
+    assertThat(range)
+      .isEqualTo(range)
+      .isEqualTo(new LineRange(12, 15))
+      .isNotEqualTo(new LineRange(12, 2000))
+      .isNotEqualTo(new LineRange(1000, 2000))
+      .isNotNull()
+      .isNotEqualTo(new StringBuffer());
   }
 
   @Test
   public void testHashCode() {
-    assertThat(new LineRange(12, 15).hashCode()).isEqualTo(new LineRange(12, 15).hashCode());
+    assertThat(new LineRange(12, 15)).hasSameHashCodeAs(new LineRange(12, 15));
   }
 }

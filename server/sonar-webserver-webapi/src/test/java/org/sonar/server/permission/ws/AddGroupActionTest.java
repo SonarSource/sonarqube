@@ -116,7 +116,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     loginAsAdmin();
 
     newRequest()
-      .setParam(PARAM_GROUP_ID, group.getUuid().toString())
+      .setParam(PARAM_GROUP_ID, group.getUuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 

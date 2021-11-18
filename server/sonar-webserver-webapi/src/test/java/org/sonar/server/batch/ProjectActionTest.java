@@ -93,7 +93,7 @@ public class ProjectActionTest {
       .setParam("profile", "Default")
       .executeProtobuf(WsProjectResponse.class);
     assertThat(wsProjectResponse.getFileDataByModuleAndPathMap()).isEmpty();
-    assertThat(wsProjectResponse.getFileDataByPathCount()).isEqualTo(1);
+    assertThat(wsProjectResponse.getFileDataByPathCount()).isOne();
     assertThat(wsProjectResponse.getFileDataByPathMap().get("src/main/java/SomeClass.java")).isNotNull();
   }
 
@@ -111,10 +111,10 @@ public class ProjectActionTest {
       .executeProtobuf(WsProjectResponse.class);
 
     assertThat(wsProjectResponse.getFileDataByPathMap()).isEmpty();
-    assertThat(wsProjectResponse.getFileDataByModuleAndPathCount()).isEqualTo(1);
+    assertThat(wsProjectResponse.getFileDataByModuleAndPathCount()).isOne();
     WsProjectResponse.FileDataByPath moduleData = wsProjectResponse.getFileDataByModuleAndPathMap().get("module-1");
     assertThat(moduleData).isNotNull();
-    assertThat(moduleData.getFileDataByPathCount()).isEqualTo(1);
+    assertThat(moduleData.getFileDataByPathCount()).isOne();
     WsProjectResponse.FileData fileData = moduleData.getFileDataByPathMap().get("src/main/java/SomeClass.java");
     assertThat(fileData).isNotNull();
     assertThat(fileData.getHash()).isEqualTo("789456");

@@ -56,7 +56,7 @@ public class SubAggregationHelperTest {
         assertThat(agg.getName()).isEqualTo(aggName);
         assertThat(agg.field()).isEqualTo(topAggregation.getFilterScope().getFieldName());
         assertThat(agg.size()).isEqualTo(DEFAULT_BUCKET_SIZE);
-        assertThat(agg.minDocCount()).isEqualTo(1);
+        assertThat(agg.minDocCount()).isOne();
         assertThat(agg.order()).isEqualTo(BucketOrder.compound(SQ_DEFAULT_BUCKET_ORDER, ES_BUILTIN_TIE_BREAKER));
       });
   }

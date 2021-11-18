@@ -63,7 +63,7 @@ public class EsUtilsTest {
 
   @Test
   public void test_escapeSpecialRegexChars() {
-    assertThat(escapeSpecialRegexChars("")).isEqualTo("");
+    assertThat(escapeSpecialRegexChars("")).isEmpty();
     assertThat(escapeSpecialRegexChars("foo")).isEqualTo("foo");
     assertThat(escapeSpecialRegexChars("FOO")).isEqualTo("FOO");
     assertThat(escapeSpecialRegexChars("foo++")).isEqualTo("foo\\+\\+");

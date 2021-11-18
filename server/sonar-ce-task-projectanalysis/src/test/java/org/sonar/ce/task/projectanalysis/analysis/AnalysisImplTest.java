@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AnalysisImplTest {
 
-
   private static final long ID = 10;
   private static final String UUID = "uuid ";
   private static final long CREATED_AT = 123456789L;
@@ -62,7 +61,7 @@ public class AnalysisImplTest {
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build().toString())
-        .isEqualTo("Analysis{uuid='uuid ', createdAt=123456789}");
+      .isEqualTo("Analysis{uuid='uuid ', createdAt=123456789}");
   }
 
   @Test
@@ -80,13 +79,13 @@ public class AnalysisImplTest {
       .setCreatedAt(CREATED_AT)
       .build();
 
-    assertThat(analysis).isEqualTo(analysis);
-    assertThat(analysis).isEqualTo(sameAnalysis);
-    assertThat(analysis).isNotEqualTo(otherAnalysis);
-    assertThat(analysis).isNotEqualTo(null);
-
-    assertThat(analysis.hashCode()).isEqualTo(analysis.hashCode());
-    assertThat(analysis.hashCode()).isEqualTo(sameAnalysis.hashCode());
+    assertThat(analysis)
+      .isEqualTo(analysis)
+      .isEqualTo(sameAnalysis)
+      .isNotEqualTo(otherAnalysis)
+      .isNotNull()
+      .hasSameHashCodeAs(analysis.hashCode())
+      .hasSameHashCodeAs(sameAnalysis.hashCode());
     assertThat(analysis.hashCode()).isNotEqualTo(otherAnalysis.hashCode());
   }
 }

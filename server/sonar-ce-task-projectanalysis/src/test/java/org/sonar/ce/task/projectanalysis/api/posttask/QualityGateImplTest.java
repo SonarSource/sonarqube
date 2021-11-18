@@ -83,7 +83,7 @@ public class QualityGateImplTest {
   public void verify_toString() {
     when(condition.toString()).thenReturn("{Condition}");
 
-    assertThat(underTest.toString())
-      .isEqualTo("QualityGateImpl{id='some id', name='some name', status=OK, conditions=[{Condition}]}");
+    assertThat(underTest)
+      .hasToString("QualityGateImpl{id='some id', name='some name', status=OK, conditions=[{Condition}]}");
   }
 }

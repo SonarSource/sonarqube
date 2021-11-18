@@ -125,7 +125,7 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isOne();
     List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
     assertThat(eventDtos).hasSize(1);
     EventDto eventDto = eventDtos.iterator().next();

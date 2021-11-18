@@ -32,7 +32,7 @@ public class ClusterProcessTest {
     ClusterProcess clusterProcess = new ClusterProcess(nodeUuid, ProcessId.WEB_SERVER);
 
     assertThat(clusterProcess)
-      .isNotEqualTo(null)
+      .isNotNull()
       .isEqualTo(clusterProcess)
       .isNotEqualTo(new ClusterProcess(UUID.randomUUID(), ProcessId.WEB_SERVER))
       .isNotEqualTo(new ClusterProcess(nodeUuid, ProcessId.ELASTICSEARCH))

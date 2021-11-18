@@ -110,7 +110,7 @@ public class IssueChangeDaoTest {
 
     assertThat(underTest.delete(db.getSession(), issueChange1.getKey())).isTrue();
 
-    assertThat(db.countRowsOfTable(db.getSession(), "issue_changes")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(db.getSession(), "issue_changes")).isOne();
   }
 
   @Test

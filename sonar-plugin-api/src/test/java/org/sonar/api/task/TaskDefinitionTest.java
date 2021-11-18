@@ -41,14 +41,17 @@ public class TaskDefinitionTest {
     TaskDefinition def1bis = TaskDefinition.builder().key("one").taskClass(FooTask.class).description("Foo").build();
     TaskDefinition def2 = TaskDefinition.builder().key("two").taskClass(FooTask.class).description("Foo").build();
 
-    assertThat(def1).isEqualTo(def1);
-    assertThat(def1).isEqualTo(def1bis);
-    assertThat(def2).isNotEqualTo(def1);
-    assertThat(def2).isNotEqualTo("one");
-    assertThat(def2).isNotEqualTo(null);
+    assertThat(def1)
+      .isEqualTo(def1)
+      .isEqualTo(def1bis);
+    assertThat(def2)
+      .isNotEqualTo(def1)
+      .isNotEqualTo("one")
+      .isNotNull();
 
-    assertThat(def1.hashCode()).isEqualTo(def1.hashCode());
-    assertThat(def1.hashCode()).isEqualTo(def1bis.hashCode());
+    assertThat(def1)
+      .hasSameHashCodeAs(def1)
+      .hasSameHashCodeAs(def1bis);
   }
 
   @Test

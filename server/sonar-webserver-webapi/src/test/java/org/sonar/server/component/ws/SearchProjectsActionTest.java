@@ -307,7 +307,7 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsCount()).isZero();
     Common.Paging paging = result.getPaging();
-    assertThat(paging.getPageIndex()).isEqualTo(1);
+    assertThat(paging.getPageIndex()).isOne();
     assertThat(paging.getPageSize()).isEqualTo(100);
     assertThat(paging.getTotal()).isZero();
   }

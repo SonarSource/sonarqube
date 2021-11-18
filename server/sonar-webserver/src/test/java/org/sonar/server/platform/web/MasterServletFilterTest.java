@@ -122,7 +122,7 @@ public class MasterServletFilterTest {
     FilterChain chain = mock(FilterChain.class);
     filters.doFilter(request, response, chain);
 
-    assertThat(filter1.count).isEqualTo(1);
+    assertThat(filter1.count).isOne();
     assertThat(filter2.count).isEqualTo(2);
   }
 

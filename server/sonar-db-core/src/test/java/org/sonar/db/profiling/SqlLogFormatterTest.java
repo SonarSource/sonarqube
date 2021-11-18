@@ -28,7 +28,7 @@ public class SqlLogFormatterTest {
 
   @Test
   public void reformatSql() {
-    assertThat(SqlLogFormatter.reformatSql("")).isEqualTo("");
+    assertThat(SqlLogFormatter.reformatSql("")).isEmpty();
     assertThat(SqlLogFormatter.reformatSql("select *")).isEqualTo("select *");
     assertThat(SqlLogFormatter.reformatSql("select *\nfrom issues")).isEqualTo("select * from issues");
     assertThat(SqlLogFormatter.reformatSql("select *\n from issues")).isEqualTo("select * from issues");
@@ -40,7 +40,7 @@ public class SqlLogFormatterTest {
   @Test
   public void reformatParam() {
     assertThat(SqlLogFormatter.reformatParam(null)).isEqualTo("[null]");
-    assertThat(SqlLogFormatter.reformatParam("")).isEqualTo("");
+    assertThat(SqlLogFormatter.reformatParam("")).isEmpty();
     assertThat(SqlLogFormatter.reformatParam("foo")).isEqualTo("foo");
     assertThat(SqlLogFormatter.reformatParam("foo  bar ")).isEqualTo("foo  bar ");
   }
@@ -69,13 +69,13 @@ public class SqlLogFormatterTest {
   @Test
   public void reformatParams_returns_blank_if_zero_params() {
     String formattedParams = SqlLogFormatter.reformatParams(new Object[0]);
-    assertThat(formattedParams).isEqualTo("");
+    assertThat(formattedParams).isEmpty();
   }
 
   @Test
   public void countArguments() {
     assertThat(SqlLogFormatter.countArguments("select * from issues")).isZero();
-    assertThat(SqlLogFormatter.countArguments("select * from issues where id=?")).isEqualTo(1);
+    assertThat(SqlLogFormatter.countArguments("select * from issues where id=?")).isOne();
     assertThat(SqlLogFormatter.countArguments("select * from issues where id=? and kee=?")).isEqualTo(2);
   }
 }

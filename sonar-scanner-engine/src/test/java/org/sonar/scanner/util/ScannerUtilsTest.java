@@ -28,8 +28,8 @@ public class ScannerUtilsTest {
 
   @Test
   public void encodeForUrl() {
-    assertThat(ScannerUtils.encodeForUrl(null)).isEqualTo("");
-    assertThat(ScannerUtils.encodeForUrl("")).isEqualTo("");
+    assertThat(ScannerUtils.encodeForUrl(null)).isEmpty();
+    assertThat(ScannerUtils.encodeForUrl("")).isEmpty();
     assertThat(ScannerUtils.encodeForUrl("foo")).isEqualTo("foo");
     assertThat(ScannerUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
   }

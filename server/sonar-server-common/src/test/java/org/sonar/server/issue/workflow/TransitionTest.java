@@ -128,11 +128,11 @@ public class TransitionTest {
     Transition t2 = Transition.create("resolve", "REOPENED", "RESOLVED");
     Transition t3 = Transition.create("confirm", "OPEN", "CONFIRMED");
 
-    assertThat(t1).isNotEqualTo(t2);
-    assertThat(t1).isNotEqualTo(t3);
-    assertThat(t1).isEqualTo(t1);
-
-    assertThat(t1.hashCode()).isEqualTo(t1.hashCode());
+    assertThat(t1)
+      .isNotEqualTo(t2)
+      .isNotEqualTo(t3)
+      .isEqualTo(t1)
+      .hasSameHashCodeAs(t1);
   }
 
   @Test

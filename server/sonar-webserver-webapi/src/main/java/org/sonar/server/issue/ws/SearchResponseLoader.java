@@ -358,7 +358,7 @@ public class SearchResponseLoader {
 
     List<RuleMetadataDto> adHocRulesMetadata = dbClient.ruleDao().selectMetadataByKeys(dbSession, adHocRuleKeys);
 
-    rules.stream().forEach(r -> {
+    rules.forEach(r -> {
       if (r.isAdHoc()) {
         String adHocName = adHocRulesMetadata.stream()
           .filter(m -> m.getRuleUuid().equals(r.getUuid())).findFirst().map(RuleMetadataDto::getAdHocName)

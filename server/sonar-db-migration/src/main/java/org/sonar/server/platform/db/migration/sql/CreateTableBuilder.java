@@ -101,7 +101,7 @@ public class CreateTableBuilder {
       "Auto increment column must either be BigInteger or Integer");
     checkArgument(!columnDef.isNullable(),
       "Auto increment column can't be nullable");
-    checkState(pkColumnDefs.stream().filter(this::isAutoIncrement).count() == 0,
+    checkState(pkColumnDefs.stream().noneMatch(this::isAutoIncrement),
       "There can't be more than one auto increment column");
   }
 

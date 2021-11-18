@@ -60,7 +60,7 @@ public class FileMetadataTest {
     FileUtils.touch(tempFile);
 
     Metadata metadata = new FileMetadata(analysisWarnings).readMetadata(new FileInputStream(tempFile), StandardCharsets.UTF_8, tempFile.getName());
-    assertThat(metadata.lines()).isEqualTo(1);
+    assertThat(metadata.lines()).isOne();
     assertThat(metadata.nonBlankLines()).isZero();
     assertThat(metadata.hash()).isNotEmpty();
     assertThat(metadata.originalLineStartOffsets()).containsOnly(0);

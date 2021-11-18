@@ -41,7 +41,6 @@ public class PurgeableAnalysisDtoTest {
   @Test
   public void testHasCode() {
     PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisUuid("u3");
-    assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
 
     // no uuid => NPE
     dto = new PurgeableAnalysisDto();

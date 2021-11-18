@@ -161,7 +161,7 @@ public class LogLevelConfigTest {
 
     assertThat(config.getConfiguredByProperties()).isEmpty();
     assertThat(config.getConfiguredByHardcodedLevel()).hasSize(1);
-    assertThat(config.getConfiguredByHardcodedLevel().get("bar")).isEqualTo(Level.INFO);
+    assertThat(config.getConfiguredByHardcodedLevel()).containsEntry("bar", Level.INFO);
   }
 
   @Test

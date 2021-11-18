@@ -54,8 +54,9 @@ public class AbstractLanguageTest {
       }
     })).isTrue();
 
-    assertThat(lang1.hashCode()).isEqualTo(lang1.hashCode());
-    assertThat(lang1.hashCode()).isEqualTo(new Language1Too().hashCode());
+    assertThat(lang1)
+      .hasSameHashCodeAs(lang1)
+      .hasSameHashCodeAs(new Language1Too());
   }
 
   @Test

@@ -31,7 +31,7 @@ public class MeasureImplTest {
   @Test
   public void get_int_value() {
     MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1));
-    assertThat(measure.getIntValue()).isEqualTo(1);
+    assertThat(measure.getIntValue()).isOne();
   }
 
   @Test
@@ -63,7 +63,7 @@ public class MeasureImplTest {
   @Test
   public void get_long_value() {
     MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1L));
-    assertThat(measure.getLongValue()).isEqualTo(1L);
+    assertThat(measure.getLongValue()).isOne();
   }
 
   @Test

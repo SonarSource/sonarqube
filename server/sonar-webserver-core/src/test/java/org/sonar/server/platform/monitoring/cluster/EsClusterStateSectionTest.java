@@ -42,7 +42,7 @@ public class EsClusterStateSectionTest {
   @Test
   public void test_attributes() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
-    assertThat(attribute(section, "Nodes").getLongValue()).isGreaterThan(0);
+    assertThat(attribute(section, "Nodes").getLongValue()).isPositive();
     assertThat(attribute(section, "State").getStringValue()).isIn("RED", "YELLOW", "GREEN");
   }
 }

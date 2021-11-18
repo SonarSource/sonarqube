@@ -99,7 +99,7 @@ public class AnalysisPropertiesDaoTest {
   public void insert_as_empty() {
     AnalysisPropertyDto analysisPropertyDto = insertAnalysisPropertyDto(0);
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isOne();
     compareFirstValueWith(analysisPropertyDto);
   }
 
@@ -107,7 +107,7 @@ public class AnalysisPropertiesDaoTest {
   public void insert_as_text() {
     AnalysisPropertyDto analysisPropertyDto = insertAnalysisPropertyDto(1 + random.nextInt(3999));
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isOne();
     compareFirstValueWith(analysisPropertyDto);
   }
 
@@ -115,7 +115,7 @@ public class AnalysisPropertiesDaoTest {
   public void insert_as_clob() {
     AnalysisPropertyDto analysisPropertyDto = insertAnalysisPropertyDto(4000 + random.nextInt(100));
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isOne();
     compareFirstValueWith(analysisPropertyDto);
   }
 

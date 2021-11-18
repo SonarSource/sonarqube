@@ -142,7 +142,7 @@ public class AddGroupActionTest {
       .setParam(PARAM_GATE_NAME, qualityGateDto.getName())
       .setParam(PARAM_GROUP_NAME, "unknown");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Group with name 'unknown' is not found");
   }
@@ -156,7 +156,7 @@ public class AddGroupActionTest {
       .setParam(PARAM_GATE_NAME, "unknown")
       .setParam(PARAM_GROUP_NAME, group.getName());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("No quality gate has been found for name unknown");
   }
@@ -170,6 +170,6 @@ public class AddGroupActionTest {
       .setParam(PARAM_GATE_NAME, qualityGateDto.getName())
       .setParam(PARAM_GROUP_NAME, group.getName());
 
-    assertThatThrownBy(() -> request.execute()).isInstanceOf(ForbiddenException.class);
+    assertThatThrownBy(request::execute).isInstanceOf(ForbiddenException.class);
   }
 }

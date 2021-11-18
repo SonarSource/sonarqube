@@ -166,7 +166,7 @@ public class ActivityActionTest {
       .setParam(PARAM_MIN_SUBMITTED_AT, today)
       .setParam(PARAM_MAX_EXECUTED_AT, today));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isOne();
   }
 
   @Test
@@ -182,7 +182,7 @@ public class ActivityActionTest {
       ws.newRequest()
         .setParam("onlyCurrents", "true"));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isOne();
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
   }
 
@@ -253,7 +253,7 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", project1.uuid()));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isOne();
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
@@ -270,7 +270,7 @@ public class ActivityActionTest {
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam("component", project1.getDbKey()));
 
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
+    assertThat(activityResponse.getTasksCount()).isOne();
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(Ce.TaskStatus.SUCCESS);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo(project1.uuid());
@@ -340,7 +340,7 @@ public class ActivityActionTest {
         .setParam(Param.TEXT_QUERY, "T1")
         .setParam(PARAM_STATUS, PENDING.name()));
 
-    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasksCount()).isOne();
     assertThat(result.getTasks(0).getId()).isEqualTo("T1");
   }
 
@@ -352,7 +352,7 @@ public class ActivityActionTest {
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
 
-    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasksCount()).isOne();
     assertThat(result.getTasks(0).getId()).isEqualTo("T1");
   }
 
@@ -383,7 +383,7 @@ public class ActivityActionTest {
       .setParam(PARAM_TYPE, CeTaskTypes.REPORT)
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
-    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasksCount()).isOne();
   }
 
   @Test

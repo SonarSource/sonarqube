@@ -100,12 +100,13 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     underTest.execute(context);
 
     Map<String, Object> dto = dbTester.selectFirst("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
-    assertThat(dto.get("HASH")).isEqualTo(CPD_TEXT_BLOCK.getHash());
-    assertThat(dto.get("START_LINE")).isEqualTo(30L);
-    assertThat(dto.get("END_LINE")).isEqualTo(45L);
-    assertThat(dto.get("INDEX_IN_FILE")).isEqualTo(0L);
-    assertThat(dto.get("COMPONENT_UUID")).isEqualTo(FILE_1.getUuid());
-    assertThat(dto.get("ANALYSIS_UUID")).isEqualTo(ANALYSIS_UUID);
+    assertThat(dto)
+      .containsEntry("HASH", CPD_TEXT_BLOCK.getHash())
+      .containsEntry("START_LINE", 30L)
+      .containsEntry("END_LINE", 45L)
+      .containsEntry("INDEX_IN_FILE", 0L)
+      .containsEntry("COMPONENT_UUID", FILE_1.getUuid())
+      .containsEntry("ANALYSIS_UUID", ANALYSIS_UUID);
     context.getStatistics().assertValue("inserts", 1);
   }
 

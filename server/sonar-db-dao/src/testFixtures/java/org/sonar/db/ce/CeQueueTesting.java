@@ -52,7 +52,7 @@ public class CeQueueTesting {
       int touchedRows = mapper.updateIf(ceQueueDto.getUuid(),
         new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, now, now),
         new UpdateIf.OldProperties(PENDING));
-      assertThat(touchedRows).isEqualTo(1);
+      assertThat(touchedRows).isOne();
     });
   }
 
@@ -65,7 +65,7 @@ public class CeQueueTesting {
       int touchedRows = mapper.updateIf(ceQueueDto.getUuid(),
         new UpdateIf.NewProperties(PENDING, ceQueueDto.getUuid(), now, now),
         new UpdateIf.OldProperties(IN_PROGRESS));
-      assertThat(touchedRows).isEqualTo(1);
+      assertThat(touchedRows).isOne();
     });
   }
 }

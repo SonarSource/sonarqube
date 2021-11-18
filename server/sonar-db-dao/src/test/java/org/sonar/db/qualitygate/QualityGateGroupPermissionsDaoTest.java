@@ -121,7 +121,7 @@ public class QualityGateGroupPermissionsDaoTest {
     assertThat(underTest.countByQuery(dbSession, builder()
       .setQualityGate(qualityGateDto)
       .setMembership(OUT).build()))
-      .isEqualTo(1);
+      .isOne();
   }
 
   @Test

@@ -56,7 +56,7 @@ public class DismissSonarlintAdActionTest {
   @Test
   public void endpoint_throw_exception_if_no_user_login() {
     final TestRequest request = tester.newRequest();
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
   }
 

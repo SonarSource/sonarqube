@@ -60,14 +60,14 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void continueOnHttp404Exception() {
     when(wsClient.call(any(WsRequest.class))).thenThrow(new HttpException("/batch/project.protobuf?key=foo%3F", HttpURLConnection.HTTP_NOT_FOUND, ""));
     ProjectRepositories proj = loader.load(PROJECT_KEY, null);
-    assertThat(proj.exists()).isEqualTo(false);
+    assertThat(proj.exists()).isFalse();
   }
 
   @Test(expected = IllegalStateException.class)
   public void failOnNonHttp404Exception() {
     when(wsClient.call(any(WsRequest.class))).thenThrow(IllegalStateException.class);
     ProjectRepositories proj = loader.load(PROJECT_KEY, null);
-    assertThat(proj.exists()).isEqualTo(false);
+    assertThat(proj.exists()).isFalse();
   }
 
   @Test(expected = IllegalStateException.class)

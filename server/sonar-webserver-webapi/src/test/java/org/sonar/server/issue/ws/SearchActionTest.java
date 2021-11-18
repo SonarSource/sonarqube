@@ -281,7 +281,7 @@ public class SearchActionTest {
 
     SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
-    assertThat(result.getIssuesCount()).isEqualTo(1);
+    assertThat(result.getIssuesCount()).isOne();
     assertThat(result.getIssues(0).getFlows(0).getLocationsList()).extracting(Common.Location::getComponent, Common.Location::getMsg)
       .containsExactlyInAnyOrder(
         tuple(file.getKey(), "FLOW MESSAGE"),
@@ -1220,7 +1220,7 @@ public class SearchActionTest {
 
     SearchWsResponse response = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getIssuesList().size()).isEqualTo(1);
+    assertThat(response.getIssuesList()).hasSize(1);
     assertThat(response.getIssuesList().get(0).getQuickFixAvailable()).isFalse();
   }
 
@@ -1231,7 +1231,7 @@ public class SearchActionTest {
 
     SearchWsResponse response = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getIssuesList().size()).isEqualTo(1);
+    assertThat(response.getIssuesList()).hasSize(1);
     assertThat(response.getIssuesList().get(0).getQuickFixAvailable()).isTrue();
   }
 

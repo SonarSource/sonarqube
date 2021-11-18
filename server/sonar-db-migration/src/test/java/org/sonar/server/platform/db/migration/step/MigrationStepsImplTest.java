@@ -67,7 +67,7 @@ public class MigrationStepsImplTest {
   @Test
   public void getMaxMigrationNumber_returns_migration_of_last_step_in_constructor_list_argument() {
     assertThat(underTest.getMaxMigrationNumber()).isEqualTo(8L);
-    assertThat(unorderedSteps.getMaxMigrationNumber()).isEqualTo(1L);
+    assertThat(unorderedSteps.getMaxMigrationNumber()).isOne();
   }
 
   @Test

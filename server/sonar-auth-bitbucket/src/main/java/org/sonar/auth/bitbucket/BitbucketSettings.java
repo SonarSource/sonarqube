@@ -29,8 +29,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
 
-import static java.lang.String.format;
-
 @ServerSide
 public class BitbucketSettings {
 

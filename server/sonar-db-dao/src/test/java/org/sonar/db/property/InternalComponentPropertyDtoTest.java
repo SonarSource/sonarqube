@@ -93,6 +93,6 @@ public class InternalComponentPropertyDtoTest {
       .setCreatedAt(10L)
       .setUpdatedAt(15L);
 
-    assertThat(underTest.toString()).isEqualTo("InternalComponentPropertyDto{uuid=uuid1, key=key1, value=value1, componentUuid=component1, updatedAt=15, createdAt=10}");
+    assertThat(underTest).hasToString("InternalComponentPropertyDto{uuid=uuid1, key=key1, value=value1, componentUuid=component1, updatedAt=15, createdAt=10}");
   }
 }

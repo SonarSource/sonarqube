@@ -109,7 +109,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void getLevel_throws_IEA_if_error_threshold_is_not_parsable_long() {
     Metric metric = createMetric(WORK_DUR);
-    Measure measure = newMeasureBuilder().create(60l, null);
+    Measure measure = newMeasureBuilder().create(60L, null);
 
     assertThatThrownBy(() -> underTest.evaluate(createCondition(metric, LESS_THAN, "polop"), measure))
       .isInstanceOf(IllegalArgumentException.class)

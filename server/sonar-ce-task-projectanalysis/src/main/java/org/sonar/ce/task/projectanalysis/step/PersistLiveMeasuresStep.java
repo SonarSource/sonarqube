@@ -53,9 +53,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
   /**
    * List of metrics that should not be persisted on file measure.
    */
-  private static final Set<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = unmodifiableSet(new HashSet<>(asList(
-    FILE_COMPLEXITY_DISTRIBUTION_KEY,
-    FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)));
+  private static final Set<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = Set.of(FILE_COMPLEXITY_DISTRIBUTION_KEY, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY);
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;

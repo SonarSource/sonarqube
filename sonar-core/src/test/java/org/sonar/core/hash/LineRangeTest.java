@@ -43,7 +43,7 @@ public class LineRangeTest {
   @Test
   public void check_getters() {
     LineRange range = new LineRange(1, 2);
-    assertThat(range.startOffset()).isEqualTo(1);
+    assertThat(range.startOffset()).isOne();
     assertThat(range.endOffset()).isEqualTo(2);
   }
 }

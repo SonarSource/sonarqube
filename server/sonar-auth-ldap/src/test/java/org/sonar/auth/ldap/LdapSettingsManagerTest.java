@@ -57,7 +57,7 @@ public class LdapSettingsManagerTest {
   public void testContextFactoriesWithSingleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateSingleLdapSettingsWithUserAndGroupMapping().asConfig(), new LdapAutodiscovery());
-    assertThat(settingsManager.getContextFactories().size()).isEqualTo(1);
+    assertThat(settingsManager.getContextFactories()).hasSize(1);
   }
 
   /**
@@ -68,9 +68,9 @@ public class LdapSettingsManagerTest {
   public void testContextFactoriesWithMultipleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateMultipleLdapSettingsWithUserAndGroupMapping().asConfig(), new LdapAutodiscovery());
-    assertThat(settingsManager.getContextFactories().size()).isEqualTo(2);
+    assertThat(settingsManager.getContextFactories()).hasSize(2);
     // We do it twice to make sure the settings keep the same.
-    assertThat(settingsManager.getContextFactories().size()).isEqualTo(2);
+    assertThat(settingsManager.getContextFactories()).hasSize(2);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class LdapSettingsManagerTest {
     when(ldapAutodiscovery.getLdapServers("example.org")).thenReturn(Arrays.asList(ldap1, ldap2));
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateAutodiscoverSettings().asConfig(), ldapAutodiscovery);
-    assertThat(settingsManager.getContextFactories().size()).isEqualTo(2);
+    assertThat(settingsManager.getContextFactories()).hasSize(2);
   }
 
   @Test
@@ -104,9 +104,9 @@ public class LdapSettingsManagerTest {
   public void testUserMappings() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateMultipleLdapSettingsWithUserAndGroupMapping().asConfig(), new LdapAutodiscovery());
-    assertThat(settingsManager.getUserMappings().size()).isEqualTo(2);
+    assertThat(settingsManager.getUserMappings()).hasSize(2);
     // We do it twice to make sure the settings keep the same.
-    assertThat(settingsManager.getUserMappings().size()).isEqualTo(2);
+    assertThat(settingsManager.getUserMappings()).hasSize(2);
   }
 
   /**
@@ -117,9 +117,9 @@ public class LdapSettingsManagerTest {
   public void testGroupMappings() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       generateMultipleLdapSettingsWithUserAndGroupMapping().asConfig(), new LdapAutodiscovery());
-    assertThat(settingsManager.getGroupMappings().size()).isEqualTo(2);
+    assertThat(settingsManager.getGroupMappings()).hasSize(2);
     // We do it twice to make sure the settings keep the same.
-    assertThat(settingsManager.getGroupMappings().size()).isEqualTo(2);
+    assertThat(settingsManager.getGroupMappings()).hasSize(2);
   }
 
   /**

@@ -41,16 +41,6 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     return new MeasureAssert(actual == null ? null : actual.orElse(null));
   }
 
-  public MeasureAssert hasValueType(Measure.ValueType expected) {
-    isNotNull();
-
-    if (actual.getValueType() != expected) {
-      failWithMessage("Expected ValueType of Measure to be <%s> but was <%s>", expected, actual.getValueType());
-    }
-
-    return this;
-  }
-
   public MeasureAssert hasValue(int expected) {
     isNotNull();
 

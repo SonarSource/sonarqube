@@ -109,7 +109,7 @@ public class NodeStatsResponseTest {
     assertThat(nodeStats.getFieldDataCircuitBreakerLimit()).isEqualTo(207591833);
     assertThat(nodeStats.getFieldDataCircuitBreakerEstimation()).isEqualTo(4880);
     assertThat(nodeStats.getRequestCircuitBreakerLimit()).isEqualTo(311387750L);
-    assertThat(nodeStats.getRequestCircuitBreakerEstimation()).isEqualTo(1);
+    assertThat(nodeStats.getRequestCircuitBreakerEstimation()).isOne();
 
     JvmStats jvmStats = nodeStats.getJvmStats();
     assertThat(jvmStats).isNotNull();

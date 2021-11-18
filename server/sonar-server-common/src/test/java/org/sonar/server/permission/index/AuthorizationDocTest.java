@@ -70,7 +70,7 @@ public class AuthorizationDocTest {
   public void projectUuidOf_returns_argument_if_does_not_starts_with_id_prefix() {
     String id = randomAlphabetic(1 + new Random().nextInt(10));
     assertThat(AuthorizationDoc.projectUuidOf(id)).isEqualTo(id);
-    assertThat(AuthorizationDoc.projectUuidOf("")).isEqualTo("");
+    assertThat(AuthorizationDoc.projectUuidOf("")).isEmpty();
   }
 
   @Test

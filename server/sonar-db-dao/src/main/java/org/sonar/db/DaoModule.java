@@ -19,8 +19,6 @@
  */
 package org.sonar.db;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.sonar.core.platform.Module;
 import org.sonar.db.alm.pat.AlmPatDao;
@@ -59,8 +57,8 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.plugin.PluginDao;
 import org.sonar.db.portfolio.PortfolioDao;
-import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectBadgeTokenDao;
+import org.sonar.db.project.ProjectDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
@@ -95,7 +93,7 @@ import org.sonar.db.webhook.WebhookDao;
 import org.sonar.db.webhook.WebhookDeliveryDao;
 
 public class DaoModule extends Module {
-  private static final List<Class<? extends Dao>> classes = Collections.unmodifiableList(Arrays.asList(
+  private static final List<Class<? extends Dao>> classes = List.of(
     // =====================================================================
     // for readability and easier merge, keep list ordered alphabetically
     // =====================================================================
@@ -168,7 +166,7 @@ public class DaoModule extends Module {
     UserPropertiesDao.class,
     UserTokenDao.class,
     WebhookDao.class,
-    WebhookDeliveryDao.class));
+    WebhookDeliveryDao.class);
 
   @Override
   protected void configureModule() {

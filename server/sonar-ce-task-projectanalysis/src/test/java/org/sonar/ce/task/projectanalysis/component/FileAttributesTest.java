@@ -70,7 +70,7 @@ public class FileAttributesTest {
 
   @Test
   public void test_toString() {
-    assertThat(new FileAttributes(true, "java", 10).toString()).isEqualTo("FileAttributes{languageKey='java', unitTest=true, lines=10}");
-    assertThat(new FileAttributes(false, null, 1).toString()).isEqualTo("FileAttributes{languageKey='null', unitTest=false, lines=1}");
+    assertThat(new FileAttributes(true, "java", 10)).hasToString("FileAttributes{languageKey='java', unitTest=true, lines=10}");
+    assertThat(new FileAttributes(false, null, 1)).hasToString("FileAttributes{languageKey='null', unitTest=false, lines=1}");
   }
 }

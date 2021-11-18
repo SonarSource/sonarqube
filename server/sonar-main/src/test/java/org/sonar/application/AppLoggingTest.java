@@ -250,7 +250,7 @@ public class AppLoggingTest {
     underTest.configure();
 
     assertThat(
-      LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()).isEqualTo(false);
+      LoggerFactory.getLogger("com.hazelcast").isInfoEnabled()).isFalse();
   }
 
   @Test

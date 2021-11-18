@@ -118,9 +118,10 @@ public class HealthTest {
 
   @Test
   public void not_equals_to_null_nor_other_type() {
-    assertThat(Health.GREEN).isNotEqualTo(null);
-    assertThat(Health.GREEN).isNotEqualTo(new Object());
-    assertThat(Health.GREEN).isNotEqualTo(Health.Status.GREEN);
+    assertThat(Health.GREEN)
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(Health.Status.GREEN);
   }
 
   @Test

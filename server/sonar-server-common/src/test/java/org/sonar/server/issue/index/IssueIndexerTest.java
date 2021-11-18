@@ -227,7 +227,7 @@ public class IssueIndexerTest {
     IssueDto issue = db.issues().insert();
 
     IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
-    assertThat(result.getTotal()).isEqualTo(0L);
+    assertThat(result.getTotal()).isZero();
     assertThatIndexHasSize(0);
   }
 
@@ -237,7 +237,7 @@ public class IssueIndexerTest {
     IssueDto issue = db.issues().insert();
 
     IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-    assertThat(result.getTotal()).isEqualTo(0L);
+    assertThat(result.getTotal()).isZero();
     assertThatIndexHasSize(0);
   }
 
@@ -247,7 +247,7 @@ public class IssueIndexerTest {
     IssueDto issue = db.issues().insert();
 
     IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
-    assertThat(result.getTotal()).isEqualTo(0L);
+    assertThat(result.getTotal()).isZero();
     assertThatIndexHasSize(0);
   }
 
@@ -258,8 +258,8 @@ public class IssueIndexerTest {
 
     IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
 
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
     assertThatIndexHasSize(0);
   }
 
@@ -270,20 +270,20 @@ public class IssueIndexerTest {
     es.lockWrites(TYPE_ISSUE);
 
     IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
 
     // index is still read-only, fail to recover
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
     assertThatIndexHasSize(1);
 
     es.unlockWrites(TYPE_ISSUE);
 
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isZero();
     assertThatIndexHasSize(0);
   }
 
@@ -412,7 +412,7 @@ public class IssueIndexerTest {
 
     result = recover();
     assertThat(result.getTotal()).isEqualTo(2L);
-    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThat(result.getFailures()).isZero();
     assertThatIndexHasSize(2);
     assertThatEsQueueTableHasSize(0);
   }
@@ -475,7 +475,7 @@ public class IssueIndexerTest {
     new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null)
       .index(singletonList(issueDoc).iterator());
 
-    assertThat(es.countDocuments(TYPE_ISSUE)).isEqualTo(1L);
+    assertThat(es.countDocuments(TYPE_ISSUE)).isOne();
   }
 
   @Test

@@ -290,7 +290,7 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("property").setValue("foo"));
 
     ValuesWsResponse response = executeRequestForComponentProperties(project, "property");
-    assertThat(response.getSettingsCount()).isEqualTo(1);
+    assertThat(response.getSettingsCount()).isOne();
     assertSetting(response.getSettings(0), "property", "foo", false);
   }
 

@@ -73,7 +73,7 @@ public class IssueExclusionsLoaderTest {
   public void populateRuleExclusionPatterns() {
     IssuePattern pattern1 = new IssuePattern("org/foo/Bar*.java", "*");
     IssuePattern pattern2 = new IssuePattern("org/foo/Hell?.java", "checkstyle:MagicNumber");
-    when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(Arrays.asList(new IssuePattern[] {pattern1, pattern2}));
+    when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(Arrays.asList(pattern1, pattern2));
 
     IssueExclusionsLoader loader = new IssueExclusionsLoader(exclusionPatternInitializer, ignoreIssuesFilter, mock(AnalysisWarnings.class));
     DefaultInputFile file1 = TestInputFileBuilder.create("foo", "org/foo/Bar.java").build();

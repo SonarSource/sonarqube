@@ -35,7 +35,7 @@ public class BlackHoleTokenChannelTest {
     CodeReader codeReader = new CodeReader("ABCD");
 
     assertThat(channel.consume(codeReader, output)).isTrue();
-    assertThat(codeReader.getLinePosition()).isEqualTo(1);
+    assertThat(codeReader.getLinePosition()).isOne();
     assertThat(codeReader.getColumnPosition()).isEqualTo(3);
     verifyZeroInteractions(output);
   }

@@ -45,7 +45,7 @@ public class ActiveRulesHolderImplTest {
   public void get_inactive_rule() {
     underTest.set(Collections.emptyList());
     Optional<ActiveRule> activeRule = underTest.get(RULE_KEY);
-    assertThat(activeRule.isPresent()).isFalse();
+    assertThat(activeRule).isEmpty();
   }
 
   @Test
@@ -53,7 +53,7 @@ public class ActiveRulesHolderImplTest {
     underTest.set(asList(new ActiveRule(RULE_KEY, Severity.BLOCKER, Collections.emptyMap(), SOME_DATE, PLUGIN_KEY, QP_KEY)));
 
     Optional<ActiveRule> activeRule = underTest.get(RULE_KEY);
-    assertThat(activeRule.isPresent()).isTrue();
+    assertThat(activeRule).isPresent();
     assertThat(activeRule.get().getRuleKey()).isEqualTo(RULE_KEY);
     assertThat(activeRule.get().getSeverity()).isEqualTo(Severity.BLOCKER);
   }

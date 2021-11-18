@@ -182,10 +182,11 @@ public class DefaultIssueTest {
     DefaultIssue a1 = new DefaultIssue().setKey("AAA");
     DefaultIssue a2 = new DefaultIssue().setKey("AAA");
     DefaultIssue b = new DefaultIssue().setKey("BBB");
-    assertThat(a1).isEqualTo(a1);
-    assertThat(a1).isEqualTo(a2);
-    assertThat(a1).isNotEqualTo(b);
-    assertThat(a1.hashCode()).isEqualTo(a1.hashCode());
+    assertThat(a1)
+      .isEqualTo(a1)
+      .isEqualTo(a2)
+      .isNotEqualTo(b)
+      .hasSameHashCodeAs(a1);
   }
 
   @Test

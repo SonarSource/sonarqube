@@ -58,7 +58,7 @@ public class CEQueueStatusImplConcurrentTest {
 
     executorService.awaitTermination(1, TimeUnit.SECONDS);
 
-    assertThat(underTest.getInProgressCount()).isEqualTo(1);
+    assertThat(underTest.getInProgressCount()).isOne();
     assertThat(underTest.getErrorCount()).isEqualTo(17);
     assertThat(underTest.getSuccessCount()).isEqualTo(80);
     assertThat(underTest.getProcessingTime()).isEqualTo(177);

@@ -68,9 +68,10 @@ public class DefaultProjectSettingsLoaderTest {
     ArgumentCaptor<GetRequest> argumentCaptor = ArgumentCaptor.forClass(GetRequest.class);
     verify(wsClient, times(1)).call(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getPath()).isEqualTo("api/settings/values.protobuf?component=project_key");
-    assertThat(result).isNotNull();
-    assertThat(result).hasSize(2);
-    assertThat(result.get("abc")).isEqualTo("def");
-    assertThat(result.get("123")).isEqualTo("456");
+    assertThat(result)
+      .isNotNull()
+      .hasSize(2)
+      .containsEntry("abc", "def")
+      .containsEntry("123", "456");
   }
 }

@@ -59,11 +59,11 @@ public class CredentialsTest {
 
   @Test
   public void test_equality() {
-    assertThat(new Credentials("foo", "bar")).isEqualTo(new Credentials("foo", "bar"));
-    assertThat(new Credentials("foo", "bar")).isNotEqualTo(new Credentials("foo", "baaaar"));
-    assertThat(new Credentials("foo", "bar")).isNotEqualTo(new Credentials("foooooo", "bar"));
-    assertThat(new Credentials("foo", "bar")).isNotEqualTo(new Credentials("foo", null));
-
-    assertThat(new Credentials("foo", "bar").hashCode()).isEqualTo(new Credentials("foo", "bar").hashCode());
+    assertThat(new Credentials("foo", "bar"))
+      .isEqualTo(new Credentials("foo", "bar"))
+      .isNotEqualTo(new Credentials("foo", "baaaar"))
+      .isNotEqualTo(new Credentials("foooooo", "bar"))
+      .isNotEqualTo(new Credentials("foo", null))
+      .hasSameHashCodeAs(new Credentials("foo", "bar"));
   }
 }

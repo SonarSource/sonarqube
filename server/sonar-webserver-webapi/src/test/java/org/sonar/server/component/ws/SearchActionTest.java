@@ -159,7 +159,7 @@ public class SearchActionTest {
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(project1.getDbKey());
-    assertThat(response.getPaging().getTotal()).isEqualTo(1);
+    assertThat(response.getPaging().getTotal()).isOne();
   }
 
   @Test

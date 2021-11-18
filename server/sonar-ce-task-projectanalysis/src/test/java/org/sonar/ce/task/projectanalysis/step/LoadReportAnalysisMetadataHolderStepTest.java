@@ -88,7 +88,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(analysisMetadataHolder.getRootComponentRef()).isEqualTo(1);
+    assertThat(analysisMetadataHolder.getRootComponentRef()).isOne();
   }
 
   @Test
@@ -140,7 +140,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(true);
+    assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isTrue();
   }
 
   @Test
@@ -152,7 +152,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
+    assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isFalse();
   }
 
   @Test
@@ -163,7 +163,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
+    assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isFalse();
   }
 
   @Test

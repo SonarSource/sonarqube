@@ -348,7 +348,7 @@ public class FileMoveDetectionStepTest {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore())
-      .isGreaterThan(0)
+      .isPositive()
       .isLessThan(MIN_REQUIRED_SCORE);
     assertThat(addedFileRepository.getComponents()).contains(file2);
     verifyStatistics(context, 1, 1, 1, 0);

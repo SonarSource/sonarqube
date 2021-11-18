@@ -59,12 +59,13 @@ public class RekeyedProjectTest {
     String previousKey = randomAlphanumeric(6);
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isEqualTo(new RekeyedProject(project, previousKey));
-    assertThat(underTest).isNotEqualTo(new RekeyedProject(project, randomAlphanumeric(11)));
-    assertThat(underTest).isNotEqualTo(new RekeyedProject(newRandomProject(), previousKey));
-    assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(null);
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isEqualTo(new RekeyedProject(project, previousKey))
+      .isNotEqualTo(new RekeyedProject(project, randomAlphanumeric(11)))
+      .isNotEqualTo(new RekeyedProject(newRandomProject(), previousKey))
+      .isNotEqualTo(new Object())
+      .isNotNull();
   }
 
   @Test
@@ -73,12 +74,13 @@ public class RekeyedProjectTest {
     String previousKey = randomAlphanumeric(6);
     RekeyedProject underTest = new RekeyedProject(project, previousKey);
 
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new RekeyedProject(project, previousKey).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new RekeyedProject(project, randomAlphanumeric(11)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new RekeyedProject(newRandomProject(), previousKey).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(null);
+    assertThat(underTest)
+      .hasSameHashCodeAs(underTest)
+      .hasSameHashCodeAs(new RekeyedProject(project, previousKey));
+    assertThat(underTest.hashCode())
+      .isNotEqualTo(new RekeyedProject(project, randomAlphanumeric(11)).hashCode())
+      .isNotEqualTo(new RekeyedProject(newRandomProject(), previousKey).hashCode())
+      .isNotEqualTo(new Object().hashCode());
   }
 
   @Test

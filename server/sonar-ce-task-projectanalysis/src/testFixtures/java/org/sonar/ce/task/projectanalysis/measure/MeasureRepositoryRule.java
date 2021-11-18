@@ -169,7 +169,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   @Override
   public Map<String, Measure> getRawMeasures(Component component) {
     return filterKeys(rawMeasures, hasComponentRef(component)).entrySet().stream()
-      .collect(Collectors.toMap(k -> k.getKey().getMetricKey(), e -> e.getValue()));
+      .collect(Collectors.toMap(k -> k.getKey().getMetricKey(), Map.Entry::getValue));
   }
 
   private HasComponentRefPredicate hasComponentRef(Component component) {

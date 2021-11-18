@@ -19,11 +19,9 @@
  */
 package org.sonar.api.batch.scm;
 
-import java.util.Calendar;
 import org.junit.Test;
 
 import java.util.Date;
-import org.junit.jupiter.api.Assertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +50,7 @@ public class BlameLineTest {
 
     assertThat(line1)
       .isEqualTo(line1)
-      .isNotEqualTo(null)
+      .isNotNull()
       .isEqualTo(line2)
       .isNotEqualTo(line3)
       .hasSameHashCodeAs(line2);

@@ -74,7 +74,7 @@ public class IndexingResultTest {
     underTest.incrementSuccess();
 
     assertThat(underTest.getFailures()).isEqualTo(3);
-    assertThat(underTest.getSuccess()).isEqualTo(1);
+    assertThat(underTest.getSuccess()).isOne();
     assertThat(underTest.getTotal()).isEqualTo(4);
     assertThat(underTest.getSuccessRatio()).isEqualTo(0.25, DOUBLE_OFFSET);
     assertThat(underTest.isSuccess()).isFalse();

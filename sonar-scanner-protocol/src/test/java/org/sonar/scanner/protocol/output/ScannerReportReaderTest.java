@@ -67,7 +67,7 @@ public class ScannerReportReaderTest {
     ScannerReport.Metadata readMetadata = underTest.readMetadata();
     assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(readMetadata.getProjectKey()).isEqualTo("PROJECT_A");
-    assertThat(readMetadata.getRootComponentRef()).isEqualTo(1);
+    assertThat(readMetadata.getRootComponentRef()).isOne();
     assertThat(readMetadata.getCrossProjectDuplicationActivated()).isTrue();
   }
 
@@ -230,7 +230,7 @@ public class ScannerReportReaderTest {
     try (CloseableIterator<ScannerReport.SyntaxHighlightingRule> it = underTest.readComponentSyntaxHighlighting(1)) {
       ScannerReport.SyntaxHighlightingRule syntaxHighlighting = it.next();
       assertThat(syntaxHighlighting.getRange()).isNotNull();
-      assertThat(syntaxHighlighting.getRange().getStartLine()).isEqualTo(1);
+      assertThat(syntaxHighlighting.getRange().getStartLine()).isOne();
       assertThat(syntaxHighlighting.getRange().getEndLine()).isEqualTo(10);
       assertThat(syntaxHighlighting.getType()).isEqualTo(HighlightingType.ANNOTATION);
     }
@@ -300,10 +300,10 @@ public class ScannerReportReaderTest {
     underTest = new ScannerReportReader(dir);
     try (CloseableIterator<ScannerReport.LineCoverage> it = new ScannerReportReader(dir).readComponentCoverage(1)) {
       ScannerReport.LineCoverage coverage = it.next();
-      assertThat(coverage.getLine()).isEqualTo(1);
-      assertThat(coverage.getConditions()).isEqualTo(1);
+      assertThat(coverage.getLine()).isOne();
+      assertThat(coverage.getConditions()).isOne();
       assertThat(coverage.getHits()).isTrue();
-      assertThat(coverage.getCoveredConditions()).isEqualTo(1);
+      assertThat(coverage.getCoveredConditions()).isOne();
     }
   }
 

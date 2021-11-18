@@ -68,7 +68,7 @@ public class ScannerReportWriterTest {
     ScannerReport.Metadata read = Protobuf.read(underTest.getFileStructure().metadataFile(), ScannerReport.Metadata.parser());
     assertThat(read.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(read.getProjectKey()).isEqualTo("PROJECT_A");
-    assertThat(read.getRootComponentRef()).isEqualTo(1);
+    assertThat(read.getRootComponentRef()).isOne();
   }
 
   @Test
@@ -91,7 +91,7 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.COMPONENT, 1);
     assertThat(file).exists().isFile();
     ScannerReport.Component read = Protobuf.read(file, ScannerReport.Component.parser());
-    assertThat(read.getRef()).isEqualTo(1);
+    assertThat(read.getRef()).isOne();
     assertThat(read.getChildRefList()).containsOnly(5, 42);
     assertThat(read.getName()).isEmpty();
     assertThat(read.getIsTest()).isFalse();
@@ -113,7 +113,7 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.Issue> read = Protobuf.readStream(file, ScannerReport.Issue.parser())) {
-      assertThat(Iterators.size(read)).isEqualTo(1);
+      assertThat(Iterators.size(read)).isOne();
     }
   }
 
@@ -133,7 +133,7 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.EXTERNAL_ISSUES, 1);
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.ExternalIssue> read = Protobuf.readStream(file, ScannerReport.ExternalIssue.parser())) {
-      assertThat(Iterators.size(read)).isEqualTo(1);
+      assertThat(Iterators.size(read)).isOne();
     }
   }
 
@@ -154,7 +154,7 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().adHocRules();
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.AdHocRule> read = Protobuf.readStream(file, ScannerReport.AdHocRule.parser())) {
-      assertThat(Iterators.size(read)).isEqualTo(1);
+      assertThat(Iterators.size(read)).isOne();
     }
   }
 
@@ -189,7 +189,7 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);
     assertThat(file).exists().isFile();
     try (CloseableIterator<ScannerReport.Measure> read = Protobuf.readStream(file, ScannerReport.Measure.parser())) {
-      assertThat(Iterators.size(read)).isEqualTo(1);
+      assertThat(Iterators.size(read)).isOne();
     }
   }
 
@@ -212,8 +212,8 @@ public class ScannerReportWriterTest {
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.CHANGESETS, 1);
     assertThat(file).exists().isFile();
     ScannerReport.Changesets read = Protobuf.read(file, ScannerReport.Changesets.parser());
-    assertThat(read.getComponentRef()).isEqualTo(1);
-    assertThat(read.getChangesetCount()).isEqualTo(1);
+    assertThat(read.getComponentRef()).isOne();
+    assertThat(read.getChangesetCount()).isOne();
     assertThat(read.getChangesetList()).hasSize(1);
     assertThat(read.getChangeset(0).getDate()).isEqualTo(123_456_789L);
   }
@@ -266,7 +266,7 @@ public class ScannerReportWriterTest {
     try (CloseableIterator<ScannerReport.CpdTextBlock> duplicationBlocks = Protobuf.readStream(file, ScannerReport.CpdTextBlock.parser())) {
       ScannerReport.CpdTextBlock duplicationBlockResult = duplicationBlocks.next();
       assertThat(duplicationBlockResult.getHash()).isEqualTo("abcdefghijklmnop");
-      assertThat(duplicationBlockResult.getStartLine()).isEqualTo(1);
+      assertThat(duplicationBlockResult.getStartLine()).isOne();
       assertThat(duplicationBlockResult.getEndLine()).isEqualTo(2);
       assertThat(duplicationBlockResult.getStartTokenIndex()).isEqualTo(10);
       assertThat(duplicationBlockResult.getEndTokenIndex()).isEqualTo(15);

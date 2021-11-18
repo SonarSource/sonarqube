@@ -104,7 +104,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(fileSourceDto.getFileUuid()).isEqualTo(FILE1_UUID);
@@ -117,7 +117,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     DbFileSources.Data data = fileSourceDto.getSourceData();
     assertThat(data.getLinesCount()).isEqualTo(2);
-    assertThat(data.getLines(0).getLine()).isEqualTo(1);
+    assertThat(data.getLines(0).getLine()).isOne();
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
     assertThat(data.getLines(1).getLine()).isEqualTo(2);
     assertThat(data.getLines(1).getSource()).isEqualTo("line2");
@@ -132,7 +132,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getLineHashes()).containsExactly("137f72c3708c6bd0de00a0e5a69c699b", "e6251bcf1a7dc3ba5e7933e325bbe605");
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
@@ -153,7 +153,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
     verify(fileSourceDataWarnings).commitWarnings();
@@ -176,7 +176,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
     assertThat(fileSourceDto.getRevision()).isNull();
@@ -201,7 +201,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
 
     DbFileSources.Data data = fileSourceDto.getSourceData();
@@ -233,7 +233,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     DbFileSources.Data data = fileSourceDto.getSourceData();
     assertThat(data).isEqualTo(dbData);
@@ -257,7 +257,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
     verify(fileSourceDataWarnings).commitWarnings();
@@ -274,7 +274,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSourceData()).isEqualTo(dbData);
     verify(fileSourceDataWarnings).commitWarnings();
@@ -313,7 +313,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("sourceHash");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(Collections.singletonList("lineHash"));
@@ -359,7 +359,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
@@ -377,7 +377,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(PAST);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
@@ -402,7 +402,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("file_sources")).isOne();
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectByFileUuid(session, FILE1_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(PAST);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);

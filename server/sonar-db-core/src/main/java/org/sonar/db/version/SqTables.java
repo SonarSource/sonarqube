@@ -19,11 +19,7 @@
  */
 package org.sonar.db.version;
 
-import java.util.HashSet;
 import java.util.Set;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableSet;
 
 public final class SqTables {
 
@@ -32,7 +28,7 @@ public final class SqTables {
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
    */
-  public static final Set<String> TABLES = unmodifiableSet(new HashSet<>(asList(
+  public static final Set<String> TABLES = Set.of(
     "active_rules",
     "active_rule_parameters",
     "alm_settings",
@@ -107,7 +103,7 @@ public final class SqTables {
     "user_roles",
     "user_tokens",
     "webhooks",
-    "webhook_deliveries")));
+    "webhook_deliveries");
 
   private SqTables() {
     // prevents instantiation

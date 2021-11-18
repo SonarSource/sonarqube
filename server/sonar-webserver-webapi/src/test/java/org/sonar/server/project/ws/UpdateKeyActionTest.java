@@ -66,7 +66,7 @@ public class UpdateKeyActionTest {
 
     call(project.getDbKey(), ANOTHER_KEY);
 
-    assertThat(selectByKey(project.getDbKey()).isPresent()).isFalse();
+    assertThat(selectByKey(project.getDbKey())).isEmpty();
     assertThat(selectByKey(ANOTHER_KEY).get().uuid()).isEqualTo(project.uuid());
   }
 

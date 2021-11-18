@@ -60,7 +60,7 @@ public class ViewIndexerTest {
   @Test
   public void index_nothing() {
     underTest.indexOnStartup(emptySet());
-    assertThat(es.countDocuments(TYPE_VIEW)).isEqualTo(0L);
+    assertThat(es.countDocuments(TYPE_VIEW)).isZero();
   }
 
   @Test

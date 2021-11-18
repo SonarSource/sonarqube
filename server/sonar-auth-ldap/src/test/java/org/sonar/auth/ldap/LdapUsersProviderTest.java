@@ -60,7 +60,7 @@ public class LdapUsersProviderTest {
 
     details = usersProvider.getUserDetails("without_email");
     assertThat(details.getName()).isEqualTo("Without Email");
-    assertThat(details.getEmail()).isEqualTo("");
+    assertThat(details.getEmail()).isEmpty();
 
     details = usersProvider.getUserDetails("notfound");
     assertThat(details).isNull();

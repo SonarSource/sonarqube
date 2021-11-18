@@ -73,9 +73,9 @@ public class NewIssuesStatisticsTest {
     underTest.add(issue.setAssigneeUuid("james"));
     underTest.add(issue.setAssigneeUuid("keenan"));
 
-    assertThat(countDistributionTotal(Metric.ASSIGNEE, "maynard")).isEqualTo(1);
-    assertThat(countDistributionTotal(Metric.ASSIGNEE, "james")).isEqualTo(1);
-    assertThat(countDistributionTotal(Metric.ASSIGNEE, "keenan")).isEqualTo(1);
+    assertThat(countDistributionTotal(Metric.ASSIGNEE, "maynard")).isOne();
+    assertThat(countDistributionTotal(Metric.ASSIGNEE, "james")).isOne();
+    assertThat(countDistributionTotal(Metric.ASSIGNEE, "keenan")).isOne();
     assertThat(countDistributionTotal(Metric.ASSIGNEE, "wrong.login")).isNull();
     assertThat(countDistributionTotal(Metric.COMPONENT, "file-uuid")).isEqualTo(3);
     assertThat(countDistributionTotal(Metric.COMPONENT, "wrong-uuid")).isNull();
@@ -156,7 +156,7 @@ public class NewIssuesStatisticsTest {
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
         assertThat(distribution.getTotal()).isZero();
-        assertThat(distribution.getForLabel(null).isPresent()).isFalse();
+        assertThat(distribution.getForLabel(null)).isEmpty();
       });
   }
 
@@ -201,7 +201,7 @@ public class NewIssuesStatisticsTest {
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
         assertThat(distribution.getTotal()).isZero();
-        assertThat(distribution.getForLabel(null).isPresent()).isFalse();
+        assertThat(distribution.getForLabel(null)).isEmpty();
       });
   }
 
@@ -217,17 +217,17 @@ public class NewIssuesStatisticsTest {
     assignees.forEach(assignee -> {
       NewIssuesStatistics.Stats stats = underTest.getAssigneesStatistics().get(assignee);
       DistributedMetricStatsInt assigneeStats = stats.getDistributedMetricStats(Metric.ASSIGNEE);
-      assertThat(assigneeStats.getOnCurrentAnalysis()).isEqualTo(1);
-      assertThat(assigneeStats.getTotal()).isEqualTo(1);
+      assertThat(assigneeStats.getOnCurrentAnalysis()).isOne();
+      assertThat(assigneeStats.getTotal()).isOne();
       assignees.forEach(s -> {
         Optional<MetricStatsInt> forLabelOpts = assigneeStats.getForLabel(s);
         if (s.equals(assignee)) {
-          assertThat(forLabelOpts.isPresent()).isTrue();
+          assertThat(forLabelOpts).isPresent();
           MetricStatsInt forLabel = forLabelOpts.get();
-          assertThat(forLabel.getOnCurrentAnalysis()).isEqualTo(1);
-          assertThat(forLabel.getTotal()).isEqualTo(1);
+          assertThat(forLabel.getOnCurrentAnalysis()).isOne();
+          assertThat(forLabel.getTotal()).isOne();
         } else {
-          assertThat(forLabelOpts.isPresent()).isFalse();
+          assertThat(forLabelOpts).isEmpty();
         }
       });
     });
@@ -246,16 +246,16 @@ public class NewIssuesStatisticsTest {
       NewIssuesStatistics.Stats stats = underTest.getAssigneesStatistics().get(assignee);
       DistributedMetricStatsInt assigneeStats = stats.getDistributedMetricStats(Metric.ASSIGNEE);
       assertThat(assigneeStats.getOnCurrentAnalysis()).isZero();
-      assertThat(assigneeStats.getTotal()).isEqualTo(1);
+      assertThat(assigneeStats.getTotal()).isOne();
       assignees.forEach(s -> {
         Optional<MetricStatsInt> forLabelOpts = assigneeStats.getForLabel(s);
         if (s.equals(assignee)) {
-          assertThat(forLabelOpts.isPresent()).isTrue();
+          assertThat(forLabelOpts).isPresent();
           MetricStatsInt forLabel = forLabelOpts.get();
           assertThat(forLabel.getOnCurrentAnalysis()).isZero();
-          assertThat(forLabel.getTotal()).isEqualTo(1);
+          assertThat(forLabel.getTotal()).isOne();
         } else {
-          assertThat(forLabelOpts.isPresent()).isFalse();
+          assertThat(forLabelOpts).isEmpty();
         }
       });
     });
@@ -267,7 +267,7 @@ public class NewIssuesStatisticsTest {
 
     DistributedMetricStatsInt globalDistribution = underTest.globalStatistics().getDistributedMetricStats(Metric.ASSIGNEE);
     assertThat(globalDistribution.getTotal()).isZero();
-    assertThat(globalDistribution.getForLabel(null).isPresent()).isFalse();
+    assertThat(globalDistribution.getForLabel(null)).isEmpty();
     assertThat(underTest.getAssigneesStatistics()).isEmpty();
   }
 
@@ -305,7 +305,7 @@ public class NewIssuesStatisticsTest {
     Stream.of(globalDistribution, assigneeDistribution)
       .forEach(distribution -> {
         assertThat(distribution.getTotal()).isZero();
-        assertThat(distribution.getForLabel(null).isPresent()).isFalse();
+        assertThat(distribution.getForLabel(null)).isEmpty();
       });
   }
 

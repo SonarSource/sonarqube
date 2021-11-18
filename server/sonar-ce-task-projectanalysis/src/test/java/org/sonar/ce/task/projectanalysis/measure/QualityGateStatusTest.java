@@ -71,12 +71,12 @@ public class QualityGateStatusTest {
       assertThat(status).isEqualTo(new QualityGateStatus(level, null));
       assertThat(status).isNotEqualTo(new QualityGateStatus(level, "bar"));
       assertThat(status).isNotEqualTo(new QualityGateStatus(level, ""));
-      assertThat(status).isNotEqualTo(null);
+      assertThat(status).isNotNull();
     }
   }
 
   @Test
   public void verify_toString() {
-    assertThat(new QualityGateStatus(Measure.Level.OK, "foo").toString()).isEqualTo("QualityGateStatus{status=OK, text=foo}");
+    assertThat(new QualityGateStatus(Measure.Level.OK, "foo")).hasToString("QualityGateStatus{status=OK, text=foo}");
   }
 }

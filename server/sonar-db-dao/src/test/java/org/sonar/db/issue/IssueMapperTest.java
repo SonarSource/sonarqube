@@ -188,7 +188,7 @@ public class IssueMapperTest {
     dto.setSelectedAt(1500000000000L);
 
     int count = underTest.updateIfBeforeSelectedDate(dto);
-    assertThat(count).isEqualTo(1);
+    assertThat(count).isOne();
     dbTester.getSession().commit();
 
     IssueDto result = underTest.selectByKey("ABCDE");

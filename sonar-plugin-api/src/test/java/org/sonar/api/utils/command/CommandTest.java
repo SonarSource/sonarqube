@@ -97,7 +97,7 @@ public class CommandTest {
 
     Command command = new Command("java", system);
     command.setEnvironmentVariable("JAVA_HOME", "/new/path/to/java");
-    assertThat(command.getEnvironmentVariables().get("JAVA_HOME")).isEqualTo("/new/path/to/java");
+    assertThat(command.getEnvironmentVariables()).containsEntry("JAVA_HOME", "/new/path/to/java");
   }
 
   @Test

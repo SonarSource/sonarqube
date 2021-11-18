@@ -80,7 +80,7 @@ public class DatabaseMigrationImplConcurrentAccessTest {
 
     pool.awaitTermination(2, TimeUnit.SECONDS);
 
-    assertThat(triggerCount.get()).isEqualTo(1);
+    assertThat(triggerCount.get()).isOne();
   }
 
   private class CallStartit implements Runnable {

@@ -37,7 +37,7 @@ public class SingleProjectRepository extends ProjectRepositories {
 
   public SingleProjectRepository(Map<String, FileData> fileDataByPath) {
     super(true);
-    this.fileDataByPath = Collections.unmodifiableMap(new HashMap<>(fileDataByPath));
+    this.fileDataByPath = Map.copyOf(fileDataByPath);
   }
 
   @CheckForNull

@@ -121,9 +121,7 @@ public class Helper {
         } catch (ClassNotFoundException e) {
         }
         return Stream.empty();
-      })).findFirst().orElseGet(() -> {
-        return "String";
-      });
+      })).findFirst().orElseGet(() -> "String");
   }
 
   private Stream<String> guessResponseInnerClassName(String action) {

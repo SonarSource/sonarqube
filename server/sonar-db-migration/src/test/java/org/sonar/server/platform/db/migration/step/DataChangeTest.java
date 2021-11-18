@@ -523,11 +523,11 @@ public class DataChangeTest {
       .select("select id as \"ID\", login as \"LOGIN\", age as \"AGE\", enabled as \"ENABLED\", coeff as \"COEFF\", updated_at as \"UPDATED\" from persons where id=" + id);
     assertThat(rows).describedAs("id=" + id).hasSize(1);
     Map<String, Object> row = rows.get(0);
-    assertThat(row.get("ID")).isEqualTo(id);
-    assertThat(row.get("LOGIN")).isEqualTo(login);
-    assertThat(row.get("AGE")).isEqualTo(age);
-    assertThat(row.get("ENABLED")).isEqualTo(enabled);
-    assertThat(row.get("UPDATED")).isEqualTo(updatedAt == null ? null : dateFormat.parse(updatedAt));
-    assertThat(row.get("COEFF")).isEqualTo(coeff);
+    assertThat(row).containsEntry("ID", id);
+    assertThat(row).containsEntry("LOGIN", login);
+    assertThat(row).containsEntry("AGE", age);
+    assertThat(row).containsEntry("ENABLED", enabled);
+    assertThat(row).containsEntry("UPDATED", updatedAt == null ? null : dateFormat.parse(updatedAt));
+    assertThat(row).containsEntry("COEFF", coeff);
   }
 }

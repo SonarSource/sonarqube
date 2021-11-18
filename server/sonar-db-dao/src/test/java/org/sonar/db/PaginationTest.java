@@ -31,7 +31,7 @@ public class PaginationTest {
   public void all_is_page_1_with_MAX_INTEGER_page_size() {
     Pagination pagination = Pagination.all();
 
-    assertThat(pagination.getPage()).isEqualTo(1);
+    assertThat(pagination.getPage()).isOne();
     assertThat(pagination.getPageSize()).isEqualTo(Integer.MAX_VALUE);
   }
 

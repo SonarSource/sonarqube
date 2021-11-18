@@ -354,7 +354,7 @@ public class SearchActionTest {
 
     SearchWsResponse result = call(ws.newRequest());
 
-    assertThat(result.getProfilesCount()).isEqualTo(1);
+    assertThat(result.getProfilesCount()).isOne();
     assertThat(result.getProfiles(0).getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+0100");
     assertThat(parseDateTime(result.getProfiles(0).getLastUsed()).getTime()).isEqualTo(time);
     assertThat(parseDateTime(result.getProfiles(0).getUserUpdatedAt()).getTime()).isEqualTo(time);

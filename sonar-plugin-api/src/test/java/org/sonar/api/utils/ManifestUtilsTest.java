@@ -46,7 +46,7 @@ public class ManifestUtilsTest {
     Manifest mf = new Manifest();
     File jar = createJar(mf, "emptyManifest.jar");
 
-    URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(new File[]{jar}));
+    URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(jar));
     assertThat(ManifestUtils.getPropertyValues(classloader, "foo")).isEmpty();
   }
 
@@ -57,7 +57,7 @@ public class ManifestUtilsTest {
     mf.getMainAttributes().putValue("other", "value");
     File jar = createJar(mf, "singleManifest.jar");
 
-    URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(new File[]{jar}));
+    URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(jar));
     List<String> values = ManifestUtils.getPropertyValues(classloader, "foo");
     assertThat(values).containsOnly("bar");
   }
@@ -72,7 +72,7 @@ public class ManifestUtilsTest {
     mf2.getMainAttributes().putValue("foo", "otherbar");
     File jar2 = createJar(mf2, "manyManifests-two.jar");
 
-    URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(new File[]{jar1, jar2}));
+    URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(jar1, jar2));
     List<String> values = ManifestUtils.getPropertyValues(classloader, "foo");
     assertThat(values).containsOnly("bar", "otherbar");
   }

@@ -56,7 +56,7 @@ public class IssueInclusionPatternInitializerTest {
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasMulticriteriaPatterns()).isTrue();
-    assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(2);
+    assertThat(patternsInitializer.getMulticriteriaPatterns()).hasSize(2);
   }
 
 }

@@ -65,13 +65,13 @@ public class ReportIteratorTest {
   @Test
   public void read_report() {
     underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
-    assertThat(underTest.next().getLine()).isEqualTo(1);
+    assertThat(underTest.next().getLine()).isOne();
   }
 
   @Test
   public void do_not_fail_when_calling_has_next_with_iterator_already_closed() {
     underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
-    assertThat(underTest.next().getLine()).isEqualTo(1);
+    assertThat(underTest.next().getLine()).isOne();
     assertThat(underTest.hasNext()).isFalse();
 
     underTest.close();

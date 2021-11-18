@@ -135,17 +135,15 @@ public class DefaultDebtRemediationFunctionTest {
     DebtRemediationFunction functionWithSameValue = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     DebtRemediationFunction functionWithDifferentType = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "5min");
 
-    assertThat(function).isEqualTo(function);
-    assertThat(function).isEqualTo(functionWithSameValue);
-    assertThat(function).isNotEqualTo(functionWithDifferentType);
-
-    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "11h", "5min"));
-    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "6min"));
-    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null));
-    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "6min"));
-
-    assertThat(function.hashCode()).isEqualTo(function.hashCode());
-    assertThat(function.hashCode()).isEqualTo(functionWithSameValue.hashCode());
+    assertThat(function).isEqualTo(function)
+      .isEqualTo(functionWithSameValue)
+      .isNotEqualTo(functionWithDifferentType)
+      .isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "11h", "5min"))
+      .isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "6min"))
+      .isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null))
+      .isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "6min"))
+      .hasSameHashCodeAs(function)
+      .hasSameHashCodeAs(functionWithSameValue);
     assertThat(function.hashCode()).isNotEqualTo(functionWithDifferentType.hashCode());
   }
 

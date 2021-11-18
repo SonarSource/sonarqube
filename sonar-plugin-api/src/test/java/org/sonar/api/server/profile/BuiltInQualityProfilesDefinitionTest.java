@@ -22,6 +22,7 @@ package org.sonar.api.server.profile;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInActiveRule;
@@ -41,9 +42,7 @@ public class BuiltInQualityProfilesDefinitionTest {
 
   @Test
   public void createEmptyProfile() {
-    Map<String, Map<String, BuiltInQualityProfile>> profiles = define(c -> {
-      c.createBuiltInQualityProfile("Foo", "xoo").done();
-    });
+    Map<String, Map<String, BuiltInQualityProfile>> profiles = define(c -> c.createBuiltInQualityProfile("Foo", "xoo").done());
     assertThat(profiles).containsOnlyKeys("xoo");
     assertThat(profiles.get("xoo")).containsOnlyKeys("Foo");
     BuiltInQualityProfile profile = profiles.get("xoo").get("Foo");

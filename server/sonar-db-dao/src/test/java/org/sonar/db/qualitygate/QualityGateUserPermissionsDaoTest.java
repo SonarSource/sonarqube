@@ -120,7 +120,7 @@ public class QualityGateUserPermissionsDaoTest {
     assertThat(underTest.countByQuery(db.getSession(), builder()
       .setQualityGate(qualityGate)
       .setMembership(OUT).build()))
-      .isEqualTo(1);
+      .isOne();
   }
 
   @Test

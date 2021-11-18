@@ -58,8 +58,9 @@ public class UserTokenAuthenticationTest {
 
     Optional<String> login = underTest.authenticate(token);
 
-    assertThat(login.isPresent()).isTrue();
-    assertThat(login).contains(user1.getUuid());
+    assertThat(login)
+      .isPresent()
+      .contains(user1.getUuid());
     verify(userLastConnectionDatesUpdater).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
   }
 
@@ -67,7 +68,7 @@ public class UserTokenAuthenticationTest {
   public void return_absent_if_token_hash_is_not_found() {
     Optional<String> login = underTest.authenticate("unknown-token");
 
-    assertThat(login.isPresent()).isFalse();
+    assertThat(login).isEmpty();
     verify(userLastConnectionDatesUpdater, never()).updateLastConnectionDateIfNeeded(any(UserTokenDto.class));
   }
 }

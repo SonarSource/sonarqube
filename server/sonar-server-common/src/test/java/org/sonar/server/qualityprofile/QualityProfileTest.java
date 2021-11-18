@@ -36,9 +36,7 @@ public class QualityProfileTest {
 
   @Test
   public void constructor_throws_NPE_if_qkKey_arg_is_null() {
-    assertThatThrownBy(() -> {
-      new QualityProfile(null, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE);
-    })
+    assertThatThrownBy(() -> new QualityProfile(null, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE))
       .isInstanceOf(NullPointerException.class);
   }
 
@@ -82,9 +80,10 @@ public class QualityProfileTest {
 
   @Test
   public void verify_equals() {
-    assertThat(QUALITY_PROFILE).isEqualTo(new QualityProfile(SOME_QP_KEY, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE));
-    assertThat(QUALITY_PROFILE).isEqualTo(QUALITY_PROFILE);
-    assertThat(QUALITY_PROFILE).isNotEqualTo(null);
+    assertThat(QUALITY_PROFILE)
+      .isEqualTo(new QualityProfile(SOME_QP_KEY, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE))
+      .isEqualTo(QUALITY_PROFILE)
+      .isNotNull();
   }
 
   @Test

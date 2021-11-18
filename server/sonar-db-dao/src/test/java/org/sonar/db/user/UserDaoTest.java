@@ -684,8 +684,8 @@ public class UserDaoTest {
   public void setRoot_set_root_flag_of_specified_user_to_specified_value_and_updates_udpateAt() {
     String login = insertActiveUser().getLogin();
     UserDto otherUser = insertActiveUser();
-    assertThat(underTest.selectByLogin(session, login).isRoot()).isEqualTo(false);
-    assertThat(underTest.selectByLogin(session, otherUser.getLogin()).isRoot()).isEqualTo(false);
+    assertThat(underTest.selectByLogin(session, login).isRoot()).isFalse();
+    assertThat(underTest.selectByLogin(session, otherUser.getLogin()).isRoot()).isFalse();
 
     // does not fail when changing to same value
     system2.setNow(15_000L);

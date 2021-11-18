@@ -128,7 +128,7 @@ public class ImportGithubProjectActionTest {
         .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
         .setParam(PARAM_ORGANIZATION, "octocat")
         .setParam(PARAM_REPOSITORY_KEY, "octocat/Hello-World");
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
         .isInstanceOf(BadRequestException.class)
         .hasMessage("Could not create null, key already exists: octocat_Hello-World");
   }
@@ -139,15 +139,14 @@ public class ImportGithubProjectActionTest {
         .setParam(PARAM_ALM_SETTING, "asdfghjkl")
         .setParam(PARAM_ORGANIZATION, "test")
         .setParam(PARAM_REPOSITORY_KEY, "test/repo");
-    assertThatThrownBy(() -> request
-      .execute())
+    assertThatThrownBy(request::execute)
         .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void fail_when_missing_create_project_permission() {
     TestRequest request = ws.newRequest();
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
   }
 
@@ -160,8 +159,7 @@ public class ImportGithubProjectActionTest {
         .setParam(PARAM_ALM_SETTING, "unknown")
         .setParam(PARAM_ORGANIZATION, "test")
         .setParam(PARAM_REPOSITORY_KEY, "test/repo");
-    assertThatThrownBy(() -> request
-      .execute())
+    assertThatThrownBy(request::execute)
         .isInstanceOf(NotFoundException.class)
         .hasMessage("ALM Setting 'unknown' not found");
   }
@@ -174,7 +172,7 @@ public class ImportGithubProjectActionTest {
         .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
         .setParam(PARAM_ORGANIZATION, "test")
         .setParam(PARAM_REPOSITORY_KEY, "test/repo");
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("No personal access token found");
   }

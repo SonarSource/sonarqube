@@ -227,8 +227,7 @@ public class ImportBitbucketCloudRepoActionTest {
   private Repository getGsonBBCRepo() {
     Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
     MainBranch mainBranch = new MainBranch("branch", "develop");
-    Repository repo1 = new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, mainBranch);
-    return repo1;
+    return new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, mainBranch);
   }
 
 }

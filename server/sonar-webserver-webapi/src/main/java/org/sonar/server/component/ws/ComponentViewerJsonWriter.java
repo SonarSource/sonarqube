@@ -37,8 +37,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY;
@@ -51,12 +49,12 @@ import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 
 public class ComponentViewerJsonWriter {
-  private static final List<String> METRIC_KEYS = unmodifiableList(asList(
+  private static final List<String> METRIC_KEYS = List.of(
     LINES_KEY,
     VIOLATIONS_KEY,
     COVERAGE_KEY,
     DUPLICATED_LINES_DENSITY_KEY,
-    TESTS_KEY));
+    TESTS_KEY);
 
   private final DbClient dbClient;
 

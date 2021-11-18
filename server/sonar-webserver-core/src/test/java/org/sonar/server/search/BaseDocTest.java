@@ -150,6 +150,6 @@ public class BaseDocTest {
 
     assertThat((Map) fields.get(index.getJoinField()))
       .isEqualTo(ImmutableMap.of("name", relationType.getName(), "parent", "miam"));
-    assertThat(fields.get("indexType")).isEqualTo(relationType.getName());
+    assertThat(fields).containsEntry("indexType", relationType.getName());
   }
 }

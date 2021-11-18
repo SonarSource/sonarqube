@@ -60,7 +60,7 @@ public class GenericCoverageMediumTest {
     InputFile withConditions = result.inputFile("xources/hello/WithConditions.xoo");
     assertThat(result.coverageFor(withConditions, 3).getHits()).isTrue();
     assertThat(result.coverageFor(withConditions, 3).getConditions()).isEqualTo(2);
-    assertThat(result.coverageFor(withConditions, 3).getCoveredConditions()).isEqualTo(1);
+    assertThat(result.coverageFor(withConditions, 3).getCoveredConditions()).isOne();
 
     assertThat(logs).noneMatch(l -> l.contains("Please use 'sonar.coverageReportPaths'"));
 

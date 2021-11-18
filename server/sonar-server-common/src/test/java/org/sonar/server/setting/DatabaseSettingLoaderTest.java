@@ -50,13 +50,13 @@ public class DatabaseSettingLoaderTest {
   public void null_value_in_db_is_considered_as_empty_string() {
     insertPropertyIntoDb(A_KEY, null);
 
-    assertThat(underTest.load(A_KEY)).isEqualTo("");
+    assertThat(underTest.load(A_KEY)).isEmpty();
   }
 
   @Test
   public void test_empty_value_in_db() {
     insertPropertyIntoDb(A_KEY, "");
-    assertThat(underTest.load(A_KEY)).isEqualTo("");
+    assertThat(underTest.load(A_KEY)).isEmpty();
   }
 
   @Test

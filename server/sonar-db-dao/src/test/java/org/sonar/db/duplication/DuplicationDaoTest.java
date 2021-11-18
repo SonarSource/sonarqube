@@ -150,12 +150,13 @@ public class DuplicationDaoTest {
     Assertions.assertThat(rows).hasSize(1);
     Map<String, Object> row = rows.get(0);
     Assertions.assertThat(row.get("UUID")).isNotNull();
-    Assertions.assertThat(row.get("ANALYSIS")).isEqualTo(analysis.getUuid());
-    Assertions.assertThat(row.get("COMPONENT")).isEqualTo(project.uuid());
-    Assertions.assertThat(row.get("HASH")).isEqualTo("bb");
-    Assertions.assertThat(row.get("INDEX")).isEqualTo(0L);
-    Assertions.assertThat(row.get("START")).isEqualTo(1L);
-    Assertions.assertThat(row.get("END")).isEqualTo(2L);
+    Assertions.assertThat(row)
+      .containsEntry("ANALYSIS", analysis.getUuid())
+      .containsEntry("COMPONENT", project.uuid())
+      .containsEntry("HASH", "bb")
+      .containsEntry("INDEX", 0L)
+      .containsEntry("START", 1L)
+      .containsEntry("END", 2L);
   }
 
   public void insert(ComponentDto project, SnapshotDto analysis, String hash, int indexInFile, int startLine, int endLine) {

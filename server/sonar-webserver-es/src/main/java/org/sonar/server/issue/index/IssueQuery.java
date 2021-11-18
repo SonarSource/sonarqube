@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableSet;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;

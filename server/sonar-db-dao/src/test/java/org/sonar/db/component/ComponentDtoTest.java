@@ -61,12 +61,12 @@ public class ComponentDtoTest {
     ComponentDto dtoWithSameUuid = new ComponentDto().setUuid("u1");
     ComponentDto dtoWithDifferentUuid = new ComponentDto().setUuid("u2");
 
-    assertThat(dto).isEqualTo(dto);
-    assertThat(dto).isEqualTo(dtoWithSameUuid);
-    assertThat(dto).isNotEqualTo(dtoWithDifferentUuid);
-
-    assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
-    assertThat(dto.hashCode()).isEqualTo(dtoWithSameUuid.hashCode());
+    assertThat(dto)
+      .isEqualTo(dto)
+      .isEqualTo(dtoWithSameUuid)
+      .isNotEqualTo(dtoWithDifferentUuid)
+      .hasSameHashCodeAs(dto)
+      .hasSameHashCodeAs(dtoWithSameUuid);
     assertThat(dto.hashCode()).isNotEqualTo(dtoWithDifferentUuid.hashCode());
   }
 

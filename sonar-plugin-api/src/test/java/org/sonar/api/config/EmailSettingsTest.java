@@ -36,7 +36,7 @@ public class EmailSettingsTest {
 
   @Test
   public void should_return_default_values() {
-    assertThat(underTest.getSmtpHost()).isEqualTo("");
+    assertThat(underTest.getSmtpHost()).isEmpty();
     assertThat(underTest.getSmtpPort()).isEqualTo(25);
     assertThat(underTest.getSmtpUsername()).isEmpty();
     assertThat(underTest.getSmtpPassword()).isEmpty();

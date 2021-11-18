@@ -184,10 +184,10 @@ public class MoreCollectorsTest {
 
   @Test
   public void uniqueIndex_empty_stream_returns_empty_map() {
-    assertThat(Collections.<MyObj>emptyList().stream().collect(uniqueIndex(MyObj::getId))).isEmpty();
-    assertThat(Collections.<MyObj>emptyList().stream().collect(uniqueIndex(MyObj::getId, 6))).isEmpty();
-    assertThat(Collections.<MyObj>emptyList().stream().collect(uniqueIndex(MyObj::getId, MyObj::getText))).isEmpty();
-    assertThat(Collections.<MyObj>emptyList().stream().collect(uniqueIndex(MyObj::getId, MyObj::getText, 10))).isEmpty();
+    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId))).isEmpty();
+    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId, 6))).isEmpty();
+    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId, MyObj::getText))).isEmpty();
+    assertThat(Stream.<MyObj>empty().collect(uniqueIndex(MyObj::getId, MyObj::getText, 10))).isEmpty();
   }
 
   @Test
@@ -369,8 +369,8 @@ public class MoreCollectorsTest {
 
   @Test
   public void index_empty_stream_returns_empty_map() {
-    assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId)).size()).isZero();
-    assertThat(Collections.<MyObj>emptyList().stream().collect(index(MyObj::getId, MyObj::getText)).size()).isZero();
+    assertThat(Stream.<MyObj>empty().collect(index(MyObj::getId)).size()).isZero();
+    assertThat(Stream.<MyObj>empty().collect(index(MyObj::getId, MyObj::getText)).size()).isZero();
   }
 
   @Test
@@ -462,8 +462,8 @@ public class MoreCollectorsTest {
 
   @Test
   public void unorderedIndex_empty_stream_returns_empty_map() {
-    assertThat(Collections.<MyObj>emptyList().stream().collect(unorderedIndex(MyObj::getId)).size()).isZero();
-    assertThat(Collections.<MyObj>emptyList().stream().collect(unorderedIndex(MyObj::getId, MyObj::getText)).size()).isZero();
+    assertThat(Stream.<MyObj>empty().collect(unorderedIndex(MyObj::getId)).size()).isZero();
+    assertThat(Stream.<MyObj>empty().collect(unorderedIndex(MyObj::getId, MyObj::getText)).size()).isZero();
   }
 
   @Test
@@ -555,7 +555,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void unorderedFlattenIndex_empty_stream_returns_empty_map() {
-    assertThat(Collections.<MyObj2>emptyList().stream()
+    assertThat(Stream.<MyObj2>empty()
       .collect(unorderedFlattenIndex(MyObj2::getId, MyObj2::getTexts))
       .size()).isZero();
   }
@@ -619,7 +619,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void join_on_empty_stream_returns_empty_string() {
-    assertThat(Collections.emptyList().stream().collect(join(Joiner.on(",")))).isEmpty();
+    assertThat(Stream.empty().collect(join(Joiner.on(",")))).isEmpty();
   }
 
   @Test

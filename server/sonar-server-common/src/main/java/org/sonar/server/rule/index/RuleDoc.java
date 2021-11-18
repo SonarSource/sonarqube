@@ -257,7 +257,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public long createdAt() {
-    return (Long) getField(RuleIndexDefinition.FIELD_RULE_CREATED_AT);
+    return getField(RuleIndexDefinition.FIELD_RULE_CREATED_AT);
   }
 
   public RuleDoc setCreatedAt(@Nullable Long l) {
@@ -266,7 +266,7 @@ public class RuleDoc extends BaseDoc {
   }
 
   public long updatedAt() {
-    return (Long) getField(RuleIndexDefinition.FIELD_RULE_UPDATED_AT);
+    return getField(RuleIndexDefinition.FIELD_RULE_UPDATED_AT);
   }
 
   public RuleDoc setUpdatedAt(@Nullable Long l) {

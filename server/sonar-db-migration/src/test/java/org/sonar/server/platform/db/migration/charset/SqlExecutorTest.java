@@ -64,8 +64,9 @@ public class SqlExecutorTest {
       underTest.executeDdl(connection, "update users set " + NAME_DB_COLUMN + "='new name' where " + LOGIN_DB_COLUMN + "='the_login'");
     }
     Map<String, Object> row = dbTester.selectFirst("select " + NAME_DB_COLUMN + " from users where " + LOGIN_DB_COLUMN + "='the_login'");
-    assertThat(row).isNotEmpty();
-    assertThat(row.get("NAME")).isEqualTo("new name");
+    assertThat(row)
+      .isNotEmpty()
+      .containsEntry("NAME", "new name");
   }
 
 }

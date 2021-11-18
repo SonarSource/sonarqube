@@ -119,7 +119,7 @@ public class CreateTableBuilderDbTesterTest {
 
     Map<String, Object> row = dbTester.selectFirst("select id as \"id\", val as \"val\" from " + tableName);
     assertThat(row.get("id")).isNotNull();
-    assertThat(row.get("val")).isEqualTo("toto");
+    assertThat(row).containsEntry("val", "toto");
   }
 
   private CreateTableBuilder newCreateTableBuilder() {

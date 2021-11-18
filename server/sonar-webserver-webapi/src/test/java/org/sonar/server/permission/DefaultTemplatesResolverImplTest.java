@@ -102,9 +102,7 @@ public class DefaultTemplatesResolverImplTest {
   @Test
   public void fail_when_default_template_for_project_is_missing() {
     DbSession session = db.getSession();
-    assertThatThrownBy(() -> {
-      underTestWithPortfoliosInstalled.resolve(session);
-    })
+    assertThatThrownBy(() -> underTestWithPortfoliosInstalled.resolve(session))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Default template for project is missing");
   }

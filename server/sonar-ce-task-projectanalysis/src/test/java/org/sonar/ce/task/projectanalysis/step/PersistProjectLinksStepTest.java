@@ -230,7 +230,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    assertThat(db.countRowsOfTable("project_links")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("project_links")).isOne();
   }
 
   @Test

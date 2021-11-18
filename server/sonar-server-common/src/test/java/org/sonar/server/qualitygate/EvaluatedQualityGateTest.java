@@ -46,7 +46,6 @@ public class EvaluatedQualityGateTest {
   private static final QualityGate ALL_CONDITIONS_QUALITY_GATE = new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME,
     new HashSet<>(Arrays.asList(CONDITION_1, CONDITION_2, CONDITION_3)));
 
-
   private final Random random = new Random();
   private final Level randomStatus = Level.values()[random.nextInt(Level.values().length)];
   private final EvaluatedCondition.EvaluationStatus randomEvaluationStatus = EvaluatedCondition.EvaluationStatus.values()[random
@@ -66,7 +65,7 @@ public class EvaluatedQualityGateTest {
 
   @Test
   public void addCondition_fails_with_NPE_if_condition_is_null() {
-    assertThatThrownBy(() ->  builder.addEvaluatedCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value"))
+    assertThatThrownBy(() -> builder.addEvaluatedCondition(null, EvaluatedCondition.EvaluationStatus.ERROR, "a_value"))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("condition can't be null");
   }
@@ -179,17 +178,18 @@ public class EvaluatedQualityGateTest {
       .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
-    assertThat(underTest).isEqualTo(builder.build());
-    assertThat(underTest).isNotSameAs(builder.build());
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(builder.setQualityGate(new QualityGate("other_id", QUALITY_GATE_NAME, singleton(CONDITION_1))).build());
-    assertThat(underTest).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build());
-    assertThat(underTest).isNotEqualTo(newBuilder()
-      .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(Level.ERROR)
-      .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
-      .build());
+    assertThat(underTest)
+      .isEqualTo(builder.build())
+      .isNotSameAs(builder.build())
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(builder.setQualityGate(new QualityGate("other_id", QUALITY_GATE_NAME, singleton(CONDITION_1))).build())
+      .isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build())
+      .isNotEqualTo(newBuilder()
+        .setQualityGate(ONE_CONDITION_QUALITY_GATE)
+        .setStatus(Level.ERROR)
+        .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
+        .build());
   }
 
   @Test
@@ -200,9 +200,8 @@ public class EvaluatedQualityGateTest {
       .addEvaluatedCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.ERROR, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
-    assertThat(underTest.hashCode()).isEqualTo(builder.build().hashCode());
+    assertThat(underTest).hasSameHashCodeAs(builder.build());
     assertThat(underTest.hashCode()).isNotSameAs(builder.build().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(null);
     assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(builder.setQualityGate(new QualityGate("other_id", QUALITY_GATE_NAME, singleton(CONDITION_1))).build().hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build().hashCode());

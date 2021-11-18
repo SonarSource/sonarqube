@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.container;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.util.stream.MoreCollectors;
 
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -175,19 +173,10 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
 
     @Override
     public <T> List<T> getComponentsByType(final Class<T> type) {
-      return from(added)
-        .filter(new Predicate<Object>() {
-          @Override
-          public boolean apply(@Nonnull Object input) {
-            return input.getClass().getSimpleName().contains(type.getSimpleName());
-          }
-        }).transform(new Function<Object, T>() {
-          @Override
-          @Nonnull
-          public T apply(@Nonnull Object input) {
-            return (T) input;
-          }
-        }).toList();
+      return added.stream()
+        .filter(input -> input.getClass().getSimpleName().contains(type.getSimpleName()))
+        .map(input -> (T) input)
+        .collect(Collectors.toList());
     }
   }
 

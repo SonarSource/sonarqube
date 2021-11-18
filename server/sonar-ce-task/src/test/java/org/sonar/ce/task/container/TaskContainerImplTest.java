@@ -72,7 +72,7 @@ public class TaskContainerImplTest {
 
     assertThat(defaultStartable.startCalls).isZero();
     assertThat(defaultStartable.stopCalls).isZero();
-    assertThat(eagerStartable.startCalls).isEqualTo(1);
+    assertThat(eagerStartable.startCalls).isOne();
     assertThat(eagerStartable.stopCalls).isZero();
   }
 
@@ -90,8 +90,8 @@ public class TaskContainerImplTest {
 
     assertThat(defaultStartable.startCalls).isZero();
     assertThat(defaultStartable.stopCalls).isZero();
-    assertThat(eagerStartable.startCalls).isEqualTo(1);
-    assertThat(eagerStartable.stopCalls).isEqualTo(1);
+    assertThat(eagerStartable.startCalls).isOne();
+    assertThat(eagerStartable.stopCalls).isOne();
   }
 
   public static class DefaultStartable implements Startable {

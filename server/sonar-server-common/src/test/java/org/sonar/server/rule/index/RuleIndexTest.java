@@ -622,7 +622,7 @@ public class RuleIndexTest {
 
   private void verifySearch(RuleQuery query, RuleDefinitionDto... expectedRules) {
     SearchIdResult<String> result = underTest.search(query, new SearchOptions());
-    assertThat(result.getTotal()).isEqualTo((long) expectedRules.length);
+    assertThat(result.getTotal()).isEqualTo(expectedRules.length);
     assertThat(result.getUuids()).hasSize(expectedRules.length);
     for (RuleDefinitionDto expectedRule : expectedRules) {
       assertThat(result.getUuids()).contains(expectedRule.getUuid());
@@ -829,10 +829,10 @@ public class RuleIndexTest {
       FACET_TAGS, FACET_TYPES)));
     Map<String, LinkedHashMap<String, Long>> facets = result.getFacets().getAll();
     assertThat(facets).hasSize(4);
-    assertThat(facets.get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
+    assertThat(facets.get(FACET_LANGUAGES)).containsOnlyKeys("cpp", "java", "cobol");
     assertThat(facets.get(FACET_REPOSITORIES).keySet()).containsExactly("xoo", "foo");
-    assertThat(facets.get(FACET_TAGS).keySet()).containsOnly("T1", "T2", "T3", "T4");
-    assertThat(facets.get(FACET_TYPES).keySet()).containsOnly("BUG", "CODE_SMELL", "VULNERABILITY");
+    assertThat(facets.get(FACET_TAGS)).containsOnlyKeys("T1", "T2", "T3", "T4");
+    assertThat(facets.get(FACET_TYPES)).containsOnlyKeys("BUG", "CODE_SMELL", "VULNERABILITY");
   }
 
   /**
@@ -847,9 +847,9 @@ public class RuleIndexTest {
     SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
     assertThat(result.getUuids()).hasSize(3);
     assertThat(result.getFacets().getAll()).hasSize(3);
-    assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
-    assertThat(result.getFacets().get(FACET_REPOSITORIES).keySet()).containsOnly("foo");
-    assertThat(result.getFacets().get(FACET_TAGS).keySet()).containsOnly("T2", "T3");
+    assertThat(result.getFacets().get(FACET_LANGUAGES)).containsOnlyKeys("cpp", "java", "cobol");
+    assertThat(result.getFacets().get(FACET_REPOSITORIES)).containsOnlyKeys("foo");
+    assertThat(result.getFacets().get(FACET_TAGS)).containsOnlyKeys("T2", "T3");
   }
 
   @Test
@@ -859,7 +859,7 @@ public class RuleIndexTest {
 
     SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
 
-    assertThat(result.getFacets().get(FACET_LANGUAGES).size()).isEqualTo(100);
+    assertThat(result.getFacets().get(FACET_LANGUAGES)).hasSize(100);
   }
 
   @Test
@@ -869,7 +869,7 @@ public class RuleIndexTest {
 
     SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
 
-    assertThat(result.getFacets().get(FACET_REPOSITORIES).size()).isEqualTo(10);
+    assertThat(result.getFacets().get(FACET_REPOSITORIES)).hasSize(10);
   }
 
   @Test
@@ -895,7 +895,7 @@ public class RuleIndexTest {
     RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
     SearchIdResult<String> result = underTest.search(query, options);
-    assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(100);
+    assertThat(result.getFacets().get(FACET_TAGS)).hasSize(100);
     assertThat(result.getFacets().get(FACET_TAGS)).contains(entry("tag0", 1L), entry("tag25", 1L), entry("tag99", 1L));
     assertThat(result.getFacets().get(FACET_TAGS)).doesNotContain(entry("tagA", 1L));
   }
@@ -911,7 +911,7 @@ public class RuleIndexTest {
       .setTags(singletonList("tagA"));
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
     SearchIdResult<String> result = underTest.search(query, options);
-    assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(101);
+    assertThat(result.getFacets().get(FACET_TAGS)).hasSize(101);
     assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).contains(
 
       // check that selected item is added, although there are 100 other items
@@ -948,9 +948,9 @@ public class RuleIndexTest {
     assertThat(result.getUuids()).hasSize(1);
     Facets facets = result.getFacets();
     assertThat(facets.getAll()).hasSize(3);
-    assertThat(facets.get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
-    assertThat(facets.get(FACET_REPOSITORIES).keySet()).containsOnly("foo");
-    assertThat(facets.get(FACET_TAGS).keySet()).containsOnly("T2", "T3");
+    assertThat(facets.get(FACET_LANGUAGES)).containsOnlyKeys("cpp", "java");
+    assertThat(facets.get(FACET_REPOSITORIES)).containsOnlyKeys("foo");
+    assertThat(facets.get(FACET_TAGS)).containsOnlyKeys("T2", "T3");
   }
 
   /**
@@ -973,10 +973,10 @@ public class RuleIndexTest {
       FACET_TYPES)));
     assertThat(result.getUuids()).hasSize(2);
     assertThat(result.getFacets().getAll()).hasSize(4);
-    assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
-    assertThat(result.getFacets().get(FACET_REPOSITORIES).keySet()).containsOnly("foo", "xoo");
-    assertThat(result.getFacets().get(FACET_TAGS).keySet()).containsOnly("T1", "T2", "T3");
-    assertThat(result.getFacets().get(FACET_TYPES).keySet()).containsOnly("CODE_SMELL");
+    assertThat(result.getFacets().get(FACET_LANGUAGES)).containsOnlyKeys("cpp", "java");
+    assertThat(result.getFacets().get(FACET_REPOSITORIES)).containsOnlyKeys("foo", "xoo");
+    assertThat(result.getFacets().get(FACET_TAGS)).containsOnlyKeys("T1", "T2", "T3");
+    assertThat(result.getFacets().get(FACET_TYPES)).containsOnlyKeys("CODE_SMELL");
   }
 
   @Test

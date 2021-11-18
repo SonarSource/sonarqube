@@ -51,7 +51,7 @@ public class EnforceIssuesFilter implements IssueFilter {
   private boolean warnDeprecatedIssuePatternAlreadyLogged;
 
   public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, AnalysisWarnings analysisWarnings, DefaultActiveRules activeRules) {
-    this.multicriteriaPatterns = Collections.unmodifiableList(new ArrayList<>(patternInitializer.getMulticriteriaPatterns()));
+    this.multicriteriaPatterns = List.copyOf(patternInitializer.getMulticriteriaPatterns());
     this.analysisWarnings = analysisWarnings;
     this.activeRules = activeRules;
   }

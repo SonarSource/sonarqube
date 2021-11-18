@@ -338,7 +338,7 @@ public class EmailNotificationChannelTest {
 
     int count = underTest.deliverAll(Collections.singleton(request));
 
-    assertThat(count).isEqualTo(1);
+    assertThat(count).isOne();
     assertThat(smtpServer.getMessages()).hasSize(1);
     assertThat((String) smtpServer.getMessages().iterator().next().getMimeMessage().getContent())
       .contains(emailMessage11.getMessage());

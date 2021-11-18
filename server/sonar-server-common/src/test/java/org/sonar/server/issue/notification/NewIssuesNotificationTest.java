@@ -440,13 +440,13 @@ public class NewIssuesNotificationTest {
 
     assertThat(underTest)
       .isEqualTo(underTest)
-      .isEqualTo(new RuleDefinition(name, language));
-    assertThat(underTest).isNotEqualTo(new RuleDefinition(language, name));
-    assertThat(underTest).isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name));
-    assertThat(underTest).isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)));
-    assertThat(underTest).isNotEqualTo(new RuleDefinition(language, null));
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
+      .isEqualTo(new RuleDefinition(name, language))
+      .isNotEqualTo(new RuleDefinition(language, name))
+      .isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name))
+      .isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)))
+      .isNotEqualTo(new RuleDefinition(language, null))
+      .isNotNull()
+      .isNotEqualTo(new Object());
   }
 
   @Test
@@ -455,14 +455,15 @@ public class NewIssuesNotificationTest {
     String language = randomAlphabetic(6);
     RuleDefinition underTest = new RuleDefinition(name, language);
 
+    assertThat(underTest)
+      .hasSameHashCodeAs(underTest)
+      .hasSameHashCodeAs(new RuleDefinition(name, language));
+
     assertThat(underTest.hashCode())
-      .isEqualTo(underTest.hashCode())
-      .isEqualTo(new RuleDefinition(name, language).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(language, name).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new RuleDefinition(language, null).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(null);
-    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
+      .isNotEqualTo(new RuleDefinition(language, name).hashCode())
+      .isNotEqualTo(new RuleDefinition(randomAlphabetic(7), name).hashCode())
+      .isNotEqualTo(new RuleDefinition(language, randomAlphabetic(7)).hashCode())
+      .isNotEqualTo(new RuleDefinition(language, null).hashCode())
+      .isNotEqualTo(new Object().hashCode());
   }
 }

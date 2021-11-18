@@ -159,7 +159,7 @@ public class InternalCeQueueImplTest {
 
     // available in history
     Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
-    assertThat(history.isPresent()).isTrue();
+    assertThat(history).isPresent();
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(history.get().getIsLast()).isTrue();
     assertThat(history.get().getAnalysisUuid()).isNull();
@@ -187,7 +187,7 @@ public class InternalCeQueueImplTest {
 
     // available in history
     Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
-    assertThat(history.isPresent()).isTrue();
+    assertThat(history).isPresent();
     assertThat(history.get().getAnalysisUuid()).isNull();
   }
 
@@ -200,7 +200,7 @@ public class InternalCeQueueImplTest {
 
     // available in history
     Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
-    assertThat(history.isPresent()).isTrue();
+    assertThat(history).isPresent();
     assertThat(history.get().getAnalysisUuid()).isEqualTo("U1");
   }
 
@@ -330,7 +330,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
-    assertThat(peek.isPresent()).isTrue();
+    assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(peek.get().getComponent()).contains(new CeTask.Component("PROJECT_1", null, null));
@@ -338,7 +338,7 @@ public class InternalCeQueueImplTest {
 
     // no more pending tasks
     peek = underTest.peek(WORKER_UUID_2, true);
-    assertThat(peek.isPresent()).isFalse();
+    assertThat(peek).isEmpty();
   }
 
   @Test
@@ -348,7 +348,7 @@ public class InternalCeQueueImplTest {
     CeTask task = submit(CeTaskTypes.REPORT, branch);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
-    assertThat(peek.isPresent()).isTrue();
+    assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(task.getUuid());
     assertThat(peek.get().getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(peek.get().getComponent()).contains(new CeTask.Component(branch.uuid(), branch.getDbKey(), branch.name()));
@@ -356,7 +356,7 @@ public class InternalCeQueueImplTest {
 
     // no more pending tasks
     peek = underTest.peek(WORKER_UUID_2, true);
-    assertThat(peek.isPresent()).isFalse();
+    assertThat(peek).isEmpty();
   }
 
   @Test
@@ -391,7 +391,7 @@ public class InternalCeQueueImplTest {
     when(computeEngineStatus.getStatus()).thenReturn(STOPPING);
 
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1, true);
-    assertThat(peek.isPresent()).isFalse();
+    assertThat(peek).isEmpty();
   }
 
   @Test
@@ -476,7 +476,7 @@ public class InternalCeQueueImplTest {
     underTest.cancel(db.getSession(), queueDto);
 
     Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
-    assertThat(activity.isPresent()).isTrue();
+    assertThat(activity).isPresent();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
@@ -506,7 +506,7 @@ public class InternalCeQueueImplTest {
     history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
-    assertThat(history.isPresent()).isFalse();
+    assertThat(history).isEmpty();
   }
 
   @Test
@@ -628,7 +628,7 @@ public class InternalCeQueueImplTest {
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
     Optional<CeQueueDto> queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), taskSubmit.getUuid());
-    assertThat(queueDto.isPresent()).isTrue();
+    assertThat(queueDto).isPresent();
     CeQueueDto dto = queueDto.get();
     assertThat(dto.getTaskType()).isEqualTo(taskSubmit.getType());
     Optional<CeTaskSubmit.Component> component = taskSubmit.getComponent();

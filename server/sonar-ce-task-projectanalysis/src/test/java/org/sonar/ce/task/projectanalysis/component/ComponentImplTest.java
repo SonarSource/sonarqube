@@ -226,9 +226,9 @@ public class ComponentImplTest {
   public void hashCode_is_hashcode_of_uuid() {
     ComponentImpl.Builder builder = buildSimpleComponent(FILE, "1").setUuid(UUID);
 
-    assertThat(builder.build().hashCode()).isEqualTo(builder.build().hashCode());
-    assertThat(builder.build().hashCode()).isEqualTo(buildSimpleComponent(FILE, "2").setUuid(UUID).build().hashCode());
-    assertThat(builder.build().hashCode()).isEqualTo(UUID.hashCode());
+    assertThat(builder.build()).hasSameHashCodeAs(builder.build().hashCode());
+    assertThat(builder.build()).hasSameHashCodeAs(buildSimpleComponent(FILE, "2").setUuid(UUID).build().hashCode());
+    assertThat(builder.build()).hasSameHashCodeAs(UUID.hashCode());
   }
 
   private static ComponentImpl.Builder buildSimpleComponent(Component.Type type, String dbKey) {

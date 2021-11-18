@@ -52,6 +52,6 @@ public class CeTaskImplTest {
 
   @Test
   public void verify_toString() {
-    assertThat(new CeTaskImpl(SOME_ID, CeTask.Status.SUCCESS).toString()).isEqualTo("CeTaskImpl{id='some id', status=SUCCESS}");
+    assertThat(new CeTaskImpl(SOME_ID, CeTask.Status.SUCCESS)).hasToString("CeTaskImpl{id='some id', status=SUCCESS}");
   }
 }

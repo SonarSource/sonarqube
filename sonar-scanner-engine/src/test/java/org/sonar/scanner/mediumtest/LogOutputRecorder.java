@@ -45,7 +45,7 @@ public class LogOutputRecorder implements LogOutput {
   }
 
   public synchronized String getAllAsString() {
-    return recorded.stream().collect(Collectors.joining("\n"));
+    return String.join("\n", recorded);
   }
 
   public synchronized Collection<String> get(String level) {

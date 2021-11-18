@@ -38,7 +38,7 @@ public class UserDetailsTest {
     assertThat(userDetails.getName()).isNull();
 
     userDetails.setName("");
-    assertThat(userDetails.getName()).isEqualTo("");
+    assertThat(userDetails.getName()).isEmpty();
 
     userDetails.setName("foo");
     assertThat(userDetails.getName()).isEqualTo("foo");
@@ -50,7 +50,7 @@ public class UserDetailsTest {
     assertThat(userDetails.getEmail()).isNull();
 
     userDetails.setEmail("");
-    assertThat(userDetails.getEmail()).isEqualTo("");
+    assertThat(userDetails.getEmail()).isEmpty();
 
     userDetails.setEmail("foo@example.com");
     assertThat(userDetails.getEmail()).isEqualTo("foo@example.com");
@@ -62,7 +62,7 @@ public class UserDetailsTest {
     assertThat(userDetails.getUserId()).isNull();
 
     userDetails.setUserId("");
-    assertThat(userDetails.getUserId()).isEqualTo("");
+    assertThat(userDetails.getUserId()).isEmpty();
 
     userDetails.setUserId("foo@example");
     assertThat(userDetails.getUserId()).isEqualTo("foo@example");

@@ -260,7 +260,6 @@ public class SensorContextTester implements SensorContext {
   public Integer lineHits(String fileKey, int line) {
     return sensorStorage.coverageByComponent.getOrDefault(fileKey, Collections.emptyList()).stream()
       .map(c -> c.hitsByLine().get(line))
-      .flatMap(Stream::of)
       .filter(Objects::nonNull)
       .reduce(null, SensorContextTester::sumOrNull);
   }
@@ -274,7 +273,6 @@ public class SensorContextTester implements SensorContext {
   public Integer conditions(String fileKey, int line) {
     return sensorStorage.coverageByComponent.getOrDefault(fileKey, Collections.emptyList()).stream()
       .map(c -> c.conditionsByLine().get(line))
-      .flatMap(Stream::of)
       .filter(Objects::nonNull)
       .reduce(null, SensorContextTester::maxOrNull);
   }
@@ -283,7 +281,6 @@ public class SensorContextTester implements SensorContext {
   public Integer coveredConditions(String fileKey, int line) {
     return sensorStorage.coverageByComponent.getOrDefault(fileKey, Collections.emptyList()).stream()
       .map(c -> c.coveredConditionsByLine().get(line))
-      .flatMap(Stream::of)
       .filter(Objects::nonNull)
       .reduce(null, SensorContextTester::maxOrNull);
   }

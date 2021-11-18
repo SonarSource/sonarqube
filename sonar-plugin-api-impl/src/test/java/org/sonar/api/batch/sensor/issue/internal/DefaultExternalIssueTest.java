@@ -67,7 +67,7 @@ public class DefaultExternalIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffortMinutes(10l)
+      .remediationEffortMinutes(10L)
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER);
 
@@ -75,8 +75,8 @@ public class DefaultExternalIssueTest {
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_repo", "rule"));
     assertThat(issue.engineId()).isEqualTo("repo");
     assertThat(issue.ruleId()).isEqualTo("rule");
-    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
-    assertThat(issue.remediationEffort()).isEqualTo(10l);
+    assertThat(issue.primaryLocation().textRange().start().line()).isOne();
+    assertThat(issue.remediationEffort()).isEqualTo(10L);
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
@@ -94,7 +94,7 @@ public class DefaultExternalIssueTest {
         .on(project)
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffortMinutes(10l)
+      .remediationEffortMinutes(10L)
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER);
 
@@ -103,7 +103,7 @@ public class DefaultExternalIssueTest {
     assertThat(issue.engineId()).isEqualTo("repo");
     assertThat(issue.ruleId()).isEqualTo("rule");
     assertThat(issue.primaryLocation().textRange()).isNull();
-    assertThat(issue.remediationEffort()).isEqualTo(10l);
+    assertThat(issue.remediationEffort()).isEqualTo(10L);
     assertThat(issue.type()).isEqualTo(RuleType.BUG);
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
@@ -122,7 +122,7 @@ public class DefaultExternalIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffortMinutes(10l)
+      .remediationEffortMinutes(10L)
       .severity(Severity.BLOCKER);
 
     assertThatThrownBy(() -> issue.save())
@@ -138,7 +138,7 @@ public class DefaultExternalIssueTest {
         .on(inputFile)
         .at(inputFile.selectLine(1)))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffortMinutes(10l)
+      .remediationEffortMinutes(10L)
       .type(RuleType.BUG)
       .severity(Severity.BLOCKER);
 
@@ -156,7 +156,7 @@ public class DefaultExternalIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffortMinutes(10l)
+      .remediationEffortMinutes(10L)
       .type(RuleType.BUG);
 
     assertThatThrownBy(() -> issue.save())

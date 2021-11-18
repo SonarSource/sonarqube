@@ -257,7 +257,7 @@ public class MeasureComputerContextImplTest {
       .setSeverity("MAJOR")
       .setStatus("CLOSED")
       .setResolution("FIXED")
-      .setEffort(Duration.create(10l));
+      .setEffort(Duration.create(10L));
 
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, Arrays.asList(issue));
 
@@ -268,7 +268,7 @@ public class MeasureComputerContextImplTest {
     assertThat(result.severity()).isEqualTo("MAJOR");
     assertThat(result.status()).isEqualTo("CLOSED");
     assertThat(result.resolution()).isEqualTo("FIXED");
-    assertThat(result.effort()).isEqualTo(Duration.create(10l));
+    assertThat(result.effort()).isEqualTo(Duration.create(10L));
   }
 
   private MeasureComputerContextImpl newContext(int componentRef) {

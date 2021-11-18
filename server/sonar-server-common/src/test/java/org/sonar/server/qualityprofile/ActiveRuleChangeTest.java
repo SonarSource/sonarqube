@@ -47,6 +47,6 @@ public class ActiveRuleChangeTest {
     assertThat(result.getChangeType()).isEqualTo(ACTIVATED.name());
     assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(result.getUserUuid()).isEqualTo(A_USER_UUID);
-    assertThat(result.getDataAsMap().get("ruleUuid")).isEqualTo(ruleUuid);
+    assertThat(result.getDataAsMap()).containsEntry("ruleUuid", ruleUuid);
   }
 }

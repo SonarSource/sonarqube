@@ -453,44 +453,32 @@ public class LiveMeasureComputerImplTest {
   private IssueMetricFormula newIncrementalFormula() {
     Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
     AtomicInteger counter = new AtomicInteger();
-    return new IssueMetricFormula(metric, false, (ctx, issues) -> {
-      ctx.setValue(counter.incrementAndGet());
-    });
+    return new IssueMetricFormula(metric, false, (ctx, issues) -> ctx.setValue(counter.incrementAndGet()));
   }
 
   private IssueMetricFormula newIntConstantFormula(double constant) {
     Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
-    return new IssueMetricFormula(metric, false, (ctx, issues) -> {
-      ctx.setValue(constant);
-    });
+    return new IssueMetricFormula(metric, false, (ctx, issues) -> ctx.setValue(constant));
   }
 
   private IssueMetricFormula newRatingConstantFormula(Rating constant) {
     Metric metric = new Metric.Builder(ratingMetric.getKey(), ratingMetric.getShortName(), Metric.ValueType.valueOf(ratingMetric.getValueType())).create();
-    return new IssueMetricFormula(metric, false, (ctx, issues) -> {
-      ctx.setValue(constant);
-    });
+    return new IssueMetricFormula(metric, false, (ctx, issues) -> ctx.setValue(constant));
   }
 
   private IssueMetricFormula newRatingLeakFormula(Rating rating) {
     Metric metric = new Metric.Builder(ratingMetric.getKey(), ratingMetric.getShortName(), Metric.ValueType.valueOf(ratingMetric.getValueType())).create();
-    return new IssueMetricFormula(metric, true, (ctx, issues) -> {
-      ctx.setLeakValue(rating);
-    });
+    return new IssueMetricFormula(metric, true, (ctx, issues) -> ctx.setLeakValue(rating));
   }
 
   private IssueMetricFormula newQualifierBasedIntFormula() {
     Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
-    return new IssueMetricFormula(metric, false, (ctx, issues) -> {
-      ctx.setValue(ORDERED_BOTTOM_UP.indexOf(ctx.getComponent().qualifier()));
-    });
+    return new IssueMetricFormula(metric, false, (ctx, issues) -> ctx.setValue(ORDERED_BOTTOM_UP.indexOf(ctx.getComponent().qualifier())));
   }
 
   private IssueMetricFormula newQualifierBasedIntLeakFormula() {
     Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
-    return new IssueMetricFormula(metric, true, (ctx, issues) -> {
-      ctx.setLeakValue(ORDERED_BOTTOM_UP.indexOf(ctx.getComponent().qualifier()));
-    });
+    return new IssueMetricFormula(metric, true, (ctx, issues) -> ctx.setLeakValue(ORDERED_BOTTOM_UP.indexOf(ctx.getComponent().qualifier())));
   }
 
   private void assertThatProjectChanged(List<QGChangeEvent> events, ComponentDto... projects) {

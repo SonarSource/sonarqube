@@ -151,7 +151,7 @@ public class ProjectQgateAssociationDaoTest {
 
     Optional<String> result = underTest.selectQGateUuidByProjectUuid(dbSession, project.uuid());
 
-    assertThat(result.isPresent()).isFalse();
+    assertThat(result).isEmpty();
   }
 
   @Test

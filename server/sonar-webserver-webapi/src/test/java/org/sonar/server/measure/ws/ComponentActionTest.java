@@ -93,7 +93,7 @@ public class ComponentActionTest {
 
     ComponentWsResponse response = newRequest(project.getKey(), metric.getKey());
 
-    assertThat(response.getMetrics().getMetricsCount()).isEqualTo(1);
+    assertThat(response.getMetrics().getMetricsCount()).isOne();
     assertThat(response.hasPeriod()).isFalse();
     assertThat(response.getPeriods().getPeriodsCount()).isZero();
     assertThat(response.getComponent().getKey()).isEqualTo(project.getDbKey());

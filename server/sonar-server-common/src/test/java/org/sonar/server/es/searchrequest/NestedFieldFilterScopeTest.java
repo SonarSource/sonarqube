@@ -84,7 +84,7 @@ public class NestedFieldFilterScopeTest {
     assertThat(underTest)
       .isEqualTo(underTest)
       .isEqualTo(new NestedFieldFilterScope<>(fieldName, nestedFieldName, value))
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new Object())
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName2, nestedFieldName, value))
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName, nestedFieldName2, value))
@@ -111,7 +111,6 @@ public class NestedFieldFilterScopeTest {
       .isEqualTo(underTest.hashCode())
       .isEqualTo(new NestedFieldFilterScope<>(fieldName, nestedFieldName, value).hashCode());
     assertThat(underTest.hashCode())
-      .isNotEqualTo(null)
       .isNotEqualTo(new Object().hashCode())
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName2, nestedFieldName, value).hashCode())
       .isNotEqualTo(new NestedFieldFilterScope<>(fieldName, nestedFieldName2, value).hashCode())

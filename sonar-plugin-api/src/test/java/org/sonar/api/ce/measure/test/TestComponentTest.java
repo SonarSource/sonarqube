@@ -96,13 +96,13 @@ public class TestComponentTest {
     TestComponent sameComponent = new TestComponent("Project1", Component.Type.PROJECT, null);
     TestComponent anotherComponent = new TestComponent("Project2", Component.Type.PROJECT, null);
 
-    assertThat(component).isEqualTo(component);
-    assertThat(component).isEqualTo(sameComponent);
-    assertThat(component).isNotEqualTo(anotherComponent);
-    assertThat(component).isNotEqualTo(null);
-
-    assertThat(component.hashCode()).isEqualTo(component.hashCode());
-    assertThat(component.hashCode()).isEqualTo(sameComponent.hashCode());
+    assertThat(component)
+      .isEqualTo(component)
+      .isEqualTo(sameComponent)
+      .isNotEqualTo(anotherComponent)
+      .isNotNull()
+      .hasSameHashCodeAs(component)
+      .hasSameHashCodeAs(sameComponent);
     assertThat(component.hashCode()).isNotEqualTo(anotherComponent.hashCode());
   }
 

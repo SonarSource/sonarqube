@@ -60,7 +60,7 @@ public class ProjectTest {
     Project project2 = new Project("U1", "K1", "N1", "D1", emptyList());
 
     assertThat(project1).isEqualTo(project1)
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new Object())
       .isEqualTo(new Project("U1", "K1", "N1", null, emptyList()))
       .isNotEqualTo(new Project("U1", "K2", "N1", null, emptyList()))

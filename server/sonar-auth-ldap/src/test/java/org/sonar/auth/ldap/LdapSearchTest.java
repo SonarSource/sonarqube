@@ -59,9 +59,10 @@ public class LdapSearchTest {
     assertThat(search.toString()).isEqualTo("LdapSearch{baseDn=dc=example,dc=org, scope=subtree, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[objectClass]}");
     assertThat(enumerationToArrayList(search.find()).size()).isEqualTo(3);
 
-    assertThatThrownBy(() -> search.findUnique())
+    assertThatThrownBy(search::findUnique)
       .isInstanceOf(NamingException.class)
       .hasMessage("Non unique result for " + search.toString());
+
   }
 
   @Test
@@ -78,7 +79,7 @@ public class LdapSearchTest {
     assertThat(search.getRequest()).isEqualTo("(objectClass={0})");
     assertThat(search.getParameters()).isEqualTo(new String[] {"inetOrgPerson"});
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"cn"});
-    assertThat(search.toString()).isEqualTo("LdapSearch{baseDn=dc=example,dc=org, scope=onelevel, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[cn]}");
+    assertThat(search).hasToString("LdapSearch{baseDn=dc=example,dc=org, scope=onelevel, request=(objectClass={0}), parameters=[inetOrgPerson], attributes=[cn]}");
     assertThat(enumerationToArrayList(search.find()).size()).isZero();
     assertThat(search.findUnique()).isNull();
   }
@@ -97,9 +98,9 @@ public class LdapSearchTest {
     assertThat(search.getRequest()).isEqualTo("(objectClass={0})");
     assertThat(search.getParameters()).isEqualTo(new String[] {"uidObject"});
     assertThat(search.getReturningAttributes()).isEqualTo(new String[] {"uid"});
-    assertThat(search.toString()).isEqualTo(
+    assertThat(search).hasToString(
       "LdapSearch{baseDn=cn=bind,ou=users,dc=example,dc=org, scope=object, request=(objectClass={0}), parameters=[uidObject], attributes=[uid]}");
-    assertThat(enumerationToArrayList(search.find()).size()).isEqualTo(1);
+    assertThat(enumerationToArrayList(search.find())).hasSize(1);
     assertThat(search.findUnique()).isNotNull();
   }
 

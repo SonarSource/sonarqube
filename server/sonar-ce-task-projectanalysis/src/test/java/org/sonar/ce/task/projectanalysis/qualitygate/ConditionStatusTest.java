@@ -68,8 +68,8 @@ public class ConditionStatusTest {
 
   @Test
   public void verify_toString() {
-    assertThat(ConditionStatus.create(OK, SOME_VALUE).toString()).isEqualTo("ConditionStatus{status=OK, value='value'}");
-    assertThat(ConditionStatus.NO_VALUE_STATUS.toString()).isEqualTo("ConditionStatus{status=NO_VALUE, value='null'}");
+    assertThat(ConditionStatus.create(OK, SOME_VALUE)).hasToString("ConditionStatus{status=OK, value='value'}");
+    assertThat(ConditionStatus.NO_VALUE_STATUS).hasToString("ConditionStatus{status=NO_VALUE, value='null'}");
   }
 
   @Test

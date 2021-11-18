@@ -114,12 +114,13 @@ public class RuleKeyTest {
     RuleKey key2 = RuleKey.of("squid", "NullDeref");
     RuleKey key3 = RuleKey.of("squid", "Other");
 
-    assertThat(key1).isEqualTo(key1);
-    assertThat(key1).isEqualTo(key2);
-    assertThat(key1).isNotEqualTo(key3);
-    assertThat(key1).isNotEqualTo(null);
-    assertThat(key1.hashCode()).isEqualTo(key1.hashCode());
-    assertThat(key1.hashCode()).isEqualTo(key2.hashCode());
+    assertThat(key1)
+      .isEqualTo(key1)
+      .isEqualTo(key2)
+      .isNotEqualTo(key3)
+      .isNotNull()
+      .hasSameHashCodeAs(key1)
+      .hasSameHashCodeAs(key2);
   }
 
   @Test

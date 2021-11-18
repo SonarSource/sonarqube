@@ -66,7 +66,7 @@ public class H2Test {
 
   @Test
   public void getSqlFromDual() {
-    assertThat(underTest.getSqlFromDual()).isEqualTo("");
+    assertThat(underTest.getSqlFromDual()).isEmpty();
   }
 
   @Test

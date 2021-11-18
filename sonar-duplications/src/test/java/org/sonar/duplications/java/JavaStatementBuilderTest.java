@@ -109,7 +109,7 @@ public class JavaStatementBuilderTest {
     assertThat(statements.get(1).getValue()).isEqualTo("something()");
 
     statements = chunk("while (true);");
-    assertThat(statements.size()).isEqualTo(1);
+    assertThat(statements.size()).isOne();
     assertThat(statements.get(0).getValue()).isEqualTo("while(true)");
   }
 
@@ -324,7 +324,7 @@ public class JavaStatementBuilderTest {
   public void shouldHandleLambda() {
     List<Statement> statements;
     statements = chunk("List<String> result = lines.stream().filter(line -> !\"mkyong\".equals(line)).collect(Collectors.toList());");
-    assertThat(statements.size()).isEqualTo(1);
+    assertThat(statements.size()).isOne();
     assertThat(statements).extracting(Statement::getValue).containsExactly("List<String>result=lines.stream().filter(line->!$CHARS.equals(line)).collect(Collectors.toList())");
 
     statements = chunk("items.forEach((k,v)->{System.out.println(\"Item : \" + k + \" Count : \" + v); if(\"E\".equals(k)) { System.out.println(\"Hello E\");}});");
@@ -358,14 +358,14 @@ public class JavaStatementBuilderTest {
   public void shouldHandleVar() {
     List<Statement> statements;
     statements = chunk("IFunc f = (@NonNull var x, final var y) -> Foo.foo(x, y);");
-    assertThat(statements.size()).isEqualTo(1);
+    assertThat(statements.size()).isOne();
     assertThat(statements).extracting(Statement::getValue).containsExactly("IFuncf=(@NonNullvarx,finalvary)->Foo.foo(x,y)");
   }
 
   @Test
   public void realExamples() {
-    assertThat(chunk(DuplicationsTestUtil.findFile("/java/MessageResources.java")).size()).isGreaterThan(0);
-    assertThat(chunk(DuplicationsTestUtil.findFile("/java/RequestUtils.java")).size()).isGreaterThan(0);
+    assertThat(chunk(DuplicationsTestUtil.findFile("/java/MessageResources.java")).size()).isPositive();
+    assertThat(chunk(DuplicationsTestUtil.findFile("/java/RequestUtils.java")).size()).isPositive();
   }
 
   private List<Statement> chunk(File file) {

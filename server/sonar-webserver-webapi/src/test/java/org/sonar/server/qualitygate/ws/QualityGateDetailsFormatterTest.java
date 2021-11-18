@@ -67,7 +67,7 @@ public class QualityGateDetailsFormatterTest {
     assertThat(conditions).extracting("actualValue").containsExactly("82.2985024398452", "1", "0");
 
     // check periods
-    assertThat(result.getPeriodsCount()).isEqualTo(1);
+    assertThat(result.getPeriodsCount()).isOne();
     List<ProjectStatusResponse.Period> periods = result.getPeriodsList();
     assertThat(periods).extracting("index").containsExactly(1);
     assertThat(periods).extracting("mode").containsExactly("last_version");
@@ -87,7 +87,7 @@ public class QualityGateDetailsFormatterTest {
     ProjectStatus result = underTest.format();
 
     // check conditions
-    assertThat(result.getConditionsCount()).isEqualTo(1);
+    assertThat(result.getConditionsCount()).isOne();
     List<ProjectStatusResponse.Condition> conditions = result.getConditionsList();
     assertThat(conditions).extracting("status").containsExactly(ProjectStatusResponse.Status.ERROR);
     assertThat(conditions).extracting("metricKey").containsExactly("new_coverage");

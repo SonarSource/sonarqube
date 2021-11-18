@@ -60,7 +60,7 @@ public class CeTaskMessagesMessageTest {
       .isEqualTo(new Message(text, timestamp))
       .isNotEqualTo(new Message(text + "ç", timestamp))
       .isNotEqualTo(new Message(text, timestamp + 10_999L))
-      .isNotEqualTo(null)
+      .isNotNull()
       .isNotEqualTo(new Object());
   }
 

@@ -68,7 +68,7 @@ public class SourceServiceTest {
     assertThat(linesOpt).isPresent();
     List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());
     assertThat(lines).hasSize(3);
-    assertThat(lines.get(0).getLine()).isEqualTo(1);
+    assertThat(lines.get(0).getLine()).isOne();
     assertThat(lines.get(1).getLine()).isEqualTo(5);
     assertThat(lines.get(2).getLine()).isEqualTo(6);
   }
@@ -76,7 +76,7 @@ public class SourceServiceTest {
   @Test
   public void get_set_of_lines() {
     Optional<Iterable<DbFileSources.Line>> linesOpt = underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 7);
-    assertThat(linesOpt.isPresent()).isTrue();
+    assertThat(linesOpt).isPresent();
     List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());
     assertThat(lines).hasSize(3);
     assertThat(lines.get(0).getLine()).isEqualTo(5);
@@ -87,7 +87,7 @@ public class SourceServiceTest {
   @Test
   public void get_range_of_lines_as_raw_text() {
     Optional<Iterable<String>> linesOpt = underTest.getLinesAsRawText(dbTester.getSession(), FILE_UUID, 5, 7);
-    assertThat(linesOpt.isPresent()).isTrue();
+    assertThat(linesOpt).isPresent();
     List<String> lines = Lists.newArrayList(linesOpt.get());
     assertThat(lines).containsExactly("SOURCE_5", "SOURCE_6", "SOURCE_7");
   }
@@ -99,7 +99,7 @@ public class SourceServiceTest {
     when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_7", "HIGHLIGHTING_7", "SYMBOLS_7")).thenReturn("HTML_7");
 
     Optional<Iterable<String>> linesOpt = underTest.getLinesAsHtml(dbTester.getSession(), FILE_UUID, 5, 7);
-    assertThat(linesOpt.isPresent()).isTrue();
+    assertThat(linesOpt).isPresent();
     List<String> lines = Lists.newArrayList(linesOpt.get());
     assertThat(lines).containsExactly("HTML_5", "HTML_6", "HTML_7");
   }
@@ -121,14 +121,14 @@ public class SourceServiceTest {
   @Test
   public void getLines_returns_empty_iterable_if_range_is_out_of_scope() {
     Optional<Iterable<DbFileSources.Line>> lines = underTest.getLines(dbTester.getSession(), FILE_UUID, 500, 510);
-    assertThat(lines.isPresent()).isTrue();
+    assertThat(lines).isPresent();
     assertThat(lines.get()).isEmpty();
   }
 
   @Test
   public void getLines_file_does_not_exist() {
     Optional<Iterable<DbFileSources.Line>> lines = underTest.getLines(dbTester.getSession(), "FILE_DOES_NOT_EXIST", 1, 10);
-    assertThat(lines.isPresent()).isFalse();
+    assertThat(lines).isEmpty();
   }
 
 }

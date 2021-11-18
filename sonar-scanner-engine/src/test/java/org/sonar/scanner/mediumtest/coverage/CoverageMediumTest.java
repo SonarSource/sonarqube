@@ -74,7 +74,7 @@ public class CoverageMediumTest {
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 2).getHits()).isTrue();
     assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
-    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isEqualTo(1);
+    assertThat(result.coverageFor(file, 2).getCoveredConditions()).isOne();
   }
 
   @Test

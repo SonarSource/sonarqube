@@ -19,11 +19,11 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class IssueIteratorFactoryTest {
         .setLine(444)
         .setRuleUuid(rule.getUuid())
         .setIssueAttributes("JIRA=http://jira.com")
-        .setTags(ImmutableList.of("tag1", "tag2", "tag3"))
+        .setTags(List.of("tag1", "tag2", "tag3"))
         .setCreatedAt(1400000000000L)
         .setUpdatedAt(1400000000000L)
         .setIssueCreationDate(new Date(1115848800000L))
@@ -121,8 +121,9 @@ public class IssueIteratorFactoryTest {
 
     Map<String, IssueDoc> issuesByKey = issuesByKey();
 
-    assertThat(issuesByKey).hasSize(4);
-    assertThat(issuesByKey.keySet()).containsOnly(fileIssue.getKey(), moduleIssue.getKey(), dirIssue.getKey(), projectIssue.getKey());
+    assertThat(issuesByKey)
+      .hasSize(4)
+      .containsOnlyKeys(fileIssue.getKey(), moduleIssue.getKey(), dirIssue.getKey(), projectIssue.getKey());
   }
 
   @Test

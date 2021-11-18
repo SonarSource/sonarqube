@@ -224,7 +224,7 @@ public class WebhookDeliveriesActionTest {
 
     assertThat(response.getDeliveriesCount()).isEqualTo(10);
     assertThat(response.getPaging().getTotal()).isEqualTo(12);
-    assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(response.getPaging().getPageIndex()).isOne();
   }
 
   @Test

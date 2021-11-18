@@ -97,7 +97,7 @@ public class RuleDaoTest {
   public void selectDefinitionByKey() {
     RuleDefinitionDto rule = db.rules().insert();
 
-    assertThat(underTest.selectDefinitionByKey(db.getSession(), RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
+    assertThat(underTest.selectDefinitionByKey(db.getSession(), RuleKey.of("NOT", "FOUND"))).isEmpty();
 
     Optional<RuleDefinitionDto> reloaded = underTest.selectDefinitionByKey(db.getSession(), rule.getKey());
     assertThat(reloaded).isPresent();
@@ -298,7 +298,7 @@ public class RuleDaoTest {
     ResultHandler<RuleDefinitionDto> resultHandler = resultContext -> rules.add(resultContext.getResultObject());
     underTest.selectEnabled(db.getSession(), resultHandler);
 
-    assertThat(rules.size()).isEqualTo(1);
+    assertThat(rules.size()).isOne();
     RuleDefinitionDto ruleDto = rules.get(0);
     assertThat(ruleDto.getUuid()).isEqualTo(rule.getUuid());
   }
@@ -610,7 +610,7 @@ public class RuleDaoTest {
     underTest.insertOrUpdate(db.getSession(), metadataV1);
     db.commit();
 
-    assertThat(db.countRowsOfTable("RULES_METADATA")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("RULES_METADATA")).isOne();
     RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), rule.getKey());
     assertThat(ruleDto.getNoteData()).isNull();
     assertThat(ruleDto.getNoteUserUuid()).isNull();
@@ -676,7 +676,7 @@ public class RuleDaoTest {
 
     List<RuleParamDto> ruleDtos = underTest.selectRuleParamsByRuleKey(db.getSession(), rule.getKey());
 
-    assertThat(ruleDtos.size()).isEqualTo(1);
+    assertThat(ruleDtos.size()).isOne();
     RuleParamDto ruleDto = ruleDtos.get(0);
     assertThat(ruleDto.getUuid()).isEqualTo(ruleParam.getUuid());
     assertThat(ruleDto.getName()).isEqualTo(ruleParam.getName());

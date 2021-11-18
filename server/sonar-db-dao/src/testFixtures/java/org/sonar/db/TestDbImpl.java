@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -57,9 +56,7 @@ class TestDbImpl extends CoreTestDb {
   }
 
   private void init(@Nullable String schemaPath, MyBatisConfExtension[] confExtensions) {
-    Consumer<Settings> loadOrchestratorSettings = settings -> {
-      OrchestratorSettingsUtils.loadOrchestratorSettings(settings);
-    };
+    Consumer<Settings> loadOrchestratorSettings = OrchestratorSettingsUtils::loadOrchestratorSettings;
     Function<Settings, Database> databaseCreator = settings -> {
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {

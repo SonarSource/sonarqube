@@ -146,7 +146,7 @@ public class LogbackHelperTest {
     int countListeners = ctx.getCopyOfListenerList().size();
 
     LoggerContextListener propagator = underTest.enableJulChangePropagation(ctx);
-    assertThat(ctx.getCopyOfListenerList().size()).isEqualTo(countListeners + 1);
+    assertThat(ctx.getCopyOfListenerList()).hasSize(countListeners + 1);
 
     ctx.removeListener(propagator);
   }

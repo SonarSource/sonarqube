@@ -288,7 +288,7 @@ public class SearchUsersActionTest {
 
     TestRequest request = ws.newRequest().setParam(PARAM_GATE_NAME, "unknown");
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("No quality gate has been found for name unknown");
   }
@@ -302,7 +302,7 @@ public class SearchUsersActionTest {
 
     TestRequest request = ws.newRequest().setParam(PARAM_GATE_NAME, gate.getName());
 
-    assertThatThrownBy(() -> request.execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 }

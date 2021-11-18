@@ -33,8 +33,9 @@ public class PluginClassLoaderDefTest {
 
     assertThat(one.equals(one)).isTrue();
     assertThat(one.equals(oneBis)).isTrue();
-    assertThat(one.hashCode()).isEqualTo(one.hashCode());
-    assertThat(one.hashCode()).isEqualTo(oneBis.hashCode());
+    assertThat(one)
+      .hasSameHashCodeAs(one)
+      .hasSameHashCodeAs(oneBis);
 
     assertThat(one.equals(two)).isFalse();
     assertThat(one.equals("one")).isFalse();

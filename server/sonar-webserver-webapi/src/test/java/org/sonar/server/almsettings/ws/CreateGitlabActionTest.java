@@ -71,7 +71,7 @@ public class CreateGitlabActionTest {
       .setParam("key", "Gitlab - Dev Team")
       .setParam("personalAccessToken", "98765432100");
 
-    Assertions.assertThatThrownBy(() -> request.execute())
+    Assertions.assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'url' parameter is missing");
   }
@@ -102,7 +102,7 @@ public class CreateGitlabActionTest {
       .setParam("url", "")
       .setParam("personalAccessToken", "98765432100");
 
-    Assertions.assertThatThrownBy(() -> request.execute())
+    Assertions.assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'url' parameter is missing");
   }

@@ -395,7 +395,6 @@ public class ChangeStatusActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
-    ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_TO_REVIEW).setResolution(null));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
@@ -542,7 +541,6 @@ public class ChangeStatusActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
-    ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status).setResolution(resolution));
     String comment = randomAlphabetic(12);

@@ -72,8 +72,8 @@ import static org.sonar.server.measure.Rating.E;
 
 public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
-  private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323l;
-  private static final Date DEFAULT_ISSUE_CREATION_DATE = new Date(1000l);
+  private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323L;
+  private static final Date DEFAULT_ISSUE_CREATION_DATE = new Date(1000L);
   private static final Date BEFORE_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC - 5000L);
   private static final Date AFTER_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC + 5000L);
 

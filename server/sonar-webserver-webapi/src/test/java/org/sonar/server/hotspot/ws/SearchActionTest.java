@@ -1205,7 +1205,7 @@ public class SearchActionTest {
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactly(hotspots.stream().limit(100).map(IssueDto::getKey).toArray(String[]::new));
     assertThat(response.getPaging().getTotal()).isEqualTo(hotspots.size());
-    assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+    assertThat(response.getPaging().getPageIndex()).isOne();
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
   }
 

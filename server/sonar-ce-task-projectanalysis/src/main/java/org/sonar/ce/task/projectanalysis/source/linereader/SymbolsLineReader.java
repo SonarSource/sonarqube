@@ -40,7 +40,7 @@ import static org.sonar.ce.task.projectanalysis.source.linereader.RangeOffsetCon
 
 public class SymbolsLineReader implements LineReader {
 
-  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+  private static final Logger LOG = Loggers.get(SymbolsLineReader.class);
 
   private final Component file;
   private final RangeOffsetConverter rangeOffsetConverter;

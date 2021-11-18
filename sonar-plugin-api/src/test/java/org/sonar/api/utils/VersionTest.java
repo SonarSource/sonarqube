@@ -65,9 +65,9 @@ public class VersionTest {
 
   @Test
   public void test_hashCode() {
-    assertThat(parse("1").hashCode()).isEqualTo(parse("1").hashCode());
-    assertThat(parse("1").hashCode()).isEqualTo(parse("1.0.0").hashCode());
-    assertThat(parse("1.2.3-beta1").hashCode()).isEqualTo(parse("1.2.3").hashCode());
+    assertThat(parse("1")).hasSameHashCodeAs(parse("1"));
+    assertThat(parse("1")).hasSameHashCodeAs(parse("1.0.0"));
+    assertThat(parse("1.2.3-beta1")).hasSameHashCodeAs(parse("1.2.3"));
   }
 
   @Test

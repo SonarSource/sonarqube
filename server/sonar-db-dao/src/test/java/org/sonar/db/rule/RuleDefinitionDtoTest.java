@@ -32,13 +32,14 @@ public class RuleDefinitionDtoTest {
     String uuid = Uuids.createFast();
     RuleDefinitionDto dto = newRule().setUuid(uuid);
 
-    assertThat(dto).isEqualTo(dto);
-    assertThat(dto).isEqualTo(newRule().setUuid(uuid));
-    assertThat(dto).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid));
-    assertThat(dto).isNotEqualTo(null);
-    assertThat(dto).isNotEqualTo(new Object());
-    assertThat(dto).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()));
-    assertThat(dto).isNotEqualTo(newRule().setUuid(Uuids.createFast()));
+    assertThat(dto)
+      .isEqualTo(dto)
+      .isEqualTo(newRule().setUuid(uuid))
+      .isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid))
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()))
+      .isNotEqualTo(newRule().setUuid(Uuids.createFast()));
   }
 
   @Test
@@ -46,12 +47,13 @@ public class RuleDefinitionDtoTest {
     String uuid = Uuids.createFast();
     RuleDefinitionDto dto = newRule().setUuid(uuid);
 
-    assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
-    assertThat(dto.hashCode()).isEqualTo(newRule().setUuid(uuid).hashCode());
-    assertThat(dto.hashCode()).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid).hashCode());
-    assertThat(dto.hashCode()).isNotEqualTo(null);
-    assertThat(dto.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(dto.hashCode()).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()).hashCode());
-    assertThat(dto.hashCode()).isNotEqualTo(newRule().setUuid(Uuids.createFast()).hashCode());
+    assertThat(dto)
+      .hasSameHashCodeAs(dto)
+      .hasSameHashCodeAs(newRule().setUuid(uuid))
+      .hasSameHashCodeAs(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid));
+    assertThat(dto.hashCode())
+      .isNotEqualTo(new Object().hashCode())
+      .isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()).hashCode())
+      .isNotEqualTo(newRule().setUuid(Uuids.createFast()).hashCode());
   }
 }

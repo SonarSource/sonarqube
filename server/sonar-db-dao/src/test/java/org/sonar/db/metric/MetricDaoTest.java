@@ -134,7 +134,7 @@ public class MetricDaoTest {
     assertThat(result.getDescription()).isEqualTo("Coverage by unit tests");
     assertThat(result.getDomain()).isEqualTo("Tests");
     assertThat(result.getValueType()).isEqualTo("PERCENT");
-    assertThat(result.getDirection()).isEqualTo(1);
+    assertThat(result.getDirection()).isOne();
     assertThat(result.isQualitative()).isTrue();
     assertThat(result.getWorstValue()).isEqualTo(0d);
     assertThat(result.getBestValue()).isEqualTo(100d);

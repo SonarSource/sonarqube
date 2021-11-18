@@ -74,7 +74,7 @@ public class LanguageDetection {
       }
     }
 
-    languagesToConsider = Collections.unmodifiableList(new ArrayList<>(patternsByLanguageBuilder.keySet()));
+    languagesToConsider = List.copyOf(patternsByLanguageBuilder.keySet());
     patternsByLanguage = Collections.unmodifiableMap(patternsByLanguageBuilder);
   }
 

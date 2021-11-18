@@ -61,7 +61,7 @@ public class ProjectRepositoriesSupplierTest {
     when(loader.load(eq("key"), any())).thenReturn(project);
     ProjectRepositories repo = underTest.get();
 
-    assertThat(repo.exists()).isEqualTo(true);
+    assertThat(repo.exists()).isTrue();
 
     verify(props).getProjectKey();
     verify(loader).load(eq("key"), eq(null));

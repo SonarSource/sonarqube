@@ -244,7 +244,7 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     db.qualityGates().addUserPermission(qualityGate, user);
-    assertThat(db.countRowsOfTable("qgate_user_permissions")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("qgate_user_permissions")).isOne();
 
     deactivate(user.getLogin());
 

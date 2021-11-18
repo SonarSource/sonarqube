@@ -56,7 +56,7 @@ public class AuditDaoTest {
 
     List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 20000, 2);
 
-    assertThat(auditDtos.size()).isEqualTo(1);
+    assertThat(auditDtos.size()).isOne();
   }
 
   @Test
@@ -64,7 +64,7 @@ public class AuditDaoTest {
     prepareRowsWithDeterministicCreatedAt(100_001);
     long purged = testAuditDao.deleteBefore(dbSession, 200_000);
     assertThat(purged).isEqualTo(100_000);
-    assertThat(db.countRowsOfTable(dbSession, "audits")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "audits")).isOne();
     assertThat(testAuditDao.selectOlderThan(dbSession, 100_002))
       .extracting(AuditDto::getCreatedAt)
       .containsOnly(100_001L);

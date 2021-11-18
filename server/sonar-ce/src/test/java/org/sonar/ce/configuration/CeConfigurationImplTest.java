@@ -36,12 +36,12 @@ public class CeConfigurationImplTest {
 
   @Test
   public void getWorkerCount_returns_1_when_there_is_no_WorkerCountProvider() {
-    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getWorkerCount()).isOne();
   }
 
   @Test
   public void getWorkerMaxCount_returns_1_when_there_is_no_WorkerCountProvider() {
-    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getWorkerMaxCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getWorkerMaxCount()).isOne();
   }
 
   @Test
@@ -95,10 +95,10 @@ public class CeConfigurationImplTest {
   @Test
   public void getCleanCeTasksInitialDelay_returns_0() {
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanTasksInitialDelay())
-      .isEqualTo(0L);
+      .isZero();
     workerCountProvider.set(1);
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanTasksInitialDelay())
-      .isEqualTo(0L);
+      .isZero();
   }
 
   @Test

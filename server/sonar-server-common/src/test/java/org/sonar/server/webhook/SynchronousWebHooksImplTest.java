@@ -136,7 +136,7 @@ public class SynchronousWebHooksImplTest {
 
     underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock, taskStatistics);
 
-    assertThat(caller.countSent()).isEqualTo(1);
+    assertThat(caller.countSent()).isOne();
     assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     verify(deliveryStorage).persist(any(WebhookDelivery.class));
     verify(deliveryStorage).purge(projectDto.getUuid());

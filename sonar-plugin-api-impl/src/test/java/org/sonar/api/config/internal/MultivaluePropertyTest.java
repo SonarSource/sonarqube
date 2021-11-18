@@ -83,7 +83,7 @@ public class MultivaluePropertyTest {
   @Test
   @UseDataProvider("plains")
   public void trimFieldsAndRemoveEmptyFields_ignores_EmptyFields(String str) {
-    assertThat(trimFieldsAndRemoveEmptyFields("")).isEqualTo("");
+    assertThat(trimFieldsAndRemoveEmptyFields("")).isEmpty();
     assertThat(trimFieldsAndRemoveEmptyFields(str)).isEqualTo(str);
 
     assertThat(trimFieldsAndRemoveEmptyFields(',' + str)).isEqualTo(str);

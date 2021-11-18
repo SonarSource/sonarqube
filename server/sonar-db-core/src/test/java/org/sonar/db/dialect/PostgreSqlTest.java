@@ -76,7 +76,7 @@ public class PostgreSqlTest {
 
   @Test
   public void getSqlFromDual() {
-    assertThat(underTest.getSqlFromDual()).isEqualTo("");
+    assertThat(underTest.getSqlFromDual()).isEmpty();
   }
 
   @Test

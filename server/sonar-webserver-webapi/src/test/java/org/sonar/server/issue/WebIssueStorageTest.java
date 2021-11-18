@@ -114,7 +114,7 @@ public class WebIssueStorageTest {
 
     underTest.save(db.getSession(), singletonList(issue));
 
-    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issues")).isOne();
     assertThat(db.selectFirst("select * from issues"))
       .containsEntry("PROJECT_UUID", project.uuid())
       .containsEntry("COMPONENT_UUID", file.uuid())
@@ -123,7 +123,7 @@ public class WebIssueStorageTest {
       .containsEntry("STATUS", issue.status())
       .containsEntry("SEVERITY", issue.severity());
 
-    assertThat(db.countRowsOfTable("issue_changes")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issue_changes")).isOne();
     assertThat(db.selectFirst("select * from issue_changes"))
       .containsEntry("KEE", comment.key())
       .containsEntry("ISSUE_KEY", issue.key())
@@ -158,7 +158,7 @@ public class WebIssueStorageTest {
 
     underTest.save(db.getSession(), singletonList(issue));
 
-    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issues")).isOne();
     assertThat(db.countRowsOfTable("issue_changes")).isZero();
 
     DefaultIssue updated = new DefaultIssue()
@@ -191,7 +191,7 @@ public class WebIssueStorageTest {
 
     underTest.save(db.getSession(), singletonList(updated));
 
-    assertThat(db.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("issues")).isOne();
     assertThat(db.selectFirst("select * from issues"))
       .containsEntry("ASSIGNEE", updated.assignee())
       .containsEntry("AUTHOR_LOGIN", updated.authorLogin())

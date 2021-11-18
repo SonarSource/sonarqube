@@ -251,7 +251,7 @@ public class ReliabilityAndSecurityRatingMeasuresVisitorTest {
       .setKey(Uuids.create())
       .setSeverity(severity)
       .setType(type)
-      .setCreationDate(new Date(1000l));
+      .setCreationDate(new Date(1000L));
   }
 
 }

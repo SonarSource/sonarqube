@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ChangesetTest {
 
-
   @Test
   public void create_changeset() {
     Changeset underTest = Changeset.newChangesetBuilder()
@@ -78,7 +77,7 @@ public class ChangesetTest {
       .setRevision("rev-1")
       .build();
 
-    assertThat(underTest.toString()).isEqualTo("Changeset{revision='rev-1', author='john', date=123456789}");
+    assertThat(underTest).hasToString("Changeset{revision='rev-1', author='john', date=123456789}");
   }
 
   @Test
@@ -103,14 +102,15 @@ public class ChangesetTest {
       .setRevision("rev-2")
       .build();
 
-    assertThat(changeset).isEqualTo(changeset);
-    assertThat(changeset).isEqualTo(sameChangeset);
-    assertThat(changeset).isNotEqualTo(anotherChangesetWithSameRevision);
-    assertThat(changeset).isNotEqualTo(anotherChangeset);
-
-    assertThat(changeset.hashCode()).isEqualTo(changeset.hashCode());
-    assertThat(changeset.hashCode()).isEqualTo(sameChangeset.hashCode());
-    assertThat(changeset.hashCode()).isNotEqualTo(anotherChangesetWithSameRevision.hashCode());
-    assertThat(changeset.hashCode()).isNotEqualTo(anotherChangeset.hashCode());
+    assertThat(changeset)
+      .isEqualTo(changeset)
+      .isEqualTo(sameChangeset)
+      .isNotEqualTo(anotherChangesetWithSameRevision)
+      .isNotEqualTo(anotherChangeset)
+      .hasSameHashCodeAs(changeset)
+      .hasSameHashCodeAs(sameChangeset);
+    assertThat(changeset.hashCode())
+      .isNotEqualTo(anotherChangesetWithSameRevision.hashCode())
+      .isNotEqualTo(anotherChangeset.hashCode());
   }
 }

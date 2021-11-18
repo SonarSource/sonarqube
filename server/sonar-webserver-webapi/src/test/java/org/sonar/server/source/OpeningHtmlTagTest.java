@@ -52,8 +52,9 @@ public class OpeningHtmlTagTest {
     OpeningHtmlTag openingHtmlTagWithSameValues = new OpeningHtmlTag(3, "tag");
     OpeningHtmlTag openingHtmlTagWithDifferentValue = new OpeningHtmlTag(5, "tag2");
 
-    assertThat(openingHtmlTag.hashCode()).isEqualTo(openingHtmlTagWithSameValues.hashCode());
-    assertThat(openingHtmlTag.hashCode()).isEqualTo(openingHtmlTag.hashCode());
+    assertThat(openingHtmlTag)
+      .hasSameHashCodeAs(openingHtmlTagWithSameValues)
+      .hasSameHashCodeAs(openingHtmlTag);
     assertThat(openingHtmlTag.hashCode()).isNotEqualTo(openingHtmlTagWithDifferentValue.hashCode());
   }
 }

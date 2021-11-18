@@ -104,19 +104,22 @@ public class SingleDeprecatedRuleKeyTest {
     SingleDeprecatedRuleKey singleDeprecatedRuleKey1 = SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1);
     SingleDeprecatedRuleKey singleDeprecatedRuleKey2 = SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto2);
 
-    assertThat(singleDeprecatedRuleKey1).isEqualTo(singleDeprecatedRuleKey1);
-    assertThat(singleDeprecatedRuleKey1).isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1));
-    assertThat(singleDeprecatedRuleKey1).isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1WithoutUuid));
+    assertThat(singleDeprecatedRuleKey1)
+      .isEqualTo(singleDeprecatedRuleKey1)
+      .isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1))
+      .isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1WithoutUuid));
     assertThat(singleDeprecatedRuleKey2).isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto2));
 
-    assertThat(singleDeprecatedRuleKey1.hashCode()).isEqualTo(singleDeprecatedRuleKey1.hashCode());
-    assertThat(singleDeprecatedRuleKey1.hashCode()).isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1).hashCode());
-    assertThat(singleDeprecatedRuleKey1.hashCode()).isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1WithoutUuid).hashCode());
-    assertThat(singleDeprecatedRuleKey2.hashCode()).isEqualTo(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto2).hashCode());
+    assertThat(singleDeprecatedRuleKey1)
+      .hasSameHashCodeAs(singleDeprecatedRuleKey1)
+      .hasSameHashCodeAs(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1))
+      .hasSameHashCodeAs(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto1WithoutUuid));
+    assertThat(singleDeprecatedRuleKey2).hasSameHashCodeAs(SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto2));
 
-    assertThat(singleDeprecatedRuleKey1).isNotEqualTo(null);
-    assertThat(singleDeprecatedRuleKey1).isNotEqualTo("");
-    assertThat(singleDeprecatedRuleKey1).isNotEqualTo(singleDeprecatedRuleKey2);
+    assertThat(singleDeprecatedRuleKey1)
+      .isNotNull()
+      .isNotEqualTo("")
+      .isNotEqualTo(singleDeprecatedRuleKey2);
     assertThat(singleDeprecatedRuleKey2).isNotEqualTo(singleDeprecatedRuleKey1);
 
     assertThat(singleDeprecatedRuleKey1.hashCode()).isNotEqualTo(singleDeprecatedRuleKey2.hashCode());

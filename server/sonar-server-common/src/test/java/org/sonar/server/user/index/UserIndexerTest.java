@@ -48,7 +48,7 @@ public class UserIndexerTest {
   public void index_nothing_on_startup() {
     underTest.indexOnStartup(new HashSet<>());
 
-    assertThat(es.countDocuments(TYPE_USER)).isEqualTo(0L);
+    assertThat(es.countDocuments(TYPE_USER)).isZero();
   }
 
   @Test

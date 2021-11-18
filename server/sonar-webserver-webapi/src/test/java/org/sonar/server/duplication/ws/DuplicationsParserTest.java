@@ -221,16 +221,16 @@ public class DuplicationsParserTest {
     assertThat(comparator.compare(Duplication.newComponent(currentFile, 2, 2),
       Duplication.newComponent(fileOnSameProject, 5, 2))).isEqualTo(-1);
     assertThat(comparator.compare(Duplication.newComponent(fileOnSameProject, 2, 2),
-      Duplication.newComponent(currentFile, 5, 2))).isEqualTo(1);
+      Duplication.newComponent(currentFile, 5, 2))).isOne();
     // Different files on different projects
     assertThat(comparator.compare(Duplication.newComponent(fileOnSameProject, 5, 2),
       Duplication.newComponent(fileOnDifferentProject, 2, 2))).isEqualTo(-1);
     assertThat(comparator.compare(Duplication.newComponent(fileOnDifferentProject, 5, 2),
-      Duplication.newComponent(fileOnSameProject, 2, 2))).isEqualTo(1);
+      Duplication.newComponent(fileOnSameProject, 2, 2))).isOne();
     // Files on 2 different projects
     ComponentDto project3 = db.components().insertPrivateProject();
     assertThat(comparator.compare(Duplication.newComponent(fileOnDifferentProject, 5, 2),
-      Duplication.newComponent(project3, 2, 2))).isEqualTo(1);
+      Duplication.newComponent(project3, 2, 2))).isOne();
 
     // With null duplications
     assertThat(comparator.compare(null, Duplication.newComponent(fileOnSameProject, 2, 2))).isEqualTo(-1);
@@ -241,7 +241,7 @@ public class DuplicationsParserTest {
     assertThat(comparator.compare(Duplication.newComponent(currentFile, 2, 2),
       Duplication.newRemovedComponent("key1", 5, 2))).isEqualTo(-1);
     assertThat(comparator.compare(Duplication.newRemovedComponent("key2", 2, 2),
-      Duplication.newComponent(currentFile, 5, 2))).isEqualTo(1);
+      Duplication.newComponent(currentFile, 5, 2))).isOne();
   }
 
   @Test

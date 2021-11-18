@@ -67,7 +67,7 @@ public class CrossProjectDuplicateTest {
   @Test
   public void hashcode_depends_on_file_and_TextBlock() {
     TextBlock textBlock = new TextBlock(1, 2);
-    assertThat(new CrossProjectDuplicate(FILE_KEY_1, textBlock).hashCode()).isEqualTo(new CrossProjectDuplicate(FILE_KEY_1, textBlock).hashCode());
+    assertThat(new CrossProjectDuplicate(FILE_KEY_1, textBlock)).hasSameHashCodeAs(new CrossProjectDuplicate(FILE_KEY_1, textBlock));
 
     assertThat(new CrossProjectDuplicate(FILE_KEY_1, textBlock).hashCode()).isNotEqualTo(new CrossProjectDuplicate(FILE_KEY_2, textBlock).hashCode());
     assertThat(new CrossProjectDuplicate(FILE_KEY_1, textBlock).hashCode()).isNotEqualTo(new CrossProjectDuplicate(FILE_KEY_2, new TextBlock(1, 1)).hashCode());
@@ -75,7 +75,7 @@ public class CrossProjectDuplicateTest {
 
   @Test
   public void verify_toString() {
-    assertThat(new CrossProjectDuplicate(FILE_KEY_1, new TextBlock(1, 2)).toString()).isEqualTo("CrossProjectDuplicate{fileKey='file key 1', textBlock=TextBlock{start=1, end=2}}");
+    assertThat(new CrossProjectDuplicate(FILE_KEY_1, new TextBlock(1, 2))).hasToString("CrossProjectDuplicate{fileKey='file key 1', textBlock=TextBlock{start=1, end=2}}");
   }
 
 }

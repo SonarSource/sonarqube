@@ -35,8 +35,9 @@ public class NodeInfoTest {
     assertThat(foo.equals(bar)).isFalse();
     assertThat(bar.equals(bar2)).isTrue();
 
-    assertThat(bar.hashCode()).isEqualTo(bar.hashCode());
-    assertThat(bar.hashCode()).isEqualTo(bar2.hashCode());
+    assertThat(bar)
+      .hasSameHashCodeAs(bar)
+      .hasSameHashCodeAs(bar2);
   }
 
 }

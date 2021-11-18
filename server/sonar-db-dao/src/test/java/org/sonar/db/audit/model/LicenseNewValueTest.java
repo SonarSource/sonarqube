@@ -28,7 +28,7 @@ public class LicenseNewValueTest {
   @Test
   public void toStringIsEmptyForNullEdition(){
     LicenseNewValue newValue = new LicenseNewValue(null);
-    assertThat(newValue.toString()).isEqualTo("{}");
+    assertThat(newValue).hasToString("{}");
   }
 
   @Test

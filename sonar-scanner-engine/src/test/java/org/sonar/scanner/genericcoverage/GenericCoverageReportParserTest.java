@@ -59,7 +59,7 @@ public class GenericCoverageReportParserTest {
     addFileToFs(emptyFile);
     GenericCoverageReportParser parser = new GenericCoverageReportParser();
     parser.parse(new File(this.getClass().getResource("coverage.xml").toURI()), context);
-    assertThat(parser.numberOfMatchedFiles()).isEqualTo(1);
+    assertThat(parser.numberOfMatchedFiles()).isOne();
     assertThat(parser.numberOfUnknownFiles()).isEqualTo(3);
     assertThat(parser.firstUnknownFiles()).hasSize(3);
   }
@@ -87,12 +87,12 @@ public class GenericCoverageReportParserTest {
     addFileToFs(fileWithoutBranch);
     GenericCoverageReportParser parser = new GenericCoverageReportParser();
     parser.parse(new File(this.getClass().getResource("coverage.xml").toURI()), context);
-    assertThat(parser.numberOfMatchedFiles()).isEqualTo(1);
+    assertThat(parser.numberOfMatchedFiles()).isOne();
 
     assertThat(context.lineHits(fileWithoutBranch.key(), 2)).isZero();
-    assertThat(context.lineHits(fileWithoutBranch.key(), 3)).isEqualTo(1);
+    assertThat(context.lineHits(fileWithoutBranch.key(), 3)).isOne();
     assertThat(context.lineHits(fileWithoutBranch.key(), 4)).isNull();
-    assertThat(context.lineHits(fileWithoutBranch.key(), 5)).isEqualTo(1);
+    assertThat(context.lineHits(fileWithoutBranch.key(), 5)).isOne();
     assertThat(context.lineHits(fileWithoutBranch.key(), 6)).isZero();
   }
 
@@ -101,10 +101,10 @@ public class GenericCoverageReportParserTest {
     addFileToFs(fileWithBranches);
     GenericCoverageReportParser parser = new GenericCoverageReportParser();
     parser.parse(new File(this.getClass().getResource("coverage.xml").toURI()), context);
-    assertThat(parser.numberOfMatchedFiles()).isEqualTo(1);
+    assertThat(parser.numberOfMatchedFiles()).isOne();
 
-    assertThat(context.lineHits(fileWithBranches.key(), 3)).isEqualTo(1);
-    assertThat(context.lineHits(fileWithBranches.key(), 4)).isEqualTo(1);
+    assertThat(context.lineHits(fileWithBranches.key(), 3)).isOne();
+    assertThat(context.lineHits(fileWithBranches.key(), 4)).isOne();
 
     assertThat(context.conditions(fileWithBranches.key(), 3)).isEqualTo(8);
     assertThat(context.conditions(fileWithBranches.key(), 4)).isEqualTo(2);

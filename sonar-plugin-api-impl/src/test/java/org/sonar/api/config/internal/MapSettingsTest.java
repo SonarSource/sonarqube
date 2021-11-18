@@ -209,7 +209,7 @@ public class MapSettingsTest {
   public void default_number_values_are_zero() {
     Settings settings = new MapSettings();
     assertThat(settings.getInt("foo")).isZero();
-    assertThat(settings.getLong("foo")).isEqualTo(0L);
+    assertThat(settings.getLong("foo")).isZero();
   }
 
   @Test

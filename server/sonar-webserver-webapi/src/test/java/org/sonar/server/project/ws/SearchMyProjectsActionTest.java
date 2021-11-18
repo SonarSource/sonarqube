@@ -111,7 +111,7 @@ public class SearchMyProjectsActionTest {
 
     SearchMyProjectsWsResponse result = callWs();
 
-    assertThat(result.getProjectsCount()).isEqualTo(1);
+    assertThat(result.getProjectsCount()).isOne();
   }
 
   @Test
@@ -167,7 +167,7 @@ public class SearchMyProjectsActionTest {
 
     SearchMyProjectsWsResponse result = callWs();
 
-    assertThat(result.getProjectsCount()).isEqualTo(1);
+    assertThat(result.getProjectsCount()).isOne();
   }
 
   @Test
@@ -180,7 +180,7 @@ public class SearchMyProjectsActionTest {
 
     SearchMyProjectsWsResponse result = callWs();
 
-    assertThat(result.getProjectsCount()).isEqualTo(1);
+    assertThat(result.getProjectsCount()).isOne();
   }
 
   @Test
@@ -209,7 +209,7 @@ public class SearchMyProjectsActionTest {
 
     SearchMyProjectsWsResponse result = callWs();
 
-    assertThat(result.getProjectsCount()).isEqualTo(1);
+    assertThat(result.getProjectsCount()).isOne();
   }
 
   @Test

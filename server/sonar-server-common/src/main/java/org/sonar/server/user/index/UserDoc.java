@@ -60,7 +60,7 @@ public class UserDoc extends BaseDoc {
   }
 
   public boolean active() {
-    return (Boolean) getField(UserIndexDefinition.FIELD_ACTIVE);
+    return getField(UserIndexDefinition.FIELD_ACTIVE);
   }
 
   public List<String> scmAccounts() {

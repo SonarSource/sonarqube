@@ -74,7 +74,7 @@ public class NodeSystemSectionTest {
   public void return_nb_of_processors() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
-    assertThat(attribute(section, "Processors").getLongValue()).isGreaterThan(0);
+    assertThat(attribute(section, "Processors").getLongValue()).isPositive();
   }
 
   @Test

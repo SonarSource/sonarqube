@@ -32,7 +32,7 @@ public class PagingTest {
     Paging paging = forPageIndex(1).withPageSize(5).andTotal(20);
 
     assertThat(paging.pageSize()).isEqualTo(5);
-    assertThat(paging.pageIndex()).isEqualTo(1);
+    assertThat(paging.pageIndex()).isOne();
     assertThat(paging.total()).isEqualTo(20);
 
     assertThat(paging.offset()).isZero();

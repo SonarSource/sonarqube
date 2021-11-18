@@ -71,6 +71,6 @@ public class SuggestionQueryTest {
     SuggestionQuery query = SuggestionQuery.builder().setQuery("ab")
       .setLimit(1).build();
 
-    assertThat(query.getLimit()).isEqualTo(1);
+    assertThat(query.getLimit()).isOne();
   }
 }

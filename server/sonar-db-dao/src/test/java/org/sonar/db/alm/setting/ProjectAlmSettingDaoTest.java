@@ -183,7 +183,7 @@ public class ProjectAlmSettingDaoTest {
     underTest.deleteByAlmSetting(dbSession, githubAlmSetting);
 
     assertThat(underTest.countByAlmSetting(dbSession, githubAlmSetting)).isZero();
-    assertThat(underTest.countByAlmSetting(dbSession, githubAlmSetting1)).isEqualTo(1);
+    assertThat(underTest.countByAlmSetting(dbSession, githubAlmSetting1)).isOne();
   }
 
 }

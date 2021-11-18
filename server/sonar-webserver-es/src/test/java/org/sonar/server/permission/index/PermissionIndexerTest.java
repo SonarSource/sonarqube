@@ -97,13 +97,13 @@ public class PermissionIndexerTest {
     // Simulate a indexation issue
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project1.uuid(), PROJECT, project1.name(), project1.getKey());
     underTest.prepareForRecovery(db.getSession(), asList(project1.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
-    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isOne();
     Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
 
     underTest.index(db.getSession(), esQueueDtos);
 
     assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isZero();
-    assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(1);
+    assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isOne();
   }
 
   @Test
@@ -324,21 +324,21 @@ public class PermissionIndexerTest {
     es.lockWrites(INDEX_TYPE_FOO_AUTH);
 
     IndexingResult result = indexPermissions(project, PERMISSION_CHANGE);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
 
     // index is still read-only, fail to recover
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
     assertThatAuthIndexHasSize(0);
     assertThatEsQueueTableHasSize(1);
 
     es.unlockWrites(INDEX_TYPE_FOO_AUTH);
 
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isZero();
     verifyAnyoneAuthorized(project);
     assertThatEsQueueTableHasSize(0);
   }

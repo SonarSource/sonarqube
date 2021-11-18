@@ -30,7 +30,7 @@ public class CeTaskCharacteristicDto {
   public static final String BRANCH_KEY = "branch";
   public static final String BRANCH_TYPE_KEY = "branchType";
   public static final String PULL_REQUEST = "pullRequest";
-  public static final Set<String> SUPPORTED_KEYS = unmodifiableSet(new HashSet<>(asList(BRANCH_KEY, BRANCH_TYPE_KEY, PULL_REQUEST)));
+  public static final Set<String> SUPPORTED_KEYS = Set.of(BRANCH_KEY, BRANCH_TYPE_KEY, PULL_REQUEST);
 
   private String uuid;
   private String taskUuid;

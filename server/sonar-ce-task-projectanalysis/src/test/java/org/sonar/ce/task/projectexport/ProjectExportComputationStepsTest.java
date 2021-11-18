@@ -39,7 +39,7 @@ public class ProjectExportComputationStepsTest {
 
   @Test
   public void count_step_classes() {
-    assertThat(copyOf(underTest.orderedStepClasses()).size()).isEqualTo(20);
+    assertThat(copyOf(underTest.orderedStepClasses())).hasSize(20);
   }
 
   @Test

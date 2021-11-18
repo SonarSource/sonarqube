@@ -155,7 +155,7 @@ public class DeleteActionTest {
       template.getName(), group.getName());
     db.commit();
     loginAsAdmin();
-    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isOne();
 
     newRequest()
       .setParam("id", group.getUuid())

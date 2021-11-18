@@ -34,7 +34,7 @@ public class LdapUserMappingTest {
     assertThat(userMapping.getRealNameAttribute()).isEqualTo("cn");
     assertThat(userMapping.getEmailAttribute()).isEqualTo("mail");
 
-    assertThat(userMapping.toString()).isEqualTo("LdapUserMapping{" +
+    assertThat(userMapping).hasToString("LdapUserMapping{" +
       "baseDn=null," +
       " request=(&(objectClass=inetOrgPerson)(uid={0}))," +
       " realNameAttribute=cn," +
@@ -54,7 +54,7 @@ public class LdapUserMappingTest {
     assertThat(search.getParameters()).isEqualTo(new String[] {"tester"});
     assertThat(search.getReturningAttributes()).isNull();
 
-    assertThat(userMapping.toString()).isEqualTo("LdapUserMapping{" +
+    assertThat(userMapping).hasToString("LdapUserMapping{" +
       "baseDn=cn=users," +
       " request=(&(objectClass=user)(sAMAccountName={0}))," +
       " realNameAttribute=cn," +

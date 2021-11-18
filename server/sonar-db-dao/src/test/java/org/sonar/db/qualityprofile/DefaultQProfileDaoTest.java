@@ -48,7 +48,7 @@ public class DefaultQProfileDaoTest {
     underTest.insertOrUpdate(dbSession, dto);
     dbSession.commit();
 
-    assertThat(countRows()).isEqualTo(1);
+    assertThat(countRows()).isOne();
     assertThatIsDefault(profile);
   }
 
@@ -66,7 +66,7 @@ public class DefaultQProfileDaoTest {
     underTest.insertOrUpdate(dbSession, dto);
     dbSession.commit();
 
-    assertThat(countRows()).isEqualTo(1);
+    assertThat(countRows()).isOne();
     assertThat(selectUuidOfDefaultProfile(dto.getLanguage())).hasValue(newQProfileUuid);
   }
 
@@ -78,7 +78,7 @@ public class DefaultQProfileDaoTest {
       .setQProfileUuid(previousQProfileUuid);
     underTest.insert(dbSession, dto);
     dbSession.commit();
-      assertThat(countRows()).isEqualTo(1);
+      assertThat(countRows()).isOne();
       assertThat(selectUuidOfDefaultProfile(dto.getLanguage())).hasValue(dto.getQProfileUuid());
   }
 
@@ -90,7 +90,7 @@ public class DefaultQProfileDaoTest {
     underTest.deleteByQProfileUuids(dbSession, asList("u1", "u3"));
     dbSession.commit();
 
-    assertThat(countRows()).isEqualTo(1);
+    assertThat(countRows()).isOne();
     assertThat(selectUuidOfDefaultProfile("java")).isEmpty();
     assertThat(selectUuidOfDefaultProfile("js")).hasValue("u2");
   }

@@ -30,7 +30,6 @@ public class ConditionTest {
   private static final Condition.Operator OPERATOR = Condition.Operator.GREATER_THAN;
   private static final String ERROR_THRESHOLD = "2";
 
-
   private Condition underTest = new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD);
 
   @Test
@@ -69,29 +68,29 @@ public class ConditionTest {
 
   @Test
   public void equals_is_based_on_all_fields() {
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isEqualTo(new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD));
-    assertThat(underTest).isNotEqualTo(new Condition("other_metric_key", OPERATOR, ERROR_THRESHOLD));
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isNotNull()
+      .isNotEqualTo(new Object())
+      .isEqualTo(new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD))
+      .isNotEqualTo(new Condition("other_metric_key", OPERATOR, ERROR_THRESHOLD));
     Arrays.stream(Condition.Operator.values())
-        .filter(s -> !OPERATOR.equals(s))
-        .forEach(otherOperator ->  assertThat(underTest)
-            .isNotEqualTo(new Condition(METRIC_KEY, otherOperator, ERROR_THRESHOLD)));
+      .filter(s -> !OPERATOR.equals(s))
+      .forEach(otherOperator -> assertThat(underTest)
+        .isNotEqualTo(new Condition(METRIC_KEY, otherOperator, ERROR_THRESHOLD)));
     assertThat(underTest).isNotEqualTo(new Condition(METRIC_KEY, OPERATOR, "other_error_threshold"));
   }
 
   @Test
   public void hashcode_is_based_on_all_fields() {
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(null);
+    assertThat(underTest).hasSameHashCodeAs(underTest);
     assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD).hashCode());
+    assertThat(underTest).hasSameHashCodeAs(new Condition(METRIC_KEY, OPERATOR, ERROR_THRESHOLD));
     assertThat(underTest.hashCode()).isNotEqualTo(new Condition("other_metric_key", OPERATOR, ERROR_THRESHOLD).hashCode());
     Arrays.stream(Condition.Operator.values())
-        .filter(s -> !OPERATOR.equals(s))
-        .forEach(otherOperator ->  assertThat(underTest.hashCode())
-            .isNotEqualTo(new Condition(METRIC_KEY, otherOperator, ERROR_THRESHOLD).hashCode()));
+      .filter(s -> !OPERATOR.equals(s))
+      .forEach(otherOperator -> assertThat(underTest.hashCode())
+        .isNotEqualTo(new Condition(METRIC_KEY, otherOperator, ERROR_THRESHOLD).hashCode()));
     assertThat(underTest.hashCode()).isNotEqualTo(new Condition(METRIC_KEY, OPERATOR, "other_error_threshold").hashCode());
   }
 }

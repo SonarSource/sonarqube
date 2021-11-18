@@ -62,7 +62,7 @@ public class NewIndexSettingsConfigurationTest {
   public void setDefaultNbOfShards_accepts_1() {
     SettingsConfiguration.Builder underTest = newBuilder(mockConfiguration);
 
-    assertThat(underTest.setDefaultNbOfShards(1).build().getDefaultNbOfShards()).isEqualTo(1);
+    assertThat(underTest.setDefaultNbOfShards(1).build().getDefaultNbOfShards()).isOne();
   }
 
   @Test
@@ -76,7 +76,7 @@ public class NewIndexSettingsConfigurationTest {
 
   @Test
   public void getDefaultNbOfShards_returns_1_when_not_explicitly_set() {
-    assertThat(newBuilder(mockConfiguration).build().getDefaultNbOfShards()).isEqualTo(1);
+    assertThat(newBuilder(mockConfiguration).build().getDefaultNbOfShards()).isOne();
   }
 
   @Test

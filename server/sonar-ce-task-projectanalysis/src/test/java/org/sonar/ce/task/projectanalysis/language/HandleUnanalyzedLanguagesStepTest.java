@@ -151,7 +151,7 @@ public class HandleUnanalyzedLanguagesStepTest {
       "1 unanalyzed C++ file was detected in this project during the last analysis. C++ cannot be analyzed with your current SonarQube edition. Please" +
         " consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer" +
         " Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in this file.");
-    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isOne();
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();
   }
 

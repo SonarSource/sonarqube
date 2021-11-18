@@ -19,7 +19,6 @@
  */
 package org.sonar.db;
 
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -42,9 +41,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -54,7 +53,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
 public class DatabaseUtils {
@@ -216,7 +214,7 @@ public class DatabaseUtils {
       return;
     }
 
-    List<List<T>> partitions = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    List<List<T>> partitions = Lists.partition(new ArrayList<>(input), PARTITION_SIZE_FOR_ORACLE);
     for (List<T> partition : partitions) {
       consumer.accept(partition);
     }

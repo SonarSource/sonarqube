@@ -97,7 +97,7 @@ public class MetricTest {
   public void default_decimal_scale_is_1() {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
       .create();
-    assertThat(metric.getDecimalScale()).isEqualTo(1);
+    assertThat(metric.getDecimalScale()).isOne();
   }
 
   @Test

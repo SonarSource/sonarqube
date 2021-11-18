@@ -333,8 +333,8 @@ public class RequestTest {
 
     assertThat(stringParam.isPresent()).isTrue();
     expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
-    assertThat(stringParam.or(() -> "foo")).isEqualTo("");
-    assertThat(stringParam.getValue()).isEqualTo("");
+    assertThat(stringParam.or(() -> "foo")).isEmpty();
+    assertThat(stringParam.getValue()).isEmpty();
 
     Request.StringParam emptyAsNull = stringParam.emptyAsNull();
     assertThat(emptyAsNull).isNotSameAs(stringParam);
@@ -370,7 +370,7 @@ public class RequestTest {
 
     Request.StringParam stringParam = underTest.getParam("a_string", (str) -> calls.incrementAndGet());
 
-    assertThat(calls.get()).isEqualTo(1);
+    assertThat(calls.get()).isOne();
     assertThat(stringParam.isPresent()).isTrue();
     expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
     assertThat(stringParam.or(() -> "foo")).isEqualTo("sorry");
@@ -391,11 +391,11 @@ public class RequestTest {
 
     Request.StringParam stringParam = underTest.getParam("a_string", (str) -> calls.incrementAndGet());
 
-    assertThat(calls.get()).isEqualTo(1);
+    assertThat(calls.get()).isOne();
     assertThat(stringParam.isPresent()).isTrue();
     expectSupplierCanNotBeNullNPE(() -> stringParam.or(null));
-    assertThat(stringParam.or(() -> "foo")).isEqualTo("");
-    assertThat(stringParam.getValue()).isEqualTo("");
+    assertThat(stringParam.or(() -> "foo")).isEmpty();
+    assertThat(stringParam.getValue()).isEmpty();
 
     Request.StringParam emptyAsNull = stringParam.emptyAsNull();
     assertThat(emptyAsNull).isNotSameAs(stringParam);
@@ -639,7 +639,7 @@ public class RequestTest {
 
     @Override
     public boolean hasParam(String key) {
-      return params.keySet().contains(key);
+      return params.containsKey(key);
     }
 
     @Override
@@ -697,11 +697,6 @@ public class RequestTest {
     @Override
     public Optional<String> header(String name) {
       return Optional.ofNullable(headers.get(name));
-    }
-
-    public FakeRequest setHeader(String name, String value) {
-      headers.put(name, value);
-      return this;
     }
   }
 

@@ -136,7 +136,7 @@ public class ExportEventsStepTest {
     assertThat(event.getDescription()).isEqualTo("desc");
     assertThat(event.getDate()).isEqualTo(IN_THE_PAST);
     assertThat(event.getAnalysisUuid()).isEqualTo(snapshot.getUuid());
-    assertThat(event.getComponentRef()).isEqualTo(1);
+    assertThat(event.getComponentRef()).isOne();
   }
 
   @Test

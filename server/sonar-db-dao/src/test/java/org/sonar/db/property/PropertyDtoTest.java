@@ -33,7 +33,7 @@ public class PropertyDtoTest {
   public void testEquals() {
     assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123")).isEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
     assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
-    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(null);
+    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotNull();
     assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(new Object());
   }
 

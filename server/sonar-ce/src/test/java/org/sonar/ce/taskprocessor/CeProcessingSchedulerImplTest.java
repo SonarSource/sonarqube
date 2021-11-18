@@ -193,7 +193,7 @@ public class CeProcessingSchedulerImplTest {
       i++;
     }
 
-    assertThat(cancelledTaskFutureCount).isEqualTo(1);
+    assertThat(cancelledTaskFutureCount).isOne();
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
       regularDelayedPoll,
       regularDelayedPoll,
@@ -231,7 +231,7 @@ public class CeProcessingSchedulerImplTest {
       i++;
     }
 
-    assertThat(cancelledTaskFutureCount).isEqualTo(1);
+    assertThat(cancelledTaskFutureCount).isOne();
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
       regularDelayedPoll,
       regularDelayedPoll,

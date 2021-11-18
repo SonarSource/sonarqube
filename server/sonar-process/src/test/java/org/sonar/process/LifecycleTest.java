@@ -42,7 +42,7 @@ public class LifecycleTest {
     assertThat(init.equals(new Lifecycle())).isTrue();
     assertThat(init.equals("INIT")).isFalse();
     assertThat(init.equals(null)).isFalse();
-    assertThat(init.hashCode()).isEqualTo(new Lifecycle().hashCode());
+    assertThat(init).hasSameHashCodeAs(new Lifecycle());
 
     // different state
     Lifecycle stopping = new Lifecycle();

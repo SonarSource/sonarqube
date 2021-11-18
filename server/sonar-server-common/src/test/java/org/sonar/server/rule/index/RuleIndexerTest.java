@@ -98,7 +98,7 @@ public class RuleIndexerTest {
   @Test
   public void index_nothing() {
     underTest.index(dbSession, emptyList());
-    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(0L);
+    assertThat(es.countDocuments(TYPE_RULE)).isZero();
   }
 
   @Test
@@ -106,7 +106,7 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule);
     underTest.commitAndIndex(dbSession, rule.getUuid());
 
-    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isOne();
   }
 
   @Test
@@ -115,13 +115,13 @@ public class RuleIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
-    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isOne();
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
-    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isOne();
   }
 
   @Test
@@ -130,7 +130,7 @@ public class RuleIndexerTest {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
     underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
-    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
+    assertThat(es.countDocuments(TYPE_RULE)).isOne();
   }
 
   @Test

@@ -103,9 +103,7 @@ public class GroupWithPermissionTemplateDaoTest {
   @Test
   public void selectGroupNamesByQueryAndTemplate_is_order_by_groups_with_permission_then_by_name_when_many_groups() {
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
-    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
-      db.users().insertGroup("Group-" + i);
-    });
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> db.users().insertGroup("Group-" + i));
 
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
     permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), UserRole.USER);
@@ -177,15 +175,15 @@ public class GroupWithPermissionTemplateDaoTest {
       .isEqualTo(4);
     assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission(), template))
       .isEqualTo(2);
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), template)).isEqualTo(1);
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), template)).isOne();
     assertThat(countGroupNamesByQueryAndTemplate(builder().setPermission(USER), anotherTemplate))
-      .isEqualTo(1);
+      .isOne();
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("groU"), template))
       .isEqualTo(3);
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("nYo"), template))
-      .isEqualTo(1);
+      .isOne();
     assertThat(countGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2"), template))
-      .isEqualTo(1);
+      .isOne();
 
     assertThat(countGroupNamesByQueryAndTemplate(builder().withAtLeastOnePermission().build(), "123"))
       .isZero();

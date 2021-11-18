@@ -60,7 +60,7 @@ public class CredentialsLocalAuthentication {
   private final EnumMap<HashMethod, HashFunction> hashFunctions = new EnumMap<>(HashMethod.class);
 
   public enum HashMethod {
-    SHA1, BCRYPT, PBKDF2;
+    SHA1, BCRYPT, PBKDF2
   }
 
   public CredentialsLocalAuthentication(DbClient dbClient, Configuration configuration) {

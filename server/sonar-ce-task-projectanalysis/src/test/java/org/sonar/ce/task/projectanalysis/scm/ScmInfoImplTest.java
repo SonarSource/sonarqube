@@ -102,7 +102,7 @@ public class ScmInfoImplTest {
   public void test_to_string() {
     ScmInfo scmInfo = createScmInfoWithTwoChangestOnFourLines();
 
-    assertThat(scmInfo.toString()).isEqualTo("ScmInfoImpl{" +
+    assertThat(scmInfo).hasToString("ScmInfoImpl{" +
       "latestChangeset=Changeset{revision='rev-2', author='henry', date=1234567810}, " +
       "lineChangesets={" +
       "1=Changeset{revision='rev-1', author='john', date=123456789}, " +

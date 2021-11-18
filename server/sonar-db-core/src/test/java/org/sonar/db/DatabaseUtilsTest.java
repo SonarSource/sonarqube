@@ -462,9 +462,7 @@ public class DatabaseUtilsTest {
 
   @Test
   public void executeLargeUpdates_on_empty_list() {
-    DatabaseUtils.executeLargeUpdates(Collections.<Integer>emptyList(), input -> {
-      fail("No partition should be made on empty list");
-    });
+    DatabaseUtils.executeLargeUpdates(Collections.<Integer>emptyList(), input -> fail("No partition should be made on empty list"));
   }
 
   @Test

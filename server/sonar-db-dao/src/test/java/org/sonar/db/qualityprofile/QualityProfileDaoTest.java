@@ -146,7 +146,7 @@ public class QualityProfileDaoTest {
 
     int count = underTest.updateLastUsedDate(dbSession, initial, 15_000L);
 
-    assertThat(count).isEqualTo(1);
+    assertThat(count).isOne();
     QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
     assertThat(reloaded).isNotNull();
     assertThat(reloaded.getLastUsed()).isEqualTo(15_000L);
@@ -160,7 +160,7 @@ public class QualityProfileDaoTest {
 
     int count = underTest.updateLastUsedDate(dbSession, initial, 15_000L);
 
-    assertThat(count).isEqualTo(1);
+    assertThat(count).isOne();
     QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
     assertThat(reloaded).isNotNull();
     assertThat(reloaded.getLastUsed()).isEqualTo(15_000L);
@@ -206,7 +206,7 @@ public class QualityProfileDaoTest {
 
     underTest.deleteRulesProfilesByUuids(dbSession, emptyList());
 
-    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isOne();
   }
 
   @Test
@@ -215,7 +215,7 @@ public class QualityProfileDaoTest {
 
     underTest.deleteRulesProfilesByUuids(dbSession, singletonList("does_not_exist"));
 
-    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isOne();
   }
 
   private RulesProfileDto insertRulesProfile() {
@@ -258,7 +258,7 @@ public class QualityProfileDaoTest {
 
     underTest.deleteProjectAssociationsByProfileUuids(dbSession, Collections.emptyList());
 
-    assertThat(db.countRowsOfTable(dbSession, "project_qprofiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "project_qprofiles")).isOne();
   }
 
   @Test

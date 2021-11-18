@@ -374,7 +374,7 @@ public class ActiveRuleDaoTest {
 
     underTest.deleteByRuleProfileUuids(dbSession, singletonList(profile1.getRulesProfileUuid()));
 
-    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isOne();
     assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2, rule1.getKey()))).isPresent();
   }
 
@@ -384,7 +384,7 @@ public class ActiveRuleDaoTest {
 
     underTest.deleteByRuleProfileUuids(dbSession, singletonList("does_not_exist"));
 
-    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isOne();
   }
 
   @Test
@@ -395,7 +395,7 @@ public class ActiveRuleDaoTest {
 
     underTest.deleteByUuids(dbSession, asList(ar1.getUuid(), ar3.getUuid()));
 
-    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isOne();
     assertThat(underTest.selectByProfile(dbSession, profile1))
       .extracting(ActiveRuleDto::getUuid)
       .containsExactly(ar2.getUuid());
@@ -407,7 +407,7 @@ public class ActiveRuleDaoTest {
 
     underTest.deleteByUuids(dbSession, emptyList());
 
-    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isOne();
   }
 
   private static ActiveRuleDto newRow(QProfileDto profile, RuleDefinitionDto rule) {

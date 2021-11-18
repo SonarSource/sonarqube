@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectexport.steps;
 
-import com.google.common.base.Predicate;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
+import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,7 +33,6 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -84,13 +83,13 @@ public class ExportMetricsStepTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("2 metrics exported");
     List<ProjectDump.Metric> exportedMetrics = dumpWriter.getWrittenMessagesOf(DumpElement.METRICS);
 
-    ProjectDump.Metric ncloc = from(exportedMetrics).firstMatch(new HasMetricRefPredicate(0)).get();
+    ProjectDump.Metric ncloc = exportedMetrics.stream().filter(input -> input.getRef() == 0).findAny().orElseThrow();
     assertThat(ncloc.getRef()).isZero();
     assertThat(ncloc.getKey()).isEqualTo("ncloc");
     assertThat(ncloc.getName()).isEqualTo("Lines of code");
 
-    ProjectDump.Metric coverage = from(exportedMetrics).firstMatch(new HasMetricRefPredicate(1)).get();
-    assertThat(coverage.getRef()).isEqualTo(1);
+    ProjectDump.Metric coverage = exportedMetrics.stream().filter(input -> input.getRef() == 1).findAny().orElseThrow();
+    assertThat(coverage.getRef()).isOne();
     assertThat(coverage.getKey()).isEqualTo("coverage");
     assertThat(coverage.getName()).isEqualTo("Coverage");
   }
@@ -108,18 +107,5 @@ public class ExportMetricsStepTest {
   @Test
   public void test_getDescription() {
     assertThat(underTest.getDescription()).isEqualTo("Export metrics");
-  }
-
-  private static class HasMetricRefPredicate implements Predicate<ProjectDump.Metric> {
-    private final int ref;
-
-    HasMetricRefPredicate(int ref) {
-      this.ref = ref;
-    }
-
-    @Override
-    public boolean apply(@Nonnull ProjectDump.Metric input) {
-      return input.getRef() == ref;
-    }
   }
 }

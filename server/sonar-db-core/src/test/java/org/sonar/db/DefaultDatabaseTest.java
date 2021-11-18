@@ -50,7 +50,7 @@ public class DefaultDatabaseTest {
     Properties props = db.getProperties();
     assertThat(props.getProperty("sonar.jdbc.url")).isEqualTo("jdbc:h2:tcp://localhost/sonar");
     assertThat(props.getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.h2.Driver");
-    assertThat(db.toString()).isEqualTo("Database[jdbc:h2:tcp://localhost/sonar]");
+    assertThat(db).hasToString("Database[jdbc:h2:tcp://localhost/sonar]");
   }
 
   @Test
@@ -124,7 +124,7 @@ public class DefaultDatabaseTest {
     db.stop();
 
     assertThat(db.getDialect().getId()).isEqualTo("h2");
-    assertThat(((BasicDataSource) db.getDataSource()).getMaxTotal()).isEqualTo(1);
+    assertThat(((BasicDataSource) db.getDataSource()).getMaxTotal()).isOne();
   }
 
   @Test

@@ -163,8 +163,9 @@ public class NodeDetailsTest {
     assertThat(builder.build())
       .isEqualTo(underTest)
       .isNotSameAs(underTest);
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
+    assertThat(underTest)
+      .isNotNull()
+      .isNotEqualTo(new Object());
   }
 
   @Test

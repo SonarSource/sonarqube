@@ -187,8 +187,8 @@ public class ComponentIndexerTest {
     IndexingResult result = indexProject(project, PROJECT_CREATION);
 
     assertThatIndexContainsOnly(project);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
   }
 
   @Test
@@ -219,20 +219,20 @@ public class ComponentIndexerTest {
     es.lockWrites(TYPE_COMPONENT);
 
     IndexingResult result = indexProject(project1, PROJECT_CREATION);
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
 
     // index is still read-only, fail to recover
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isOne();
     assertThat(es.countDocuments(TYPE_COMPONENT)).isZero();
 
     es.unlockWrites(TYPE_COMPONENT);
 
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getFailures()).isZero();
     assertThatIndexContainsOnly(project1);
   }
 

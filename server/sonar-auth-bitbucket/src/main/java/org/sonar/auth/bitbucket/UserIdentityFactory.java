@@ -23,8 +23,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.UserIdentity;
 
-import static java.lang.String.format;
-
 @ServerSide
 public class UserIdentityFactory {
 

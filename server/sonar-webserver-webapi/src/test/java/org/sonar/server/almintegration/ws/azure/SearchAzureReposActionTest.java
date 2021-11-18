@@ -363,7 +363,6 @@ public class SearchAzureReposActionTest {
 
   private GsonAzureRepo getGsonAzureRepo(String projectName, String repoName) {
     GsonAzureProject project = new GsonAzureProject(projectName, "the best project ever");
-    GsonAzureRepo gsonAzureRepo = new GsonAzureRepo("repo-id", repoName, "url", project, "repo-default-branch");
-    return gsonAzureRepo;
+    return new GsonAzureRepo("repo-id", repoName, "url", project, "repo-default-branch");
   }
 }

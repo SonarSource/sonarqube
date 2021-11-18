@@ -64,7 +64,7 @@ public class HtmlSourceDecoratorTest {
 
   @Test
   public void should_ignore_empty_source() {
-    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", "0,1,cppd", "")).isEqualTo("");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", "0,1,cppd", "")).isEmpty();
   }
 
   @Test

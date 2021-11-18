@@ -50,6 +50,6 @@ public class UserTest {
     assertThat(one.equals(new User().setLogin("one"))).isTrue();
     assertThat(one.equals(two)).isFalse();
 
-    assertThat(one.hashCode()).isEqualTo(new User().setLogin("one").hashCode());
+    assertThat(one).hasSameHashCodeAs(new User().setLogin("one"));
   }
 }

@@ -69,7 +69,7 @@ public class GroupMembershipDaoTest {
     assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user1.getUuid())).isEqualTo(3);
     assertThat(underTest.countGroups(db.getSession(), builder().membership(OUT).build(), user1.getUuid())).isZero();
     // user2 is member of 1 group on 3
-    assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user2.getUuid())).isEqualTo(1);
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user2.getUuid())).isOne();
     assertThat(underTest.countGroups(db.getSession(), builder().membership(OUT).build(), user2.getUuid())).isEqualTo(2);
     // user3 is member of 0 group
     assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user3.getUuid())).isZero();
@@ -137,14 +137,14 @@ public class GroupMembershipDaoTest {
     db.users().insertMember(group2, user2);
 
     // 100 has 1 member and 1 non member
-    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.IN).build())).isEqualTo(1);
-    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.OUT).build())).isEqualTo(1);
+    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.IN).build())).isOne();
+    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.OUT).build())).isOne();
     // 101 has 2 members
     assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group2.getUuid()).membership(UserMembershipQuery.IN).build())).isEqualTo(2);
     assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group2.getUuid()).membership(UserMembershipQuery.OUT).build())).isZero();
     // 102 has 1 member and 1 non member
-    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.IN).build())).isEqualTo(1);
-    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.OUT).build())).isEqualTo(1);
+    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.IN).build())).isOne();
+    assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.OUT).build())).isOne();
     // 103 has no member
     assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(emptyGroup.getUuid()).membership(UserMembershipQuery.IN).build())).isZero();
     assertThat(underTest.countMembers(db.getSession(), newQuery().groupUuid(emptyGroup.getUuid()).membership(UserMembershipQuery.OUT).build())).isEqualTo(2);

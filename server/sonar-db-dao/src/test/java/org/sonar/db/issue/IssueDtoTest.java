@@ -89,7 +89,7 @@ public class IssueDtoTest {
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
-    assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
+    assertThat(issue.ruleKey()).hasToString("squid:AvoidCycle");
     assertThat(issue.language()).isEqualTo("xoo");
     assertThat(issue.componentUuid()).isEqualTo("CDEF");
     assertThat(issue.projectUuid()).isEqualTo("GHIJ");
@@ -124,9 +124,9 @@ public class IssueDtoTest {
     assertThat(dto.getRuleUuid()).isEqualTo("uuid-1");
     assertThat(dto.getRuleRepo()).isEqualTo("squid");
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
-    assertThat(dto.getRuleKey().toString()).isEqualTo("squid:AvoidCycle");
+    assertThat(dto.getRuleKey()).hasToString("squid:AvoidCycle");
     assertThat(dto.getLanguage()).isEqualTo("xoo");
-    assertThat(dto.isExternal()).isEqualTo(true);
+    assertThat(dto.isExternal()).isTrue();
   }
 
   @Test

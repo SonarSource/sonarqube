@@ -97,19 +97,19 @@ public class ComponentImplTest {
     ComponentImpl sameComponent = new ComponentImpl("Project1", Component.Type.PROJECT, null);
     ComponentImpl anotherComponent = new ComponentImpl("Project2", Component.Type.PROJECT, null);
 
-    assertThat(component).isEqualTo(component);
-    assertThat(component).isEqualTo(sameComponent);
-    assertThat(component).isNotEqualTo(anotherComponent);
-    assertThat(component).isNotEqualTo(null);
-
-    assertThat(component.hashCode()).isEqualTo(component.hashCode());
-    assertThat(component.hashCode()).isEqualTo(sameComponent.hashCode());
+    assertThat(component)
+      .isEqualTo(component)
+      .isEqualTo(sameComponent)
+      .isNotEqualTo(anotherComponent)
+      .isNotNull()
+      .hasSameHashCodeAs(component)
+      .hasSameHashCodeAs(sameComponent);
     assertThat(component.hashCode()).isNotEqualTo(anotherComponent.hashCode());
   }
 
   @Test
   public void test_to_string() {
-    assertThat(new ComponentImpl("File", Component.Type.FILE, new ComponentImpl.FileAttributesImpl("xoo", true)).toString())
-      .isEqualTo("ComponentImpl{key=File, type='FILE', fileAttributes=FileAttributesImpl{languageKey='xoo', unitTest=true}}");
+    assertThat(new ComponentImpl("File", Component.Type.FILE, new ComponentImpl.FileAttributesImpl("xoo", true)))
+      .hasToString("ComponentImpl{key=File, type='FILE', fileAttributes=FileAttributesImpl{languageKey='xoo', unitTest=true}}");
   }
 }

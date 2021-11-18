@@ -67,12 +67,12 @@ public class RulesAggregationTest {
     RulesAggregation.Rule ruleSameRuleKey = new RulesAggregation.Rule(RuleKey.of("xoo", "S001"), "S001");
     RulesAggregation.Rule ruleWithDifferentRuleKey = new RulesAggregation.Rule(RuleKey.of("xoo", "S002"), "S002");
 
-    assertThat(rule).isEqualTo(rule);
-    assertThat(rule).isEqualTo(ruleSameRuleKey);
-    assertThat(rule).isNotEqualTo(ruleWithDifferentRuleKey);
-
-    assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
-    assertThat(rule.hashCode()).isEqualTo(ruleSameRuleKey.hashCode());
+    assertThat(rule)
+      .isEqualTo(rule)
+      .isEqualTo(ruleSameRuleKey)
+      .isNotEqualTo(ruleWithDifferentRuleKey)
+      .hasSameHashCodeAs(rule)
+      .hasSameHashCodeAs(ruleSameRuleKey);
     assertThat(rule.hashCode()).isNotEqualTo(ruleWithDifferentRuleKey.hashCode());
   }
 }

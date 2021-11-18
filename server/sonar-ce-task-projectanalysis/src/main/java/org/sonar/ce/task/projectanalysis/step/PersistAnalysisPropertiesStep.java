@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +42,7 @@ import static org.sonar.core.config.CorePropertyDefinitions.SONAR_ANALYSIS_DETEC
 public class PersistAnalysisPropertiesStep implements ComputationStep {
 
   private static final String SONAR_PULL_REQUEST = "sonar.pullrequest.";
-  private static final Set<String> ANALYSIS_PROPERTIES_TO_PERSIST = ImmutableSet.of(SONAR_ANALYSIS_DETECTEDSCM, SONAR_ANALYSIS_DETECTEDCI);
+  private static final Set<String> ANALYSIS_PROPERTIES_TO_PERSIST = Set.of(SONAR_ANALYSIS_DETECTEDSCM, SONAR_ANALYSIS_DETECTEDCI);
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;

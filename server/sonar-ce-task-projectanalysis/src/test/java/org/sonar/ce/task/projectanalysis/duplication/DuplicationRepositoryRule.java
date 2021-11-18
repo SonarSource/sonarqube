@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.duplication;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentProvider;
@@ -34,7 +33,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderComponentProvid
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
 public class DuplicationRepositoryRule extends ExternalResource implements DuplicationRepository {
@@ -101,7 +99,7 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
       component,
       new Duplication(
         original,
-        from(Arrays.asList(duplicates)).transform(TextBlockToInnerDuplicate.INSTANCE).toList()));
+        Arrays.stream(duplicates).map(InnerDuplicate::new).collect(Collectors.toList())));
 
     return this;
   }
@@ -168,15 +166,5 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
   private void ensureComponentProviderInitialized() {
     requireNonNull(this.componentProvider, "Methods with component reference can not be used unless a TreeRootHolder has been provided when instantiating the rule");
     this.componentProvider.ensureInitialized();
-  }
-
-  private enum TextBlockToInnerDuplicate implements Function<TextBlock, Duplicate> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public Duplicate apply(@Nonnull TextBlock input) {
-      return new InnerDuplicate(input);
-    }
   }
 }

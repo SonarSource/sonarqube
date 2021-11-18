@@ -81,8 +81,7 @@ public class ExternalGroupsProviderTest {
   private static void addUserGroupMapping(Map<String, Collection<String>> userGroupsMap, String user, @Nullable String[] groups) {
     Collection<String> groupsCollection = null;
     if (groups != null) {
-      groupsCollection = new ArrayList<>();
-      groupsCollection.addAll(Arrays.asList(groups));
+      groupsCollection = Arrays.asList(groups);
     }
 
     userGroupsMap.put(user, groupsCollection);

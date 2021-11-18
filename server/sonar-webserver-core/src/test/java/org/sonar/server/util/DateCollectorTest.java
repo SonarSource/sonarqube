@@ -30,7 +30,7 @@ public class DateCollectorTest {
 
   @Test
   public void max_is_zero_if_no_dates() {
-    assertThat(collector.getMax()).isEqualTo(0L);
+    assertThat(collector.getMax()).isZero();
   }
 
   @Test

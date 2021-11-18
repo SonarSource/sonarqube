@@ -99,8 +99,8 @@ public class PluginInfoTest {
     assertThat(java1.equals(null)).isFalse();
     assertThat(javaNoVersion.equals(javaNoVersion)).isTrue();
 
-    assertThat(java1.hashCode()).isEqualTo(java1.hashCode());
-    assertThat(javaNoVersion.hashCode()).isEqualTo(javaNoVersion.hashCode());
+    assertThat(java1).hasSameHashCodeAs(java1);
+    assertThat(javaNoVersion).hasSameHashCodeAs(javaNoVersion);
   }
 
   /**

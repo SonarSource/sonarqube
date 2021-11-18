@@ -108,8 +108,8 @@ public class IndexCreatorTest {
     ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
     MappingMetadata mapping = mappings.get("fakes").get("fake");
     assertThat(countMappingFields(mapping)).isEqualTo(3);
-    assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
-    assertThat(field(mapping, "newField").get("type")).isEqualTo("integer");
+    assertThat(field(mapping, "updatedAt")).containsEntry("type", "date");
+    assertThat(field(mapping, "newField")).containsEntry("type", "integer");
 
     assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType(), id)).isExists()).isFalse();
   }
@@ -230,7 +230,7 @@ public class IndexCreatorTest {
       .contains("Create type fakes/fake")
       .contains("Create type metadatas/metadata");
     putFakeDocument();
-    assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isEqualTo(1);
+    assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isOne();
 
     afterFirstStart.accept(esDbCompatibility);
     logTester.clear();
@@ -278,7 +278,7 @@ public class IndexCreatorTest {
     assertThat(mapping.type()).isEqualTo("fake");
     assertThat(mapping.getSourceAsMap()).isNotEmpty();
     assertThat(countMappingFields(mapping)).isEqualTo(2);
-    assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
+    assertThat(field(mapping, "updatedAt")).containsEntry("type", "date");
   }
 
   private static class FakeIndexDefinition implements IndexDefinition {

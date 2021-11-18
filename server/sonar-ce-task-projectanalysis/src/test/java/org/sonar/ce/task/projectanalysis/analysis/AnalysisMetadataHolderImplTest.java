@@ -177,7 +177,7 @@ public class AnalysisMetadataHolderImplTest {
 
     underTest.setCrossProjectDuplicationEnabled(true);
 
-    assertThat(underTest.isCrossProjectDuplicationEnabled()).isEqualTo(true);
+    assertThat(underTest.isCrossProjectDuplicationEnabled()).isTrue();
   }
 
   @Test
@@ -186,7 +186,7 @@ public class AnalysisMetadataHolderImplTest {
 
     underTest.setCrossProjectDuplicationEnabled(false);
 
-    assertThat(underTest.isCrossProjectDuplicationEnabled()).isEqualTo(false);
+    assertThat(underTest.isCrossProjectDuplicationEnabled()).isFalse();
   }
 
   @Test

@@ -124,8 +124,8 @@ public class ConditionImplTest {
 
   @Test
   public void toString_ConditionImpl_of_type_different_from_NO_VALUE() {
-    assertThat(builder.build().toString())
-      .isEqualTo(
+    assertThat(builder.build())
+      .hasToString(
         "ConditionImpl{status=OK, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', value='value'}");
   }
 
@@ -134,8 +134,8 @@ public class ConditionImplTest {
     builder.setStatus(QualityGate.EvaluationStatus.NO_VALUE)
       .setValue(null);
 
-    assertThat(builder.build().toString())
-      .isEqualTo(
+    assertThat(builder.build())
+      .hasToString(
         "ConditionImpl{status=NO_VALUE, metricKey='metricKey', operator=GREATER_THAN, errorThreshold='error threshold', value='null'}");
   }
 

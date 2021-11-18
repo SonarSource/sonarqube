@@ -32,7 +32,7 @@ public class MultiModuleProjectRepository extends ProjectRepositories {
 
   public MultiModuleProjectRepository(Map<String, SingleProjectRepository> repositoriesPerModule) {
     super(true);
-    this.repositoriesPerModule = Collections.unmodifiableMap(new HashMap<>(repositoriesPerModule));
+    this.repositoriesPerModule = Map.copyOf(repositoriesPerModule);
   }
 
   @CheckForNull

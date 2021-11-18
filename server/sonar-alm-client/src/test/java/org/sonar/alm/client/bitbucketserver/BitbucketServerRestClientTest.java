@@ -514,9 +514,7 @@ public class BitbucketServerRestClientTest {
       .setBody("this is not a json payload"));
 
     String serverUrl = server.url("/").toString();
-    assertThatThrownBy(() -> {
-      underTest.validateUrl(serverUrl);
-    })
+    assertThatThrownBy(() -> underTest.validateUrl(serverUrl))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unable to contact Bitbucket server, got an unexpected response");
   }

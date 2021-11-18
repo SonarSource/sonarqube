@@ -138,7 +138,7 @@ public class CeCleaningSchedulerImplTest {
       mockedInternalCeQueue, mockCeDistributedInformation(jobLock));
 
     underTest.startScheduling();
-    assertThat(executorService.schedulerCounter).isEqualTo(1);
+    assertThat(executorService.schedulerCounter).isOne();
   }
 
   private CeConfiguration mockCeConfiguration(long cleanCeTasksInitialDelay, long cleanCeTasksDelay) {

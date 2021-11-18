@@ -78,9 +78,9 @@ public class LocalWsConnectorTest {
 
     verifyRequested("GET", "api/issues/search", MediaTypes.JSON, Collections.<String, String>emptyMap());
     assertThat(wsResponse.code()).isEqualTo(200);
-    assertThat(wsResponse.content()).isEqualTo("");
-    assertThat(IOUtils.toString(wsResponse.contentReader())).isEqualTo("");
-    assertThat(IOUtils.toString(wsResponse.contentStream())).isEqualTo("");
+    assertThat(wsResponse.content()).isEmpty();
+    assertThat(IOUtils.toString(wsResponse.contentReader())).isEmpty();
+    assertThat(IOUtils.toString(wsResponse.contentStream())).isEmpty();
     assertThat(wsResponse.contentType()).isEqualTo(MediaTypes.JSON);
   }
 

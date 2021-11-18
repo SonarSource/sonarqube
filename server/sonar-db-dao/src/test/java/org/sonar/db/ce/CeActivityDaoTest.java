@@ -130,7 +130,7 @@ public class CeActivityDaoTest {
 
     assertThat(underTest.selectByUuid(dbSession, tasks[0].getUuid()).get().getWarningCount()).isEqualTo(moreThan1);
     assertThat(underTest.selectByUuid(dbSession, tasks[1].getUuid()).get().getWarningCount()).isZero();
-    assertThat(underTest.selectByUuid(dbSession, tasks[2].getUuid()).get().getWarningCount()).isEqualTo(1);
+    assertThat(underTest.selectByUuid(dbSession, tasks[2].getUuid()).get().getWarningCount()).isOne();
   }
 
   private void insertWarnings(CeActivityDto task, int warningCount) {
@@ -691,9 +691,9 @@ public class CeActivityDaoTest {
     insert("TASK_3", "REPORT", MAINCOMPONENT_1, SUCCESS);
 
     underTest.deleteByUuids(db.getSession(), ImmutableSet.of("TASK_1", "TASK_3"));
-    assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_1")).isEmpty();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2")).isPresent();
-    assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_3")).isEmpty();
   }
 
   @Test
@@ -718,7 +718,7 @@ public class CeActivityDaoTest {
     insert("TASK_5", CeTaskTypes.REPORT, MAINCOMPONENT_1, SUCCESS);
     db.commit();
 
-    assertThat(underTest.countLastByStatusAndMainComponentUuid(dbSession, SUCCESS, MAINCOMPONENT_1)).isEqualTo(1);
+    assertThat(underTest.countLastByStatusAndMainComponentUuid(dbSession, SUCCESS, MAINCOMPONENT_1)).isOne();
     assertThat(underTest.countLastByStatusAndMainComponentUuid(dbSession, SUCCESS, null)).isEqualTo(2);
   }
 

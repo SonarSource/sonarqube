@@ -217,7 +217,7 @@ public class UnsetActionTest {
   }
 
   private void assertTableContainsOnly(@Nullable String projectUuid, @Nullable String branchUuid, NewCodePeriodType type, @Nullable String value) {
-    assertThat(db.countRowsOfTable(dbSession, "new_code_periods")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "new_code_periods")).isOne();
     assertThat(db.selectFirst(dbSession, "select project_uuid, branch_uuid, type, value from new_code_periods"))
       .containsOnly(entry("PROJECT_UUID", projectUuid), entry("BRANCH_UUID", branchUuid), entry("TYPE", type.name()), entry("VALUE", value));
   }

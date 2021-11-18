@@ -146,7 +146,7 @@ public class EsLoggingTest {
         assertThat(properties.get(key)).describedAs("Unexpected value for property " + key).isEqualTo(value);
         keys.add(key);
       }
-      assertThat(properties.keySet()).containsOnly(keys.toArray());
+      assertThat(properties).containsOnlyKeys(keys.toArray());
     }
   }
 }

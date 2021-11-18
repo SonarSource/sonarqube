@@ -48,11 +48,11 @@ public class InnerDuplicateTest {
   @Test
   public void hashcode_is_TextBlock_hashcode() {
     TextBlock textBlock = new TextBlock(1, 2);
-    assertThat(new InnerDuplicate(textBlock).hashCode()).isEqualTo(textBlock.hashCode());
+    assertThat(new InnerDuplicate(textBlock)).hasSameHashCodeAs(textBlock);
   }
 
   @Test
   public void verify_toString() {
-    assertThat(new InnerDuplicate(new TextBlock(1, 2)).toString()).isEqualTo("InnerDuplicate{textBlock=TextBlock{start=1, end=2}}");
+    assertThat(new InnerDuplicate(new TextBlock(1, 2))).hasToString("InnerDuplicate{textBlock=TextBlock{start=1, end=2}}");
   }
 }

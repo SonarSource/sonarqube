@@ -40,14 +40,14 @@ public class LanguageRepositoryImplTest {
 
   @Test
   public void find_on_empty_LanguageRepository_returns_absent() {
-    assertThat(new LanguageRepositoryImpl().find(ANY_KEY).isPresent()).isFalse();
+    assertThat(new LanguageRepositoryImpl().find(ANY_KEY)).isEmpty();
   }
 
   @Test
   public void find_by_key_returns_the_same_object() {
     LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(SOME_LANGUAGE);
     Optional<Language> language = languageRepository.find(SOME_LANGUAGE_KEY);
-    assertThat(language.isPresent()).isTrue();
+    assertThat(language).isPresent();
     assertThat(language.get()).isSameAs(SOME_LANGUAGE);
   }
 
@@ -55,7 +55,7 @@ public class LanguageRepositoryImplTest {
   public void find_by_other_key_returns_absent() {
     LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(SOME_LANGUAGE);
     Optional<Language> language = languageRepository.find(ANY_KEY);
-    assertThat(language.isPresent()).isFalse();
+    assertThat(language).isEmpty();
   }
 
   private static Language createLanguage(final String key, final String nameSuffix) {
