@@ -19,8 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -53,13 +51,13 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
  */
 public class SizeMeasuresStep implements ComputationStep {
   private static final CounterStackElementFactory COUNTER_STACK_ELEMENT_FACTORY = new CounterStackElementFactory();
-  private static final List<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = Collections.unmodifiableList(Arrays.asList(
+  private static final List<Formula<?>> AGGREGATED_SIZE_MEASURE_FORMULAS = List.of(
     createIntSumFormula(GENERATED_LINES_KEY),
     createIntSumFormula(NCLOC_KEY),
     createIntSumFormula(GENERATED_NCLOC_KEY),
     createIntSumFormula(FUNCTIONS_KEY),
     createIntSumFormula(STATEMENTS_KEY),
-    createIntSumFormula(CLASSES_KEY)));
+    createIntSumFormula(CLASSES_KEY));
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

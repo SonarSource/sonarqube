@@ -49,12 +49,12 @@ class ConditionEvaluator {
    */
   static EvaluatedCondition evaluate(Condition condition, QualityGateEvaluator.Measures measures) {
     Optional<QualityGateEvaluator.Measure> measure = measures.get(condition.getMetricKey());
-    if (!measure.isPresent()) {
+    if (measure.isEmpty()) {
       return new EvaluatedCondition(condition, EvaluationStatus.OK, null);
     }
 
     Optional<Comparable> value = getMeasureValue(condition, measure.get());
-    if (!value.isPresent()) {
+    if (value.isEmpty()) {
       return new EvaluatedCondition(condition, EvaluationStatus.OK, null);
     }
 

@@ -21,7 +21,6 @@ package org.sonar.server.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -55,7 +54,7 @@ public class PluginJarLoader {
   private static final Logger LOG = Loggers.get(PluginJarLoader.class);
 
   // List of plugins that are silently removed if installed
-  private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport", "genericcoverage");
+  private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = Set.of("scmactivity", "issuesreport", "genericcoverage");
   // List of plugins that should prevent the server to finish its startup
   private static final Set<String> FORBIDDEN_INCOMPATIBLE_PLUGINS = Set.of(
     "sqale", "report", "views", "authgithub", "authgitlab", "authbitbucket", "authsaml", "ldap", "scmgit", "scmsvn");

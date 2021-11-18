@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
@@ -152,7 +153,7 @@ class MeasureMatrix {
       .map(MeasureCell::getMeasure);
   }
 
-  private void changeCell(ComponentDto component, String metricKey, Function<LiveMeasureDto, Boolean> changer) {
+  private void changeCell(ComponentDto component, String metricKey, Predicate<LiveMeasureDto> changer) {
     MeasureCell cell = table.get(component.uuid(), metricKey);
     if (cell == null) {
       LiveMeasureDto measure = new LiveMeasureDto()
@@ -161,8 +162,8 @@ class MeasureMatrix {
         .setMetricUuid(metricsByKeys.get(metricKey).getUuid());
       cell = new MeasureCell(measure, true);
       table.put(component.uuid(), metricKey, cell);
-      changer.apply(cell.getMeasure());
-    } else if (changer.apply(cell.getMeasure())) {
+      changer.test(cell.getMeasure());
+    } else if (changer.test(cell.getMeasure())) {
       cell.setChanged(true);
     }
   }

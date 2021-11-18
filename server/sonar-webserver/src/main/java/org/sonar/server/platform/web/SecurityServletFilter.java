@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.web;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Set;
 import javax.servlet.Filter;
@@ -36,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SecurityServletFilter implements Filter {
 
-  private static final Set<String> ALLOWED_HTTP_METHODS = ImmutableSet.of("DELETE", "GET", "HEAD", "POST", "PUT");
+  private static final Set<String> ALLOWED_HTTP_METHODS = Set.of("DELETE", "GET", "HEAD", "POST", "PUT");
 
   @Override
   public void init(FilterConfig filterConfig) {

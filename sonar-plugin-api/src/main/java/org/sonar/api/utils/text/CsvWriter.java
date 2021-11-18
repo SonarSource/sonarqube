@@ -28,10 +28,9 @@ import java.io.Writer;
  * @since 4.2
  */
 public class CsvWriter {
-
-  private final Writer writer;
   private static final String VALUE_SEPARATOR = ",";
   private static final String LINE_SEPARATOR = "\r\n";
+  private final Writer writer;
 
   private CsvWriter(Writer writer) {
     this.writer = writer;

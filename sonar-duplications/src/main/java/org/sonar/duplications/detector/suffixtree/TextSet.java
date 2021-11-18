@@ -21,7 +21,6 @@ package org.sonar.duplications.detector.suffixtree;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sonar.duplications.block.Block;
 
 
@@ -29,10 +28,15 @@ import org.sonar.duplications.block.Block;
  * Simplifies construction of <a href="http://en.wikipedia.org/wiki/Generalised_suffix_tree">generalised suffix-tree</a>.
  */
 public final class TextSet extends AbstractText {
+  private final int lengthOfOrigin;
 
+  private TextSet(List<Object> symbols, int lengthOfOrigin) {
+    super(symbols);
+    this.lengthOfOrigin = lengthOfOrigin;
+  }
   public static final class Builder {
 
-    private List<Object> symbols = new ArrayList<>();
+    private final List<Object> symbols = new ArrayList<>();
     private Integer lengthOfOrigin;
     private int count;
 
@@ -56,13 +60,6 @@ public final class TextSet extends AbstractText {
 
   public static Builder builder() {
     return new Builder();
-  }
-
-  private final int lengthOfOrigin;
-
-  private TextSet(List<Object> symbols, int lengthOfOrigin) {
-    super(symbols);
-    this.lengthOfOrigin = lengthOfOrigin;
   }
 
   public boolean isInsideOrigin(int pos) {
@@ -100,15 +97,9 @@ public final class TextSet extends AbstractText {
       return stringNumber;
     }
 
-    public int getStringNumber() {
-      return stringNumber;
-    }
-
     @Override
     public String toString() {
       return "$" + stringNumber;
     }
-
   }
-
 }

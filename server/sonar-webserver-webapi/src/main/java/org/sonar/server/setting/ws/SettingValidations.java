@@ -19,10 +19,8 @@
  */
 package org.sonar.server.setting.ws;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -34,7 +32,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
@@ -64,6 +61,8 @@ public class SettingValidations {
     "sonar.security.config.pythonsecurity",
     "sonar.security.config.roslyn.sonaranalyzer.security.cs"
   );
+  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP, Qualifiers.MODULE, Qualifiers.SUBVIEW);
+
   private final PropertyDefinitions definitions;
   private final DbClient dbClient;
   private final I18n i18n;
@@ -81,8 +80,6 @@ public class SettingValidations {
         "Setting '%s' cannot be global", data.key);
     };
   }
-
-  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP, Qualifiers.MODULE, Qualifiers.SUBVIEW);
 
   public Consumer<SettingData> qualifier() {
     return data -> {

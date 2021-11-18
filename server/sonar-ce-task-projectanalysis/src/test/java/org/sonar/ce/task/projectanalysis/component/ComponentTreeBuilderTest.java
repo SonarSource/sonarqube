@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,7 +57,7 @@ public class ComponentTreeBuilderTest {
     + ComponentKeys.createEffectiveKey(projectKey, path);
   private static final ComponentKeyGenerator PUBLIC_KEY_GENERATOR = (projectKey, path) -> "public_"
     + ComponentKeys.createEffectiveKey(projectKey, path);
-  private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
+  private static final UnaryOperator<String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, FILE);
   private static final String NO_SCM_BASE_PATH = "";
   // both no project as "" or null should be supported

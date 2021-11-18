@@ -30,7 +30,12 @@ import org.sonar.duplications.utils.FastStringComparator;
  * Set of {@link Block}s, which internally stored as a sorted list.
  */
 final class BlocksGroup {
+  private static final Comparator<String> RESOURCE_ID_COMPARATOR = FastStringComparator.INSTANCE;
   final List<Block> blocks;
+
+  private BlocksGroup() {
+    this.blocks = new ArrayList<>();
+  }
 
   /**
    * Factory method.
@@ -39,10 +44,6 @@ final class BlocksGroup {
    */
   public static BlocksGroup empty() {
     return new BlocksGroup();
-  }
-
-  private BlocksGroup() {
-    this.blocks = new ArrayList<>();
   }
 
   public int size() {
@@ -192,8 +193,6 @@ final class BlocksGroup {
     }
     return result;
   }
-
-  private static final Comparator<String> RESOURCE_ID_COMPARATOR = FastStringComparator.INSTANCE;
 
   /**
    * Compares {@link Block}s first using {@link Block#getResourceId() resource id} and then using {@link Block#getIndexInFile() index in file}.

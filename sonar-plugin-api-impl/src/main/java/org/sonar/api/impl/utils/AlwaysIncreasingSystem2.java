@@ -21,7 +21,7 @@ package org.sonar.api.impl.utils;
 
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 import org.sonar.api.utils.System2;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -38,9 +38,9 @@ public class AlwaysIncreasingSystem2 extends System2 {
   private final AtomicLong now;
   private final long increment;
 
-  private AlwaysIncreasingSystem2(Supplier<Long> initialValueSupplier, long increment) {
+  private AlwaysIncreasingSystem2(LongSupplier initialValueSupplier, long increment) {
     checkArgument(increment > 0, "increment must be > 0");
-    long initialValue = initialValueSupplier.get();
+    long initialValue = initialValueSupplier.getAsLong();
     checkArgument(initialValue >= 0, "Initial value must be >= 0");
     this.now = new AtomicLong(initialValue);
     this.increment = increment;

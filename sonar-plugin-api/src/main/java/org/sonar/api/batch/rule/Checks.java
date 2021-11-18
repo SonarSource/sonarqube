@@ -109,7 +109,7 @@ public class Checks<C> {
   }
 
   public Checks<C> addAnnotatedChecks(Object... checkClassesOrObjects) {
-    return addAnnotatedChecks((Iterable) Arrays.asList(checkClassesOrObjects));
+    return addAnnotatedChecks(Arrays.asList(checkClassesOrObjects));
   }
 
   public Checks<C> addAnnotatedChecks(Iterable checkClassesOrObjects) {

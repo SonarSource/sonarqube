@@ -44,14 +44,14 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CreateAction implements ProjectLinksWsAction {
+  private static final int LINK_NAME_MAX_LENGTH = 128;
+  private static final int LINK_URL_MAX_LENGTH = 2048;
+  private static final int LINK_TYPE_MAX_LENGTH = 20;
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final UuidFactory uuidFactory;
-
-  private static final int LINK_NAME_MAX_LENGTH = 128;
-  private static final int LINK_URL_MAX_LENGTH = 2048;
-  private static final int LINK_TYPE_MAX_LENGTH = 20;
 
   public CreateAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, UuidFactory uuidFactory) {
     this.dbClient = dbClient;

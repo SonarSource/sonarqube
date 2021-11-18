@@ -28,12 +28,12 @@ public class RulePriorityTest {
 
   @Test
   public void testValueOfString() {
-    assertThat(RulePriority.INFO).isEqualTo(RulePriority.valueOfString("info"));
-    assertThat(RulePriority.MAJOR).isEqualTo(RulePriority.valueOfString("MAJOR"));
-    assertThat(RulePriority.MAJOR).isEqualTo(RulePriority.valueOfString("ERROR"));
-    assertThat(RulePriority.INFO).isEqualTo(RulePriority.valueOfString("WARNING"));
-    assertThat(RulePriority.MAJOR).isEqualTo(RulePriority.valueOfString("ErRor"));
-    assertThat(RulePriority.INFO).isEqualTo(RulePriority.valueOfString("WaRnInG"));
+    assertThat(RulePriority.valueOfString("info")).isEqualTo(RulePriority.INFO);
+    assertThat(RulePriority.valueOfString("MAJOR")).isEqualTo(RulePriority.MAJOR);
+    assertThat(RulePriority.valueOfString("ERROR")).isEqualTo(RulePriority.MAJOR);
+    assertThat(RulePriority.valueOfString("WARNING")).isEqualTo(RulePriority.INFO);
+    assertThat(RulePriority.valueOfString("ErRor")).isEqualTo(RulePriority.MAJOR);
+    assertThat(RulePriority.valueOfString("WaRnInG")).isEqualTo(RulePriority.INFO);
   }
 
   @Test(expected = IllegalArgumentException.class)

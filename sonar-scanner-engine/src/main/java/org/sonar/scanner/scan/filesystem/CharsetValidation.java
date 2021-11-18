@@ -93,8 +93,8 @@ public class CharsetValidation {
       }
     }
 
-    double beAsciiPerc = beAscii * 2.0 / (double) buffer.length;
-    double leAsciiPerc = leAscii * 2.0 / (double) buffer.length;
+    double beAsciiPerc = beAscii * 2.0D / buffer.length;
+    double leAsciiPerc = leAscii * 2.0D / buffer.length;
 
     if (leLines == 0) {
       // could be BE

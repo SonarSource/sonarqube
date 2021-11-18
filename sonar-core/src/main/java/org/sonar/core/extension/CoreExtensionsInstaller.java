@@ -41,19 +41,19 @@ public abstract class CoreExtensionsInstaller {
   private final CoreExtensionRepository coreExtensionRepository;
   private final Class<? extends Annotation> supportedAnnotationType;
 
+  protected CoreExtensionsInstaller(SonarRuntime sonarRuntime, CoreExtensionRepository coreExtensionRepository,
+    Class<? extends Annotation> supportedAnnotationType) {
+    this.sonarRuntime = sonarRuntime;
+    this.coreExtensionRepository = coreExtensionRepository;
+    this.supportedAnnotationType = supportedAnnotationType;
+  }
+
   public static Predicate<Object> noExtensionFilter() {
     return t -> true;
   }
 
   public static Predicate<Object> noAdditionalSideFilter() {
     return t -> true;
-  }
-
-  protected CoreExtensionsInstaller(SonarRuntime sonarRuntime, CoreExtensionRepository coreExtensionRepository,
-    Class<? extends Annotation> supportedAnnotationType) {
-    this.sonarRuntime = sonarRuntime;
-    this.coreExtensionRepository = coreExtensionRepository;
-    this.supportedAnnotationType = supportedAnnotationType;
   }
 
   /**

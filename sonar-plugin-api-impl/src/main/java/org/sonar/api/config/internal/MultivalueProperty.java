@@ -25,10 +25,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.ArrayUtils;
+
+import static java.util.function.UnaryOperator.identity;
 
 public class MultivalueProperty {
   private MultivalueProperty() {
@@ -36,10 +39,10 @@ public class MultivalueProperty {
   }
 
   public static String[] parseAsCsv(String key, String value) {
-    return parseAsCsv(key, value, Function.identity());
+    return parseAsCsv(key, value, identity());
   }
 
-  public static String[] parseAsCsv(String key, String value, Function<String, String> valueProcessor) {
+  public static String[] parseAsCsv(String key, String value, UnaryOperator<String> valueProcessor) {
     String cleanValue = MultivalueProperty.trimFieldsAndRemoveEmptyFields(value);
     List<String> result = new ArrayList<>();
     try (CSVParser csvParser = CSVFormat.RFC4180

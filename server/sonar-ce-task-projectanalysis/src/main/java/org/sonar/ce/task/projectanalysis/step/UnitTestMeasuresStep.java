@@ -49,7 +49,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
 public class UnitTestMeasuresStep implements ComputationStep {
   private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, SKIPPED_TESTS_KEY, TEST_SUCCESS_DENSITY_KEY, TEST_EXECUTION_TIME_KEY};
 
-  private static final List<Formula> FORMULAS = List.of(new UnitTestsFormula());
+  private static final List<Formula<?>> FORMULAS = List.of(new UnitTestsFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

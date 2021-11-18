@@ -80,14 +80,14 @@ public class IssueLifecycle {
     setStatus(issue, rule);
   }
 
-  private void setType(DefaultIssue issue, Rule rule) {
+  private static void setType(DefaultIssue issue, Rule rule) {
     if (issue.isFromExternalRuleEngine()) {
       return;
     }
     issue.setType(requireNonNull(rule.getType(), "No rule type"));
   }
 
-  private void setStatus(DefaultIssue issue, Rule rule) {
+  private static void setStatus(DefaultIssue issue, Rule rule) {
     if (rule.getType() == RuleType.SECURITY_HOTSPOT || issue.type() == RuleType.SECURITY_HOTSPOT) {
       issue.setStatus(Issue.STATUS_TO_REVIEW);
     } else {

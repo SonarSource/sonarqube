@@ -19,10 +19,10 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Function;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;

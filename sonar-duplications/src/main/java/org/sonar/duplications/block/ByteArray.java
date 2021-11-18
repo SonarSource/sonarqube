@@ -30,6 +30,7 @@ import java.util.Arrays;
  * also maybe we can incorporate it into Block to reduce memory footprint during detection of duplicates
  */
 public final class ByteArray {
+  private static final String HEXES = "0123456789abcdef";
 
   private final byte[] bytes;
 
@@ -102,8 +103,6 @@ public final class ByteArray {
     ib.get(result);
     return result;
   }
-
-  private static final String HEXES = "0123456789abcdef";
 
   public String toHexString() {
     StringBuilder hex = new StringBuilder(2 * bytes.length);

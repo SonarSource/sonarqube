@@ -23,12 +23,12 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
-import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import static java.util.function.UnaryOperator.identity;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
@@ -46,7 +46,7 @@ public class MultivaluePropertyTest {
   public void parseAsCsv_for_coverage(String value, String[] expected) {
     // parseAsCsv is extensively tested in org.sonar.server.config.ConfigurationProviderTest
     assertThat(parseAsCsv("key", value))
-      .isEqualTo(parseAsCsv("key", value, Function.identity()))
+      .isEqualTo(parseAsCsv("key", value, identity()))
       .isEqualTo(expected);
   }
 

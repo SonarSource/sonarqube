@@ -55,7 +55,7 @@ import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumF
  * Computes coverage measures on files and then aggregates them on higher components.
  */
 public class CoverageMeasuresStep implements ComputationStep {
-  private static final List<Formula> COVERAGE_FORMULAS = List.of(
+  private static final List<Formula<?>> COVERAGE_FORMULAS = List.of(
     createIntSumFormula(LINES_TO_COVER_KEY),
     createIntSumFormula(UNCOVERED_LINES_KEY),
     createIntSumFormula(CONDITIONS_TO_COVER_KEY),

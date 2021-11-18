@@ -61,9 +61,9 @@ public class UpdateEventActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private WsActionTester ws = new WsActionTester(new UpdateEventAction(dbClient, userSession));
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final WsActionTester ws = new WsActionTester(new UpdateEventAction(dbClient, userSession));
 
   @Test
   public void json_example() {

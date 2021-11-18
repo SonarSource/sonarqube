@@ -52,7 +52,7 @@ public class CommentMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
-  private final List<Formula> formulas;
+  private final List<Formula<?>> formulas;
 
   public CommentMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.treeRootHolder = treeRootHolder;

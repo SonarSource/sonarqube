@@ -63,8 +63,7 @@ public class AuthorsAction implements IssuesWsAction {
   private final ComponentFinder componentFinder;
 
   public AuthorsAction(UserSession userSession, DbClient dbClient, IssueIndex issueIndex,
-    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    ComponentFinder componentFinder) {
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;

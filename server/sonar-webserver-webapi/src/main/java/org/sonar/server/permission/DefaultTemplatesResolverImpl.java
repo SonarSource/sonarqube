@@ -58,14 +58,14 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
     return resourceTypes.getRoots()
       .stream()
       .map(ResourceType::getQualifier)
-      .anyMatch(qualifier -> Qualifiers.VIEW.equals(qualifier));
+      .anyMatch(Qualifiers.VIEW::equals);
   }
 
   private static boolean isApplicationEnabled(ResourceTypes resourceTypes) {
     return resourceTypes.getRoots()
             .stream()
             .map(ResourceType::getQualifier)
-            .anyMatch(qualifier ->  Qualifiers.APP.equals(qualifier));
+            .anyMatch(Qualifiers.APP::equals);
   }
 
 }

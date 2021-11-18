@@ -93,14 +93,13 @@ public class TreeAction implements ComponentsWsAction {
   private static final String PATH_SORT = "path";
   private static final String QUALIFIER_SORT = "qualifier";
   private static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, QUALIFIER_SORT);
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSortedSet.of(Qualifiers.PROJECT, Qualifiers.APP);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final ResourceTypes resourceTypes;
   private final UserSession userSession;
   private final I18n i18n;
-
-  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSortedSet.of(Qualifiers.PROJECT, Qualifiers.APP);
 
   public TreeAction(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes, UserSession userSession, I18n i18n) {
     this.dbClient = dbClient;

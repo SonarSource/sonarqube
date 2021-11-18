@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
@@ -440,10 +441,10 @@ public class DatabaseUtils {
   /**
    * This method can be used as a method reference, for not to have to handle the checked exception {@link SQLException}
    */
-  public static Consumer<String> setStrings(PreparedStatement stmt, Supplier<Integer> index) {
+  public static Consumer<String> setStrings(PreparedStatement stmt, IntSupplier index) {
     return value -> {
       try {
-        stmt.setString(index.get(), value);
+        stmt.setString(index.getAsInt(), value);
       } catch (SQLException e) {
         Throwables.propagate(e);
       }

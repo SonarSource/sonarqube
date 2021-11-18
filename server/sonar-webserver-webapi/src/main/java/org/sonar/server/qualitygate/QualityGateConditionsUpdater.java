@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualitygate;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -61,13 +59,12 @@ import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 
 public class QualityGateConditionsUpdater {
-  public static final Set<String> INVALID_METRIC_KEYS = ImmutableSet.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY);
+  public static final Set<String> INVALID_METRIC_KEYS = Set.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY);
 
-  private static final Map<Integer, ImmutableSet<Condition.Operator>> VALID_OPERATORS_BY_DIRECTION = ImmutableMap.<Integer, ImmutableSet<Condition.Operator>>builder()
-    .put(DIRECTION_NONE, ImmutableSet.of(GREATER_THAN, LESS_THAN))
-    .put(DIRECTION_BETTER, ImmutableSet.of(LESS_THAN))
-    .put(DIRECTION_WORST, ImmutableSet.of(GREATER_THAN))
-    .build();
+  private static final Map<Integer, Set<Condition.Operator>> VALID_OPERATORS_BY_DIRECTION = Map.of(
+    DIRECTION_NONE, Set.of(GREATER_THAN, LESS_THAN),
+    DIRECTION_BETTER, Set.of(LESS_THAN),
+    DIRECTION_WORST, Set.of(GREATER_THAN));
 
   private static final EnumSet<ValueType> VALID_METRIC_TYPES = EnumSet.of(
     ValueType.INT,

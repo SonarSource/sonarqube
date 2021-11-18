@@ -52,7 +52,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 public class LanguageDistributionMeasuresStep implements ComputationStep {
   private static final String UNKNOWN_LANGUAGE_KEY = "<null>";
 
-  private static final List<Formula> FORMULAS = List.of(new LanguageDistributionFormula());
+  private static final List<Formula<?>> FORMULAS = List.of(new LanguageDistributionFormula());
 
   private static final String[] LANGUAGE_DISTRIBUTION_FORMULA_METRICS = new String[] {NCLOC_LANGUAGE_DISTRIBUTION_KEY};
 

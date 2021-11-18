@@ -106,7 +106,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
         return;
       }
       Optional<Set<Integer>> changedLines = newLinesRepository.getNewLines(leaf);
-      if (!changedLines.isPresent()) {
+      if (changedLines.isEmpty()) {
         return;
       }
 

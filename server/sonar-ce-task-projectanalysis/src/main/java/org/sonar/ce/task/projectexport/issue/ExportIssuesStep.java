@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.projectexport.rule.Rule;
 import org.sonar.ce.task.projectexport.rule.RuleRepository;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
+import org.sonar.ce.task.projectexport.steps.DumpElement.IssueDumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
 import org.sonar.ce.task.projectexport.steps.StreamWriter;
@@ -134,8 +135,8 @@ public class ExportIssuesStep implements ComputationStep {
       .setResolution(emptyIfNull(rs, 11))
       .setSeverity(emptyIfNull(rs, 12))
       .setManualSeverity(rs.getBoolean(13))
-      .setGap(defaultIfNull(rs, 14, DumpElement.ISSUES.NO_GAP))
-      .setEffort(defaultIfNull(rs, 15, DumpElement.ISSUES.NO_EFFORT))
+      .setGap(defaultIfNull(rs, 14, IssueDumpElement.NO_GAP))
+      .setEffort(defaultIfNull(rs, 15, IssueDumpElement.NO_EFFORT))
       .setAssignee(emptyIfNull(rs, 16))
       .setAuthor(emptyIfNull(rs, 17))
       .setTags(emptyIfNull(rs, 18))

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui.ws;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
@@ -78,7 +77,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
 
-  private static final Set<String> MODULE_OR_DIR_QUALIFIERS = ImmutableSet.of(Qualifiers.MODULE, Qualifiers.DIRECTORY);
+  private static final Set<String> MODULE_OR_DIR_QUALIFIERS = Set.of(Qualifiers.MODULE, Qualifiers.DIRECTORY);
   static final String PARAM_COMPONENT = "component";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
@@ -90,7 +89,7 @@ public class ComponentAction implements NavigationWsAction {
   /**
    * The concept of "visibility" will only be configured for these qualifiers.
    */
-  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
+  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
 
   private final DbClient dbClient;
   private final PageRepository pageRepository;

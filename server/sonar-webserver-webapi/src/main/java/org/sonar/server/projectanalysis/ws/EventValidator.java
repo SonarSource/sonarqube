@@ -33,7 +33,7 @@ import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
 import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
 
 class EventValidator {
-  private static final Set<String> AUTHORIZED_CATEGORIES = ImmutableSet.of(VERSION.name(), OTHER.name());
+  private static final Set<String> AUTHORIZED_CATEGORIES = Set.of(VERSION.name(), OTHER.name());
   private static final String AUTHORIZED_CATEGORIES_INLINED = Joiner.on(", ").join(AUTHORIZED_CATEGORIES);
 
   private EventValidator() {

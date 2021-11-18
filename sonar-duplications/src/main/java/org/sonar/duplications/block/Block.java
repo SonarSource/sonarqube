@@ -32,13 +32,25 @@ public final class Block {
   private final int startLine;
   private final int endLine;
 
-  private int startUnit;
-  private int endUnit;
+  private final int startUnit;
+  private final int endUnit;
 
   /**
    * Cache for hash code.
    */
   private int hash;
+
+  private Block(Builder builder) {
+    this.resourceId = builder.resourceId;
+    this.blockHash = builder.blockHash;
+    this.indexInFile = builder.indexInFile;
+
+    this.startLine = builder.startLine;
+    this.endLine = builder.endLine;
+
+    this.startUnit = builder.startUnit;
+    this.endUnit = builder.endUnit;
+  }
 
   /**
    * @since 2.14
@@ -95,18 +107,6 @@ public final class Block {
     public Block build() {
       return new Block(this);
     }
-  }
-
-  private Block(Builder builder) {
-    this.resourceId = builder.resourceId;
-    this.blockHash = builder.blockHash;
-    this.indexInFile = builder.indexInFile;
-
-    this.startLine = builder.startLine;
-    this.endLine = builder.endLine;
-
-    this.startUnit = builder.startUnit;
-    this.endUnit = builder.endUnit;
   }
 
   public String getHashHex() {

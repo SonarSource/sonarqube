@@ -60,7 +60,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
         return Stream.empty();
       }
       BoolQueryBuilder queryBuilder = prefixAndPartialQuery(tokens, query.getFieldName(), SEARCH_PREFIX_ANALYZER)
-        .boost(3f);
+        .boost(3F);
       return Stream.of(queryBuilder);
     }
   },

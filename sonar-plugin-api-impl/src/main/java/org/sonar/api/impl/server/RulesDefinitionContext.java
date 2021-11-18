@@ -58,6 +58,7 @@ public class RulesDefinitionContext extends RulesDefinition.Context {
     return unmodifiableList(new ArrayList<>(repositoriesByKey.values()));
   }
 
+  @Override
   public void registerRepository(DefaultNewRepository newRepository) {
     RulesDefinition.Repository existing = repositoriesByKey.get(newRepository.key());
     if (existing != null) {
@@ -69,6 +70,7 @@ public class RulesDefinitionContext extends RulesDefinition.Context {
     repositoriesByKey.put(newRepository.key(), new DefaultRepository(newRepository, existing));
   }
 
+  @Override
   public String currentPluginKey() {
     return currentPluginKey;
   }

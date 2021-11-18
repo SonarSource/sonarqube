@@ -125,7 +125,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
         return newDebt.getValue() / (double) developmentCost;
       }
     }
-    return 0d;
+    return 0D;
   }
 
   private static long getLongValue(Optional<Measure> measure) {

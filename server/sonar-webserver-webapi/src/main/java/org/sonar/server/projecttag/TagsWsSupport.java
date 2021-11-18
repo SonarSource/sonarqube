@@ -38,18 +38,17 @@ import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class TagsWsSupport {
+  /**
+   * The characters allowed in project tags are lower-case
+   * letters, digits, plus (+), sharp (#), dash (-) and dot (.)
+   */
+  private static final Pattern VALID_TAG_REGEXP = Pattern.compile("[a-z0-9+#\\-.]+$");
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
   private final System2 system2;
-
-  /**
-   * The characters allowed in project tags are lower-case
-   * letters, digits, plus (+), sharp (#), dash (-) and dot (.)
-   */
-  private static final Pattern VALID_TAG_REGEXP = Pattern.compile("[a-z0-9+#\\-.]+$");
 
   public TagsWsSupport(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, ProjectIndexers projectIndexers, System2 system2) {
     this.dbClient = dbClient;

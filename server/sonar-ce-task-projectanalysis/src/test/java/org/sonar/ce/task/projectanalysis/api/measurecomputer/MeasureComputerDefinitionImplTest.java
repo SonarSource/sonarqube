@@ -153,13 +153,15 @@ public class MeasureComputerDefinitionImplTest {
       .setOutputMetrics("debt")
       .build();
 
-    assertThat(computer).isEqualTo(computer);
-    assertThat(computer).isEqualTo(sameComputer);
-    assertThat(computer).isNotEqualTo(anotherComputer);
-    assertThat(computer).isNotEqualTo(null);
+    assertThat(computer).isEqualTo(computer)
+      .isEqualTo(sameComputer)
+      .isNotEqualTo(anotherComputer)
+      .isNotEqualTo(null);
 
-    assertThat(computer.hashCode()).isEqualTo(computer.hashCode());
-    assertThat(computer.hashCode()).isEqualTo(sameComputer.hashCode());
+    assertThat(computer)
+      .hasSameHashCodeAs(computer)
+      .hasSameHashCodeAs(sameComputer);
+
     assertThat(computer.hashCode()).isNotEqualTo(anotherComputer.hashCode());
   }
 
@@ -169,7 +171,7 @@ public class MeasureComputerDefinitionImplTest {
       .setInputMetrics("ncloc", "comment")
       .setOutputMetrics("comment_density_1", "comment_density_2")
       .build().toString())
-        .isEqualTo("MeasureComputerDefinitionImpl{inputMetricKeys=[ncloc, comment], outputMetrics=[comment_density_1, comment_density_2]}");
+      .isEqualTo("MeasureComputerDefinitionImpl{inputMetricKeys=[ncloc, comment], outputMetrics=[comment_density_1, comment_density_2]}");
   }
 
 }

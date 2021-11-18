@@ -43,13 +43,12 @@ import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
 
 public class ServletRequest extends ValidatingRequest {
-
-  private final HttpServletRequest source;
-
   static final Map<String, String> SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX = ImmutableMap.of(
     "json", MediaTypes.JSON,
     "protobuf", MediaTypes.PROTOBUF,
     "text", MediaTypes.TXT);
+
+  private final HttpServletRequest source;
 
   public ServletRequest(HttpServletRequest source) {
     this.source = source;

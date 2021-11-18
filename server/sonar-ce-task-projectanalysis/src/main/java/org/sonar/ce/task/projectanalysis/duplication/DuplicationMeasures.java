@@ -47,7 +47,7 @@ import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 
 public class DuplicationMeasures {
-  protected final List<Formula> formulas;
+  protected final List<Formula<?>> formulas;
   protected final TreeRootHolder treeRootHolder;
   protected final MetricRepository metricRepository;
   protected final MeasureRepository measureRepository;

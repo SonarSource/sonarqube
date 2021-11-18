@@ -37,7 +37,7 @@ public abstract class CoverageVariationFormula<T extends ElementsAndCoveredEleme
   @Override
   public Optional<Measure> createMeasure(T counter, CreateMeasureContext context) {
     LongValue elements = counter.elements;
-    if (elements.isSet() && elements.getValue() > 0d) {
+    if (elements.isSet() && elements.getValue() > 0D) {
       LongValue coveredElements = counter.coveredElements;
       double variation = calculateCoverage(coveredElements.getValue(), elements.getValue());
       return Optional.of(newMeasureBuilder().setVariation(variation).createNoValue());

@@ -59,7 +59,7 @@ public class IssueQuery {
    */
   public static final String SORT_HOTSPOTS = "HOTSPOTS";
 
-  public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_ASSIGNEE, SORT_BY_SEVERITY,
+  public static final Set<String> SORTS = Set.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_ASSIGNEE, SORT_BY_SEVERITY,
     SORT_BY_STATUS, SORT_BY_FILE_LINE, SORT_HOTSPOTS);
 
   private final Collection<String> issueKeys;

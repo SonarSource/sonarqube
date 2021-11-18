@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
@@ -72,7 +73,7 @@ public class ComponentTreeBuilder {
   public ComponentTreeBuilder(
     ComponentKeyGenerator keyGenerator,
     ComponentKeyGenerator publicKeyGenerator,
-    Function<String, String> uuidSupplier,
+    UnaryOperator<String> uuidSupplier,
     Function<Integer, ScannerReport.Component> scannerComponentSupplier,
     Project project,
     Branch branch,

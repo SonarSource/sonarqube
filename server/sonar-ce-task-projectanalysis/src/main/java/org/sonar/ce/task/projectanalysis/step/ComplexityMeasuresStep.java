@@ -48,7 +48,7 @@ import static org.sonar.ce.task.projectanalysis.formula.SumFormula.createIntSumF
  * Computes complexity measures on files and then aggregates them on higher components.
  */
 public class ComplexityMeasuresStep implements ComputationStep {
-  private static final List<Formula> FORMULAS = List.of(
+  private static final List<Formula<?>> FORMULAS = List.of(
     createIntSumFormula(COMPLEXITY_KEY),
     createIntSumFormula(COMPLEXITY_IN_CLASSES_KEY),
     createIntSumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),

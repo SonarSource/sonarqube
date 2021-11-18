@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -39,7 +38,7 @@ class ComponentDtoToWsComponent {
   /**
    * The concept of "visibility" will only be configured for these qualifiers.
    */
-  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
+  private static final Set<String> QUALIFIERS_WITH_VISIBILITY = Set.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
 
   private ComponentDtoToWsComponent() {
     // prevent instantiation
