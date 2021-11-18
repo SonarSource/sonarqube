@@ -1517,7 +1517,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags("off", 10);
+    List<String> result = underTest.searchTags("off", 1,10);
 
     assertThat(result).containsOnly("offshore", "official", "Madhoff");
   }
@@ -1532,7 +1532,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 10);
+    List<String> result = underTest.searchTags(null, 1, 10);
 
     assertThat(result).containsOnly("offshore", "official", "Madhoff", "finance", "marketing", "java", "javascript");
   }
@@ -1547,9 +1547,47 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 10);
+    List<String> result = underTest.searchTags(null, 1,10);
 
     assertThat(result).containsExactly("Madhoff", "finance", "java", "javascript", "marketing", "official", "offshore");
+  }
+
+  @Test
+  public void search_tags_follows_paging() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 1,3);
+    assertThat(result).containsExactly("Madhoff", "finance", "java");
+
+    result = underTest.searchTags(null, 2,3);
+    assertThat(result).containsExactly("javascript", "marketing", "official");
+
+    result = underTest.searchTags(null, 3,3);
+    assertThat(result).containsExactly("offshore");
+
+    result = underTest.searchTags(null, 3,4);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void search_tags_returns_nothing_if_page_too_large() {
+    index(
+      newDoc().setTags(newArrayList("finance", "offshore", "java")),
+      newDoc().setTags(newArrayList("official", "javascript")),
+      newDoc().setTags(newArrayList("marketing", "official")),
+      newDoc().setTags(newArrayList("marketing", "Madhoff")),
+      newDoc().setTags(newArrayList("finance", "offshore")),
+      newDoc().setTags(newArrayList("offshore")));
+
+    List<String> result = underTest.searchTags(null, 10,2);
+
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -1562,14 +1600,14 @@ public class ProjectMeasuresIndexTest {
 
     userSession.logIn(USER1);
 
-    List<String> result = underTest.searchTags(null, 10);
+    List<String> result = underTest.searchTags(null, 1,10);
 
     assertThat(result).containsOnly("finance", "marketing");
   }
 
   @Test
   public void search_tags_with_no_tags() {
-    List<String> result = underTest.searchTags("whatever", 10);
+    List<String> result = underTest.searchTags("whatever", 1,10);
 
     assertThat(result).isEmpty();
   }
@@ -1578,7 +1616,7 @@ public class ProjectMeasuresIndexTest {
   public void search_tags_with_page_size_at_0() {
     index(newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 0);
+    List<String> result = underTest.searchTags(null, 1,0);
 
     assertThat(result).isEmpty();
   }
@@ -1650,9 +1688,17 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void fail_if_page_size_greater_than_500() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be lower than or equals to 500");
+    expectedException.expectMessage("Page size must be lower than or equals to 100");
 
-    underTest.searchTags("whatever", 501);
+    underTest.searchTags("whatever", 1, 101);
+  }
+
+  @Test
+  public void fail_if_page_greater_than_20() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page must be between 0 and 20");
+
+    underTest.searchTags("whatever", 21, 100);
   }
 
   private void index(ProjectMeasuresDoc... docs) {

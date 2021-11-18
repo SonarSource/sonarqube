@@ -745,8 +745,7 @@ public class RegisterRules implements Startable {
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
-  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession dbSession, RegisterRulesContext recorder,
-    List<RulesDefinition.Repository> context) {
+  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession dbSession, RegisterRulesContext recorder, List<RulesDefinition.Repository> context) {
     List<String> repositoryKeys = context.stream()
       .map(RulesDefinition.ExtendedRepository::key)
       .collect(MoreCollectors.toList(context.size()));

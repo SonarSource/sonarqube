@@ -20,12 +20,14 @@
 package org.sonar.server.projecttag.ws;
 
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonarqube.ws.ProjectTags;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -43,10 +45,11 @@ public class SearchAction implements ProjectTagsWsAction {
       .setDescription("Search tags")
       .setSince("6.4")
       .setResponseExample(getClass().getResource("search-example.json"))
+      .setChangelog(new Change("9.2", "Parameter 'page' added"))
       .setHandler(this);
 
     action.addSearchQuery("off", "tags");
-    action.createPageSize(10, 100);
+    action.addPagingParams(10, 100);
   }
 
   @Override
@@ -56,7 +59,7 @@ public class SearchAction implements ProjectTagsWsAction {
   }
 
   private ProjectTags.SearchResponse doHandle(Request request) {
-    List<String> tags = index.searchTags(request.param(TEXT_QUERY), request.mandatoryParamAsInt(PAGE_SIZE));
+    List<String> tags = index.searchTags(request.param(TEXT_QUERY), request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));
     return ProjectTags.SearchResponse.newBuilder().addAllTags(tags).build();
   }
 }

@@ -102,7 +102,7 @@ public class SearchActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.since()).isEqualTo("6.4");
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("q", "ps");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("q", "p", "ps");
   }
 
   private void index(ProjectMeasuresDoc... docs) {

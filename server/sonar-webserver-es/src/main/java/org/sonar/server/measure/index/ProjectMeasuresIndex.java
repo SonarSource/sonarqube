@@ -435,16 +435,19 @@ public class ProjectMeasuresIndex {
     }
   }
 
-  public List<String> searchTags(@Nullable String textQuery, int size) {
-    int maxPageSize = 500;
+  public List<String> searchTags(@Nullable String textQuery, int page, int size) {
+    int maxPageSize = 100;
+    int maxPage = 20;
     checkArgument(size <= maxPageSize, "Page size must be lower than or equals to " + maxPageSize);
+    checkArgument(page > 0 && page <= maxPage, "Page must be between 0 and " + maxPage);
+
     if (size <= 0) {
       return emptyList();
     }
 
     TermsAggregationBuilder tagFacet = AggregationBuilders.terms(FIELD_TAGS)
       .field(FIELD_TAGS)
-      .size(size)
+      .size(size*page)
       .minDocCount(1)
       .order(BucketOrder.key(true));
     if (textQuery != null) {
@@ -454,7 +457,6 @@ public class ProjectMeasuresIndex {
     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
       .query(authorizationTypeSupport.createQueryFilter())
       .fetchSource(false)
-      .size(0)
       .aggregation(tagFacet);
 
     SearchResponse response = client.search(EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
@@ -463,6 +465,7 @@ public class ProjectMeasuresIndex {
     Terms aggregation = response.getAggregations().get(FIELD_TAGS);
 
     return aggregation.getBuckets().stream()
+      .skip((page-1) * size)
       .map(Bucket::getKeyAsString)
       .collect(MoreCollectors.toList());
   }
