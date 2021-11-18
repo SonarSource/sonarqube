@@ -177,6 +177,26 @@ Property  | Description | Default | Required
 When you're using the SonarSource Docker images, the truststore/keystore should be provided as volumes. 
 On Kubernetes, you need to create a new Secret from the truststore/keystore and provide the name to the Helm chart.
 
+## Secure your Network
+
+To further lock down the communication in between the nodes in your SonarQube Cluster, you can define the following network rules:
+
+Protocol | Source | Destination | Port | default
+---|---|---|---|---
+TCP | Reverse Proxy | App Node | `sonar.web.port` | 9000
+TCP | App Node | Search Node | `sonar.cluster.node.search` | 9001
+TCP | Search Node | Search Node | `sonar.cluster.node.es.port` | 9002
+TCP | App Node | App Node | `sonar.cluster.node.port` | 9003
+
+you can further segrement your network configuration if you specify a frontend, a backend and a search network.  
+
+Network | Parameter | Description
+---|---|---
+Frontend | `sonar.web.host` 				| Frontend HTTP Network
+Backend  | `sonar.cluster.node.host` 		| Backend App to App Network
+Backend  | `sonar.cluster.search.hosts`     | Backend App to Search Network
+Search   | `sonar.cluster.node.search.host` | Backend Search to Search Network
+
 ## Limitations
 * Cluster downtime is required for SonarQube upgrades or plugin installations.
 * All application nodes must be stopped when installing, uninstalling, or upgrading a plugin.

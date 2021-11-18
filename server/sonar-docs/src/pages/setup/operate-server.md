@@ -198,3 +198,20 @@ server {
   }
 }
 ```
+
+## Secure your Network
+
+To further lock down the communication in between the reverse proxy and SonarQube, you can define the following network rules: 
+
+Protocol | Source | Destination | Port | default
+---|---|---|---|---
+TCP | Reverse Proxy | SonarQube | `sonar.web.port` | 9000
+TCP | SonarQube | SonarQube | `sonar.search.port` | 9001
+TCP | SonarQube | SonarQube | `sonar.es.port` | random
+
+you can further segrement your network configuration if you specify a frontend network and keep Elasticsearch restricted to the loopback NiC.  
+
+Network | Parameter | Description | default
+---|---|---|---
+Frontend       | `sonar.web.host` 			| Frontend HTTP Network | 0.0.0.0
+Elasticsearch  | `sonar.search.host` 		| Elasticsearch Network | 127.0.0.1
