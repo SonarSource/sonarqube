@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 plugins {
   // Ordered alphabeticly
   id 'com.github.ben-manes.versions' version '0.33.0'
@@ -689,13 +691,26 @@ gradle.projectsEvaluated { gradle ->
 }
 
 ext.osAdaptiveCommand = { commands ->
-    def newCommands = []
-    
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-      newCommands = ['cmd', '/c']
-    }
+  def newCommands = []
 
-    newCommands.addAll(commands)
+  if (System.properties['os.name'].toLowerCase().contains('windows')) {
+    newCommands = ['cmd', '/c']
+  }
 
-    return newCommands
+  newCommands.addAll(commands)
+
+  return newCommands
 }
+
+tasks.named('sonarqube') {
+  long taskStart
+  doFirst {
+    taskStart = System.currentTimeMillis()
+  }
+  doLast {
+    long taskDuration = System.currentTimeMillis() - taskStart
+    File outputFile = new File("/tmp/analysis-monitoring.log")
+    outputFile.append(JsonOutput.toJson([category: "Analysis", suite: "Standalone", operation: "total", duration: taskDuration]) + '\n')
+  }
+}
+
