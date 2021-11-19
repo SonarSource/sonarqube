@@ -38,6 +38,12 @@ only_upon_sql_changes_or_nightly_depending_on_build_template: &ONLY_UPON_SQL_CHA
     $CIRRUS_BRANCH == "branch-nightly-build" ||
     changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java')
 
+only_default_branches_template: &ONLY_DEFAULT_BRANCHES_TEMPLATE
+  only_if: >-
+    $CIRRUS_BRANCH !=~ "dogfood/.*" &&
+    $CIRRUS_BRANCH != "public_master" &&
+    $CIRRUS_CRON == ""
+
 only_default_depending_on_build_template: &ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
   only_if: >-
@@ -105,6 +111,31 @@ gradle_cache_template: &GRADLE_CACHE_TEMPLATE
     folder: "~/.gradle/caches"
     fingerprint_script:  find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) -exec cat {} +
 
+eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
+  eslint_report_cache:
+    folders:
+      - server/sonar-web/eslint-report/
+      - server/sonar-docs/eslint-report/
+      - private/core-extension-securityreport/eslint-report/
+      - private/core-extension-license/eslint-report/
+      - private/core-extension-governance/eslint-report/
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+jest_coverage_cache_template: &JEST_COVERAGE_CACHE_TEMPLATE
+  jest_coverage_cache:
+    folders:
+      - server/sonar-web/coverage/
+      - server/sonar-docs/coverage/
+      - private/core-extension-securityreport/coverage/
+      - private/core-extension-license/coverage/
+      - private/core-extension-governance/coverage/
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
+junit_jacoco_cache_template: &JUNIT_JACOCO_CACHE_TEMPLATE
+  junit_jacoco_cache:
+    folder: "**/reports/jacoco"
+    fingerprint_script: echo $CIRRUS_BUILD_ID
+
 custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
   clone_script: |
     git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR --depth=1
@@ -116,12 +147,9 @@ profile_artifacts_template: &PROFILE_ARTIFACTS_TEMPLATE
     path: "**/build/reports/profile/**/*"
 
 build_task:
-  <<: *YARN_CACHE_TEMPLATE
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  only_if: >-
-    $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-    $CIRRUS_BRANCH != "public_master" &&
-    $CIRRUS_CRON == ""
+  <<: *YARN_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -145,38 +173,106 @@ build_task:
   always:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
-validate_task:
-  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
-  <<: *YARN_CACHE_TEMPLATE
+yarn_lint-report-ci_task:
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *ESLINT_REPORT_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 6.5
-    memory: 28Gb
-    additional_containers:
-      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+    cpu: 5
+    memory: 6Gb
   script:
-    - ./private/cirrus/cirrus-validate.sh postgres106
+    - ./private/cirrus/cirrus-yarn-lint-report.sh
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
   always:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
-yarn_check-ci_task:
-  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
+yarn_validate-ci_task:
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
+  <<: *JEST_COVERAGE_CACHE_TEMPLATE
+  timeout_in: 90m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 7.5
+    memory: 20Gb
+  script:
+    - ./private/cirrus/cirrus-yarn-validate-ci.sh
+  on_failure:
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
+
+junit_task:
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JUNIT_JACOCO_CACHE_TEMPLATE
+  timeout_in: 90m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 7.5
+    memory: 20Gb
+  script:
+    - ./private/cirrus/cirrus-junit.sh
+  on_failure:
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
+
+db_dao_postgres_task:
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 4
+    cpu: 2
     memory: 8Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh postgres106
+  on_failure:
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
+
+validate_task:
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  <<: *JEST_COVERAGE_CACHE_TEMPLATE
+  <<: *ESLINT_REPORT_CACHE_TEMPLATE
+  <<: *JUNIT_JACOCO_CACHE_TEMPLATE
+  depends_on:
+    - yarn_validate-ci
+    - yarn_lint-report-ci
+    - junit
+  timeout_in: 90m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 7.5
+    memory: 28Gb
+  script:
+    - ./private/cirrus/cirrus-validate.sh
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
+
+yarn_check-ci_task:
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *YARN_CACHE_TEMPLATE
+  timeout_in: 90m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 5
+    memory: 6Gb
   script: |
     ./private/cirrus/cirrus-env.sh YARN
     gradle yarn_check-ci --profile
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
   always:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
@@ -409,6 +505,7 @@ promote_task:
   <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on:
     - build
+    - db_dao_postgres
     - validate
     - qa
     - qa_saml

@@ -5,7 +5,7 @@ sonarqube {
     property "sonar.tests", "src/main/js"
     property "sonar.test.inclusions", "src/main/js/**/__tests__/**"
     property "sonar.exclusions", "src/main/js/**/__tests__/**"
-    property "sonar.eslint.reportPaths", "eslint-report.json"
+    property "sonar.eslint.reportPaths", "eslint-report/eslint-report.json"
     property "sonar.javascript.lcov.reportPaths", "coverage/lcov.info"
   }
 }
@@ -26,6 +26,20 @@ task yarn_run(type: Exec) {
 }
 build.dependsOn(yarn_run)
 
+task "yarn_lint-report-ci"(type: Exec) {
+  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
+  ['config', 'src/main/js'].each {
+    inputs.dir(it)
+  }
+  ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc'].each {
+    inputs.file(it)
+  }
+  outputs.dir('eslint-report')
+  outputs.cacheIf { true }
+
+  commandLine osAdaptiveCommand(['npm', 'run', 'lint-report-ci'])
+}
+
 task "yarn_validate-ci"(type: Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src/main/js'].each {
@@ -34,7 +48,6 @@ task "yarn_validate-ci"(type: Exec) {
   ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc'].each {
     inputs.file(it)
   }
-  outputs.file('eslint-report.json')
   outputs.dir('coverage')
   outputs.cacheIf { true }
 
