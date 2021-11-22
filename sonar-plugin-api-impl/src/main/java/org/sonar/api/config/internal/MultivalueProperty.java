@@ -45,10 +45,11 @@ public class MultivalueProperty {
   public static String[] parseAsCsv(String key, String value, UnaryOperator<String> valueProcessor) {
     String cleanValue = MultivalueProperty.trimFieldsAndRemoveEmptyFields(value);
     List<String> result = new ArrayList<>();
-    try (CSVParser csvParser = CSVFormat.RFC4180
-      .withHeader((String) null)
-      .withIgnoreEmptyLines()
-      .withIgnoreSurroundingSpaces()
+    try (CSVParser csvParser = CSVFormat.RFC4180.builder()
+        .setSkipHeaderRecord(true)
+        .setIgnoreEmptyLines(true)
+        .setIgnoreSurroundingSpaces(true)
+        .build()
       .parse(new StringReader(cleanValue))) {
       List<CSVRecord> records = csvParser.getRecords();
       if (records.isEmpty()) {

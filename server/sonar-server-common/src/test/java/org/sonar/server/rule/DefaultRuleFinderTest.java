@@ -108,10 +108,10 @@ public class DefaultRuleFinderTest {
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    assertThat(underTest.findAll(RuleQuery.create())).extracting("ruleKey").containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
+    assertThat(underTest.findAll(RuleQuery.create())).extracting(Rule::ruleKey).containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
 
     // find_all
-    assertThat(underTest.findAll()).extracting("ruleKey").containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
+    assertThat(underTest.findAll()).extracting(RuleDefinitionDto::getRuleKey).containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
 
     // do_not_find_disabled_rules
     assertThat(underTest.findByKey("checkstyle", "DisabledCheck")).isNull();
@@ -132,8 +132,8 @@ public class DefaultRuleFinderTest {
   @Test
   public void find_all_not_include_removed_rule() {
     // rule 3 is REMOVED
-    assertThat(underTest.findAll(RuleQuery.create())).extracting("ruleKey").containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
-    assertThat(underTest.findAll()).extracting("ruleKey").containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
+    assertThat(underTest.findAll(RuleQuery.create())).extracting(Rule::ruleKey).containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
+    assertThat(underTest.findAll()).extracting(RuleDefinitionDto::getRuleKey).containsOnly(rule1.getKey().rule(), rule3.getKey().rule(), rule4.getKey().rule());
   }
 
   @Test

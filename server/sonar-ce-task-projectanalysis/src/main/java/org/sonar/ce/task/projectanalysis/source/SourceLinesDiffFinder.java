@@ -35,7 +35,7 @@ public class SourceLinesDiffFinder {
     int dbLine = left.size();
     int reportLine = right.size();
     try {
-      PathNode node = MyersDiff.buildPath(left.toArray(), right.toArray());
+      PathNode node = new MyersDiff<String>().buildPath(left, right);
 
       while (node.prev != null) {
         PathNode prevNode = node.prev;

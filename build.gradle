@@ -2,17 +2,17 @@ import groovy.json.JsonOutput
 
 plugins {
   // Ordered alphabeticly
-  id 'com.github.ben-manes.versions' version '0.33.0'
+  id 'com.github.ben-manes.versions' version '0.39.0'
   id 'com.github.hierynomus.license' version '0.15.0'
   id "com.github.hierynomus.license-report" version "0.15.0" apply false
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
-  id 'com.google.protobuf' version '0.8.13' apply false
-  id 'com.jfrog.artifactory' version '4.21.0'
-  id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-  id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
-  id 'org.owasp.dependencycheck' version '6.3.1'
-  id 'org.sonarqube' version '3.0'
-  id "de.undercouch.download" version "4.1.1" apply false
+  id 'com.google.protobuf' version '0.8.18' apply false
+  id 'com.jfrog.artifactory' version '4.24.23'
+  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+  id "com.asarkar.gradle.build-time-tracker" version "2.1.0" apply false
+  id 'org.owasp.dependencycheck' version '6.5.0.1'
+  id 'org.sonarqube' version '3.3'
+  id "de.undercouch.download" version "4.1.2" apply false
 }
 
 // display a summary of task durations at the end of the build
@@ -175,7 +175,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.17.3'
+    protobufVersion = '3.19.1'
 
     // define a method which can be called by project to change Java version to compile to
     configureCompileJavaToVersion = { javaVersion ->
@@ -288,7 +288,7 @@ subprojects {
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.4.0.1294'
 
       // please keep this list alphabetically ordered
-      dependencySet(group: 'ch.qos.logback', version: '1.2.3') {
+      dependencySet(group: 'ch.qos.logback', version: '1.2.7') {
         entry 'logback-access'
         entry 'logback-classic'
         entry 'logback-core'
@@ -296,9 +296,9 @@ subprojects {
       dependency('commons-beanutils:commons-beanutils:1.8.3') {
         exclude 'commons-logging:commons-logging'
       }
-      dependency 'commons-codec:commons-codec:1.14'
+      dependency 'commons-codec:commons-codec:1.15'
       dependency 'commons-dbutils:commons-dbutils:1.7'
-      dependency 'commons-io:commons-io:2.8.0'
+      dependency 'commons-io:commons-io:2.11.0'
       dependency 'commons-lang:commons-lang:2.6'
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.4' }
       dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.11.4') {
@@ -311,16 +311,16 @@ subprojects {
         entry 'scribejava-apis'
         entry 'scribejava-core'
       }
-      dependency 'com.github.everit-org.json-schema:org.everit.json.schema:1.12.2'
+      dependency 'com.github.everit-org.json-schema:org.everit.json.schema:1.14.0'
       // This project is no longer maintained and was forked
       // by https://github.com/java-diff-utils/java-diff-utils
       // (io.github.java-diff-utils:java-diff-utils).
-      dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
+      dependency 'com.googlecode.java-diff-utils:diffutils:1.3.0'
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
       }
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
-      dependency 'com.google.code.gson:gson:2.8.6'
+      dependency 'com.google.code.gson:gson:2.8.9'
       dependency('com.google.guava:guava:28.2-jre') {
         exclude 'com.google.errorprone:error_prone_annotations'
         exclude 'com.google.guava:listenablefuture'
@@ -331,7 +331,7 @@ subprojects {
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       // Do not upgrade H2 to 1.4.200 because of instability: https://github.com/h2database/h2database/issues/2205
       dependency 'com.h2database:h2:1.4.199'
-      dependencySet(group: 'com.hazelcast', version: '4.2') {
+      dependencySet(group: 'com.hazelcast', version: '4.2.2') {
         entry 'hazelcast'
       }
       dependency 'com.hazelcast:hazelcast-kubernetes:2.2.3'
@@ -343,7 +343,7 @@ subprojects {
       // upgrade okhttp3 dependency kotlin to get rid of not exploitable CVE-2020-29582
       dependency 'org.jetbrains.kotlin:kotlin-stdlib-common:1.4.21'
       dependency 'org.jetbrains.kotlin:kotlin-stdlib:1.4.21'
-      dependencySet(group: 'com.squareup.okhttp3', version: '4.9.0') {
+      dependencySet(group: 'com.squareup.okhttp3', version: '4.9.3') {
         entry 'okhttp'
         entry 'mockwebserver'
       }
@@ -354,20 +354,20 @@ subprojects {
         entry 'jjwt-impl'
         entry 'jjwt-jackson'
       }
-      dependency 'com.auth0:java-jwt:3.10.3'
+      dependency 'com.auth0:java-jwt:3.18.2'
       dependency 'io.netty:netty-all:4.1.70.Final'
       dependency 'com.sun.mail:javax.mail:1.5.6'
       dependency 'javax.annotation:javax.annotation-api:1.3.2'
       dependency 'javax.servlet:javax.servlet-api:3.1.0'
       dependency 'javax.xml.bind:jaxb-api:2.3.0'
-      dependency 'junit:junit:4.13.1'
-      dependency 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-      dependency 'org.xmlunit:xmlunit-core:2.6.4'
-      dependency 'org.xmlunit:xmlunit-matchers:2.6.4'
+      dependency 'junit:junit:4.13.2'
+      dependency 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+      dependency 'org.xmlunit:xmlunit-core:2.8.3'
+      dependency 'org.xmlunit:xmlunit-matchers:2.8.3'
       dependency 'net.jpountz.lz4:lz4:1.3.0'
       dependency 'net.lightbody.bmp:littleproxy:1.1.0-beta-bmp-17'
-      dependency 'org.awaitility:awaitility:4.0.2'
-      dependency 'org.apache.commons:commons-csv:1.7'
+      dependency 'org.awaitility:awaitility:4.1.1'
+      dependency 'org.apache.commons:commons-csv:1.9.0'
       dependency 'org.apache.commons:commons-email:1.5'
       dependency 'org.apache.commons:commons-dbcp2:2.9.0'
       dependency('org.apache.httpcomponents:httpclient:4.5.13'){
@@ -379,14 +379,14 @@ subprojects {
         entry 'log4j-to-slf4j'
         entry 'log4j-core'
       }
-      dependencySet(group: 'org.apache.tomcat.embed', version: '8.5.72') {
+      dependencySet(group: 'org.apache.tomcat.embed', version: '8.5.73') {
         entry 'tomcat-embed-core'
         entry('tomcat-embed-jasper') {
           exclude 'org.eclipse.jdt.core.compiler:ecj'
         }
       }
-      dependency 'org.assertj:assertj-core:3.15.0'
-      dependency 'org.assertj:assertj-guava:3.3.0'
+      dependency 'org.assertj:assertj-core:3.21.0'
+      dependency 'org.assertj:assertj-guava:3.4.0'
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
         exclude 'org.slf4j:slf4j-api'
       }
@@ -403,15 +403,15 @@ subprojects {
       dependency 'org.elasticsearch.plugin:transport-netty4-client:7.14.1'
       dependency 'org.elasticsearch:mocksocket:1.0'
       dependency 'org.codelibs.elasticsearch.module:analysis-common:7.14.1'
-      dependency 'org.eclipse.jgit:org.eclipse.jgit:5.11.0.202103091610-r'
-      dependency 'org.tmatesoft.svnkit:svnkit:1.10.1'
+      dependency 'org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r'
+      dependency 'org.tmatesoft.svnkit:svnkit:1.10.3'
       dependency 'org.hamcrest:hamcrest-all:1.3'
-      dependency 'org.jsoup:jsoup:1.13.1'
+      dependency 'org.jsoup:jsoup:1.14.3'
       dependency 'org.mindrot:jbcrypt:0.4'
-      dependency('org.mockito:mockito-core:3.3.3') {
+      dependency('org.mockito:mockito-core:3.12.4') {
         exclude 'org.hamcrest:hamcrest-core'
       }
-      dependency 'org.mybatis:mybatis:3.5.6'
+      dependency 'org.mybatis:mybatis:3.5.7'
       dependency 'org.nanohttpd:nanohttpd:2.3.1'
       dependency 'org.picocontainer:picocontainer:2.15'
       dependencySet(group: 'org.slf4j', version: '1.7.30') {
@@ -421,7 +421,7 @@ subprojects {
         entry 'slf4j-api'
       }
       dependency 'org.postgresql:postgresql:42.2.19'
-      dependency 'org.reflections:reflections:0.9.12'
+      dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:4.1.21'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.35.1.2719'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.23.0.723'
