@@ -34,12 +34,12 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 public class ModuleSensorsExecutor {
   private static final Logger LOG = Loggers.get(ModuleSensorsExecutor.class);
   private static final Profiler profiler = Profiler.create(LOG);
-  private final ModuleSensorExtensionDictionnary selector;
+  private final ModuleSensorExtensionDictionary selector;
   private final SensorStrategy strategy;
   private final ScannerPluginRepository pluginRepo;
   private final boolean isRoot;
 
-  public ModuleSensorsExecutor(ModuleSensorExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
+  public ModuleSensorsExecutor(ModuleSensorExtensionDictionary selector, DefaultInputModule module, InputModuleHierarchy hierarchy,
     SensorStrategy strategy, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
     this.strategy = strategy;

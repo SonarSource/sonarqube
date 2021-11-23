@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan.filesystem;
+package org.sonar.api.batch.fs.internal.predicates;
 
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile;
 
-public class DefaultProjectFileSystem extends MutableFileSystem {
+public class ChangedFilePredicate implements FilePredicate {
 
-  public DefaultProjectFileSystem(InputComponentStore inputComponentStore, DefaultInputProject project) {
-    super(project.getBaseDir(), inputComponentStore, new DefaultFilePredicates(project.getBaseDir()));
-    setFields(project);
+  private final FilePredicate originalPredicate;
+
+  public ChangedFilePredicate(FilePredicate originalPredicate) {
+    this.originalPredicate = originalPredicate;
   }
 
-  public DefaultProjectFileSystem(DefaultInputProject project) {
-    super(project.getBaseDir());
-    setFields(project);
-  }
-
-  private void setFields(DefaultInputProject project) {
-    setWorkDir(project.getWorkDir());
-    setEncoding(project.getEncoding());
+  @Override
+  public boolean apply(InputFile inputFile) {
+    return originalPredicate.apply(inputFile) && InputFile.Status.SAME != inputFile.status();
   }
 
 }

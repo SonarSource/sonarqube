@@ -20,10 +20,12 @@
 package org.sonar.scanner.sensor;
 
 import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 
 public class ModuleSensorWrapper extends AbstractSensorWrapper<Sensor> {
 
-  public ModuleSensorWrapper(Sensor sensor, ModuleSensorContext context, ModuleSensorOptimizer optimizer) {
-    super(sensor, context, optimizer);
+  public ModuleSensorWrapper(Sensor sensor, ModuleSensorContext context, ModuleSensorOptimizer optimizer, MutableFileSystem fileSystem, BranchConfiguration branchConfiguration) {
+    super(sensor, context, optimizer, fileSystem, branchConfiguration);
   }
 }

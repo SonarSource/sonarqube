@@ -20,28 +20,34 @@
 package org.sonar.scanner.sensor;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.scanner.sensor.ProjectSensor;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.scanner.bootstrap.AbstractExtensionDictionnary;
+import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 
-public class ProjectSensorExtensionDictionnary extends AbstractExtensionDictionnary {
+public class ModuleSensorExtensionDictionary extends AbstractExtensionDictionary {
 
-  private final ProjectSensorContext sensorContext;
-  private final ProjectSensorOptimizer sensorOptimizer;
+  private final ModuleSensorContext sensorContext;
+  private final ModuleSensorOptimizer sensorOptimizer;
+  private final MutableFileSystem fileSystem;
+  private final BranchConfiguration branchConfiguration;
 
-  public ProjectSensorExtensionDictionnary(ComponentContainer componentContainer, ProjectSensorContext sensorContext, ProjectSensorOptimizer sensorOptimizer) {
+  public ModuleSensorExtensionDictionary(ComponentContainer componentContainer, ModuleSensorContext sensorContext, ModuleSensorOptimizer sensorOptimizer,
+    MutableFileSystem fileSystem, BranchConfiguration branchConfiguration) {
     super(componentContainer);
     this.sensorContext = sensorContext;
     this.sensorOptimizer = sensorOptimizer;
+    this.fileSystem = fileSystem;
+    this.branchConfiguration = branchConfiguration;
   }
 
-  public List<ProjectSensorWrapper> selectSensors() {
-    Collection<ProjectSensor> result = sort(getFilteredExtensions(ProjectSensor.class, null));
+  public Collection<ModuleSensorWrapper> selectSensors(boolean global) {
+    Collection<Sensor> result = sort(getFilteredExtensions(Sensor.class, null));
     return result.stream()
-      .map(s -> new ProjectSensorWrapper(s, sensorContext, sensorOptimizer))
-      .filter(ProjectSensorWrapper::shouldExecute)
+      .map(s -> new ModuleSensorWrapper(s, sensorContext, sensorOptimizer, fileSystem, branchConfiguration))
+      .filter(s -> global == s.isGlobal() && s.shouldExecute())
       .collect(Collectors.toList());
   }
 }

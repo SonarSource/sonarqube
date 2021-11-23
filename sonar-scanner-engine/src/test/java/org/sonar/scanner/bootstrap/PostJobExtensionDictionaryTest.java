@@ -37,7 +37,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PostJobExtensionDictionnaryTest {
+public class PostJobExtensionDictionaryTest {
   private PostJobOptimizer postJobOptimizer = mock(PostJobOptimizer.class);
 
   @Before
@@ -45,12 +45,12 @@ public class PostJobExtensionDictionnaryTest {
     when(postJobOptimizer.shouldExecute(any(DefaultPostJobDescriptor.class))).thenReturn(true);
   }
 
-  private PostJobExtensionDictionnary newSelector(Object... extensions) {
+  private PostJobExtensionDictionary newSelector(Object... extensions) {
     ComponentContainer iocContainer = new ComponentContainer();
     for (Object extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new PostJobExtensionDictionnary(iocContainer, postJobOptimizer, mock(PostJobContext.class));
+    return new PostJobExtensionDictionary(iocContainer, postJobOptimizer, mock(PostJobContext.class));
   }
 
   @Test
@@ -58,7 +58,7 @@ public class PostJobExtensionDictionnaryTest {
     PrePostJob pre = new PrePostJob();
     NormalPostJob normal = new NormalPostJob();
 
-    PostJobExtensionDictionnary selector = newSelector(normal, pre);
+    PostJobExtensionDictionary selector = newSelector(normal, pre);
     assertThat(selector.selectPostJobs()).extracting("wrappedPostJob").containsExactly(pre, normal);
   }
 

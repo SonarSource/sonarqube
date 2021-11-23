@@ -37,11 +37,11 @@ import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import org.sonar.core.platform.ComponentContainer;
 
-public abstract class AbstractExtensionDictionnary {
+public abstract class AbstractExtensionDictionary {
 
   private final ComponentContainer componentContainer;
 
-  public AbstractExtensionDictionnary(ComponentContainer componentContainer) {
+  public AbstractExtensionDictionary(ComponentContainer componentContainer) {
     this.componentContainer = componentContainer;
   }
 

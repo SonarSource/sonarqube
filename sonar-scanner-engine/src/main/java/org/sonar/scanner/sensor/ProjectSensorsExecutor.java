@@ -29,10 +29,10 @@ import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 public class ProjectSensorsExecutor {
   private static final Logger LOG = Loggers.get(ProjectSensorsExecutor.class);
   private static final Profiler profiler = Profiler.create(LOG);
-  private final ProjectSensorExtensionDictionnary selector;
+  private final ProjectSensorExtensionDictionary selector;
   private final ScannerPluginRepository pluginRepo;
 
-  public ProjectSensorsExecutor(ProjectSensorExtensionDictionnary selector, ScannerPluginRepository pluginRepo) {
+  public ProjectSensorsExecutor(ProjectSensorExtensionDictionary selector, ScannerPluginRepository pluginRepo) {
     this.selector = selector;
     this.pluginRepo = pluginRepo;
   }

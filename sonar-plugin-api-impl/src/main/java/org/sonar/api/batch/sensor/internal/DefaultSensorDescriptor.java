@@ -21,13 +21,23 @@ package org.sonar.api.batch.sensor.internal;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 
 public class DefaultSensorDescriptor implements SensorDescriptor {
+  public static final Set<String> SENSORS_ONLY_CHANGED_IN_PR = Collections.unmodifiableSet(Stream.of(
+    "CSS Metrics",
+    "CSS Rules",
+    "HTML",
+    "XML Sensor"
+  ).collect(Collectors.toSet()));
 
   private String name;
   private String[] languages = new String[0];
@@ -35,6 +45,7 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private String[] ruleRepositories = new String[0];
   private boolean global = false;
   private Predicate<Configuration> configurationPredicate;
+  private boolean onlyChangedFilesInPullRequests = false;
 
   public String name() {
     return name;
@@ -61,8 +72,16 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
     return global;
   }
 
+  public boolean onlyChangedFilesInPullRequest() {
+    return onlyChangedFilesInPullRequests;
+  }
+
   @Override
   public DefaultSensorDescriptor name(String name) {
+    // TODO: Add onlyChangedFilesInPullRequest into API and implement it at sensors
+    if (SENSORS_ONLY_CHANGED_IN_PR.contains(name)) {
+      onlyChangedFilesInPullRequests = true;
+    }
     this.name = name;
     return this;
   }

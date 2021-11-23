@@ -27,12 +27,12 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobWrapper;
 
-public class PostJobExtensionDictionnary extends AbstractExtensionDictionnary {
+public class PostJobExtensionDictionary extends AbstractExtensionDictionary {
 
   private final PostJobContext postJobContext;
   private final PostJobOptimizer postJobOptimizer;
 
-  public PostJobExtensionDictionnary(ComponentContainer componentContainer, PostJobOptimizer postJobOptimizer, PostJobContext postJobContext) {
+  public PostJobExtensionDictionary(ComponentContainer componentContainer, PostJobOptimizer postJobOptimizer, PostJobContext postJobContext) {
     super(componentContainer);
     this.postJobOptimizer = postJobOptimizer;
     this.postJobContext = postJobContext;

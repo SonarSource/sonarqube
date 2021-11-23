@@ -41,7 +41,7 @@ import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
+import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
 import org.sonar.scanner.ci.vendors.AwsCodeBuild;
@@ -126,7 +126,7 @@ import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.scm.ScmRevisionImpl;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.ProjectSensorContext;
-import org.sonar.scanner.sensor.ProjectSensorExtensionDictionnary;
+import org.sonar.scanner.sensor.ProjectSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
 import org.sonar.scm.git.GitScmSupport;
@@ -256,7 +256,7 @@ public class ProjectScanContainer extends ComponentContainer {
       PostJobsExecutor.class,
       PostJobOptimizer.class,
       DefaultPostJobContext.class,
-      PostJobExtensionDictionnary.class,
+      PostJobExtensionDictionary.class,
 
       // SCM
       ScmConfiguration.class,
@@ -269,7 +269,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectSensorContext.class,
       ProjectSensorOptimizer.class,
       ProjectSensorsExecutor.class,
-      ProjectSensorExtensionDictionnary.class,
+      ProjectSensorExtensionDictionary.class,
 
       // Filesystem
       DefaultProjectFileSystem.class,

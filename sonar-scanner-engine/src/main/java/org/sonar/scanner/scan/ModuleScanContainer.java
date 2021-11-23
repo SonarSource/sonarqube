@@ -26,7 +26,7 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.sensor.ModuleSensorContext;
-import org.sonar.scanner.sensor.ModuleSensorExtensionDictionnary;
+import org.sonar.scanner.sensor.ModuleSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ModuleSensorOptimizer;
 import org.sonar.scanner.sensor.ModuleSensorsExecutor;
 
@@ -65,7 +65,7 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleSensorOptimizer.class,
 
       ModuleSensorContext.class,
-      ModuleSensorExtensionDictionnary.class
+      ModuleSensorExtensionDictionary.class
     );
   }
 

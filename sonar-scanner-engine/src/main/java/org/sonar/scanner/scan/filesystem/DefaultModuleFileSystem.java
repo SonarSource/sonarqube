@@ -19,11 +19,10 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 
-public class DefaultModuleFileSystem extends DefaultFileSystem {
+public class DefaultModuleFileSystem extends MutableFileSystem {
 
   public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module) {
     super(module.getBaseDir(), moduleInputFileCache, new DefaultFilePredicates(module.getBaseDir()));

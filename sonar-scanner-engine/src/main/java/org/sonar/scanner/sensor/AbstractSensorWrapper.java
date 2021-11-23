@@ -22,18 +22,29 @@ package org.sonar.scanner.sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 
 public abstract class AbstractSensorWrapper<G extends ProjectSensor> {
+  private static final Logger LOGGER = Loggers.get(AbstractSensorWrapper.class);
+
   private final G wrappedSensor;
   private final SensorContext context;
+  private final MutableFileSystem fileSystem;
   private final DefaultSensorDescriptor descriptor;
   private final AbstractSensorOptimizer optimizer;
+  private final boolean isPullRequest;
 
-  public AbstractSensorWrapper(G sensor, SensorContext context, AbstractSensorOptimizer optimizer) {
+  public AbstractSensorWrapper(G sensor, SensorContext context, AbstractSensorOptimizer optimizer, MutableFileSystem fileSystem, BranchConfiguration branchConfiguration) {
     this.wrappedSensor = sensor;
     this.optimizer = optimizer;
     this.context = context;
     this.descriptor = new DefaultSensorDescriptor();
+    this.fileSystem = fileSystem;
+    this.isPullRequest = branchConfiguration.branchType() == BranchType.PULL_REQUEST;
     sensor.describe(this.descriptor);
     if (descriptor.name() == null) {
       descriptor.name(sensor.getClass().getName());
@@ -45,6 +56,11 @@ public abstract class AbstractSensorWrapper<G extends ProjectSensor> {
   }
 
   public void analyse() {
+    boolean sensorIsRestricted = descriptor.onlyChangedFilesInPullRequest() && isPullRequest;
+    if (sensorIsRestricted) {
+      LOGGER.info("Sensor {} is restricted to changed files only", descriptor.name());
+    }
+    fileSystem.setRestrictToChangedFiles(sensorIsRestricted);
     wrappedSensor.execute(context);
   }
 

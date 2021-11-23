@@ -23,14 +23,14 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.PostJobExtensionDictionnary;
+import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
 
 public class PostJobsExecutor {
   private static final Logger LOG = Loggers.get(PostJobsExecutor.class);
 
-  private final PostJobExtensionDictionnary selector;
+  private final PostJobExtensionDictionary selector;
 
-  public PostJobsExecutor(PostJobExtensionDictionnary selector) {
+  public PostJobsExecutor(PostJobExtensionDictionary selector) {
     this.selector = selector;
   }
 
