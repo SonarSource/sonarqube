@@ -60,7 +60,7 @@ task yarn_run(type: Exec) {
   inputs.property('version', docsVersion)
   inputs.file(rootProject.file('build.gradle'));
   inputs.dir('src').withPathSensitivity(PathSensitivity.RELATIVE)
-  ['gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
+  ['build.gradle', 'gatsby-config.js', 'gatsby-node.js', 'package.json', 'yarn.lock', 'tsconfig.json'].each {
     inputs.file(it).withPathSensitivity(PathSensitivity.RELATIVE)
   }
   outputs.dir('public')
@@ -69,6 +69,7 @@ task yarn_run(type: Exec) {
   environment += [ GATSBY_DOCS_VERSION: docsVersion ]
   commandLine osAdaptiveCommand(['npm', 'run', 'build'])
 }
+yarn_run.dependsOn(extractAnalyzerDocFiles)
 build.dependsOn(yarn_run)
 
 // To clean outputs outside of "build" directory:
@@ -127,7 +128,7 @@ task zip(type: Zip) {
   }
 }
 zip.dependsOn yarn_run
-assemble.dependsOn zip, extractAnalyzerDocFiles
+assemble.dependsOn zip
 
 publishing {
   publications {
