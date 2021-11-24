@@ -235,6 +235,20 @@ public interface RulesDefinition {
     boolean isExternal();
   }
 
+  enum OwaspTop10Version {
+    Y2017("2017"), Y2021("2021");
+
+    private final String label;
+
+    OwaspTop10Version(String label) {
+      this.label = label;
+    }
+
+    public String label() {
+      return label;
+    }
+  }
+
   enum OwaspTop10 {
     A1, A2, A3, A4, A5, A6, A7, A8, A9, A10
   }
@@ -419,8 +433,16 @@ public interface RulesDefinition {
 
     /**
      * @since 7.3
+     *
+     * @deprecated since 9.3 Supports only OWASP Top 10 2017 standard, use addOwaspTop10(OwaspTop10Version, OwaspTop10...) for 2017,2021...
      */
+    @Deprecated
     public abstract NewRule addOwaspTop10(OwaspTop10... standards);
+
+    /**
+     * @since 9.3
+     */
+    public abstract NewRule addOwaspTop10(OwaspTop10Version version, OwaspTop10... standards);
 
     /**
      * @since 7.3

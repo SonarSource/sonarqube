@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.CheckForNull;
@@ -38,6 +39,8 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
+import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -225,9 +228,19 @@ class DefaultNewRule extends RulesDefinition.NewRule {
   }
 
   @Override
-  public DefaultNewRule addOwaspTop10(RulesDefinition.OwaspTop10... standards) {
-    for (RulesDefinition.OwaspTop10 owaspTop10 : standards) {
-      String standard = "owaspTop10:" + owaspTop10.name().toLowerCase(Locale.ENGLISH);
+  public DefaultNewRule addOwaspTop10(OwaspTop10... standards) {
+    return addOwaspTop10(OwaspTop10Version.Y2017, standards);
+  }
+
+  @Override
+  public DefaultNewRule addOwaspTop10(OwaspTop10Version version, OwaspTop10... standards) {
+    Objects.requireNonNull(version, "Owasp version must not be null");
+
+    //backward compatibility
+    String versionPrefix = OwaspTop10Version.Y2017.equals(version) ? "owaspTop10:" : "owaspTop10-" + version.label() + ":";
+
+    for (OwaspTop10 owaspTop10 : standards) {
+      String standard = versionPrefix + owaspTop10.name().toLowerCase(Locale.ENGLISH);
       securityStandards.add(standard);
     }
     return this;

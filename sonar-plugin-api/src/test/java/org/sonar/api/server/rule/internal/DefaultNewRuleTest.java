@@ -26,6 +26,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
+import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,7 +35,7 @@ import static org.mockito.Mockito.mock;
 
 public class DefaultNewRuleTest {
 
-  private DefaultNewRule rule = new DefaultNewRule("plugin", "repo", "key");
+  private final DefaultNewRule rule = new DefaultNewRule("plugin", "repo", "key");
 
   @Test
   public void testSimpleSetGet() {
@@ -80,6 +82,12 @@ public class DefaultNewRuleTest {
     rule.addCwe(10);
     assertThat(rule.securityStandards()).containsOnly("cwe:10", "cwe:12");
 
+    rule.addOwaspTop10(OwaspTop10.A1, OwaspTop10.A2);
+    rule.addOwaspTop10(OwaspTop10Version.Y2017, OwaspTop10.A4);
+    rule.addOwaspTop10(OwaspTop10Version.Y2021, OwaspTop10.A5, OwaspTop10.A3);
+    assertThat(rule.securityStandards())
+      .contains("owaspTop10:a1", "owaspTop10:a2", "owaspTop10:a4", "owaspTop10-2021:a3", "owaspTop10-2021:a5");
+
     rule.setType(RuleType.SECURITY_HOTSPOT);
     assertThat(rule.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
 
@@ -111,6 +119,7 @@ public class DefaultNewRuleTest {
     rule.setMarkdownDescription("markdown");
     assertThat(rule.markdownDescription()).isEqualTo("markdown");
   }
+
   @Test
   public void fail_if_severity_is_invalid() {
     assertThatThrownBy(() -> rule.setSeverity("invalid"))
@@ -129,5 +138,12 @@ public class DefaultNewRuleTest {
   public void fail_if_set_status_to_removed() {
     assertThatThrownBy(() -> rule.setStatus(RuleStatus.REMOVED))
       .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void fail_if_null_owasp_version() {
+    assertThatThrownBy(() -> rule.addOwaspTop10((OwaspTop10Version) null , OwaspTop10.A1))
+        .isInstanceOf(NullPointerException.class)
+        .hasMessage("Owasp version must not be null");
   }
 }
