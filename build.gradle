@@ -10,7 +10,7 @@ plugins {
   id 'com.jfrog.artifactory' version '4.24.23'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.1.0" apply false
-  id 'org.owasp.dependencycheck' version '6.5.0.1'
+  id 'org.owasp.dependencycheck' version '6.3.2'
   id 'org.sonarqube' version '3.3'
   id "de.undercouch.download" version "4.1.2" apply false
 }
