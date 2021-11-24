@@ -74,6 +74,19 @@ dependencies {
 // declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
 apply from: 'bundled_plugins.gradle'
 
+//verify if sonar.properties files does not have any external input
+task verifySonarProperties(type: Verify) {
+  def propertiesFile = file('src/main/assembly/conf/sonar.properties')
+  propertiesFile.withReader { reader ->
+    def line
+    while ((line = reader.readLine()) != null) {
+      if (!line.startsWith('#') && !line.isEmpty()) {
+        throw new GradleException('sonar.properties file by default must not provide any user configuration.')
+      }
+    }
+  }
+}
+
 task verifyElasticSearchDownload(type: Verify) {
   src new File(buildDir, "$elasticsearchDownloadUrlFile")
   algorithm 'SHA-512'
