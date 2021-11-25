@@ -124,13 +124,14 @@ public class CommandExecutorTest {
 
   @Test(timeout = 6000L)
   public void should_stop_after_timeout_and_new_shell() throws IOException {
-    try {
-      String executable = getScript("forever");
+    String executable = getScript("forever");
+
+    assertThatThrownBy(() -> {
       CommandExecutor.create().execute(Command.create(executable).setNewShell(true).setDirectory(workDir), 100);
       fail();
-    } catch (TimeoutException e) {
-      // ok
-    }
+
+    })
+      .isInstanceOf(TimeoutException.class);
   }
 
   @Test
