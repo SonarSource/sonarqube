@@ -83,8 +83,11 @@ import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
+import static org.sonar.api.server.rule.RulesDefinition.Context;
 import static org.sonar.api.server.rule.RulesDefinition.NewRepository;
 import static org.sonar.api.server.rule.RulesDefinition.NewRule;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 
 @RunWith(DataProviderRunner.class)
 public class RegisterRulesTest {
@@ -160,7 +163,7 @@ public class RegisterRulesTest {
     assertThat(hotspotRule.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
-    assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3");
+    assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(db.getSession(), RULE_KEY1);
     assertThat(params).hasSize(2);
@@ -208,7 +211,7 @@ public class RegisterRulesTest {
     assertThat(hotspotRule.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
-    assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3");
+    assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
   }
 
   @Test
@@ -401,26 +404,26 @@ public class RegisterRulesTest {
       repo.createRule("rule1")
         .setName("Rule One")
         .setHtmlDescription("Description of Rule One")
-        .addOwaspTop10(RulesDefinition.OwaspTop10.A1)
+        .addOwaspTop10(Y2021, OwaspTop10.A1)
         .addCwe(123);
       repo.done();
     });
 
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
-    assertThat(rule.getSecurityStandards()).containsOnly("cwe:123", "owaspTop10:a1");
+    assertThat(rule.getSecurityStandards()).containsOnly("cwe:123", "owaspTop10-2021:a1");
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
       repo.createRule("rule1")
         .setName("Rule One")
         .setHtmlDescription("Description of Rule One")
-        .addOwaspTop10(RulesDefinition.OwaspTop10.A1, RulesDefinition.OwaspTop10.A3)
+        .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
       repo.done();
     });
 
     rule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
-    assertThat(rule.getSecurityStandards()).containsOnly("cwe:1", "cwe:123", "cwe:863", "owaspTop10:a1", "owaspTop10:a3");
+    assertThat(rule.getSecurityStandards()).containsOnly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
   }
 
   @Test
@@ -615,7 +618,7 @@ public class RegisterRulesTest {
 
   @DataProvider
   public static Object[][] allRenamingCases() {
-    return new Object[][] {
+    return new Object[][]{
       {"repo1", "rule1", "repo1", "rule2"},
       {"repo1", "rule1", "repo2", "rule1"},
       {"repo1", "rule1", "repo2", "rule2"},
@@ -1000,7 +1003,7 @@ public class RegisterRulesTest {
   }
 
   @SafeVarargs
-  private void createRule(RulesDefinition.Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
+  private void createRule(Context context, String language, String repositoryKey, String ruleKey, Consumer<NewRule>... consumers) {
     NewRepository repo = context.createRepository(repositoryKey, language);
     NewRule newRule = repo.createRule(ruleKey)
       .setName(ruleKey)
@@ -1055,7 +1058,7 @@ public class RegisterRulesTest {
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
         .setType(RuleType.SECURITY_HOTSPOT)
-        .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
+        .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 
       repo.createRule(RULE_KEY2.rule())
@@ -1115,7 +1118,7 @@ public class RegisterRulesTest {
         .setName("Hotspot")
         .setHtmlDescription("Minimal hotspot")
         .setType(RuleType.SECURITY_HOTSPOT)
-        .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
+        .addOwaspTop10(Y2021, OwaspTop10.A1, OwaspTop10.A3)
         .addCwe(1, 123, 863);
 
       repo.done();

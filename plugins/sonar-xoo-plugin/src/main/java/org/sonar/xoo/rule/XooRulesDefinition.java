@@ -31,6 +31,8 @@ import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 import org.sonar.xoo.checks.Check;
 
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.*;
+
 /**
  * Define all the coding rules that are supported on the repositories named "xoo" and "xoo2"
  */
@@ -200,13 +202,15 @@ public class XooRulesDefinition implements RulesDefinition {
     hotspot
       .setDebtRemediationFunction(hotspot.debtRemediationFunctions().constantPerIssue("2min"));
 
-    if (version != null && version.isGreaterThanOrEqual(Version.create(7, 3))) {
+    if (version != null && version.isGreaterThanOrEqual(Version.create(9, 3))) {
       hotspot
         .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
+        .addOwaspTop10(Y2021, OwaspTop10.A3, OwaspTop10.A2)
         .addCwe(1, 89, 123, 863);
 
       oneVulnerabilityIssuePerModule
-        .addOwaspTop10(OwaspTop10.A9, OwaspTop10.A10)
+        .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
+        .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)
         .addCwe(250, 564, 546, 943);
     }
 
