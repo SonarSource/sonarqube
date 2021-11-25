@@ -423,7 +423,7 @@ subprojects {
       dependency 'org.postgresql:postgresql:42.2.19'
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:4.1.21'
-      dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.35.1.2719'
+      dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.36.0.63'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.23.0.723'
       dependency 'org.subethamail:subethasmtp:3.1.7'
       dependency 'org.yaml:snakeyaml:1.26'
