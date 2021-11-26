@@ -223,23 +223,6 @@ junit_task:
   always:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
-db_dao_postgres_task:
-  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  timeout_in: 90m
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 2
-    memory: 8Gb
-    additional_containers:
-      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
-  script:
-    - ./private/cirrus/cirrus-db-unit-test.sh postgres106
-  on_failure:
-    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-  always:
-    <<: *PROFILE_ARTIFACTS_TEMPLATE
-
 validate_task:
   <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
@@ -273,6 +256,23 @@ yarn_check-ci_task:
   script: |
     ./private/cirrus/cirrus-env.sh YARN
     gradle yarn_check-ci --profile
+  always:
+    <<: *PROFILE_ARTIFACTS_TEMPLATE
+
+db_dao_postgres_task:
+  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  timeout_in: 90m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 2
+    memory: 8Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  script:
+    - ./private/cirrus/cirrus-db-unit-test.sh postgres106
+  on_failure:
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
   always:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
