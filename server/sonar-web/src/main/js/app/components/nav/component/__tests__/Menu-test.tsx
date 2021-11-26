@@ -130,7 +130,12 @@ it('should work for all qualifiers', () => {
   expect.assertions(4);
 
   function checkWithQualifier(qualifier: string) {
-    const component = { ...baseComponent, configuration: { showSettings: true }, qualifier };
+    const component = {
+      ...baseComponent,
+      canBrowseAllChildProjects: true,
+      configuration: { showSettings: true },
+      qualifier
+    };
     expect(shallowRender({ component })).toMatchSnapshot();
   }
 });
@@ -141,6 +146,19 @@ it('should disable links if no analysis has been done', () => {
       component: {
         ...baseComponent,
         analysisDate: undefined
+      }
+    })
+  ).toMatchSnapshot();
+});
+
+it('should disable links if application has inaccessible projects', () => {
+  expect(
+    shallowRender({
+      component: {
+        ...baseComponent,
+        qualifier: ComponentQualifier.Application,
+        canBrowseAllChildProjects: false,
+        configuration: { showSettings: true }
       }
     })
   ).toMatchSnapshot();
