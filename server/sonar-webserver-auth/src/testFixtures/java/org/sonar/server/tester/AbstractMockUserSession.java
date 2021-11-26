@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -40,10 +41,11 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
 
   private final Class<T> clazz;
-  private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
+  private final HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private final Set<GlobalPermission> permissions = new HashSet<>();
-  private Map<String, String> projectUuidByComponentUuid = new HashMap<>();
-  private Set<String> projectPermissions = new HashSet<>();
+  private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
+  private final Map<String, Set<String>> applicationProjects = new HashMap<>();
+  private final Set<String> projectPermissions = new HashSet<>();
   private boolean systemAdministrator = false;
   private boolean resetPassword = false;
 
@@ -90,6 +92,18 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
         }
         this.projectUuidByComponentUuid.put(project.getUuid(), project.getUuid());
       });
+    return clazz.cast(this);
+  }
+
+  public T registerApplication(ProjectDto application, ProjectDto... appProjects) {
+    registerProjects(application);
+    registerProjects(appProjects);
+
+    var appProjectsUuid = Arrays.stream(appProjects)
+      .map(ProjectDto::getUuid)
+      .collect(Collectors.toSet());
+    this.applicationProjects.put(application.getUuid(), appProjectsUuid);
+
     return clazz.cast(this);
   }
 
@@ -154,6 +168,13 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   @Override
   protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
     return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
+  }
+
+  @Override
+  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+    return applicationProjects.containsKey(applicationUuid) && applicationProjects.get(applicationUuid)
+      .stream()
+      .allMatch(projectUuid -> projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid));
   }
 
   public T setSystemAdministrator(boolean b) {

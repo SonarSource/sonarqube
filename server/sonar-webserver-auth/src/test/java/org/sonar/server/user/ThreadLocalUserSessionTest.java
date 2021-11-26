@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -30,10 +31,11 @@ import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.web.UserRole.USER;
 
 public class ThreadLocalUserSessionTest {
 
-  private ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  private final ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
 
   @Before
   public void setUp() {
@@ -65,6 +67,7 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
     assertThat(threadLocalUserSession.shouldResetPassword()).isTrue();
     assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getUuid).containsOnly(group.getUuid());
+    assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ComponentDto())).isFalse();
   }
 
   @Test
@@ -82,7 +85,7 @@ public class ThreadLocalUserSessionTest {
 
   @Test
   public void throw_UnauthorizedException_when_no_session() {
-    assertThatThrownBy(() -> threadLocalUserSession.get())
+    assertThatThrownBy(threadLocalUserSession::get)
       .isInstanceOf(UnauthorizedException.class);
   }
 

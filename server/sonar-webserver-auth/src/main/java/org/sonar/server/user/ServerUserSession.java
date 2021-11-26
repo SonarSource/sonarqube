@@ -29,16 +29,22 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTreeQuery;
+import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Collections.singleton;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 
@@ -158,6 +164,24 @@ public class ServerUserSession extends AbstractUserSession {
     if (permissionsByProjectUuid == null) {
       permissionsByProjectUuid = new HashMap<>();
     }
+    return hasPermission(permission, projectUuid);
+  }
+
+  @Override
+  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+    if (permissionsByProjectUuid == null) {
+      permissionsByProjectUuid = new HashMap<>();
+    }
+
+    Set<String> childProjectUuids = loadChildProjectUuids(applicationUuid);
+
+    return childProjectUuids
+      .stream()
+      .map(uuid -> hasPermission(permission, uuid))
+      .allMatch(Boolean::valueOf);
+  }
+
+  private boolean hasPermission(String permission, String projectUuid) {
     Set<String> projectPermissions = permissionsByProjectUuid.computeIfAbsent(projectUuid, this::loadProjectPermissions);
     return projectPermissions.contains(permission);
   }
@@ -178,6 +202,20 @@ public class ServerUserSession extends AbstractUserSession {
       projectPermissions.addAll(PUBLIC_PERMISSIONS);
       projectPermissions.addAll(loadDbPermissions(dbSession, projectUuid));
       return Collections.unmodifiableSet(projectPermissions);
+    }
+  }
+
+  private Set<String> loadChildProjectUuids(String applicationUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.componentDao()
+        .selectDescendants(dbSession, ComponentTreeQuery.builder()
+          .setBaseUuid(applicationUuid)
+          .setQualifiers(singleton(Qualifiers.PROJECT))
+          .setScopes(singleton(Scopes.FILE))
+          .setStrategy(Strategy.CHILDREN).build())
+        .stream()
+        .map(ComponentDto::getCopyComponentUuid)
+        .collect(toSet());
     }
   }
 

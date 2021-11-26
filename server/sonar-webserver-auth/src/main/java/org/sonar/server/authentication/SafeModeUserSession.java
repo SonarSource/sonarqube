@@ -46,6 +46,11 @@ public class SafeModeUserSession extends AbstractUserSession {
     return false;
   }
 
+  @Override
+  protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+    return false;
+  }
+
   @CheckForNull
   @Override
   public String getLogin() {

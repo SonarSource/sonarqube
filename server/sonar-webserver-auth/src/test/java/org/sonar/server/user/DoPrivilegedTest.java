@@ -26,6 +26,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.USER;
 
 public class DoPrivilegedTest {
 
@@ -50,6 +51,7 @@ public class DoPrivilegedTest {
     assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
     assertThat(catcher.userSession.isSystemAdministrator()).isTrue();
     assertThat(catcher.userSession.shouldResetPassword()).isFalse();
+    assertThat(catcher.userSession.hasChildProjectsPermission(USER, new ComponentDto())).isTrue();
 
     // verify session in place after task is done
     assertThat(threadLocalUserSession.get()).isSameAs(session);

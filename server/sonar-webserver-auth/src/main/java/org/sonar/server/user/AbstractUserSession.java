@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +39,7 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public abstract class AbstractUserSession implements UserSession {
-  private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER);
+  private static final Set<String> PUBLIC_PERMISSIONS = Set.of(UserRole.USER, UserRole.CODEVIEWER);
   private static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final String AUTHENTICATION_IS_REQUIRED_MESSAGE = "Authentication is required";
 
@@ -106,6 +105,14 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
+  public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
+    if (isRoot()) {
+      return true;
+    }
+    return hasChildProjectsPermission(permission, component.uuid());
+  }
+
+  @Override
   public final boolean hasComponentUuidPermission(String permission, String componentUuid) {
     if (isRoot()) {
       return true;
@@ -119,6 +126,8 @@ public abstract class AbstractUserSession implements UserSession {
   protected abstract Optional<String> componentUuidToProjectUuid(String componentUuid);
 
   protected abstract boolean hasProjectUuidPermission(String permission, String projectUuid);
+
+  protected abstract boolean hasChildProjectsPermission(String permission, String applicationUuid);
 
   @Override
   public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
@@ -188,12 +197,23 @@ public abstract class AbstractUserSession implements UserSession {
     return this;
   }
 
-  @Override public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
+  @Override
+  public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
     if (isRoot() || hasProjectUuidPermission(projectPermission, project.getUuid())) {
       return this;
     }
 
     throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+  }
+
+  @Override
+  public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
+    if (isRoot() || !component.qualifier().equals(Qualifiers.APP) || hasChildProjectsPermission(projectPermission, component.uuid())) {
+      return this;
+    }
+
+    throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+
   }
 
   @Override

@@ -128,6 +128,11 @@ public final class DoPrivileged {
       }
 
       @Override
+      protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+        return true;
+      }
+
+      @Override
       public boolean isSystemAdministrator() {
         return true;
       }

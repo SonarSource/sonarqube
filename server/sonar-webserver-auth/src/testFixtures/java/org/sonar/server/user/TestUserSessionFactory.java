@@ -122,6 +122,11 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
+    protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
+      throw notImplemented();
+    }
+
+    @Override
     public boolean isSystemAdministrator() {
       throw notImplemented();
     }

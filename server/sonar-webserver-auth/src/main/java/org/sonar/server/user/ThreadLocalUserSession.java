@@ -145,6 +145,12 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
+    get().checkChildProjectsPermission(projectPermission, component);
+    return this;
+  }
+
+  @Override
   public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
     get().checkComponentUuidPermission(permission, componentUuid);
     return this;
@@ -169,6 +175,11 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public boolean hasProjectPermission(String permission, ProjectDto project) {
     return get().hasProjectPermission(permission, project);
+  }
+
+  @Override
+  public boolean hasChildProjectsPermission(String permission, ComponentDto component) {
+    return get().hasChildProjectsPermission(permission, component);
   }
 
   @Override
