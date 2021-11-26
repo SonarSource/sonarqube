@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Button } from '../../components/controls/buttons';
+import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { Application } from '../../types/application';
 import ApplicationProjectBranch from './ApplicationProjectBranch';
@@ -27,6 +28,7 @@ import { ApplicationBranch } from './utils';
 
 interface Props {
   application: Application;
+  canBrowseAllChildProjects: boolean;
   onUpdateBranches: (branches: ApplicationBranch[]) => void;
 }
 
@@ -56,7 +58,7 @@ export default class ApplicationBranches extends React.PureComponent<Props, Stat
     );
   };
 
-  renderBranches(createEnable: boolean) {
+  renderBranches(createEnable: boolean, readonly: boolean) {
     const { application } = this.props;
     if (!createEnable) {
       return (
@@ -77,6 +79,7 @@ export default class ApplicationBranches extends React.PureComponent<Props, Stat
                 branch={branch}
                 key={branch.name}
                 onUpdateBranches={this.props.onUpdateBranches}
+                readonly={readonly}
               />
             ))}
           </tbody>
@@ -86,12 +89,19 @@ export default class ApplicationBranches extends React.PureComponent<Props, Stat
   }
 
   render() {
-    const { application } = this.props;
+    const { application, canBrowseAllChildProjects } = this.props;
     const createEnable = this.canCreateBranches();
+    const readonly = !canBrowseAllChildProjects;
     return (
       <div className="app-branches-console">
+        {readonly && (
+          <Alert className="huge-spacer-top" variant="warning">
+            {translate('application_console.branches.cannot_access_all_child_projects')}
+          </Alert>
+        )}
+
         <div className="boxed-group-actions">
-          <Button disabled={!createEnable} onClick={this.handleCreateClick}>
+          <Button disabled={!createEnable || readonly} onClick={this.handleCreateClick}>
             {translate('application_console.branches.create')}
           </Button>
         </div>
@@ -102,7 +112,7 @@ export default class ApplicationBranches extends React.PureComponent<Props, Stat
         </h2>
         <p>{translate('application_console.branches.help')}</p>
 
-        {this.renderBranches(createEnable)}
+        {this.renderBranches(createEnable, readonly)}
 
         {this.state.creating && (
           <CreateBranchForm

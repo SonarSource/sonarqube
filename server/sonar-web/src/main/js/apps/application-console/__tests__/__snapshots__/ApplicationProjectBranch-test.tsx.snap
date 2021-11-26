@@ -67,3 +67,17 @@ exports[`should render correctly: main branch 1`] = `
   />
 </tr>
 `;
+
+exports[`should render correctly: readonly 1`] = `
+<tr>
+  <td>
+    <BranchIcon
+      className="little-spacer-right"
+    />
+    branch-6.7
+  </td>
+  <td
+    className="thin nowrap"
+  />
+</tr>
+`;

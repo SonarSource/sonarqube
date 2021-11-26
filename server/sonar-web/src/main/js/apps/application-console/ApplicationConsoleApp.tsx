@@ -28,7 +28,7 @@ import ApplicationConsoleAppRenderer from './ApplicationConsoleAppRenderer';
 import { ApplicationBranch } from './utils';
 
 interface Props {
-  component: { key: string };
+  component: Pick<T.Component, 'key' | 'canBrowseAllChildProjects'>;
   location: Location;
   router: Pick<InjectedRouter, 'replace'>;
 }
@@ -64,9 +64,9 @@ export default class ApplicationConsoleApp extends React.PureComponent<Props, St
     this.setState(state => {
       if (state.application) {
         return { application: { ...state.application, ...buildNewFields(state.application) } };
-      } else {
-        return null;
       }
+
+      return null;
     });
   };
 
@@ -114,6 +114,7 @@ export default class ApplicationConsoleApp extends React.PureComponent<Props, St
   };
 
   render() {
+    const { component } = this.props;
     const { application, loading } = this.state;
     if (!application) {
       // when application is not found
@@ -124,6 +125,7 @@ export default class ApplicationConsoleApp extends React.PureComponent<Props, St
       <ApplicationConsoleAppRenderer
         loading={loading}
         application={application}
+        canBrowseAllChildProjects={Boolean(component.canBrowseAllChildProjects)}
         onAddProject={this.handleAddProject}
         onEdit={this.handleEdit}
         onRefresh={this.handleRefreshClick}

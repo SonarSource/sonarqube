@@ -28,10 +28,12 @@ export interface ApplicationProjectBranchProps {
   application: Application;
   branch: ApplicationBranch;
   onUpdateBranches: (branches: Array<ApplicationBranch>) => void;
+  readonly: boolean;
 }
 
 export default function ApplicationProjectBranch(props: ApplicationProjectBranchProps) {
-  const { application, branch } = props;
+  const { application, branch, readonly } = props;
+
   return (
     <tr>
       <td>
@@ -44,7 +46,7 @@ export default function ApplicationProjectBranch(props: ApplicationProjectBranch
         )}
       </td>
       <td className="thin nowrap">
-        {!branch.isMain && (
+        {!branch.isMain && !readonly && (
           <BranchRowActions
             application={application}
             branch={branch}

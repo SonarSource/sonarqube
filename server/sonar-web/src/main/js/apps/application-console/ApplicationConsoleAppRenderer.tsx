@@ -29,6 +29,7 @@ import EditForm from './EditForm';
 export interface ApplicationConsoleAppRendererProps {
   loading: boolean;
   application: Application;
+  canBrowseAllChildProjects: boolean;
   onAddProject: (project: ApplicationProject) => void;
   onRefresh: () => void;
   onEdit: (name: string, description: string) => Promise<void>;
@@ -39,7 +40,7 @@ export interface ApplicationConsoleAppRendererProps {
 export default function ApplicationConsoleAppRenderer(props: ApplicationConsoleAppRendererProps) {
   const [editing, setEditing] = React.useState(false);
 
-  const { application, loading } = props;
+  const { application, canBrowseAllChildProjects, loading } = props;
 
   if (loading) {
     return <i className="spinner spacer" />;
@@ -84,6 +85,7 @@ export default function ApplicationConsoleAppRenderer(props: ApplicationConsoleA
 
           <ApplicationBranches
             application={application}
+            canBrowseAllChildProjects={canBrowseAllChildProjects}
             onUpdateBranches={props.onUpdateBranches}
           />
         </div>

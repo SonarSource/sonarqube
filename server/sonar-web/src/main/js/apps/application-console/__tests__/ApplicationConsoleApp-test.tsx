@@ -46,6 +46,8 @@ it('Should render correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('With app');
+  wrapper.setProps({ component: { key: '1', canBrowseAllChildProjects: true } });
+  expect(wrapper).toMatchSnapshot('can browse all child projects');
 });
 
 it('Should edit application correctly', async () => {

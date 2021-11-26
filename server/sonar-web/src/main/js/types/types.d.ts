@@ -129,6 +129,7 @@ declare namespace T {
     alm?: { key: string; url: string };
     analysisDate?: string;
     breadcrumbs: Breadcrumb[];
+    canBrowseAllChildProjects?: boolean;
     configuration?: ComponentConfiguration;
     description?: string;
     extensions?: Extension[];

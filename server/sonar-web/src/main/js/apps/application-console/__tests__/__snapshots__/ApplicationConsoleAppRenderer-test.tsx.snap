@@ -140,6 +140,7 @@ exports[`should render correctly: can recompute 1`] = `
             "visibility": "private",
           }
         }
+        canBrowseAllChildProjects={true}
         onUpdateBranches={[MockFunction]}
       />
     </div>
@@ -249,6 +250,7 @@ exports[`should render correctly: default 1`] = `
             "visibility": "private",
           }
         }
+        canBrowseAllChildProjects={true}
         onUpdateBranches={[MockFunction]}
       />
     </div>

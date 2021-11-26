@@ -48,6 +48,7 @@ function shallowRender(props: Partial<ApplicationConsoleAppRendererProps> = {}) 
   return shallow(
     <ApplicationConsoleAppRenderer
       application={mockApplication({ key: 'foo' })}
+      canBrowseAllChildProjects={true}
       loading={false}
       onAddProject={jest.fn()}
       onEdit={jest.fn()}

@@ -65,6 +65,7 @@ exports[`should render correctly: can create branches 1`] = `
           }
           key="branch-6.7"
           onUpdateBranches={[MockFunction]}
+          readonly={false}
         />
       </tbody>
     </table>
@@ -143,6 +144,47 @@ exports[`should render correctly: default 1`] = `
 <div
   className="app-branches-console"
 >
+  <div
+    className="boxed-group-actions"
+  >
+    <Button
+      disabled={true}
+      onClick={[Function]}
+    >
+      application_console.branches.create
+    </Button>
+  </div>
+  <h2
+    className="text-limited big-spacer-top"
+    title="application_console.branches"
+  >
+    application_console.branches
+  </h2>
+  <p>
+    application_console.branches.help
+  </p>
+  <div
+    className="app-branches-list"
+  >
+    <p
+      className="text-center big-spacer-top"
+    >
+      application_console.branches.no_branches
+    </p>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: readonly 1`] = `
+<div
+  className="app-branches-console"
+>
+  <Alert
+    className="huge-spacer-top"
+    variant="warning"
+  >
+    application_console.branches.cannot_access_all_child_projects
+  </Alert>
   <div
     className="boxed-group-actions"
   >

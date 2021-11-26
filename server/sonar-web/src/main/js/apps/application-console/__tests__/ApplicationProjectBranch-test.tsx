@@ -28,6 +28,7 @@ import ApplicationProjectBranch, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ branch: mockMainBranch() })).toMatchSnapshot('main branch');
+  expect(shallowRender({ readonly: true })).toMatchSnapshot('readonly');
 });
 
 function shallowRender(props: Partial<ApplicationProjectBranchProps> = {}) {
@@ -36,6 +37,7 @@ function shallowRender(props: Partial<ApplicationProjectBranchProps> = {}) {
       application={mockApplication()}
       branch={mockBranch()}
       onUpdateBranches={jest.fn()}
+      readonly={false}
       {...props}
     />
   );

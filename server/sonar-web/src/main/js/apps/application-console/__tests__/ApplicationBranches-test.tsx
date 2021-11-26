@@ -30,6 +30,7 @@ it('should render correctly', () => {
       application: mockApplication({ projects: [mockApplicationProject({ enabled: true })] })
     })
   ).toMatchSnapshot('can create branches');
+  expect(shallowRender({ canBrowseAllChildProjects: false })).toMatchSnapshot('readonly');
   const wrapper = shallowRender();
   wrapper.setState({ creating: true });
   expect(wrapper).toMatchSnapshot('creating branch');
@@ -54,6 +55,11 @@ it('correctly triggers the onUpdateBranches prop', () => {
 
 function shallowRender(props: Partial<ApplicationBranches['props']> = {}) {
   return shallow<ApplicationBranches>(
-    <ApplicationBranches application={mockApplication()} onUpdateBranches={jest.fn()} {...props} />
+    <ApplicationBranches
+      application={mockApplication()}
+      canBrowseAllChildProjects={true}
+      onUpdateBranches={jest.fn()}
+      {...props}
+    />
   );
 }
