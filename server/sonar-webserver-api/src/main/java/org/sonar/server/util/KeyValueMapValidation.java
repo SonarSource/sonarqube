@@ -19,22 +19,23 @@
  */
 package org.sonar.server.util;
 
-import org.sonar.core.platform.Module;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.PropertyType;
+import java.util.List;
+import javax.annotation.Nullable;
 
-public class TypeValidationModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      TypeValidations.class,
-      IntegerTypeValidation.class,
-      FloatTypeValidation.class,
-      BooleanTypeValidation.class,
-      TextTypeValidation.class,
-      StringTypeValidation.class,
-      StringListTypeValidation.class,
-      LongTypeValidation.class,
-      MetricLevelTypeValidation.class,
-      KeyValueMapValidation.class
-    );
-  }
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+
+public class KeyValueMapValidation implements TypeValidation {
+
+    @Override
+    public String key() {
+        return PropertyType.KEY_VALUE_MAP.name();
+    }
+
+    @Override
+    public void validate(String value, @Nullable List<String> options) {
+        // Nothing to do
+    }
+
 }

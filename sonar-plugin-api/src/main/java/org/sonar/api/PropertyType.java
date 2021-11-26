@@ -107,5 +107,10 @@ public enum PropertyType {
    * @deprecated since 6.3, this type is useless as Dashboards have been removed
    */
   @Deprecated
-  LONG
+  LONG,
+
+  /**
+   * Key Value Map
+   */
+  KEY_VALUE_MAP
 }

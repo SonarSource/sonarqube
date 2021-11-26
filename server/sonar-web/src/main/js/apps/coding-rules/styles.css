@@ -278,3 +278,9 @@
   margin: 10px 0;
   border-top: 1px solid var(--barBorderColor);
 }
+
+.coding-rule-map-input {
+  width: 170px;
+  vertical-align: text-top;
+}
+

@@ -29,6 +29,7 @@ import { activateRule, Profile } from '../../../api/quality-profiles';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
 import { sortProfiles } from '../../quality-profiles/utils';
+import { DeleteButton } from 'sonar-ui-common/components/controls/buttons';
 
 interface Props {
   activation?: T.RuleActivation;
@@ -41,7 +42,7 @@ interface Props {
 }
 
 interface State {
-  params: T.Dict<string>;
+  params: T.Dict<string | any>;
   profile: string;
   severity: string;
   submitting: boolean;
@@ -49,6 +50,8 @@ interface State {
 
 export default class ActivationFormModal extends React.PureComponent<Props, State> {
   mounted = false;
+  paramsDelimiter = ";";
+  keyValueDelimiter = "=";
 
   constructor(props: Props) {
     super(props);
@@ -70,10 +73,20 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   }
 
   getParams = ({ activation, rule } = this.props) => {
-    const params: T.Dict<string> = {};
+    const params: T.Dict<any> = {};
     if (rule && rule.params) {
       for (const param of rule.params) {
-        params[param.key] = param.defaultValue || '';
+        if (param.type == "KEY_VALUE_MAP") {
+          let paramsArray: String[] = [];
+          if (param.defaultValue) {
+            paramsArray = param.defaultValue.split(this.paramsDelimiter);
+          }
+          paramsArray.push(this.keyValueDelimiter);
+          params[param.key] = paramsArray.map((object: any) => object.split(this.keyValueDelimiter));
+        } else {
+          params[param.key] = param.defaultValue || '';
+        }
+
       }
       if (activation && activation.params) {
         for (const param of activation.params) {
@@ -83,6 +96,26 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     }
     return params;
   };
+
+  getParamsFromMap = () => {
+    let stateParams = { ...this.state.params };
+    const { params = [] } = this.props.rule;
+    params.map(param => {
+      if (param.type == 'KEY_VALUE_MAP') {
+        stateParams[param.key].pop();
+        let res = '';
+        let row = stateParams[param.key].length;
+        stateParams[param.key].map((param: string[], index: number) => {
+          res = res + param[0] + this.keyValueDelimiter + param[1];
+          if (index + 1 != row) {
+            res = res + this.paramsDelimiter;
+          }
+        })
+        stateParams[param.key] = res;
+      }
+    })
+    return stateParams;
+  }
 
   // Choose QP which a user can administrate, which are the same language and which are not built-in
   getQualityProfilesWithDepth = ({ profiles } = this.props) => {
@@ -107,7 +140,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const data = {
       key: this.state.profile,
       organization: this.props.organization,
-      params: this.state.params,
+      params: this.getParamsFromMap(),
       rule: this.props.rule.key,
       severity: this.state.severity
     };
@@ -144,6 +177,31 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   renderSeverityOption = ({ value }: { value: string }) => {
     return <SeverityHelper severity={value} />;
   };
+
+  handleKeyChange = (index: any, value: any, paramKey: any) => {
+    let params = { ...this.state.params };
+    params[paramKey][index][0] = value;
+    if (index === params[paramKey].length - 1) {
+      params[paramKey].splice(index + 1, 0, ['', '']);
+    }
+    this.setState({ params });
+  };
+
+  handleValueChange = (index: any, value: any, paramKey: any) => {
+    let params = { ...this.state.params };
+    params[paramKey][index][1] = value;
+    if (index === params[paramKey].length - 1) {
+      params[paramKey].splice(index + 1, 0, ['', '']);
+    }
+    this.setState({ params });
+  };
+
+  handleDeleteValue = (index: number, paramKey: any) => {
+    let params = { ...this.state.params };
+    params[paramKey].splice(index, 1);
+    this.setState({ params });
+  };
+
 
   render() {
     const { activation, rule } = this.props;
@@ -205,25 +263,61 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
               params.map(param => (
                 <div className="modal-field" key={param.key}>
                   <label title={param.key}>{param.key}</label>
-                  {param.type === 'TEXT' ? (
-                    <textarea
-                      disabled={submitting}
-                      name={param.key}
-                      onChange={this.handleParameterChange}
-                      placeholder={param.defaultValue}
-                      rows={3}
-                      value={this.state.params[param.key] || ''}
-                    />
-                  ) : (
-                    <input
-                      disabled={submitting}
-                      name={param.key}
-                      onChange={this.handleParameterChange}
-                      placeholder={param.defaultValue}
-                      type="text"
-                      value={this.state.params[param.key] || ''}
-                    />
-                  )}
+                  {param.type === 'TEXT' &&
+                    (
+                      <textarea
+                        disabled={submitting}
+                        name={param.key}
+                        onChange={this.handleParameterChange}
+                        placeholder={param.defaultValue}
+                        rows={3}
+                        value={this.state.params[param.key] || ''}
+                      />
+                    )
+                  }
+                  {param.type === 'KEY_VALUE_MAP' ?
+                    (
+                      <ul>
+                        {this.state.params[param.key].map((value: any, index: number) =>
+                          <li className="spacer-bottom display-flex-row " key={index}>
+                            <input
+                              disabled={submitting}
+                              className="coding-rule-map-input"
+                              onChange={e => this.handleKeyChange(index, e.target.value, param.key)}
+                              name={"key" + index}
+                              type="text"
+                              value={value[0]} />
+
+                            <input
+                              disabled={submitting}
+                              className="coding-rule-map-input"
+                              onChange={e => this.handleValueChange(index, e.target.value, param.key)}
+                              name={"value" + index}
+                              type="text"
+                              value={value[1]} />
+
+                            {!(index === this.state.params[param.key].length - 1) && (
+                              <div className="display-inline-block spacer-left">
+                                <DeleteButton
+                                  className="js-remove-value"
+                                  onClick={() => this.handleDeleteValue(index, param.key)}
+                                />
+                              </div>
+                            )}
+                          </li>
+                        )}
+                      </ul>
+                    ) : (
+                      <input
+                        disabled={submitting}
+                        name={param.key}
+                        onChange={this.handleParameterChange}
+                        placeholder={param.defaultValue}
+                        type="text"
+                        value={this.state.params[param.key] || ''}
+                      />
+                    )
+                  }
                   <div
                     className="note"
                     // eslint-disable-next-line react/no-danger
