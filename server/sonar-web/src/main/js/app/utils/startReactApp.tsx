@@ -67,6 +67,7 @@ import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
 import { PageContext } from '../components/indexation/PageUnavailableDueToIndexation';
 import MigrationContainer from '../components/MigrationContainer';
+import NonAdminPagesContainer from '../components/NonAdminPagesContainer';
 import getStore from './getStore';
 
 /*
@@ -156,46 +157,51 @@ function renderRedirects() {
 function renderComponentRoutes() {
   return (
     <Route component={lazyLoadComponent(() => import('../components/ComponentContainer'))}>
-      <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
-      <RouteWithChildRoutes path="component_measures" childRoutes={componentMeasuresRoutes} />
-      <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
-      <RouteWithChildRoutes path="portfolio" childRoutes={portfolioRoutes} />
-      <RouteWithChildRoutes path="project/activity" childRoutes={projectActivityRoutes} />
-      <Route
-        path="project/extension/:pluginKey/:extensionKey"
-        component={lazyLoadComponent(() => import('../components/extensions/ProjectPageExtension'))}
-      />
-      <Route
-        path="project/issues"
-        component={Issues}
-        onEnter={({ location: { query } }, replace) => {
-          if (query.types) {
-            if (query.types === 'SECURITY_HOTSPOT') {
-              replace({
-                pathname: '/security_hotspots',
-                query: { ...pick(query, ['id', 'branch', 'pullRequest']), assignedToMe: false }
-              });
-            } else {
-              query.types = query.types
-                .split(',')
-                .filter((type: string) => type !== 'SECURITY_HOTSPOT')
-                .join(',');
+      {/* This container is a catch-all for all non-admin pages */}
+      <Route component={NonAdminPagesContainer}>
+        <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
+        <RouteWithChildRoutes path="component_measures" childRoutes={componentMeasuresRoutes} />
+        <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
+        <RouteWithChildRoutes path="portfolio" childRoutes={portfolioRoutes} />
+        <RouteWithChildRoutes path="project/activity" childRoutes={projectActivityRoutes} />
+        <Route
+          path="project/extension/:pluginKey/:extensionKey"
+          component={lazyLoadComponent(() =>
+            import('../components/extensions/ProjectPageExtension')
+          )}
+        />
+        <Route
+          path="project/issues"
+          component={Issues}
+          onEnter={({ location: { query } }, replace) => {
+            if (query.types) {
+              if (query.types === 'SECURITY_HOTSPOT') {
+                replace({
+                  pathname: '/security_hotspots',
+                  query: { ...pick(query, ['id', 'branch', 'pullRequest']), assignedToMe: false }
+                });
+              } else {
+                query.types = query.types
+                  .split(',')
+                  .filter((type: string) => type !== 'SECURITY_HOTSPOT')
+                  .join(',');
+              }
             }
-          }
-        }}
-      />
-      <Route
-        path="security_hotspots"
-        component={lazyLoadComponent(() =>
-          import('../../apps/security-hotspots/SecurityHotspotsApp')
-        )}
-      />
-      <RouteWithChildRoutes path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
-      <RouteWithChildRoutes
-        path="project/quality_profiles"
-        childRoutes={projectQualityProfilesRoutes}
-      />
-      <RouteWithChildRoutes path="tutorials" childRoutes={tutorialsRoutes} />
+          }}
+        />
+        <Route
+          path="security_hotspots"
+          component={lazyLoadComponent(() =>
+            import('../../apps/security-hotspots/SecurityHotspotsApp')
+          )}
+        />
+        <RouteWithChildRoutes path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
+        <RouteWithChildRoutes
+          path="project/quality_profiles"
+          childRoutes={projectQualityProfilesRoutes}
+        />
+        <RouteWithChildRoutes path="tutorials" childRoutes={tutorialsRoutes} />
+      </Route>
       <Route component={lazyLoadComponent(() => import('../components/ProjectAdminContainer'))}>
         <Route
           path="project/admin/extension/:pluginKey/:extensionKey"
