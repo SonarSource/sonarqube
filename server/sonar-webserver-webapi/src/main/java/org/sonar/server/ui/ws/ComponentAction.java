@@ -213,6 +213,9 @@ public class ComponentAction implements NavigationWsAction {
     if (branch != null) {
       json.prop("branch", branch);
     }
+    if (Qualifiers.APP.equals(component.qualifier())) {
+      json.prop("canBrowseAllChildProjects", userSession.hasChildProjectsPermission(USER, component));
+    }
     if (QUALIFIERS_WITH_VISIBILITY.contains(component.qualifier())) {
       json.prop("visibility", Visibility.getLabel(component.isPrivate()));
     }

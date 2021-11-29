@@ -81,6 +81,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
+import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -241,6 +242,42 @@ public class ComponentActionTest {
       "  \"isFavorite\": true," +
       "  \"id\": \"" + portfolio.uuid() + "\"," +
       "  \"name\": \"" + portfolio.name() + "\"" +
+      "}");
+  }
+
+  @Test
+  public void return_canBrowseAllChildProjects_when_component_is_an_application() {
+    db.qualityGates().createDefaultQualityGate();
+    ComponentDto application1 = db.components().insertPrivateApplication();
+    ComponentDto project11 = db.components().insertPrivateProject();
+    ComponentDto project12 = db.components().insertPrivateProject();
+    userSession.registerApplication(
+      toProjectDto(application1, 1L),
+      toProjectDto(project11, 1L),
+      toProjectDto(project12, 1L));
+    userSession.addProjectPermission(UserRole.USER, application1, project11, project12);
+
+    ComponentDto application2 = db.components().insertPrivateApplication();
+    ComponentDto project21 = db.components().insertPrivateProject();
+    ComponentDto project22 = db.components().insertPrivateProject();
+    userSession.registerApplication(
+      toProjectDto(application2, 1L),
+      toProjectDto(project21, 1L),
+      toProjectDto(project22, 1L));
+    userSession.addProjectPermission(UserRole.USER, application2, project21);
+
+    init();
+
+    // access to all projects (project11, project12)
+    String json = execute(application1.getDbKey());
+    assertJson(json).isSimilarTo("{" +
+      "\"canBrowseAllChildProjects\":true" +
+      "}");
+
+    // access to some projects (project11)
+    json = execute(application2.getDbKey());
+    assertJson(json).isSimilarTo("{" +
+      "\"canBrowseAllChildProjects\":false" +
       "}");
   }
 
