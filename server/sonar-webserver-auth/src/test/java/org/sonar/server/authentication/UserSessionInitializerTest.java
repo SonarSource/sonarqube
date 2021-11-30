@@ -104,6 +104,7 @@ public class UserSessionInitializerTest {
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/resume");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/health");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/liveness");
+    assertPathIsIgnoredWithAnonymousAccess("/api/monitoring/metrics");
 
     // exclude static resources
     assertPathIsIgnored("/css/style.css");

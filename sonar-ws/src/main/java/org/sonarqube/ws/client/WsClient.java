@@ -40,6 +40,7 @@ import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.metrics.MetricsService;
+import org.sonarqube.ws.client.monitoring.MonitoringService;
 import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
@@ -202,4 +203,6 @@ public interface WsClient {
   BatchService batch();
 
   SecurityReportsService securityReports();
+
+  MonitoringService monitoring();
 }

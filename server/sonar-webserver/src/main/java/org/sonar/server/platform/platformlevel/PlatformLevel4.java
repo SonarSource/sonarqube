@@ -121,6 +121,7 @@ import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
+import org.sonar.server.monitoring.MonitoringWsModule;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
@@ -268,6 +269,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ServerWs.class,
       IndexDefinitions.class,
       WebAnalyticsLoaderImpl.class,
+      MonitoringWsModule.class,
 
       // batch
       BatchWsModule.class,

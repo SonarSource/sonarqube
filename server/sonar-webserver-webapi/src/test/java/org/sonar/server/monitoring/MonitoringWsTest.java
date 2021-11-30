@@ -17,19 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.monitoring;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SafemodeSystemWsModuleTest {
+public class MonitoringWsTest {
+
+  private final MonitoringWs underTest = new MonitoringWs(new MonitoringWsAction() {
+    @Override
+    public void handle(Request request, Response response) {
+      // nothing to do
+    }
+
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction("foo").setHandler(this);
+    }
+  });
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new SafemodeSystemWsModule().configure(container);
-    assertThat(container.size()).isPositive();
+  public void define_controller() {
+    WebService.Context context = new WebService.Context();
+
+    underTest.define(context);
+
+    WebService.Controller controller = context.controller("api/monitoring");
+    assertThat(controller).isNotNull();
+    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.since()).isEqualTo("9.3");
+    assertThat(controller.actions()).hasSize(1);
   }
 
 }

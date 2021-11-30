@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.monitoring;
 
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SafemodeSystemWsModuleTest {
+public class MonitoringWsModuleTest {
+
   @Test
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
-    new SafemodeSystemWsModule().configure(container);
+    new MonitoringWsModule().configure(container);
     assertThat(container.size()).isPositive();
   }
 

@@ -40,6 +40,7 @@ import org.sonarqube.ws.client.l10n.L10nService;
 import org.sonarqube.ws.client.languages.LanguagesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.metrics.MetricsService;
+import org.sonarqube.ws.client.monitoring.MonitoringService;
 import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.newcodeperiods.NewCodePeriodsService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
@@ -104,6 +105,7 @@ class DefaultWsClient implements WsClient {
   private final LanguagesService languagesService;
   private final MeasuresService measuresService;
   private final MetricsService metricsService;
+  private final MonitoringService monitoringService;
   private final NavigationService navigationService;
   private final NewCodePeriodsService newCodePeriodsService;
   private final NotificationsService notificationsService;
@@ -161,6 +163,7 @@ class DefaultWsClient implements WsClient {
     this.languagesService = new LanguagesService(wsConnector);
     this.measuresService = new MeasuresService(wsConnector);
     this.metricsService = new MetricsService(wsConnector);
+    this.monitoringService = new MonitoringService(wsConnector);
     this.navigationService = new NavigationService(wsConnector);
     this.newCodePeriodsService = new NewCodePeriodsService(wsConnector);
     this.notificationsService = new NotificationsService(wsConnector);
@@ -296,6 +299,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public MetricsService metrics() {
     return metricsService;
+  }
+
+  @Override
+  public MonitoringService monitoring() {
+    return monitoringService;
   }
 
   @Override

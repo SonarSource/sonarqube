@@ -9,6 +9,10 @@ dependencies {
 
   compile 'com.google.guava:guava'
   compile 'com.github.everit-org.json-schema:org.everit.json.schema'
+
+  compile 'io.prometheus:simpleclient_common'
+  compile 'io.prometheus:simpleclient_servlet'
+
   compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-db-dao')

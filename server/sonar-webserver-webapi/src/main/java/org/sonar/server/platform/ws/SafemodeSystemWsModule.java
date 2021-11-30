@@ -20,6 +20,8 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.monitoring.MonitoringWs;
+import org.sonar.server.user.BearerPasscode;
 
 public class SafemodeSystemWsModule extends Module {
   @Override
@@ -28,11 +30,17 @@ public class SafemodeSystemWsModule extends Module {
       StatusAction.class,
       MigrateDbAction.class,
       DbMigrationStatusAction.class,
+
       HealthActionSupport.class,
       SafeModeHealthAction.class,
       SafeModeLivenessCheckerImpl.class,
       LivenessActionSupport.class,
       SafeModeLivenessAction.class,
+
+      MonitoringWs.class,
+      BearerPasscode.class,
+      SafeModeMonitoringMetricAction.class,
+
       SystemWs.class);
   }
 }

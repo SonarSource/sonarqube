@@ -1,0 +1,3 @@
+# HELP is_web_up Tells whether web service is up
+# TYPE is_web_up gauge
+is_web_up 0.0
