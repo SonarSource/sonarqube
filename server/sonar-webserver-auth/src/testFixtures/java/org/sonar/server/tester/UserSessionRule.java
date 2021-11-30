@@ -262,6 +262,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean hasChildProjectsPermission(String permission, ProjectDto component) {
+    return currentUserSession.hasChildProjectsPermission(permission, component);
+  }
+
+  @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return currentUserSession.hasComponentUuidPermission(permission, componentUuid);
   }
@@ -367,6 +372,12 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
     currentUserSession.checkChildProjectsPermission(projectPermission, component);
+    return this;
+  }
+
+  @Override
+  public UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application) {
+    currentUserSession.checkChildProjectsPermission(projectPermission, application);
     return this;
   }
 

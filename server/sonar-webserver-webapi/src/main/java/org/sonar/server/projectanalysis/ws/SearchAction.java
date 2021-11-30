@@ -177,6 +177,9 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private void checkPermission(ComponentDto project) {
     userSession.checkComponentPermission(UserRole.USER, project);
+    if (Scopes.PROJECT.equals(project.scope()) && Qualifiers.APP.equals(project.qualifier())) {
+      userSession.checkChildProjectsPermission(UserRole.USER, project);
+    }
   }
 
   private void addProject(SearchData.Builder data) {

@@ -70,6 +70,7 @@ import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -833,12 +834,32 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(project);
 
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam(PARAM_COMPONENT, project.getKey())
-        .setParam(PARAM_METRIC_KEYS, "ncloc")
-        .executeProtobuf(ComponentTreeWsResponse.class);
-    })
+    var request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc");
+    assertThatThrownBy(() -> request.executeProtobuf(ComponentTreeWsResponse.class))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void fail_when_app_with_insufficient_privileges_for_projects() {
+    userSession.logIn();
+    ComponentDto app = db.components().insertPrivateApplication();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.components().insertSnapshot(app);
+
+    userSession.registerApplication(
+      toProjectDto(app, 1L),
+      toProjectDto(project1, 1L),
+      toProjectDto(project2, 1L));
+
+    userSession.addProjectPermission(UserRole.USER, app, project1);
+
+    var request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, app.getKey())
+      .setParam(PARAM_METRIC_KEYS, "ncloc");
+    assertThatThrownBy(() -> request.executeProtobuf(ComponentTreeWsResponse.class))
       .isInstanceOf(ForbiddenException.class);
   }
 

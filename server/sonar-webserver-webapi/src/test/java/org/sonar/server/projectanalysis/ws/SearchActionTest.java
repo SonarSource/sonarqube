@@ -72,6 +72,7 @@ import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -155,7 +156,8 @@ public class SearchActionTest {
     db.events().insertEvent(newEvent(a1).setUuid("AXt91FkXy_c4CIP4ds6A")
       .setName("Failed")
       .setCategory(QUALITY_GATE.getLabel())
-      .setDescription("Coverage on New Code < 85, Reliability Rating > 4, Maintainability Rating on New Code > 1, Reliability Rating on New Code > 1, Security Rating on New Code > 1, Duplicated Lines (%) on New Code > 3"));
+      .setDescription(
+        "Coverage on New Code < 85, Reliability Rating > 4, Maintainability Rating on New Code > 1, Reliability Rating on New Code > 1, Security Rating on New Code > 1, Duplicated Lines (%) on New Code > 3"));
     db.events().insertEvent(newEvent(a1).setUuid("AXx_QFJ6Wa8wkfuJ6r5P")
       .setName("6.3").setCategory(VERSION.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E21")
@@ -234,7 +236,7 @@ public class SearchActionTest {
   @Test
   public void return_analyses_of_application() {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
     SnapshotDto thirdAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(3_000_000L));
@@ -253,7 +255,7 @@ public class SearchActionTest {
   @Test
   public void return_definition_change_events_on_application_analyses() {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
@@ -278,7 +280,7 @@ public class SearchActionTest {
   @UseDataProvider("changedBranches")
   public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable String newBranch) {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, REMOVED, "My project", "app1", oldBranch, uuidFactoryFast.create());
@@ -300,7 +302,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_eventcomponentchange_two_identical_changes_added_on_same_project() {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
@@ -329,7 +331,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_eventcomponentchange_incorrect_category() {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, FAILED_QUALITY_GATE, "My project", "app1", "master", uuidFactoryFast.create());
@@ -355,7 +357,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_eventcomponentchange_three_component_changes_on_same_project() {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
     EventComponentChangeDto changeDto1 = generateEventComponentChange(event, ADDED, "My project", "app1", "master", uuidFactoryFast.create());
@@ -386,7 +388,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_quality_gate_information() {
     ComponentDto application = db.components().insertPublicApplication();
-    userSession.registerComponents(application);
+    userSession.registerApplication(toProjectDto(application, 1L));
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(
       newEvent(firstAnalysis)
@@ -635,6 +637,24 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     var projectDbKey = project.getDbKey();
+    assertThatThrownBy(() -> call(projectDbKey))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void fail_if_not_enough_permissions_on_applications_projects() {
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    userSession.logIn()
+      .registerApplication(
+        toProjectDto(application, 1L),
+        toProjectDto(project1, 1L),
+        toProjectDto(project2, 1L))
+      .addProjectPermission(UserRole.USER, application, project1);
+
+    var projectDbKey = application.getDbKey();
     assertThatThrownBy(() -> call(projectDbKey))
       .isInstanceOf(ForbiddenException.class);
   }

@@ -197,6 +197,8 @@ public interface UserSession {
 
   boolean hasChildProjectsPermission(String permission, ComponentDto component);
 
+  boolean hasChildProjectsPermission(String permission, ProjectDto component);
+
   /**
    * Using {@link #hasComponentPermission(String, ComponentDto)} is recommended
    * because it does not have to load project if the referenced component
@@ -235,6 +237,12 @@ public interface UserSession {
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkChildProjectsPermission(String projectPermission, ComponentDto project);
+
+  /**
+   * Ensures that {@link #hasChildProjectsPermission(String, ProjectDto)} is {@code true}
+   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   */
+  UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application);
 
   /**
    * Ensures that {@link #hasComponentUuidPermission(String, String)} is {@code true},

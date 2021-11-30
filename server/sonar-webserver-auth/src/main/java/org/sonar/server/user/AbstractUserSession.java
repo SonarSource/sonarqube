@@ -36,6 +36,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public abstract class AbstractUserSession implements UserSession {
@@ -109,7 +110,16 @@ public abstract class AbstractUserSession implements UserSession {
     if (isRoot()) {
       return true;
     }
-    return hasChildProjectsPermission(permission, component.uuid());
+    String applicationUuid = defaultString(component.getMainBranchProjectUuid(), component.projectUuid());
+    return hasChildProjectsPermission(permission, applicationUuid);
+  }
+
+  @Override
+  public final boolean hasChildProjectsPermission(String permission, ProjectDto project) {
+    if (isRoot()) {
+      return true;
+    }
+    return hasChildProjectsPermission(permission, project.getUuid());
   }
 
   @Override
@@ -208,12 +218,20 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public UserSession checkChildProjectsPermission(String projectPermission, ComponentDto component) {
-    if (isRoot() || !component.qualifier().equals(Qualifiers.APP) || hasChildProjectsPermission(projectPermission, component.uuid())) {
+    if (isRoot() || !APP.equals(component.qualifier()) || hasChildProjectsPermission(projectPermission, component)) {
       return this;
     }
 
     throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+  }
 
+  @Override
+  public UserSession checkChildProjectsPermission(String projectPermission, ProjectDto application) {
+    if (isRoot() || !APP.equals(application.getQualifier()) || hasChildProjectsPermission(projectPermission, application)) {
+      return this;
+    }
+
+    throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   }
 
   @Override

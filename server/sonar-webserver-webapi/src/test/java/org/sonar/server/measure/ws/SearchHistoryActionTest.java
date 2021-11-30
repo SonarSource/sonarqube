@@ -60,6 +60,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
@@ -347,8 +348,8 @@ public class SearchHistoryActionTest {
       .setParam(PARAM_COMPONENT, branch.getDbKey())
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(format("Component key '%s' not found", branch.getDbKey()));
   }
 
   @Test
@@ -368,6 +369,28 @@ public class SearchHistoryActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.getDbKey())
+      .setMetrics(singletonList(complexityMetric.getKey()))
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void fail_if_not_enough_permissions_for_application() {
+    ComponentDto application = db.components().insertPrivateApplication();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+
+    userSession.logIn()
+      .registerApplication(
+        toProjectDto(application, 1L),
+        toProjectDto(project1, 1L),
+        toProjectDto(project2, 1L))
+      .addProjectPermission(UserRole.USER, application, project1);
+
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(application.getDbKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -396,8 +419,8 @@ public class SearchHistoryActionTest {
       .setParam(PARAM_COMPONENT, "file-key")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Component key 'file-key' not found");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Component key 'file-key' not found");
   }
 
   @Test
@@ -412,8 +435,8 @@ public class SearchHistoryActionTest {
       .setParam(PARAM_BRANCH, "another_branch")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test

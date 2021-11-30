@@ -46,6 +46,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -105,8 +106,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -402,7 +403,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
       checkPermissions(baseComponent);
       Optional<SnapshotDto> baseSnapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, baseComponent.projectUuid());
-      if (!baseSnapshot.isPresent()) {
+      if (baseSnapshot.isEmpty()) {
         return ComponentTreeData.builder()
           .setBaseComponent(baseComponent)
           .build();
@@ -625,6 +626,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
   private void checkPermissions(ComponentDto baseComponent) {
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
+
+    if (Scopes.PROJECT.equals(baseComponent.scope()) && Qualifiers.APP.equals(baseComponent.qualifier())) {
+      userSession.checkChildProjectsPermission(UserRole.USER, baseComponent);
+    }
   }
 
   public static boolean isFileComponent(@Nonnull ComponentDto input) {
