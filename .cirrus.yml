@@ -23,6 +23,10 @@ env:
   BUDDY_WORKS_TOKEN: ENCRYPTED[9ba648f3167b6f0c0befbba2f816bfffd53260fef06fb0fe8bba0a19ae4808c8b1567c5dcee2a2ee5299a5969058f495]
   ELASTIC_PWD: ENCRYPTED[78c127034b9f06bc1b5ad7a520de2da094f3eaf1dcb35f12b0f178fa90ce2fd157bd6f9feece9bf3a54b4e3805bc39fb]
   CIRRUS_LOG_TIMESTAMP: true
+  # No need to clone the full history.
+  # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
+  # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
+  CIRRUS_CLONE_DEPTH: 50
 
 auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*' && $CIRRUS_BRANCH != 'dogfood-on-next'
 
@@ -156,10 +160,6 @@ build_task:
     cpu: 7.5
     memory: 8Gb
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     ORG_GRADLE_PROJECT_signingKey: ENCRYPTED[!cc216dfe592f79db8006f2a591f8f98b40aa2b078e92025623594976fd32f6864c1e6b6ba74b50647f608e2418e6c336!]
     ORG_GRADLE_PROJECT_signingPassword: ENCRYPTED[!314a8fc344f45e462dd5e8dccd741d7562283a825e78ebca27d4ae9db8e65ce618e7f6aece386b2782a5abe5171467bd!]
     ORG_GRADLE_PROJECT_signingKeyId: 0x7DCD4258
@@ -286,10 +286,6 @@ qa_task:
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     matrix:
       - QA_CATEGORY: Cat1
       - QA_CATEGORY: Cat2
@@ -321,10 +317,6 @@ task: #bitbucket
   maven_cache:
     folder: ~/.m2
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: BITBUCKET
   matrix:
     - name: qa_bitbucket_5.15.0
@@ -345,10 +337,6 @@ qa_bb_cloud_task:
     cpu: 2.4
     memory: 5Gb
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: BITBUCKET_CLOUD
     BBC_CLIENT_ID: ENCRYPTED[f1c2c57d5f02885345b3db5776a3b28f5dbcc89723809f73ad05ada903ece9584f1dfe61b026c10eabd72c75d1258bac]
     BBC_CLIENT_SECRET: ENCRYPTED[39cc89ce4695c243fd688e687879bd473a60882fd30ba8613d6697e5d2b04e2017c68cae3a9a7ed9704f69c52bf229ee]
@@ -369,10 +357,6 @@ qa_ha_task:
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: HA
   script:
     - ./private/cirrus/cirrus-qa.sh postgres106
@@ -390,7 +374,6 @@ docker_gitlab_container_build_task:
     cpu: 4
     memory: 8G
   env:
-    CIRRUS_CLONE_DEPTH: 3
     matrix:
       - GITLAB_TAG: latest
       - GITLAB_TAG: 11.7.0-ce.0
@@ -422,10 +405,6 @@ qa_gitlab_task:
           - image: us.gcr.io/sonarqube-team/sq-gitlab:latest
           - image: us.gcr.io/sonarqube-team/sq-gitlab:11.7.0-ce.0
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: GITLAB
   script:
     - ./private/cirrus/cirrus-qa.sh h2
@@ -441,10 +420,6 @@ qa_azure_task:
     cpu: 2.4
     memory: 5Gb
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: AZURE
     AZURE_USERNAME_LOGIN: ENCRYPTED[dcdf19769c1501408ebc22670c76d5e375cd739de2df5dfa3f215aa795296dfb257dbbcbe9bdfd33135feb04421fea1f]
     AZURE_CODE_READ_AND_WRITE_TOKEN: ENCRYPTED[eddc3448b40e72310f24f21241bdc1243860139d1a5aad593b016baedf03e4bba3f9e3d8d9f6329fe3b587966a8112d2]
@@ -472,10 +447,6 @@ qa_saml_task:
           KEYCLOAK_USER: admin
           KEYCLOAK_PASSWORD: admin
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: SAML
   script:
     - ./private/cirrus/cirrus-qa.sh h2
@@ -491,10 +462,6 @@ qa_ldap_task:
     cpu: 2.4
     memory: 10Gb
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     QA_CATEGORY: LDAP
   script:
     - ./private/cirrus/cirrus-qa.sh h2
@@ -513,11 +480,6 @@ promote_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
   stateful: true
-  env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-promote.sh
 
@@ -527,11 +489,6 @@ deploy_docs_task:
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-  env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
   script:
     - ./private/cirrus/cirrus-trigger-deploy-docs.sh
 
@@ -618,12 +575,7 @@ upgd_mssql2019_task:
           ACCEPT_EULA: Y
           SA_PASSWORD: sonarqube!1
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
-    matrix:
-      QA_CATEGORY: Upgrade
+    QA_CATEGORY: Upgrade
   script:
     - ./private/cirrus/cirrus-qa.sh mssql2017
   on_failure:
@@ -639,10 +591,6 @@ upgd_oracle12_task:
     additional_containers:
       - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   env:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     matrix:
       QA_CATEGORY: Upgrade
   script:
@@ -665,11 +613,6 @@ owasp_check_task:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.7
     memory: 4Gb
-  environment:
-    # No need to clone the full history.
-    # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-    # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
     SLACK_WEBHOOK_SQ: ENCRYPTED[dec8e4350cbea3b94d63098558bcb3ae9e79b71c2b6286fcfb9eb80c0953b6448b10f7271b07b5e75e52f362c25d7a8f]
   script:
     - gradle dependencyCheckAggregate
