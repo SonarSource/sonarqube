@@ -45,7 +45,10 @@ export default function NonAdminPagesContainer(props: NonAdminPagesContainerProp
   if (isApplication(component.qualifier) && !component.canBrowseAllChildProjects) {
     return (
       <div className="page page-limited display-flex-justify-center">
-        <Alert className="max-width-60 huge-spacer-top" display="block" variant="error">
+        <Alert
+          className="it__alert-no-access-all-child-project max-width-60 huge-spacer-top"
+          display="block"
+          variant="error">
           <p>{translate('application.cannot_access_all_child_projects1')}</p>
           <br />
           <p>{translate('application.cannot_access_all_child_projects2')}</p>

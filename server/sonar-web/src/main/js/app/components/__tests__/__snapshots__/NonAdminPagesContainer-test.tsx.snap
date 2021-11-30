@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   className="page page-limited display-flex-justify-center"
 >
   <Alert
-    className="max-width-60 huge-spacer-top"
+    className="it__alert-no-access-all-child-project max-width-60 huge-spacer-top"
     display="block"
     variant="error"
   >
