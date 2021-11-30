@@ -6,17 +6,18 @@ url: /project-administration/managing-applications/
 *Applications are available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html).*
 
 ## Permissions
-There are two levels of users with permissions for adding and editing Applications: users with the Create Applications permission and Global Administrators.  
 
-### Create Applications Permission
-Users with the Create Applications permission (granted at the global level at [Administration > Security > Global Permissions](/#sonarqube-admin#/admin/permissions)) can create Applications by clicking the **Create Application** button in the upper-right corner of the **Projects** homepage. 
+### Creating Applications
+Both users with the Create Applications permission and global administrators can create Applications:
 
-Users with the Create Applications permission can edit an individual Application definition from the Application-level **Portfolio Settings > Edit Definition** interface.
+* **Create Applications permission** – Users with the Create Applications permission (granted at the global level at **Administration > Security > Global Permissions**) can create Applications by clicking the **Create Application** button in the upper-right corner of the Projects homepage.
+* **Global Administrators** – In addition to creating Applications from the Projects homepage, global administrators (with the global Administer System permission granted at [**Administration > Security > Global Permissions**](/#sonarqube-admin#/admin/permissions)) can create Applications from the overall Portfolio administration interface at **Administration > Configuration > Portfolios**.
 
-### Global Administrators
-Starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html), Global Administrators have access to the overall Portfolio and Application administration interface at **[Administration > Configuration > Portfolios](/#sonarqube-admin#/admin/extension/governance/views_console)**. From this page, they can create and edit Applications. 
+### Editing Applications
+Users need to have either **Administer** permissions for any Applications that they want to edit (set on the specific Application's page at **Application Settings > Permissions**) or the global **Administer System** permission.
 
-Global Administrators also have access to the Projects Management page at **[Administration > Projects > Management](/#sonarqube-admin#/admin/projects_management)**. Changing the selection mechanism on this page to “Portfolios” or “Applications” lets you manage the Portfolios or Applications of your SonarQube instance. The dropdown menu to the right of each item lets you edit permissions, apply Permission Templates, or restore access to a Portfolio or Application.
+[[info]]
+| Users with **Administer** permissions for an Application can see the list of projects that make up the Application even if they don't have browse permissions for those projects.
 
 ## Populating Applications
 Once your Application exists, you can populate it with manually-selected projects. By default, the configuration interface shows the list of projects currently selected for the application. To add additional projects, choose the "Unselected" or "All" filter.
