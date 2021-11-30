@@ -611,7 +611,7 @@ subprojects {
     }
   }
 
-  if (System.getenv('CIRRUS_BRANCH') == "branch-nightly-build") {
+  if (System.getenv('GITHUB_BRANCH') == "branch-nightly-build") {
     tasks.withType(Test) {
 
       configurations {
@@ -640,7 +640,7 @@ subprojects {
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     required {
-      def branch = System.getenv()["CIRRUS_BRANCH"]
+      def branch = System.getenv()["GITHUB_BRANCH"]
       return (branch in ['master', 'dogfood-on-next'] || branch ==~ 'branch-[\\d.]+') &&
              gradle.taskGraph.hasTask(":artifactoryPublish")
     }
@@ -649,7 +649,7 @@ subprojects {
 
   tasks.withType(Sign) {
     onlyIf {
-      def branch = System.getenv()["CIRRUS_BRANCH"]
+      def branch = System.getenv()["GITHUB_BRANCH"]
       return !artifactoryPublish.skip &&
              (branch in ['master', 'dogfood-on-next'] || branch ==~ 'branch-[\\d.]+') &&
              gradle.taskGraph.hasTask(":artifactoryPublish")
