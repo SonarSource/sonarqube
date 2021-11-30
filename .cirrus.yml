@@ -123,8 +123,8 @@ eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
       - private/core-extension-governance/eslint-report/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
-jest_coverage_cache_template: &JEST_COVERAGE_CACHE_TEMPLATE
-  jest_coverage_cache:
+jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
+  jest_report_cache:
     folders:
       - server/sonar-web/coverage/
       - server/sonar-docs/coverage/
@@ -133,9 +133,11 @@ jest_coverage_cache_template: &JEST_COVERAGE_CACHE_TEMPLATE
       - private/core-extension-governance/coverage/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
-junit_jacoco_cache_template: &JUNIT_JACOCO_CACHE_TEMPLATE
-  junit_jacoco_cache:
-    folder: "**/reports/jacoco"
+junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
+  junit_report_cache:
+    folders:
+      - "**/reports/jacoco"
+      - "**/test-results/test"
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 custom_clone_script_template: &CUSTOM_CLONE_SCRIPT_TEMPLATE
@@ -192,7 +194,7 @@ yarn_validate-ci_task:
   <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
-  <<: *JEST_COVERAGE_CACHE_TEMPLATE
+  <<: *JEST_REPORT_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -208,7 +210,7 @@ yarn_validate-ci_task:
 junit_task:
   <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  <<: *JUNIT_JACOCO_CACHE_TEMPLATE
+  <<: *JUNIT_REPORT_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -225,9 +227,9 @@ validate_task:
   <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
-  <<: *JEST_COVERAGE_CACHE_TEMPLATE
+  <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
-  <<: *JUNIT_JACOCO_CACHE_TEMPLATE
+  <<: *JUNIT_REPORT_CACHE_TEMPLATE
   depends_on:
     - yarn_validate-ci
     - yarn_lint-report-ci
