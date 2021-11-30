@@ -117,7 +117,6 @@ eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
   eslint_report_cache:
     folders:
       - server/sonar-web/eslint-report/
-      - server/sonar-docs/eslint-report/
       - private/core-extension-securityreport/eslint-report/
       - private/core-extension-license/eslint-report/
       - private/core-extension-governance/eslint-report/
@@ -127,7 +126,6 @@ jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
   jest_report_cache:
     folders:
       - server/sonar-web/coverage/
-      - server/sonar-docs/coverage/
       - private/core-extension-securityreport/coverage/
       - private/core-extension-license/coverage/
       - private/core-extension-governance/coverage/

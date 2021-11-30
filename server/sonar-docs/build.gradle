@@ -87,20 +87,6 @@ task "yarn_check-ci"(type: Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'check-ci'])
 }
 
-task "yarn_lint-report-ci"(type: Exec) {
-  // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
-  ['config', 'src'].each {
-    inputs.dir(it)
-  }
-  ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc'].each {
-    inputs.file(it)
-  }
-  outputs.dir('eslint-report')
-  outputs.cacheIf { true }
-
-  commandLine osAdaptiveCommand(['npm', 'run', 'lint-report-ci'])
-}
-
 task "yarn_validate-ci"(type: Exec) {
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
   ['config', 'src'].each {
@@ -109,7 +95,6 @@ task "yarn_validate-ci"(type: Exec) {
   ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc'].each {
     inputs.file(it)
   }
-  outputs.dir('coverage')
   outputs.cacheIf { true }
 
   commandLine osAdaptiveCommand(['npm', 'run', 'validate-ci'])
