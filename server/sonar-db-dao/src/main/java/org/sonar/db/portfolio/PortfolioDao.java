@@ -22,6 +22,7 @@ package org.sonar.db.portfolio;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -158,8 +159,19 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).deleteReference(portfolioUuid, referenceUuid);
   }
 
+  @CheckForNull
   public ReferenceDetailsDto selectReference(DbSession dbSession, String portfolioUuid, String referenceKey) {
-    return mapper(dbSession).selectReference(portfolioUuid, referenceKey);
+    return selectReferenceToApp(dbSession, portfolioUuid, referenceKey)
+      .or(() -> selectReferenceToPortfolio(dbSession, portfolioUuid, referenceKey))
+      .orElse(null);
+  }
+
+  public Optional<ReferenceDetailsDto> selectReferenceToApp(DbSession dbSession, String portfolioUuid, String referenceKey) {
+    return Optional.ofNullable(mapper(dbSession).selectReferenceToApplication(portfolioUuid, referenceKey));
+  }
+
+  public Optional<ReferenceDetailsDto> selectReferenceToPortfolio(DbSession dbSession, String portfolioUuid, String referenceKey) {
+    return Optional.ofNullable(mapper(dbSession).selectReferenceToPortfolio(portfolioUuid, referenceKey));
   }
 
   /*

@@ -82,7 +82,9 @@ public interface PortfolioMapper {
 
   int deleteReference(@Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid);
 
-  ReferenceDetailsDto selectReference(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
+  ReferenceDetailsDto selectReferenceToPortfolio(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
+
+  ReferenceDetailsDto selectReferenceToApplication(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
 
   void deleteAllProjects();
 

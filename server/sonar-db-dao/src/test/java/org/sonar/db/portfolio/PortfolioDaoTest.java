@@ -249,7 +249,7 @@ public class PortfolioDaoTest {
   }
 
   @Test
-  public void add_and_select_references() {
+  public void add_and_select_references_by_uuid() {
     assertThat(portfolioDao.selectPortfolioProjects(session, "portfolio1")).isEmpty();
     portfolioDao.addReference(session, "portfolio1", "app1");
     portfolioDao.addReference(session, "portfolio1", "app2");
@@ -263,6 +263,42 @@ public class PortfolioDaoTest {
     assertThat(db.select(session, "select created_at from portfolio_references"))
       .extracting(m -> m.values().iterator().next())
       .containsExactlyInAnyOrder(1L, 2L, 3L);
+  }
+
+  @Test
+  public void select_reference_to_app_by_key() {
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    db.components().addPortfolioReference(portfolio, app1.getUuid());
+
+    assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app1.getKey()))
+      .get()
+      .extracting(ReferenceDto::getTargetUuid)
+      .isEqualTo(app1.getUuid());
+
+    assertThat(portfolioDao.selectReference(db.getSession(), portfolio.getUuid(), app1.getKey()))
+      .extracting(ReferenceDto::getTargetUuid)
+      .isEqualTo(app1.getUuid());
+
+    assertThat(portfolioDao.selectReferenceToPortfolio(db.getSession(), portfolio.getUuid(), app1.getKey())).isEmpty();
+  }
+
+  @Test
+  public void select_reference_to_portfolio_by_key() {
+    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
+    PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("portfolio2");
+    db.components().addPortfolioReference(portfolio1, portfolio2);
+
+    assertThat(portfolioDao.selectReferenceToPortfolio(db.getSession(), portfolio1.getUuid(), portfolio2.getKey()))
+      .get()
+      .extracting(ReferenceDto::getTargetUuid)
+      .isEqualTo(portfolio2.getUuid());
+
+    assertThat(portfolioDao.selectReference(db.getSession(), portfolio1.getUuid(), portfolio2.getKey()))
+      .extracting(ReferenceDto::getTargetUuid)
+      .isEqualTo(portfolio2.getUuid());
+
+    assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio1.getUuid(), portfolio2.getKey())).isEmpty();
   }
 
   @Test
