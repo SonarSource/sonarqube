@@ -261,7 +261,7 @@ yarn_check-ci_task:
     <<: *PROFILE_ARTIFACTS_TEMPLATE
 
 db_dao_postgres_task:
-  <<: *ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *ONLY_DEFAULT_BRANCHES_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 90m
   gke_container:
