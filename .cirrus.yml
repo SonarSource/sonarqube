@@ -11,8 +11,6 @@ env:
   ARTIFACTORY_API_KEY: ENCRYPTED[60f92cec4bf8446867dce41fe8dc77457f10065b82a24bfa3924d496aa1c14b89b531b86c3a34274abb12cf9a4cb36c4]
   # download licenses for testing commercial editions
   GITHUB_TOKEN: ENCRYPTED[!f458126aa9ed2ac526f220c5acb51dd9cc255726b34761a56fc78d4294c11089502a882888cef0ca7dd4085e72e611a5!]
-  # use a permanent GitHub access token to perform a clone (by default CirrusCI uses a temporary one)
-  CIRRUS_REPO_CLONE_TOKEN: ENCRYPTED[f20fee6519296187a473964e60afb08a1bbdc889a624fad0297b41a21d8697f8d2da4d2d245194ade630dcf46b4b581e]
   # notifications to burgr
   BURGR_URL: ENCRYPTED[24fba83587c1e9ed372b6cfdf12e4739ebe3b6e5b5082f1a2a742e840dd2e4b61fd5e281bf2632b22b3ad346c650c05c]
   BURGR_USERNAME: ENCRYPTED[cf7bfb936025fb763013bbfef0ab5723c0d9b53f135d79af36f9defa933f4b5fc72842bd83a97ce9b614503c1b77e6da]
