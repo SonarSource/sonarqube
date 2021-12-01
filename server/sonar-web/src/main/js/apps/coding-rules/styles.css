@@ -280,7 +280,7 @@
 }
 
 .coding-rule-map-input {
-  width: 170px;
+  width: 170px !important;
   vertical-align: text-top;
 }
 

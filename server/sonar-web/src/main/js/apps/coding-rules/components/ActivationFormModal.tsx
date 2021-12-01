@@ -86,11 +86,17 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
         } else {
           params[param.key] = param.defaultValue || '';
         }
-
       }
       if (activation && activation.params) {
         for (const param of activation.params) {
-          params[param.key] = param.value;
+          if (typeof(params[param.key]) !== 'string') {
+            let paramsArray: String[] = [];
+            paramsArray = param.value.split(this.paramsDelimiter);
+            paramsArray.push(this.keyValueDelimiter);
+            params[param.key] = paramsArray.map((object: any) => object.split(this.keyValueDelimiter));
+          } else {
+            params[param.key] = param.value || '';
+          }
         }
       }
     }
