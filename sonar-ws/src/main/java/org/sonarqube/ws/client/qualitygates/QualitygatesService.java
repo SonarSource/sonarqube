@@ -191,6 +191,20 @@ public class QualitygatesService extends BaseService {
 
   /**
    * This is part of the internal API.
+   * This is a GET request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/application_status">Further information about this action online (including a response example)</a>
+   * @since 2.0
+   */
+  public void applicationStatus(ApplicationStatusRequest request) {
+    call(
+      new GetRequest(path("application_status"))
+        .setParam("application", request.getApplication())
+        .setParam("branch", request.getBranch()));
+  }
+
+  /**
+   * This is part of the internal API.
    * This is a POST request.
    *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/rename">Further information about this action online (including a response example)</a>
@@ -285,9 +299,9 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/add_user">Further information about this action online (including a response example)</a>
    * @since 9.2
    */
@@ -301,9 +315,9 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/search_users">Further information about this action online (including a response example)</a>
    * @since 9.2
    */
@@ -319,9 +333,9 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/remove_user">Further information about this action online (including a response example)</a>
    * @since 9.2
    */
@@ -335,9 +349,9 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/add_group">Further information about this action online (including a response example)</a>
    * @since 9.2
    */
@@ -351,9 +365,9 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a GET request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/search_groups">Further information about this action online (including a response example)</a>
    * @since 9.2
    */
@@ -369,9 +383,9 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   *
    * This is part of the internal API.
    * This is a POST request.
+   *
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/remove_group">Further information about this action online (including a response example)</a>
    * @since 9.2
    */
