@@ -76,7 +76,8 @@ public class SearchAction implements ProjectAnalysesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("search")
       .setDescription("Search a project analyses and attached events.<br>" +
-        "Requires the following permission: 'Browse' on the specified project")
+        "Requires the following permission: 'Browse' on the specified project. <br>" +
+        "For applications, it also requires 'Browse' permission on its child projects.")
       .setSince("6.3")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setChangelog(
@@ -150,7 +151,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private void addManualBaseline(SearchData.Builder data) {
     dbClient.branchDao().selectByUuid(data.getDbSession(), data.getProject().uuid())
       .ifPresent(branchDto -> dbClient.newCodePeriodDao().selectByBranch(
-        data.getDbSession(), branchDto.getProjectUuid(), branchDto.getUuid())
+          data.getDbSession(), branchDto.getProjectUuid(), branchDto.getUuid())
         .ifPresent(newCodePeriodDto -> data.setManualBaseline(newCodePeriodDto.getValue())));
   }
 

@@ -290,11 +290,24 @@ public class IssueQueryFactoryTest {
     ComponentDto application = db.components().insertPublicApplication();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
-    userSession.registerComponents(application, project1, project2);
+    userSession.registerApplication(application, project1, project2);
 
     IssueQuery result = underTest.create(new SearchRequest().setComponentUuids(singletonList(application.uuid())));
 
     assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
+  }
+
+  @Test
+  public void application_search_project_issues_returns_empty_if_user_cannot_access_child_projects() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto application = db.components().insertPublicApplication();
+    db.components().insertComponents(newProjectCopy("PC1", project1, application));
+    db.components().insertComponents(newProjectCopy("PC2", project2, application));
+
+    IssueQuery result = underTest.create(new SearchRequest().setComponentUuids(singletonList(application.uuid())));
+
+    assertThat(result.viewUuids()).containsOnly("<UNKNOWN>");
   }
 
   @Test
@@ -310,7 +323,7 @@ public class IssueQueryFactoryTest {
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
-    userSession.registerComponents(application, project1, project2, project3);
+    userSession.registerApplication(application, project1, project2, project3);
 
     IssueQuery result = underTest.create(new SearchRequest()
       .setComponentUuids(singletonList(application.uuid()))
@@ -492,7 +505,10 @@ public class IssueQueryFactoryTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     db.components().insertComponents(newProjectCopy(project1, application));
     db.components().insertComponents(newProjectCopy(project2, application));
-    userSession.addProjectPermission(USER, application);
+    userSession.registerApplication(application, project1, project2)
+      .addProjectPermission(USER, application)
+      .addProjectPermission(USER, project1)
+      .addProjectPermission(USER, project2);
 
     assertThat(underTest.create(new SearchRequest()
         .setComponents(singletonList(application.getKey())))

@@ -44,7 +44,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -96,6 +95,7 @@ import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -206,11 +206,11 @@ public class SearchActionTest {
   @DataProvider
   public static Object[][] badStatuses() {
     return Stream.concat(
-      Issue.STATUSES.stream(),
-      Stream.of(randomAlphabetic(3)))
+        Issue.STATUSES.stream(),
+        Stream.of(randomAlphabetic(3)))
       .filter(t -> !STATUS_REVIEWED.equals(t))
       .filter(t -> !STATUS_TO_REVIEW.equals(t))
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 
@@ -242,13 +242,13 @@ public class SearchActionTest {
   @DataProvider
   public static Object[][] badResolutions() {
     return Stream.of(
-      Issue.RESOLUTIONS.stream(),
-      Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
-      Stream.of(randomAlphabetic(4)))
+        Issue.RESOLUTIONS.stream(),
+        Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
+        Stream.of(randomAlphabetic(4)))
       .flatMap(t -> t)
       .filter(t -> !RESOLUTION_FIXED.equals(t))
       .filter(t -> !RESOLUTION_SAFE.equals(t))
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 
@@ -279,7 +279,7 @@ public class SearchActionTest {
 
   @DataProvider
   public static Object[][] fixedOrSafeResolution() {
-    return new Object[][] {
+    return new Object[][]{
       {RESOLUTION_SAFE},
       {RESOLUTION_FIXED}
     };
@@ -350,7 +350,7 @@ public class SearchActionTest {
   @Test
   public void succeeds_on_public_application() {
     ComponentDto application = dbTester.components().insertPublicApplication();
-    userSessionRule.registerComponents(application);
+    userSessionRule.registerApplication(application);
 
     SearchWsResponse response = newRequest(application)
       .executeProtobuf(SearchWsResponse.class);
@@ -363,7 +363,7 @@ public class SearchActionTest {
   public void succeeds_on_private_project_with_permission() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     userSessionRule.registerComponents(project);
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    userSessionRule.logIn().addProjectPermission(USER, project);
 
     SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
@@ -375,8 +375,7 @@ public class SearchActionTest {
   @Test
   public void succeeds_on_private_application_with_permission() {
     ComponentDto application = dbTester.components().insertPrivateApplication();
-    userSessionRule.registerComponents(application);
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, application);
+    userSessionRule.logIn().registerApplication(application).addProjectPermission(USER, application);
 
     SearchWsResponse response = newRequest(application)
       .executeProtobuf(SearchWsResponse.class);
@@ -561,7 +560,8 @@ public class SearchActionTest {
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application1));
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2, application2));
     indexViews();
-    userSessionRule.registerComponents(application1, application2, project1, project2);
+    userSessionRule.registerApplication(application1, project1)
+      .registerApplication(application2, project2);
     indexPermissions();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2));
@@ -604,7 +604,7 @@ public class SearchActionTest {
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project1, application));
     dbTester.components().insertComponent(ComponentTesting.newProjectCopy(project2, applicationBranch));
     indexViews();
-    userSessionRule.registerComponents(application, applicationBranch, project1, project2);
+    userSessionRule.registerApplication(application, applicationBranch, project1, project2);
     indexPermissions();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project1));
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project2));
@@ -731,7 +731,7 @@ public class SearchActionTest {
 
   @DataProvider
   public static Object[][] onlyMineParamValues() {
-    return new Object[][] {
+    return new Object[][]{
       {"yes", true},
       {"true", true},
       {"no", false},
@@ -744,7 +744,7 @@ public class SearchActionTest {
     ComponentDto project = dbTester.components().insertPrivateProject();
 
     userSessionRule.registerComponents(project);
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    userSessionRule.logIn().addProjectPermission(USER, project);
 
     TestRequest request = actionTester.newRequest()
       .setParam("hotspots", IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))
@@ -926,7 +926,7 @@ public class SearchActionTest {
 
   @DataProvider
   public static Object[][] validStatusesAndResolutions() {
-    return new Object[][] {
+    return new Object[][]{
       {STATUS_TO_REVIEW, null},
       {STATUS_REVIEWED, RESOLUTION_FIXED},
       {STATUS_REVIEWED, RESOLUTION_SAFE},
@@ -957,13 +957,13 @@ public class SearchActionTest {
   public static Object[][] allSQCategories() {
     Stream<Object[]> allCategoriesButOTHERS = SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()
       .stream()
-      .map(t -> new Object[] {
+      .map(t -> new Object[]{
         t.getValue().stream().map(c -> "cwe:" + c).collect(toSet()),
         t.getKey()
       });
     Stream<Object[]> sqCategoryOTHERS = Stream.of(
-      new Object[] {Collections.emptySet(), SQCategory.OTHERS},
-      new Object[] {of("foo", "donut", "acme"), SQCategory.OTHERS});
+      new Object[]{Collections.emptySet(), SQCategory.OTHERS},
+      new Object[]{of("foo", "donut", "acme"), SQCategory.OTHERS});
     return Stream.concat(allCategoriesButOTHERS, sqCategoryOTHERS).toArray(Object[][]::new);
   }
 
@@ -1161,14 +1161,14 @@ public class SearchActionTest {
     ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project).setPath("a/a/d"));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     List<IssueDto> hotspots = Stream.of(
-      newHotspot(rule, project, file3).setLine(8),
-      newHotspot(rule, project, file3).setLine(10),
-      newHotspot(rule, project, file1).setLine(null),
-      newHotspot(rule, project, file1).setLine(9),
-      newHotspot(rule, project, file1).setLine(11).setKee("a"),
-      newHotspot(rule, project, file1).setLine(11).setKee("b"),
-      newHotspot(rule, project, file2).setLine(null),
-      newHotspot(rule, project, file2).setLine(2))
+        newHotspot(rule, project, file3).setLine(8),
+        newHotspot(rule, project, file3).setLine(10),
+        newHotspot(rule, project, file1).setLine(null),
+        newHotspot(rule, project, file1).setLine(9),
+        newHotspot(rule, project, file1).setLine(11).setKee("a"),
+        newHotspot(rule, project, file1).setLine(11).setKee("b"),
+        newHotspot(rule, project, file2).setLine(null),
+        newHotspot(rule, project, file2).setLine(2))
       .collect(toList());
     String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
     // insert hotspots in random order
@@ -1465,21 +1465,21 @@ public class SearchActionTest {
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.of(
-        hotspotsInLeakPeriod.stream(),
-        atLeakPeriod.stream(),
-        hotspotsBefore.stream())
+          hotspotsInLeakPeriod.stream(),
+          atLeakPeriod.stream(),
+          hotspotsBefore.stream())
         .flatMap(t -> t)
         .map(IssueDto::getKey)
         .toArray(String[]::new));
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true"))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.concat(
-        hotspotsInLeakPeriod.stream(),
-        atLeakPeriod.stream())
+          hotspotsInLeakPeriod.stream(),
+          atLeakPeriod.stream())
         .map(IssueDto::getKey)
         .toArray(String[]::new));
   }
@@ -1511,7 +1511,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true"))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).isEmpty();
   }
 
@@ -1543,7 +1543,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true").setParam("pullRequest", "pr"))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).hasSize(3);
   }
 
@@ -1564,7 +1564,7 @@ public class SearchActionTest {
 
     indexViews();
 
-    userSessionRule.registerComponents(application, project, project2);
+    userSessionRule.registerApplication(application, project, project2);
     indexPermissions();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(referenceDate).setLast(true));
@@ -1586,7 +1586,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(application,
       t -> t.setParam("sinceLeakPeriod", "true"))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey());
@@ -1619,7 +1619,7 @@ public class SearchActionTest {
 
     indexViews();
 
-    userSessionRule.registerProjects(application, project, project2);
+    userSessionRule.registerApplication(application, project, project2);
     indexPermissions();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectBranchComponentDto));
@@ -1638,14 +1638,14 @@ public class SearchActionTest {
     ComponentDto applicationComponentDto = dbClient.componentDao().selectByUuid(dbTester.getSession(), application.getUuid()).get();
     SearchWsResponse responseAll = newRequest(applicationComponentDto,
       t -> t.setParam("branch", applicationBranch.getKey()))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey(), atRef.getKey(), beforeRef.getKey(), project2Issue.getKey());
 
     SearchWsResponse responseOnLeak = newRequest(applicationComponentDto,
       t -> t.setParam("sinceLeakPeriod", "true").setParam("branch", applicationBranch.getKey()))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey());

@@ -407,7 +407,7 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project1, project1);
     IssueDto issue2 = db.issues().insertIssue(rule, project2, project2);
-    allowAnyoneOnProjects(project1, project2, application);
+    allowAnyoneOnApplication(application, project1, project2);
     userSession.addProjectPermission(USER, application);
     indexIssuesAndViews();
 
@@ -520,7 +520,7 @@ public class SearchActionComponentsTest {
     IssueDto project2Issue1 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -15)));
     IssueDto project2Issue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
-    allowAnyoneOnProjects(project1, project2, application);
+    allowAnyoneOnApplication(application, project1, project2);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -543,7 +543,7 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     IssueDto issue1 = db.issues().insertIssue(rule, project1, project1);
     IssueDto issue2 = db.issues().insertIssue(rule, project2, project2);
-    allowAnyoneOnProjects(project1, project2, application);
+    allowAnyoneOnApplication(application, project1, project2);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -574,7 +574,7 @@ public class SearchActionComponentsTest {
     IssueDto project2Issue1 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -15)));
     IssueDto project2Issue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
-    allowAnyoneOnProjects(project1, project2, application);
+    allowAnyoneOnApplication(application, project1, project2);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -606,7 +606,7 @@ public class SearchActionComponentsTest {
     IssueDto project2Issue1 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -15)));
     IssueDto project2Issue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setIssueCreationDate(addDays(now, -30)));
     // Permissions and index
-    allowAnyoneOnProjects(project1, project2, application);
+    allowAnyoneOnApplication(application, project1, project2);
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
@@ -771,6 +771,11 @@ public class SearchActionComponentsTest {
 
   private void allowAnyoneOnProjects(ComponentDto... projects) {
     userSession.registerComponents(projects);
+    Arrays.stream(projects).forEach(p -> permissionIndexer.allowOnlyAnyone(p));
+  }
+
+  private void allowAnyoneOnApplication(ComponentDto application, ComponentDto... projects) {
+    userSession.registerApplication(application);
     Arrays.stream(projects).forEach(p -> permissionIndexer.allowOnlyAnyone(p));
   }
 

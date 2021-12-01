@@ -45,7 +45,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -80,6 +79,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
@@ -176,8 +176,10 @@ public class SearchAction implements HotspotsWsAction {
     WebService.NewAction action = controller
       .createAction("search")
       .setHandler(this)
-      .setDescription("Search for Security Hotpots."
-        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+      .setDescription("Search for Security Hotpots. <br>"
+        + "Requires the 'Browse' permission on the specified project(s). <br>"
+        + "For applications, it also requires 'Browse' permission on its child projects. <br>"
+        + "When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
       .setInternal(true);
 
@@ -286,7 +288,8 @@ public class SearchAction implements HotspotsWsAction {
         .filter(t -> Scopes.PROJECT.equals(t.scope()) && SUPPORTED_QUALIFIERS.contains(t.qualifier()))
         .filter(ComponentDto::isEnabled)
         .orElseThrow(() -> new NotFoundException(format("Project '%s' not found", projectKey)));
-      userSession.checkComponentPermission(UserRole.USER, project);
+      userSession.checkComponentPermission(USER, project);
+      userSession.checkChildProjectsPermission(USER, project);
       return project;
     });
   }

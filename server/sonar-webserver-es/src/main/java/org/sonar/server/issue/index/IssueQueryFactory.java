@@ -46,7 +46,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -68,6 +67,7 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -304,7 +304,7 @@ public class IssueQueryFactory {
 
   private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<ComponentDto> viewOrSubViewUuids) {
     List<String> filteredViewUuids = viewOrSubViewUuids.stream()
-      .filter(uuid -> userSession.hasComponentPermission(UserRole.USER, uuid))
+      .filter(uuid -> userSession.hasComponentPermission(USER, uuid))
       .map(ComponentDto::uuid)
       .collect(Collectors.toList());
     if (filteredViewUuids.isEmpty()) {
@@ -315,7 +315,7 @@ public class IssueQueryFactory {
 
   private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> applications, SearchRequest request) {
     Set<String> authorizedApplicationUuids = applications.stream()
-      .filter(app -> userSession.hasComponentPermission(UserRole.USER, app))
+      .filter(app -> userSession.hasComponentPermission(USER, app) && userSession.hasChildProjectsPermission(USER, app))
       .map(ComponentDto::uuid)
       .collect(toSet());
 

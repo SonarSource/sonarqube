@@ -182,7 +182,8 @@ public class SearchAction implements IssuesWsAction {
     WebService.NewAction action = controller
       .createAction(ACTION_SEARCH)
       .setHandler(this)
-      .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s)."
+      .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s). <br>"
+        + "For applications, it also requires 'Browse' permission on its child projects."
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(

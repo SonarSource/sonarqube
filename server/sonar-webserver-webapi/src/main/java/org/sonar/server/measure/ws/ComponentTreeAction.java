@@ -172,6 +172,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures.<br>" +
         "Requires the following permission: 'Browse' on the specified project.<br>" +
+        "For applications, it also requires 'Browse' permission on its child projects. <br>" +
         "When limiting search with the %s parameter, directories are not returned.", Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")

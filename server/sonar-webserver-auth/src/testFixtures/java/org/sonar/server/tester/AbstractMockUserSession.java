@@ -95,6 +95,18 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
+  public T registerApplication(ComponentDto application, ComponentDto... appProjects) {
+    registerComponents(application);
+    registerComponents(appProjects);
+
+    var appProjectsUuid = Arrays.stream(appProjects)
+      .map(ComponentDto::uuid)
+      .collect(Collectors.toSet());
+    this.applicationProjects.put(application.uuid(), appProjectsUuid);
+
+    return clazz.cast(this);
+  }
+
   public T registerApplication(ProjectDto application, ProjectDto... appProjects) {
     registerProjects(application);
     registerProjects(appProjects);

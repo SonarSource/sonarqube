@@ -114,7 +114,8 @@ public class ComponentAction implements NavigationWsAction {
   public void define(NewController context) {
     NewAction action = context.createAction("component")
       .setDescription("Get information concerning component navigation for the current user. " +
-        "Requires the 'Browse' permission on the component's project.")
+        "Requires the 'Browse' permission on the component's project. <br>" +
+        "For applications, it also requires 'Browse' permission on its child projects.")
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("component-example.json"))
