@@ -237,6 +237,9 @@ validate_task:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 7.5
     memory: 28Gb
+  env:
+    # For the analysis, we need the full history.
+    CIRRUS_CLONE_DEPTH: 0
   script:
     - ./private/cirrus/cirrus-validate.sh
   always:
