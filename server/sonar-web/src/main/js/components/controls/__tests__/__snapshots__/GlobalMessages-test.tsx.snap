@@ -103,7 +103,7 @@ exports[`should render with correct css 1`] = `
   animation: animation-0 0.2s ease forwards;
 }
 
-.emotion-1 + .emotion-1 {
+.emotion-1+.emotion-1 {
   margin-top: calc(8px / 2);
   border-radius: 3px;
 }
@@ -133,7 +133,7 @@ exports[`should render with correct css 1`] = `
   animation: animation-0 0.2s ease forwards;
 }
 
-.emotion-3 + .emotion-3 {
+.emotion-3+.emotion-3 {
   margin-top: calc(8px / 2);
   border-radius: 3px;
 }

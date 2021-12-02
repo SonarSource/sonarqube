@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import { matchers } from 'jest-emotion';
+import { matchers } from '@emotion/jest';
 import * as React from 'react';
 import { colors } from '../../../app/theme';
 import GlobalMessages, { GlobalMessagesProps } from '../GlobalMessages';
