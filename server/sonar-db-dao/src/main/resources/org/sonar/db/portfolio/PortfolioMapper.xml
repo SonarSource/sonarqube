@@ -34,16 +34,15 @@
     pp.project_uuid as projectUuid,
     pp.portfolio_uuid as portfolioUuid,
     pf.kee as portfolioKey,
-    pp.project_uuid as projectUuid,
     p.kee as projectKey,
     pp.created_at as createdAt,
     ppb.branch_uuid as branchUuid
   </sql>
 
   <resultMap id="portfolioProjectResult" type="PortfolioProject" autoMapping="true">
-    <id property="uuid" column="portfolioProject_uuid" />
+    <id property="uuid" column="portfolioProject_uuid"/>
     <collection property="branchUuids" ofType="string">
-      <result column="branchUuid" />
+      <result column="branchUuid"/>
     </collection>
   </resultMap>
 
@@ -151,31 +150,49 @@
 
   <select id="selectReferenceUuids" resultType="String">
     SELECT
-      p.reference_uuid
+    p.reference_uuid
     FROM portfolio_references p
     where
-      p.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
+    p.portfolio_uuid=#{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectRootOfReferencers" resultType="Portfolio">
-    SELECT distinct <include refid="portfolioColumns"/>
+    SELECT distinct
+    <include refid="portfolioColumns"/>
     FROM portfolios c
     INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
     INNER JOIN portfolios p on p.uuid = c.root_uuid
     where
-      pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
+    pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
+  </select>
+
+  <sql id="applicationProjectColumns">
+    ap.application_uuid as appUuid,
+    ap.project_uuid as projectUuid,
+    p.kee as appKey
+  </sql>
+
+  <select id="selectAllApplicationProjects" parameterType="String" resultType="ApplicationProject">
+    SELECT
+    <include refid="applicationProjectColumns"/>
+    FROM portfolio_references pr
+    INNER JOIN projects p ON p.uuid = pr.reference_uuid
+    INNER JOIN portfolios pf ON pr.portfolio_uuid = pf.uuid
+    INNER JOIN app_projects ap ON ap.application_uuid = p.uuid
+    WHERE pf.root_uuid = #{rootPortfolioUuid}
   </select>
 
   <select id="selectTree" parameterType="String" resultType="Portfolio">
-    SELECT <include refid="portfolioColumns"/>
+    SELECT
+    <include refid="portfolioColumns"/>
     FROM portfolios p
     INNER JOIN portfolios p2 ON p.root_uuid = p2.root_uuid
     WHERE p2.uuid=#{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
- <select id="selectReferencers" resultType="Portfolio">
+  <select id="selectReferencers" resultType="Portfolio">
     SELECT
-      <include refid="portfolioColumns"/>
+    <include refid="portfolioColumns"/>
     FROM portfolios p
     INNER JOIN portfolio_references pr ON p.uuid = pr.portfolio_uuid
     WHERE pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
@@ -184,7 +201,7 @@
   <delete id="deleteReference">
     DELETE FROM portfolio_references
     WHERE
-      portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
     AND reference_uuid = #{referenceUuid,jdbcType=VARCHAR}
   </delete>
 

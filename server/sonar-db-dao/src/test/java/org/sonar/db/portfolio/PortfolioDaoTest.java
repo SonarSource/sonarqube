@@ -28,6 +28,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptySet;
@@ -246,6 +247,26 @@ public class PortfolioDaoTest {
     assertThat(portfolioDao.selectAllReferencesToApplications(session))
       .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid)
       .containsOnly(tuple("portfolio3", app1.getUuid()));
+  }
+
+  @Test
+  public void selectAllApplicationProjectsBelongToTheSamePortfolio() {
+    var portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
+    var app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    var app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
+    var project1 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:one").setName("Projet Un"));
+    var project2 = db.components().insertPrivateProjectDto(p -> p.setDbKey("project:two").setName("Projet Deux"));
+
+    db.components().addApplicationProject(app1, project1);
+    db.components().addApplicationProject(app2, project2);
+    db.components().addPortfolioReference(portfolio, app1.getUuid());
+    db.components().addPortfolioReference(portfolio, app2.getUuid());
+
+    assertThat(portfolioDao.selectAllApplicationProjects(session, portfolio.getRootUuid()))
+      .extracting(ApplicationProjectDto::getAppUuid, ApplicationProjectDto::getAppKey, ApplicationProjectDto::getProjectUuid)
+      .containsOnly(
+        tuple(app1.getUuid(), "app1", project1.getUuid()),
+        tuple(app2.getUuid(), "app2", project2.getUuid()));
   }
 
   @Test

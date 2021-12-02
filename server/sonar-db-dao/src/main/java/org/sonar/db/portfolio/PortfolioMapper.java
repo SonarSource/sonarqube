@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.project.ApplicationProjectDto;
 
 public interface PortfolioMapper {
   @CheckForNull
@@ -65,6 +66,8 @@ public interface PortfolioMapper {
   void update(PortfolioDto portfolio);
 
   List<PortfolioDto> selectAllRoots();
+
+  List<ApplicationProjectDto> selectAllApplicationProjects(String rootPortfolioUuid);
 
   List<PortfolioDto> selectAll();
 

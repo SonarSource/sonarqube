@@ -30,6 +30,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
+import org.sonar.db.project.ApplicationProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -53,6 +54,17 @@ public class PortfolioDao implements Dao {
    */
   public List<PortfolioDto> selectAllRoots(DbSession dbSession) {
     return mapper(dbSession).selectAllRoots();
+  }
+
+  /**
+   * select all application projects belong to the hierarchy of a portfolio
+   *
+   * @param dbSession
+   * @param rootPortfolioUuid
+   * @return
+   */
+  public List<ApplicationProjectDto> selectAllApplicationProjects(DbSession dbSession, String rootPortfolioUuid) {
+    return mapper(dbSession).selectAllApplicationProjects(rootPortfolioUuid);
   }
 
   public List<PortfolioDto> selectAll(DbSession dbSession) {

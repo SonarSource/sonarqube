@@ -100,6 +100,7 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioMapper;
 import org.sonar.db.portfolio.PortfolioProjectDto;
 import org.sonar.db.portfolio.PortfolioReferenceDto;
+import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectBadgeTokenDto;
 import org.sonar.db.project.ProjectBadgeTokenMapper;
 import org.sonar.db.project.ProjectDto;
@@ -179,6 +180,7 @@ public class MyBatis implements Startable {
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
+    confBuilder.loadAlias("ApplicationProject", ApplicationProjectDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentWithModuleUuid", ComponentWithModuleUuidDto.class);
