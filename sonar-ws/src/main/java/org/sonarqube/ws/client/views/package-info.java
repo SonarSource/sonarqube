@@ -21,6 +21,6 @@
 @Generated("sonar-ws-generator")
 package org.sonarqube.ws.client.views;
 
-import javax.annotation.Generated;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Generated;
 

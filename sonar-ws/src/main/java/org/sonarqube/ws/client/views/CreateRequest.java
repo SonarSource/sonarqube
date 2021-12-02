@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.views;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -33,7 +34,7 @@ public class CreateRequest {
   private String description;
   private String key;
   private String name;
-  private String qualifier;
+  private String parent;
   private String visibility;
 
   /**
@@ -71,21 +72,14 @@ public class CreateRequest {
   }
 
   /**
-   * Possible values:
-   * <ul>
-   *   <li>"VW"</li>
-   *   <li>"APP"</li>
-   * </ul>
-   * @deprecated since 7.3
    */
-  @Deprecated
-  public CreateRequest setQualifier(String qualifier) {
-    this.qualifier = qualifier;
+  public CreateRequest setParent(String parent) {
+    this.parent = parent;
     return this;
   }
 
-  public String getQualifier() {
-    return qualifier;
+  public String getParent() {
+    return parent;
   }
 
   /**

@@ -41,14 +41,48 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_application">Further information about this action online (including a response example)</a>
+   * @since 9.3
+   */
+  public void addApplication(AddApplicationRequest request) {
+    call(
+      new PostRequest(path("add_application"))
+        .setParam("application", request.getApplication())
+        .setParam("portfolio", request.getPortfolio())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_local_view">Further information about this action online (including a response example)</a>
    * @since 1.0
+   * @deprecated since 9.3
    */
+  @Deprecated
   public void addLocalView(AddLocalViewRequest request) {
     call(
       new PostRequest(path("add_local_view"))
         .setParam("key", request.getKey())
         .setParam("ref_key", request.getRefKey())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_portfolio">Further information about this action online (including a response example)</a>
+   * @since 9.3
+   */
+  public void addPortfolio(AddPortfolioRequest request) {
+    call(
+      new PostRequest(path("add_portfolio"))
+        .setParam("portfolio", request.getPortfolio())
+        .setParam("reference", request.getReference())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -92,7 +126,9 @@ public class ViewsService extends BaseService {
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_sub_view">Further information about this action online (including a response example)</a>
    * @since 1.0
+   * @deprecated since 9.3
    */
+  @Deprecated
   public void addSubView(AddSubViewRequest request) {
     call(
       new PostRequest(path("add_sub_view"))
@@ -100,6 +136,21 @@ public class ViewsService extends BaseService {
         .setParam("key", request.getKey())
         .setParam("name", request.getName())
         .setParam("subKey", request.getSubKey())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/applications">Further information about this action online (including a response example)</a>
+   * @since 9.3
+   */
+  public String applications(ApplicationsRequest request) {
+    return call(
+      new GetRequest(path("applications"))
+        .setParam("portfolio", request.getPortfolio())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -117,7 +168,7 @@ public class ViewsService extends BaseService {
         .setParam("description", request.getDescription())
         .setParam("key", request.getKey())
         .setParam("name", request.getName())
-        .setParam("qualifier", request.getQualifier())
+        .setParam("parent", request.getParent())
         .setParam("visibility", request.getVisibility())
         .setMediaType(MediaTypes.JSON)
       ).content();
@@ -191,7 +242,9 @@ public class ViewsService extends BaseService {
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/local_views">Further information about this action online (including a response example)</a>
    * @since 1.0
+   * @deprecated since 9.3
    */
+  @Deprecated
   public String localViews(LocalViewsRequest request) {
     return call(
       new GetRequest(path("local_views"))
@@ -235,6 +288,21 @@ public class ViewsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/portfolios">Further information about this action online (including a response example)</a>
+   * @since 9.3
+   */
+  public String portfolios(PortfoliosRequest request) {
+    return call(
+      new GetRequest(path("portfolios"))
+        .setParam("portfolio", request.getPortfolio())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/projects">Further information about this action online (including a response example)</a>
    * @since 1.0
    */
@@ -261,6 +329,38 @@ public class ViewsService extends BaseService {
     call(
       new PostRequest(path("refresh"))
         .setParam("key", request.getKey())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/remove_application">Further information about this action online (including a response example)</a>
+   * @since 9.3
+   */
+  public void removeApplication(RemoveApplicationRequest request) {
+    call(
+      new PostRequest(path("remove_application"))
+        .setParam("application", request.getApplication())
+        .setParam("portfolio", request.getPortfolio())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/remove_portfolio">Further information about this action online (including a response example)</a>
+   * @since 9.3
+   */
+  public void removePortfolio(RemovePortfolioRequest request) {
+    call(
+      new PostRequest(path("remove_portfolio"))
+        .setParam("portfolio", request.getPortfolio())
+        .setParam("reference", request.getReference())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }

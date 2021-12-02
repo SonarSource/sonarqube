@@ -25,36 +25,36 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/remove_project">Further information about this action online (including a response example)</a>
- * @since 1.0
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/views/add_portfolio">Further information about this action online (including a response example)</a>
+ * @since 9.3
  */
 @Generated("sonar-ws-generator")
-public class RemoveProjectRequest {
+public class AddPortfolioRequest {
 
-  private String key;
-  private String project;
-
-  /**
-   * This is a mandatory parameter.
-   */
-  public RemoveProjectRequest setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String getKey() {
-    return key;
-  }
+  private String portfolio;
+  private String reference;
 
   /**
    * This is a mandatory parameter.
    */
-  public RemoveProjectRequest setProject(String project) {
-    this.project = project;
+  public AddPortfolioRequest setPortfolio(String portfolio) {
+    this.portfolio = portfolio;
     return this;
   }
 
-  public String getProject() {
-    return project;
+  public String getPortfolio() {
+    return portfolio;
+  }
+
+  /**
+   * This is a mandatory parameter.
+   */
+  public AddPortfolioRequest setReference(String reference) {
+    this.reference = reference;
+    return this;
+  }
+
+  public String getReference() {
+    return reference;
   }
 }
