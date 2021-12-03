@@ -20,7 +20,7 @@
 import { isSameDay } from 'date-fns';
 import { max } from 'lodash';
 import * as React from 'react';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import BarChart from '../../../components/charts/BarChart';
 import DateRangeInput from '../../../components/controls/DateRangeInput';
 import FacetBox from '../../../components/facet/FacetBox';
@@ -52,7 +52,7 @@ interface Props {
   stats: T.Dict<number> | undefined;
 }
 
-export class CreationDateFacet extends React.PureComponent<Props & InjectedIntlProps> {
+export class CreationDateFacet extends React.PureComponent<Props & WrappedComponentProps> {
   property = 'createdAt';
 
   static defaultProps = {

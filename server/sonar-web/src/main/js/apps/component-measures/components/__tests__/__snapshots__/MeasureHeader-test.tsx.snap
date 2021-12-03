@@ -51,7 +51,7 @@ exports[`should render correctly 1`] = `
     <div
       className="measure-details-primary-actions"
     >
-      <InjectIntl(LeakPeriodLegend)
+      <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
           Object {
@@ -105,7 +105,7 @@ exports[`should render correctly for leak 1`] = `
     <div
       className="measure-details-primary-actions"
     >
-      <InjectIntl(LeakPeriodLegend)
+      <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
           Object {
@@ -159,7 +159,7 @@ exports[`should render with a branch 1`] = `
     <div
       className="measure-details-primary-actions"
     >
-      <InjectIntl(LeakPeriodLegend)
+      <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
           Object {
@@ -232,7 +232,7 @@ exports[`should work with measure without value 1`] = `
     <div
       className="measure-details-primary-actions"
     >
-      <InjectIntl(LeakPeriodLegend)
+      <injectIntl(LeakPeriodLegend)
         className="spacer-left"
         component={
           Object {

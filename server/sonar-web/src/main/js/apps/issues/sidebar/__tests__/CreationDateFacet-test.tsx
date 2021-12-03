@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { InjectedIntlProps } from 'react-intl';
+import { IntlShape } from 'react-intl';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { ComponentQualifier } from '../../../../types/component';
 import { CreationDateFacet } from '../CreationDateFacet';
@@ -68,7 +68,7 @@ function shallowRender(props?: Partial<CreationDateFacet['props']>) {
       intl={
         {
           formatDate: (date: string) => 'formatted.' + date
-        } as InjectedIntlProps['intl']
+        } as IntlShape
       }
       onChange={jest.fn()}
       onToggle={jest.fn()}

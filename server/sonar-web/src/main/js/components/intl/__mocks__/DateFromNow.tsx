@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DateSource } from 'react-intl';
+import { ParsableDate } from '../../../types/dates';
 
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;
-  date: DateSource;
+  date: ParsableDate;
 }
 
 export default function DateFromNow({ children, date }: Props) {

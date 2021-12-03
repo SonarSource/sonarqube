@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InjectedIntl } from 'react-intl';
+import { IntlShape } from 'react-intl';
 import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
@@ -35,7 +35,7 @@ export interface ExtensionStartMethodParameter {
   store: ReduxStore<Store, any>;
   el: HTMLElement | undefined | null;
   currentUser: T.CurrentUser;
-  intl: InjectedIntl;
+  intl: IntlShape;
   location: Location;
   router: Router;
   theme: {

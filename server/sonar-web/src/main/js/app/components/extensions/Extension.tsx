@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { connect } from 'react-redux';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../helpers/extensions';
@@ -31,7 +31,7 @@ import { ExtensionStartMethod } from '../../../types/extension';
 import * as theme from '../../theme';
 import getStore from '../../utils/getStore';
 
-interface Props extends InjectedIntlProps {
+interface Props extends WrappedComponentProps {
   currentUser: T.CurrentUser;
   extension: T.Extension;
   location: Location;

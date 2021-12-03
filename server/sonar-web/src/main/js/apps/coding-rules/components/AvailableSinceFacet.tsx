@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import DateInput from '../../../components/controls/DateInput';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
@@ -33,7 +33,7 @@ interface Props {
   value?: Date;
 }
 
-class AvailableSinceFacet extends React.PureComponent<Props & InjectedIntlProps> {
+class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentProps> {
   handleHeaderClick = () => {
     this.props.onToggle('availableSince');
   };

@@ -12,11 +12,11 @@ exports[`should render correctly: children 1`] = `
 <span
   title="2020-02-20T20:20:20Z"
 >
-  <FormattedRelative
-    updateInterval={10000}
-    value={2020-02-20T20:20:20.000Z}
+  <FormattedRelativeTime
+    unit="year"
+    value={-1}
   >
     [Function]
-  </FormattedRelative>
+  </FormattedRelativeTime>
 </span>
 `;

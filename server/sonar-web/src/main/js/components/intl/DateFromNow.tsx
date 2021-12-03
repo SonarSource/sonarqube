@@ -19,14 +19,16 @@
  */
 import { differenceInHours } from 'date-fns';
 import * as React from 'react';
-import { DateSource, FormattedRelative } from 'react-intl';
+import { FormattedRelativeTime } from 'react-intl';
 import { parseDate } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
+import { ParsableDate } from '../../types/dates';
 import DateTimeFormatter from './DateTimeFormatter';
+import { getRelativeTimeProps } from './dateUtils';
 
 export interface DateFromNowProps {
   children?: (formattedDate: string) => React.ReactNode;
-  date?: DateSource;
+  date?: ParsableDate;
   hourPrecision?: boolean;
 }
 
@@ -43,17 +45,21 @@ export default function DateFromNow(props: DateFromNowProps) {
     return <>{originalChildren(translate('never'))}</>;
   }
 
-  if (date && hourPrecision && differenceInHours(Date.now(), date) < 1) {
+  if (hourPrecision && differenceInHours(Date.now(), date) < 1) {
     children = () => originalChildren(translate('less_than_1_hour_ago'));
   }
 
   const parsedDate = parseDate(date);
 
+  const relativeTimeProps = getRelativeTimeProps(date);
+
   return (
     <DateTimeFormatter date={parsedDate}>
       {formattedDate => (
         <span title={formattedDate}>
-          <FormattedRelative value={parsedDate}>{children}</FormattedRelative>
+          <FormattedRelativeTime {...relativeTimeProps}>
+            {children as FormattedRelativeTime['props']['children']}
+          </FormattedRelativeTime>
         </span>
       )}
     </DateTimeFormatter>

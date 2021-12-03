@@ -20,6 +20,7 @@
 import { differenceInDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { IntlShape } from 'react-intl';
 import { mockPeriod } from '../../../../helpers/testMocks';
 import { ProjectLeakPeriodInfo } from '../ProjectLeakPeriodInfo';
 
@@ -63,10 +64,12 @@ it('should render a more precise date', () => {
 function shallowRender(period: Partial<T.Period> = {}) {
   return shallow(
     <ProjectLeakPeriodInfo
-      intl={{
-        formatDate: (date: string) => 'formatted.' + date,
-        formatTime: (date: string) => 'formattedTime.' + date
-      }}
+      intl={
+        {
+          formatDate: (date: string) => 'formatted.' + date,
+          formatTime: (date: string) => 'formattedTime.' + date
+        } as IntlShape
+      }
       leakPeriod={mockPeriod({ ...period })}
     />
   );

@@ -18,18 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DateSource, FormattedDate } from 'react-intl';
+import { FormatDateOptions, FormattedDate } from 'react-intl';
 import { parseDate } from '../../helpers/dates';
+import { ParsableDate } from '../../types/dates';
 
 export interface DateFormatterProps {
   children?: (formattedDate: string) => React.ReactNode;
-  date: DateSource;
+  date: ParsableDate;
   long?: boolean;
 }
 
-export const formatterOption = { year: 'numeric', month: 'short', day: '2-digit' };
+export const formatterOption: FormatDateOptions = {
+  year: 'numeric',
+  month: 'short',
+  day: '2-digit'
+};
 
-export const longFormatterOption = { year: 'numeric', month: 'long', day: 'numeric' };
+export const longFormatterOption: FormatDateOptions = {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+};
 
 export default function DateFormatter({ children, date, long }: DateFormatterProps) {
   return (

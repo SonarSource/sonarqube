@@ -20,7 +20,7 @@
 import { differenceInDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { InjectedIntlProps } from 'react-intl';
+import { IntlShape } from 'react-intl';
 import { LeakPeriodLegend } from '../LeakPeriodLegend';
 
 jest.mock('date-fns', () => {
@@ -72,7 +72,7 @@ function getWrapper(component: T.ComponentMeasure, period: T.Period) {
   return shallow(
     <LeakPeriodLegend
       component={component}
-      intl={{ formatDate: (x: any) => x } as InjectedIntlProps['intl']}
+      intl={{ formatDate: (x: any) => x } as IntlShape}
       period={period}
     />
   );

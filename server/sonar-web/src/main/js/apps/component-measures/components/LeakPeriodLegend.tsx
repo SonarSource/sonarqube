@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -34,7 +34,7 @@ interface Props {
   period: T.Period;
 }
 
-export class LeakPeriodLegend extends React.PureComponent<Props & InjectedIntlProps> {
+export class LeakPeriodLegend extends React.PureComponent<Props & WrappedComponentProps> {
   formatDate = (date: string) => {
     return this.props.intl.formatDate(date, longFormatterOption);
   };

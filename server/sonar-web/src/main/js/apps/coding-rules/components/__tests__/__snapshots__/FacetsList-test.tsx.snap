@@ -48,7 +48,7 @@ exports[`should render correctly 1`] = `
     sansTop25Open={false}
     sonarsourceSecurityOpen={false}
   />
-  <InjectIntl(AvailableSinceFacet)
+  <injectIntl(AvailableSinceFacet)
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
     open={false}

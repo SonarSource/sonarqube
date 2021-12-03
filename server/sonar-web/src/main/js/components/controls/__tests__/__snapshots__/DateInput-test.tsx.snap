@@ -7,7 +7,7 @@ exports[`should render 1`] = `
   <span
     className="date-input-control"
   >
-    <InjectIntl(Component)
+    <injectIntl(Component)
       className="date-input-control-input"
       innerRef={[Function]}
       onFocus={[Function]}
@@ -30,7 +30,7 @@ exports[`should render 2`] = `
   <span
     className="date-input-control"
   >
-    <InjectIntl(Component)
+    <injectIntl(Component)
       className="date-input-control-input is-filled"
       innerRef={[Function]}
       onFocus={[Function]}
@@ -63,7 +63,7 @@ exports[`should render 3`] = `
   <span
     className="date-input-control"
   >
-    <InjectIntl(Component)
+    <injectIntl(Component)
       className="date-input-control-input is-filled"
       innerRef={[Function]}
       onFocus={[Function]}
@@ -271,7 +271,7 @@ exports[`should select a day 1`] = `
   <span
     className="date-input-control"
   >
-    <InjectIntl(Component)
+    <injectIntl(Component)
       className="date-input-control-input"
       innerRef={[Function]}
       onFocus={[Function]}

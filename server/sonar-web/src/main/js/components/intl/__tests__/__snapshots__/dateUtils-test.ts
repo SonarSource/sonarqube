@@ -17,30 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parse } from 'date-fns';
-import { ParsableDate } from '../types/dates';
 
-function pad(number: number) {
-  if (number < 10) {
-    return '0' + number.toString();
-  }
-  return number;
-}
+import { getRelativeTimeProps } from '../../dateUtils';
 
-export function parseDate(rawDate: ParsableDate): Date {
-  return parse(rawDate);
-}
+const mockDateNow = jest.spyOn(Date, 'now');
 
-export function toShortNotSoISOString(rawDate: ParsableDate): string {
-  const date = parseDate(rawDate);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
+describe('getRelativeTimeProps', () => {
+  mockDateNow.mockImplementation(() => new Date('2021-02-20T20:20:20Z').getTime());
 
-export function toNotSoISOString(rawDate: ParsableDate): string {
-  const date = parseDate(rawDate);
-  return date.toISOString().replace(/\..+Z$/, '+0000');
-}
+  it.each([
+    ['year', '2020-02-19T20:20:20Z', -1],
+    ['month', '2020-11-18T20:20:20Z', -3],
+    ['day', '2021-02-18T18:20:20Z', -2]
+  ])('should return the correct props for dates older than a %s', (unit, date, value) => {
+    expect(getRelativeTimeProps(date)).toEqual({ value, unit });
+  });
 
-export function isValidDate(date: Date): boolean {
-  return !isNaN(date.getTime());
-}
+  it('should return the correct props for dates from less than a day ago', () => {
+    expect(getRelativeTimeProps('2021-02-20T20:19:45Z')).toEqual({
+      value: -35,
+      unit: 'second',
+      updateIntervalInSeconds: 10
+    });
+  });
+});

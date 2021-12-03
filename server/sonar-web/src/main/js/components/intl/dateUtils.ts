@@ -17,28 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { FormatDateOptions, FormattedDate } from 'react-intl';
-import { parseDate } from '../../helpers/dates';
+
+import {
+  differenceInDays,
+  differenceInMonths,
+  differenceInSeconds,
+  differenceInYears
+} from 'date-fns';
+import { FormattedRelativeTime } from 'react-intl';
 import { ParsableDate } from '../../types/dates';
 
-interface Props {
-  children?: (formattedDate: string) => React.ReactNode;
-  date: ParsableDate;
-}
+const UPDATE_INTERVAL_IN_SECONDS = 10;
 
-export const formatterOption: FormatDateOptions = {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-  hour: 'numeric',
-  minute: 'numeric'
-};
+export function getRelativeTimeProps(
+  date: ParsableDate
+): Pick<FormattedRelativeTime['props'], 'unit' | 'value' | 'updateIntervalInSeconds'> {
+  const y = differenceInYears(date, Date.now());
 
-export default function DateTimeFormatter({ children, date }: Props) {
-  return (
-    <FormattedDate value={parseDate(date)} {...formatterOption}>
-      {children}
-    </FormattedDate>
-  );
+  if (Math.abs(y) > 0) {
+    return { value: y, unit: 'year' };
+  }
+
+  const m = differenceInMonths(date, Date.now());
+  if (Math.abs(m) > 0) {
+    return { value: m, unit: 'month' };
+  }
+
+  const d = differenceInDays(date, Date.now());
+  if (Math.abs(d) > 0) {
+    return { value: d, unit: 'day' };
+  }
+
+  return {
+    value: differenceInSeconds(date, Date.now()),
+    unit: 'second',
+    updateIntervalInSeconds: UPDATE_INTERVAL_IN_SECONDS
+  };
 }
