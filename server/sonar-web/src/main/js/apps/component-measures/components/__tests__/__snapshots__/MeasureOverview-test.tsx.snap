@@ -194,7 +194,7 @@ exports[`should render correctly: has leak period 1`] = `
     <div
       className="clearfix big-spacer-bottom"
     >
-      <InjectIntl(LeakPeriodLegend)
+      <injectIntl(LeakPeriodLegend)
         className="pull-right"
         component={
           Object {

@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { InjectedIntl, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 
-export interface ProjectLeakPeriodInfoProps {
-  intl: Pick<InjectedIntl, 'formatDate' | 'formatTime'>;
+export interface ProjectLeakPeriodInfoProps extends WrappedComponentProps {
   leakPeriod: T.Period;
 }
 

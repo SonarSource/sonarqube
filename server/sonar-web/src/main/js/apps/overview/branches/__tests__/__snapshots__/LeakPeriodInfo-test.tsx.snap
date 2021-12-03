@@ -13,7 +13,7 @@ exports[`renders correctly for applications 1`] = `
 `;
 
 exports[`renders correctly for projects 1`] = `
-<Memo(InjectIntl(ProjectLeakPeriodInfo))
+<Memo(injectIntl(ProjectLeakPeriodInfo))
   leakPeriod={
     Object {
       "date": "2019-04-23T02:12:32+0100",

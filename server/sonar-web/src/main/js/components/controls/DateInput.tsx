@@ -22,7 +22,7 @@ import { addMonths, setMonth, setYear, subMonths } from 'date-fns';
 import { range } from 'lodash';
 import * as React from 'react';
 import { DayModifiers, Modifier, Modifiers } from 'react-day-picker';
-import { InjectedIntlProps, injectIntl } from 'react-intl';
+import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { ButtonIcon, ClearButton } from '../../components/controls/buttons';
 import OutsideClickHandler from '../../components/controls/OutsideClickHandler';
 import CalendarIcon from '../../components/icons/CalendarIcon';
@@ -149,7 +149,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
             className={classNames('date-input-control-input', this.props.inputClassName, {
               'is-filled': this.props.value !== undefined
             })}
-            innerRef={node => (this.input = node)}
+            innerRef={(node: HTMLInputElement | null) => (this.input = node)}
             name={this.props.name}
             onFocus={this.openCalendar}
             placeholder={this.props.placeholder}
@@ -218,7 +218,7 @@ function NullComponent() {
 }
 
 type InputWrapperProps = T.Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> &
-  InjectedIntlProps & {
+  WrappedComponentProps & {
     innerRef: React.Ref<HTMLInputElement>;
     value: Date | undefined;
   };

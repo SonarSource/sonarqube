@@ -147,16 +147,6 @@ export async function loadL10nBundle() {
   resetCurrentLocale(bundle.locale);
   resetMessages(bundle.messages);
 
-  // No need to load english (default) bundle, it's coming with react-intl
-  if (bundle.locale !== DEFAULT_LOCALE) {
-    const [intlBundle, intl] = await Promise.all([
-      import(`react-intl/locale-data/${bundle.locale}`),
-      import('react-intl')
-    ]);
-
-    intl.addLocaleData(intlBundle.default);
-  }
-
   return bundle;
 }
 

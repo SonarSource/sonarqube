@@ -1997,6 +1997,49 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/intl-displaynames@npm:^1.2.0":
+  version: 1.2.10
+  resolution: "@formatjs/intl-displaynames@npm:1.2.10"
+  dependencies:
+    "@formatjs/intl-utils": ^2.3.0
+  checksum: 25320e00c383260c1c3c44bd8be017b8ebd1b1b7de4188d05934aa40b65adda02b102eba46bf4e01e06f9db79d2d8663a720afe7f2ee69495a3022055bea4810
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl-listformat@npm:^1.4.1":
+  version: 1.4.8
+  resolution: "@formatjs/intl-listformat@npm:1.4.8"
+  dependencies:
+    "@formatjs/intl-utils": ^2.3.0
+  checksum: 1e5b2ef45b7e0143fb4c809178aed00ad1d1dfbcba25c339bf54bdd5e35acee6c72a25bd30189812a3211103a58a7e0800e49bc3e973f89bc5e80c41da38f6e1
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl-relativetimeformat@npm:^4.5.9":
+  version: 4.5.16
+  resolution: "@formatjs/intl-relativetimeformat@npm:4.5.16"
+  dependencies:
+    "@formatjs/intl-utils": ^2.3.0
+  checksum: 466268cb4f3c326b222cc0f79b176949d4cc79e29d11fe6e8d003b89b3495018728d55ba25189f3856b88c0f5657a57365f039504c32ea78a8fb555ff80e9580
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl-unified-numberformat@npm:^3.2.0":
+  version: 3.3.7
+  resolution: "@formatjs/intl-unified-numberformat@npm:3.3.7"
+  dependencies:
+    "@formatjs/intl-utils": ^2.3.0
+  checksum: dae9c855d8b36b833ee9a71e63b13240dabc9b84ed13192411f06ac903a5c2fb002fd4736d7b71df73c4c776792255c7b2deedb94c5cddc12967fcb7c14f6133
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl-utils@npm:^2.2.0, @formatjs/intl-utils@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@formatjs/intl-utils@npm:2.3.0"
+  checksum: a7a6339dac796bccd738b3f0425863c79951156c5b61ed804869bd2ba064544badf3ec0bad576eb56fdbaf11585d99b8a089522a9b5829ba0f99a85d33222cfb
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.0.1":
   version: 1.1.2
   resolution: "@gar/promisify@npm:1.1.2"
@@ -2571,6 +2614,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/hoist-non-react-statics@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@types/hoist-non-react-statics@npm:3.3.1"
+  dependencies:
+    "@types/react": "*"
+    hoist-non-react-statics: ^3.3.0
+  checksum: 2c0778570d9a01d05afabc781b32163f28409bb98f7245c38d5eaf082416fdb73034003f5825eb5e21313044e8d2d9e1f3fe2831e345d3d1b1d20bcd12270719
+  languageName: node
+  linkType: hard
+
 "@types/htmlparser2@npm:*":
   version: 3.10.0
   resolution: "@types/htmlparser2@npm:3.10.0"
@@ -2579,6 +2632,13 @@ __metadata:
     "@types/domutils": "*"
     "@types/node": "*"
   checksum: a9b50cf9ddea3819ef5cd36f4043ce3cf14b472655bab3c447ea90fe99d8554f4b18991b0cc69950771c5716c106da25a9c450ac5eb11b8c629992b43a4d1bbd
+  languageName: node
+  linkType: hard
+
+"@types/invariant@npm:^2.2.31":
+  version: 2.2.35
+  resolution: "@types/invariant@npm:2.2.35"
+  checksum: af1b624057c89789ed0917838fea3d42bb0c101cc22b829a24d8777c678be3bc79d6ae05992a13bdf607b94731262467a2e62a809602ea1f7eea5e8c2242660d
   languageName: node
   linkType: hard
 
@@ -2742,13 +2802,6 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: b7341c3f8d9aa6cb612c030d770cd1a6987cec65bb11d697b301d48a3f0a7fb245eb71a46e1565af5104f2de7b78a39ff47f8a25a0e94423e09db41e94ed9c01
-  languageName: node
-  linkType: hard
-
-"@types/react-intl@npm:2.3.17":
-  version: 2.3.17
-  resolution: "@types/react-intl@npm:2.3.17"
-  checksum: 6d6169a7d41d87552074bfdf0f42ee229b7f48eb9bc1d99205c39693bdc006cbb2a5790954c2087cbe4ca20cf027e992bfe60de8ae9e15d71700e8742541b470
   languageName: node
   linkType: hard
 
@@ -3016,7 +3069,6 @@ __metadata:
     "@types/react": 16.8.23
     "@types/react-dom": 16.8.4
     "@types/react-helmet": 5.0.15
-    "@types/react-intl": 2.3.17
     "@types/react-modal": 3.12.1
     "@types/react-redux": 6.0.6
     "@types/react-router": 3.0.20
@@ -3087,7 +3139,7 @@ __metadata:
     react-dom: 16.13.0
     react-draggable: 4.2.0
     react-helmet-async: 1.0.4
-    react-intl: 2.8.0
+    react-intl: 3.12.1
     react-modal: 3.14.3
     react-redux: 5.1.1
     react-router: 3.2.6
@@ -7353,7 +7405,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
+"hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -7687,39 +7739,33 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"intl-format-cache@npm:^2.0.5":
-  version: 2.2.9
-  resolution: "intl-format-cache@npm:2.2.9"
-  checksum: 70ebb4fe2e3005d718562eff56a9f19d29ace8f51d6e549abe57ac9bd8a6791ace905f7d0d2a870236552746eff24793e782d64a3d29b93d3ff2e9bca0e3d6d8
+"intl-format-cache@npm:^4.2.21":
+  version: 4.3.1
+  resolution: "intl-format-cache@npm:4.3.1"
+  checksum: d55581edaba0d083a3ff26a46e2ed953c434420918e61991db78140e3e0a7db14f924f195fcd0c01cf3de65cb18dda0c549d35f683e01dd8f062d27fe0524fae
   languageName: node
   linkType: hard
 
-"intl-messageformat-parser@npm:1.4.0":
-  version: 1.4.0
-  resolution: "intl-messageformat-parser@npm:1.4.0"
-  checksum: 0606b78523a9730b47292dbf1f1835e189120cd91aa742d1c0925ce0925fb067233fc74ec259a20d7810f5a1a0bd801f5884fe04493082596cf578bfeafa34c6
-  languageName: node
-  linkType: hard
-
-"intl-messageformat@npm:^2.0.0, intl-messageformat@npm:^2.1.0":
-  version: 2.2.0
-  resolution: "intl-messageformat@npm:2.2.0"
+"intl-messageformat-parser@npm:^3.6.4":
+  version: 3.6.4
+  resolution: "intl-messageformat-parser@npm:3.6.4"
   dependencies:
-    intl-messageformat-parser: 1.4.0
-  checksum: 5562de75dddae69546180403fec196ed6564d41cb82964de8e319bd9fa9edfe5aaa581bc40775815b65fbdab3db96b62bb0757c2a936ac025e705333e4bd82cd
+    "@formatjs/intl-unified-numberformat": ^3.2.0
+  checksum: 69e781b6fec47f1fe5b2dc9abba79ac74b8cb4e9b40da4acc3ef2e9c6140d3d90070fd2c055d16e48c3a8bce626bb1f547ad1e29df772aff468a377658e70e6e
   languageName: node
   linkType: hard
 
-"intl-relativeformat@npm:^2.1.0":
-  version: 2.2.0
-  resolution: "intl-relativeformat@npm:2.2.0"
+"intl-messageformat@npm:^7.8.4":
+  version: 7.8.4
+  resolution: "intl-messageformat@npm:7.8.4"
   dependencies:
-    intl-messageformat: ^2.0.0
-  checksum: 887862279d7ad415f9fefa59b5abb48878f08214b7d4592e4834c956e5317b258d1103ba1c353284c213dcc574a98b5f65075323f50c94632ec79f7c5cb5c2cd
+    intl-format-cache: ^4.2.21
+    intl-messageformat-parser: ^3.6.4
+  checksum: a24fd5763c3aae450d97c4a67d95618d791f7a564996cbf6f1c4c5433c3c6fe0c141d967f94775bf9c0e70ce7791c66854987fa03a99a57f10c96186ddd90658
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.1.1, invariant@npm:^2.2.1, invariant@npm:^2.2.2, invariant@npm:^2.2.4":
+"invariant@npm:^2.2.1, invariant@npm:^2.2.2, invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -11692,19 +11738,25 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"react-intl@npm:2.8.0":
-  version: 2.8.0
-  resolution: "react-intl@npm:2.8.0"
+"react-intl@npm:3.12.1":
+  version: 3.12.1
+  resolution: "react-intl@npm:3.12.1"
   dependencies:
-    hoist-non-react-statics: ^2.5.5
-    intl-format-cache: ^2.0.5
-    intl-messageformat: ^2.1.0
-    intl-relativeformat: ^2.1.0
-    invariant: ^2.1.1
+    "@formatjs/intl-displaynames": ^1.2.0
+    "@formatjs/intl-listformat": ^1.4.1
+    "@formatjs/intl-relativetimeformat": ^4.5.9
+    "@formatjs/intl-unified-numberformat": ^3.2.0
+    "@formatjs/intl-utils": ^2.2.0
+    "@types/hoist-non-react-statics": ^3.3.1
+    "@types/invariant": ^2.2.31
+    hoist-non-react-statics: ^3.3.2
+    intl-format-cache: ^4.2.21
+    intl-messageformat: ^7.8.4
+    intl-messageformat-parser: ^3.6.4
+    shallow-equal: ^1.2.1
   peerDependencies:
-    prop-types: ^15.5.4
-    react: ^0.14.9 || ^15.0.0 || ^16.0.0
-  checksum: c23ff0b895af8c563435ccace81d8eb32c27e078fad9cf10a44f4409b53c9e4eab08ec7ebc25a17a0ff60d8542b745aff8ee3c323aeaf6ed2dae1b27d7d47840
+    react: ^16.3.0
+  checksum: 4a9e9101d8d5bd60c73713b99bdad2deb2b6b21fd953f16165b5c4be64aafd503418e009736ba986ca75756c08ad41b80991090e222d80b2bebfefb027bf11eb
   languageName: node
   linkType: hard
 
@@ -12776,6 +12828,13 @@ resolve@1.1.7:
   version: 1.0.5
   resolution: "setimmediate@npm:1.0.5"
   checksum: c9a6f2c5b51a2dabdc0247db9c46460152ffc62ee139f3157440bd48e7c59425093f42719ac1d7931f054f153e2d26cf37dfeb8da17a794a58198a2705e527fd
+  languageName: node
+  linkType: hard
+
+"shallow-equal@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "shallow-equal@npm:1.2.1"
+  checksum: 4f1645cc516e7754c4438db687e1da439a5f29a7dba2ba90c5f88e5708aeb17bc4355ba45cad805b0e95dc898e37d8bf6d77d854919c7512f89939986cff8cd1
   languageName: node
   linkType: hard
 

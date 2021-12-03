@@ -18,18 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { DateSource, FormattedTime } from 'react-intl';
+import { FormatDateOptions, FormattedTime } from 'react-intl';
 import { parseDate } from '../../helpers/dates';
+import { ParsableDate } from '../../types/dates';
 
 export interface TimeFormatterProps {
   children?: (formattedDate: string) => React.ReactNode;
-  date: DateSource;
+  date: ParsableDate;
   long?: boolean;
 }
 
-export const formatterOption = { hour: 'numeric', minute: 'numeric' };
+export const formatterOption: FormatDateOptions = { hour: 'numeric', minute: 'numeric' };
 
-export const longFormatterOption = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+export const longFormatterOption: FormatDateOptions = {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric'
+};
 
 export default function TimeFormatter({ children, date, long }: TimeFormatterProps) {
   return (
