@@ -20,11 +20,14 @@
 package org.sonar.scanner.mediumtest.branch;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,6 +36,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.notifications.AnalysisWarnings;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -50,10 +54,14 @@ public class BranchMediumTest {
   private static final String PROJECT_KEY = "sample";
   private static final String FILE_PATH = "HelloJava.xoo";
   private static final String FILE_CONTENT = "xoooo";
+  public static final String ONE_ISSUE_PER_LINE_IS_RESTRICTED_TO_CHANGED_FILES_ONLY = "Sensor One Issue Per Line is restricted to changed files only";
   private File baseDir;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester()
@@ -97,6 +105,34 @@ public class BranchMediumTest {
     assertThat(result2.getReportReader().readChangesets(fileId)).isNull();
     assertThat(result2.getReportReader().hasCoverage(fileId)).isTrue();
     assertThat(result2.getReportReader().readFileSource(fileId)).isNull();
+  }
+
+  @Test
+  public void shouldSkipSensorForUnchangedFilesOnPr() throws Exception {
+    AnalysisResult result = getResult(tester
+            .setBranchName("myBranch")
+            .setBranchTarget("master")
+            .setBranchType(BranchType.PULL_REQUEST));
+    final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
+
+    List<ScannerReport.Issue> issues = result.issuesFor(file);
+    assertThat(issues).isEmpty();
+
+    assertThat(logTester.logs()).contains(ONE_ISSUE_PER_LINE_IS_RESTRICTED_TO_CHANGED_FILES_ONLY);
+  }
+
+  @Test
+  public void shouldNotSkipSensorForUnchangedFilesOnBranch() throws Exception {
+    AnalysisResult result = getResult(tester
+            .setBranchName("myBranch")
+            .setBranchTarget("master")
+            .setBranchType(BranchType.BRANCH));
+    final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
+
+    List<ScannerReport.Issue> issues = result.issuesFor(file);
+    assertThat(issues).isNotEmpty();
+
+    assertThat(logTester.logs()).doesNotContain(ONE_ISSUE_PER_LINE_IS_RESTRICTED_TO_CHANGED_FILES_ONLY);
   }
 
   @Test

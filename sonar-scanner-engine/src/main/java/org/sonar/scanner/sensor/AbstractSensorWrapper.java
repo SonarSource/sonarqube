@@ -56,7 +56,7 @@ public abstract class AbstractSensorWrapper<G extends ProjectSensor> {
   }
 
   public void analyse() {
-    boolean sensorIsRestricted = descriptor.onlyChangedFilesInPullRequest() && isPullRequest;
+    boolean sensorIsRestricted = descriptor.isProcessesFilesIndependently() && isPullRequest;
     if (sensorIsRestricted) {
       LOGGER.info("Sensor {} is restricted to changed files only", descriptor.name());
     }

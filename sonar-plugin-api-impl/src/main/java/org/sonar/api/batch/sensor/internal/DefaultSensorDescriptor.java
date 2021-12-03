@@ -27,16 +27,17 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 
 public class DefaultSensorDescriptor implements SensorDescriptor {
-  public static final Set<String> SENSORS_ONLY_CHANGED_IN_PR = Collections.unmodifiableSet(Stream.of(
-    "CSS Metrics",
-    "CSS Rules",
-    "HTML",
-    "XML Sensor"
+  public static final Set<String> HARDCODED_INDEPENDENT_FILE_SENSORS = Collections.unmodifiableSet(Stream.of(
+          "CSS Metrics",
+          "CSS Rules",
+          "HTML",
+          "XML Sensor"
   ).collect(Collectors.toSet()));
 
   private String name;
@@ -45,7 +46,7 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private String[] ruleRepositories = new String[0];
   private boolean global = false;
   private Predicate<Configuration> configurationPredicate;
-  private boolean onlyChangedFilesInPullRequests = false;
+  private boolean processesFilesIndependently = false;
 
   public String name() {
     return name;
@@ -72,15 +73,15 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
     return global;
   }
 
-  public boolean onlyChangedFilesInPullRequest() {
-    return onlyChangedFilesInPullRequests;
+  public boolean isProcessesFilesIndependently() {
+    return processesFilesIndependently;
   }
 
   @Override
   public DefaultSensorDescriptor name(String name) {
-    // TODO: Add onlyChangedFilesInPullRequest into API and implement it at sensors
-    if (SENSORS_ONLY_CHANGED_IN_PR.contains(name)) {
-      onlyChangedFilesInPullRequests = true;
+    // TODO: Remove this hardcoded list once all plugins will implement the new API "processFilesIndependently"
+    if (HARDCODED_INDEPENDENT_FILE_SENSORS.contains(name)) {
+      processesFilesIndependently = true;
     }
     this.name = name;
     return this;
@@ -126,4 +127,9 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
     return this;
   }
 
+  @Override
+  public SensorDescriptor processesFilesIndependently() {
+    this.processesFilesIndependently = true;
+    return this;
+  }
 }

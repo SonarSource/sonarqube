@@ -83,4 +83,12 @@ public interface SensorDescriptor {
    * @since 6.5
    */
   SensorDescriptor onlyWhenConfiguration(Predicate<Configuration> predicate);
+
+  /**
+   * Advertise that this sensor process each file independently. It means executing the sensor twice with FileSystem=[FileA] and FileSystem=[FileB] will produce the same result
+   * than executing the sensor only once with FileSystem=[FileA,FileB].
+   * This will allow the platform to optimize sensor execution.
+   * @since 9.3
+   */
+  SensorDescriptor processesFilesIndependently();
 }

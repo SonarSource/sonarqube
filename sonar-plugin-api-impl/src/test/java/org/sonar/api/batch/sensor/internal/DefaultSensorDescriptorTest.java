@@ -33,6 +33,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultSensorDescriptorTest {
 
   @Test
+  public void describe_defaults() {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+    descriptor
+            .name("Foo");
+
+    assertThat(descriptor.name()).isEqualTo("Foo");
+    assertThat(descriptor.languages()).isEmpty();
+    assertThat(descriptor.type()).isNull();
+    assertThat(descriptor.ruleRepositories()).isEmpty();
+    assertThat(descriptor.isProcessesFilesIndependently()).isFalse();
+  }
+
+  @Test
   public void describe() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     descriptor
@@ -40,7 +53,8 @@ public class DefaultSensorDescriptorTest {
       .onlyOnLanguage("java")
       .onlyOnFileType(InputFile.Type.MAIN)
       .onlyWhenConfiguration(c -> c.hasKey("sonar.foo.reportPath2") && c.hasKey("sonar.foo.reportPath"))
-      .createIssuesForRuleRepository("squid-java");
+      .createIssuesForRuleRepository("squid-java")
+      .processesFilesIndependently();
 
     assertThat(descriptor.name()).isEqualTo("Foo");
     assertThat(descriptor.languages()).containsOnly("java");
@@ -51,31 +65,32 @@ public class DefaultSensorDescriptorTest {
     settings.setProperty("sonar.foo.reportPath2", "foo");
     assertThat(descriptor.configurationPredicate().test(settings.asConfig())).isTrue();
     assertThat(descriptor.ruleRepositories()).containsOnly("squid-java");
+    assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
   }
 
   @Test
-  @UseDataProvider("sensorsOnlyChangedInPR")
+  @UseDataProvider("independentFilesSensors")
   public void describe_with_restricted_sensor(String sensorName) {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     descriptor
       .name(sensorName);
 
-    assertThat(descriptor.onlyChangedFilesInPullRequest()).isTrue();
+    assertThat(descriptor.isProcessesFilesIndependently()).isTrue();
   }
 
   @Test
-  @UseDataProvider("sensorsOnlyChangedInPR")
+  @UseDataProvider("independentFilesSensors")
   public void describe_with_non_restricted_sensor(String sensorName) {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     descriptor
       .name(sensorName + "other");
 
-    assertThat(descriptor.onlyChangedFilesInPullRequest()).isFalse();
+    assertThat(descriptor.isProcessesFilesIndependently()).isFalse();
   }
 
   @DataProvider
-  public static Object[][] sensorsOnlyChangedInPR() {
-    return new Object[][] {DefaultSensorDescriptor.SENSORS_ONLY_CHANGED_IN_PR.toArray()};
+  public static Object[][] independentFilesSensors() {
+    return new Object[][] {DefaultSensorDescriptor.HARDCODED_INDEPENDENT_FILE_SENSORS.toArray()};
   }
 
 }

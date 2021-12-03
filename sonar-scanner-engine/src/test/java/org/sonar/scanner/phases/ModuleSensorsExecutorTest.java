@@ -177,7 +177,7 @@ public class ModuleSensorsExecutorTest {
 
   @DataProvider
   public static Object[][] sensorsOnlyChangedInPR() {
-    return new Object[][] {DefaultSensorDescriptor.SENSORS_ONLY_CHANGED_IN_PR.toArray()};
+    return new Object[][] {DefaultSensorDescriptor.HARDCODED_INDEPENDENT_FILE_SENSORS.toArray()};
   }
 
   private ModuleSensorsExecutor createModuleExecutor(String sensorName) throws IOException {
