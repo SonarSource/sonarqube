@@ -38,7 +38,7 @@ only_upon_sql_changes_or_nightly_depending_on_build_template: &ONLY_UPON_SQL_CHA
   depends_on: build
   only_if: >-
     $CIRRUS_BRANCH == "branch-nightly-build" ||
-    changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java')
+    ($CIRRUS_CRON == "" && changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java'))
 
 only_default_branches_template: &ONLY_DEFAULT_BRANCHES_TEMPLATE
   only_if: >-
