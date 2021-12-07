@@ -28,6 +28,8 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class KeyValueMapValidation implements TypeValidation {
 
+    private static final String KEY_VALUE_DELIMITER = "=";
+
     @Override
     public String key() {
         return PropertyType.KEY_VALUE_MAP.name();
@@ -35,7 +37,12 @@ public class KeyValueMapValidation implements TypeValidation {
 
     @Override
     public void validate(String value, @Nullable List<String> options) {
-        // Nothing to do
+        String[] properties = value.split("\\s*;\\s*");
+        for (String property : properties) {
+            String key = property.substring(0, property.indexOf(KEY_VALUE_DELIMITER));
+            String val = property.substring(property.indexOf(KEY_VALUE_DELIMITER) + 1);
+            checkRequest(!StringUtils.isBlank(key) && !StringUtils.isBlank(val), "Validation failed. Non empty key and value must be provided");
+        }
     }
 
 }
