@@ -288,6 +288,14 @@
     INNER JOIN projects target ON pr.reference_uuid = target.uuid where target.qualifier = 'APP'
   </select>
 
+  <select id="selectAllDirectChildApplications" resultType="Project">
+    SELECT
+    <include refid="projectColumns"/>
+    FROM portfolio_references pr
+    JOIN projects p ON p.uuid = pr.reference_uuid
+    WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+  </select>
+
   <select id="selectAllReferencesInHierarchy" resultType="org.sonar.db.portfolio.ReferenceDto">
     (SELECT
     source.uuid as sourceUuid,

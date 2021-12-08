@@ -250,6 +250,32 @@ public class PortfolioDaoTest {
   }
 
   @Test
+  public void selectAllDirectChildApplications() {
+    var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
+    var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
+    ProjectDto app3 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app3"));
+
+    portfolioDao.addReference(session, "portfolio1", app1.getUuid());
+    portfolioDao.addReference(session, "portfolio2", app2.getUuid());
+    portfolioDao.addReference(session, "portfolio3", app3.getUuid());
+
+    assertThat(portfolioDao.selectAllDirectChildApplications(session, p1.getUuid()))
+      .extracting(ProjectDto::getKee)
+      .containsOnly("app1");
+
+    assertThat(portfolioDao.selectAllDirectChildApplications(session, p2.getUuid()))
+      .extracting(ProjectDto::getKee)
+      .containsOnly("app2");
+
+    assertThat(portfolioDao.selectAllDirectChildApplications(session, p3.getUuid()))
+      .extracting(ProjectDto::getKee)
+      .containsOnly("app3");
+  }
+
+  @Test
   public void selectAllApplicationProjectsBelongToTheSamePortfolio() {
     var portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
     var app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));

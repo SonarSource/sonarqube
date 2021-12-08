@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.project.ApplicationProjectDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -141,6 +142,10 @@ public class PortfolioDao implements Dao {
 
   public List<ReferenceDto> selectAllReferencesToApplications(DbSession dbSession) {
     return mapper(dbSession).selectAllReferencesToApplications();
+  }
+
+  public List<ProjectDto> selectAllDirectChildApplications(DbSession dbSession, String portfolioUuid) {
+    return mapper(dbSession).selectAllDirectChildApplications(portfolioUuid);
   }
 
   public Set<String> selectReferenceUuids(DbSession dbSession, String portfolioUuid) {

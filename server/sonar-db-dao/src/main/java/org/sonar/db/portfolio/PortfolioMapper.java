@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.project.ApplicationProjectDto;
+import org.sonar.db.project.ProjectDto;
 
 public interface PortfolioMapper {
   @CheckForNull
@@ -98,5 +99,7 @@ public interface PortfolioMapper {
   void deleteBranch(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 
   void insertBranch(@Param("uuid") String uuid, @Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchUuid") String branchUuid,
-    @Param("createdAt") long createdAt);
+                    @Param("createdAt") long createdAt);
+
+  List<ProjectDto> selectAllDirectChildApplications(@Param("portfolioUuid") String portfolioUuid);
 }
