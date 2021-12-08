@@ -99,7 +99,7 @@ import org.sonar.db.plugin.PluginMapper;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioMapper;
 import org.sonar.db.portfolio.PortfolioProjectDto;
-import org.sonar.db.portfolio.PortfolioReferenceDto;
+import org.sonar.db.portfolio.ReferenceDto;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectBadgeTokenDto;
 import org.sonar.db.project.ProjectBadgeTokenMapper;
@@ -206,7 +206,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Plugin", PluginDto.class);
     confBuilder.loadAlias("Portfolio", PortfolioDto.class);
     confBuilder.loadAlias("PortfolioProject", PortfolioProjectDto.class);
-    confBuilder.loadAlias("PortfolioReference", PortfolioReferenceDto.class);
+    confBuilder.loadAlias("PortfolioReference", ReferenceDto.class);
     confBuilder.loadAlias("PrIssue", PrIssueDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);

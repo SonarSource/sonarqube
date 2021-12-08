@@ -364,8 +364,13 @@ public class ComponentDbTester {
     return insertComponentAndBranchAndProject(ComponentTesting.newSubPortfolio(view), view.isPrivate(), defaults(), dtoPopulator);
   }
 
+  public void addPortfolioApplicationBranch(String portfolioUuid, String applicationUuid, String branchUuid) {
+    dbClient.portfolioDao().addReference(db.getSession(), portfolioUuid, applicationUuid, branchUuid);
+    db.commit();
+  }
+
   private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, Consumer<BranchDto> branchPopulator,
-    Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
+                                                          Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
     insertComponentImpl(component, isPrivate, componentDtoPopulator);
 
     ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());

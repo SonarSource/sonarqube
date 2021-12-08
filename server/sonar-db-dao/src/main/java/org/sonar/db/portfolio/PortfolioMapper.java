@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
@@ -42,7 +43,8 @@ public interface PortfolioMapper {
 
   void deleteReferencesByPortfolioOrReferenceUuids(@Param("uuids") Set<String> uuids);
 
-  void insertReference(PortfolioReferenceDto portfolioReference);
+  void insertReference(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid,
+    @Nullable @Param("branchUuid") String branchUuid, @Param("createdAt") long createdAt);
 
   void insertProject(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("createdAt") long createdAt);
 
@@ -86,9 +88,9 @@ public interface PortfolioMapper {
 
   int deleteReference(@Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid);
 
-  ReferenceDetailsDto selectReferenceToPortfolio(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
+  ReferenceDto selectReferenceToPortfolio(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
 
-  ReferenceDetailsDto selectReferenceToApplication(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
+  ReferenceDto selectReferenceToApplication(@Param("portfolioUuid") String portfolioUuid, @Param("referenceKey") String referenceKey);
 
   void deleteAllProjects();
 

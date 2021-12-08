@@ -28,10 +28,12 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ApplicationProjectDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -229,8 +231,8 @@ public class PortfolioDaoTest {
     portfolioDao.addReference(session, "portfolio3", "app1");
 
     assertThat(portfolioDao.selectAllReferencesToPortfolios(session))
-      .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid)
-      .containsOnly(tuple("portfolio1", "portfolio2"), tuple("portfolio2", "portfolio3"));
+      .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid, ReferenceDto::getBranchUuids)
+      .containsOnly(tuple("portfolio1", "portfolio2", emptySet()), tuple("portfolio2", "portfolio3", emptySet()));
   }
 
   @Test
@@ -242,11 +244,14 @@ public class PortfolioDaoTest {
 
     portfolioDao.addReference(session, "portfolio1", "portfolio2");
     portfolioDao.addReference(session, "portfolio2", "portfolio3");
-    portfolioDao.addReference(session, "portfolio3", app1.getUuid());
+    portfolioDao.addReference(session, "portfolio3", app1.getUuid(), "branch1");
+    portfolioDao.addReference(session, "portfolio2", app1.getUuid());
 
     assertThat(portfolioDao.selectAllReferencesToApplications(session))
-      .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid)
-      .containsOnly(tuple("portfolio3", app1.getUuid()));
+      .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid, ReferenceDto::getTargetRootUuid, ReferenceDto::getBranchUuids)
+      .containsOnly(
+        tuple("portfolio3", app1.getUuid(), app1.getUuid(), singleton("branch1")),
+        tuple("portfolio2", app1.getUuid(), app1.getUuid(), emptySet()));
   }
 
   @Test
@@ -328,6 +333,26 @@ public class PortfolioDaoTest {
       .isEqualTo(app1.getUuid());
 
     assertThat(portfolioDao.selectReferenceToPortfolio(db.getSession(), portfolio.getUuid(), app1.getKey())).isEmpty();
+  }
+
+  @Test
+  public void select_reference_to_app_with_branches() {
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
+    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app").setName("app"));
+    BranchDto branch1 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
+    BranchDto branch2 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
+
+    db.components().addPortfolioReference(portfolio, app.getUuid());
+    db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch1.getUuid());
+    db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch2.getUuid());
+
+    var appFromDb = portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app.getKey());
+    assertThat(appFromDb).isPresent();
+
+    assertThat(appFromDb.get())
+      .extracting(ReferenceDto::getTargetKey, ReferenceDto::getTargetName, ReferenceDto::getBranchUuids)
+      .containsExactly("app", "app", Set.of(branch1.getUuid(), branch2.getUuid()));
+
   }
 
   @Test

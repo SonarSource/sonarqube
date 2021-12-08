@@ -19,18 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v93;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DbVersion93 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6201, "Fix usage of deprecated column in MSSQL", FixUsageOfDeprecatedColumnsMsSQL.class)
-      .add(6202, "Drop index 'uniq_portfolio_references'", DropUniqPortfolioReferencesIndex.class)
-      .add(6203, "Add column 'branch_uuid' to 'portfolio_references'", AddBranchToPortfolioReferences.class)
-      .add(6204, "Create index 'uniq_portfolio_references'", CreateIndexForPortfolioReferences.class)
+public class DropUniqPortfolioReferencesIndex extends DropIndexChange {
+  private static final String INDEX_NAME = "uniq_portfolio_references";
+  private static final String TABLE_NAME = "portfolio_references";
 
-    ;
+  public DropUniqPortfolioReferencesIndex(Database db) {
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

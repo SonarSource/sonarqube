@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.portfolio;
+package org.sonar.server.platform.db.migration.version.v93;
 
-public class ReferenceDetailsDto extends ReferenceDto {
-  private String targetName;
-  private String targetKey;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddPrimaryKeyBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  public String getTargetName() {
-    return targetName;
+public class AddPkToPortfolioReferences extends DdlChange {
+  private static final String TABLE_NAME = "portfolio_references";
+
+  public AddPkToPortfolioReferences(Database db) {
+    super(db);
   }
 
-  public ReferenceDetailsDto setTargetName(String targetName) {
-    this.targetName = targetName;
-    return this;
-  }
-
-  public String getTargetKey() {
-    return targetKey;
-  }
-
-  public ReferenceDetailsDto setTargetKey(String targetKey) {
-    this.targetKey = targetKey;
-    return this;
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder(TABLE_NAME, "uuid", "portfolio_uuid", "reference_uuid").build());
   }
 }

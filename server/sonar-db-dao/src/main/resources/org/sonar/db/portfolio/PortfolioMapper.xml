@@ -39,8 +39,36 @@
     ppb.branch_uuid as branchUuid
   </sql>
 
+  <sql id="portfolioReferenceColumns">
+    source.uuid as sourceUuid,
+    source.root_uuid as sourceRootUuid,
+    target.uuid as targetUuid,
+    target.root_uuid as targetRootUuid,
+    null as branchUuid,
+    target.name as targetName,
+    target.kee as targetKey
+  </sql>
+
+  <sql id="appReferenceColumns">
+    source.uuid as sourceUuid,
+    source.root_uuid as sourceRootUuid,
+    target.uuid as targetUuid,
+    target.uuid as targetRootUuid,
+    pr.branch_uuid as branchUuid,
+    target.name as targetName,
+    target.kee as targetKey
+  </sql>
+
   <resultMap id="portfolioProjectResult" type="PortfolioProject" autoMapping="true">
     <id property="uuid" column="portfolioProject_uuid"/>
+    <collection property="branchUuids" ofType="string">
+      <result column="branchUuid"/>
+    </collection>
+  </resultMap>
+
+  <resultMap id="referenceResult" type="PortfolioReference" autoMapping="true">
+    <id property="sourceUuid" column="sourceUuid"/>
+    <id property="targetUuid" column="targetUuid"/>
     <collection property="branchUuids" ofType="string">
       <result column="branchUuid"/>
     </collection>
@@ -205,34 +233,24 @@
     AND reference_uuid = #{referenceUuid,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectReferenceToApplication" resultType="org.sonar.db.portfolio.ReferenceDetailsDto">
+  <select id="selectReferenceToApplication" resultMap="referenceResult">
     SELECT
-      source.uuid as sourceUuid,
-      source.root_uuid as sourceRootUuid,
-      target.uuid as targetUuid,
-      target.uuid as targetRootUuid,
-      target.name as targetName,
-      target.kee as targetKey
+    <include refid="appReferenceColumns"/>
     FROM portfolio_references pr
-     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
-     INNER JOIN projects target ON pr.reference_uuid = target.uuid AND target.qualifier = 'APP'
-     WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-     AND target.kee=#{referenceKey,jdbcType=VARCHAR}
+    INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+    INNER JOIN projects target ON pr.reference_uuid = target.uuid AND target.qualifier = 'APP'
+    WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    AND target.kee=#{referenceKey,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectReferenceToPortfolio" resultType="org.sonar.db.portfolio.ReferenceDetailsDto">
+  <select id="selectReferenceToPortfolio" resultMap="referenceResult">
     SELECT
-      source.uuid as sourceUuid,
-      source.root_uuid as sourceRootUuid,
-      target.uuid as targetUuid,
-      target.root_uuid as targetRootUuid,
-      target.name as targetName,
-      target.kee as targetKey
+    <include refid="portfolioReferenceColumns"/>
     FROM portfolio_references pr
-     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
-     INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
-     WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-     AND target.kee=#{referenceKey,jdbcType=VARCHAR}
+    INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
+    INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
+    WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    AND target.kee=#{referenceKey,jdbcType=VARCHAR}
   </select>
 
    <insert id="insert" parameterType="Portfolio">
@@ -266,26 +284,21 @@
     )
   </insert>
 
-  <select id="selectAllReferencesToPortfolios" resultType="org.sonar.db.portfolio.ReferenceDto">
+  <select id="selectAllReferencesToPortfolios" resultMap="referenceResult">
     SELECT
-      source.uuid as sourceUuid,
-      source.root_uuid as sourceRootUuid,
-      target.uuid as targetUuid,
-      target.root_uuid as targetRootUuid
+    <include refid="portfolioReferenceColumns"/>
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
     INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
   </select>
 
-  <select id="selectAllReferencesToApplications" resultType="org.sonar.db.portfolio.ReferenceDto">
+  <select id="selectAllReferencesToApplications" resultMap="referenceResult">
     SELECT
-    source.uuid as sourceUuid,
-    source.root_uuid as sourceRootUuid,
-    target.uuid as targetUuid,
-    target.uuid as targetRootUuid
+    <include refid="appReferenceColumns"/>
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
-    INNER JOIN projects target ON pr.reference_uuid = target.uuid where target.qualifier = 'APP'
+    INNER JOIN projects target ON pr.reference_uuid = target.uuid
+    WHERE target.qualifier = 'APP'
   </select>
 
   <select id="selectAllDirectChildApplications" resultType="Project">
@@ -296,22 +309,16 @@
     WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllReferencesInHierarchy" resultType="org.sonar.db.portfolio.ReferenceDto">
+  <select id="selectAllReferencesInHierarchy" resultMap="referenceResult">
     (SELECT
-    source.uuid as sourceUuid,
-    source.root_uuid as sourceRootUuid,
-    target.uuid as targetUuid,
-    target.root_uuid as targetRootUuid
+    <include refid="portfolioReferenceColumns"/>
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
     INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
     WHERE source.root_uuid = #{rootUuid,jdbcType=VARCHAR}
     UNION
     SELECT
-    source.uuid as sourceUuid,
-    source.root_uuid as sourceRootUuid,
-    target.uuid as targetUuid,
-    target.uuid as targetRootUuid
+    <include refid="appReferenceColumns"/>
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
     INNER JOIN projects target ON pr.reference_uuid = target.uuid
@@ -369,18 +376,20 @@
     END;
   </delete>
 
-  <insert id="insertReference" parameterType="PortfolioReference">
+  <insert id="insertReference" parameterType="map">
     INSERT INTO portfolio_references (
       uuid,
       portfolio_uuid,
       reference_uuid,
+      branch_uuid,
       created_at
     )
     VALUES (
-    #{uuid,jdbcType=VARCHAR},
-    #{portfolioUuid,jdbcType=VARCHAR},
-    #{referenceUuid,jdbcType=VARCHAR},
-    #{createdAt,jdbcType=BIGINT}
+      #{uuid,jdbcType=VARCHAR},
+      #{portfolioUuid,jdbcType=VARCHAR},
+      #{referenceUuid,jdbcType=VARCHAR},
+      #{branchUuid,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=BIGINT}
     )
   </insert>
 

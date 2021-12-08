@@ -19,11 +19,43 @@
  */
 package org.sonar.db.portfolio;
 
+import java.util.Set;
+
 public class ReferenceDto {
   private String sourceUuid;
   private String sourceRootUuid;
   private String targetUuid;
   private String targetRootUuid;
+  private String targetName;
+  private String targetKey;
+  private Set<String> branchUuids;
+
+  public String getTargetName() {
+    return targetName;
+  }
+
+  public ReferenceDto setTargetName(String targetName) {
+    this.targetName = targetName;
+    return this;
+  }
+
+  public String getTargetKey() {
+    return targetKey;
+  }
+
+  public ReferenceDto setTargetKey(String targetKey) {
+    this.targetKey = targetKey;
+    return this;
+  }
+
+  public Set<String> getBranchUuids() {
+    return branchUuids;
+  }
+
+  public ReferenceDto setBranchUuids(Set<String> branchUuids) {
+    this.branchUuids = branchUuids;
+    return this;
+  }
 
   public String getSourceUuid() {
     return sourceUuid;

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -59,10 +60,6 @@ public class PortfolioDao implements Dao {
 
   /**
    * select all application projects belong to the hierarchy of a portfolio
-   *
-   * @param dbSession
-   * @param rootPortfolioUuid
-   * @return
    */
   public List<ApplicationProjectDto> selectAllApplicationProjects(DbSession dbSession, String rootPortfolioUuid) {
     return mapper(dbSession).selectAllApplicationProjects(rootPortfolioUuid);
@@ -128,12 +125,12 @@ public class PortfolioDao implements Dao {
   /*
    * Portfolio references
    */
+  public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid, @Nullable String branchUuid) {
+    mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, branchUuid, system2.now());
+  }
+
   public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {
-    mapper(dbSession).insertReference(new PortfolioReferenceDto()
-      .setUuid(uuidFactory.create())
-      .setPortfolioUuid(portfolioUuid)
-      .setReferenceUuid(referenceUuid)
-      .setCreatedAt(system2.now()));
+    mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, null, system2.now());
   }
 
   public List<ReferenceDto> selectAllReferencesToPortfolios(DbSession dbSession) {
@@ -177,17 +174,17 @@ public class PortfolioDao implements Dao {
   }
 
   @CheckForNull
-  public ReferenceDetailsDto selectReference(DbSession dbSession, String portfolioUuid, String referenceKey) {
+  public ReferenceDto selectReference(DbSession dbSession, String portfolioUuid, String referenceKey) {
     return selectReferenceToApp(dbSession, portfolioUuid, referenceKey)
       .or(() -> selectReferenceToPortfolio(dbSession, portfolioUuid, referenceKey))
       .orElse(null);
   }
 
-  public Optional<ReferenceDetailsDto> selectReferenceToApp(DbSession dbSession, String portfolioUuid, String referenceKey) {
+  public Optional<ReferenceDto> selectReferenceToApp(DbSession dbSession, String portfolioUuid, String referenceKey) {
     return Optional.ofNullable(mapper(dbSession).selectReferenceToApplication(portfolioUuid, referenceKey));
   }
 
-  public Optional<ReferenceDetailsDto> selectReferenceToPortfolio(DbSession dbSession, String portfolioUuid, String referenceKey) {
+  public Optional<ReferenceDto> selectReferenceToPortfolio(DbSession dbSession, String portfolioUuid, String referenceKey) {
     return Optional.ofNullable(mapper(dbSession).selectReferenceToPortfolio(portfolioUuid, referenceKey));
   }
 
