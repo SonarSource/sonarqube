@@ -307,6 +307,8 @@ subprojects {
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
       }
+      dependency 'io.prometheus:simpleclient:0.12.0'
+      dependency 'io.prometheus:simpleclient_servlet:0.12.0'
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
       dependency 'com.google.code.gson:gson:2.8.9'
       dependency('com.google.guava:guava:28.2-jre') {

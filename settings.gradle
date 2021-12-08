@@ -39,6 +39,7 @@ include 'server:sonar-webserver-es'
 include 'server:sonar-webserver-webapi'
 include 'server:sonar-webserver-ws'
 include 'server:sonar-alm-client'
+include 'server:sonar-webserver-monitoring'
 
 include 'sonar-application'
 include 'sonar-check-api'

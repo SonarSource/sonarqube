@@ -24,7 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.resources.ResourceTypes;
@@ -33,9 +35,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almintegration.validator.BitbucketServerSettingsValidator;
-import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
-import org.sonar.server.almintegration.validator.GitlabGlobalSettingsValidator;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -66,13 +68,15 @@ public class ValidateActionTest {
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession, componentFinder, multipleAlmFeatureProvider);
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
+  private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final GitlabGlobalSettingsValidator gitlabSettingsValidator = mock(GitlabGlobalSettingsValidator.class);
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator = mock(GithubGlobalSettingsValidator.class);
   private final BitbucketServerSettingsValidator bitbucketServerSettingsValidator = mock(BitbucketServerSettingsValidator.class);
-  private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
+  private final BitbucketCloudValidator bitbucketCloudValidator = new BitbucketCloudValidator(bitbucketCloudRestClient, settings);
+  private final AzureDevOpsValidator azureDevOpsValidator = new AzureDevOpsValidator(azureDevOpsHttpClient, settings);
   private final WsActionTester ws = new WsActionTester(
     new ValidateAction(db.getDbClient(), settings, userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator,
-      gitlabSettingsValidator, bitbucketServerSettingsValidator, bitbucketCloudRestClient));
+      gitlabSettingsValidator, bitbucketServerSettingsValidator, bitbucketCloudValidator, azureDevOpsValidator));
 
   @BeforeClass
   public static void setUp() {

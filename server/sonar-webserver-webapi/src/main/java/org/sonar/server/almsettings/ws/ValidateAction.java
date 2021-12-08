@@ -20,7 +20,9 @@
 package org.sonar.server.almsettings.ws;
 
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.Request;
@@ -29,9 +31,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.almintegration.validator.BitbucketServerSettingsValidator;
-import org.sonar.server.almintegration.validator.GithubGlobalSettingsValidator;
-import org.sonar.server.almintegration.validator.GitlabGlobalSettingsValidator;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.server.user.UserSession;
 
 public class ValidateAction implements AlmSettingsWsAction {
@@ -46,7 +48,8 @@ public class ValidateAction implements AlmSettingsWsAction {
   private final GitlabGlobalSettingsValidator gitlabSettingsValidator;
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator;
   private final BitbucketServerSettingsValidator bitbucketServerSettingsValidator;
-  private final BitbucketCloudRestClient bitbucketCloudRestClient;
+  private final BitbucketCloudValidator bitbucketCloudValidator;
+  private final AzureDevOpsValidator azureDevOpsValidator;
 
   public ValidateAction(DbClient dbClient,
     Settings settings,
@@ -56,7 +59,8 @@ public class ValidateAction implements AlmSettingsWsAction {
     GithubGlobalSettingsValidator githubGlobalSettingsValidator,
     GitlabGlobalSettingsValidator gitlabSettingsValidator,
     BitbucketServerSettingsValidator bitbucketServerSettingsValidator,
-    BitbucketCloudRestClient bitbucketCloudRestClient) {
+    BitbucketCloudValidator bitbucketCloudValidator,
+    AzureDevOpsValidator azureDevOpsValidator) {
     this.dbClient = dbClient;
     this.encryption = settings.getEncryption();
     this.userSession = userSession;
@@ -65,7 +69,8 @@ public class ValidateAction implements AlmSettingsWsAction {
     this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.gitlabSettingsValidator = gitlabSettingsValidator;
     this.bitbucketServerSettingsValidator = bitbucketServerSettingsValidator;
-    this.bitbucketCloudRestClient = bitbucketCloudRestClient;
+    this.bitbucketCloudValidator = bitbucketCloudValidator;
+    this.azureDevOpsValidator = azureDevOpsValidator;
   }
 
   @Override
@@ -106,24 +111,12 @@ public class ValidateAction implements AlmSettingsWsAction {
           bitbucketServerSettingsValidator.validate(almSettingDto);
           break;
         case BITBUCKET_CLOUD:
-          validateBitbucketCloud(almSettingDto);
+          bitbucketCloudValidator.validate(almSettingDto);
           break;
         case AZURE_DEVOPS:
-          validateAzure(almSettingDto);
+          azureDevOpsValidator.validate(almSettingDto);
           break;
       }
     }
-  }
-
-  private void validateAzure(AlmSettingDto almSettingDto) {
-    try {
-      azureDevOpsHttpClient.checkPAT(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Invalid Azure URL or Personal Access Token", e);
-    }
-  }
-
-  private void validateBitbucketCloud(AlmSettingDto almSettingDto) {
-    bitbucketCloudRestClient.validate(almSettingDto.getClientId(), almSettingDto.getDecryptedClientSecret(encryption), almSettingDto.getAppId());
   }
 }

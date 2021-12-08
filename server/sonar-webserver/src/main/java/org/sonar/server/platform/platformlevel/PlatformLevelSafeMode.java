@@ -20,6 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.authentication.SafeModeUserSession;
+import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.db.migration.AutoDbMigration;
 import org.sonar.server.platform.db.migration.DatabaseMigrationImpl;
@@ -57,7 +58,10 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       // WS engine
       SafeModeUserSession.class,
       WebServiceEngine.class,
-      WebServiceFilter.class);
+      WebServiceFilter.class,
+
+      // Monitoring
+      ServerMonitoringMetrics.class);
     addIfStartupLeader(
       DatabaseMigrationImpl.class,
       MigrationEngineModule.class,

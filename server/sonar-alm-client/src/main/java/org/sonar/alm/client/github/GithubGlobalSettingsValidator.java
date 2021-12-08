@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.validator;
+package org.sonar.alm.client.github;
 
 import java.util.Optional;
-import org.sonar.alm.client.github.GithubApplicationClient;
-import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;

@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.validator;
+package org.sonar.alm.client.gitlab;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;

@@ -17,37 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.validator;
+package org.sonar.alm.client.bitbucketserver;
 
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 @ServerSide
-public class GitlabGlobalSettingsValidator {
-
+public class BitbucketServerSettingsValidator {
+  private final BitbucketServerRestClient bitbucketServerRestClient;
   private final Encryption encryption;
-  private final GitlabHttpClient gitlabHttpClient;
 
-  public GitlabGlobalSettingsValidator(GitlabHttpClient gitlabHttpClient, Settings settings) {
+  public BitbucketServerSettingsValidator(BitbucketServerRestClient bitbucketServerRestClient, Settings settings) {
+    this.bitbucketServerRestClient = bitbucketServerRestClient;
     this.encryption = settings.getEncryption();
-    this.gitlabHttpClient = gitlabHttpClient;
   }
 
   public void validate(AlmSettingDto almSettingDto) {
-    String gitlabUrl = almSettingDto.getUrl();
-    String accessToken = almSettingDto.getDecryptedPersonalAccessToken(encryption);
-
-    if (gitlabUrl == null || accessToken == null) {
-      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete.");
+    String bitbucketUrl = almSettingDto.getUrl();
+    String bitbucketToken = almSettingDto.getDecryptedPersonalAccessToken(encryption);
+    if (bitbucketUrl == null || bitbucketToken == null) {
+      throw new IllegalArgumentException("Your global Bitbucket Server configuration is incomplete.");
     }
 
-    gitlabHttpClient.checkUrl(gitlabUrl);
-    gitlabHttpClient.checkToken(gitlabUrl, accessToken);
-    gitlabHttpClient.checkReadPermission(gitlabUrl, accessToken);
-    gitlabHttpClient.checkWritePermission(gitlabUrl, accessToken);
+    bitbucketServerRestClient.validateUrl(bitbucketUrl);
+    bitbucketServerRestClient.validateToken(bitbucketUrl, bitbucketToken);
+    bitbucketServerRestClient.validateReadPermission(bitbucketUrl, bitbucketToken);
   }
-
 }

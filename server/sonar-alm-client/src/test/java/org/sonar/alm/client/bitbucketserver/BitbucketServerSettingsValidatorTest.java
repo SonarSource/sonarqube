@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almintegration.validator;
+package org.sonar.alm.client.bitbucketserver;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -34,7 +34,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketAlmSettingDto;
 
 public class BitbucketServerSettingsValidatorTest {
   private static final Encryption encryption = mock(Encryption.class);
@@ -50,9 +49,7 @@ public class BitbucketServerSettingsValidatorTest {
 
   @Test
   public void validate_success() {
-    AlmSettingDto almSettingDto = newBitbucketAlmSettingDto()
-      .setUrl("http://abc.com")
-      .setPersonalAccessToken("abc");
+    AlmSettingDto almSettingDto = createNewBitbucketDto("http://abc.com", "abc");
     when(encryption.isEncrypted(any())).thenReturn(false);
 
     underTest.validate(almSettingDto);
@@ -66,9 +63,7 @@ public class BitbucketServerSettingsValidatorTest {
   public void validate_success_with_encrypted_token() {
     String encryptedToken = "abc";
     String decryptedToken = "decrypted-token";
-    AlmSettingDto almSettingDto = newBitbucketAlmSettingDto()
-      .setUrl("http://abc.com")
-      .setPersonalAccessToken(encryptedToken);
+    AlmSettingDto almSettingDto = createNewBitbucketDto("http://abc.com", encryptedToken);
     when(encryption.isEncrypted(encryptedToken)).thenReturn(true);
     when(encryption.decrypt(encryptedToken)).thenReturn(decryptedToken);
 
@@ -81,9 +76,7 @@ public class BitbucketServerSettingsValidatorTest {
 
   @Test
   public void validate_failure_on_incomplete_configuration() {
-    AlmSettingDto almSettingDto = newBitbucketAlmSettingDto()
-      .setUrl(null)
-      .setPersonalAccessToken("abc");
+    AlmSettingDto almSettingDto = createNewBitbucketDto(null, "abc");
 
     assertThatThrownBy(() -> underTest.validate(almSettingDto))
       .isInstanceOf(IllegalArgumentException.class);
@@ -92,11 +85,17 @@ public class BitbucketServerSettingsValidatorTest {
   @Test
   public void validate_failure_on_bitbucket_server_api_error() {
     doThrow(new IllegalArgumentException("error")).when(bitbucketServerRestClient).validateUrl(anyString());
-    AlmSettingDto almSettingDto = newBitbucketAlmSettingDto()
-      .setUrl("http://abc.com")
-      .setPersonalAccessToken("abc");
+    AlmSettingDto almSettingDto = createNewBitbucketDto("http://abc.com", "abc");
 
     assertThatThrownBy(() -> underTest.validate(almSettingDto))
       .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  private AlmSettingDto createNewBitbucketDto(String url, String pat) {
+    AlmSettingDto dto = new AlmSettingDto();
+    dto.setAlm(ALM.BITBUCKET);
+    dto.setUrl(url);
+    dto.setPersonalAccessToken(pat);
+    return dto;
   }
 }

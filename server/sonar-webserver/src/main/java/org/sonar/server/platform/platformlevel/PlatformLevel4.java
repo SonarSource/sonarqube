@@ -22,11 +22,16 @@ package org.sonar.server.platform.platformlevel;
 import java.util.List;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubApplicationHttpClientImpl;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -122,6 +127,8 @@ import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.monitoring.MonitoringWsModule;
+import org.sonar.server.monitoring.devops.DevOpsPlatformsMetricsCollector;
+import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
@@ -508,6 +515,11 @@ public class PlatformLevel4 extends PlatformLevel {
       GitlabHttpClient.class,
       AzureDevOpsHttpClient.class,
       AlmIntegrationsWSModule.class,
+      BitbucketCloudValidator.class,
+      BitbucketServerSettingsValidator.class,
+      GithubGlobalSettingsValidator.class,
+      GitlabGlobalSettingsValidator.class,
+      AzureDevOpsValidator.class,
 
       // ALM settings
       AlmSettingsWsModule.class,
@@ -563,6 +575,10 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryDataJsonWriter.class,
       TelemetryDaemon.class,
       TelemetryClient.class,
+
+      // monitoring
+      ServerMonitoringMetrics.class,
+      DevOpsPlatformsMetricsCollector.class,
 
       PluginsRiskConsentFilter.class
 
