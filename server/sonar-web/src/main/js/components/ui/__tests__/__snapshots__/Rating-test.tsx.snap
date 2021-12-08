@@ -21,6 +21,7 @@ exports[`renders string value 1`] = `
 exports[`renders undefined value 1`] = `
 <span
   aria-label="metric.no_rating"
+  className="no-rating rating-small rating-muted"
 >
   –
 </span>
@@ -40,6 +41,7 @@ exports[`renders with a custom aria-label 2`] = `
 <span
   aria-hidden={false}
   aria-label="custom"
+  className="no-rating"
 >
   –
 </span>

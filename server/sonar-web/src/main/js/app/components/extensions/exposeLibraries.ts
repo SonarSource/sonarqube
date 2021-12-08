@@ -56,7 +56,9 @@ import ClearIcon from '../../../components/icons/ClearIcon';
 import DetachIcon from '../../../components/icons/DetachIcon';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import HelpIcon from '../../../components/icons/HelpIcon';
+import HistoryIcon from '../../../components/icons/HistoryIcon';
 import LockIcon from '../../../components/icons/LockIcon';
+import MeasuresIcon from '../../../components/icons/MeasuresIcon';
 import PlusCircleIcon from '../../../components/icons/PlusCircleIcon';
 import PullRequestIcon from '../../../components/icons/PullRequestIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
@@ -65,6 +67,7 @@ import VulnerabilityIcon from '../../../components/icons/VulnerabilityIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import Measure from '../../../components/measure/Measure';
 import { Alert } from '../../../components/ui/Alert';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -101,8 +104,10 @@ import {
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
 import {
+  getComponentDrilldownUrl,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
+  getMeasureHistoryUrl,
   getRulesUrl
 } from '../../../helpers/urls';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
@@ -147,8 +152,10 @@ const exposeLibraries = () => {
         renderOwaspTop10Category,
         renderSansTop25Category,
         renderSonarSourceSecurityCategory,
+        getComponentDrilldownUrl,
         getComponentIssuesUrl,
         getComponentSecurityHotspotsUrl,
+        getMeasureHistoryUrl,
         getRulesUrl
       };
     }
@@ -203,6 +210,7 @@ const exposeLibraries = () => {
         FormattedMessage,
         HelpIcon,
         HelpTooltip,
+        HistoryIcon,
         HomePageSelect,
         Level,
         ListFooter,
@@ -210,6 +218,8 @@ const exposeLibraries = () => {
         LongLivingBranchIcon: BranchIcon,
         MandatoryFieldMarker,
         MandatoryFieldsExplanation,
+        Measure,
+        MeasuresIcon,
         Modal,
         NotFound,
         PlusCircleIcon,

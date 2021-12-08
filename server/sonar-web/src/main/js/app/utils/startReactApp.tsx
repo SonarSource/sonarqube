@@ -42,7 +42,6 @@ import marketplaceRoutes from '../../apps/marketplace/routes';
 import overviewRoutes from '../../apps/overview/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
-import portfolioRoutes from '../../apps/portfolio/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectBaselineRoutes from '../../apps/projectBaseline/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
@@ -162,7 +161,10 @@ function renderComponentRoutes() {
         <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
         <RouteWithChildRoutes path="component_measures" childRoutes={componentMeasuresRoutes} />
         <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
-        <RouteWithChildRoutes path="portfolio" childRoutes={portfolioRoutes} />
+        <Route
+          path="portfolio"
+          component={lazyLoadComponent(() => import('../components/extensions/PortfolioPage'))}
+        />
         <RouteWithChildRoutes path="project/activity" childRoutes={projectActivityRoutes} />
         <Route
           path="project/extension/:pluginKey/:extensionKey"

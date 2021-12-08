@@ -96,6 +96,14 @@ export class Menu extends React.PureComponent<Props> {
     return this.isApplication() && !this.isAllChildProjectAccessible();
   };
 
+  isGovernanceEnabled = () => {
+    const {
+      component: { extensions }
+    } = this.props;
+
+    return extensions && extensions.some(extension => extension.key.startsWith('governance/'));
+  };
+
   getConfiguration = () => {
     return this.props.component.configuration || {};
   };
@@ -153,15 +161,24 @@ export class Menu extends React.PureComponent<Props> {
 
   renderDashboardLink = () => {
     const { id, ...branchLike } = this.getQuery();
+
+    if (this.isPortfolio()) {
+      return this.isGovernanceEnabled() ? (
+        <li>
+          <Link activeClassName="active" to={getPortfolioUrl(id)}>
+            {translate('overview.page')}
+          </Link>
+        </li>
+      ) : null;
+    }
+
     const isApplicationChildInaccessble = this.isApplicationChildInaccessble();
     if (isApplicationChildInaccessble) {
       return this.renderLinkWhenInaccessibleChild(translate('overview.page'));
     }
     return (
       <li>
-        <Link
-          activeClassName="active"
-          to={this.isPortfolio() ? getPortfolioUrl(id) : getProjectQueryUrl(id, branchLike)}>
+        <Link activeClassName="active" to={getProjectQueryUrl(id, branchLike)}>
           {translate('overview.page')}
         </Link>
       </li>
@@ -565,7 +582,8 @@ export class Menu extends React.PureComponent<Props> {
     const query = this.getQuery();
     const extensions = this.props.component.extensions || [];
     const withoutSecurityExtension = extensions.filter(
-      extension => !extension.key.startsWith('securityreport/')
+      extension =>
+        !extension.key.startsWith('securityreport/') && !extension.key.startsWith('governance/')
     );
 
     if (withoutSecurityExtension.length === 0) {

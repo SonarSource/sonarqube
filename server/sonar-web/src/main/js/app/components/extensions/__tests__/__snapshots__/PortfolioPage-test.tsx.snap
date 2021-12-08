@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ProjectPageExtension
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  location={
+    Object {
+      "action": "PUSH",
+      "hash": "",
+      "key": "key",
+      "pathname": "/path",
+      "query": Object {},
+      "search": "",
+      "state": Object {},
+    }
+  }
+  params={
+    Object {
+      "extensionKey": "portfolio",
+      "pluginKey": "governance",
+    }
+  }
+/>
+`;

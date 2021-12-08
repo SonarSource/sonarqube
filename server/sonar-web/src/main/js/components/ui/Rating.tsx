@@ -39,7 +39,14 @@ export default function Rating({
 }: Props) {
   if (value === undefined) {
     return (
-      <span aria-label={translate('metric.no_rating')} {...ariaAttrs}>
+      <span
+        className={classNames(
+          'no-rating',
+          { 'rating-small': small, 'rating-muted': muted },
+          className
+        )}
+        aria-label={translate('metric.no_rating')}
+        {...ariaAttrs}>
         –
       </span>
     );

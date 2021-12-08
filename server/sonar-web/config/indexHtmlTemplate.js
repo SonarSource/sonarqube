@@ -40,7 +40,7 @@ module.exports = (cssHash, jsHash) => `
     <meta name="msapplication-TileImage" content="%WEB_CONTEXT%/mstile-512x512.png" />
     <title>%INSTANCE%</title>
 
-    <link rel="stylesheet" href="%WEB_CONTEXT%/js/out${cssHash}.css">
+    <link rel="stylesheet" href="%WEB_CONTEXT%/js/out${cssHash}.css" />
 </head>
 
 <body>

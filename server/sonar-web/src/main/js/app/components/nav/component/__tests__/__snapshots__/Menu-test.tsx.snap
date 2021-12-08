@@ -975,23 +975,6 @@ exports[`should work for all qualifiers 2`] = `
   <NavBarTabs>
     <li>
       <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/portfolio",
-            "query": Object {
-              "id": "foo",
-            },
-          }
-        }
-      >
-        overview.page
-      </Link>
-    </li>
-    <li>
-      <Link
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1112,23 +1095,6 @@ exports[`should work for all qualifiers 3`] = `
   className="display-flex-center display-flex-space-between"
 >
   <NavBarTabs>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/portfolio",
-            "query": Object {
-              "id": "foo",
-            },
-          }
-        }
-      >
-        overview.page
-      </Link>
-    </li>
     <li>
       <Link
         onlyActiveOnIndex={false}
