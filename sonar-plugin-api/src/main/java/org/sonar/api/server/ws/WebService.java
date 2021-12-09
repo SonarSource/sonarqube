@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -328,14 +329,15 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * List of changes made to the contract or valuable insight. Example: changes to the response format.
+     * Calling this method multiple times will not override previously set changes - all changes will be added.
      *
      * @since 6.4
      */
     public NewAction setChangelog(Change... changes) {
-      this.changelog = stream(requireNonNull(changes))
+      requireNonNull(changes);
+      Arrays.stream(changes)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-
+        .forEach(this.changelog::add);
       return this;
     }
 

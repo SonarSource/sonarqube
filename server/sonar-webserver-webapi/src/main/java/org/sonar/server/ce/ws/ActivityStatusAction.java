@@ -74,10 +74,11 @@ public class ActivityStatusAction implements CeWsAction {
       .setDescription("Key of the component (project) to filter on")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 
-    action.setChangelog(new Change("6.6", "New field 'inProgress' in response"));
-    action.setChangelog(new Change("7.8", "New field 'pendingTime' in response, only included when there are pending tasks"));
-    action.setChangelog(new Change("8.8", "Parameter 'componentId' is now deprecated."));
-    action.setChangelog(new Change("8.8", "Parameter 'componentKey' is now removed. Please use parameter 'component' instead."));
+    action.setChangelog(
+      new Change("6.6", "New field 'inProgress' in response"),
+      new Change("7.8", "New field 'pendingTime' in response, only included when there are pending tasks"),
+      new Change("8.8", "Parameter 'componentId' is now deprecated."),
+      new Change("8.8", "Parameter 'componentKey' is now removed. Please use parameter 'component' instead."));
   }
 
   @Override

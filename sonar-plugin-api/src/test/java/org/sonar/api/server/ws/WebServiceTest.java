@@ -93,6 +93,25 @@ public class WebServiceTest {
   }
 
   @Test
+  public void add_changelog_if_called_twice() {
+    WebService webService = context -> {
+      NewController newController = context.createController("api/rule");
+      newDefaultAction(newController, "list")
+        .setDescription("desc")
+        .setChangelog(new Change("1.0", "change1"))
+        .setChangelog(new Change("2.0", "change2"));
+      newController.done();
+    };
+
+    webService.define(context);
+    assertThat(context.controller("api/rule").action("list").changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsOnly(
+        tuple("1.0", "change1"),
+        tuple("2.0", "change2"));
+  }
+
+  @Test
   public void fail_if_duplicated_ws_keys() {
     MetricWs metricWs = new MetricWs();
     metricWs.define(context);

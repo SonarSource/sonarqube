@@ -60,8 +60,9 @@ public class GetBindingAction implements AlmSettingsWsAction {
         "Requires the 'Administer' permission on the project")
       .setSince("8.1")
       .setResponseExample(getClass().getResource("example-get_binding.json"))
-      .setChangelog(new Change("8.6", "Azure binding now contains the project and repository names"))
-      .setChangelog(new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"))
+      .setChangelog(
+        new Change("8.6", "Azure binding now contains the project and repository names"),
+        new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"))
       .setHandler(this);
 
     action

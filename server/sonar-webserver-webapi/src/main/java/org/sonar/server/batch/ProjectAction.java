@@ -58,9 +58,10 @@ public class ProjectAction implements BatchWsAction {
       .setDescription("Return project repository")
       .setResponseExample(getClass().getResource("project-example.json"))
       .setSince("4.5")
-      .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)))
-      .setChangelog(new Change("7.6", "Stop returning settings"))
-      .setChangelog(new Change("7.7", "Stop supporting preview mode, removed timestamp and last analysis date"))
+      .setChangelog(
+        new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_KEY)),
+        new Change("7.6", "Stop returning settings"),
+        new Change("7.7", "Stop supporting preview mode, removed timestamp and last analysis date"))
       .setInternal(true)
       .setHandler(this);
 
