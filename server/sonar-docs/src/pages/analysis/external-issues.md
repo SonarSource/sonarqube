@@ -27,7 +27,7 @@ Go|`sonar.go.govet.reportPaths`|Comma-delimited list of paths to [GoVet](https:/
 Go|`sonar.go.golint.reportPaths`|Comma-delimited list of paths to [GoLint](https://github.com/golang/lint) reports|
 Go|`sonar.go.gometalinter.reportPaths`|Comma-delimited list of paths to [GoMetaLinter](https://github.com/alecthomas/gometalinter) reports|
 Go|`sonar.go.golangci-lint.reportPaths`|Comma-delimited list of paths to [golangci-lint](https://github.com/golangci/golangci-lint) reports in checkstyle format (use `--out-format checkstyle` golangci-lint option)|
-Go|`sonar.externalIssuesReportPaths`|Comma-delimited list of paths to [gosec](https://github.com/securego/gosec) reports in sonarqube format (use `-fmt=sonarqube` gosec option). Note: this property is the one from the [Generic Issue Import Format](/analysis/generic-issue/)|
+Go|`sonar.externalIssuesReportPaths`|Comma-delimited list of paths to [gosec](https://github.com/securego/gosec) reports in SonarQube format (use `-fmt=sonarqube` gosec option). Note: this property is the one from the [Generic Issue Import Format](/analysis/generic-issue/)|
 Java|`sonar.java.spotbugs.reportPaths`|Comma-delimited list of paths to reports from [SpotBugs](https://spotbugs.github.io/), FindSecBugs, or FindBugs|
 Java|`sonar.java.pmd.reportPaths`|Comma-delimited list of paths to reports from [PMD](http://maven.apache.org/plugins/maven-pmd-plugin/usage.html)
 Java|`sonar.java.checkstyle.reportPaths`|Comma-delimited list of paths to reports from [Checkstyle](http://maven.apache.org/plugins/maven-checkstyle-plugin/checkstyle-mojo)
