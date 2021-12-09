@@ -86,7 +86,19 @@ ingress:
 
 ### Monitoring
 
-Currently, no cloud-native monitoring solutions play nicely with SonarQube or are supported by SonarSource. It is, however, possible to expose at least the JMX metrics to Prometheus with the help of the Prometheus JMX exporter for the Application Nodes.
+You can monitor your SonarQube cluster using SonarQube's native integration with Prometheus. Through this integration, you can ensure your cluster is running properly and know if you need to take action to prevent future issues. 
+
+Prometheus monitors your SonarQube cluster by collecting metrics from the `/api/monitoring/metrics` endpoint. Results are returned in OpenMetrics text format. See Prometheus' documentation on [Exposition Formats](https://prometheus.io/docs/instrumenting/exposition_formats/) for more information on the OpenMetrics text format. 
+
+Monitoring through this endpoint requires authentication. You can access the endpoint following ways:
+
+- **`Authorization:Bearer xxxx` header:** You can use a bearer token during database upgrade and when SonarQube is fully operational. Define the bearer token in the `sonar.properties` file using the `sonar.web.systemPasscode property`.
+- **`X-Sonar-Passcode: xxxxx` header:** You can use `X-Sonar-passcode` during database upgrade and when SonarQube is fully operational. Define `X-Sonar-passcode` in the `sonar.properties` file using the `sonar.web.systemPasscode property`.
+- **username:password and JWT token:** When SonarQube is fully operational, system admins logged in with local or delegated authentication can access the endpoint. 
+
+####**JMX Exporter**
+You can also expose at the JMX metrics to Prometheus with the help of the Prometheus JMX exporter.
+
 To use this option, set the following values in your `values.yaml` file:
 
 ```yaml
@@ -99,9 +111,9 @@ prometheusExporter:
 
 This downloads the Prometheus JMX exporter agent and adds it to the startup options of SonarQube. With this default configuration, the JMX metrics will be exposed on /metrics for Prometheus to scrape.
 
-The config scope here defines a configuration that is understandable by the Prometheus JMX exporter. For more information, please see the [documentation](https://github.com/prometheus/jmx_exporter).
+The config scope here defines a configuration that is understandable by the Prometheus JMX exporter. For more information, please Prometheus' documentation on the [JMX Exporter](https://github.com/prometheus/jmx_exporter).
 
-#### PodMonitor
+#### **PodMonitor**
 
 You can collect metrics on application nodes using PodMonitor for Prometheus. Search node monitoring is not currently supported. To monitor applications nodes, define PodMonitor as follows:
 
