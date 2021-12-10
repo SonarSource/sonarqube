@@ -34,6 +34,8 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectOlderThan(@Param("beforeDate") long beforeDate);
 
+  List<CeActivityDto> selectNewerThan(@Param("afterDate") long afterDate);
+
   int countLastByStatusAndMainComponentUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
 
   void insert(CeActivityDto dto);

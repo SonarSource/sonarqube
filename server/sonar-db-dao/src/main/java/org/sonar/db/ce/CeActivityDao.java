@@ -61,6 +61,10 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).selectOlderThan(beforeDate);
   }
 
+  public List<CeActivityDto> selectNewerThan(DbSession dbSession, long beforeDate) {
+    return mapper(dbSession).selectNewerThan(beforeDate);
+  }
+
   public List<CeActivityDto> selectByTaskType(DbSession dbSession, String taskType) {
     return mapper(dbSession).selectByTaskType(taskType);
   }

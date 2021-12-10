@@ -647,6 +647,16 @@ public class CeActivityDaoTest {
   }
 
   @Test
+  public void selectNewerThan() {
+    insertWithCreationDate("TASK_1", 1_450_000_000_000L);
+    insertWithCreationDate("TASK_2", 1_460_000_000_000L);
+    insertWithCreationDate("TASK_3", 1_470_000_000_000L);
+
+    List<CeActivityDto> dtos = underTest.selectNewerThan(db.getSession(), 1_455_000_000_000L);
+    assertThat(dtos).extracting("uuid").containsOnly("TASK_2", "TASK_3");
+  }
+
+  @Test
   public void selectOlder_populates_hasScannerContext_flag() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     CeActivityDto dto2 = insertWithCreationDate("TASK_2", 1_450_000_000_000L);

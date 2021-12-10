@@ -23,6 +23,7 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -73,6 +74,28 @@ public class ServerMonitoringMetricsTest {
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isEqualTo(1);
+  }
+
+  @Test
+  public void setters_setNumberOfPendingTasks() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+
+    metrics.setNumberOfPendingTasks(10);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_compute_engine_pending_tasks_total"))
+      .isEqualTo(10);
+  }
+
+  @Test
+  public void observeComputeEngineTaskDurationTest() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+    String[] labelNames = {"task_type", "project_key"};
+    String[] labelValues = {"REPORT", "projectKey"};
+
+    metrics.observeComputeEngineTaskDuration(10, labelValues[0], labelValues[1]);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_compute_engine_tasks_running_duration_seconds_sum",
+      labelNames, labelValues)).isEqualTo(10);
   }
 
   private int sizeOfDefaultRegistry() {

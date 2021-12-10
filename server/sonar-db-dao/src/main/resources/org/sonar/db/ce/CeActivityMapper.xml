@@ -143,6 +143,15 @@
     where
       ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </select>
+
+  <select id="selectNewerThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+      <include refid="columns"/>
+    from ce_activity ca
+    left outer join ce_scanner_context csc on csc.task_uuid = ca.uuid
+    where
+      ca.created_at &gt; #{afterDate,jdbcType=BIGINT}
+  </select>
   
   <select id="countLastByStatusAndMainComponentUuid" resultType="int">
     select

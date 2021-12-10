@@ -20,6 +20,7 @@
 package org.sonar.server.monitoring;
 
 import io.prometheus.client.Gauge;
+import io.prometheus.client.Summary;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
@@ -29,6 +30,9 @@ public class ServerMonitoringMetrics {
   private final Gauge gitlabConfigOk;
   private final Gauge bitbucketConfigOk;
   private final Gauge azureConfigOk;
+
+  private final Gauge cePendingTasksTotal;
+  private final Summary ceTasksRunningDuration;
 
   public ServerMonitoringMetrics() {
     githubConfigOk = Gauge.build()
@@ -49,6 +53,17 @@ public class ServerMonitoringMetrics {
     azureConfigOk = Gauge.build()
       .name("azure_config_ok")
       .help("Tells whether SonarQube instance has configured Azure integration and its status is green. 0 for green, 1 otherwise .")
+      .register();
+
+    cePendingTasksTotal = Gauge.build()
+      .name("sonarqube_compute_engine_pending_tasks_total")
+      .help("Number of tasks at given point of time that were pending in the Compute Engine queue [SHARED, same value for every SonarQube instance]")
+      .register();
+
+    ceTasksRunningDuration = Summary.build()
+      .name("sonarqube_compute_engine_tasks_running_duration_seconds")
+      .help("Compute engine task running time in seconds")
+      .labelNames("task_type", "project_key")
       .register();
   }
 
@@ -83,4 +98,13 @@ public class ServerMonitoringMetrics {
   public void setBitbucketStatusToRed() {
     bitbucketConfigOk.set(1);
   }
+
+  public void setNumberOfPendingTasks(int numberOfPendingTasks) {
+    cePendingTasksTotal.set(numberOfPendingTasks);
+  }
+
+  public void observeComputeEngineTaskDuration(long durationInSeconds, String taskType, String projectKey) {
+    ceTasksRunningDuration.labels(taskType, projectKey).observe(durationInSeconds);
+  }
+
 }

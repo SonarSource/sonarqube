@@ -126,9 +126,15 @@ import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
+import org.sonar.server.monitoring.MainCollector;
 import org.sonar.server.monitoring.MonitoringWsModule;
-import org.sonar.server.monitoring.devops.DevOpsPlatformsMetricsCollector;
+import org.sonar.server.monitoring.ce.NumberOfTasksInQueueTask;
+import org.sonar.server.monitoring.ce.RecentTasksDurationTask;
+import org.sonar.server.monitoring.devops.AzureMetricsTask;
+import org.sonar.server.monitoring.devops.BitbucketMetricsTask;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
+import org.sonar.server.monitoring.devops.GithubMetricsTask;
+import org.sonar.server.monitoring.devops.GitlabMetricsTask;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
@@ -578,7 +584,16 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // monitoring
       ServerMonitoringMetrics.class,
-      DevOpsPlatformsMetricsCollector.class,
+
+      AzureMetricsTask.class,
+      BitbucketMetricsTask.class,
+      GithubMetricsTask.class,
+      GitlabMetricsTask.class,
+
+      NumberOfTasksInQueueTask.class,
+      RecentTasksDurationTask.class,
+
+      MainCollector.class,
 
       PluginsRiskConsentFilter.class
 
