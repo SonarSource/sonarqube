@@ -1,3 +1,9 @@
-# HELP is_web_up Tells whether web service is up
-# TYPE is_web_up gauge
-is_web_up 0.0
+# HELP sonarqube_heath_web_status Tells whether web service is up
+# TYPE sonarqube_heath_web_status gauge
+sonarqube_heath_web_status 0.0
+# HELP sonarqube_heath_compute_engine_status Tells whether Compute Engine is up (healthy, ready to take tasks) or down. 0 for up, 1 for down
+# TYPE sonarqube_heath_compute_engine_status gauge
+sonarqube_heath_compute_engine_status 0.0
+# HELP sonarqube_heath_elasticsearch_status Tells whether Elasticsearch is up or down. 0 for Up, 1 for down
+# TYPE sonarqube_heath_elasticsearch_status gauge
+sonarqube_heath_elasticsearch_status 0.0

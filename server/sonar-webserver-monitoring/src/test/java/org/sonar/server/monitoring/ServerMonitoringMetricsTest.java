@@ -23,7 +23,6 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,11 +53,15 @@ public class ServerMonitoringMetricsTest {
     metrics.setGitlabStatusToGreen();
     metrics.setAzureStatusToGreen();
     metrics.setBitbucketStatusToGreen();
+    metrics.setComputeEngineStatusToGreen();
+    metrics.setElasticSearchStatusToGreen();
 
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("github_config_ok")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isZero();
   }
 
   @Test
@@ -69,11 +72,15 @@ public class ServerMonitoringMetricsTest {
     metrics.setGitlabStatusToRed();
     metrics.setAzureStatusToRed();
     metrics.setBitbucketStatusToRed();
+    metrics.setComputeEngineStatusToRed();
+    metrics.setElasticSearchStatusToRed();
 
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("github_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isEqualTo(1);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isEqualTo(1);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isEqualTo(1);
   }
 
   @Test

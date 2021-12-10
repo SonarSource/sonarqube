@@ -30,6 +30,8 @@ public class ServerMonitoringMetrics {
   private final Gauge gitlabConfigOk;
   private final Gauge bitbucketConfigOk;
   private final Gauge azureConfigOk;
+  private final Gauge computeEngineGauge;
+  private final Gauge elasticsearchGauge;
 
   private final Gauge cePendingTasksTotal;
   private final Summary ceTasksRunningDuration;
@@ -65,6 +67,17 @@ public class ServerMonitoringMetrics {
       .help("Compute engine task running time in seconds")
       .labelNames("task_type", "project_key")
       .register();
+
+    computeEngineGauge = Gauge.build()
+      .name("sonarqube_heath_compute_engine_status")
+      .help("Tells whether Compute Engine is up (healthy, ready to take tasks) or down. 0 for up, 1 for down")
+      .register();
+
+    elasticsearchGauge = Gauge.build()
+      .name("sonarqube_heath_elasticsearch_status")
+      .help("Tells whether Elasticsearch is up or down. 0 for Up, 1 for down")
+      .register();
+
   }
 
   public void setGithubStatusToGreen() {
@@ -107,4 +120,19 @@ public class ServerMonitoringMetrics {
     ceTasksRunningDuration.labels(taskType, projectKey).observe(durationInSeconds);
   }
 
+  public void setComputeEngineStatusToGreen() {
+    computeEngineGauge.set(0);
+  }
+
+  public void setComputeEngineStatusToRed() {
+    computeEngineGauge.set(1);
+  }
+
+  public void setElasticSearchStatusToGreen() {
+    elasticsearchGauge.set(0);
+  }
+
+  public void setElasticSearchStatusToRed() {
+    elasticsearchGauge.set(1);
+  }
 }
