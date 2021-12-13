@@ -25,7 +25,7 @@ exports[`should handle editing: edit form 1`] = `
       "visibility": "private",
     }
   }
-  header="portfolios.edit_application"
+  header="application_console.edit"
   onClose={[Function]}
   onEdit={[MockFunction]}
 />

@@ -92,7 +92,7 @@ export default function ApplicationConsoleAppRenderer(props: ApplicationConsoleA
 
         {editing && (
           <EditForm
-            header={translate('portfolios.edit_application')}
+            header={translate('application_console.edit')}
             onClose={() => setEditing(false)}
             onEdit={props.onEdit}
             application={application}

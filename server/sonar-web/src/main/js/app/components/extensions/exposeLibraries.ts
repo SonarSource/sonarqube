@@ -28,6 +28,7 @@ import {
   SubmitButton
 } from '../../../components/controls/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
+import ClickEventBoundary from '../../../components/controls/ClickEventBoundary';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Dropdown from '../../../components/controls/Dropdown';
 import Favorite from '../../../components/controls/Favorite';
@@ -184,6 +185,7 @@ const exposeLibraries = () => {
         Checkbox,
         CheckIcon,
         ClearIcon,
+        ClickEventBoundary,
         ConfirmButton,
         CoverageRating,
         DateFormatter,
