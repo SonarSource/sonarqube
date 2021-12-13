@@ -60,8 +60,8 @@ public class ServerMonitoringMetricsTest {
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isPositive();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isPositive();
   }
 
   @Test
@@ -79,8 +79,8 @@ public class ServerMonitoringMetricsTest {
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isEqualTo(1);
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isEqualTo(1);
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isEqualTo(1);
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isEqualTo(1);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isZero();
   }
 
   @Test
