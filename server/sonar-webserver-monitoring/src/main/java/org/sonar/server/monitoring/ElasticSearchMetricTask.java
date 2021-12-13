@@ -25,19 +25,21 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.response.NodeStats;
+import org.sonar.server.es.response.NodeStatsResponse;
 
-public class ElasticSearchMetricStatusTask implements MonitoringTask {
+public class ElasticSearchMetricTask implements MonitoringTask {
 
-  private static final Logger LOG = Loggers.get(ElasticSearchMetricStatusTask.class);
+  private static final Logger LOG = Loggers.get(ElasticSearchMetricTask.class);
 
-  private static final String DELAY_IN_MILISECONDS_PROPERTY = "sonar.server.monitoring.other.initial.delay";
-  private static final String PERIOD_IN_MILISECONDS_PROPERTY = "sonar.server.monitoring.other.period";
+  private static final String DELAY_IN_MILISECONDS_PROPERTY = "sonar.server.monitoring.es.initial.delay";
+  private static final String PERIOD_IN_MILISECONDS_PROPERTY = "sonar.server.monitoring.es.period";
 
   private final ServerMonitoringMetrics serverMonitoringMetrics;
   private final EsClient esClient;
   private final Configuration config;
 
-  public ElasticSearchMetricStatusTask(ServerMonitoringMetrics serverMonitoringMetrics, EsClient esClient, Configuration configuration) {
+  public ElasticSearchMetricTask(ServerMonitoringMetrics serverMonitoringMetrics, EsClient esClient, Configuration configuration) {
     this.serverMonitoringMetrics = serverMonitoringMetrics;
     this.esClient = esClient;
     config = configuration;
@@ -45,24 +47,45 @@ public class ElasticSearchMetricStatusTask implements MonitoringTask {
 
   @Override
   public void run() {
+    updateElasticSearchHealthStatus();
+    updateFileSystemMetrics();
+  }
+
+  private void updateElasticSearchHealthStatus() {
     try {
       ClusterHealthStatus esStatus = esClient.clusterHealth(new ClusterHealthRequest()).getStatus();
       if (esStatus == null) {
         serverMonitoringMetrics.setElasticSearchStatusToRed();
-        return;
-      }
-      switch (esStatus) {
-        case GREEN:
-        case YELLOW:
-          serverMonitoringMetrics.setElasticSearchStatusToGreen();
-          break;
-        case RED:
-          serverMonitoringMetrics.setElasticSearchStatusToRed();
-          break;
+      } else {
+        switch (esStatus) {
+          case GREEN:
+          case YELLOW:
+            serverMonitoringMetrics.setElasticSearchStatusToGreen();
+            break;
+          case RED:
+            serverMonitoringMetrics.setElasticSearchStatusToRed();
+            break;
+        }
       }
     } catch (Exception e) {
       LOG.error("Failed to query ES status", e);
       serverMonitoringMetrics.setElasticSearchStatusToRed();
+    }
+  }
+
+  private void updateFileSystemMetrics() {
+    try {
+      NodeStatsResponse nodeStatsResponse = esClient.nodesStats();
+      if (nodeStatsResponse.getNodeStats().isEmpty()) {
+        LOG.error("Failed to query ES status, no nodes stats returned by elasticsearch API");
+      } else {
+        for (NodeStats nodeStat : nodeStatsResponse.getNodeStats()) {
+          serverMonitoringMetrics.setElasticSearchDiskSpaceFreeBytes(nodeStat.getName(), nodeStat.getDiskAvailableBytes());
+          serverMonitoringMetrics.setElasticSearchDiskSpaceTotalBytes(nodeStat.getName(), nodeStat.getDiskTotalBytes());
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to query ES status", e);
     }
   }
 

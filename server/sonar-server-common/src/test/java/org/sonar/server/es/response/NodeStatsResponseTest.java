@@ -105,6 +105,7 @@ public class NodeStatsResponseTest {
     assertThat(nodeStats.getOpenFileDescriptors()).isEqualTo(296);
     assertThat(nodeStats.getMaxFileDescriptors()).isEqualTo(10240);
     assertThat(nodeStats.getDiskAvailableBytes()).isEqualTo(136144027648L);
+    assertThat(nodeStats.getDiskTotalBytes()).isEqualTo(250685575168L);
 
     assertThat(nodeStats.getFieldDataCircuitBreakerLimit()).isEqualTo(207591833);
     assertThat(nodeStats.getFieldDataCircuitBreakerEstimation()).isEqualTo(4880);

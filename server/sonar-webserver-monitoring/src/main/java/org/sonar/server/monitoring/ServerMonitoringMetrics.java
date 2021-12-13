@@ -37,6 +37,8 @@ public class ServerMonitoringMetrics {
 
   private final Gauge cePendingTasksTotal;
   private final Summary ceTasksRunningDuration;
+  private final Gauge elasticsearchDiskSpaceFreeBytesGauge;
+  private final Gauge elasticSearchDiskSpaceTotalBytes;
 
   private final Gauge licenseDaysBeforeExpiration;
   private final Gauge linesOfCodeRemaining;
@@ -97,6 +99,18 @@ public class ServerMonitoringMetrics {
     linesOfCodeAnalyzed = Gauge.build()
       .name("sonarqube_license_number_of_lines_analyzed_total")
       .help("Number of lines analyzed.")
+      .register();
+
+    elasticsearchDiskSpaceFreeBytesGauge = Gauge.build()
+      .name("sonarqube_elasticsearch_disk_space_free_bytes")
+      .help("Space left on device")
+      .labelNames("node_name")
+      .register();
+
+    elasticSearchDiskSpaceTotalBytes = Gauge.build()
+      .name("sonarqube_elasticsearch_disk_space_total_bytes")
+      .help("Total disk space on the device")
+      .labelNames("node_name")
       .register();
   }
 
@@ -166,5 +180,13 @@ public class ServerMonitoringMetrics {
 
   public void setLinesOfCodeAnalyzed(long loc) {
     linesOfCodeAnalyzed.set(loc);
+  }
+
+  public void setElasticSearchDiskSpaceFreeBytes(String name, long diskAvailableBytes) {
+    elasticsearchDiskSpaceFreeBytesGauge.labels(name).set(diskAvailableBytes);
+  }
+
+  public void setElasticSearchDiskSpaceTotalBytes(String name, long disktotalBytes) {
+    elasticSearchDiskSpaceTotalBytes.labels(name).set(disktotalBytes);
   }
 }

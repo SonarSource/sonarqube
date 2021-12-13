@@ -34,6 +34,7 @@ public class NodeStats {
   private final long openFileDescriptors;
   private final long maxFileDescriptors;
   private final long diskAvailableBytes;
+  private final long diskTotalBytes;
 
   private final long fieldDataCircuitBreakerLimit;
   private final long fieldDataCircuitBreakerEstimation;
@@ -51,6 +52,7 @@ public class NodeStats {
     this.openFileDescriptors = nodeStatsJson.getAsJsonObject(PROCESS_ATTRIBUTE_NAME).get("open_file_descriptors").getAsLong();
     this.maxFileDescriptors = nodeStatsJson.getAsJsonObject(PROCESS_ATTRIBUTE_NAME).get("max_file_descriptors").getAsLong();
     this.diskAvailableBytes = nodeStatsJson.getAsJsonObject("fs").getAsJsonObject("total").get("available_in_bytes").getAsLong();
+    this.diskTotalBytes = nodeStatsJson.getAsJsonObject("fs").getAsJsonObject("total").get("total_in_bytes").getAsLong();
 
     this.fieldDataCircuitBreakerLimit = nodeStatsJson.getAsJsonObject(BREAKERS_ATTRIBUTE_NAME).getAsJsonObject("fielddata").get("limit_size_in_bytes").getAsLong();
     this.fieldDataCircuitBreakerEstimation = nodeStatsJson.getAsJsonObject(BREAKERS_ATTRIBUTE_NAME).getAsJsonObject("fielddata").get("estimated_size_in_bytes").getAsLong();
@@ -87,6 +89,10 @@ public class NodeStats {
 
   public long getDiskAvailableBytes() {
     return diskAvailableBytes;
+  }
+
+  public long getDiskTotalBytes() {
+    return diskTotalBytes;
   }
 
   public long getFieldDataCircuitBreakerLimit() {

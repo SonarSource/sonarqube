@@ -1,0 +1,63 @@
+{
+  "nodes": {
+    "YnKPZcbGRamRQGxjErLWoQ": {
+      "name": "sonarqube",
+      "host": "127.0.0.1",
+      "indices": {
+        "docs": {
+          "count": 13557
+        },
+        "store": {
+          "size_in_bytes": 8670970
+        },
+        "query_cache": {
+          "memory_size_in_bytes": 0
+        },
+        "fielddata": {
+          "memory_size_in_bytes": 4880
+        },
+        "translog": {
+          "size_in_bytes": 8274137
+        },
+        "request_cache": {
+          "memory_size_in_bytes": 0
+        }
+      },
+      "process": {
+        "open_file_descriptors": 296,
+        "max_file_descriptors": 10240,
+        "cpu": {
+          "percent": 7
+        }
+      },
+      "jvm": {
+        "mem": {
+          "heap_used_in_bytes": 158487160,
+          "heap_used_percent": 30,
+          "heap_max_in_bytes": 518979584,
+          "non_heap_used_in_bytes": 109066592
+        },
+        "threads": {
+          "count": 70
+        }
+      },
+      "fs": {
+        "total": {
+          "total_in_bytes": 250685575168,
+          "free_in_bytes": 142843138048,
+          "available_in_bytes": 136144027648
+        }
+      },
+      "breakers": {
+        "request": {
+          "limit_size_in_bytes": 311387750,
+          "estimated_size_in_bytes": 1
+        },
+        "fielddata": {
+          "limit_size_in_bytes": 207591833,
+          "estimated_size_in_bytes": 4880
+        }
+      }
+    }
+  }
+}

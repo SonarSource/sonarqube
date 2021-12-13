@@ -127,7 +127,7 @@ import org.sonar.server.metric.MetricFinder;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.monitoring.ComputeEngineMetricStatusTask;
-import org.sonar.server.monitoring.ElasticSearchMetricStatusTask;
+import org.sonar.server.monitoring.ElasticSearchMetricTask;
 import org.sonar.server.monitoring.MainCollector;
 import org.sonar.server.monitoring.MonitoringWsModule;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
@@ -596,7 +596,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RecentTasksDurationTask.class,
 
       ComputeEngineMetricStatusTask.class,
-      ElasticSearchMetricStatusTask.class,
+      ElasticSearchMetricTask.class,
 
       MainCollector.class,
 
