@@ -49,7 +49,7 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
-      .containsExactly(
+      .containsExactlyInAnyOrder(
         "-XX:+UseG1GC",
         "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
         "-XX:ErrorFile=../logs/es_hs_err_pid%p.log",
@@ -67,6 +67,7 @@ public class EsJvmOptionsTest {
         "-Dio.netty.allocator.numDirectArenas=0",
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
+        "-Dlog4j2.formatMsgNoLookups=true",
         "-Djava.locale.providers=COMPAT",
         "-Dcom.redhat.fips=false",
         "-Des.enforce.bootstrap.checks=true");
@@ -149,6 +150,7 @@ public class EsJvmOptionsTest {
         "-Dio.netty.allocator.numDirectArenas=0\n" +
         "-Dlog4j.shutdownHookEnabled=false\n" +
         "-Dlog4j2.disable.jmx=true\n" +
+        "-Dlog4j2.formatMsgNoLookups=true\n" +
         "-Djava.locale.providers=COMPAT\n" +
         "-Dcom.redhat.fips=false\n" +
         "-Des.enforce.bootstrap.checks=true\n" +

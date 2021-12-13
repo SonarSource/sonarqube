@@ -19,7 +19,6 @@ dependencies {
   compile 'org.apache.logging.log4j:log4j-api'
   compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
   compile 'org.elasticsearch:elasticsearch'
-  compile 'org.elasticsearch:elasticsearch-core'
   compile 'org.slf4j:slf4j-api'
   compile 'org.yaml:snakeyaml'
   
