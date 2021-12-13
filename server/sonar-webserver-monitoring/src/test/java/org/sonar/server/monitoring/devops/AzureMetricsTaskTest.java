@@ -19,10 +19,8 @@
  */
 package org.sonar.server.monitoring.devops;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.alm.client.azure.AzureDevOpsValidator;

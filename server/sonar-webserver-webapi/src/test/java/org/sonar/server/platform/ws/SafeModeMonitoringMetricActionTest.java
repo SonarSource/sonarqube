@@ -76,9 +76,9 @@ public class SafeModeMonitoringMetricActionTest {
     TestResponse response = ws.newRequest().execute();
     String content = response.getInput();
     assertThat(content)
-      .contains("# HELP sonarqube_heath_web_status Tells whether web service is up")
+      .contains("# HELP sonarqube_heath_web_status Tells whether Web process is up or down. 1 for up, 0 for down")
       .contains("# TYPE sonarqube_heath_web_status gauge")
-      .contains("sonarqube_heath_web_status 0.0");
+      .contains("sonarqube_heath_web_status 1.0");
   }
 
   @Test
@@ -88,9 +88,9 @@ public class SafeModeMonitoringMetricActionTest {
     TestResponse response = ws.newRequest().execute();
     String content = response.getInput();
     assertThat(content)
-      .contains("# HELP sonarqube_heath_web_status Tells whether web service is up")
+      .contains("# HELP sonarqube_heath_web_status Tells whether Web process is up or down. 1 for up, 0 for down")
       .contains("# TYPE sonarqube_heath_web_status gauge")
-      .contains("sonarqube_heath_web_status 0.0");
+      .contains("sonarqube_heath_web_status 1.0");
   }
 
   @Test

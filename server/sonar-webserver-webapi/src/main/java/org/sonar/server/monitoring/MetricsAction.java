@@ -44,7 +44,7 @@ public class MetricsAction extends SafeModeMonitoringMetricAction {
       .setResponseExample(getClass().getResource("monitoring-metrics.txt"))
       .setHandler(this);
 
-    isWebUpGauge.set(0D);
+    isWebUpGauge.set(1D);
   }
 
   @Override

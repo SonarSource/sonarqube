@@ -26,10 +26,12 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class ServerMonitoringMetrics {
 
-  private final Gauge githubConfigOk;
-  private final Gauge gitlabConfigOk;
-  private final Gauge bitbucketConfigOk;
-  private final Gauge azureConfigOk;
+  public static final int UP_STATUS = 1;
+  public static final int DOWN_STATUS = 0;
+  private final Gauge githubHealthIntegrationStatus;
+  private final Gauge gitlabHealthIntegrationStatus;
+  private final Gauge bitbucketHealthIntegrationStatus;
+  private final Gauge azureHealthIntegrationStatus;
   private final Gauge computeEngineGauge;
   private final Gauge elasticsearchGauge;
 
@@ -37,24 +39,24 @@ public class ServerMonitoringMetrics {
   private final Summary ceTasksRunningDuration;
 
   public ServerMonitoringMetrics() {
-    githubConfigOk = Gauge.build()
-      .name("github_config_ok")
-      .help("Tells whether SonarQube instance has configured GitHub integration and its status is green. 0 for green, 1 otherwise .")
+    githubHealthIntegrationStatus = Gauge.build()
+      .name("sonarqube_health_integration_github_status")
+      .help("Tells whether SonarQube instance has configured GitHub integration and its status is green. 1 for green, 0 otherwise .")
       .register();
 
-    gitlabConfigOk = Gauge.build()
-      .name("gitlab_config_ok")
-      .help("Tells whether SonarQube instance has configured GitLab integration and its status is green. 0 for green, 1 otherwise .")
+    gitlabHealthIntegrationStatus = Gauge.build()
+      .name("sonarqube_health_integration_gitlab_status")
+      .help("Tells whether SonarQube instance has configured GitLab integration and its status is green. 1 for green, 0 otherwise .")
       .register();
 
-    bitbucketConfigOk = Gauge.build()
-      .name("bitbucket_config_ok")
-      .help("Tells whether SonarQube instance has configured BitBucket integration and its status is green. 0 for green, 1 otherwise .")
+    bitbucketHealthIntegrationStatus = Gauge.build()
+      .name("sonarqube_health_integration_bitbucket_status")
+      .help("Tells whether SonarQube instance has configured BitBucket integration and its status is green. 1 for green, 0 otherwise .")
       .register();
 
-    azureConfigOk = Gauge.build()
-      .name("azure_config_ok")
-      .help("Tells whether SonarQube instance has configured Azure integration and its status is green. 0 for green, 1 otherwise .")
+    azureHealthIntegrationStatus = Gauge.build()
+      .name("sonarqube_health_integration_azuredevops_status")
+      .help("Tells whether SonarQube instance has configured Azure integration and its status is green. 1 for green, 0 otherwise .")
       .register();
 
     cePendingTasksTotal = Gauge.build()
@@ -81,35 +83,35 @@ public class ServerMonitoringMetrics {
   }
 
   public void setGithubStatusToGreen() {
-    githubConfigOk.set(0);
+    githubHealthIntegrationStatus.set(UP_STATUS);
   }
 
   public void setGithubStatusToRed() {
-    githubConfigOk.set(1);
+    githubHealthIntegrationStatus.set(DOWN_STATUS);
   }
 
   public void setGitlabStatusToGreen() {
-    gitlabConfigOk.set(0);
+    gitlabHealthIntegrationStatus.set(UP_STATUS);
   }
 
   public void setGitlabStatusToRed() {
-    gitlabConfigOk.set(1);
+    gitlabHealthIntegrationStatus.set(DOWN_STATUS);
   }
 
   public void setAzureStatusToGreen() {
-    azureConfigOk.set(0);
+    azureHealthIntegrationStatus.set(UP_STATUS);
   }
 
   public void setAzureStatusToRed() {
-    azureConfigOk.set(1);
+    azureHealthIntegrationStatus.set(DOWN_STATUS);
   }
 
   public void setBitbucketStatusToGreen() {
-    bitbucketConfigOk.set(0);
+    bitbucketHealthIntegrationStatus.set(UP_STATUS);
   }
 
   public void setBitbucketStatusToRed() {
-    bitbucketConfigOk.set(1);
+    bitbucketHealthIntegrationStatus.set(DOWN_STATUS);
   }
 
   public void setNumberOfPendingTasks(int numberOfPendingTasks) {
@@ -121,18 +123,18 @@ public class ServerMonitoringMetrics {
   }
 
   public void setComputeEngineStatusToGreen() {
-    computeEngineGauge.set(1);
+    computeEngineGauge.set(UP_STATUS);
   }
 
   public void setComputeEngineStatusToRed() {
-    computeEngineGauge.set(0);
+    computeEngineGauge.set(DOWN_STATUS);
   }
 
   public void setElasticSearchStatusToGreen() {
-    elasticsearchGauge.set(1);
+    elasticsearchGauge.set(UP_STATUS);
   }
 
   public void setElasticSearchStatusToRed() {
-    elasticsearchGauge.set(0);
+    elasticsearchGauge.set(DOWN_STATUS);
   }
 }

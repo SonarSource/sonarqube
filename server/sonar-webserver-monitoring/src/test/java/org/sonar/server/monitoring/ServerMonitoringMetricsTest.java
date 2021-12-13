@@ -56,10 +56,10 @@ public class ServerMonitoringMetricsTest {
     metrics.setComputeEngineStatusToGreen();
     metrics.setElasticSearchStatusToGreen();
 
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("github_config_ok")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_github_status")).isPositive();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_gitlab_status")).isPositive();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_bitbucket_status")).isPositive();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_azuredevops_status")).isPositive();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isPositive();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isPositive();
   }
@@ -75,10 +75,10 @@ public class ServerMonitoringMetricsTest {
     metrics.setComputeEngineStatusToRed();
     metrics.setElasticSearchStatusToRed();
 
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("github_config_ok")).isEqualTo(1);
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("gitlab_config_ok")).isEqualTo(1);
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("bitbucket_config_ok")).isEqualTo(1);
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("azure_config_ok")).isEqualTo(1);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_github_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_gitlab_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_bitbucket_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_azuredevops_status")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isZero();
   }

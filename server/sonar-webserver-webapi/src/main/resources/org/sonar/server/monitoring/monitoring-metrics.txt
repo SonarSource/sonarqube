@@ -1,9 +1,26 @@
-# HELP sonarqube_heath_web_status Tells whether web service is up
-# TYPE sonarqube_heath_web_status gauge
-sonarqube_heath_web_status 0.0
-# HELP sonarqube_heath_compute_engine_status Tells whether Compute Engine is up (healthy, ready to take tasks) or down. 0 for up, 1 for down
-# TYPE sonarqube_heath_compute_engine_status gauge
-sonarqube_heath_compute_engine_status 0.0
-# HELP sonarqube_heath_elasticsearch_status Tells whether Elasticsearch is up or down. 0 for Up, 1 for down
+# HELP sonarqube_compute_engine_tasks_running_duration_seconds Compute engine task running time in seconds
+# TYPE sonarqube_compute_engine_tasks_running_duration_seconds summary
+# HELP sonarqube_heath_elasticsearch_status Tells whether Elasticsearch is up or down. 1 for Up, 0 for down
 # TYPE sonarqube_heath_elasticsearch_status gauge
-sonarqube_heath_elasticsearch_status 0.0
+sonarqube_heath_elasticsearch_status 1.0
+# HELP sonarqube_health_integration_github_status Tells whether SonarQube instance has configured GitHub integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_github_status gauge
+sonarqube_health_integration_github_status 0.0
+# HELP sonarqube_health_integration_gitlab_status Tells whether SonarQube instance has configured GitLab integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_gitlab_status gauge
+sonarqube_health_integration_gitlab_status 0.0
+# HELP sonarqube_health_integration_bitbucket_status Tells whether SonarQube instance has configured BitBucket integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_bitbucket_status gauge
+sonarqube_health_integration_bitbucket_status 0.0
+# HELP sonarqube_health_integration_azuredevops_status Tells whether SonarQube instance has configured Azure integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_azuredevops_status gauge
+sonarqube_health_integration_azuredevops_status 0.0
+# HELP sonarqube_heath_web_status Tells whether Web process is up or down. 1 for up, 0 for down
+# TYPE sonarqube_heath_web_status gauge
+sonarqube_heath_web_status 1.0
+# HELP sonarqube_compute_engine_pending_tasks_total Number of tasks at given point of time that were pending in the Compute Engine queue [SHARED, same value for every SonarQube instance]
+# TYPE sonarqube_compute_engine_pending_tasks_total gauge
+sonarqube_compute_engine_pending_tasks_total 0.0
+# HELP sonarqube_heath_compute_engine_status Tells whether Compute Engine is up (healthy, ready to take tasks) or down. 1 for up, 0 for down
+# TYPE sonarqube_heath_compute_engine_status gauge
+sonarqube_heath_compute_engine_status 1.0
