@@ -73,17 +73,6 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     // specify an alternative path for JVM fatal error logs (ES 6.6.1 default is "logs/hs_err_pid%p.log")
     res.put("-XX:ErrorFile=", "../logs/es_hs_err_pid%p.log");
 
-    // JDK 8 GC logging (by default ES 6.6.1 enables them, we don't want to do that in SQ, no one will analyze them anyway)
-    // res.put("8:-XX:+PrintGCDetails", "");
-    // res.put("8:-XX:+PrintGCDateStamps", "");
-    // res.put("8:-XX:+PrintTenuringDistribution", "");
-    // res.put("8:-XX:+PrintGCApplicationStoppedTime", "");
-    // res.put("8:-Xloggc:logs/gc.log", "");
-    // res.put("8:-XX:+UseGCLogFileRotation", "");
-    // res.put("8:-XX:NumberOfGCLogFiles", "32");
-    // res.put("8:-XX:GCLogFileSize", "64m");
-    // JDK 9+ GC logging
-    // res.put("9-:-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m", "");
   }
 
   /**
@@ -123,6 +112,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     // log4j 2
     res.put("-Dlog4j.shutdownHookEnabled=", "false");
     res.put("-Dlog4j2.disable.jmx=", "true");
+    res.put("-Dlog4j2.formatMsgNoLookups=", "true");
     /*
      * Due to internationalization enhancements in JDK 9 Elasticsearch need to set the provider to COMPAT otherwise time/date
      * parsing will break in an incompatible way for some date patterns and locales.

@@ -305,10 +305,10 @@ subprojects {
         exclude 'commons-logging:commons-logging'
       }
       // Be aware that Log4j is used by Elasticsearch client
-      dependencySet(group: 'org.apache.logging.log4j', version: '2.8.2') {
+      dependencySet(group: 'org.apache.logging.log4j', version: '2.15.0') {
+        entry 'log4j-core'
         entry 'log4j-api'
         entry 'log4j-to-slf4j'
-        entry 'log4j-core'
       }
       dependencySet(group: 'org.apache.tomcat.embed', version: '8.5.68') {
         entry 'tomcat-embed-core'
@@ -339,7 +339,7 @@ subprojects {
         entry 'jetty-servlet'
       }
       dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.13.4') {
-        exclude 'commons-logging:commons-logging'
+        exclude 'org.apache.logging.log4j:log4j-core'
       }
       dependency 'org.elasticsearch.plugin:transport-netty4-client:7.13.4'
       dependency 'org.elasticsearch:mocksocket:1.0'

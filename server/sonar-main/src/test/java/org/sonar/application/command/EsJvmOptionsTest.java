@@ -49,7 +49,7 @@ public class EsJvmOptionsTest {
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
     assertThat(underTest.getAll())
-      .containsExactly(
+      .containsExactlyInAnyOrder(
         "-XX:+UseConcMarkSweepGC",
         "-XX:CMSInitiatingOccupancyFraction=75",
         "-XX:+UseCMSInitiatingOccupancyOnly",
@@ -69,6 +69,7 @@ public class EsJvmOptionsTest {
         "-Dio.netty.allocator.numDirectArenas=0",
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
+        "-Dlog4j2.formatMsgNoLookups=true",
         "-Djava.locale.providers=COMPAT",
         "-Des.enforce.bootstrap.checks=true");
   }
@@ -152,6 +153,7 @@ public class EsJvmOptionsTest {
         "-Dio.netty.allocator.numDirectArenas=0\n" +
         "-Dlog4j.shutdownHookEnabled=false\n" +
         "-Dlog4j2.disable.jmx=true\n" +
+        "-Dlog4j2.formatMsgNoLookups=true\n" +
         "-Djava.locale.providers=COMPAT\n" +
         "-Des.enforce.bootstrap.checks=true\n" +
         "-foo\n" +
