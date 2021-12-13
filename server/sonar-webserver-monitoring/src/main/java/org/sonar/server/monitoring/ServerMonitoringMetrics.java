@@ -38,6 +38,10 @@ public class ServerMonitoringMetrics {
   private final Gauge cePendingTasksTotal;
   private final Summary ceTasksRunningDuration;
 
+  private final Gauge licenseDaysBeforeExpiration;
+  private final Gauge linesOfCodeRemaining;
+  private final Gauge linesOfCodeAnalyzed;
+
   public ServerMonitoringMetrics() {
     githubHealthIntegrationStatus = Gauge.build()
       .name("sonarqube_health_integration_github_status")
@@ -80,6 +84,20 @@ public class ServerMonitoringMetrics {
       .help("Tells whether Elasticsearch is up or down. 1 for Up, 0 for down")
       .register();
 
+    licenseDaysBeforeExpiration = Gauge.build()
+      .name("sonarqube_license_days_before_expiration_total")
+      .help("Days until the SonarQube license will expire.")
+      .register();
+
+    linesOfCodeRemaining = Gauge.build()
+      .name("sonarqube_license_number_of_lines_remaining_total")
+      .help("Number of lines remaining until the limit for the current license is hit.")
+      .register();
+
+    linesOfCodeAnalyzed = Gauge.build()
+      .name("sonarqube_license_number_of_lines_analyzed_total")
+      .help("Number of lines analyzed.")
+      .register();
   }
 
   public void setGithubStatusToGreen() {
@@ -136,5 +154,17 @@ public class ServerMonitoringMetrics {
 
   public void setElasticSearchStatusToRed() {
     elasticsearchGauge.set(DOWN_STATUS);
+  }
+
+  public void setLicenseDayUntilExpire(long days) {
+    licenseDaysBeforeExpiration.set(days);
+  }
+
+  public void setLinesOfCodeRemaining(long loc) {
+    linesOfCodeRemaining.set(loc);
+  }
+
+  public void setLinesOfCodeAnalyzed(long loc) {
+    linesOfCodeAnalyzed.set(loc);
   }
 }

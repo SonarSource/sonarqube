@@ -94,6 +94,22 @@ public class ServerMonitoringMetricsTest {
   }
 
   @Test
+  public void setters_setLicenseRelatedMetrics() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+
+    metrics.setLicenseDayUntilExpire(10);
+    metrics.setLinesOfCodeRemaining(20);
+    metrics.setLinesOfCodeAnalyzed(30);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_license_days_before_expiration_total"))
+      .isEqualTo(10);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_license_number_of_lines_remaining_total"))
+      .isEqualTo(20);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_license_number_of_lines_analyzed_total"))
+      .isEqualTo(30);
+  }
+
+  @Test
   public void observeComputeEngineTaskDurationTest() {
     ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
     String[] labelNames = {"task_type", "project_key"};
