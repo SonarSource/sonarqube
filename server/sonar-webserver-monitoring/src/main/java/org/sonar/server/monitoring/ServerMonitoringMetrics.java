@@ -44,6 +44,8 @@ public class ServerMonitoringMetrics {
   private final Gauge linesOfCodeRemaining;
   private final Gauge linesOfCodeAnalyzed;
 
+  private final Gauge webUptimeMinutes;
+
   public ServerMonitoringMetrics() {
     githubHealthIntegrationStatus = Gauge.build()
       .name("sonarqube_health_integration_github_status")
@@ -112,6 +114,12 @@ public class ServerMonitoringMetrics {
       .help("Total disk space on the device")
       .labelNames("node_name")
       .register();
+
+    webUptimeMinutes = Gauge.build()
+      .name("sonarqube_web_uptime_minutes")
+      .help("Number of minutes for how long the SonarQube instance is running")
+      .register();
+
   }
 
   public void setGithubStatusToGreen() {
@@ -186,7 +194,11 @@ public class ServerMonitoringMetrics {
     elasticsearchDiskSpaceFreeBytesGauge.labels(name).set(diskAvailableBytes);
   }
 
-  public void setElasticSearchDiskSpaceTotalBytes(String name, long disktotalBytes) {
-    elasticSearchDiskSpaceTotalBytes.labels(name).set(disktotalBytes);
+  public void setElasticSearchDiskSpaceTotalBytes(String name, long diskTotalBytes) {
+    elasticSearchDiskSpaceTotalBytes.labels(name).set(diskTotalBytes);
+  }
+
+  public void setWebUptimeMinutes(long minutes) {
+    webUptimeMinutes.set(minutes);
   }
 }

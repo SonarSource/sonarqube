@@ -110,6 +110,16 @@ public class ServerMonitoringMetricsTest {
   }
 
   @Test
+  public void setters_setWebUptimeMetric() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+
+    metrics.setWebUptimeMinutes(10);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_web_uptime_minutes"))
+      .isEqualTo(10);
+  }
+
+  @Test
   public void observeComputeEngineTaskDurationTest() {
     ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
     String[] labelNames = {"task_type", "project_key"};
