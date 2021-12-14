@@ -79,12 +79,12 @@ public class ServerMonitoringMetrics {
       .register();
 
     computeEngineGauge = Gauge.build()
-      .name("sonarqube_heath_compute_engine_status")
+      .name("sonarqube_health_compute_engine_status")
       .help("Tells whether Compute Engine is up (healthy, ready to take tasks) or down. 1 for up, 0 for down")
       .register();
 
     elasticsearchGauge = Gauge.build()
-      .name("sonarqube_heath_elasticsearch_status")
+      .name("sonarqube_health_elasticsearch_status")
       .help("Tells whether Elasticsearch is up or down. 1 for Up, 0 for down")
       .register();
 

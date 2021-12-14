@@ -60,8 +60,8 @@ public class ServerMonitoringMetricsTest {
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_gitlab_status")).isPositive();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_bitbucket_status")).isPositive();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_azuredevops_status")).isPositive();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isPositive();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isPositive();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_compute_engine_status")).isPositive();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_elasticsearch_status")).isPositive();
   }
 
   @Test
@@ -79,8 +79,8 @@ public class ServerMonitoringMetricsTest {
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_gitlab_status")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_bitbucket_status")).isZero();
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_integration_azuredevops_status")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_compute_engine_status")).isZero();
-    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_heath_elasticsearch_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_compute_engine_status")).isZero();
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_health_elasticsearch_status")).isZero();
   }
 
   @Test
@@ -117,6 +117,23 @@ public class ServerMonitoringMetricsTest {
 
     assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_web_uptime_minutes"))
       .isEqualTo(10);
+  }
+
+  @Test
+  public void setters_setElasticsearchMetricsWithLabels() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+    String[] labelNames = {"node_name"};
+    String[] labelValues = {"node_1"};
+
+    metrics.setElasticSearchDiskSpaceFreeBytes(labelValues[0], 30);
+    metrics.setElasticSearchDiskSpaceTotalBytes(labelValues[0], 30);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_elasticsearch_disk_space_total_bytes",
+      labelNames, labelValues))
+      .isEqualTo(30);
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_elasticsearch_disk_space_free_bytes",
+      labelNames, labelValues))
+      .isEqualTo(30);
   }
 
   @Test
