@@ -185,6 +185,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
     exclude '**/modules/transform/**'
     exclude '**/modules/unsigned-long/**'
     exclude '**/modules/vectors/**'
+    exclude '**/modules/vector-tile/**'
     exclude '**/modules/wildcard/**'
     exclude '**/modules/x-pack-*/**'
     includeEmptyDirs = false

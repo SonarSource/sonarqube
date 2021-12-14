@@ -44,7 +44,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
   private static Map<String, String> mandatoryOptions(File tmpDir, Props props) {
     Map<String, String> res = new LinkedHashMap<>(30);
     fromJvmDotOptionsFile(tmpDir, res);
-    fromSystemJvmOptionsClass(res);
+    fromSystemJvmOptionsClass(tmpDir, res);
 
     if (!props.value("sonar.jdbc.url", "").contains("jdbc:h2") && !props.valueAsBoolean("sonar.es.bootstrap.checks.disable")) {
       res.put("-Des.enforce.bootstrap.checks=", "true");
@@ -76,7 +76,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
   /**
    * JVM options from class "org.elasticsearch.tools.launchers.SystemJvmOptions"
    */
-  private static void fromSystemJvmOptionsClass(Map<String, String> res) {
+  private static void fromSystemJvmOptionsClass(File tmpDir, Map<String, String> res) {
     /*
      * Cache ttl in seconds for positive DNS lookups noting that this overrides the JDK security property networkaddress.cache.ttl;
      * can be set to -1 to cache forever.
@@ -97,6 +97,7 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     res.put("-Dfile.encoding=", "UTF-8");
     // use our provided JNA always versus the system one
     res.put("-Djna.nosys=", "true");
+    res.put("-Djna.tmpdir=", tmpDir.getAbsolutePath());
     /*
      * Turn off a JDK optimization that throws away stack traces for common exceptions because stack traces are important for
      * debugging.
