@@ -19,6 +19,7 @@
  */
 import { FormattedMessage } from 'react-intl';
 import NotFound from '../../../app/components/NotFound';
+import DonutChart from '../../../components/charts/DonutChart';
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import {
@@ -193,6 +194,7 @@ const exposeLibraries = () => {
         DateTimeFormatter,
         DeferredSpinner,
         DetachIcon,
+        DonutChart,
         Dropdown,
         DropdownIcon,
         DuplicationsRating,

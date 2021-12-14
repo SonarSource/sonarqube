@@ -269,11 +269,10 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
           this.setState({ visible: false });
         }
+        if (this.props.onHide && !this.mouseIn) {
+          this.props.onHide();
+        }
       }, (this.props.mouseLeaveDelay || 0) * 1000);
-
-      if (this.props.onHide) {
-        this.props.onHide();
-      }
     }
   };
 
