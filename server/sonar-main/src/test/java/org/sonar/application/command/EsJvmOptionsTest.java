@@ -60,6 +60,7 @@ public class EsJvmOptionsTest {
         "-Djava.awt.headless=true",
         "-Dfile.encoding=UTF-8",
         "-Djna.nosys=true",
+        "-Djna.tmpdir=" + tmpDir.getAbsolutePath(),
         "-XX:-OmitStackTraceInFastThrow",
         "-Dio.netty.noUnsafe=true",
         "-Dio.netty.noKeySetOptimization=true",
@@ -143,6 +144,7 @@ public class EsJvmOptionsTest {
         "-Djava.awt.headless=true\n" +
         "-Dfile.encoding=UTF-8\n" +
         "-Djna.nosys=true\n" +
+        "-Djna.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
         "-XX:-OmitStackTraceInFastThrow\n" +
         "-Dio.netty.noUnsafe=true\n" +
         "-Dio.netty.noKeySetOptimization=true\n" +

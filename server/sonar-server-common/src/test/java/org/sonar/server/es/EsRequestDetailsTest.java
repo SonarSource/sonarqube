@@ -50,7 +50,7 @@ public class EsRequestDetailsTest {
           + " ignore_throttled=true], types=[type], routing='null', preference='null', requestCache=null,"
           + " scroll=null, maxConcurrentShardRequests=0, batchedReduceSize=512, preFilterShardSize=null,"
           + " allowPartialSearchResults=null, localClusterAlias=null, getOrCreateAbsoluteStartMillis=-1,"
-          + " ccsMinimizeRoundtrips=true, source={}}' on indices '[index]' on types '[type]'");
+          + " ccsMinimizeRoundtrips=true, enableFieldsEmulation=false, source={}}' on indices '[index]' on types '[type]'");
   }
 
   @Test
