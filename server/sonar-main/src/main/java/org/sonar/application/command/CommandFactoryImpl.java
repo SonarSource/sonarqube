@@ -34,6 +34,7 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
+import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
@@ -53,7 +54,6 @@ import static org.sonar.process.ProcessProperties.Property.SOCKS_PROXY_PORT;
 import static org.sonar.process.ProcessProperties.Property.WEB_GRACEFUL_STOP_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.WEB_JAVA_OPTS;
-import static org.sonar.process.ProcessProperties.parseTimeoutMs;
 
 public class CommandFactoryImpl implements CommandFactory {
   private static final String ENV_VAR_JAVA_TOOL_OPTIONS = "JAVA_TOOL_OPTIONS";
@@ -112,6 +112,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEnvVariable("ES_PATH_CONF", esInstallation.getConfDirectory().getAbsolutePath())
       .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
       .setEnvVariable("ES_JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .setEnvVariable("LIBFFI_TMPDIR", this.tempDir.getAbsolutePath())
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS)
       .suppressEnvVariable(ENV_VAR_ES_JAVA_OPTS);
   }
