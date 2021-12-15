@@ -20,6 +20,8 @@
 package org.sonar.server.ws;
 
 public class KeyExamples {
+  public static final String KEY_APPLICATION_EXAMPLE_001 = "my_app";
+
   public static final String KEY_FILE_EXAMPLE_001 = "my_project:/src/foo/Bar.php";
   public static final String KEY_FILE_EXAMPLE_002 = "another_project:/src/foo/Foo.php";
   public static final String KEY_PROJECT_EXAMPLE_001 = "my_project";

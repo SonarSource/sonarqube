@@ -365,7 +365,7 @@ public class ComponentDbTester {
   }
 
   public void addPortfolioApplicationBranch(String portfolioUuid, String applicationUuid, String branchUuid) {
-    dbClient.portfolioDao().addReference(db.getSession(), portfolioUuid, applicationUuid, branchUuid);
+    dbClient.portfolioDao().addReferenceBranch(db.getSession(), portfolioUuid, applicationUuid, branchUuid);
     db.commit();
   }
 

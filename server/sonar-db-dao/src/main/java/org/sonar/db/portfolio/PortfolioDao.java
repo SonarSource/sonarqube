@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -125,7 +124,7 @@ public class PortfolioDao implements Dao {
   /*
    * Portfolio references
    */
-  public void addReference(DbSession dbSession, String portfolioUuid, String referenceUuid, @Nullable String branchUuid) {
+  public void addReferenceBranch(DbSession dbSession, String portfolioUuid, String referenceUuid, String branchUuid) {
     mapper(dbSession).insertReference(uuidFactory.create(), portfolioUuid, referenceUuid, branchUuid, system2.now());
   }
 
@@ -167,6 +166,10 @@ public class PortfolioDao implements Dao {
 
   public void deleteAllReferences(DbSession dbSession) {
     mapper(dbSession).deleteAllReferences();
+  }
+
+  public int deleteReferenceBranch(DbSession dbSession, String portfolioUuid, String referenceUuid, String branchUuid) {
+    return mapper(dbSession).deleteReferenceBranch(portfolioUuid, referenceUuid, branchUuid);
   }
 
   public int deleteReference(DbSession dbSession, String portfolioUuid, String referenceUuid) {

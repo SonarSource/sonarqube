@@ -44,7 +44,7 @@ public interface PortfolioMapper {
   void deleteReferencesByPortfolioOrReferenceUuids(@Param("uuids") Set<String> uuids);
 
   void insertReference(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid,
-    @Nullable @Param("branchUuid") String branchUuid, @Param("createdAt") long createdAt);
+                       @Nullable @Param("branchUuid") String branchUuid, @Param("createdAt") long createdAt);
 
   void insertProject(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("createdAt") long createdAt);
 
@@ -104,4 +104,6 @@ public interface PortfolioMapper {
                     @Param("createdAt") long createdAt);
 
   List<ProjectDto> selectAllDirectChildApplications(@Param("portfolioUuid") String portfolioUuid);
+
+  int deleteReferenceBranch(@Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid, @Param("branchUuid") String branchUuid);
 }

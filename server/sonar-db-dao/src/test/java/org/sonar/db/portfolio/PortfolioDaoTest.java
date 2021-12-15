@@ -244,7 +244,7 @@ public class PortfolioDaoTest {
 
     portfolioDao.addReference(session, "portfolio1", "portfolio2");
     portfolioDao.addReference(session, "portfolio2", "portfolio3");
-    portfolioDao.addReference(session, "portfolio3", app1.getUuid(), "branch1");
+    portfolioDao.addReferenceBranch(session, "portfolio3", app1.getUuid(), "branch1");
     portfolioDao.addReference(session, "portfolio2", app1.getUuid());
 
     assertThat(portfolioDao.selectAllReferencesToApplications(session))
@@ -479,6 +479,31 @@ public class PortfolioDaoTest {
     assertThat(portfolioDao.selectAllReferencesToPortfolios(session))
       .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid)
       .containsOnly(tuple("portfolio2", "portfolio3"));
+  }
+
+  @Test
+  public void deleteReferenceBranch() {
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
+    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app").setName("app"));
+    BranchDto branch1 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
+    BranchDto branch2 = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
+
+    db.components().addPortfolioReference(portfolio, app.getUuid());
+    db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch1.getUuid());
+    db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch2.getUuid());
+
+    assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app.getKey()))
+      .isPresent()
+      .map(ReferenceDto::getBranchUuids)
+      .contains(Set.of(branch1.getUuid(), branch2.getUuid()));
+
+    portfolioDao.deleteReferenceBranch(db.getSession(), portfolio.getUuid(), app.getUuid(), branch1.getUuid());
+
+    assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app.getKey()))
+      .isPresent()
+      .map(ReferenceDto::getBranchUuids)
+      .contains(Set.of(branch2.getUuid()));
+
   }
 
   @Test

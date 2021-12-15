@@ -233,6 +233,13 @@
     AND reference_uuid = #{referenceUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteReferenceBranch">
+    DELETE FROM portfolio_references
+    WHERE portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
+    AND reference_uuid = #{referenceUuid,jdbcType=VARCHAR}
+    AND branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+
   <select id="selectReferenceToApplication" resultMap="referenceResult">
     SELECT
     <include refid="appReferenceColumns"/>
