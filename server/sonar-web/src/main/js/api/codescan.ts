@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from 'sonar-ui-common/helpers/request';
+import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from "../app/utils/throwGlobalError";
 
 export function getNotificationsForOrganization(key: string) {
@@ -53,3 +53,15 @@ export function deleteOrganization(organizationId: string): Promise<void> {
   return post('/_codescan/integrations/organizations/delete', { organizationId })
     .catch(throwGlobalError);
 }
+
+export function getApiKeyForZoho(data: {
+  operation: string;
+  email?: string;
+  loginName: string;
+  fullName: string;
+  utype: string;
+}): Promise<string> {
+  return postJSON('/_codescan/zoho/apiKey', data)
+    .catch(throwGlobalError);
+}
+

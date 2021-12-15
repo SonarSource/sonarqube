@@ -27,16 +27,30 @@ import ProductNewsMenuItem from './ProductNewsMenuItem';
 import { SuggestionsContext } from './SuggestionsContext';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { connect } from 'react-redux';
+import { getApiKeyForZoho } from '../../../api/codescan';
 
 interface Props {
   onClose: () => void;
+  currentUser: T.LoggedInUser;
 }
 
-type State = { reseting: boolean };
+type State = {
+  reseting: boolean;
+  zohoUrl: string;
+}
 
-export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
+export class EmbedDocsPopup extends React.PureComponent<Props, State> {
 
-  state: State = { reseting: false };
+  state: State = {
+    reseting: false,
+    zohoUrl: ''
+  };
+
+  componentDidMount() {
+    this.getZohoDeskUrl();
+  }
 
   handleClosePopup = () => {
     this.setState({ reseting: false });
@@ -97,13 +111,30 @@ export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
     );
   }
 
+  getZohoDeskUrl() {
+    const { currentUser } = this.props;
+    const payLoad = {
+      "operation": "signup",
+      "email": currentUser.email,
+      "loginName": "support.autorabit",
+      "fullName": currentUser.name,
+      "utype": "portal",
+    }
+
+    // get zohoApiKey
+    return getApiKeyForZoho(payLoad).then((response: any) => {
+      const zohoUrl = `https://support.autorabit.com/support/RemoteAuth?operation=${payLoad.operation}&email=${payLoad.email}&fullname=${payLoad.fullName}&loginname=${payLoad.loginName}&utype=${payLoad.utype}&ts=${response.ts}&apikey=${response.apiKey}`;
+      this.setState({ zohoUrl: zohoUrl });
+    })
+  }
+
   renderSonarCloudLinks() {
     return (
       <>
         <li className="divider" />
         <li>
           <a
-            href="https://www.codescan.io/cloud/contact/"
+            href={this.state.zohoUrl}
             rel="noopener noreferrer"
             target="_blank">
             {translate('embed_docs.get_help')}
@@ -147,7 +178,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
       <>
         <li className="divider" />
         <li>
-          <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
+          <a href={this.state.zohoUrl} rel="noopener noreferrer" target="_blank">
             {translate('embed_docs.get_help')}
           </a>
         </li>
@@ -202,3 +233,11 @@ export default class EmbedDocsPopup extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: Store) => {
+  return {
+    currentUser: getCurrentUser(state) as T.LoggedInUser
+  };
+};
+
+export default connect(mapStateToProps)(EmbedDocsPopup);
