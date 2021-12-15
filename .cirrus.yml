@@ -110,6 +110,8 @@ build_task:
     ORG_GRADLE_PROJECT_signingKey: ENCRYPTED[!cc216dfe592f79db8006f2a591f8f98b40aa2b078e92025623594976fd32f6864c1e6b6ba74b50647f608e2418e6c336!]
     ORG_GRADLE_PROJECT_signingPassword: ENCRYPTED[!314a8fc344f45e462dd5e8dccd741d7562283a825e78ebca27d4ae9db8e65ce618e7f6aece386b2782a5abe5171467bd!]
     ORG_GRADLE_PROJECT_signingKeyId: 0x7DCD4258
+  elasticsearch_distribution_cache:
+    folder: sonar-application/build/elasticsearch-**.tar.gz
   script:
     - ./private/cirrus/cirrus-build.sh
   on_failure:
