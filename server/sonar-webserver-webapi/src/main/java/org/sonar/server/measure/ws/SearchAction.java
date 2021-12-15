@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -41,6 +42,7 @@ import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.Measures.SearchWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -76,12 +78,14 @@ public class SearchAction implements MeasuresWsAction {
     WebService.NewAction action = context.createAction("search")
       .setInternal(true)
       .setDescription("Search for project measures ordered by project names.<br>" +
-        "At most %d projects can be provided.<br>" +
-        "Returns the projects with the 'Browse' permission.",
+          "At most %d projects can be provided.<br>" +
+          "Returns the projects with the 'Browse' permission.",
         MAX_NB_PROJECTS)
       .setSince("6.2")
       .setResponseExample(getClass().getResource("search-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
+        MeasuresWsModule.getDeprecatedMetrics())));
 
     createMetricKeysParameter(action);
 
@@ -244,7 +248,7 @@ public class SearchAction implements MeasuresWsAction {
       checkArgument(projectKeys != null && !projectKeys.isEmpty(), "Project keys must be provided");
       int nbComponents = projectKeys.size();
       checkArgument(nbComponents <= MAX_NB_PROJECTS,
-              "%s projects provided, more than maximum authorized (%s)", nbComponents, MAX_NB_PROJECTS);
+        "%s projects provided, more than maximum authorized (%s)", nbComponents, MAX_NB_PROJECTS);
       return new SearchAction.SearchRequest(this);
     }
   }

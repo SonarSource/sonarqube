@@ -92,7 +92,10 @@ public class SearchHistoryAction implements MeasuresWsAction {
         "For applications, it also requires 'Browse' permission on its child projects.")
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
-      .setChangelog(new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
+      .setChangelog(
+        new Change("9.3", format("The use of the following metrics in 'metrics' parameter is deprecated: %s",
+          MeasuresWsModule.getDeprecatedMetrics())),
+        new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT)

@@ -106,8 +106,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -179,6 +179,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
+          MeasuresWsModule.getDeprecatedMetrics())),
         new Change("8.8", "parameter 'component' is now required"),
         new Change("8.8", "deprecated parameter 'baseComponentId' has been removed"),
         new Change("8.8", "deprecated parameter 'baseComponentKey' has been removed."),
@@ -272,7 +274,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       request,
       data,
       Paging.forPageIndex(
-        request.getPage())
+          request.getPage())
         .withPageSize(request.getPageSize())
         .andTotal(data.getComponentCount()));
   }

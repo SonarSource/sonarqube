@@ -96,6 +96,8 @@ public class ComponentAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
+          MeasuresWsModule.getDeprecatedMetrics())),
         new Change("8.8", "deprecated response field 'id' has been removed"),
         new Change("8.8", "deprecated response field 'refId' has been removed."),
         new Change("8.1", "the response field periods under measures field is deprecated. Use period instead."),
@@ -239,7 +241,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent,
-                                                   Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
+    Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
 
     if (refComponent.isPresent()) {

@@ -60,7 +60,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
 
