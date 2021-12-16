@@ -217,7 +217,7 @@ Monitoring through this endpoint requires authentication. You can access the end
 - **`X-Sonar-Passcode: xxxxx` header:** You can use `X-Sonar-passcode` during database upgrade and when SonarQube is fully operational. Define `X-Sonar-passcode` in the `sonar.properties` file using the `sonar.web.systemPasscode property`.
 - **username:password and JWT token:** When SonarQube is fully operational, system admins logged in with local or delegated authentication can access the endpoint. 
 
-####**JMX Exporter**
+#### **JMX Exporter**
 You can also expose the JMX metrics to Prometheus using the Prometheus JMX exporter.
 
 To use this option, set the following values in your `values.yaml` file:

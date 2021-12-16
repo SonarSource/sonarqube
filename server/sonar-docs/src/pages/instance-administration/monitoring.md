@@ -132,3 +132,6 @@ admin  adminpassword
 ```
 
 Note: on `jmxremote.password`, you should apply `chmod 600` or `400` for security reasons.
+
+## Kubernetes Monitoring
+You can monitor your SonarQube instance using SonarQube's native integration with Prometheus. For more information see the **Monitoring** section of the [Deploy SonarQube on Kubernetes](/setup/sonarqube-on-kubernetes/) page if you're using Community, Developer, or Enterprise Edition. See the [Deploy a SonarQube Cluster on Kubernetes](/setup/sonarqube-cluster-on-kubernetes/) if you're using Data Center Edition.
