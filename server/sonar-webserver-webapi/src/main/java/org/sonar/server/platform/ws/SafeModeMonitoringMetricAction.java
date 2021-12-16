@@ -37,7 +37,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SafeModeMonitoringMetricAction implements MonitoringWsAction {
 
-  protected static final Gauge isWebUpGauge = Gauge.build().name("sonarqube_heath_web_status")
+  protected static final Gauge isWebUpGauge = Gauge.build().name("sonarqube_health_web_status")
     .help("Tells whether Web process is up or down. 1 for up, 0 for down").register();
 
   private final SystemPasscode systemPasscode;
