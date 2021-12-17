@@ -41,6 +41,8 @@ Willing to contribute to SonarSource products? We are looking for smart, passion
 Building
 --------
 
+Run in cloud without installation [![TeamCode try-it-now](https://static01.teamcode.com/badge/demo.svg)](https://www.teamcode.com/tin/clone?applicationId=270968602867703808)
+
 To build sources locally follow these instructions.
 
 ### Build and Run Unit Tests
