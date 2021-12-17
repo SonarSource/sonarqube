@@ -153,39 +153,54 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
     }
     // elasticsearch script will be replaced by patched version below
     exclude '**/bin/elasticsearch'
+    exclude '**/bin/elasticsearch-certgen'
+    exclude '**/bin/elasticsearch-certutil'
     exclude '**/bin/elasticsearch-cli'
+    exclude '**/bin/elasticsearch-croneval'
+    exclude '**/bin/elasticsearch-geoip'
     exclude '**/bin/elasticsearch-keystore'
+    exclude '**/bin/elasticsearch-migrate'
     exclude '**/bin/elasticsearch-node'
+    exclude '**/bin/elasticsearch-plugin'
+    exclude '**/bin/elasticsearch-saml-metadata'
+    exclude '**/bin/elasticsearch-service-tokens'
+    exclude '**/bin/elasticsearch-setup-passwords'
     exclude '**/bin/elasticsearch-shard'
+    exclude '**/bin/elasticsearch-sql-cli*'
+    exclude '**/bin/elasticsearch-syskeygen'
+    exclude '**/bin/elasticsearch-users'
+    exclude '**/bin/x-pack-env'
+    exclude '**/bin/x-pack-security-env'
+    exclude '**/bin/x-pack-watcher-env'
     exclude '**/jdk/**'
     exclude '**/lib/tools/**'
     exclude '**/modules/aggs-matrix-stats/**'
-    exclude '**/modules/geo/**'
+    exclude '**/modules/constant-keyword/**'
+    exclude '**/modules/frozen-indices/**'
     exclude '**/modules/ingest-common/**'
     exclude '**/modules/ingest-geoip/**'
     exclude '**/modules/ingest-user-agent/**'
     exclude '**/modules/kibana/**'
     exclude '**/modules/lang-expression/**'
     exclude '**/modules/lang-mustache/**'
+    exclude '**/modules/legacy-geo/**'
     exclude '**/modules/mapper-extras/**'
+    exclude '**/modules/mapper-version/**'
+    exclude '**/modules/percolator/**'
     exclude '**/modules/rank-eval/**'
     exclude '**/modules/reindex/**'
-    exclude '**/modules/repository-url/**'
-    exclude '**/modules/tasks/**'
-    exclude '**/modules/constant-keyword/**'
-    exclude '**/modules/flattened/**'
-    exclude '**/modules/frozen-indices/**'
-    exclude '**/modules/mapper-version/**'
     exclude '**/modules/repositories-metering-api/**'
     exclude '**/modules/repository-encrypted/**'
+    exclude '**/modules/repository-url/**'
+    exclude '**/modules/runtime-fields-common/**'
     exclude '**/modules/search-business-rules/**'
     exclude '**/modules/searchable-snapshots/**'
     exclude '**/modules/snapshot-repo-test-kit/**'
     exclude '**/modules/spatial/**'
     exclude '**/modules/transform/**'
     exclude '**/modules/unsigned-long/**'
-    exclude '**/modules/vectors/**'
     exclude '**/modules/vector-tile/**'
+    exclude '**/modules/vectors/**'
     exclude '**/modules/wildcard/**'
     exclude '**/modules/x-pack-*/**'
     includeEmptyDirs = false
@@ -264,8 +279,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 300000000
-  def maxLength = 315000000
+  def minLength = 270000000
+  def maxLength = 285000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
