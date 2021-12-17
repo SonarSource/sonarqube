@@ -321,8 +321,7 @@ subprojects {
         exclude 'org.codehaus.mojo:animal-sniffer-annotations'
       }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
-      // Do not upgrade H2 to 1.4.200 because of instability: https://github.com/h2database/h2database/issues/2205
-      dependency 'com.h2database:h2:1.4.199'
+      dependency 'com.h2database:h2:2.1.210'
       dependencySet(group: 'com.hazelcast', version: '4.2.2') {
         entry 'hazelcast'
       }

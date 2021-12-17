@@ -31,16 +31,16 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 public class DbSectionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSection underTest = new DbSection(dbTester.getDbClient());
+  private final DbSection underTest = new DbSection(dbTester.getDbClient());
 
   @Test
   public void db_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     SystemInfoTesting.assertThatAttributeIs(section, "Database", "H2");
-    assertThat(attribute(section, "Database Version").getStringValue()).startsWith("1.");
+    assertThat(attribute(section, "Database Version").getStringValue()).startsWith("2.");
     SystemInfoTesting.assertThatAttributeIs(section, "Username", "SONAR");
-    assertThat(attribute(section, "Driver Version").getStringValue()).startsWith("1.");
+    assertThat(attribute(section, "Driver Version").getStringValue()).startsWith("2.");
   }
 }

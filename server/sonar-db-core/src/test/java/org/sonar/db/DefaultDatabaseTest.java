@@ -48,9 +48,9 @@ public class DefaultDatabaseTest {
     db.initSettings();
 
     Properties props = db.getProperties();
-    assertThat(props.getProperty("sonar.jdbc.url")).isEqualTo("jdbc:h2:tcp://localhost/sonar");
+    assertThat(props.getProperty("sonar.jdbc.url")).isEqualTo("jdbc:h2:tcp://localhost/sonar;NON_KEYWORDS=VALUE");
     assertThat(props.getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.h2.Driver");
-    assertThat(db).hasToString("Database[jdbc:h2:tcp://localhost/sonar]");
+    assertThat(db).hasToString("Database[jdbc:h2:tcp://localhost/sonar;NON_KEYWORDS=VALUE]");
   }
 
   @Test
@@ -113,7 +113,7 @@ public class DefaultDatabaseTest {
   @Test
   public void shouldStart() {
     MapSettings settings = new MapSettings();
-    settings.setProperty("sonar.jdbc.url", "jdbc:h2:mem:sonar");
+    settings.setProperty("sonar.jdbc.url", "jdbc:h2:mem:sonar;NON_KEYWORDS=VALUE");
     settings.setProperty("sonar.jdbc.driverClassName", "org.h2.Driver");
     settings.setProperty("sonar.jdbc.username", "sonar");
     settings.setProperty("sonar.jdbc.password", "sonar");

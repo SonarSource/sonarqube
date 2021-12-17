@@ -43,7 +43,7 @@ public class CreateTableAsBuilder {
   private final Dialect dialect;
   private final String tableName;
   private final String fromTableName;
-  private List<Column> columns = new ArrayList<>();
+  private final List<Column> columns = new ArrayList<>();
 
   public CreateTableAsBuilder(Dialect dialect, String tableName, String fromTableName) {
     this.dialect = requireNonNull(dialect, "dialect can't be null");
@@ -99,8 +99,8 @@ public class CreateTableAsBuilder {
   }
 
   private static class Column {
-    private ColumnDef columnDef;
-    private String castFrom;
+    private final ColumnDef columnDef;
+    private final String castFrom;
 
     public Column(ColumnDef columnDef, @Nullable String castFrom) {
       this.columnDef = columnDef;

@@ -56,7 +56,7 @@ public class JdbcSettingsTest {
 
     assertThat(underTest.resolveProviderAndEnforceNonnullJdbcUrl(props))
       .isEqualTo(Provider.H2);
-    assertThat(props.nonNullValue(JDBC_URL.getKey())).isEqualTo(String.format("jdbc:h2:tcp://%s:9092/sonar", InetAddress.getLoopbackAddress().getHostAddress()));
+    assertThat(props.nonNullValue(JDBC_URL.getKey())).isEqualTo(String.format("jdbc:h2:tcp://%s:9092/sonar;NON_KEYWORDS=VALUE", InetAddress.getLoopbackAddress().getHostAddress()));
   }
 
   @Test

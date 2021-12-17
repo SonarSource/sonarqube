@@ -43,7 +43,7 @@ import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class JdbcSettings implements Consumer<Props> {
-
+  private static final String IGNORED_KEYWORDS_OPTION = ";NON_KEYWORDS=VALUE";
   private static final int JDBC_EMBEDDED_PORT_DEFAULT_VALUE = 9092;
 
   enum Provider {
@@ -119,7 +119,7 @@ public class JdbcSettings implements Consumer<Props> {
     } else {
       host = ip.getHostAddress();
     }
-    return format("jdbc:h2:tcp://%s:%d/sonar", host, embeddedDatabasePort);
+    return format("jdbc:h2:tcp://%s:%d/sonar%s", host, embeddedDatabasePort, IGNORED_KEYWORDS_OPTION);
   }
 
   private static void warnIfUrlIsSet(int port, String existing, String expectedUrl) {

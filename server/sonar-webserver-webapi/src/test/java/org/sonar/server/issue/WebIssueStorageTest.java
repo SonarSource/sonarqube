@@ -199,7 +199,7 @@ public class WebIssueStorageTest {
       .containsEntry("COMPONENT_UUID", issue.componentUuid())
       .containsEntry("EFFORT", updated.effortInMinutes())
       .containsEntry("ISSUE_ATTRIBUTES", "fox=bax")
-      .containsEntry("ISSUE_TYPE", 3)
+      .containsEntry("ISSUE_TYPE", 3L)
       .containsEntry("KEE", issue.key())
       .containsEntry("LINE", (long) updated.line())
       .containsEntry("PROJECT_UUID", updated.projectUuid())

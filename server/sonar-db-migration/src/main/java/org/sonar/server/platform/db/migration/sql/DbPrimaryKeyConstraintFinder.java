@@ -109,7 +109,7 @@ public class DbPrimaryKeyConstraintFinder {
 
   private static String getH2ConstraintQuery(String tableName) {
     return format("SELECT constraint_name "
-      + "FROM information_schema.constraints "
+      + "FROM information_schema.table_constraints "
       + "WHERE table_name = '%s' and constraint_type = 'PRIMARY KEY'", tableName.toUpperCase(Locale.ENGLISH));
   }
 

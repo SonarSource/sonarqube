@@ -49,10 +49,10 @@ import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
  * @since 2.12
  */
 public class DefaultDatabase implements Database {
-
+  private static final String IGNORED_KEYWORDS_OPTION = ";NON_KEYWORDS=VALUE";
   private static final Logger LOG = Loggers.get(Database.class);
 
-  private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
+  private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar" + IGNORED_KEYWORDS_OPTION;
   private static final String SONAR_JDBC = "sonar.jdbc.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_DRIVER = "sonar.jdbc.driverClassName";

@@ -56,6 +56,7 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 import static com.google.common.base.Preconditions.checkState;
 
 public class SQDatabase extends DefaultDatabase {
+  private static final String IGNORED_KEYWORDS_OPTION = ";NON_KEYWORDS=VALUE";
   private final boolean createSchema;
 
   private SQDatabase(Settings settings, boolean createSchema) {
@@ -71,7 +72,7 @@ public class SQDatabase extends DefaultDatabase {
     MapSettings settings = new MapSettings()
       .setProperty("sonar.jdbc.dialect", "h2")
       .setProperty("sonar.jdbc.driverClassName", "org.h2.Driver")
-      .setProperty("sonar.jdbc.url", "jdbc:h2:mem:" + name)
+      .setProperty("sonar.jdbc.url", "jdbc:h2:mem:" + name + IGNORED_KEYWORDS_OPTION)
       .setProperty("sonar.jdbc.username", "sonar")
       .setProperty("sonar.jdbc.password", "sonar");
     return new SQDatabase(settings, createSchema);

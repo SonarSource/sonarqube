@@ -91,6 +91,7 @@ class CoreTestDb implements TestDb {
       if (!databaseToUpper) {
         name = name + ";DATABASE_TO_UPPER=FALSE";
       }
+      name = name + ";NON_KEYWORDS=VALUE";
       return new CoreH2Database(name);
     };
     Consumer<Database> databaseInitializer = database -> {

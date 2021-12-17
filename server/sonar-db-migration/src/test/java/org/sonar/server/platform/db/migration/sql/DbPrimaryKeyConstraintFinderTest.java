@@ -97,6 +97,6 @@ public class DbPrimaryKeyConstraintFinderTest {
     when(dbMock.getDialect()).thenReturn(H2);
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))
-      .isEqualTo("SELECT constraint_name FROM information_schema.constraints WHERE table_name = 'MY_TABLE' and constraint_type = 'PRIMARY KEY'");
+      .isEqualTo("SELECT constraint_name FROM information_schema.table_constraints WHERE table_name = 'MY_TABLE' and constraint_type = 'PRIMARY KEY'");
   }
 }

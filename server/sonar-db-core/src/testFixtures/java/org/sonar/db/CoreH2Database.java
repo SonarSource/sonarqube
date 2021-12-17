@@ -36,6 +36,7 @@ import static java.lang.String.format;
  * H2 in-memory database, used for unit tests only against an empty DB or a provided H2 SQL script.
  */
 public class CoreH2Database implements Database {
+  private static final String IGNORED_KEYWORDS_OPTION = ";NON_KEYWORDS=VALUE";
   private final String name;
   private BasicDataSource datasource;
 
@@ -43,7 +44,7 @@ public class CoreH2Database implements Database {
    * IMPORTANT: change DB name in order to not conflict with {@link DefaultDatabaseTest}
    */
   public CoreH2Database(String name) {
-    this.name = name;
+    this.name = name + IGNORED_KEYWORDS_OPTION;
   }
 
   @Override
