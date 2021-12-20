@@ -74,7 +74,19 @@ public class ApplicationProjectsDaoTest {
     insertApplication("app1");
     insertBranch("app1", "app-b1");
     underTest.addProjectBranchToAppBranch(dbSession, "app1", "app-b1", "p1", "b1");
-    assertThat(underTest.selectProjectBranchesFromAppBranch(dbSession, "app-b1")).extracting(BranchDto::getUuid).containsOnly("b1");
+    assertThat(underTest.selectProjectBranchesFromAppBranchUuid(dbSession, "app-b1")).extracting(BranchDto::getUuid).containsOnly("b1");
+  }
+
+  @Test
+  public void select_project_branches_from_application_branch() {
+    var project = db.components().insertPublicProjectDto(p -> p.setDbKey("project"));
+    var projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
+    var app = db.components().insertPrivateApplicationDto(a -> a.setDbKey("app1"));
+    var appBranch = db.components().insertProjectBranch(app, b -> b.setKey("app-branch"));
+    db.components().addApplicationProject(app, project);
+    underTest.addProjectBranchToAppBranch(dbSession, app.getUuid(), appBranch.getUuid(), project.getUuid(), projectBranch.getUuid());
+    assertThat(underTest.selectProjectBranchesFromAppBranchUuid(dbSession, appBranch.getUuid())).extracting(BranchDto::getKey).containsOnly("project-branch");
+    assertThat(underTest.selectProjectBranchesFromAppBranchKey(dbSession, app.getUuid(), appBranch.getKey())).extracting(BranchDto::getKey).containsOnly("project-branch");
   }
 
   @Test

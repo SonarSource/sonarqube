@@ -194,6 +194,34 @@
     pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectRootOfReferencersToMainBranch" resultType="Portfolio">
+    SELECT distinct
+    <include refid="portfolioColumns"/>
+    FROM portfolios c
+    INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
+    INNER JOIN portfolios p on p.uuid = c.root_uuid
+    where
+    pr.reference_uuid=#{referenceUuid,jdbcType=VARCHAR}
+    AND
+    (pr.branch_uuid is null
+    OR
+    pr.branch_uuid=#{referenceUuid,jdbcType=VARCHAR}
+    )
+  </select>
+
+  <select id="selectRootOfReferencersToAppBranch" resultType="Portfolio">
+    SELECT distinct
+    <include refid="portfolioColumns"/>
+    FROM portfolios c
+    INNER JOIN portfolio_references pr on pr.portfolio_uuid = c.uuid
+    INNER JOIN portfolios p on p.uuid = c.root_uuid
+    INNER JOIN project_branches pb on pb.uuid = pr.branch_uuid
+    WHERE
+    pr.reference_uuid=#{appUuid,jdbcType=VARCHAR}
+    AND
+    pb.kee = #{appBranchKey,jdbcType=VARCHAR}
+  </select>
+
   <sql id="applicationProjectColumns">
     ap.application_uuid as appUuid,
     ap.project_uuid as projectUuid,
@@ -308,29 +336,31 @@
     WHERE target.qualifier = 'APP'
   </select>
 
-  <select id="selectAllDirectChildApplications" resultType="Project">
+  <select id="selectAllReferencesToPortfoliosInHierarchy" resultMap="referenceResult">
     SELECT
-    <include refid="projectColumns"/>
-    FROM portfolio_references pr
-    JOIN projects p ON p.uuid = pr.reference_uuid
-    WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectAllReferencesInHierarchy" resultMap="referenceResult">
-    (SELECT
     <include refid="portfolioReferenceColumns"/>
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
     INNER JOIN portfolios target ON pr.reference_uuid = target.uuid
     WHERE source.root_uuid = #{rootUuid,jdbcType=VARCHAR}
-    UNION
+  </select>
+
+  <select id="selectAllReferencesToApplicationsInHierarchy" resultMap="referenceResult">
     SELECT
     <include refid="appReferenceColumns"/>
     FROM portfolio_references pr
     INNER JOIN portfolios source ON pr.portfolio_uuid = source.uuid
     INNER JOIN projects target ON pr.reference_uuid = target.uuid
     WHERE target.qualifier = 'APP'
-    AND source.root_uuid = #{rootUuid,jdbcType=VARCHAR})
+    AND source.root_uuid = #{rootUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectApplicationReferenceUuids" resultType="String">
+    SELECT
+    p.uuid
+    FROM portfolio_references pr
+    JOIN projects p ON p.uuid = pr.reference_uuid
+    WHERE pr.portfolio_uuid = #{portfolioUuid,jdbcType=VARCHAR}
   </select>
 
   <sql id="deletePortfolioQuery">

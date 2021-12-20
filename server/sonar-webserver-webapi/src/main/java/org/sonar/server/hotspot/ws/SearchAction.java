@@ -406,7 +406,7 @@ public class SearchAction implements HotspotsWsAction {
         .map(ProjectDto::getUuid)
         .collect(Collectors.toSet());
     } else {
-      projectUuids = dbClient.applicationProjectsDao().selectProjectBranchesFromAppBranch(dbSession, application.uuid()).stream()
+      projectUuids = dbClient.applicationProjectsDao().selectProjectBranchesFromAppBranchUuid(dbSession, application.uuid()).stream()
         .map(BranchDto::getUuid)
         .collect(Collectors.toSet());
     }

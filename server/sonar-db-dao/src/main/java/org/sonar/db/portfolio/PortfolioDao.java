@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.project.ApplicationProjectDto;
-import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -140,16 +139,20 @@ public class PortfolioDao implements Dao {
     return mapper(dbSession).selectAllReferencesToApplications();
   }
 
-  public List<ProjectDto> selectAllDirectChildApplications(DbSession dbSession, String portfolioUuid) {
-    return mapper(dbSession).selectAllDirectChildApplications(portfolioUuid);
+  public List<ReferenceDto> selectAllReferencesToPortfoliosInHierarchy(DbSession dbSession, String rootUuid) {
+    return mapper(dbSession).selectAllReferencesToPortfoliosInHierarchy(rootUuid);
+  }
+
+  public List<ReferenceDto> selectAllReferencesToApplicationsInHierarchy(DbSession dbSession, String rootUuid) {
+    return mapper(dbSession).selectAllReferencesToApplicationsInHierarchy(rootUuid);
+  }
+
+  public List<String> selectApplicationReferenceUuids(DbSession dbSession, String portfolioUuid) {
+    return mapper(dbSession).selectApplicationReferenceUuids(portfolioUuid);
   }
 
   public Set<String> selectReferenceUuids(DbSession dbSession, String portfolioUuid) {
     return mapper(dbSession).selectReferenceUuids(portfolioUuid);
-  }
-
-  public List<ReferenceDto> selectAllReferencesInHierarchy(DbSession dbSession, String uuid) {
-    return mapper(dbSession).selectAllReferencesInHierarchy(uuid);
   }
 
   public List<PortfolioDto> selectReferencers(DbSession dbSession, String referenceUuid) {
@@ -158,6 +161,14 @@ public class PortfolioDao implements Dao {
 
   public List<PortfolioDto> selectRootOfReferencers(DbSession dbSession, String referenceUuid) {
     return mapper(dbSession).selectRootOfReferencers(referenceUuid);
+  }
+
+  public List<PortfolioDto> selectRootOfReferencersToMainBranch(DbSession dbSession, String referenceUuid) {
+    return mapper(dbSession).selectRootOfReferencersToMainBranch(referenceUuid);
+  }
+
+  public List<PortfolioDto> selectRootOfReferencersToAppBranch(DbSession dbSession, String appUuid, String appBranchKey) {
+    return mapper(dbSession).selectRootOfReferencersToAppBranch(appUuid, appBranchKey);
   }
 
   public void deleteReferencesTo(DbSession dbSession, String referenceUuid) {
@@ -251,4 +262,5 @@ public class PortfolioDao implements Dao {
   private static String qualifier(PortfolioDto portfolioDto) {
     return portfolioDto.isRoot() ? Qualifiers.VIEW : Qualifiers.SUBVIEW;
   }
+
 }

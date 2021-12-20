@@ -267,17 +267,50 @@ public class PortfolioDaoTest {
     portfolioDao.addReference(session, "portfolio2", app2.getUuid());
     portfolioDao.addReference(session, "portfolio3", app3.getUuid());
 
-    assertThat(portfolioDao.selectAllDirectChildApplications(session, p1.getUuid()))
-      .extracting(ProjectDto::getKee)
-      .containsOnly("app1");
+    assertThat(portfolioDao.selectApplicationReferenceUuids(session, p1.getUuid()))
+      .containsOnly(app1.getUuid());
 
-    assertThat(portfolioDao.selectAllDirectChildApplications(session, p2.getUuid()))
-      .extracting(ProjectDto::getKee)
-      .containsOnly("app2");
+    assertThat(portfolioDao.selectApplicationReferenceUuids(session, p2.getUuid()))
+      .containsOnly(app2.getUuid());
 
-    assertThat(portfolioDao.selectAllDirectChildApplications(session, p3.getUuid()))
-      .extracting(ProjectDto::getKee)
-      .containsOnly("app3");
+    assertThat(portfolioDao.selectApplicationReferenceUuids(session, p3.getUuid()))
+      .containsOnly(app3.getUuid());
+  }
+
+  @Test
+  public void selectAllReferencesToApplicationsInHierarchy() {
+    var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
+    var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
+    ProjectDto app3 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app3"));
+
+    portfolioDao.addReference(session, "portfolio1", app1.getUuid());
+    portfolioDao.addReference(session, "portfolio2", app2.getUuid());
+    portfolioDao.addReference(session, "portfolio3", app3.getUuid());
+
+    assertThat(portfolioDao.selectAllReferencesToApplicationsInHierarchy(session, p1.getUuid()))
+      .extracting(ReferenceDto::getTargetUuid)
+      .containsExactlyInAnyOrder(app1.getUuid(), app2.getUuid(), app3.getUuid());
+  }
+
+  @Test
+  public void selectAllReferencesToPortfoliosInHierarchy() {
+    var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
+    var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    var p4 = db.components().insertPrivatePortfolioDto("portfolio4");
+    var p5 = db.components().insertPrivatePortfolioDto("portfolio5");
+    var p6 = db.components().insertPrivatePortfolioDto("portfolio6");
+
+    portfolioDao.addReference(session, "portfolio1", p4.getUuid());
+    portfolioDao.addReference(session, "portfolio2", p5.getUuid());
+    portfolioDao.addReference(session, "portfolio3", p6.getUuid());
+
+    assertThat(portfolioDao.selectAllReferencesToPortfoliosInHierarchy(session, p1.getUuid()))
+      .extracting(ReferenceDto::getTargetUuid)
+      .containsExactlyInAnyOrder(p4.getUuid(), p5.getUuid(), p6.getUuid());
   }
 
   @Test
@@ -356,6 +389,38 @@ public class PortfolioDaoTest {
   }
 
   @Test
+  public void select_root_reference_to_app_main_branch() {
+    PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
+    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app1"));
+    db.components().addPortfolioReference(portfolio1, app1.getUuid());
+
+    assertThat(portfolioDao.selectRootOfReferencersToMainBranch(db.getSession(), app1.getUuid()))
+      .extracting(PortfolioDto::getKey)
+      .containsExactly(portfolio1.getKey());
+
+    PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("portfolio2");
+    ProjectDto app2 = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app2"));
+    db.components().addPortfolioApplicationBranch(portfolio2.getUuid(), app2.getUuid(), app2.getUuid());
+
+    assertThat(portfolioDao.selectRootOfReferencersToMainBranch(db.getSession(), app2.getUuid()))
+      .extracting(PortfolioDto::getKey)
+      .containsExactly(portfolio2.getKey());
+  }
+
+  @Test
+  public void select_root_reference_to_app_with_branches() {
+    PortfolioDto portfolio = db.components().insertPrivatePortfolioDto("portfolio1");
+    ProjectDto app = db.components().insertPrivateApplicationDto(p -> p.setDbKey("app").setName("app"));
+    BranchDto branch = db.components().insertProjectBranch(app, b -> b.setExcludeFromPurge(true));
+
+    db.components().addPortfolioApplicationBranch(portfolio.getUuid(), app.getUuid(), branch.getUuid());
+
+    assertThat(portfolioDao.selectRootOfReferencersToAppBranch(db.getSession(), app.getUuid(), branch.getKey()))
+      .extracting(PortfolioDto::getKey)
+      .containsExactly(portfolio.getKey());
+  }
+
+  @Test
   public void select_reference_to_portfolio_by_key() {
     PortfolioDto portfolio1 = db.components().insertPrivatePortfolioDto("portfolio1");
     PortfolioDto portfolio2 = db.components().insertPrivatePortfolioDto("portfolio2");
@@ -371,25 +436,6 @@ public class PortfolioDaoTest {
       .isEqualTo(portfolio2.getUuid());
 
     assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio1.getUuid(), portfolio2.getKey())).isEmpty();
-  }
-
-  @Test
-  public void selectAllReferencesInHierarchy() {
-    PortfolioDto root1 = db.components().insertPrivatePortfolioDto("root1");
-    PortfolioDto root2 = db.components().insertPrivatePortfolioDto("root2");
-    PortfolioDto sub1 = addPortfolio(root1, "sub1");
-    PortfolioDto sub11 = addPortfolio(sub1, "sub11");
-    ProjectDto app1 = db.components().insertPrivateApplicationDto(p -> p.setUuid("app1"));
-
-    db.components().addPortfolioReference("root1", "app1");
-    db.components().addPortfolioReference("root2", "app1");
-    db.components().addPortfolioReference("sub11", "root2");
-
-    assertThat(portfolioDao.selectAllReferencesInHierarchy(session, root1.getUuid()))
-      .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid)
-      .containsOnly(
-        tuple(root1.getUuid(), app1.getUuid()),
-        tuple(sub11.getUuid(), root2.getUuid()));
   }
 
   @Test

@@ -82,8 +82,12 @@ public class ApplicationProjectsDao implements Dao {
     getMapper(dbSession).removeProjectBranchFromAppBranch(applicationBranchUuid, projectBranchUuid);
   }
 
-  public Set<BranchDto> selectProjectBranchesFromAppBranch(DbSession dbSession, String applicationBranchUuid) {
-    return getMapper(dbSession).selectProjectBranchesFromAppBranch(applicationBranchUuid);
+  public Set<BranchDto> selectProjectBranchesFromAppBranchUuid(DbSession dbSession, String applicationBranchUuid) {
+    return getMapper(dbSession).selectProjectBranchesFromAppBranchUuid(applicationBranchUuid);
+  }
+
+  public Set<BranchDto> selectProjectBranchesFromAppBranchKey(DbSession dbSession, String applicationUuid, String applicationBranchKey) {
+    return getMapper(dbSession).selectProjectBranchesFromAppBranchKey(applicationUuid, applicationBranchKey);
   }
 
   public Set<ProjectDto> selectApplicationsFromProjectBranch(DbSession dbSession, String projectUuid, String branchKey) {

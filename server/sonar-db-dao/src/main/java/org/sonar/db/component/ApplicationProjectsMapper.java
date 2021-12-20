@@ -55,7 +55,9 @@ public interface ApplicationProjectsMapper {
 
   void removeProjectBranchFromAppBranch(@Param("applicationBranchUuid") String applicationBranchUuid, @Param("projectBranchUuid") String projectBranchUuid);
 
-  Set<BranchDto> selectProjectBranchesFromAppBranch(@Param("applicationBranchUuid") String applicationBranchUuid);
+  Set<BranchDto> selectProjectBranchesFromAppBranchUuid(@Param("applicationBranchUuid") String applicationBranchUuid);
+
+  Set<BranchDto> selectProjectBranchesFromAppBranchKey(@Param("applicationUuid") String applicationUuid, @Param("applicationBranchKey") String applicationBranchKey);
 
   int countApplicationProjects(@Param("applicationUuid") String applicationUuid);
 

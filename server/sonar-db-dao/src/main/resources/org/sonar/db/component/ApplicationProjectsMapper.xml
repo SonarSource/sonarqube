@@ -117,26 +117,45 @@
       app_branch_project_branch.project_branch_uuid = #{projectBranchUuid,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectProjectBranchesFromAppBranch" parameterType="String" resultType="org.sonar.db.component.BranchDto">
+  <select id="selectProjectBranchesFromAppBranchUuid" parameterType="String" resultType="org.sonar.db.component.BranchDto">
     SELECT
-      <include refid="branchColumns"/>
+    <include refid="branchColumns"/>
     FROM
-      app_branch_project_branch
+    app_branch_project_branch
     INNER JOIN
-      project_branches pb
+    project_branches pb
     ON
-      app_branch_project_branch.project_branch_uuid = pb.uuid
+    app_branch_project_branch.project_branch_uuid = pb.uuid
     WHERE
-      app_branch_project_branch.application_branch_uuid = #{applicationBranchUuid,jdbcType=VARCHAR}
+    app_branch_project_branch.application_branch_uuid = #{applicationBranchUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectProjectBranchesFromAppBranchKey" resultType="org.sonar.db.component.BranchDto">
+    SELECT
+    <include refid="branchColumns"/>
+    FROM
+    app_branch_project_branch
+    INNER JOIN
+    project_branches pb
+    ON
+    app_branch_project_branch.project_branch_uuid = pb.uuid
+    INNER JOIN
+    project_branches ab
+    ON
+    app_branch_project_branch.application_branch_uuid = ab.uuid
+    WHERE
+    ab.kee = #{applicationBranchKey,jdbcType=VARCHAR}
+    AND
+    app_branch_project_branch.application_uuid = #{applicationUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="countApplicationProjects" parameterType="String" resultType="int">
     select
-      count(1)
+    count(1)
     FROM
-      app_projects ap
+    app_projects ap
     WHERE
-      ap.application_uuid = #{applicationUuid,jdbcType=VARCHAR}
+    ap.application_uuid = #{applicationUuid,jdbcType=VARCHAR}
   </select>
 
   <update id="updateApplicationBranchName" parameterType="String">

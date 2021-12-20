@@ -26,7 +26,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.project.ApplicationProjectDto;
-import org.sonar.db.project.ProjectDto;
 
 public interface PortfolioMapper {
   @CheckForNull
@@ -44,7 +43,7 @@ public interface PortfolioMapper {
   void deleteReferencesByPortfolioOrReferenceUuids(@Param("uuids") Set<String> uuids);
 
   void insertReference(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid,
-                       @Nullable @Param("branchUuid") String branchUuid, @Param("createdAt") long createdAt);
+    @Nullable @Param("branchUuid") String branchUuid, @Param("createdAt") long createdAt);
 
   void insertProject(@Param("uuid") String uuid, @Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("createdAt") long createdAt);
 
@@ -76,6 +75,8 @@ public interface PortfolioMapper {
 
   List<PortfolioDto> selectRootOfReferencers(String referenceUuid);
 
+  List<PortfolioDto> selectRootOfReferencersToMainBranch(String referenceUuid);
+
   void deleteReferencesTo(String referenceUuid);
 
   void deleteProjects(String portfolioUuid);
@@ -96,14 +97,18 @@ public interface PortfolioMapper {
 
   List<PortfolioProjectDto> selectAllPortfolioProjects();
 
-  List<ReferenceDto> selectAllReferencesInHierarchy(String rootUuid);
-
   void deleteBranch(@Param("portfolioUuid") String portfolioUuid, @Param("projectUuid") String projectUuid, @Param("branchUuid") String branchUuid);
 
   void insertBranch(@Param("uuid") String uuid, @Param("portfolioProjectUuid") String portfolioProjectUuid, @Param("branchUuid") String branchUuid,
-                    @Param("createdAt") long createdAt);
+    @Param("createdAt") long createdAt);
 
-  List<ProjectDto> selectAllDirectChildApplications(@Param("portfolioUuid") String portfolioUuid);
+  List<String> selectApplicationReferenceUuids(@Param("portfolioUuid") String portfolioUuid);
 
   int deleteReferenceBranch(@Param("portfolioUuid") String portfolioUuid, @Param("referenceUuid") String referenceUuid, @Param("branchUuid") String branchUuid);
+
+  List<ReferenceDto> selectAllReferencesToPortfoliosInHierarchy(String rootUuid);
+
+  List<ReferenceDto> selectAllReferencesToApplicationsInHierarchy(String rootUuid);
+
+  List<PortfolioDto> selectRootOfReferencersToAppBranch(@Param("appUuid") String appUuid, @Param("appBranchKey") String appBranchKey);
 }
