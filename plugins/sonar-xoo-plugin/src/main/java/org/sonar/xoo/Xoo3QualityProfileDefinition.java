@@ -19,35 +19,17 @@
  */
 package org.sonar.xoo;
 
-import org.sonar.api.resources.Language;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class Xoo2 implements Language {
+public class Xoo3QualityProfileDefinition implements BuiltInQualityProfilesDefinition {
 
-  public static final String KEY = "xoo2";
-  public static final String NAME = "Xoo2";
-  public static final String FILE_SUFFIX = ".xoo2";
-
-  private static final String[] XOO_SUFFIXES = {
-    FILE_SUFFIX
-  };
+  private static final String PROFILE_NAME = "Sonar way";
 
   @Override
-  public String getKey() {
-    return KEY;
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(PROFILE_NAME, Xoo3NoAutoPublish.KEY);
+    profile.setDefault(true);
+    profile.done();
   }
 
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    return XOO_SUFFIXES;
-  }
-
-  @Override
-  public boolean publishAllFiles() {
-    return true;
-  }
 }

@@ -43,6 +43,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
+import org.sonar.scanner.mediumtest.ScannerMediumTester.AnalysisBuilder;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.global.DeprecatedGlobalSensor;
 import org.sonar.xoo.global.GlobalProjectSensor;
@@ -50,6 +51,7 @@ import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assume.assumeTrue;
 
 public class FileSystemMediumTest {
@@ -80,12 +82,11 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void scanProjectWithoutProjectName() throws IOException {
+  public void scan_project_without_name() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -108,7 +109,7 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void logBranchNameAndType() {
+  public void log_branch_name_and_type() {
     builder.put("sonar.branch.name", "my-branch");
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
@@ -123,15 +124,12 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void onlyGenerateMetadataIfNeeded() throws IOException {
+  public void only_generate_metadata_if_needed() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File javaFile = new File(srcDir, "sample.java");
-    FileUtils.write(javaFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDir, "sample.java", "Sample xoo\ncontent");
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -147,17 +145,14 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void preloadFileMetadata() throws IOException {
+  public void preload_file_metadata() throws IOException {
     builder.put("sonar.preloadFileMetadata", "true");
 
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File javaFile = new File(srcDir, "sample.java");
-    FileUtils.write(javaFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDir, "sample.java", "Sample xoo\ncontent");
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -173,21 +168,16 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void dontPublishFilesWithoutDetectedLanguage() throws IOException {
+  public void dont_publish_files_without_detected_language() throws IOException {
     Path mainDir = baseDir.toPath().resolve("src").resolve("main");
     Files.createDirectories(mainDir);
 
     Path testDir = baseDir.toPath().resolve("src").resolve("test");
     Files.createDirectories(testDir);
 
-    Path testXooFile = testDir.resolve("sample.java");
-    Files.write(testXooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
-
-    Path xooFile = mainDir.resolve("sample.xoo");
-    Files.write(xooFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
-
-    Path javaFile = mainDir.resolve("sample.java");
-    Files.write(javaFile, "Sample xoo\ncontent".getBytes(StandardCharsets.UTF_8));
+    writeFile(testDir.toFile(), "sample.java", "Sample xoo\ncontent");
+    writeFile(mainDir.toFile(), "sample.xoo", "Sample xoo\ncontent");
+    writeFile(mainDir.toFile(), "sample.java", "Sample xoo\ncontent");
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -211,7 +201,7 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void createIssueOnAnyFile() throws IOException {
+  public void create_issue_on_any_file() throws IOException {
     tester
       .addRules(new XooRulesDefinition())
       .addActiveRule("xoo", "OneIssuePerUnknownFile", null, "OneIssuePerUnknownFile", "MAJOR", null, "xoo");
@@ -219,8 +209,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.unknown");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.unknown", "Sample xoo\ncontent");
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -248,8 +237,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
     File unknownFile = new File(srcDir, "myfile.binary");
     byte[] b = new byte[512];
@@ -277,11 +265,8 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\npattern", StandardCharsets.UTF_8);
-
-    File unknownFile = new File(srcDir, "myfile.binary");
-    FileUtils.write(unknownFile, "some text", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\npattern");
+    writeFile(srcDir, "myfile.binary", "some text");
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -304,8 +289,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -324,8 +308,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -364,8 +347,7 @@ public class FileSystemMediumTest {
     File test = new File(baseDir, "test");
     test.mkdir();
 
-    File xooFile = new File(test, "sampleTest.xoo");
-    FileUtils.write(xooFile, "Sample test xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(test, "sampleTest.xoo", "Sample test xoo\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -386,20 +368,14 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFile2 = new File(baseDir, "another.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     File testDir = new File(baseDir, "test");
     testDir.mkdir();
 
-    File xooTestFile = new File(baseDir, "sampleTest2.xoo");
-    FileUtils.write(xooTestFile, "Sample test xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooTestFile2 = new File(testDir, "sampleTest.xoo");
-    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent", StandardCharsets.UTF_8);
+    writeFile(baseDir, "sampleTest2.xoo", "Sample test xoo\ncontent");
+    writeFile(testDir, "sampleTest.xoo", "Sample test xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -416,20 +392,14 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFile2 = new File(baseDir, "another.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     File testDir = new File(baseDir, "test");
     testDir.mkdir();
 
-    File xooTestFile = new File(baseDir, "sampleTest2.xoo");
-    FileUtils.write(xooTestFile, "Sample test xoo\ncontent");
-
-    File xooTestFile2 = new File(testDir, "sampleTest.xoo");
-    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
+    writeFile(baseDir, "sampleTest2.xoo", "Sample test xoo\ncontent");
+    writeFile(testDir, "sampleTest.xoo", "Sample test xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -455,11 +425,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "tests");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sampleTestA.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sampleTestB.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sampleTestA.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sampleTestB.xoo", "Sample xoo\ncontent");
 
     final ImmutableMap.Builder<String, String> builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -505,11 +472,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sampleA.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sampleB.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sampleA.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sampleB.xoo", "Sample xoo\ncontent");
 
     final ImmutableMap.Builder<String, String> builder = ImmutableMap.<String, String>builder()
       .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -546,11 +510,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
@@ -583,11 +544,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
 
     tester.addGlobalServerSettings(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*.xoo");
 
@@ -617,11 +575,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
 
     tester.addGlobalServerSettings(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, "**/*.xoo");
 
@@ -651,11 +606,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
 
     tester.addProjectServerSettings("sonar.exclusions", "src/sample.xoo");
 
@@ -684,8 +636,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
     assertThatThrownBy(() -> tester.newAnalysis()
       .properties(builder
@@ -702,8 +653,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "module1/src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
 
     assertThatThrownBy(() -> tester.newAnalysis()
       .properties(builder
@@ -738,7 +688,7 @@ public class FileSystemMediumTest {
   public void scanProjectWithWrongCase() {
     // To please the quality gate, don't use assumeTrue, or the test will be reported as skipped
     File projectDir = new File("test-resources/mediumtest/xoo/sample");
-    ScannerMediumTester.AnalysisBuilder analysis = tester
+    AnalysisBuilder analysis = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.sources", "XOURCES")
       .property("sonar.tests", "TESTX")
@@ -782,11 +732,8 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-
-    File otherFile = new File(srcDir, "sample.other");
-    FileUtils.write(otherFile, "Sample other\ncontent");
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDir, "sample.other", "Sample other\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -843,24 +790,18 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void scanProjectWithCommaInSourcePath() throws IOException {
+  public void scan_project_with_comma_in_source_path() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample,1.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFile2 = new File(baseDir, "another,2.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample,1.xoo", "Sample xoo\ncontent");
+    writeFile(baseDir, "another,2.xoo", "Sample xoo 2\ncontent");
 
     File testDir = new File(baseDir, "test");
     testDir.mkdir();
 
-    File xooTestFile = new File(testDir, "sampleTest,1.xoo");
-    FileUtils.write(xooTestFile, "Sample test xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooTestFile2 = new File(baseDir, "sampleTest,2.xoo");
-    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent", StandardCharsets.UTF_8);
+    writeFile(testDir, "sampleTest,1.xoo", "Sample test xoo\ncontent");
+    writeFile(baseDir, "sampleTest,2.xoo", "Sample test xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -873,15 +814,32 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void twoLanguagesWithSameExtension() throws IOException {
+  public void language_without_publishAllFiles_should_not_auto_publish_files() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample.xoo3", "Sample xoo\ncontent");
+    writeFile(srcDir, "sample2.xoo3", "Sample xoo 2\ncontent");
 
-    File xooFile2 = new File(srcDir, "sample.xoo2");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles())
+      .extracting(InputFile::filename, InputFile::language, f -> ((DefaultInputFile) f).isPublished())
+      .containsOnly(tuple("sample.xoo3", "xoo3", false), tuple("sample2.xoo3", "xoo3", false));
+    assertThat(result.getReportReader().readComponent(result.getReportReader().readMetadata().getRootComponentRef()).getChildRefCount()).isZero();
+  }
+
+  @Test
+  public void two_languages_with_same_extension() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    writeFile(srcDir, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDir, "sample.xoo2", "Sample xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -891,19 +849,16 @@ public class FileSystemMediumTest {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    try {
-      result = tester.newAnalysis()
-        .properties(builder
-          .put("sonar.lang.patterns.xoo2", "**/*.xoo")
-          .build())
-        .execute();
-    } catch (Exception e) {
-      assertThat(e)
-        .isInstanceOf(MessageException.class)
-        .hasMessage(
-          "Language of file 'src" + File.separator
-            + "sample.xoo' can not be decided as the file matches patterns of both sonar.lang.patterns.xoo : **/*.xoo and sonar.lang.patterns.xoo2 : **/*.xoo");
-    }
+    AnalysisBuilder analysisBuilder = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.lang.patterns.xoo2", "**/*.xoo")
+        .build());
+
+    assertThatThrownBy(analysisBuilder::execute)
+      .isInstanceOf(MessageException.class)
+      .hasMessage(
+        "Language of file 'src" + File.separator
+          + "sample.xoo' can not be decided as the file matches patterns of both sonar.lang.patterns.xoo : **/*.xoo and sonar.lang.patterns.xoo2 : **/*.xoo");
 
     // SONAR-9561
     result = tester.newAnalysis()
@@ -925,11 +880,8 @@ public class FileSystemMediumTest {
     File srcDirB = new File(baseDirModuleB, "src");
     srcDirB.mkdirs();
 
-    File xooFileA = new File(srcDirA, "sample.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFileB = new File(srcDirB, "sample.xoo");
-    FileUtils.write(xooFileB, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDirA, "sample.xoo", "Sample xoo\ncontent");
+    writeFile(srcDirB, "sample.xoo", "Sample xoo\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(ImmutableMap.<String, String>builder()
@@ -987,12 +939,10 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample1.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample1.xoo", "Sample xoo\ncontent");
 
     File outsideBaseDir = temp.newFolder().getCanonicalFile();
-    File xooFile2 = new File(outsideBaseDir, "another.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+    File xooFile2 = writeFile(outsideBaseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -1009,8 +959,7 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample1.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+    writeFile(srcDir, "sample1.xoo", "Sample xoo\ncontent");
 
     File outsideBaseDir = temp.newFolder().getCanonicalFile();
     File xooFile2 = new File(outsideBaseDir, "another.xoo");
@@ -1032,11 +981,8 @@ public class FileSystemMediumTest {
     File moduleA = new File(baseDir, "moduleA");
     moduleA.mkdir();
 
-    File xooFileA = new File(moduleA, "src/sampleA.xoo");
-    FileUtils.write(xooFileA, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
-    File xooFile2 = new File(baseDir, "another.xoo");
-    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+    writeFile(moduleA, "src/sampleA.xoo", "Sample xoo\ncontent");
+    File xooFile2 = writeFile(baseDir, "another.xoo", "Sample xoo 2\ncontent");
 
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
@@ -1086,9 +1032,7 @@ public class FileSystemMediumTest {
 
   @Test
   public void index_basedir_by_default() throws IOException {
-    File xooFile = new File(baseDir, "sample.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
-
+    writeFile(baseDir, "sample.xoo", "Sample xoo\ncontent");
     AnalysisResult result = tester.newAnalysis()
       .properties(builder
         .build())
@@ -1096,5 +1040,11 @@ public class FileSystemMediumTest {
 
     assertThat(logTester.logs()).contains("1 file indexed");
     assertThat(result.inputFile("sample.xoo")).isNotNull();
+  }
+
+  private File writeFile(File parent, String name, String content) throws IOException {
+    File file = new File(parent, name);
+    FileUtils.write(file, content, StandardCharsets.UTF_8);
+    return file;
   }
 }

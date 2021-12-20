@@ -87,7 +87,7 @@ import static java.util.Collections.emptySet;
 public class ScannerMediumTester extends ExternalResource {
 
   private static Path userHome = null;
-  private Map<String, String> globalProperties = new HashMap<>();
+  private final Map<String, String> globalProperties = new HashMap<>();
   private final FakeMetricsRepositoryLoader globalRefProvider = new FakeMetricsRepositoryLoader();
   private final FakeBranchConfigurationLoader branchConfigurationLoader = new FakeBranchConfigurationLoader();
   private final FakeBranchConfiguration branchConfiguration = new FakeBranchConfiguration();

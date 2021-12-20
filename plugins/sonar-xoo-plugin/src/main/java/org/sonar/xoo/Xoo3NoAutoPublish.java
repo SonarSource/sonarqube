@@ -21,11 +21,10 @@ package org.sonar.xoo;
 
 import org.sonar.api.resources.Language;
 
-public class Xoo2 implements Language {
-
-  public static final String KEY = "xoo2";
-  public static final String NAME = "Xoo2";
-  public static final String FILE_SUFFIX = ".xoo2";
+public class Xoo3NoAutoPublish implements Language {
+  public static final String KEY = "xoo3";
+  public static final String NAME = "Xoo3";
+  public static final String FILE_SUFFIX = ".xoo3";
 
   private static final String[] XOO_SUFFIXES = {
     FILE_SUFFIX
@@ -48,6 +47,6 @@ public class Xoo2 implements Language {
 
   @Override
   public boolean publishAllFiles() {
-    return true;
+    return false;
   }
 }

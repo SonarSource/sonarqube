@@ -109,6 +109,8 @@ public class XooPlugin implements Plugin {
         .build(),
       Xoo.class,
       Xoo2.class,
+      Xoo3NoAutoPublish.class,
+      Xoo3QualityProfileDefinition.class,
       XooRulesDefinition.class,
       XooBuiltInQualityProfilesDefinition.class,
       XooSonarWayProfile.class,

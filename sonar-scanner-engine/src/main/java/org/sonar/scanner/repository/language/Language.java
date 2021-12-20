@@ -21,7 +21,7 @@ package org.sonar.scanner.repository.language;
 
 import java.util.Arrays;
 import java.util.Collection;
-
+import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -29,11 +29,13 @@ public final class Language {
 
   private final String key;
   private final String name;
+  private final boolean publishAllFiles;
   private final String[] fileSuffixes;
 
-  public Language(String key, String name, String... fileSuffixes) {
+  public Language(String key, String name, boolean publishAllFiles, String... fileSuffixes) {
     this.key = key;
     this.name = name;
+    this.publishAllFiles = publishAllFiles;
     this.fileSuffixes = fileSuffixes;
   }
 
@@ -58,9 +60,29 @@ public final class Language {
     return Arrays.asList(fileSuffixes);
   }
 
+  public boolean isPublishAllFiles() {
+    return publishAllFiles;
+  }
+
   @Override
   public String toString() {
     return name;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Language language = (Language) o;
+    return Objects.equals(key, language.key);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(key);
+  }
 }

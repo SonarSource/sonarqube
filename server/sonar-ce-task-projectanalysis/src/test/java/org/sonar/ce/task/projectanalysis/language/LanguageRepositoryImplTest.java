@@ -74,6 +74,11 @@ public class LanguageRepositoryImplTest {
       public String[] getFileSuffixes() {
         return new String[0];
       }
+
+      @Override
+      public boolean publishAllFiles() {
+        return true;
+      }
     };
   }
 }

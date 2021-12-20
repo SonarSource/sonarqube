@@ -49,4 +49,9 @@ public class Xoo implements Language {
   public String[] getFileSuffixes() {
     return config.getStringArray(FILE_SUFFIXES_KEY);
   }
+
+  @Override
+  public boolean publishAllFiles() {
+    return true;
+  }
 }

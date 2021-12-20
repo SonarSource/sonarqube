@@ -62,23 +62,23 @@ public class LanguageDetectionTest {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
-    assertThat(detectLanguage(detection, "Foo.java")).isEqualTo("java");
-    assertThat(detectLanguage(detection, "src/Foo.java")).isEqualTo("java");
-    assertThat(detectLanguage(detection, "Foo.JAVA")).isEqualTo("java");
-    assertThat(detectLanguage(detection, "Foo.jav")).isEqualTo("java");
-    assertThat(detectLanguage(detection, "Foo.Jav")).isEqualTo("java");
+    assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
+    assertThat(detectLanguageKey(detection, "src/Foo.java")).isEqualTo("java");
+    assertThat(detectLanguageKey(detection, "Foo.JAVA")).isEqualTo("java");
+    assertThat(detectLanguageKey(detection, "Foo.jav")).isEqualTo("java");
+    assertThat(detectLanguageKey(detection, "Foo.Jav")).isEqualTo("java");
 
-    assertThat(detectLanguage(detection, "abc.cbl")).isEqualTo("cobol");
-    assertThat(detectLanguage(detection, "abc.CBL")).isEqualTo("cobol");
+    assertThat(detectLanguageKey(detection, "abc.cbl")).isEqualTo("cobol");
+    assertThat(detectLanguageKey(detection, "abc.CBL")).isEqualTo("cobol");
 
-    assertThat(detectLanguage(detection, "abc.php")).isNull();
-    assertThat(detectLanguage(detection, "abc")).isNull();
+    assertThat(detectLanguageKey(detection, "abc.php")).isNull();
+    assertThat(detectLanguageKey(detection, "abc")).isNull();
   }
 
   @Test
   public void should_not_fail_if_no_language() {
     LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new DefaultLanguagesRepository(new Languages())));
-    assertThat(detectLanguage(detection, "Foo.java")).isNull();
+    assertThat(detectLanguageKey(detection, "Foo.java")).isNull();
   }
 
   @Test
@@ -86,7 +86,7 @@ public class LanguageDetectionTest {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("abap", "abap", "ABAP")));
 
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detectLanguage(detection, "abc.abap")).isEqualTo("abap");
+    assertThat(detectLanguageKey(detection, "abc.abap")).isEqualTo("abap");
   }
 
   @Test
@@ -94,7 +94,7 @@ public class LanguageDetectionTest {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     try {
-      detectLanguage(detection, "abc.xhtml");
+      detectLanguageKey(detection, "abc.xhtml");
       fail();
     } catch (MessageException e) {
       assertThat(e.getMessage())
@@ -111,8 +111,8 @@ public class LanguageDetectionTest {
     settings.setProperty("sonar.lang.patterns.xml", "xml/**");
     settings.setProperty("sonar.lang.patterns.web", "web/**");
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detectLanguage(detection, "xml/abc.xhtml")).isEqualTo("xml");
-    assertThat(detectLanguage(detection, "web/abc.xhtml")).isEqualTo("web");
+    assertThat(detectLanguageKey(detection, "xml/abc.xhtml")).isEqualTo("xml");
+    assertThat(detectLanguageKey(detection, "web/abc.xhtml")).isEqualTo("web");
   }
 
   @Test
@@ -123,10 +123,10 @@ public class LanguageDetectionTest {
 
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
-    assertThat(detectLanguage(detection, "abc.abap")).isEqualTo("abap");
-    assertThat(detectLanguage(detection, "abc.cobol")).isEqualTo("cobol");
+    assertThat(detectLanguageKey(detection, "abc.abap")).isEqualTo("abap");
+    assertThat(detectLanguageKey(detection, "abc.cobol")).isEqualTo("cobol");
     try {
-      detectLanguage(detection, "abc.txt");
+      detectLanguageKey(detection, "abc.txt");
       fail();
     } catch (MessageException e) {
       assertThat(e.getMessage())
@@ -136,8 +136,9 @@ public class LanguageDetectionTest {
     }
   }
 
-  private String detectLanguage(LanguageDetection detection, String path) {
-    return detection.language(new File(temp.getRoot(), path).toPath(), Paths.get(path));
+  private String detectLanguageKey(LanguageDetection detection, String path) {
+    org.sonar.scanner.repository.language.Language language = detection.language(new File(temp.getRoot(), path).toPath(), Paths.get(path));
+    return language != null ? language.key() : null;
   }
 
   static class MockLanguage implements Language {
@@ -162,6 +163,11 @@ public class LanguageDetectionTest {
     @Override
     public String[] getFileSuffixes() {
       return extensions;
+    }
+
+    @Override
+    public boolean publishAllFiles() {
+      return true;
     }
   }
 }

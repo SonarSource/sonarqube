@@ -53,4 +53,11 @@ public interface Language {
    */
   String[] getFileSuffixes();
 
+  /**
+   * Whether all files identified with this language should be sent to SonarQube, even if no data is reported for them
+   * @since 9.3
+   */
+  default boolean publishAllFiles() {
+    return true;
+  }
 }

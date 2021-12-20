@@ -52,6 +52,11 @@ public class AbstractLanguageTest {
       public String[] getFileSuffixes() {
         return lang1.getFileSuffixes();
       }
+
+      @Override
+      public boolean publishAllFiles() {
+        return true;
+      }
     })).isTrue();
 
     assertThat(lang1)
@@ -61,7 +66,7 @@ public class AbstractLanguageTest {
 
   @Test
   public void should_not_define_language_with_too_long_key() {
-    assertThatThrownBy(() -> new TooLongKeyLanguage())
+    assertThatThrownBy(TooLongKeyLanguage::new)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The following language key exceeds 20 characters: 'aKeyWhichIsVeryVeryVeryVeryVeryLong'");
   }

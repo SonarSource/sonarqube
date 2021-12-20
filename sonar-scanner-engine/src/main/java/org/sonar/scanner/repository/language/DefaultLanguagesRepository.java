@@ -19,12 +19,11 @@
  */
 package org.sonar.scanner.repository.language;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-
 import org.picocontainer.Startable;
 import org.sonar.api.resources.Languages;
 
@@ -55,7 +54,7 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
   @CheckForNull
   public Language get(String languageKey) {
     org.sonar.api.resources.Language language = languages.get(languageKey);
-    return language != null ? new Language(language.getKey(), language.getName(), language.getFileSuffixes()) : null;
+    return language != null ? new Language(language.getKey(), language.getName(), language.publishAllFiles(), language.getFileSuffixes()) : null;
   }
 
   /**
@@ -66,7 +65,7 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
     org.sonar.api.resources.Language[] all = languages.all();
     Collection<Language> result = new ArrayList<>(all.length);
     for (org.sonar.api.resources.Language language : all) {
-      result.add(new Language(language.getKey(), language.getName(), language.getFileSuffixes()));
+      result.add(new Language(language.getKey(), language.getName(), language.publishAllFiles(), language.getFileSuffixes()));
     }
     return result;
   }

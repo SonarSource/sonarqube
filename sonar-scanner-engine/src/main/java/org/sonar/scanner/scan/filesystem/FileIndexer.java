@@ -41,6 +41,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.util.ProgressReport;
 
@@ -123,7 +124,7 @@ public class FileIndexer {
       return;
     }
 
-    String language = langDetection.language(realAbsoluteFile, projectRelativePath);
+    Language language = langDetection.language(realAbsoluteFile, projectRelativePath);
 
     if (ignoreCommand != null && ignoreCommand.isIgnored(realAbsoluteFile)) {
       LOG.debug("File '{}' is excluded by the scm ignore settings.", realAbsoluteFile);
@@ -134,10 +135,10 @@ public class FileIndexer {
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(realAbsoluteFile, project.key(),
       projectRelativePath.toString(),
       moduleRelativePath.toString(),
-      type, language, scannerComponentIdGenerator.getAsInt(), sensorStrategy);
+      type, language != null ? language.key() : null, scannerComponentIdGenerator.getAsInt(), sensorStrategy);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()));
-    if (language != null) {
-      inputFile.setPublished(true);
+    if (language != null && language.isPublishAllFiles()) {
+        inputFile.setPublished(true);
     }
     if (!accept(inputFile)) {
       return;
