@@ -133,7 +133,7 @@ export class EmbedDocsPopup extends React.PureComponent<Props, State> {
       <>
         <li className="divider" />
         <li>
-          <a
+          <a onClick={this.props.onClose}
             href={this.state.zohoUrl}
             rel="noopener noreferrer"
             target="_blank">
@@ -178,7 +178,10 @@ export class EmbedDocsPopup extends React.PureComponent<Props, State> {
       <>
         <li className="divider" />
         <li>
-          <a href={this.state.zohoUrl} rel="noopener noreferrer" target="_blank">
+          <a onClick={this.props.onClose}
+            href={this.state.zohoUrl}
+            rel="noopener noreferrer"
+            target="_blank">
             {translate('embed_docs.get_help')}
           </a>
         </li>
