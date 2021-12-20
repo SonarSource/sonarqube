@@ -84,7 +84,7 @@ public class RecentTasksDurationTask extends ComputeEngineMetricsTask {
         String mainComponentKey = componentUuidAndKeys.get(mainComponentUuid);
         requireNonNull(mainComponentKey);
 
-        metrics.observeComputeEngineTaskDuration(executionTimeMs, task.getTaskType(), mainComponentUuid);
+        metrics.observeComputeEngineTaskDuration(executionTimeMs, task.getTaskType(), mainComponentKey);
       } catch (RuntimeException e) {
         LOGGER.warn("Can't report metric data for a CE task with component uuid " + mainComponentUuid, e);
       }
