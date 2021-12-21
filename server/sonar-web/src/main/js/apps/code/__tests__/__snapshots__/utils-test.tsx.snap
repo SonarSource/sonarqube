@@ -16,6 +16,12 @@ Array [
 exports[`getCodeMetrics should return the right metrics for portfolios 1`] = `
 Array [
   "releasability_rating",
+  "new_reliability_rating",
+  "new_security_rating",
+  "new_security_review_rating",
+  "new_maintainability_rating",
+  "new_lines",
+  "releasability_rating",
   "reliability_rating",
   "security_rating",
   "security_review_rating",
@@ -25,6 +31,36 @@ Array [
 `;
 
 exports[`getCodeMetrics should return the right metrics for portfolios 2`] = `
+Array [
+  "releasability_rating",
+  "new_reliability_rating",
+  "new_security_rating",
+  "new_security_review_rating",
+  "new_maintainability_rating",
+  "new_lines",
+  "releasability_rating",
+  "reliability_rating",
+  "security_rating",
+  "security_review_rating",
+  "sqale_rating",
+  "ncloc",
+  "alert_status",
+]
+`;
+
+exports[`getCodeMetrics should return the right metrics for portfolios 3`] = `
+Array [
+  "releasability_rating",
+  "new_reliability_rating",
+  "new_security_rating",
+  "new_security_review_rating",
+  "new_maintainability_rating",
+  "new_lines",
+  "alert_status",
+]
+`;
+
+exports[`getCodeMetrics should return the right metrics for portfolios 4`] = `
 Array [
   "releasability_rating",
   "reliability_rating",

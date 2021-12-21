@@ -55,6 +55,12 @@ describe('getCodeMetrics', () => {
   it('should return the right metrics for portfolios', () => {
     expect(getCodeMetrics('VW')).toMatchSnapshot();
     expect(getCodeMetrics('VW', undefined, { includeQGStatus: true })).toMatchSnapshot();
+    expect(
+      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: true })
+    ).toMatchSnapshot();
+    expect(
+      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: false })
+    ).toMatchSnapshot();
   });
 
   it('should return the right metrics for apps', () => {

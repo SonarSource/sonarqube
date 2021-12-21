@@ -30,7 +30,7 @@ const COMPONENT = {
   branch: 'develop'
 };
 const PORTFOLIO = { key: 'bar', name: 'Bar', qualifier: ComponentQualifier.Portfolio };
-const METRICS = { coverage: { id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' } };
+const METRICS = [{ id: '1', key: 'coverage', type: 'PERCENT', name: 'Coverage' }];
 const BRANCH = mockBranch({ name: 'feature' });
 
 it('renders correctly', () => {
@@ -48,7 +48,7 @@ it('renders correctly', () => {
 
 it('renders correctly for a search', () => {
   expect(
-    shallow(<Components components={[COMPONENT]} metrics={{}} rootComponent={COMPONENT} />)
+    shallow(<Components components={[COMPONENT]} metrics={[]} rootComponent={COMPONENT} />)
   ).toMatchSnapshot();
 });
 

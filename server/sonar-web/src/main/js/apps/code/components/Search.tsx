@@ -26,12 +26,15 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import PortfolioNewCodeToggle from './PortfolioNewCodeToggle';
 
 interface Props {
   branchLike?: BranchLike;
   component: T.ComponentMeasure;
   location: Location;
+  newCodeSelected: boolean;
   onSearchClear: () => void;
+  onNewCodeToggle: (newCode: boolean) => void;
   onSearchResults: (results?: T.ComponentMeasure[]) => void;
   router: Router;
 }
@@ -85,7 +88,10 @@ export class Search extends React.PureComponent<Props, State> {
     if (this.mounted) {
       const { branchLike, component, router, location } = this.props;
       this.setState({ loading: true });
-      router.replace({ pathname: location.pathname, query: { ...location.query, search: query } });
+      router.replace({
+        pathname: location.pathname,
+        query: { ...location.query, search: query }
+      });
 
       const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
       const qualifiers = isPortfolio ? 'SVW,TRK' : 'BRC,UTS,FIL';
@@ -125,12 +131,18 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component } = this.props;
+    const { component, newCodeSelected } = this.props;
     const { loading } = this.state;
     const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
     return (
       <div className="code-search" id="code-search">
+        {isPortfolio && (
+          <PortfolioNewCodeToggle
+            onNewCodeToggle={this.props.onNewCodeToggle}
+            showNewCode={newCodeSelected}
+          />
+        )}
         <SearchBox
           minLength={3}
           onChange={this.handleQueryChange}

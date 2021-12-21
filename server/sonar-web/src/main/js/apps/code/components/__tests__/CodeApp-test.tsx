@@ -27,17 +27,21 @@ import { ComponentQualifier } from '../../../../types/component';
 import { loadMoreChildren, retrieveComponent } from '../../utils';
 import { CodeApp } from '../CodeApp';
 
-jest.mock('../../utils', () => ({
-  loadMoreChildren: jest.fn().mockResolvedValue({}),
-  retrieveComponent: jest.fn().mockResolvedValue({
-    breadcrumbs: [],
-    component: { qualifier: 'APP' },
-    components: [],
-    page: 0,
-    total: 1
-  }),
-  retrieveComponentChildren: () => Promise.resolve()
-}));
+jest.mock('../../utils', () => {
+  const { getCodeMetrics } = jest.requireActual('../../utils');
+  return {
+    getCodeMetrics,
+    loadMoreChildren: jest.fn().mockResolvedValue({}),
+    retrieveComponent: jest.fn().mockResolvedValue({
+      breadcrumbs: [],
+      component: { qualifier: 'APP' },
+      components: [],
+      page: 0,
+      total: 1
+    }),
+    retrieveComponentChildren: () => Promise.resolve()
+  };
+});
 
 const METRICS = {
   coverage: { id: '2', key: 'coverage', type: 'PERCENT', name: 'Coverage', domain: 'Coverage' },
@@ -153,6 +157,44 @@ it('should handle go to parent correctly', async () => {
     pathname: '/code',
     query: { id: 'foo', line: undefined, selected: 'key1' }
   });
+});
+
+it('should correcly display new/overall measure for portfolio', async () => {
+  const component1 = mockComponent({ qualifier: ComponentQualifier.Project });
+  const metrics = {
+    reliability_rating: {
+      id: '2',
+      key: 'reliability_rating',
+      type: 'RATING',
+      name: 'reliability_rating',
+      domain: 'reliability_rating'
+    },
+    new_reliability_rating: {
+      id: '4',
+      key: 'new_reliability_rating',
+      type: 'RATING',
+      name: 'new_reliability_rating',
+      domain: 'new_reliability_rating'
+    }
+  };
+  (retrieveComponent as jest.Mock<any>).mockResolvedValueOnce({
+    breadcrumbs: [],
+    component: mockComponent(),
+    components: [component1],
+    page: 0,
+    total: 1
+  });
+
+  const wrapper = shallowRender({
+    component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
+    metrics
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find('withKeyboardNavigation(Components)').props()).toMatchSnapshot('new metrics');
+  wrapper.setState({ newCodeSelected: false });
+  expect(wrapper.find('withKeyboardNavigation(Components)').props()).toMatchSnapshot(
+    'overall metrics'
+  );
 });
 
 it('should handle select correctly', () => {

@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import { Location } from 'history';
-import { debounce } from 'lodash';
+import { debounce, intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
@@ -35,7 +35,12 @@ import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
-import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
+import {
+  getCodeMetrics,
+  loadMoreChildren,
+  retrieveComponent,
+  retrieveComponentChildren
+} from '../utils';
 import Breadcrumbs from './Breadcrumbs';
 import Components from './Components';
 import Search from './Search';
@@ -69,9 +74,10 @@ interface State {
   searchResults?: T.ComponentMeasure[];
   sourceViewer?: T.ComponentMeasure;
   total: number;
+  newCodeSelected: boolean;
 }
 
-export class CodeApp extends React.PureComponent<Props, State> {
+export class CodeApp extends React.Component<Props, State> {
   mounted = false;
   state: State;
 
@@ -81,7 +87,8 @@ export class CodeApp extends React.PureComponent<Props, State> {
       breadcrumbs: [],
       loading: true,
       page: 0,
-      total: 0
+      total: 0,
+      newCodeSelected: true
     };
     this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
   }
@@ -225,6 +232,10 @@ export class CodeApp extends React.PureComponent<Props, State> {
     this.setState({ highlighted: undefined });
   };
 
+  handleSelectNewCode = (newCodeSelected: boolean) => {
+    this.setState({ newCodeSelected });
+  };
+
   handleUpdate = () => {
     const { component, location } = this.props;
     const { selected } = location.query;
@@ -248,6 +259,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
       components = [],
       highlighted,
       loading,
+      newCodeSelected,
       total,
       searchResults,
       sourceViewer
@@ -265,6 +277,12 @@ export class CodeApp extends React.PureComponent<Props, State> {
       'new-loading': loading,
       'search-results': showSearch
     });
+
+    const metricKeys = intersection(
+      getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
+      Object.keys(this.props.metrics)
+    );
+    const metrics = metricKeys.map(metric => this.props.metrics[metric]);
 
     const defaultTitle =
       baseComponent && ['APP', 'VW', 'SVW'].includes(baseComponent.qualifier)
@@ -284,6 +302,8 @@ export class CodeApp extends React.PureComponent<Props, State> {
           <Search
             branchLike={branchLike}
             component={component}
+            newCodeSelected={newCodeSelected}
+            onNewCodeToggle={this.handleSelectNewCode}
             onSearchClear={this.handleSearchClear}
             onSearchResults={this.handleSearchResults}
           />
@@ -316,7 +336,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
                   branchLike={branchLike}
                   components={components}
                   cycle={true}
-                  metrics={this.props.metrics}
+                  metrics={metrics}
                   onEndOfList={this.handleLoadMore}
                   onGoToParent={this.handleGoToParent}
                   onHighlight={this.handleHighlight}
@@ -334,7 +354,7 @@ export class CodeApp extends React.PureComponent<Props, State> {
               <Components
                 branchLike={this.props.branchLike}
                 components={searchResults}
-                metrics={{}}
+                metrics={[]}
                 onHighlight={this.handleHighlight}
                 onSelect={this.handleSelect}
                 rootComponent={component}

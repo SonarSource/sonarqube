@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { intersection, sortBy } from 'lodash';
+import { sortBy } from 'lodash';
 import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { BranchLike } from '../../../types/branch-like';
-import { getCodeMetrics } from '../utils';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
@@ -31,7 +30,7 @@ interface Props {
   baseComponent?: T.ComponentMeasure;
   branchLike?: BranchLike;
   components: T.ComponentMeasure[];
-  metrics: T.Dict<T.Metric>;
+  metrics: T.Metric[];
   rootComponent: T.ComponentMeasure;
   selected?: T.ComponentMeasure;
 }
@@ -41,12 +40,8 @@ const BASE_COLUMN_COUNT = 4;
 export class Components extends React.PureComponent<Props> {
   render() {
     const { baseComponent, branchLike, components, rootComponent, selected } = this.props;
-    const metricKeys = intersection(
-      getCodeMetrics(rootComponent.qualifier, branchLike),
-      Object.keys(this.props.metrics)
-    );
-    const metrics = metricKeys.map(metric => this.props.metrics[metric]);
-    const colSpan = metrics.length + BASE_COLUMN_COUNT;
+
+    const colSpan = this.props.metrics.length + BASE_COLUMN_COUNT;
     const canBePinned = baseComponent && !['APP', 'VW', 'SVW'].includes(baseComponent.qualifier);
 
     return (
@@ -55,7 +50,7 @@ export class Components extends React.PureComponent<Props> {
           <ComponentsHeader
             baseComponent={baseComponent}
             canBePinned={canBePinned}
-            metrics={metricKeys}
+            metrics={this.props.metrics.map(metric => metric.key)}
             rootComponent={rootComponent}
           />
         )}
@@ -68,7 +63,7 @@ export class Components extends React.PureComponent<Props> {
                 component={baseComponent}
                 hasBaseComponent={false}
                 key={baseComponent.key}
-                metrics={metrics}
+                metrics={this.props.metrics}
                 rootComponent={rootComponent}
               />
               <tr className="blank">
@@ -96,7 +91,7 @@ export class Components extends React.PureComponent<Props> {
                 component={component}
                 hasBaseComponent={baseComponent !== undefined}
                 key={getComponentMeasureUniqueKey(component)}
-                metrics={metrics}
+                metrics={this.props.metrics}
                 previous={index > 0 ? list[index - 1] : undefined}
                 rootComponent={rootComponent}
                 selected={

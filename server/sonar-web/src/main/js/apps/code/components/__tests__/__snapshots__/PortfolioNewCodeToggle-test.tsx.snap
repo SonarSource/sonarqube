@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div
+  className="big-spacer-right"
+>
+  <div
+    className="button-group"
+  >
+    <Button
+      className="button-active"
+      onClick={[Function]}
+    >
+      projects.view.new_code
+    </Button>
+    <Button
+      onClick={[Function]}
+    >
+      projects.view.overall_code
+    </Button>
+  </div>
+</div>
+`;

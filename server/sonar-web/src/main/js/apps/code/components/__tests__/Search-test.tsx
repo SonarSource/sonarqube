@@ -23,6 +23,7 @@ import { getTree } from '../../../../api/components';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../types/component';
 import { Search } from '../Search';
 
 jest.mock('../../../../api/components', () => {
@@ -41,6 +42,9 @@ jest.mock('../../../../api/components', () => {
 
 it('should render correcly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(
+    shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) })
+  ).toMatchSnapshot('node code toggle for portfolio');
 });
 
 it('should search correct query on mount', async () => {
@@ -100,10 +104,12 @@ it('should handle search correctly', async () => {
 function shallowRender(props?: Partial<Search['props']>) {
   return shallow<Search>(
     <Search
+      newCodeSelected={false}
       component={mockComponent()}
       location={mockLocation()}
       onSearchClear={jest.fn()}
       onSearchResults={jest.fn()}
+      onNewCodeToggle={jest.fn()}
       router={mockRouter()}
       {...props}
     />

@@ -20,6 +20,7 @@
 import { getBreadcrumbs, getChildren, getComponent } from '../../api/components';
 import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
+import { isPortfolioLike } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
 import {
   addComponent,
@@ -49,6 +50,15 @@ const PORTFOLIO_METRICS = [
   MetricKey.security_review_rating,
   MetricKey.sqale_rating,
   MetricKey.ncloc
+];
+
+const NEW_PORTFOLIO_METRICS = [
+  MetricKey.releasability_rating,
+  MetricKey.new_reliability_rating,
+  MetricKey.new_security_rating,
+  MetricKey.new_security_review_rating,
+  MetricKey.new_maintainability_rating,
+  MetricKey.new_lines
 ];
 
 const LEAK_METRICS = [
@@ -104,10 +114,17 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: T.Breadc
 export function getCodeMetrics(
   qualifier: string,
   branchLike?: BranchLike,
-  options: { includeQGStatus?: boolean } = {}
+  options: { includeQGStatus?: boolean; newCode?: boolean } = {}
 ) {
-  if (['VW', 'SVW'].includes(qualifier)) {
-    const metrics = [...PORTFOLIO_METRICS];
+  if (isPortfolioLike(qualifier)) {
+    let metrics: MetricKey[] = [];
+    if (options?.newCode === undefined) {
+      metrics = [...NEW_PORTFOLIO_METRICS, ...PORTFOLIO_METRICS];
+    } else if (options?.newCode) {
+      metrics = [...NEW_PORTFOLIO_METRICS];
+    } else {
+      metrics = [...PORTFOLIO_METRICS];
+    }
     return options.includeQGStatus ? metrics.concat(MetricKey.alert_status) : metrics;
   }
   if (qualifier === 'APP') {
@@ -159,7 +176,9 @@ export function retrieveComponentChildren(
     });
   }
 
-  const metrics = getCodeMetrics(qualifier, branchLike, { includeQGStatus: true });
+  const metrics = getCodeMetrics(qualifier, branchLike, {
+    includeQGStatus: true
+  });
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
@@ -231,7 +250,9 @@ export function loadMoreChildren(
   instance: { mounted: boolean },
   branchLike?: BranchLike
 ): Promise<Children> {
-  const metrics = getCodeMetrics(qualifier, branchLike, { includeQGStatus: true });
+  const metrics = getCodeMetrics(qualifier, branchLike, {
+    includeQGStatus: true
+  });
 
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,

@@ -18,3 +18,26 @@ exports[`should render correcly 1`] = `
   />
 </div>
 `;
+
+exports[`should render correcly: node code toggle for portfolio 1`] = `
+<div
+  className="code-search"
+  id="code-search"
+>
+  <PortfolioNewCodeToggle
+    onNewCodeToggle={[MockFunction]}
+    showNewCode={false}
+  />
+  <SearchBox
+    minLength={3}
+    onChange={[Function]}
+    onKeyDown={[Function]}
+    placeholder="code.search_placeholder.portfolio"
+    value=""
+  />
+  <DeferredSpinner
+    className="spacer-left"
+    loading={false}
+  />
+</div>
+`;

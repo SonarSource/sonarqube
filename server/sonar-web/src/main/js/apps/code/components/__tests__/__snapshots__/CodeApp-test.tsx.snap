@@ -1,5 +1,171 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should correcly display new/overall measure for portfolio: new metrics 1`] = `
+Object {
+  "baseComponent": Object {
+    "breadcrumbs": Array [],
+    "key": "my-project",
+    "name": "MyProject",
+    "qualifier": "TRK",
+    "qualityGate": Object {
+      "isDefault": true,
+      "key": "30",
+      "name": "Sonar way",
+    },
+    "qualityProfiles": Array [
+      Object {
+        "deleted": false,
+        "key": "my-qp",
+        "language": "ts",
+        "name": "Sonar way",
+      },
+    ],
+    "tags": Array [],
+  },
+  "branchLike": undefined,
+  "components": Array [
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    },
+  ],
+  "cycle": true,
+  "metrics": Array [
+    Object {
+      "domain": "new_reliability_rating",
+      "id": "4",
+      "key": "new_reliability_rating",
+      "name": "new_reliability_rating",
+      "type": "RATING",
+    },
+  ],
+  "onEndOfList": [Function],
+  "onGoToParent": [Function],
+  "onHighlight": [Function],
+  "onSelect": [Function],
+  "rootComponent": Object {
+    "breadcrumbs": Array [],
+    "key": "my-project",
+    "name": "MyProject",
+    "qualifier": "VW",
+    "qualityGate": Object {
+      "isDefault": true,
+      "key": "30",
+      "name": "Sonar way",
+    },
+    "qualityProfiles": Array [
+      Object {
+        "deleted": false,
+        "key": "my-qp",
+        "language": "ts",
+        "name": "Sonar way",
+      },
+    ],
+    "tags": Array [],
+  },
+  "selected": undefined,
+}
+`;
+
+exports[`should correcly display new/overall measure for portfolio: overall metrics 1`] = `
+Object {
+  "baseComponent": Object {
+    "breadcrumbs": Array [],
+    "key": "my-project",
+    "name": "MyProject",
+    "qualifier": "TRK",
+    "qualityGate": Object {
+      "isDefault": true,
+      "key": "30",
+      "name": "Sonar way",
+    },
+    "qualityProfiles": Array [
+      Object {
+        "deleted": false,
+        "key": "my-qp",
+        "language": "ts",
+        "name": "Sonar way",
+      },
+    ],
+    "tags": Array [],
+  },
+  "branchLike": undefined,
+  "components": Array [
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    },
+  ],
+  "cycle": true,
+  "metrics": Array [
+    Object {
+      "domain": "reliability_rating",
+      "id": "2",
+      "key": "reliability_rating",
+      "name": "reliability_rating",
+      "type": "RATING",
+    },
+  ],
+  "onEndOfList": [Function],
+  "onGoToParent": [Function],
+  "onHighlight": [Function],
+  "onSelect": [Function],
+  "rootComponent": Object {
+    "breadcrumbs": Array [],
+    "key": "my-project",
+    "name": "MyProject",
+    "qualifier": "VW",
+    "qualityGate": Object {
+      "isDefault": true,
+      "key": "30",
+      "name": "Sonar way",
+    },
+    "qualityProfiles": Array [
+      Object {
+        "deleted": false,
+        "key": "my-qp",
+        "language": "ts",
+        "name": "Sonar way",
+      },
+    ],
+    "tags": Array [],
+  },
+  "selected": undefined,
+}
+`;
+
 exports[`should render correclty when no sub component for APP 1`] = `
 <div
   className="page page-limited"
@@ -55,6 +221,8 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
         "qualifier": "APP",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -66,7 +234,7 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
     >
       <withKeyboardNavigation(Components)
         components={Array []}
-        metrics={Object {}}
+        metrics={Array []}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
@@ -107,6 +275,8 @@ exports[`should render correclty when no sub component for APP: with sub compone
         "qualifier": "APP",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -151,22 +321,15 @@ exports[`should render correclty when no sub component for APP: with sub compone
         }
         cycle={true}
         metrics={
-          Object {
-            "coverage": Object {
+          Array [
+            Object {
               "domain": "Coverage",
               "id": "2",
               "key": "coverage",
               "name": "Coverage",
               "type": "PERCENT",
             },
-            "new_bugs": Object {
-              "domain": "Reliability",
-              "id": "4",
-              "key": "new_bugs",
-              "name": "New Bugs",
-              "type": "INT",
-            },
-          }
+          ]
         }
         onEndOfList={[Function]}
         onGoToParent={[Function]}
@@ -246,6 +409,8 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
         "qualifier": "SVW",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -257,7 +422,7 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
     >
       <withKeyboardNavigation(Components)
         components={Array []}
-        metrics={Object {}}
+        metrics={Array []}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
@@ -298,6 +463,8 @@ exports[`should render correclty when no sub component for SVW: with sub compone
         "qualifier": "SVW",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -341,24 +508,7 @@ exports[`should render correclty when no sub component for SVW: with sub compone
           ]
         }
         cycle={true}
-        metrics={
-          Object {
-            "coverage": Object {
-              "domain": "Coverage",
-              "id": "2",
-              "key": "coverage",
-              "name": "Coverage",
-              "type": "PERCENT",
-            },
-            "new_bugs": Object {
-              "domain": "Reliability",
-              "id": "4",
-              "key": "new_bugs",
-              "name": "New Bugs",
-              "type": "INT",
-            },
-          }
-        }
+        metrics={Array []}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
@@ -437,6 +587,8 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
         "qualifier": "TRK",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -448,7 +600,7 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
     >
       <withKeyboardNavigation(Components)
         components={Array []}
-        metrics={Object {}}
+        metrics={Array []}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
@@ -489,6 +641,8 @@ exports[`should render correclty when no sub component for TRK: with sub compone
         "qualifier": "TRK",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -533,22 +687,15 @@ exports[`should render correclty when no sub component for TRK: with sub compone
         }
         cycle={true}
         metrics={
-          Object {
-            "coverage": Object {
+          Array [
+            Object {
               "domain": "Coverage",
               "id": "2",
               "key": "coverage",
               "name": "Coverage",
               "type": "PERCENT",
             },
-            "new_bugs": Object {
-              "domain": "Reliability",
-              "id": "4",
-              "key": "new_bugs",
-              "name": "New Bugs",
-              "type": "INT",
-            },
-          }
+          ]
         }
         onEndOfList={[Function]}
         onGoToParent={[Function]}
@@ -628,6 +775,8 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
         "qualifier": "VW",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -639,7 +788,7 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
     >
       <withKeyboardNavigation(Components)
         components={Array []}
-        metrics={Object {}}
+        metrics={Array []}
         onHighlight={[Function]}
         onSelect={[Function]}
         rootComponent={
@@ -680,6 +829,8 @@ exports[`should render correclty when no sub component for VW: with sub componen
         "qualifier": "VW",
       }
     }
+    newCodeSelected={true}
+    onNewCodeToggle={[Function]}
     onSearchClear={[Function]}
     onSearchResults={[Function]}
   />
@@ -723,24 +874,7 @@ exports[`should render correclty when no sub component for VW: with sub componen
           ]
         }
         cycle={true}
-        metrics={
-          Object {
-            "coverage": Object {
-              "domain": "Coverage",
-              "id": "2",
-              "key": "coverage",
-              "name": "Coverage",
-              "type": "PERCENT",
-            },
-            "new_bugs": Object {
-              "domain": "Reliability",
-              "id": "4",
-              "key": "new_bugs",
-              "name": "New Bugs",
-              "type": "INT",
-            },
-          }
-        }
+        metrics={Array []}
         onEndOfList={[Function]}
         onGoToParent={[Function]}
         onHighlight={[Function]}
