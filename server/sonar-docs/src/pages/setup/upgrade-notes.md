@@ -3,6 +3,14 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.3 Upgrade Notes  
+**Portfolio overview now shows ratings on both New Code and Overall Code**  
+The portfolio overview now provides a high-level view on project health according to your New Code definition as well as Overall Code. New Code ratings are shown for Reliability, Security Vulnerabilities, Security Review, and Maintainability.
+
+You need to recompute your portfolios after upgrading to 9.3 to see ratings on New Code.
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17060)
+
 ## Release 9.2 Upgrade Notes
 **Bitbucket Cloud authentication now built-in**  
 Support for Bitbucket Cloud authentication is now built-in. If you were using the Bitbucket Cloud authentication plugin before, you need to remove it from SonarQube before upgrading.
