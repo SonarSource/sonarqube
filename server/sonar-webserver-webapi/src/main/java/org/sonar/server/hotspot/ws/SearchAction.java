@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.resources.Qualifiers;
@@ -311,8 +312,12 @@ public class SearchAction implements HotspotsWsAction {
 
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
-    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) result.getHits().getTotalHits().value);
+    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) getTotalHits(result).value);
     return new SearchResponseData(paging, hotspots);
+  }
+
+  private static TotalHits getTotalHits(SearchResponse response) {
+    return ofNullable(response.getHits().getTotalHits()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
   private List<IssueDto> toIssueDtos(DbSession dbSession, List<String> issueKeys) {

@@ -20,7 +20,6 @@
 package org.sonar.scanner.repository;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;

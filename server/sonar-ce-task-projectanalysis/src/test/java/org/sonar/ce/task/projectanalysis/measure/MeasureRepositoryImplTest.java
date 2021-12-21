@@ -191,11 +191,6 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
-  public void update_throws_NPE_if_Component_argument_is_null() {
-
-  }
-
-  @Test
   public void update_throws_NPE_if_Component_metric_is_null() {
     assertThatThrownBy(() -> underTest.update(FILE_COMPONENT, null, SOME_MEASURE))
       .isInstanceOf(NullPointerException.class);

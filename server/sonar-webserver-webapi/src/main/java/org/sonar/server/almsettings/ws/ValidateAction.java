@@ -19,21 +19,17 @@
  */
 package org.sonar.server.almsettings.ws;
 
-import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.AzureDevOpsValidator;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
-import org.sonar.api.config.internal.Encryption;
-import org.sonar.api.config.internal.Settings;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
-import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
-import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.server.user.UserSession;
 
 public class ValidateAction implements AlmSettingsWsAction {
@@ -41,10 +37,8 @@ public class ValidateAction implements AlmSettingsWsAction {
   private static final String PARAM_KEY = "key";
 
   private final DbClient dbClient;
-  private final Encryption encryption;
   private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
-  private final AzureDevOpsHttpClient azureDevOpsHttpClient;
   private final GitlabGlobalSettingsValidator gitlabSettingsValidator;
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator;
   private final BitbucketServerSettingsValidator bitbucketServerSettingsValidator;
@@ -52,20 +46,16 @@ public class ValidateAction implements AlmSettingsWsAction {
   private final AzureDevOpsValidator azureDevOpsValidator;
 
   public ValidateAction(DbClient dbClient,
-    Settings settings,
     UserSession userSession,
     AlmSettingsSupport almSettingsSupport,
-    AzureDevOpsHttpClient azureDevOpsHttpClient,
     GithubGlobalSettingsValidator githubGlobalSettingsValidator,
     GitlabGlobalSettingsValidator gitlabSettingsValidator,
     BitbucketServerSettingsValidator bitbucketServerSettingsValidator,
     BitbucketCloudValidator bitbucketCloudValidator,
     AzureDevOpsValidator azureDevOpsValidator) {
     this.dbClient = dbClient;
-    this.encryption = settings.getEncryption();
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
-    this.azureDevOpsHttpClient = azureDevOpsHttpClient;
     this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.gitlabSettingsValidator = gitlabSettingsValidator;
     this.bitbucketServerSettingsValidator = bitbucketServerSettingsValidator;

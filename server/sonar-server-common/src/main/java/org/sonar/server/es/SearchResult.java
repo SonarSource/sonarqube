@@ -24,7 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
+
+import static java.util.Optional.ofNullable;
 
 public class SearchResult<DOC extends BaseDoc> {
 
@@ -34,8 +37,12 @@ public class SearchResult<DOC extends BaseDoc> {
 
   public SearchResult(SearchResponse response, Function<Map<String, Object>, DOC> converter, ZoneId timeZone) {
     this.facets = new Facets(response, timeZone);
-    this.total = response.getHits().getTotalHits().value;
+    this.total = getTotalHits(response).value;
     this.docs = EsUtils.convertToDocs(response.getHits(), converter);
+  }
+
+  private static TotalHits getTotalHits(SearchResponse response) {
+    return ofNullable(response.getHits().getTotalHits()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
   public List<DOC> getDocs() {

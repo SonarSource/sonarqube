@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.rule.Severity;
@@ -407,8 +408,12 @@ public class SearchAction implements IssuesWsAction {
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, facets);
 
     // FIXME allow long in Paging
-    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits().value);
+    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
+  }
+
+  private static TotalHits getTotalHits(SearchResponse response) {
+    return ofNullable(response.getHits().getTotalHits()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
   private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {

@@ -75,7 +75,7 @@ public class ValidateActionTest {
   private final BitbucketCloudValidator bitbucketCloudValidator = new BitbucketCloudValidator(bitbucketCloudRestClient, settings);
   private final AzureDevOpsValidator azureDevOpsValidator = new AzureDevOpsValidator(azureDevOpsHttpClient, settings);
   private final WsActionTester ws = new WsActionTester(
-    new ValidateAction(db.getDbClient(), settings, userSession, almSettingsSupport, azureDevOpsHttpClient, githubGlobalSettingsValidator,
+    new ValidateAction(db.getDbClient(), userSession, almSettingsSupport, githubGlobalSettingsValidator,
       gitlabSettingsValidator, bitbucketServerSettingsValidator, bitbucketCloudValidator, azureDevOpsValidator));
 
   @BeforeClass

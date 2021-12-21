@@ -17,26 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.repository;
+@ParametersAreNonnullByDefault
+package org.sonar.server.monitoring.ce;
 
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-@Immutable
-public class MultiModuleProjectRepository extends ProjectRepositories {
-
-  private Map<String, SingleProjectRepository> repositoriesPerModule;
-
-  public MultiModuleProjectRepository(Map<String, SingleProjectRepository> repositoriesPerModule) {
-    super(true);
-    this.repositoriesPerModule = Map.copyOf(repositoriesPerModule);
-  }
-
-  @CheckForNull
-  public FileData fileData(String moduleKeyWithBranch, String path) {
-    SingleProjectRepository repository = repositoriesPerModule.get(moduleKeyWithBranch);
-    return repository == null ? null : repository.fileData(path);
-  }
-
-}

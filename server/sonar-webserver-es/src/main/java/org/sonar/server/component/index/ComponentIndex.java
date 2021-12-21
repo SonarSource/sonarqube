@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -53,6 +54,7 @@ import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
+import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
@@ -194,7 +196,11 @@ public class ComponentIndex {
     SearchHits hitList = docs.getHits();
     SearchHit[] hits = hitList.getHits();
 
-    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), hitList.getTotalHits().value);
+    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), getTotalHits(hitList.getTotalHits()).value);
+  }
+
+  private static TotalHits getTotalHits(@Nullable TotalHits totalHits) {
+    return ofNullable(totalHits).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
   private static <T> void setNullable(@Nullable T parameter, Consumer<T> consumer) {

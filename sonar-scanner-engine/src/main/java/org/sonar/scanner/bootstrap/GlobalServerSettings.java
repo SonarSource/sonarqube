@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 

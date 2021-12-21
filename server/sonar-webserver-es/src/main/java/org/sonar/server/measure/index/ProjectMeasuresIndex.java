@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -74,6 +75,7 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
@@ -270,7 +272,7 @@ public class ProjectMeasuresIndex {
     SearchResponse response = client.search(EsClient.prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
       .source(searchSourceBuilder));
 
-    statistics.setProjectCount(response.getHits().getTotalHits().value);
+    statistics.setProjectCount(getTotalHits(response.getHits().getTotalHits()).value);
     statistics.setProjectCountByLanguage(termsToMap(response.getAggregations().get(FIELD_LANGUAGES)));
     Function<Terms.Bucket, Long> bucketToNcloc = bucket -> Math.round(((Sum) bucket.getAggregations().get(FIELD_NCLOC_DISTRIBUTION_NCLOC)).getValue());
     Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_DISTRIBUTION))
@@ -280,6 +282,10 @@ public class ProjectMeasuresIndex {
     statistics.setNclocByLanguage(nclocByLanguage);
 
     return statistics.build();
+  }
+
+  private static TotalHits getTotalHits(@Nullable TotalHits totalHits) {
+    return ofNullable(totalHits).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 
   private static void addSort(ProjectMeasuresQuery query, SearchSourceBuilder requestBuilder) {
