@@ -83,6 +83,7 @@ import {
   isPullRequest,
   sortBranches
 } from '../../../helpers/branch-like';
+import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import * as measures from '../../../helpers/measures';
 import {
@@ -143,6 +144,7 @@ const exposeLibraries = () => {
       console.warn('SonarHelpers usages are deprecated since SonarQube 8.7');
       return {
         getBranchLikeQuery,
+        handleRequiredAuthentication,
         isBranch,
         isMainBranch,
         isPullRequest,
