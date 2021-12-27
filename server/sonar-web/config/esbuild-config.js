@@ -24,7 +24,7 @@ const postCssCustomProperties = require('postcss-custom-properties');
 const documentationPlugin = require('./esbuild-documentation-plugin');
 const htmlPlugin = require('./esbuild-html-plugin');
 const htmlTemplate = require('./indexHtmlTemplate');
-const { getCustomProperties } = require('./utils');
+const { getCustomProperties, TARGET_BROWSERS } = require('./utils');
 
 module.exports = release => {
   const plugins = [
@@ -63,7 +63,7 @@ module.exports = release => {
     minify: release,
     metafile: true,
     sourcemap: true,
-    target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
+    target: TARGET_BROWSERS,
     outdir: 'build/webapp/js',
     entryNames: release ? 'out[hash]' : 'out',
     plugins
