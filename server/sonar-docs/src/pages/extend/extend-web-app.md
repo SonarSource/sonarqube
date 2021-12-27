@@ -103,6 +103,10 @@ The `options` object will contain the following:
 [[info]]
 | SonarQube doesn't guarantee any JavaScript library availability at runtime (except React). If you need a library, include it in the final file.
 
+### CSS files
+
+If you want a static CSS file to be loaded when your extension is bootstrapped, rather than using run-time inclusion of styles, you can pass `true` as a third parameter to the `window.registerExtension()` function. This will trigger the loading of a CSS file that *must* have the same basename as the registering JS file. I.e., if your extension JS file is `/static/global_page.js`, the CSS file must be called `/static/global_page.css`. The bootstrap will wait for the CSS file to be fully loaded before calling the *start* callback.
+
 ## Examples
 
 It is highly recommended you check out [sonar-custom-plugin-example](https://github.com/SonarSource/sonar-custom-plugin-example/tree/7.x/). It contains detailed examples using several front-end frameworks, and its code is thoroughly documented. It also describes how to run a local development server to speed up the front-end development, without requiring a full rebuild and re-deploy to test your changes.

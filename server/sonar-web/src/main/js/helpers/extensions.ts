@@ -18,9 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getBaseUrl } from '../helpers/system';
+import { ExtensionStartMethod } from '../types/extension';
 import { getExtensionFromCache } from './extensionsHandler';
 
 let librariesExposed = false;
+
+export function installStyles(url: string, target: 'body' | 'head' = 'head'): Promise<any> {
+  return new Promise(resolve => {
+    const linkTag = document.createElement('link');
+    linkTag.href = `${getBaseUrl()}${url}`;
+    linkTag.rel = 'stylesheet';
+    linkTag.onload = resolve;
+    document.getElementsByTagName(target)[0].appendChild(linkTag);
+  });
+}
 
 export function installScript(url: string, target: 'body' | 'head' = 'body'): Promise<any> {
   return new Promise(resolve => {
@@ -31,10 +42,10 @@ export function installScript(url: string, target: 'body' | 'head' = 'body'): Pr
   });
 }
 
-export async function getExtensionStart(key: string) {
+export async function getExtensionStart(key: string): Promise<ExtensionStartMethod | undefined> {
   const fromCache = getExtensionFromCache(key);
   if (fromCache) {
-    return Promise.resolve(fromCache);
+    return Promise.resolve(fromCache.start);
   }
 
   if (!librariesExposed) {
@@ -46,9 +57,14 @@ export async function getExtensionStart(key: string) {
 
   await installScript(`/static/${key}.js`);
 
-  const start = getExtensionFromCache(key);
-  if (start) {
-    return start;
+  const extension = getExtensionFromCache(key);
+  if (!extension) {
+    return Promise.reject();
   }
-  return Promise.reject();
+
+  if (extension.providesCSSFile) {
+    await installStyles(`/static/${key}.css`);
+  }
+
+  return extension.start;
 }

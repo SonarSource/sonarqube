@@ -31,8 +31,8 @@ describe('installExtensionsHandler & extensions.getExtensionFromCache', () => {
     expect((window as any).registerExtension).toEqual(expect.any(Function));
 
     const start = jest.fn();
-    (window as any).registerExtension('foo', start);
-    expect(getExtensionFromCache('foo')).toBe(start);
+    (window as any).registerExtension('foo', start, true);
+    expect(getExtensionFromCache('foo')).toEqual({ start, providesCSSFile: true });
   });
 });
 

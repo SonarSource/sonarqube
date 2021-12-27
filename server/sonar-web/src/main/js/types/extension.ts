@@ -27,6 +27,11 @@ export enum AdminPageExtension {
   GovernanceConsole = 'governance/views_console'
 }
 
+export interface ExtensionRegistryEntry {
+  start: ExtensionStartMethod;
+  providesCSSFile: boolean;
+}
+
 export interface ExtensionStartMethod {
   (params: ExtensionStartMethodParameter | string): ExtensionStartMethodReturnType;
 }
