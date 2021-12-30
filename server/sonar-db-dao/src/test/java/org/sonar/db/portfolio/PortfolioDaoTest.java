@@ -251,7 +251,7 @@ public class PortfolioDaoTest {
       .extracting(ReferenceDto::getSourceUuid, ReferenceDto::getTargetUuid, ReferenceDto::getTargetRootUuid, ReferenceDto::getBranchUuids)
       .containsOnly(
         tuple("portfolio3", app1.getUuid(), app1.getUuid(), singleton("branch1")),
-        tuple("portfolio2", app1.getUuid(), app1.getUuid(), emptySet()));
+        tuple("portfolio2", app1.getUuid(), app1.getUuid(), singleton(app1.getUuid())));
   }
 
   @Test
@@ -384,7 +384,7 @@ public class PortfolioDaoTest {
 
     assertThat(appFromDb.get())
       .extracting(ReferenceDto::getTargetKey, ReferenceDto::getTargetName, ReferenceDto::getBranchUuids)
-      .containsExactly("app", "app", Set.of(branch1.getUuid(), branch2.getUuid()));
+      .containsExactly("app", "app", Set.of(branch1.getUuid(), branch2.getUuid(), app.getUuid()));
 
   }
 
@@ -541,14 +541,14 @@ public class PortfolioDaoTest {
     assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app.getKey()))
       .isPresent()
       .map(ReferenceDto::getBranchUuids)
-      .contains(Set.of(branch1.getUuid(), branch2.getUuid()));
+      .contains(Set.of(branch1.getUuid(), branch2.getUuid(), app.getUuid()));
 
     portfolioDao.deleteReferenceBranch(db.getSession(), portfolio.getUuid(), app.getUuid(), branch1.getUuid());
 
     assertThat(portfolioDao.selectReferenceToApp(db.getSession(), portfolio.getUuid(), app.getKey()))
       .isPresent()
       .map(ReferenceDto::getBranchUuids)
-      .contains(Set.of(branch2.getUuid()));
+      .contains(Set.of(branch2.getUuid(), app.getUuid()));
 
   }
 
