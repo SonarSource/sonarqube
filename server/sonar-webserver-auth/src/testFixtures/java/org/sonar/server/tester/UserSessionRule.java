@@ -262,6 +262,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean hasProjectPermission(String permission, String projectUuid) {
+    return currentUserSession.hasProjectPermission(permission, projectUuid);
+  }
+
+  @Override
   public boolean hasChildProjectsPermission(String permission, ComponentDto component) {
     return currentUserSession.hasChildProjectsPermission(permission, component);
   }

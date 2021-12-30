@@ -72,6 +72,31 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getUuid).containsOnly(group.getUuid());
     assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ComponentDto())).isFalse();
     assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ProjectDto())).isFalse();
+    assertThat(threadLocalUserSession.hasProjectPermission(USER, new ProjectDto().getUuid())).isFalse();
+  }
+
+  @Test
+  public void get_session_for_root_user() {
+    GroupDto group = GroupTesting.newGroupDto();
+    MockUserSession expected = new MockUserSession("root")
+      .setUuid("root-uuid")
+      .setResetPassword(true)
+      .setLastSonarlintConnectionDate(1000L)
+      .setGroups(group);
+    expected.setRoot(true);
+    threadLocalUserSession.set(expected);
+
+    UserSession session = threadLocalUserSession.get();
+    assertThat(session).isSameAs(expected);
+    assertThat(threadLocalUserSession.getLastSonarlintConnectionDate()).isEqualTo(1000L);
+    assertThat(threadLocalUserSession.getLogin()).isEqualTo("root");
+    assertThat(threadLocalUserSession.getUuid()).isEqualTo("root-uuid");
+    assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
+    assertThat(threadLocalUserSession.shouldResetPassword()).isTrue();
+    assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getUuid).containsOnly(group.getUuid());
+    assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ComponentDto())).isTrue();
+    assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ProjectDto())).isTrue();
+    assertThat(threadLocalUserSession.hasProjectPermission(USER, new ProjectDto().getUuid())).isTrue();
   }
 
   @Test

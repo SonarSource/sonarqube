@@ -106,6 +106,14 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
+  public final boolean hasProjectPermission(String permission, String projectUuid) {
+    if (isRoot()) {
+      return true;
+    }
+    return hasProjectUuidPermission(permission, projectUuid);
+  }
+
+  @Override
   public final boolean hasChildProjectsPermission(String permission, ComponentDto component) {
     if (isRoot()) {
       return true;

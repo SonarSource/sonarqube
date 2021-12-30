@@ -195,6 +195,8 @@ public interface UserSession {
 
   boolean hasProjectPermission(String permission, ProjectDto project);
 
+  boolean hasProjectPermission(String permission, String projectUuid);
+
   boolean hasChildProjectsPermission(String permission, ComponentDto component);
 
   boolean hasChildProjectsPermission(String permission, ProjectDto component);
