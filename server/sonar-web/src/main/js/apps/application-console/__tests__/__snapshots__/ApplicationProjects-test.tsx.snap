@@ -25,9 +25,9 @@ exports[`should render correctly in application mode 1`] = `
 />
 `;
 
-exports[`should render correctly in application mode 2`] = `
+exports[`should render correctly in application mode: render project: basic 1`] = `
 <div
-  className="views-project-item display-flex-center"
+  className="views-project-item display-flex-center little-padded"
 >
   <QualifierIcon
     className="spacer-right"
@@ -48,14 +48,17 @@ exports[`should render correctly in application mode 2`] = `
 </div>
 `;
 
-exports[`should render correctly in application mode 3`] = `
+exports[`should render correctly in application mode: render project: inaccessible 1`] = `
 <div
-  className="views-project-item display-flex-center"
+  className="views-project-item display-flex-center little-padded bg-warning"
 >
-  <QualifierIcon
-    className="spacer-right"
-    qualifier="TRK"
-  />
+  <Tooltip
+    overlay="application_console.project_inaccessible"
+  >
+    <WarningIcon
+      className="spacer-right"
+    />
+  </Tooltip>
   <div>
     <div
       title="test2"

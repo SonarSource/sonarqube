@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { find, without } from 'lodash';
 import * as React from 'react';
 import {
@@ -28,7 +29,10 @@ import SelectList, {
   SelectListFilter,
   SelectListSearchParams
 } from '../../components/controls/SelectList';
+import Tooltip from '../../components/controls/Tooltip';
 import QualifierIcon from '../../components/icons/QualifierIcon';
+import WarningIcon from '../../components/icons/WarningIcon';
+import { translate } from '../../helpers/l10n';
 import { Application, ApplicationProject } from '../../types/application';
 
 interface Props {
@@ -185,8 +189,17 @@ export default class ApplicationProjects extends React.PureComponent<Props, Stat
     }
 
     return (
-      <div className="views-project-item display-flex-center">
-        <QualifierIcon className="spacer-right" qualifier="TRK" />
+      <div
+        className={classNames('views-project-item display-flex-center little-padded', {
+          'bg-warning': !project.accessible
+        })}>
+        {!project.accessible ? (
+          <Tooltip overlay={translate('application_console.project_inaccessible')}>
+            <WarningIcon className="spacer-right" />
+          </Tooltip>
+        ) : (
+          <QualifierIcon className="spacer-right" qualifier="TRK" />
+        )}
         <div>
           <div title={project.name}>{project.name}</div>
           <div className="note">{project.key}</div>

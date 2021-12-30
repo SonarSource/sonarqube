@@ -42,4 +42,5 @@ export interface ApplicationProject {
   key: string;
   name: string;
   selected?: boolean;
+  accessible?: boolean;
 }

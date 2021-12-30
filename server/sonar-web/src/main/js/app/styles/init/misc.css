@@ -157,6 +157,10 @@ th.hide-overflow {
   padding: var(--gridSize) !important;
 }
 
+.little-padded {
+  padding: calc(var(--gridSize) / 2) !important;
+}
+
 .big-padded {
   padding: calc(2 * var(--gridSize)) !important;
 }
@@ -601,8 +605,8 @@ th.huge-spacer-right {
 }
 
 .bg-warning {
-  background-color: var(--orange);
-  color: #fff;
+  background-color: var(--alertBackgroundWarning);
+  color: var(--alertTextWarning);
 }
 
 .bg-info {

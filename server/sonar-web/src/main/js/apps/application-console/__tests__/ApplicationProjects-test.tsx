@@ -33,9 +33,16 @@ jest.mock('../../../api/application', () => ({
   getApplicationProjects: jest.fn().mockResolvedValue({
     paging: { pageIndex: 1, pageSize: 3, total: 55 },
     projects: [
-      { key: 'test1', name: 'test1', selected: false },
-      { key: 'test2', name: 'test2', selected: false, disabled: true, includedIn: 'foo' },
-      { key: 'test3', name: 'test3', selected: true }
+      { key: 'test1', name: 'test1', accessible: true, selected: false },
+      {
+        key: 'test2',
+        name: 'test2',
+        accessible: false,
+        selected: false,
+        disabled: true,
+        includedIn: 'foo'
+      },
+      { key: 'test3', name: 'test3', accessible: true, selected: true }
     ]
   }),
   addProjectToApplication: jest.fn().mockResolvedValue({}),
@@ -53,8 +60,9 @@ it('should render correctly in application mode', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot();
-  expect(wrapper.instance().renderElement('test2')).toMatchSnapshot();
+  expect(wrapper.instance().renderElement('test1')).toMatchSnapshot('render project: basic');
+  expect(wrapper.instance().renderElement('test2')).toMatchSnapshot('render project: inaccessible');
+  expect(wrapper.instance().renderElement('cheeseburger')).toMatchInlineSnapshot(`""`);
 
   expect(getApplicationProjects).toHaveBeenCalledWith(
     expect.objectContaining({
