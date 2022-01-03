@@ -518,8 +518,7 @@ sql_postgres106_task:
   <<: *GRADLE_CACHE_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 2
-    memory: 8Gb
+    memory: 5Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   script:
