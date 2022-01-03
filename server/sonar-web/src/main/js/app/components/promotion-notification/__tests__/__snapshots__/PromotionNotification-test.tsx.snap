@@ -13,7 +13,8 @@ exports[`should render correctly: loggedIn 1`] = `
   >
     <img
       alt="SonarQube + SonarLint"
-      src="/images/sq-sl.png"
+      height={80}
+      src="/images/sq-sl.svg"
     />
   </div>
   <div

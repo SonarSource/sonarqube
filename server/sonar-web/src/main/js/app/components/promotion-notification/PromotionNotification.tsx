@@ -48,7 +48,7 @@ export function PromotionNotification(props: PromotionNotificationProps) {
   return (
     <div className="toaster display-flex-center big-padded-left big-padded-right">
       <div className="toaster-icon spacer-right">
-        <img alt="SonarQube + SonarLint" src={`${getBaseUrl()}/images/sq-sl.png`} />
+        <img alt="SonarQube + SonarLint" height={80} src={`${getBaseUrl()}/images/sq-sl.svg`} />
       </div>
       <div className="toaster-content flex-1 padded-left padded-right big-padded-top big-padded-bottom">
         <span className="toaster-title text-bold medium">
