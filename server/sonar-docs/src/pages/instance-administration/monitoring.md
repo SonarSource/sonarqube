@@ -134,4 +134,22 @@ admin  adminpassword
 Note: on `jmxremote.password`, you should apply `chmod 600` or `400` for security reasons.
 
 ## Kubernetes Monitoring
-You can monitor your SonarQube instance using SonarQube's native integration with Prometheus. For more information see the **Monitoring** section of the [Deploy SonarQube on Kubernetes](/setup/sonarqube-on-kubernetes/) page if you're using Community, Developer, or Enterprise Edition. See the [Deploy a SonarQube Cluster on Kubernetes](/setup/sonarqube-cluster-on-kubernetes/) if you're using Data Center Edition.
+You can monitor your SonarQube instance using SonarQube's native integration with Prometheus. Through this integration, you can ensure your instance is running properly and know if you need to take action to prevent future issues. 
+
+Prometheus monitors your SonarQube instance by collecting metrics from the `/api/monitoring/metrics` endpoint. Results are returned in OpenMetrics text format. See Prometheus' documentation on [Exposition Formats](https://prometheus.io/docs/instrumenting/exposition_formats/) for more information on the OpenMetrics text format. 
+
+Monitoring through this endpoint requires authentication. You can access the endpoint following ways:
+
+- **`Authorization:Bearer xxxx` header:** You can use a bearer token during database upgrade and when SonarQube is fully operational. Define the bearer token in the `sonar.properties` file using the `sonar.web.systemPasscode property`.
+- **`X-Sonar-Passcode: xxxxx` header:** You can use `X-Sonar-passcode` during database upgrade and when SonarQube is fully operational. Define `X-Sonar-passcode` in the `sonar.properties` file using the `sonar.web.systemPasscode property`.
+- **username:password and JWT token:** When SonarQube is fully operational, system admins logged in with local or delegated authentication can access the endpoint.  
+
+<!-- static -->
+
+For more information on deploying SonarQube on Kubernetes:
+
+- For Community, Developer, and Enterprise Edition, see [Deploy SonarQube on Kubernetes](/setup/sonarqube-on-kubernetes/). 
+- For Data Center Edition, see [Deploy a SonarQube Cluster on Kubernetes](/setup/sonarqube-cluster-on-kubernetes/).
+
+<!-- /static -->
+
