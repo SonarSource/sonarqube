@@ -23,11 +23,10 @@ import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { doesComponentExists } from '../../../api/components';
-import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
-import { OrganizationInput } from "./OrganizationInput";
 import { isSonarCloud } from "../../../helpers/system";
 import { getBaseUrl } from "sonar-ui-common/helpers/urls";
+import OrganizationInput from './OrganizationInput';
 
 interface Props {
   onProjectCreate: (projectKeys: string[]) => void;
