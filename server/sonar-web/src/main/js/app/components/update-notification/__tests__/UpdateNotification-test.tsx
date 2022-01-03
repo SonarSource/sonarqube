@@ -38,7 +38,7 @@ jest.mock('../../../../api/system', () => {
 });
 
 function formatDate(date: Date): string {
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 it('should render correctly', async () => {
