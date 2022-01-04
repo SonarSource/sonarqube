@@ -312,7 +312,7 @@ export class Menu extends React.PureComponent<Props> {
       this.renderConsoleAppLink(query, isApplication),
       this.renderReportSettingsLink(query, isApplication),
       ...this.renderAdminExtensions(query, isApplication),
-      this.renderImportExportLink(query),
+      this.renderImportExportLink(query, isProject),
       this.renderProfilesLink(query),
       this.renderQualityGateLink(query),
       this.renderLinksLink(query),
@@ -432,7 +432,10 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderImportExportLink = (query: Query) => {
+  renderImportExportLink = (query: Query, isProject: boolean) => {
+    if (!isProject) {
+      return null;
+    }
     return (
       <li key="import-export">
         <Link activeClassName="active" to={{ pathname: '/project/import_export', query }}>
