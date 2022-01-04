@@ -25,7 +25,7 @@ import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
 import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
@@ -157,7 +157,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
         <div>
           <span className="overview-quality-gate-condition-metric little-spacer-right">
             <IssueTypeIcon className="little-spacer-right" query={metric.key} />
-            {metric.name}
+            {localizeMetric(metric.key)}
           </span>
           {!isDiff && condition.period != null && (
             <span className="overview-quality-gate-condition-period text-ellipsis little-spacer-right">

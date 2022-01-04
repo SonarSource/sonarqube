@@ -28,7 +28,7 @@ exports[`should render correclty 1`] = `
           className="little-spacer-right"
           query="open_issues"
         />
-        open_issues
+        metric.open_issues.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -80,7 +80,7 @@ exports[`should render correclty 2`] = `
           className="little-spacer-right"
           query="reliability_rating"
         />
-        reliability_rating
+        metric.reliability_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -132,7 +132,7 @@ exports[`should render correclty 3`] = `
           className="little-spacer-right"
           query="security_rating"
         />
-        security_rating
+        metric.security_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -183,7 +183,7 @@ exports[`should render correclty 4`] = `
           className="little-spacer-right"
           query="sqale_rating"
         />
-        sqale_rating
+        metric.sqale_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -236,7 +236,7 @@ exports[`should render correclty 5`] = `
           className="little-spacer-right"
           query="new_reliability_rating"
         />
-        new_reliability_rating
+        metric.new_reliability_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -289,7 +289,7 @@ exports[`should render correclty 6`] = `
           className="little-spacer-right"
           query="new_security_rating"
         />
-        new_security_rating
+        metric.new_security_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -341,7 +341,7 @@ exports[`should render correclty 7`] = `
           className="little-spacer-right"
           query="new_maintainability_rating"
         />
-        new_maintainability_rating
+        metric.new_maintainability_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -396,7 +396,7 @@ exports[`should render correclty 8`] = `
           className="little-spacer-right"
           query="security_hotspots_reviewed"
         />
-        security_hotspots_reviewed
+        metric.security_hotspots_reviewed.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -451,7 +451,7 @@ exports[`should render correclty 9`] = `
           className="little-spacer-right"
           query="new_security_hotspots_reviewed"
         />
-        new_security_hotspots_reviewed
+        metric.new_security_hotspots_reviewed.name
       </span>
       <span
         className="little-spacer-top small text-muted"
@@ -504,7 +504,7 @@ exports[`should work with branch 1`] = `
           className="little-spacer-right"
           query="new_maintainability_rating"
         />
-        new_maintainability_rating
+        metric.new_maintainability_rating.name
       </span>
       <span
         className="little-spacer-top small text-muted"
