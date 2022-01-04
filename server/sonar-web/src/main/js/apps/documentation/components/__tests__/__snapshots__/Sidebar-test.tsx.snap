@@ -15,6 +15,41 @@ exports[`should render menu 1`] = `
     <div
       className="list-group"
     >
+      <SearchResults
+        navigation={
+          Array [
+            Object {
+              "children": Array [
+                "/lorem/index",
+              ],
+              "title": "Block",
+            },
+            "foobar",
+          ]
+        }
+        pages={
+          Array [
+            Object {
+              "content": "",
+              "navTitle": undefined,
+              "relativeName": "lorem/index",
+              "text": "",
+              "title": "Lorem Ipsum",
+              "url": "/lorem/index",
+            },
+            Object {
+              "content": "",
+              "navTitle": undefined,
+              "relativeName": "foobar",
+              "text": "",
+              "title": "Where does Foobar come from?",
+              "url": "/foobar",
+            },
+          ]
+        }
+        query=""
+        splat="foobar"
+      />
       <Menu
         navigation={
           Array [

@@ -53,14 +53,14 @@ export default class Sidebar extends React.PureComponent<Props, State> {
         />
         <div className="documentation-results panel">
           <div className="list-group">
-            {this.state.query ? (
-              <SearchResults
-                navigation={this.props.navigation}
-                pages={this.props.pages}
-                query={this.state.query}
-                splat={this.props.splat}
-              />
-            ) : (
+            <SearchResults
+              navigation={this.props.navigation}
+              pages={this.props.pages}
+              query={this.state.query}
+              splat={this.props.splat}
+            />
+
+            {!this.state.query && (
               <Menu
                 navigation={this.props.navigation}
                 pages={this.props.pages}

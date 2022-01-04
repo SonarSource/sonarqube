@@ -29,7 +29,7 @@ import SearchResultEntry from './SearchResultEntry';
 interface Props {
   navigation: DocNavigationItem[];
   pages: DocumentationEntry[];
-  query: string;
+  query?: string;
   splat: string;
 }
 
@@ -46,15 +46,13 @@ export default class SearchResults extends React.PureComponent<Props> {
 
       this.metadataWhitelist = ['position', 'tokenContext'];
 
-      props.pages
-        .filter(page => getUrlsList(props.navigation).includes(page.url))
-        .forEach(page => this.add(page));
+      const urlsList = getUrlsList(props.navigation);
+      props.pages.filter(page => urlsList.includes(page.url)).forEach(page => this.add(page));
     });
   }
 
-  render() {
-    const query = this.props.query.toLowerCase();
-    const results = this.index
+  search(query: string) {
+    return this.index
       .search(
         query
           .replace(/[\^\-+:~*]/g, '')
@@ -63,10 +61,11 @@ export default class SearchResults extends React.PureComponent<Props> {
           .join(' ')
       )
       .map(match => {
-        const page = this.props.pages.find(page => page.relativeName === match.ref);
+        const page = this.props.pages.find(p => p.relativeName === match.ref);
 
+        // This should never happen, but provide this check for type safety.
         if (!page) {
-          return null;
+          return undefined;
         }
 
         const highlights: T.Dict<[number, number][]> = {};
@@ -101,6 +100,16 @@ export default class SearchResults extends React.PureComponent<Props> {
         return { exactMatch, highlights, longestTerm, page, query };
       })
       .filter(isDefined);
+  }
+
+  render() {
+    const query = this.props.query?.toLowerCase();
+
+    if (!query) {
+      return null;
+    }
+
+    const results = this.search(query);
 
     // Re-order results by the length of the longest matched term and by exact
     // match (if applicable). The longer the matched term is, the higher the
@@ -138,18 +147,18 @@ export default class SearchResults extends React.PureComponent<Props> {
 // searched for, the better the standard algorithm will perform anyway. In the
 // end, the best would be for Lunr to support multi-term matching, as extending
 // the search algorithm for this would be way too complicated.
-function tokenContextPlugin(builder: LunrBuilder) {
-  const pipelineFunction = (token: LunrToken, index: number, tokens: LunrToken[]) => {
-    const prevToken = tokens[index - 1] || '';
-    const nextToken = tokens[index + 1] || '';
-    token.metadata['tokenContext'] = [prevToken.toString(), token.toString(), nextToken.toString()]
-      .filter(s => s.length)
-      .join(' ')
-      .toLowerCase();
-    return token;
-  };
+export function tokenContextPluginCallback(token: LunrToken, index: number, tokens: LunrToken[]) {
+  const prevToken = tokens[index - 1] || '';
+  const nextToken = tokens[index + 1] || '';
+  token.metadata['tokenContext'] = [prevToken.toString(), token.toString(), nextToken.toString()]
+    .filter(s => s.length)
+    .join(' ')
+    .toLowerCase();
+  return token;
+}
 
-  (lunr as any).Pipeline.registerFunction(pipelineFunction, 'tokenContext');
-  builder.pipeline.before((lunr as any).stemmer, pipelineFunction);
+export function tokenContextPlugin(builder: LunrBuilder) {
+  (lunr as any).Pipeline.registerFunction(tokenContextPluginCallback, 'tokenContext');
+  builder.pipeline.before((lunr as any).stemmer, tokenContextPluginCallback);
   builder.metadataWhitelist.push('tokenContext');
 }

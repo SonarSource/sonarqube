@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should search 1`] = `
+exports[`should render correctly: default 1`] = `
 <Fragment>
   <SearchResultEntry
     active={false}
@@ -35,7 +35,7 @@ exports[`should search 1`] = `
           "title": "Where does it come from?",
           "url": "/lorem/origin",
         },
-        "query": "si:+mply text",
+        "query": "what is 42",
       }
     }
   />
@@ -72,7 +72,7 @@ exports[`should search 1`] = `
           "title": "Where does Foobar come from?",
           "url": "/foobar",
         },
-        "query": "si:+mply text",
+        "query": "what is 42",
       }
     }
   />
