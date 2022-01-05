@@ -96,33 +96,29 @@ Click the scanner you're using below to expand the example configuration:
 | ```
 | image: openjdk:8
 |
+| definitions:
+|   steps:
+|     - step: &build-step
+|         name: SonarQube analysis
+|         caches:
+|           - gradle
+|           - sonar
+|         script:
+|           - bash ./gradlew sonarqube
+|   caches:
+|     sonar: ~/.sonar
+|
 | clone:
 |   depth: full
 |
 | pipelines:
 |   branches:
 |     '{master,main,develop}':
-|       - step:
-|           name: SonarQube analysis
-|           caches:
-|             - gradle
-|             - sonar
-|           script:
-|             - bash ./gradlew sonarqube
+|       - step: *build-step
 |
 |   pull-requests:
 |     '**':
-|       - step:
-|           name: SonarQube analysis
-|           caches:
-|             - gradle
-|             - sonar
-|           script:
-|             - bash ./gradlew sonarqube
-|
-| definitions:
-|   caches:
-|     sonar: ~/.sonar
+|       - step: *build-step
 | ```
 
 [[collapse]]
@@ -135,33 +131,29 @@ Click the scanner you're using below to expand the example configuration:
 | ```
 | image: maven:3.3.9
 |
+| definitions:
+|   steps:
+|     - step: &build-step
+|         name: SonarQube analysis
+|         caches:
+|           - maven
+|           - sonar
+|         script:
+|           - mvn verify sonar:sonar
+|   caches:
+|     sonar: ~/.sonar
+|
 | clone:
 |   depth: full
 |
 | pipelines:
 |   branches:
 |     '{master,main,develop}':
-|       - step:
-|           name: SonarQube analysis
-|           caches:
-|             - maven
-|             - sonar
-|           script:
-|             - mvn verify sonar:sonar
+|       - step: *build-step
 |
 |   pull-requests:
 |     '**':
-|       - step:
-|           name: SonarQube analysis
-|           caches:
-|             - maven
-|             - sonar
-|           script:
-|             - mvn verify sonar:sonar
-|
-| definitions:
-|   caches:
-|     sonar: ~/.sonar
+|       - step: *build-step
 | ```
 
 [[collapse]]
@@ -171,41 +163,36 @@ Click the scanner you're using below to expand the example configuration:
 | 
 | ```
 | image: mcr.microsoft.com/dotnet/core/sdk:latest
+|
+| definitions:
+|   steps:
+|     - step: &build-step
+|         name: SonarQube analysis
+|         caches:
+|           - dotnetcore
+|           - sonar
+|         script:
+|           - apt-get update
+|           - apt-get install --yes openjdk-11-jre
+|           - dotnet tool install --global dotnet-sonarscanner
+|           - export PATH="$PATH:/root/.dotnet/tools"
+|           - dotnet sonarscanner begin /k:"YOUR_PROJECT_KEY*" /d:"sonar.login=${SONAR_TOKEN}"  /d:"sonar.host.url=${SONAR_HOST_URL}"
+|           - dotnet build 
+|           - dotnet sonarscanner end /d:"sonar.login=${SONAR_TOKEN}"
+|   caches:
+|     sonar: ~/.sonar
+|
+| clone:
+|   depth: full
+|
 | pipelines:
 |   branches:
 |     '{master,main,develop}':
-|       - step:
-|           name: SonarQube analysis
-|           caches:
-|             - dotnetcore
-|             - sonar
-|           script:
-|             - apt-get update
-|             - apt-get install --yes openjdk-11-jre
-|             - dotnet tool install --global dotnet-sonarscanner
-|             - export PATH="$PATH:/root/.dotnet/tools"
-|             - dotnet sonarscanner begin /k:"YOUR_PROJECT_KEY*" /d:"sonar.login=${SONAR_TOKEN}"  /d:"sonar.host.url=${SONAR_HOST_URL}"
-|             - dotnet build 
-|             - dotnet sonarscanner end /d:"sonar.login=${SONAR_TOKEN}"
+|       - step: *build-step
 |   pull-requests:
 |     '**':
-|       - step:
-|           name: SonarQube analysis
-|           caches:
-|             - dotnetcore
-|             - sonar
-|           script:
-|             - apt-get update
-|             - apt-get install --yes openjdk-11-jre
-|             - dotnet tool install --global dotnet-sonarscanner
-|             - export PATH="$PATH:/root/.dotnet/tools"
-|             - dotnet sonarscanner begin /k:"YOUR_PROJECT_KEY" /d:"sonar.login=${SONAR_TOKEN}"  /d:"sonar.host.url=${SONAR_HOST_URL}"
-|             - dotnet build 
-|             - dotnet sonarscanner end /d:"sonar.login=${SONAR_TOKEN}"
-| definitions:
-|   caches:
-|     sonar: ~/.sonar
-|```
+|       - step: *build-step
+| ```
 
 [[collapse]]
 | ## SonarScanner CLI
@@ -219,35 +206,33 @@ Click the scanner you're using below to expand the example configuration:
 |   [[info]]
 |   | This configuration is an alternative to the SonarQube Scan Bitbucket Pipe. If you do not need a setup that allows for scanner caching, we recommend using the Bitbucket Pipe.
 |
-|    ```
-|    clone:
-|      depth: full
+| ```
+| image: maven:3.3.9
 |
-|    pipelines:
-|      branches:
-|        '{master,main,develop}':
-|          - step:
-|              name: SonarQube analysis
-|              image: sonarsource/sonar-scanner-cli:latest
-|              caches:
-|                - sonar
-|              script:
-|                - sonar-scanner
+| definitions:
+|   steps: &build-step
+|     - step:
+|         name: SonarQube analysis
+|         image: sonarsource/sonar-scanner-cli:latest
+|         caches:
+|           - sonar
+|         script:
+|           - sonar-scanner
+|   caches:
+|     sonar: /opt/sonar-scanner/.sonar
 |
-|      pull-requests:
-|        '**':
-|          - step:
-|              name: SonarQube analysis
-|              image: sonarsource/sonar-scanner-cli:latest
-|              caches:
-|                - sonar
-|              script:
-|                - sonar-scanner
+| clone:
+|   depth: full
 |
-|    definitions:
-|      caches:
-|        sonar: /opt/sonar-scanner/.sonar
-|    ```
+| pipelines:
+|   branches:
+|     '{master,main,develop}':
+|       - step: *build-step
+|
+|   pull-requests:
+|     '**':
+|       - step: *build-step
+| ```
 |
 | [[info]]
 | | A project key has to be provided through a `sonar-project.properties` file, or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.

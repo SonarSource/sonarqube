@@ -20,45 +20,35 @@
 
 export default function dotNetExample(branchesEnabled: boolean, projectKey: string) {
   return `image: mcr.microsoft.com/dotnet/core/sdk:latest
-   
+
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - dotnetcore
+          - sonar
+        script:
+          - apt-get update
+          - apt-get install --yes openjdk-11-jre
+          - dotnet tool install --global dotnet-sonarscanner
+          - export PATH="$PATH:/root/.dotnet/tools"
+          - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
+          - dotnet build 
+          - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
+  caches:
+    sonar: ~/.sonar
+
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - dotnetcore
-            - sonar
-          script:
-            - apt-get update
-            - apt-get install --yes openjdk-11-jre
-            - dotnet tool install --global dotnet-sonarscanner
-            - export PATH="$PATH:/root/.dotnet/tools"
-            - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
-            - dotnet build 
-            - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
-            ${
-              branchesEnabled
-                ? `
+      - step: *build-step
+${
+  branchesEnabled
+    ? `
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          caches:
-            - dotnetcore
-            - sonar
-          script:
-            - apt-get update
-            - apt-get install --yes openjdk-11-jre
-            - dotnet tool install --global dotnet-sonarscanner
-            - export PATH="$PATH:/root/.dotnet/tools"
-            - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.login=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"
-            - dotnet build 
-            - dotnet sonarscanner end /d:"sonar.login=\${SONAR_TOKEN}"
-                `
-                : ''
-            }  
-definitions:
-  caches:
-    sonar: ~/.sonar`;
+      - step: *build-step`
+    : ''
+}`;
 }

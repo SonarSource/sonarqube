@@ -21,35 +21,31 @@
 export default function gradleExample(branchesEnabled: boolean) {
   return `image: openjdk:8
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - gradle
+          - sonar
+        script:
+          - bash ./gradlew sonarqube
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
   
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - gradle
-            - sonar
-          script:
-            - bash ./gradlew sonarqube
+      - step: *build-step
 ${
   branchesEnabled
     ? `
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          caches:
-            - gradle
-            - sonar
-          script:
-            - bash ./gradlew sonarqube
-`
+      - step: *build-step`
     : ''
-}
-definitions:
-  caches:
-    sonar: ~/.sonar`;
+}`;
 }

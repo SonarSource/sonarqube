@@ -21,35 +21,31 @@
 export default function mavenExample(branchesEnabled: boolean, projectKey: string) {
   return `image: maven:3-openjdk-11
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - maven
+          - sonar
+        script:
+          - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
   
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - maven
-            - sonar
-          script:
-            - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
+      - step: *build-step
 ${
   branchesEnabled
     ? `
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          caches:
-            - maven
-            - sonar
-          script:
-            - mvn verify sonar:sonar -Dsonar.projectKey=${projectKey}
-`
+      - step: *build-step`
     : ''
-}  
-definitions:
-  caches:
-    sonar: ~/.sonar`;
+}`;
 }

@@ -31,28 +31,31 @@ exports[`should render correctly for cfamily 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: <image ready for your build toolchain>
 
+definitions:
+  steps:
+    - step: &build-step
+        name: Download and install the build wrapper, build the project
+        script:
+          - mkdir $HOME/.sonar
+          - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+          - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+          - pipe: sonarsource/sonarqube-scan:1.0.0
+            variables:
+              EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
+              SONAR_HOST_URL: \${SONAR_HOST_URL}
+              SONAR_TOKEN: \${SONAR_TOKEN}
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
 
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: Download and install the build wrapper, build the project
-          script:
-            - mkdir $HOME/.sonar
-            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
-                SONAR_HOST_URL: \${SONAR_HOST_URL}
-                SONAR_TOKEN: \${SONAR_TOKEN}
-
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step
+"
   />
   <CompilationInfo
     className="abs-width-800"
@@ -91,42 +94,34 @@ exports[`should render correctly for cfamily: with branch enabled 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: <image ready for your build toolchain>
 
+definitions:
+  steps:
+    - step: &build-step
+        name: Download and install the build wrapper, build the project
+        script:
+          - mkdir $HOME/.sonar
+          - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+          - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+          - pipe: sonarsource/sonarqube-scan:1.0.0
+            variables:
+              EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
+              SONAR_HOST_URL: \${SONAR_HOST_URL}
+              SONAR_TOKEN: \${SONAR_TOKEN}
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
 
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: Download and install the build wrapper, build the project
-          script:
-            - mkdir $HOME/.sonar
-            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
-                SONAR_HOST_URL: \${SONAR_HOST_URL}
-                SONAR_TOKEN: \${SONAR_TOKEN}
+      - step: *build-step
 
   pull-requests:
     '**':
-      - step:
-          name: Download and install the build wrapper, build the project
-          script:
-            - mkdir $HOME/.sonar
-            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
-                SONAR_HOST_URL: \${SONAR_HOST_URL}
-                SONAR_TOKEN: \${SONAR_TOKEN}
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step"
   />
   <CompilationInfo
     className="abs-width-800"
@@ -164,27 +159,30 @@ exports[`should render correctly for dotnet 1`] = `
   <CreateYmlFile
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: mcr.microsoft.com/dotnet/core/sdk:latest
-   
+
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - dotnetcore
+          - sonar
+        script:
+          - apt-get update
+          - apt-get install --yes openjdk-11-jre
+          - dotnet tool install --global dotnet-sonarscanner
+          - export PATH=\\"$PATH:/root/.dotnet/tools\\"
+          - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+          - dotnet build 
+          - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+  caches:
+    sonar: ~/.sonar
+
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - dotnetcore
-            - sonar
-          script:
-            - apt-get update
-            - apt-get install --yes openjdk-11-jre
-            - dotnet tool install --global dotnet-sonarscanner
-            - export PATH=\\"$PATH:/root/.dotnet/tools\\"
-            - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
-            - dotnet build 
-            - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
-              
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step
+"
   />
 </Fragment>
 `;
@@ -219,43 +217,33 @@ exports[`should render correctly for dotnet: with branch enabled 1`] = `
   <CreateYmlFile
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: mcr.microsoft.com/dotnet/core/sdk:latest
-   
+
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - dotnetcore
+          - sonar
+        script:
+          - apt-get update
+          - apt-get install --yes openjdk-11-jre
+          - dotnet tool install --global dotnet-sonarscanner
+          - export PATH=\\"$PATH:/root/.dotnet/tools\\"
+          - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
+          - dotnet build 
+          - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
+  caches:
+    sonar: ~/.sonar
+
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - dotnetcore
-            - sonar
-          script:
-            - apt-get update
-            - apt-get install --yes openjdk-11-jre
-            - dotnet tool install --global dotnet-sonarscanner
-            - export PATH=\\"$PATH:/root/.dotnet/tools\\"
-            - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
-            - dotnet build 
-            - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
-            
+      - step: *build-step
+
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          caches:
-            - dotnetcore
-            - sonar
-          script:
-            - apt-get update
-            - apt-get install --yes openjdk-11-jre
-            - dotnet tool install --global dotnet-sonarscanner
-            - export PATH=\\"$PATH:/root/.dotnet/tools\\"
-            - dotnet sonarscanner begin /k:\\"my-project\\" /d:\\"sonar.login=\${SONAR_TOKEN}\\"  /d:\\"sonar.host.url=\${SONAR_HOST_URL}\\"
-            - dotnet build 
-            - dotnet sonarscanner end /d:\\"sonar.login=\${SONAR_TOKEN}\\"
-                  
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step"
   />
 </Fragment>
 `;
@@ -291,23 +279,26 @@ exports[`should render correctly for gradle 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: openjdk:8
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - gradle
+          - sonar
+        script:
+          - bash ./gradlew sonarqube
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
   
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - gradle
-            - sonar
-          script:
-            - bash ./gradlew sonarqube
-
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step
+"
   />
 </Fragment>
 `;
@@ -343,33 +334,29 @@ exports[`should render correctly for gradle: with branch enabled 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: openjdk:8
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - gradle
+          - sonar
+        script:
+          - bash ./gradlew sonarqube
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
   
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - gradle
-            - sonar
-          script:
-            - bash ./gradlew sonarqube
+      - step: *build-step
 
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          caches:
-            - gradle
-            - sonar
-          script:
-            - bash ./gradlew sonarqube
-
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step"
   />
 </Fragment>
 `;
@@ -405,23 +392,26 @@ exports[`should render correctly for maven 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: maven:3-openjdk-11
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - maven
+          - sonar
+        script:
+          - mvn verify sonar:sonar -Dsonar.projectKey=my-project
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
   
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - maven
-            - sonar
-          script:
-            - mvn verify sonar:sonar -Dsonar.projectKey=my-project
-  
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step
+"
   />
 </Fragment>
 `;
@@ -457,33 +447,29 @@ exports[`should render correctly for maven: with branch enabled 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: maven:3-openjdk-11
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        caches:
+          - maven
+          - sonar
+        script:
+          - mvn verify sonar:sonar -Dsonar.projectKey=my-project
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
   
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          caches:
-            - maven
-            - sonar
-          script:
-            - mvn verify sonar:sonar -Dsonar.projectKey=my-project
+      - step: *build-step
 
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          caches:
-            - maven
-            - sonar
-          script:
-            - mvn verify sonar:sonar -Dsonar.projectKey=my-project
-  
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step"
   />
 </Fragment>
 `;
@@ -519,23 +505,26 @@ exports[`should render correctly for other 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: maven:3.3.9
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        script:
+          - pipe: sonarsource/sonarqube-scan:1.0.0
+            variables:
+              SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+              SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
 
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          script:
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
-  
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step
+"
   />
 </Fragment>
 `;
@@ -571,33 +560,30 @@ exports[`should render correctly for other: with branch enabled 1`] = `
     yamlFileName="bitbucket-pipelines.yml"
     yamlTemplate="image: maven:3.3.9
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        script:
+          - pipe: sonarsource/sonarqube-scan:1.0.0
+            variables:
+              SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+              SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
 
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          script:
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+      - step: *build-step
 
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          script:
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
-  
-definitions:
-  caches:
-    sonar: ~/.sonar"
+      - step: *build-step
+"
   />
 </Fragment>
 `;

@@ -21,44 +21,36 @@
 export default function cFamilyExample(branchesEnabled: boolean) {
   return `image: <image ready for your build toolchain>
 
+definitions:
+  steps:
+    - step: &build-step
+        name: Download and install the build wrapper, build the project
+        script:
+          - mkdir $HOME/.sonar
+          - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+          - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+          - pipe: sonarsource/sonarqube-scan:1.0.0
+            variables:
+              EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
+              SONAR_HOST_URL: \${SONAR_HOST_URL}
+              SONAR_TOKEN: \${SONAR_TOKEN}
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
 
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: Download and install the build wrapper, build the project
-          script:
-            - mkdir $HOME/.sonar
-            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
-                SONAR_HOST_URL: \${SONAR_HOST_URL}
-                SONAR_TOKEN: \${SONAR_TOKEN}
+      - step: *build-step
 ${
   branchesEnabled
     ? `
   pull-requests:
     '**':
-      - step:
-          name: Download and install the build wrapper, build the project
-          script:
-            - mkdir $HOME/.sonar
-            - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-            - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-            - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
-                SONAR_HOST_URL: \${SONAR_HOST_URL}
-                SONAR_TOKEN: \${SONAR_TOKEN}`
+      - step: *build-step`
     : ''
-}
-definitions:
-  caches:
-    sonar: ~/.sonar`;
+}`;
 }

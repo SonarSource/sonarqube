@@ -21,35 +21,32 @@
 export default function othersExample(branchesEnabled: boolean) {
   return `image: maven:3.3.9
 
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        script:
+          - pipe: sonarsource/sonarqube-scan:1.0.0
+            variables:
+              SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+              SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  caches:
+    sonar: ~/.sonar
+
 clone:
   depth: full
 
 pipelines:
   branches:
     '{master}': # or the name of your main branch
-      - step:
-          name: SonarQube analysis
-          script:
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+      - step: *build-step
 ${
   branchesEnabled
     ? `
   pull-requests:
     '**':
-      - step:
-          name: SonarQube analysis
-          script:
-            - pipe: sonarsource/sonarqube-scan:1.0.0
-              variables:
-                SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-                SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+      - step: *build-step
 `
     : ''
-}  
-definitions:
-  caches:
-    sonar: ~/.sonar`;
+}`;
 }
