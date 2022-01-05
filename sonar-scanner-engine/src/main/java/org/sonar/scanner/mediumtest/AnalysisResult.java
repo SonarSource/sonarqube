@@ -43,7 +43,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerReportUtils;
-import org.sonar.scanner.scan.ProjectScanContainer;
+import org.sonar.scanner.scan.SpringProjectScanContainer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class AnalysisResult implements AnalysisObserver {
@@ -55,7 +55,7 @@ public class AnalysisResult implements AnalysisObserver {
   private ScannerReportReader reader;
 
   @Override
-  public void analysisCompleted(ProjectScanContainer container) {
+  public void analysisCompleted(SpringProjectScanContainer container) {
     LOG.info("Store analysis results in memory for later assertions in medium test");
     ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
     reader = new ScannerReportReader(reportPublisher.getReportDir().toFile());
@@ -69,7 +69,7 @@ public class AnalysisResult implements AnalysisObserver {
     return reader;
   }
 
-  private void storeFs(ProjectScanContainer container) {
+  private void storeFs(SpringProjectScanContainer container) {
     InputComponentStore inputFileCache = container.getComponentByType(InputComponentStore.class);
     for (InputFile inputPath : inputFileCache.inputFiles()) {
       inputFilesByKeys.put(((DefaultInputFile) inputPath).getProjectRelativePath(), inputPath);

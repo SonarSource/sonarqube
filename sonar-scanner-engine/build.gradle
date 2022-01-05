@@ -26,6 +26,7 @@ dependencies {
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'com.fasterxml.staxmate:staxmate'
+  compile 'javax.annotation:javax.annotation-api'
   compile 'org.eclipse.jgit:org.eclipse.jgit'
   compile 'org.tmatesoft.svnkit:svnkit'
   compile 'org.picocontainer:picocontainer'
@@ -34,6 +35,8 @@ dependencies {
   compile 'org.slf4j:log4j-over-slf4j'
   compile 'org.slf4j:slf4j-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'
+  compile 'org.springframework:spring-context'
+
 
   compile project(':sonar-core')
   compile project(':sonar-scanner-protocol')

@@ -19,31 +19,28 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import org.picocontainer.annotations.Nullable;
-import org.picocontainer.injectors.ProviderAdapter;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.scan.ProjectConfiguration;
+import org.springframework.context.annotation.Bean;
 
-public class BranchConfigurationProvider extends ProviderAdapter {
+public class BranchConfigurationProvider {
 
   private static final Logger LOG = Loggers.get(BranchConfigurationProvider.class);
   private static final String LOG_MSG = "Load branch configuration";
 
-  private BranchConfiguration branchConfiguration = null;
-
+  @Bean("BranchConfiguration")
   public BranchConfiguration provide(@Nullable BranchConfigurationLoader loader, ProjectConfiguration projectConfiguration,
     ProjectBranches branches, ProjectPullRequests pullRequests) {
-    if (branchConfiguration == null) {
-      if (loader == null) {
-        branchConfiguration = new DefaultBranchConfiguration();
-      } else {
-        Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-        branchConfiguration = loader.load(projectConfiguration.getProperties(), branches, pullRequests);
-        profiler.stopInfo();
-      }
+    if (loader == null) {
+      return new DefaultBranchConfiguration();
+    } else {
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+      BranchConfiguration branchConfiguration = loader.load(projectConfiguration.getProperties(), branches, pullRequests);
+      profiler.stopInfo();
+      return branchConfiguration;
     }
-    return branchConfiguration;
   }
 }

@@ -20,12 +20,12 @@
 package org.sonar.scanner.scan;
 
 import javax.annotation.Nullable;
+import javax.annotation.Priority;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
@@ -34,7 +34,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.metric.ScannerMetrics;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
@@ -42,6 +41,7 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
+import org.sonar.scanner.bootstrap.SpringComponentContainer;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
 import org.sonar.scanner.ci.vendors.AwsCodeBuild;
@@ -89,20 +89,15 @@ import org.sonar.scanner.report.TestExecutionPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
-import org.sonar.scanner.repository.ReferenceBranchSupplier;
-import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
-import org.sonar.scanner.repository.QualityProfileLoader;
 import org.sonar.scanner.repository.QualityProfilesProvider;
+import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
-import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
-import org.sonar.scanner.rule.ActiveRulesLoader;
 import org.sonar.scanner.rule.ActiveRulesProvider;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
 import org.sonar.scanner.rule.DefaultRulesLoader;
 import org.sonar.scanner.rule.QProfileVerifier;
-import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
@@ -138,11 +133,11 @@ import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isScannerSide;
 
-public class ProjectScanContainer extends ComponentContainer {
+@Priority(2)
+public class SpringProjectScanContainer extends SpringComponentContainer {
+  private static final Logger LOG = Loggers.get(SpringProjectScanContainer.class);
 
-  private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
-
-  public ProjectScanContainer(ComponentContainer globalContainer) {
+  public SpringProjectScanContainer(SpringComponentContainer globalContainer) {
     super(globalContainer);
   }
 
@@ -150,9 +145,6 @@ public class ProjectScanContainer extends ComponentContainer {
   protected void doBeforeStart() {
     addScannerExtensions();
     addScannerComponents();
-    ProjectLock lock = getComponentByType(ProjectLock.class);
-    lock.tryLock();
-    getComponentByType(WorkDirectoriesInitializer.class).execute();
   }
 
   private void addScannerComponents() {
@@ -207,7 +199,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultMetricFinder.class,
 
       // lang
-      Languages.class,
+      LanguagesProvider.class,
       DefaultLanguagesRepository.class,
 
       // issue exclusions
@@ -298,17 +290,17 @@ public class ProjectScanContainer extends ComponentContainer {
     add(GitScmSupport.getObjects());
     add(SvnScmSupport.getObjects());
 
-    addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
-    addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
-    addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
-    addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
-    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
+    add(DefaultProjectSettingsLoader.class,
+      DefaultRulesLoader.class,
+      DefaultActiveRulesLoader.class,
+      DefaultQualityProfileLoader.class,
+      DefaultProjectRepositoriesLoader.class);
   }
 
   private void addScannerExtensions() {
-    getComponentByType(CoreExtensionsInstaller.class)
+    getParent().getComponentByType(CoreExtensionsInstaller.class)
       .install(this, noExtensionFilter(), extension -> getScannerProjectExtensionsFilter().accept(extension));
-    getComponentByType(ExtensionInstaller.class)
+    getParent().getComponentByType(ExtensionInstaller.class)
       .install(this, getScannerProjectExtensionsFilter());
   }
 
@@ -323,6 +315,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
+    getComponentByType(ProjectLock.class).tryLock();
     GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
     ScanProperties properties = getComponentByType(ScanProperties.class);
@@ -381,7 +374,7 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   void scan(DefaultInputModule module) {
-    new ModuleScanContainer(this, module).execute();
+    new SpringModuleScanContainer(this, module).execute();
   }
 
 }

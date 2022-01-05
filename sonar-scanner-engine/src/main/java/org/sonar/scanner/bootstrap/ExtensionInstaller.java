@@ -24,7 +24,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.internal.PluginContextImpl;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -40,8 +40,7 @@ public class ExtensionInstaller {
     this.bootConfiguration = bootConfiguration;
   }
 
-  public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
-
+  public ExtensionInstaller install(ExtensionContainer container, ExtensionMatcher matcher) {
     // core components
     for (Object o : BatchComponents.all()) {
       doInstall(container, matcher, null, o);
@@ -64,7 +63,7 @@ public class ExtensionInstaller {
     return this;
   }
 
-  private static void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {
+  private static void doInstall(ExtensionContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {
     if (matcher.accept(extension)) {
       container.addExtension(pluginInfo, extension);
     } else {

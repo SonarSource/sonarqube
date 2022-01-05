@@ -23,6 +23,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.TempFolder;
 
 import javax.annotation.Nullable;
@@ -34,7 +35,7 @@ import java.nio.file.Path;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-public class DefaultTempFolder implements TempFolder {
+public class DefaultTempFolder implements TempFolder, Startable {
   private static final Logger LOG = Loggers.get(DefaultTempFolder.class);
 
   private final File tempDir;
@@ -101,6 +102,12 @@ public class DefaultTempFolder implements TempFolder {
     }
   }
 
+  @Override
+  public void start() {
+    // nothing to do
+  }
+
+  @Override
   public void stop() {
     if (deleteOnExit) {
       clean();

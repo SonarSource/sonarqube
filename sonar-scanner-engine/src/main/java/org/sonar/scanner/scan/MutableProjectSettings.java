@@ -25,12 +25,15 @@ import java.util.Optional;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
+import javax.annotation.Priority;
+
 import static java.util.Objects.requireNonNull;
 
 /**
  * @deprecated since 6.5 {@link ProjectConfiguration} used to be mutable, so keep a mutable copy for backward compatibility.
  */
 @Deprecated
+@Priority(2)
 public class MutableProjectSettings extends Settings {
 
   private final Map<String, String> properties = new HashMap<>();

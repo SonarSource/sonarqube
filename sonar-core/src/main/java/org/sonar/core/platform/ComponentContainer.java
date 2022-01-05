@@ -49,7 +49,7 @@ import static java.util.Optional.ofNullable;
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
-public class ComponentContainer implements ContainerPopulator.Container {
+public class ComponentContainer implements ExtensionContainer {
   public static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
 
   private static final class ExtendedDefaultPicoContainer extends DefaultPicoContainer {
@@ -235,6 +235,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return this;
   }
 
+  @Override
   public ComponentContainer addExtension(@Nullable PluginInfo pluginInfo, Object extension) {
     Object key = componentKeys.of(extension);
     try {
@@ -246,6 +247,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return this;
   }
 
+  @Override
   public ComponentContainer addExtension(@Nullable String defaultCategory, Object extension) {
     Object key = componentKeys.of(extension);
     try {
@@ -264,12 +266,16 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return getName(extension.getClass());
   }
 
-  public void declareExtension(@Nullable PluginInfo pluginInfo, Object extension) {
+  @Override
+  public ComponentContainer declareExtension(@Nullable PluginInfo pluginInfo, Object extension) {
     declareExtension(pluginInfo != null ? pluginInfo.getName() : "", extension);
+    return this;
   }
 
-  public void declareExtension(@Nullable String defaultCategory, Object extension) {
+  @Override
+  public ComponentContainer declareExtension(@Nullable String defaultCategory, Object extension) {
     propertyDefinitions.addComponent(extension, ofNullable(defaultCategory).orElse(""));
+    return this;
   }
 
   public ComponentContainer addPicoAdapter(ComponentAdapter<?> adapter) {

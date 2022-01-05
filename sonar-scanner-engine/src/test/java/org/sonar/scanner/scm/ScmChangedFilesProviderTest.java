@@ -134,11 +134,4 @@ public class ScmChangedFilesProviderTest {
     verify(scmProvider).branchChangedFiles("target", rootBaseDir);
   }
 
-  @Test
-  public void testCacheObject() {
-    provider.provide(scmConfiguration, branchConfiguration, project);
-    provider.provide(scmConfiguration, branchConfiguration, project);
-    verify(branchConfiguration).isPullRequest();
-  }
-
 }

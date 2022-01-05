@@ -22,32 +22,31 @@ package org.sonar.scanner.scan;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
+import org.springframework.context.annotation.Bean;
 
-public class InputModuleHierarchyProvider extends ProviderAdapter {
+public class InputModuleHierarchyProvider {
 
   private static final Logger LOG = Loggers.get(InputModuleHierarchyProvider.class);
 
-  private DefaultInputModuleHierarchy hierarchy = null;
-
-  public DefaultInputModuleHierarchy provide(ScannerComponentIdGenerator scannerComponentIdGenerator, DefaultInputProject project) {
-    if (hierarchy == null) {
-      LOG.debug("Creating module hierarchy");
-      DefaultInputModule root = createModule(project.definition(), project.scannerId());
-      Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, scannerComponentIdGenerator, new HashMap<>());
-      if (parents.isEmpty()) {
-        hierarchy = new DefaultInputModuleHierarchy(root);
-      } else {
-        hierarchy = new DefaultInputModuleHierarchy(root, parents);
-      }
+  @Bean("DefaultInputModuleHierarchy")
+  public DefaultInputModuleHierarchy provide(ScannerComponentIdGenerator scannerComponentIdGenerator, WorkDirectoriesInitializer workDirectoriesInit, DefaultInputProject project) {
+    LOG.debug("Creating module hierarchy");
+    DefaultInputModule root = createModule(project.definition(), project.scannerId());
+    Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, scannerComponentIdGenerator, new HashMap<>());
+    DefaultInputModuleHierarchy inputModuleHierarchy;
+    if (parents.isEmpty()) {
+      inputModuleHierarchy = new DefaultInputModuleHierarchy(root);
+    } else {
+      inputModuleHierarchy = new DefaultInputModuleHierarchy(root, parents);
     }
-    return hierarchy;
+    workDirectoriesInit.execute(inputModuleHierarchy);
+    return inputModuleHierarchy;
   }
 
   private static Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, ScannerComponentIdGenerator scannerComponentIdGenerator,

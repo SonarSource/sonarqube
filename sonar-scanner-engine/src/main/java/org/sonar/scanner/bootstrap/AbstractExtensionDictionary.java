@@ -35,13 +35,13 @@ import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 
 public abstract class AbstractExtensionDictionary {
 
-  private final ComponentContainer componentContainer;
+  private final ExtensionContainer componentContainer;
 
-  public AbstractExtensionDictionary(ComponentContainer componentContainer) {
+  protected AbstractExtensionDictionary(ExtensionContainer componentContainer) {
     this.componentContainer = componentContainer;
   }
 
@@ -78,9 +78,9 @@ public abstract class AbstractExtensionDictionary {
     return extensions;
   }
 
-  private static <T> void completeScannerExtensions(ComponentContainer container, List<T> extensions, Class<T> type) {
+  private static <T> void completeScannerExtensions(ExtensionContainer container, List<T> extensions, Class<T> type) {
     extensions.addAll(container.getComponentsByType(type));
-    ComponentContainer parentContainer = container.getParent();
+    ExtensionContainer parentContainer = container.getParent();
     if (parentContainer != null) {
       completeScannerExtensions(parentContainer, extensions, type);
     }

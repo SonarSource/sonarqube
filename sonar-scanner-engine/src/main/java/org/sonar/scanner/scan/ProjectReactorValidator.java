@@ -29,6 +29,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
@@ -52,11 +53,13 @@ public class ProjectReactorValidator {
   @Nullable
   private final BranchParamsValidator branchParamsValidator;
 
+  @Autowired(required = false)
   public ProjectReactorValidator(GlobalConfiguration settings, @Nullable BranchParamsValidator branchParamsValidator) {
     this.settings = settings;
     this.branchParamsValidator = branchParamsValidator;
   }
 
+  @Autowired(required = false)
   public ProjectReactorValidator(GlobalConfiguration settings) {
     this(settings, null);
   }

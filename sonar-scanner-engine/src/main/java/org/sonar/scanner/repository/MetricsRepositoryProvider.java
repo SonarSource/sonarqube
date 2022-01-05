@@ -19,23 +19,21 @@
  */
 package org.sonar.scanner.repository;
 
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.springframework.context.annotation.Bean;
 
-public class MetricsRepositoryProvider extends ProviderAdapter {
+public class MetricsRepositoryProvider {
 
   private static final Logger LOG = Loggers.get(MetricsRepositoryProvider.class);
   private static final String LOG_MSG = "Load metrics repository";
-  private MetricsRepository metricsRepository;
 
+  @Bean("MetricsRepository")
   public MetricsRepository provide(MetricsRepositoryLoader loader) {
-    if (metricsRepository == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      metricsRepository = loader.load();
-      profiler.stopInfo();
-    }
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+    MetricsRepository metricsRepository = loader.load();
+    profiler.stopInfo();
     return metricsRepository;
   }
 }

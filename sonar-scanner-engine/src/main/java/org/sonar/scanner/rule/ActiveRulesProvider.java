@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
@@ -34,23 +33,22 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.springframework.context.annotation.Bean;
 
 /**
  * Loads the rules that are activated on the Quality profiles
  * used by the current project and builds {@link org.sonar.api.batch.rule.ActiveRules}.
  */
-public class ActiveRulesProvider extends ProviderAdapter {
+public class ActiveRulesProvider {
   private static final Logger LOG = Loggers.get(ActiveRulesProvider.class);
   private static final String LOG_MSG = "Load active rules";
-  private DefaultActiveRules singleton = null;
 
+  @Bean("ActiveRules")
   public DefaultActiveRules provide(ActiveRulesLoader loader, QualityProfiles qProfiles) {
-    if (singleton == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      singleton = load(loader, qProfiles);
-      profiler.stopInfo();
-    }
-    return singleton;
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+    DefaultActiveRules activeRules = load(loader, qProfiles);
+    profiler.stopInfo();
+    return activeRules;
   }
 
   private static DefaultActiveRules load(ActiveRulesLoader loader, QualityProfiles qProfiles) {

@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 import org.sonar.scanner.postjob.PostJobWrapper;
 
@@ -32,8 +32,8 @@ public class PostJobExtensionDictionary extends AbstractExtensionDictionary {
   private final PostJobContext postJobContext;
   private final PostJobOptimizer postJobOptimizer;
 
-  public PostJobExtensionDictionary(ComponentContainer componentContainer, PostJobOptimizer postJobOptimizer, PostJobContext postJobContext) {
-    super(componentContainer);
+  public PostJobExtensionDictionary(ExtensionContainer container, PostJobOptimizer postJobOptimizer, PostJobContext postJobContext) {
+    super(container);
     this.postJobOptimizer = postJobOptimizer;
     this.postJobContext = postJobContext;
   }

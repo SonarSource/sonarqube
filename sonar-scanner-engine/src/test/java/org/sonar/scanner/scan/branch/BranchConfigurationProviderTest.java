@@ -52,12 +52,6 @@ public class BranchConfigurationProviderTest {
   }
 
   @Test
-  public void should_cache_config() {
-    BranchConfiguration configuration = provider.provide(null, projectConfiguration, branches, pullRequests);
-    assertThat(provider.provide(null, projectConfiguration, branches, pullRequests)).isSameAs(configuration);
-  }
-
-  @Test
   public void should_use_loader() {
     when(loader.load(eq(projectSettings), eq(branches), eq(pullRequests))).thenReturn(config);
 

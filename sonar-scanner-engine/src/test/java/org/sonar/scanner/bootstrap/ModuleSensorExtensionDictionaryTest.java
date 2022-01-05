@@ -20,9 +20,6 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.picocontainer.behaviors.FieldDecorated;
@@ -30,17 +27,23 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.scanner.scan.SpringModuleScanContainer;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 import org.sonar.scanner.sensor.ModuleSensorContext;
 import org.sonar.scanner.sensor.ModuleSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ModuleSensorOptimizer;
 import org.sonar.scanner.sensor.ModuleSensorWrapper;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -59,10 +62,16 @@ public class ModuleSensorExtensionDictionaryTest {
   }
 
   private ModuleSensorExtensionDictionary newSelector(Object... extensions) {
-    ComponentContainer iocContainer = new ComponentContainer();
-    for (Object extension : extensions) {
-      iocContainer.addSingleton(extension);
-    }
+    DefaultInputModule inputModule = mock(DefaultInputModule.class);
+    when(inputModule.definition()).thenReturn(mock(ProjectDefinition.class));
+
+    SpringComponentContainer parent = new SpringComponentContainer();
+    parent.context.refresh();
+
+    SpringComponentContainer iocContainer = new SpringModuleScanContainer(parent, inputModule);
+    iocContainer.add(Arrays.asList(extensions));
+    iocContainer.context.refresh();
+
     return new ModuleSensorExtensionDictionary(iocContainer, mock(ModuleSensorContext.class), sensorOptimizer, fileSystem, branchConfiguration);
   }
 
@@ -95,14 +104,17 @@ public class ModuleSensorExtensionDictionaryTest {
     Sensor b = new FakeSensor();
     Sensor c = new FakeSensor();
 
-    ComponentContainer grandParent = new ComponentContainer();
-    grandParent.addSingleton(a);
+    SpringComponentContainer grandParent = new SpringComponentContainer();
+    grandParent.add(a);
+    grandParent.context.refresh();
 
-    ComponentContainer parent = grandParent.createChild();
-    parent.addSingleton(b);
+    SpringComponentContainer parent = grandParent.createChild();
+    parent.add(b);
+    parent.context.refresh();
 
-    ComponentContainer child = parent.createChild();
-    child.addSingleton(c);
+    SpringComponentContainer child = parent.createChild();
+    child.add(c);
+    child.context.refresh();
 
     ModuleSensorExtensionDictionary dictionnary = new ModuleSensorExtensionDictionary(child, mock(ModuleSensorContext.class), mock(ModuleSensorOptimizer.class),
       fileSystem, branchConfiguration);

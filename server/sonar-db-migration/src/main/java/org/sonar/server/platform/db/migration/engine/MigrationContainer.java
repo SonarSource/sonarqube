@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.core.platform.Container;
 
 /**
  * A dedicated container used to run DB migrations where all components are lazily instantiated.
@@ -32,7 +32,7 @@ import org.sonar.core.platform.ContainerPopulator;
  *   classes only they really are to be executed.
  * </p>
  */
-public interface MigrationContainer extends ContainerPopulator.Container {
+public interface MigrationContainer extends Container {
 
   /**
    * Cleans up resources after migration has run.

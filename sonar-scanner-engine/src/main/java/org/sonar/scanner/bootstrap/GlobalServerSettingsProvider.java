@@ -21,24 +21,19 @@ package org.sonar.scanner.bootstrap;
 
 import java.util.Map;
 import java.util.Optional;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
+import org.springframework.context.annotation.Bean;
 
-public class GlobalServerSettingsProvider extends ProviderAdapter {
-
+public class GlobalServerSettingsProvider {
   private static final Logger LOG = Loggers.get(GlobalServerSettingsProvider.class);
 
-  private GlobalServerSettings singleton;
-
+  @Bean("GlobalServerSettings")
   public GlobalServerSettings provide(GlobalSettingsLoader loader) {
-    if (singleton == null) {
-      Map<String, String> serverSideSettings = loader.loadGlobalSettings();
-      singleton = new GlobalServerSettings(serverSideSettings);
-      Optional.ofNullable(serverSideSettings.get(CoreProperties.SERVER_ID)).ifPresent(v -> LOG.info("Server id: {}", v));
-    }
-    return singleton;
+    Map<String, String> serverSideSettings = loader.loadGlobalSettings();
+    Optional.ofNullable(serverSideSettings.get(CoreProperties.SERVER_ID)).ifPresent(v -> LOG.info("Server id: {}", v));
+    return new GlobalServerSettings(serverSideSettings);
   }
 }

@@ -23,28 +23,22 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.springframework.context.annotation.Bean;
 
-public class ModuleConfigurationProvider extends ProviderAdapter {
-
-  private ModuleConfiguration moduleConfiguration;
-
+public class ModuleConfigurationProvider {
+  @Bean("ModuleConfiguration")
   public ModuleConfiguration provide(GlobalConfiguration globalConfig, DefaultInputModule module, GlobalServerSettings globalServerSettings,
     ProjectServerSettings projectServerSettings) {
-    if (moduleConfiguration == null) {
+    Map<String, String> settings = new LinkedHashMap<>();
+    settings.putAll(globalServerSettings.properties());
+    settings.putAll(projectServerSettings.properties());
+    addScannerSideProperties(settings, module.definition());
 
-      Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(globalServerSettings.properties());
-      settings.putAll(projectServerSettings.properties());
-      addScannerSideProperties(settings, module.definition());
-
-      moduleConfiguration = new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
-    }
-    return moduleConfiguration;
+    return new ModuleConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
   }
 
   private static void addScannerSideProperties(Map<String, String> settings, ProjectDefinition project) {

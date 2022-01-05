@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -43,8 +44,8 @@ public class NoLanguagesPluginsMediumTest {
     assertThatThrownBy(() -> tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .execute())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("No language plugins are installed.");
+      .isInstanceOf(UnsatisfiedDependencyException.class)
+      .hasRootCauseMessage("No language plugins are installed.");
   }
 
   private File copyProject(String path) throws Exception {

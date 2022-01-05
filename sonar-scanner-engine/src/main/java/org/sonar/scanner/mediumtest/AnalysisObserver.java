@@ -21,13 +21,13 @@ package org.sonar.scanner.mediumtest;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.scanner.scan.ProjectScanContainer;
+import org.sonar.scanner.scan.SpringProjectScanContainer;
 
 @ScannerSide
 @ExtensionPoint
 @FunctionalInterface
 public interface AnalysisObserver {
 
-  void analysisCompleted(ProjectScanContainer container);
+  void analysisCompleted(SpringProjectScanContainer container);
 
 }

@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.Priority;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.Plugin;
@@ -100,7 +101,7 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
   private final FakeSonarRuntime sonarRuntime = new FakeSonarRuntime();
-  private final CeTaskReportDataHolder reportMetadataHolder = new CeTaskReportDataHolder();
+  private final CeTaskReportDataHolder reportMetadataHolder = new CeTaskReportDataHolderExt();
   private LogOutput logOutput = null;
 
   private static void createWorkingDirs() throws IOException {
@@ -280,7 +281,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   public static class AnalysisBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
-    private ScannerMediumTester tester;
+    private final ScannerMediumTester tester;
 
     public AnalysisBuilder(ScannerMediumTester tester) {
       this.tester = tester;
@@ -327,6 +328,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   }
 
+  @Priority(1)
   private static class FakeRulesLoader implements RulesLoader {
     private List<org.sonarqube.ws.Rules.ListResponse.Rule> rules = new LinkedList<>();
 
@@ -341,6 +343,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeActiveRulesLoader implements ActiveRulesLoader {
     private List<LoadedActiveRule> activeRules = new LinkedList<>();
 
@@ -354,6 +357,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeMetricsRepositoryLoader implements MetricsRepositoryLoader {
 
     private int metricId = 1;
@@ -374,6 +378,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   }
 
+  @Priority(1)
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
     private Map<String, FileData> fileDataMap = new HashMap<>();
 
@@ -389,6 +394,7 @@ public class ScannerMediumTester extends ExternalResource {
 
   }
 
+  @Priority(1)
   private static class FakeBranchConfiguration implements BranchConfiguration {
 
     private BranchType branchType = BranchType.BRANCH;
@@ -425,6 +431,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeSonarRuntime implements SonarRuntime {
 
     private SonarEdition edition;
@@ -483,6 +490,7 @@ public class ScannerMediumTester extends ExternalResource {
     return this;
   }
 
+  @Priority(1)
   private class FakeBranchConfigurationLoader implements BranchConfigurationLoader {
     @Override
     public BranchConfiguration load(Map<String, String> projectSettings, ProjectBranches branches, ProjectPullRequests pullRequests) {
@@ -490,6 +498,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeQualityProfileLoader implements QualityProfileLoader {
 
     private List<QualityProfile> qualityProfiles = new LinkedList<>();
@@ -509,6 +518,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeGlobalSettingsLoader implements GlobalSettingsLoader {
 
     private Map<String, String> globalSettings = new HashMap<>();
@@ -523,6 +533,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeNewCodePeriodLoader implements NewCodePeriodLoader {
     private NewCodePeriods.ShowWSResponse response;
 
@@ -536,6 +547,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
   }
 
+  @Priority(1)
   private static class FakeProjectSettingsLoader implements ProjectSettingsLoader {
 
     private Map<String, String> projectSettings = new HashMap<>();
@@ -548,6 +560,11 @@ public class ScannerMediumTester extends ExternalResource {
     public Map<String, String> loadProjectSettings() {
       return Collections.unmodifiableMap(projectSettings);
     }
+  }
+
+  @Priority(1)
+  private static class CeTaskReportDataHolderExt extends CeTaskReportDataHolder {
+
   }
 
 }

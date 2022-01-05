@@ -42,14 +42,6 @@ public class ProjectPullRequestsProviderTest {
   }
 
   @Test
-  public void cache_pull_requests() {
-    when(scannerProperties.getProjectKey()).thenReturn("project");
-    ProjectPullRequests pullRequests = provider.provide(null, scannerProperties);
-
-    assertThat(provider.provide(null, scannerProperties)).isSameAs(pullRequests);
-  }
-
-  @Test
   public void should_use_loader() {
     when(scannerProperties.getProjectKey()).thenReturn("key");
     when(mockLoader.load("key")).thenReturn(pullRequests);

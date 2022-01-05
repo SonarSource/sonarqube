@@ -21,27 +21,22 @@ package org.sonar.scanner.scan;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.springframework.context.annotation.Bean;
 
-public class ProjectConfigurationProvider extends ProviderAdapter {
-
-  private ProjectConfiguration projectConfig;
-
+public class ProjectConfigurationProvider {
+  @Bean("ProjectConfiguration")
   public ProjectConfiguration provide(DefaultInputProject project, GlobalConfiguration globalConfig, GlobalServerSettings globalServerSettings,
     ProjectServerSettings projectServerSettings, MutableProjectSettings projectSettings) {
-    if (projectConfig == null) {
+    Map<String, String> settings = new LinkedHashMap<>();
+    settings.putAll(globalServerSettings.properties());
+    settings.putAll(projectServerSettings.properties());
+    settings.putAll(project.properties());
 
-      Map<String, String> settings = new LinkedHashMap<>();
-      settings.putAll(globalServerSettings.properties());
-      settings.putAll(projectServerSettings.properties());
-      settings.putAll(project.properties());
-
-      projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
-      projectSettings.complete(projectConfig);
-    }
+    ProjectConfiguration projectConfig = new ProjectConfiguration(globalConfig.getDefinitions(), globalConfig.getEncryption(), settings);
+    projectSettings.complete(projectConfig);
     return projectConfig;
   }
 }

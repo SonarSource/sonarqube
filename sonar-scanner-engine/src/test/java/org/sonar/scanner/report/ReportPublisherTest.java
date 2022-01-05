@@ -25,6 +25,7 @@ import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -77,8 +78,7 @@ public class ReportPublisherTest {
   private AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
-  private ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
-    new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
+  private ReportPublisher underTest;
 
   @Before
   public void setUp() {
@@ -90,6 +90,8 @@ public class ReportPublisherTest {
     when(properties.metadataFilePath()).thenReturn(reportTempFolder.newDir().toPath()
       .resolve("folder")
       .resolve("report-task.txt"));
+    underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder);
   }
 
   @Test
@@ -109,7 +111,7 @@ public class ReportPublisherTest {
     underTest.prepareAndDumpMetadata("TASK-123");
 
     assertThat(readFileToString(properties.metadataFilePath().toFile(), StandardCharsets.UTF_8)).isEqualTo(
-        "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
+      "projectKey=org.sonarsource.sonarqube:sonarqube\n" +
         "serverUrl=https://localhost\n" +
         "serverVersion=6.4\n" +
         "dashboardUrl=https://localhost/dashboard?id=org.sonarsource.sonarqube%3Asonarqube\n" +
@@ -249,7 +251,6 @@ public class ReportPublisherTest {
   public void should_not_delete_report_if_property_is_set() throws IOException {
     when(properties.shouldKeepReport()).thenReturn(true);
     Path reportDir = reportTempFolder.getRoot().toPath().resolve("scanner-report");
-    Files.createDirectory(reportDir);
 
     underTest.start();
     underTest.stop();
@@ -259,7 +260,6 @@ public class ReportPublisherTest {
   @Test
   public void should_delete_report_by_default() throws IOException {
     Path reportDir = reportTempFolder.getRoot().toPath().resolve("scanner-report");
-    Files.createDirectory(reportDir);
 
     underTest.start();
     underTest.stop();

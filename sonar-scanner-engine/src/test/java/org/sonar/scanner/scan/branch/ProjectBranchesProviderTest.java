@@ -42,13 +42,6 @@ public class ProjectBranchesProviderTest {
   }
 
   @Test
-  public void should_cache_branches() {
-    when(scannerProperties.getProjectKey()).thenReturn("project");
-    ProjectBranches branches = provider.provide(null, scannerProperties);
-    assertThat(provider.provide(null, scannerProperties)).isSameAs(branches);
-  }
-
-  @Test
   public void should_use_loader() {
     when(scannerProperties.getProjectKey()).thenReturn("key");
     when(mockLoader.load("key")).thenReturn(mockBranches);

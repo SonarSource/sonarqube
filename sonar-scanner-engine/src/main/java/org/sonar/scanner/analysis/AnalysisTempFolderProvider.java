@@ -22,58 +22,25 @@ package org.sonar.scanner.analysis;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.picocontainer.ComponentLifecycle;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.utils.TempFolder;
+import org.springframework.context.annotation.Bean;
 
-public class AnalysisTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
+public class AnalysisTempFolderProvider {
   static final String TMP_NAME = ".sonartmp";
-  private DefaultTempFolder projectTempFolder;
-  private boolean started = false;
 
+  @Bean("TempFolder")
   public TempFolder provide(DefaultInputProject project) {
-    if (projectTempFolder == null) {
-      Path workingDir = project.getWorkDir();
-      Path tempDir = workingDir.normalize().resolve(TMP_NAME);
-      try {
-        Files.deleteIfExists(tempDir);
-        Files.createDirectories(tempDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
-      }
-
-      projectTempFolder = new DefaultTempFolder(tempDir.toFile(), true);
+    Path workingDir = project.getWorkDir();
+    Path tempDir = workingDir.normalize().resolve(TMP_NAME);
+    try {
+      Files.deleteIfExists(tempDir);
+      Files.createDirectories(tempDir);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
     }
-    return projectTempFolder;
-  }
 
-  @Override
-  public void start(PicoContainer container) {
-    started = true;
-  }
-
-  @Override
-  public void stop(PicoContainer container) {
-    if (projectTempFolder != null) {
-      projectTempFolder.stop();
-    }
-  }
-
-  @Override
-  public void dispose(PicoContainer container) {
-    // nothing to do
-  }
-
-  @Override
-  public boolean componentHasLifecycle() {
-    return true;
-  }
-
-  @Override
-  public boolean isStarted() {
-    return started;
+    return new DefaultTempFolder(tempDir.toFile(), true);
   }
 }

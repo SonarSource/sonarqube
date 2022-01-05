@@ -22,29 +22,25 @@ package org.sonar.scanner.scm;
 import java.nio.file.Path;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonar.api.impl.utils.ScannerUtils;
+import org.springframework.context.annotation.Bean;
 
-public class ScmChangedFilesProvider extends ProviderAdapter {
+public class ScmChangedFilesProvider {
   private static final Logger LOG = Loggers.get(ScmChangedFilesProvider.class);
   private static final String LOG_MSG = "SCM collecting changed files in the branch";
 
-  private ScmChangedFiles scmBranchChangedFiles;
-
+  @Bean("ScmChangedFiles")
   public ScmChangedFiles provide(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
-    if (scmBranchChangedFiles == null) {
       Path rootBaseDir = project.getBaseDir();
       Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
       validatePaths(changedFiles);
-      scmBranchChangedFiles = new ScmChangedFiles(changedFiles);
-    }
-    return scmBranchChangedFiles;
+      return new ScmChangedFiles(changedFiles);
   }
 
   private static void validatePaths(@javax.annotation.Nullable Collection<Path> paths) {

@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Priority;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.scanner.bootstrap.PluginInstaller;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 
+@Priority(1)
 public class FakePluginInstaller implements PluginInstaller {
 
   private final Map<String, ScannerPlugin> pluginsByKeys = new HashMap<>();

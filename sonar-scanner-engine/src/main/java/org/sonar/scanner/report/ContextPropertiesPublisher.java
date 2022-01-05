@@ -42,8 +42,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
   private final ScmConfiguration scmConfiguration;
   private final CiConfiguration ciConfiguration;
 
-  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config, ScmConfiguration scmConfiguration,
-                                    CiConfiguration ciConfiguration) {
+  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config, ScmConfiguration scmConfiguration, CiConfiguration ciConfiguration) {
     this.cache = cache;
     this.config = config;
     this.scmConfiguration = scmConfiguration;

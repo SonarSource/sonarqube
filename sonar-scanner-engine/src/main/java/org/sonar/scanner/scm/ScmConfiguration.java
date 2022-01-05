@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
+import org.sonar.api.Startable;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
@@ -67,17 +67,14 @@ public class ScmConfiguration implements Startable {
 
   private ScmProvider provider;
 
-  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, Configuration settings, AnalysisWarnings analysisWarnings, ScmProvider... providers) {
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, Configuration settings, AnalysisWarnings analysisWarnings,
+    ScmProvider... providers) {
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.analysisWarnings = analysisWarnings;
     for (ScmProvider scmProvider : providers) {
       providerPerKey.put(scmProvider.key(), scmProvider);
     }
-  }
-
-  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, Configuration settings, AnalysisWarnings analysisWarnings) {
-    this(moduleHierarchy, settings, analysisWarnings, new ScmProvider[0]);
   }
 
   @Override

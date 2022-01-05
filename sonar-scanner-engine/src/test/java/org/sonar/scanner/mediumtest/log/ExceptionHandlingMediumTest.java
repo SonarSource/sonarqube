@@ -21,12 +21,14 @@ package org.sonar.scanner.mediumtest.log;
 
 import java.util.Collections;
 import java.util.Map;
+import javax.annotation.Priority;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -78,12 +80,12 @@ public class ExceptionHandlingMediumTest {
   @Test
   public void testWithVerbose() {
     setUp(true);
-
     assertThatThrownBy(() -> batch.execute())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Unable to load component class");
+      .isInstanceOf(UnsatisfiedDependencyException.class)
+      .hasMessageContaining("Error loading settings");
   }
 
+  @Priority(1)
   private static class ErrorGlobalSettingsLoader implements GlobalSettingsLoader {
     boolean withCause = false;
 

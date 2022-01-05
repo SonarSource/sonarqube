@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

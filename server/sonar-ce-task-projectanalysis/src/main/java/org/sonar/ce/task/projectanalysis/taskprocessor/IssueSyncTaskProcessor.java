@@ -33,6 +33,7 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.Container;
 import org.sonar.core.platform.ContainerPopulator;
 
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
@@ -73,7 +74,7 @@ public class IssueSyncTaskProcessor implements CeTaskProcessor {
 
   public static final class SyncComputationSteps extends AbstractComputationSteps {
 
-    public SyncComputationSteps(ContainerPopulator.Container container) {
+    public SyncComputationSteps(Container container) {
       super(container);
     }
 

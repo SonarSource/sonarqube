@@ -27,11 +27,11 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectScanContainerTest {
+public class SpringProjectScanContainerTest {
 
   @Test
   public void should_add_only_batch_extensions() {
-    ExtensionMatcher filter = ProjectScanContainer.getScannerProjectExtensionsFilter();
+    ExtensionMatcher filter = SpringProjectScanContainer.getScannerProjectExtensionsFilter();
 
     assertThat(filter.accept(new MyBatchExtension())).isTrue();
     assertThat(filter.accept(MyBatchExtension.class)).isTrue();

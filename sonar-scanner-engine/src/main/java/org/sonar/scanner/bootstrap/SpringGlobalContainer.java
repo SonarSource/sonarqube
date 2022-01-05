@@ -22,13 +22,13 @@ package org.sonar.scanner.bootstrap;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Priority;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.MessageException;
@@ -39,7 +39,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
@@ -51,30 +50,26 @@ import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
 import org.sonar.scanner.repository.DefaultNewCodePeriodLoader;
-import org.sonar.scanner.repository.MetricsRepositoryLoader;
 import org.sonar.scanner.repository.MetricsRepositoryProvider;
-import org.sonar.scanner.repository.NewCodePeriodLoader;
 import org.sonar.scanner.repository.settings.DefaultGlobalSettingsLoader;
-import org.sonar.scanner.repository.settings.GlobalSettingsLoader;
-import org.sonar.scanner.scan.ProjectScanContainer;
+import org.sonar.scanner.scan.SpringProjectScanContainer;
 
-public class GlobalContainer extends ComponentContainer {
-  private static final Logger LOG = Loggers.get(GlobalContainer.class);
+@Priority(3)
+public class SpringGlobalContainer extends SpringComponentContainer {
+  private static final Logger LOG = Loggers.get(SpringGlobalContainer.class);
   private final Map<String, String> scannerProperties;
 
-  private GlobalContainer(Map<String, String> scannerProperties) {
-    super();
+  private SpringGlobalContainer(Map<String, String> scannerProperties, List<?> addedExternally) {
+    super(addedExternally);
     this.scannerProperties = scannerProperties;
   }
 
-  public static GlobalContainer create(Map<String, String> scannerProperties, List<?> extensions) {
-    GlobalContainer container = new GlobalContainer(scannerProperties);
-    container.add(extensions);
-    return container;
+  public static SpringGlobalContainer create(Map<String, String> scannerProperties, List<?> extensions) {
+    return new SpringGlobalContainer(scannerProperties, extensions);
   }
 
   @Override
-  protected void doBeforeStart() {
+  public void doBeforeStart() {
     ScannerProperties rawScannerProperties = new ScannerProperties(scannerProperties);
     GlobalAnalysisMode globalMode = new GlobalAnalysisMode(rawScannerProperties);
     add(rawScannerProperties);
@@ -100,20 +95,22 @@ public class GlobalContainer extends ComponentContainer {
       new ScannerWsClientProvider(),
       DefaultServer.class,
       new GlobalTempFolderProvider(),
-      DefaultHttpDownloader.class,
       analysisWarnings,
       UriReader.class,
       PluginFiles.class,
       System2.INSTANCE,
       Clock.systemDefaultZone(),
       new MetricsRepositoryProvider(),
-      UuidFactoryImpl.INSTANCE);
-    addIfMissing(SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, edition), SonarRuntime.class);
-    addIfMissing(ScannerPluginInstaller.class, PluginInstaller.class);
-    add(CoreExtensionRepositoryImpl.class, CoreExtensionsLoader.class, ScannerCoreExtensionsInstaller.class);
-    addIfMissing(DefaultGlobalSettingsLoader.class, GlobalSettingsLoader.class);
-    addIfMissing(DefaultNewCodePeriodLoader.class, NewCodePeriodLoader.class);
-    addIfMissing(DefaultMetricsRepositoryLoader.class, MetricsRepositoryLoader.class);
+      UuidFactoryImpl.INSTANCE,
+      DefaultHttpDownloader.class,
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, edition),
+      ScannerPluginInstaller.class,
+      CoreExtensionRepositoryImpl.class,
+      CoreExtensionsLoader.class,
+      ScannerCoreExtensionsInstaller.class,
+      DefaultGlobalSettingsLoader.class,
+      DefaultNewCodePeriodLoader.class,
+      DefaultMetricsRepositoryLoader.class);
   }
 
   @Override
@@ -133,7 +130,7 @@ public class GlobalContainer extends ComponentContainer {
     if (!analysisMode.equals("publish")) {
       throw MessageException.of("The preview mode, along with the 'sonar.analysis.mode' parameter, is no more supported. You should stop using this parameter.");
     }
-    new ProjectScanContainer(this).execute();
+    new SpringProjectScanContainer(this).execute();
 
     LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
   }
@@ -147,8 +144,7 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   private void loadCoreExtensions() {
-    CoreExtensionsLoader loader = getComponentByType(CoreExtensionsLoader.class);
-    loader.load();
+    getComponentByType(CoreExtensionsLoader.class).load();
   }
 
   static String formatTime(long time) {
@@ -166,5 +162,4 @@ public class GlobalContainer extends ComponentContainer {
     }
     return String.format(format, h, m, s, ms);
   }
-
 }

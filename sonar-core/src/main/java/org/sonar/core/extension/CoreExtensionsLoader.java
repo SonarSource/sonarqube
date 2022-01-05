@@ -22,6 +22,7 @@ package org.sonar.core.extension;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -37,6 +38,7 @@ public class CoreExtensionsLoader {
   private final CoreExtensionRepository coreExtensionRepository;
   private final ServiceLoaderWrapper serviceLoaderWrapper;
 
+  @Inject
   public CoreExtensionsLoader(CoreExtensionRepository coreExtensionRepository) {
     this(coreExtensionRepository, new ServiceLoaderWrapper());
   }

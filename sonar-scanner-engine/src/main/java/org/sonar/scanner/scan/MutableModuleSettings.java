@@ -22,6 +22,7 @@ package org.sonar.scanner.scan;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Priority;
 import org.sonar.api.config.internal.Settings;
 
 import static java.util.Objects.requireNonNull;
@@ -30,6 +31,7 @@ import static java.util.Objects.requireNonNull;
  * @deprecated since 6.5 {@link ModuleConfiguration} used to be mutable, so keep a mutable copy for backward compatibility.
  */
 @Deprecated
+@Priority(1)
 public class MutableModuleSettings extends Settings {
 
   private final Map<String, String> properties = new HashMap<>();

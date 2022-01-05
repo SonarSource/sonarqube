@@ -34,9 +34,9 @@ public class ModuleSensorContext extends ProjectSensorContext {
 
   private final InputModule module;
 
-  public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
+  public ModuleSensorContext(DefaultInputProject project, InputModule module, Configuration config, Settings mutableModuleSettings, FileSystem fs, ActiveRules activeRules,
     SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
-    super(project, config, mutableSettings, fs, activeRules, sensorStorage, sonarRuntime);
+    super(project, config, mutableModuleSettings, fs, activeRules, sensorStorage, sonarRuntime);
     this.module = module;
   }
 

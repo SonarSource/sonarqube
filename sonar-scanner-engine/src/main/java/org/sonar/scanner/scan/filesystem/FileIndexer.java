@@ -90,14 +90,6 @@ public class FileIndexer {
     this.projectExclusionFilters = projectExclusionFilters;
   }
 
-  public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions,
-    IssueExclusionsLoader issueExclusionsLoader, MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy,
-    LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
-    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader,
-      metadataGenerator, sensorStrategy, languageDetection, analysisWarnings, properties, new InputFileFilter[0]);
-  }
-
   void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
     Path sourceFile, Type type, ProgressReport progressReport, ProjectFileIndexer.ExclusionCounter exclusionCounter, @Nullable IgnoreCommand ignoreCommand)
     throws IOException {

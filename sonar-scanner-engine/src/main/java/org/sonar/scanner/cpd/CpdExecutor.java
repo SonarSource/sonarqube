@@ -32,6 +32,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -71,12 +72,12 @@ public class CpdExecutor {
   private int count = 0;
   private int total;
 
+  @Inject
   public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
     this(settings, index, publisher, inputComponentCache, Executors.newSingleThreadExecutor());
   }
 
-  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache,
-                     ExecutorService executorService) {
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache, ExecutorService executorService) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;

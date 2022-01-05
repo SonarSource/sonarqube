@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;

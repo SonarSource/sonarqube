@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 
 public class ProjectLock implements Startable {

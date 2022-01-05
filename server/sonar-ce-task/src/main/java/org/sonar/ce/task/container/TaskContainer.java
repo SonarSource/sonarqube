@@ -22,12 +22,12 @@ package org.sonar.ce.task.container;
 import org.picocontainer.PicoContainer;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.core.platform.Container;
 
 /**
  * The Compute Engine task container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
  */
-public interface TaskContainer extends ContainerPopulator.Container, AutoCloseable {
+public interface TaskContainer extends Container, AutoCloseable {
 
   ComponentContainer getParent();
 

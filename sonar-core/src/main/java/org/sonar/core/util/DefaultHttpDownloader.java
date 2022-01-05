@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.CoreProperties;
@@ -62,6 +63,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   private final Integer readTimeout;
   private final Integer connectTimeout;
 
+  @Inject
   public DefaultHttpDownloader(Server server, Configuration config) {
     this(server, config, null);
   }

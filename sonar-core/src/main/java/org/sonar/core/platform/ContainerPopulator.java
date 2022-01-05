@@ -19,19 +19,7 @@
  */
 package org.sonar.core.platform;
 
-import java.util.List;
-
 @FunctionalInterface
-public interface ContainerPopulator<T extends ContainerPopulator.Container> {
+public interface ContainerPopulator<T extends Container> {
   void populateContainer(T container);
-
-  interface Container {
-    Container add(Object... objects);
-
-    Container addSingletons(Iterable<?> components);
-
-    <T> T getComponentByType(Class<T> type);
-
-    <T> List<T> getComponentsByType(Class<T> type);
-  }
 }

@@ -20,31 +20,26 @@
 package org.sonar.scanner.scan.branch;
 
 import java.util.Collections;
-import org.picocontainer.injectors.ProviderAdapter;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.springframework.context.annotation.Bean;
 
-public class ProjectPullRequestsProvider extends ProviderAdapter {
+public class ProjectPullRequestsProvider {
 
   private static final Logger LOG = Loggers.get(ProjectPullRequestsProvider.class);
   private static final String LOG_MSG = "Load project pull requests";
 
-  private ProjectPullRequests pullRequests = null;
-
-  public ProjectPullRequests provide(@org.picocontainer.annotations.Nullable ProjectPullRequestsLoader loader, ScannerProperties scannerProperties) {
-    if (pullRequests != null) {
-      return pullRequests;
-    }
-
+  @Bean("ProjectPullRequests")
+  public ProjectPullRequests provide(@Nullable ProjectPullRequestsLoader loader, ScannerProperties scannerProperties) {
     if (loader == null) {
-      pullRequests = new ProjectPullRequests(Collections.emptyList());
-      return pullRequests;
+      return new ProjectPullRequests(Collections.emptyList());
     }
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    pullRequests = loader.load(scannerProperties.getProjectKey());
+    ProjectPullRequests pullRequests = loader.load(scannerProperties.getProjectKey());
     profiler.stopInfo();
     return pullRequests;
   }

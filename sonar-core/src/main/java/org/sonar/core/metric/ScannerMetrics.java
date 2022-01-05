@@ -30,6 +30,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.scanner.ScannerSide;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
@@ -96,10 +97,12 @@ public class ScannerMetrics {
 
   private final Set<Metric> metrics;
 
+  @Autowired(required = false)
   public ScannerMetrics() {
     this.metrics = ALLOWED_CORE_METRICS;
   }
 
+  @Autowired(required = false)
   public ScannerMetrics(Metrics[] metricsRepositories) {
     this.metrics = Stream.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS.stream()).collect(toSet());
   }

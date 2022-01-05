@@ -19,49 +19,43 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;
+import org.springframework.context.annotation.Bean;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
-public class ScannerWsClientProvider extends ProviderAdapter {
-
+public class ScannerWsClientProvider {
   static final int CONNECT_TIMEOUT_MS = 5_000;
   static final String READ_TIMEOUT_SEC_PROPERTY = "sonar.ws.timeout";
   static final int DEFAULT_READ_TIMEOUT_SEC = 60;
 
-  private DefaultScannerWsClient wsClient;
+  @Bean("DefaultScannerWsClient")
+  public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode, System2 system) {
+    String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");
+    HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
-  public synchronized DefaultScannerWsClient provide(final ScannerProperties scannerProps,
-    final EnvironmentInformation env, GlobalAnalysisMode globalMode, System2 system) {
-    if (wsClient == null) {
-      String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");
-      HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
+    String timeoutSec = defaultIfBlank(scannerProps.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
+    String token = defaultIfBlank(system.envVariable("SONAR_TOKEN"), null);
+    String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
+    connectorBuilder
+      .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)
+      .connectTimeoutMilliseconds(CONNECT_TIMEOUT_MS)
+      .userAgent(env.toString())
+      .url(url)
+      .credentials(login, scannerProps.property(CoreProperties.PASSWORD));
 
-      String timeoutSec = defaultIfBlank(scannerProps.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
-      String token = defaultIfBlank(system.envVariable("SONAR_TOKEN"), null);
-      String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
-      connectorBuilder
-        .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)
-        .connectTimeoutMilliseconds(CONNECT_TIMEOUT_MS)
-        .userAgent(env.toString())
-        .url(url)
-        .credentials(login, scannerProps.property(CoreProperties.PASSWORD));
-
-      // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
-      final String proxyUser = System.getProperty("http.proxyUser", "");
-      if (!proxyUser.isEmpty()) {
-        connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
-      }
-
-      wsClient = new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
+    // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
+    final String proxyUser = System.getProperty("http.proxyUser", "");
+    if (!proxyUser.isEmpty()) {
+      connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
     }
-    return wsClient;
+
+    return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode);
   }
 }

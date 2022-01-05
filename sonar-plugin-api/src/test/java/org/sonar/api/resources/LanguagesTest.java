@@ -29,8 +29,8 @@ public class LanguagesTest {
   @Test
   public void should_add_several_times_the_same_language() {
     Languages languages = new Languages(
-        language("fake"),
-        language("fake"));
+      language("fake"),
+      language("fake"));
 
     assertThat(languages.get("fake").getKey()).isEqualTo("fake");
   }
@@ -38,8 +38,8 @@ public class LanguagesTest {
   @Test
   public void should_get_suffixes() {
     Languages languages = new Languages(
-        language("java", "java"),
-        language("php", "php4", "php5"));
+      language("java", "java"),
+      language("php", "php4", "php5"));
 
     assertThat(languages.getSuffixes()).containsOnly("java", "php4", "php5");
     assertThat(languages.getSuffixes("java")).containsOnly("java");

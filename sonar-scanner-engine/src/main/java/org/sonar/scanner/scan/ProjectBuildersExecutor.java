@@ -28,6 +28,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ProjectBuildersExecutor {
 
@@ -36,11 +37,13 @@ public class ProjectBuildersExecutor {
   private final GlobalConfiguration globalConfig;
   private final ProjectBuilder[] projectBuilders;
 
+  @Autowired(required = false)
   public ProjectBuildersExecutor(GlobalConfiguration globalConfig, ProjectBuilder... projectBuilders) {
     this.globalConfig = globalConfig;
     this.projectBuilders = projectBuilders;
   }
 
+  @Autowired(required = false)
   public ProjectBuildersExecutor(GlobalConfiguration globalConfig) {
     this(globalConfig, new ProjectBuilder[0]);
   }

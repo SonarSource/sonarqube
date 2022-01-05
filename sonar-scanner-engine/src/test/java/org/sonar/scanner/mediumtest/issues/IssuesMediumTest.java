@@ -73,11 +73,11 @@ public class IssuesMediumTest {
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(issues).hasSize(8 /* lines */);
-    
+
     List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(externalIssues).isEmpty();
   }
-  
+
   @Test
   public void testOneExternalIssuePerLine() throws Exception {
     File projectDir = new File("test-resources/mediumtest/xoo/sample");
@@ -243,7 +243,8 @@ public class IssuesMediumTest {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in property 'sonar.issue.ignore.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+      "Specifying module-relative paths at project level in property 'sonar.issue.ignore.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));
     assertThat(issues).isEmpty();
@@ -295,14 +296,14 @@ public class IssuesMediumTest {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Specifying issue exclusions at module level is not supported anymore. Configure the property 'sonar.issue.ignore.multicriteria' and any other issue exclusions at project level.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
+      "Specifying issue exclusions at module level is not supported anymore. Configure the property 'sonar.issue.ignore.multicriteria' and any other issue exclusions at project level.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));
     assertThat(issues).hasSize(10);
 
     issues = result.issuesFor(result.inputFile("moduleB/src/sampleB.xoo"));
     assertThat(issues).hasSize(10);
-
 
     // SONAR-11850 The Maven scanner replicates properties defined on the root module to all modules
     logTester.clear();
@@ -387,7 +388,8 @@ public class IssuesMediumTest {
         .build())
       .execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Specifying module-relative paths at project level in property 'sonar.issue.enforce.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains(
+      "Specifying module-relative paths at project level in property 'sonar.issue.enforce.multicriteria' is deprecated. To continue matching files like 'moduleA/src/sampleA.xoo', update this property so that patterns refer to project-relative paths.");
 
     List<Issue> issues = result.issuesFor(result.inputFile("moduleA/src/sampleA.xoo"));
     assertThat(issues).hasSize(10);

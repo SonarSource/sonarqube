@@ -19,20 +19,16 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import org.sonar.scanner.scan.ProjectScanContainer;
+import org.sonar.scanner.scan.SpringProjectScanContainer;
 
 public class AnalysisObservers {
 
-  private AnalysisObserver[] observers;
-  private ProjectScanContainer projectScanContainer;
+  private final AnalysisObserver[] observers;
+  private final SpringProjectScanContainer projectScanContainer;
 
-  public AnalysisObservers(ProjectScanContainer projectScanContainer, AnalysisObserver... observers) {
+  public AnalysisObservers(SpringProjectScanContainer projectScanContainer, AnalysisObserver... observers) {
     this.projectScanContainer = projectScanContainer;
     this.observers = observers;
-  }
-
-  public AnalysisObservers(ProjectScanContainer projectScanContainer) {
-    this(projectScanContainer, new AnalysisObserver[0]);
   }
 
   public void notifyEndOfScanTask() {

@@ -23,17 +23,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.springframework.context.annotation.Bean;
 
-public class CiConfigurationProvider extends ProviderAdapter {
+public class CiConfigurationProvider {
 
   private static final Logger LOG = Loggers.get(CiConfigurationProvider.class);
   private static final String PROP_DISABLED = "sonar.ci.autoconfig.disabled";
 
+  @Bean("CiConfiguration")
   public CiConfiguration provide(Configuration configuration, CiVendor[] ciVendors) {
     boolean disabled = configuration.getBoolean(PROP_DISABLED).orElse(false);
     if (disabled) {

@@ -20,11 +20,13 @@
 package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
+import javax.inject.Inject;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 public class DefaultGlobalSettingsLoader extends AbstractSettingsLoader implements GlobalSettingsLoader {
 
-  public DefaultGlobalSettingsLoader(final DefaultScannerWsClient wsClient) {
+  @Inject
+  public DefaultGlobalSettingsLoader(DefaultScannerWsClient wsClient) {
     super(wsClient);
   }
 

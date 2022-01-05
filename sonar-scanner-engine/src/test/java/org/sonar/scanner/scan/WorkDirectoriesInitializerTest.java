@@ -62,18 +62,18 @@ public class WorkDirectoriesInitializerTest {
     when(root.getWorkDir()).thenReturn(rootWorkDir.toPath());
 
     assertThat(rootWorkDir.list().length).isGreaterThan(1);
-    initializer = new WorkDirectoriesInitializer(hierarchy);
+    initializer = new WorkDirectoriesInitializer();
   }
 
   @Test
   public void testNonExisting() {
     temp.delete();
-    initializer.execute();
+    initializer.execute(hierarchy);
   }
 
   @Test
   public void testClean() {
-    initializer.execute();
+    initializer.execute(hierarchy);
 
     assertThat(rootWorkDir).exists();
     assertThat(lock).exists();
@@ -89,7 +89,7 @@ public class WorkDirectoriesInitializerTest {
     moduleAWorkdir.mkdir();
     new File(moduleAWorkdir, "fooA.txt").createNewFile();
 
-    initializer.execute();
+    initializer.execute(hierarchy);
 
     assertThat(rootWorkDir).exists();
     assertThat(lock).exists();

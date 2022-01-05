@@ -22,8 +22,13 @@ package org.sonar.scanner.scan.filesystem;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.predicates.DefaultFilePredicates;
 
+import javax.annotation.Priority;
+import javax.inject.Inject;
+
+@Priority(1)
 public class DefaultModuleFileSystem extends MutableFileSystem {
 
+  @Inject
   public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module) {
     super(module.getBaseDir(), moduleInputFileCache, new DefaultFilePredicates(module.getBaseDir()));
     initFields(module);

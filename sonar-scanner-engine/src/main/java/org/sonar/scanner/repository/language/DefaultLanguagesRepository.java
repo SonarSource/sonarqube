@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.resources.Languages;
 
 /**

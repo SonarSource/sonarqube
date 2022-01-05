@@ -26,19 +26,27 @@ import org.sonar.core.util.Uuids;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-class ComponentKeys {
-
+public class ComponentKeys {
+  private static final Logger LOG = Loggers.get(ComponentKeys.class);
   private static final Pattern IDENTITY_HASH_PATTERN = Pattern.compile(".+@[a-f0-9]+");
   private final Set<Class> objectsWithoutToString = new HashSet<>();
 
   Object of(Object component) {
-    return of(component, Loggers.get(ComponentKeys.class));
+    return of(component, LOG);
   }
 
   Object of(Object component, Logger log) {
     if (component instanceof Class) {
       return component;
     }
+    return ofInstance(component, log);
+  }
+
+  public String ofInstance(Object component) {
+    return ofInstance(component, LOG);
+  }
+
+  String ofInstance(Object component, Logger log) {
     String key = component.toString();
     if (IDENTITY_HASH_PATTERN.matcher(key).matches()) {
       if (!objectsWithoutToString.add(component.getClass())) {
@@ -46,6 +54,6 @@ class ComponentKeys {
       }
       key += Uuids.create();
     }
-    return new StringBuilder().append(component.getClass().getCanonicalName()).append("-").append(key).toString();
+    return component.getClass().getCanonicalName() + "-" + key;
   }
 }

@@ -33,30 +33,23 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
  * Be careful that sub module work dir might be nested in parent working directory.
  */
 public class WorkDirectoriesInitializer {
-
-  private InputModuleHierarchy moduleHierarchy;
-
-  public WorkDirectoriesInitializer(InputModuleHierarchy moduleHierarchy) {
-    this.moduleHierarchy = moduleHierarchy;
+  public void execute(InputModuleHierarchy moduleHierarchy) {
+    cleanAllWorkingDirs(moduleHierarchy, moduleHierarchy.root());
+    mkdirsAllWorkingDirs(moduleHierarchy, moduleHierarchy.root());
   }
 
-  public void execute() {
-    cleanAllWorkingDirs(moduleHierarchy.root());
-    mkdirsAllWorkingDirs(moduleHierarchy.root());
-  }
-
-  private void cleanAllWorkingDirs(DefaultInputModule module) {
+  private static void cleanAllWorkingDirs(InputModuleHierarchy moduleHierarchy, DefaultInputModule module) {
     for (DefaultInputModule sub : moduleHierarchy.children(module)) {
-      cleanAllWorkingDirs(sub);
+      cleanAllWorkingDirs(moduleHierarchy, sub);
     }
     if (Files.exists(module.getWorkDir())) {
       deleteAllRecursivelyExceptLockFile(module.getWorkDir());
     }
   }
 
-  private void mkdirsAllWorkingDirs(DefaultInputModule module) {
+  private static void mkdirsAllWorkingDirs(InputModuleHierarchy moduleHierarchy, DefaultInputModule module) {
     for (DefaultInputModule sub : moduleHierarchy.children(module)) {
-      mkdirsAllWorkingDirs(sub);
+      mkdirsAllWorkingDirs(moduleHierarchy, sub);
     }
     try {
       Files.createDirectories(module.getWorkDir());

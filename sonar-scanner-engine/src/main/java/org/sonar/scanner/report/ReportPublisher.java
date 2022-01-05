@@ -33,7 +33,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -97,13 +97,13 @@ public class ReportPublisher implements Startable {
     this.branchConfiguration = branchConfiguration;
     this.properties = properties;
     this.ceTaskReportDataHolder = ceTaskReportDataHolder;
+    this.reportDir = moduleHierarchy.root().getWorkDir().resolve("scanner-report");
+    this.writer = new ScannerReportWriter(reportDir.toFile());
+    this.reader = new ScannerReportReader(reportDir.toFile());
   }
 
   @Override
   public void start() {
-    reportDir = moduleHierarchy.root().getWorkDir().resolve("scanner-report");
-    writer = new ScannerReportWriter(reportDir.toFile());
-    reader = new ScannerReportReader(reportDir.toFile());
     contextPublisher.init(writer);
 
     if (!analysisMode.isMediumTest()) {

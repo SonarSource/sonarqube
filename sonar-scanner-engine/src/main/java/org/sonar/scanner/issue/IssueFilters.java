@@ -25,6 +25,7 @@ import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @deprecated since 7.6, {@link IssueFilter} is deprecated
@@ -34,11 +35,13 @@ public class IssueFilters {
   private final IssueFilterChain filterChain;
   private final DefaultInputProject project;
 
+  @Autowired(required = false)
   public IssueFilters(DefaultInputProject project, IssueFilter[] exclusionFilters) {
     this.project = project;
     this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
   }
 
+  @Autowired(required = false)
   public IssueFilters(DefaultInputProject project) {
     this(project, new IssueFilter[0]);
   }

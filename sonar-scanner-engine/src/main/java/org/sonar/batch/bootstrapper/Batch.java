@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.bootstrap.GlobalContainer;
+import org.sonar.scanner.bootstrap.SpringGlobalContainer;
 
 /**
  * Entry point for SonarQube Scanner API 2.1+.
@@ -69,7 +69,7 @@ public final class Batch {
   public synchronized Batch doExecute(Map<String, String> scannerProperties, List<Object> components) {
     configureLogging();
     try {
-      GlobalContainer.create(scannerProperties, components).execute();
+      SpringGlobalContainer.create(scannerProperties, components).execute();
     } catch (RuntimeException e) {
       throw handleException(e);
     }

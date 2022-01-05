@@ -19,25 +19,22 @@
  */
 package org.sonar.scanner.repository;
 
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.rule.QualityProfiles;
+import org.springframework.context.annotation.Bean;
 
-public class QualityProfilesProvider extends ProviderAdapter {
+public class QualityProfilesProvider {
   private static final Logger LOG = Loggers.get(QualityProfilesProvider.class);
   private static final String LOG_MSG = "Load quality profiles";
-  private QualityProfiles profiles = null;
 
+  @Bean("QualityProfiles")
   public QualityProfiles provide(QualityProfileLoader loader, ScannerProperties props) {
-    if (this.profiles == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      profiles = new QualityProfiles(loader.load(props.getProjectKey()));
-      profiler.stopInfo();
-    }
-
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+    QualityProfiles profiles = new QualityProfiles(loader.load(props.getProjectKey()));
+    profiler.stopInfo();
     return profiles;
   }
 

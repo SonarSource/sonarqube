@@ -19,10 +19,11 @@
  */
 package org.sonar.scanner.scan;
 
+import javax.annotation.Priority;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
+import org.sonar.scanner.bootstrap.SpringComponentContainer;
 import org.sonar.scanner.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.sensor.ModuleSensorContext;
@@ -34,10 +35,11 @@ import static org.sonar.api.batch.InstantiationStrategy.PER_PROJECT;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
 
-public class ModuleScanContainer extends ComponentContainer {
+@Priority(1)
+public class SpringModuleScanContainer extends SpringComponentContainer {
   private final DefaultInputModule module;
 
-  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module) {
+  public SpringModuleScanContainer(SpringComponentContainer parent, DefaultInputModule module) {
     super(parent);
     this.module = module;
   }
@@ -70,7 +72,7 @@ public class ModuleScanContainer extends ComponentContainer {
   }
 
   private void addExtensions() {
-    ExtensionInstaller pluginInstaller = getComponentByType(ExtensionInstaller.class);
+    ExtensionInstaller pluginInstaller = parent.getComponentByType(ExtensionInstaller.class);
     pluginInstaller.install(this, e -> isDeprecatedScannerSide(e) && isInstantiationStrategy(e, PER_PROJECT));
   }
 
@@ -78,5 +80,4 @@ public class ModuleScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     getComponentByType(ModuleSensorsExecutor.class).execute();
   }
-
 }

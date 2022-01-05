@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
+import org.sonar.scanner.bootstrap.SpringComponentContainer;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 
@@ -34,7 +35,7 @@ public class ModuleSensorExtensionDictionary extends AbstractExtensionDictionary
   private final MutableFileSystem fileSystem;
   private final BranchConfiguration branchConfiguration;
 
-  public ModuleSensorExtensionDictionary(ComponentContainer componentContainer, ModuleSensorContext sensorContext, ModuleSensorOptimizer sensorOptimizer,
+  public ModuleSensorExtensionDictionary(SpringComponentContainer componentContainer, ModuleSensorContext sensorContext, ModuleSensorOptimizer sensorOptimizer,
     MutableFileSystem fileSystem, BranchConfiguration branchConfiguration) {
     super(componentContainer);
     this.sensorContext = sensorContext;

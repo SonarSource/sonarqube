@@ -20,33 +20,27 @@
 package org.sonar.scanner.scan.branch;
 
 import java.util.Collections;
-import org.picocontainer.annotations.Nullable;
-import org.picocontainer.injectors.ProviderAdapter;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.springframework.context.annotation.Bean;
 
-public class ProjectBranchesProvider extends ProviderAdapter {
+public class ProjectBranchesProvider {
 
   private static final Logger LOG = Loggers.get(ProjectBranchesProvider.class);
   private static final String LOG_MSG = "Load project branches";
 
-  private ProjectBranches branches = null;
-
+  @Bean("ProjectBranches")
   public ProjectBranches provide(@Nullable ProjectBranchesLoader loader, ScannerProperties scannerProperties) {
-    if (this.branches != null) {
-      return this.branches;
-    }
-
     if (loader == null) {
-      this.branches = new ProjectBranches(Collections.emptyList());
-      return this.branches;
+      return new ProjectBranches(Collections.emptyList());
     }
 
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    this.branches = loader.load(scannerProperties.getProjectKey());
+    ProjectBranches branches = loader.load(scannerProperties.getProjectKey());
     profiler.stopInfo();
-    return this.branches;
+    return branches;
   }
 }

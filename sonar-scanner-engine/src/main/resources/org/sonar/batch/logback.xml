@@ -19,10 +19,6 @@
     <level value="WARN"/>
   </logger>
 
-  <logger name="PERSISTIT">
-    <level value="WARN"/>
-  </logger>
-
   <root>
     <!-- sonar.verbose -->
     <level value="${ROOT_LOGGER_LEVEL}"/>

@@ -20,29 +20,22 @@
 package org.sonar.scanner.rule;
 
 import java.util.List;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.rule.internal.NewRule;
 import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.rule.internal.NewRule;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.springframework.context.annotation.Bean;
 
-public class RulesProvider extends ProviderAdapter {
+public class RulesProvider {
   private static final Logger LOG = Loggers.get(RulesProvider.class);
   private static final String LOG_MSG = "Load server rules";
-  private Rules singleton = null;
 
+  @Bean("Rules")
   public Rules provide(RulesLoader ref) {
-    if (singleton == null) {
-      singleton = load(ref);
-    }
-    return singleton;
-  }
-
-  private static Rules load(RulesLoader ref) {
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     List<Rule> loadedRules = ref.load();
     RulesBuilder builder = new RulesBuilder();
@@ -54,7 +47,6 @@ public class RulesProvider extends ProviderAdapter {
     }
 
     profiler.stopInfo();
-
     return builder.build();
   }
 }
