@@ -39,6 +39,7 @@ import {
   mockRouter
 } from '../../../../helpers/testMocks';
 import { KEYCODE_MAP, keydown, waitAndUpdate } from '../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../types/component';
 import {
   disableLocationsNavigator,
   enableLocationsNavigator,
@@ -47,8 +48,8 @@ import {
   selectPreviousFlow,
   selectPreviousLocation
 } from '../../actions';
-import App from '../IssuesApp';
 import BulkChangeModal from '../BulkChangeModal';
+import App from '../IssuesApp';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
@@ -111,6 +112,17 @@ afterEach(() => {
   });
 });
 
+it('should show warnning when not all projects are accessible', () => {
+  const wrapper = shallowRender({
+    component: mockComponent({
+      canBrowseAllChildProjects: false,
+      qualifier: ComponentQualifier.Portfolio
+    })
+  });
+  const rootNode = shallow(wrapper.instance().renderSide(undefined));
+  expect(rootNode).toMatchSnapshot();
+});
+
 it('should render a list of issue', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -122,12 +134,46 @@ it('should render a list of issue', async () => {
   expect(addWhitePageClass).toBeCalled();
 });
 
+it('should handle my issue change properly', () => {
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+  wrapper.instance().handleMyIssuesChange(true);
+
+  expect(push).toBeCalledWith({
+    pathname: '/issues',
+    query: {
+      id: 'foo',
+      myIssues: 'true'
+    }
+  });
+});
+
+it('should load search result count correcly', async () => {
+  const wrapper = shallowRender();
+  const count = await wrapper.instance().loadSearchResultCount('severities', {});
+  expect(count).toStrictEqual({ MINOR: 4 });
+});
+
 it('should not render for anonymous user', () => {
   shallowRender({
     currentUser: mockCurrentUser({ isLoggedIn: false }),
     location: mockLocation({ query: { myIssues: true.toString() } })
   });
   expect(handleRequiredAuthentication).toBeCalled();
+});
+
+it('should handle reset properly', () => {
+  const push = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+  wrapper.instance().handleReset();
+  expect(push).toBeCalledWith({
+    pathname: '/issues',
+    query: {
+      id: 'foo',
+      myIssues: undefined,
+      resolved: 'false'
+    }
+  });
 });
 
 it('should open standard facets for vulnerabilities and hotspots', () => {

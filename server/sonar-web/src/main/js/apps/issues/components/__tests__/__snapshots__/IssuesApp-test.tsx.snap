@@ -20,6 +20,131 @@ exports[`should check max 500 issues 1`] = `
 </Button>
 `;
 
+exports[`should show warnning when not all projects are accessible 1`] = `
+<div
+  className="layout-page-side-outer"
+>
+  <section
+    aria-label="filters"
+    className="layout-page-side"
+    style={
+      Object {
+        "top": 0,
+      }
+    }
+  >
+    <div
+      className="layout-page-side-inner"
+    >
+      <Alert
+        className="big-spacer-top big-spacer-right"
+        variant="warning"
+      >
+        issues.not_all_issue_show
+        <HelpTooltip
+          className="spacer-left"
+          overlay="issues.not_all_issue_show_why"
+        />
+      </Alert>
+      <A11ySkipTarget
+        anchor="issues_sidebar"
+        label="issues.skip_to_filters"
+        weight={10}
+      />
+      <div
+        className="layout-page-filters"
+      >
+        <MyIssuesFilter
+          myIssues={false}
+          onMyIssuesChange={[Function]}
+        />
+        <FiltersHeader
+          displayReset={true}
+          onReset={[Function]}
+        />
+        <Connect(Sidebar)
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "canBrowseAllChildProjects": false,
+              "key": "my-project",
+              "name": "MyProject",
+              "qualifier": "VW",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          createdAfterIncludesTime={false}
+          facets={Object {}}
+          loadSearchResultCount={[Function]}
+          loadingFacets={Object {}}
+          myIssues={false}
+          onFacetToggle={[Function]}
+          onFilterChange={[Function]}
+          openFacets={
+            Object {
+              "owaspTop10": false,
+              "sansTop25": false,
+              "severities": true,
+              "sonarsourceSecurity": false,
+              "standards": false,
+              "types": true,
+            }
+          }
+          query={
+            Object {
+              "assigned": true,
+              "assignees": Array [],
+              "author": Array [],
+              "createdAfter": undefined,
+              "createdAt": "",
+              "createdBefore": undefined,
+              "createdInLast": "",
+              "cwe": Array [],
+              "directories": Array [],
+              "files": Array [],
+              "issues": Array [],
+              "languages": Array [],
+              "owaspTop10": Array [],
+              "projects": Array [],
+              "resolutions": Array [],
+              "resolved": true,
+              "rules": Array [],
+              "sansTop25": Array [],
+              "scopes": Array [],
+              "severities": Array [],
+              "sinceLeakPeriod": false,
+              "sonarsourceSecurity": Array [],
+              "sort": "",
+              "statuses": Array [],
+              "tags": Array [],
+              "types": Array [],
+            }
+          }
+          referencedComponentsById={Object {}}
+          referencedComponentsByKey={Object {}}
+          referencedLanguages={Object {}}
+          referencedRules={Object {}}
+          referencedUsers={Object {}}
+        />
+      </div>
+    </div>
+  </section>
+</div>
+`;
+
 exports[`should switch to source view if an issue is selected 1`] = `
 <div
   className="layout-page issues"

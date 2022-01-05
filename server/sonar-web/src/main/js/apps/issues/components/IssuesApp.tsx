@@ -29,6 +29,7 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { Button } from '../../../components/controls/buttons';
 import Checkbox from '../../../components/controls/Checkbox';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
@@ -50,6 +51,7 @@ import {
 } from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import {
   Facet,
   FetchIssuesPromise,
@@ -85,7 +87,7 @@ import MyIssuesFilter from './MyIssuesFilter';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
-]
+
 interface Props {
   branchLike?: BranchLike;
   component?: T.Component;
@@ -946,6 +948,8 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderSide(openIssue: T.Issue | undefined) {
+    const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
+      this.props.component || {};
     return (
       <ScreenPositionHelper className="layout-page-side-outer">
         {({ top }) => (
@@ -954,6 +958,15 @@ export default class App extends React.PureComponent<Props, State> {
             className="layout-page-side"
             style={{ top }}>
             <div className="layout-page-side-inner">
+              {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+                <Alert className="big-spacer-top big-spacer-right" variant="warning">
+                  {translate('issues.not_all_issue_show')}
+                  <HelpTooltip
+                    className="spacer-left"
+                    overlay={translate('issues.not_all_issue_show_why')}
+                  />
+                </Alert>
+              )}
               <A11ySkipTarget
                 anchor="issues_sidebar"
                 label={
