@@ -47,7 +47,7 @@ import {
   selectPreviousFlow,
   selectPreviousLocation
 } from '../../actions';
-import App from '../App';
+import App from '../IssuesApp';
 import BulkChangeModal from '../BulkChangeModal';
 
 jest.mock('../../../../helpers/pages', () => ({

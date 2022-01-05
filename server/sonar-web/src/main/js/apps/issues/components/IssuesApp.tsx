@@ -49,7 +49,6 @@ import {
   removeWhitePageClass
 } from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
-import { isSonarCloud } from '../../../helpers/system';
 import { BranchLike } from '../../../types/branch-like';
 import {
   Facet,
@@ -86,7 +85,7 @@ import MyIssuesFilter from './MyIssuesFilter';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
-
+]
 interface Props {
   branchLike?: BranchLike;
   component?: T.Component;
@@ -886,7 +885,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="layout-page-filters">
-        {currentUser.isLoggedIn && !isSonarCloud() && (
+        {currentUser.isLoggedIn && (
           <MyIssuesFilter
             myIssues={this.state.myIssues}
             onMyIssuesChange={this.handleMyIssuesChange}

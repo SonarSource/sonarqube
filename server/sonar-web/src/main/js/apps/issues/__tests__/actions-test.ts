@@ -19,7 +19,7 @@
  */
 import { mockIssue } from '../../../helpers/testMocks';
 import { enableLocationsNavigator, selectFlow, selectLocation } from '../actions';
-import { State } from '../components/App';
+import { State } from '../components/IssuesApp';
 
 describe('selectFlow', () => {
   it('should select flow and enable locations navigator', () => {

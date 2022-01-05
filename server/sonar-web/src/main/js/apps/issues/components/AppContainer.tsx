@@ -26,7 +26,7 @@ import { fetchBranchStatus } from '../../../store/rootActions';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { FetchIssuesPromise } from '../../../types/issues';
 
-const IssuesAppContainer = lazyLoadComponent(() => import('./App'), 'IssuesAppContainer');
+const IssuesAppContainer = lazyLoadComponent(() => import('./IssuesApp'), 'IssuesAppContainer');
 
 const mapStateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
