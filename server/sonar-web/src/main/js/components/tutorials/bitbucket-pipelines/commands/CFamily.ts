@@ -24,17 +24,18 @@ export default function cFamilyExample(branchesEnabled: boolean) {
 definitions:
   steps:
     - step: &build-step
-        name: Download and install the build wrapper, build the project
+        name: Build the project, and run the SonarQube analysis
         script:
+          - export SONAR_SCANNER_VERSION=4.6.2.2472
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
           - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
+          - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
+          - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-          - pipe: sonarsource/sonarqube-scan:1.0.0
-            variables:
-              EXTRA_ARGS: -Dsonar.cfamily.build-wrapper-output=bw-output
-              SONAR_HOST_URL: \${SONAR_HOST_URL}
-              SONAR_TOKEN: \${SONAR_TOKEN}
+          - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output  
   caches:
     sonar: ~/.sonar
 
