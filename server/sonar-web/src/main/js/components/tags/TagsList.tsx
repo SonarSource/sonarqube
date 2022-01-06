@@ -34,6 +34,7 @@ export default function TagsList({ allowUpdate = false, className, tags }: Props
   return (
     <span
       aria-label={translateWithParameters('tags_list_x', tags.join(', '))}
+      role="note"
       className={classNames('tags-list', className)}>
       <TagsIcon className="text-middle" />
       <span aria-hidden={true} className="text-ellipsis text-middle" title={tags.join(', ')}>

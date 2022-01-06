@@ -50,7 +50,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
 
   render() {
     return (
-      <li className="issue-meta dropdown">
+      <div className="issue-meta dropdown">
         <Toggler
           closeOnClickOutside={false}
           onRequestClose={this.handleClose}
@@ -71,7 +71,7 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
             <span className="issue-meta-label">{translate('issue.comment.formlink')}</span>
           </ButtonLink>
         </Toggler>
-      </li>
+      </div>
     );
   }
 }

@@ -42,6 +42,7 @@ exports[`should show warnning when not all projects are accessible 1`] = `
       >
         issues.not_all_issue_show
         <HelpTooltip
+          ariaLabel="issues.not_all_issue_show_why"
           className="spacer-left"
           overlay="issues.not_all_issue_show_why"
         />

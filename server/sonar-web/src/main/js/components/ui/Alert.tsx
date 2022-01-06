@@ -42,6 +42,7 @@ interface AlertVariantInformation {
   color: string;
   borderColor: string;
   backGroundColor: string;
+  role: string;
 }
 
 const DOUBLE = 2;
@@ -105,31 +106,36 @@ function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
       icon: <AlertErrorIcon fill={colors.alertIconError} />,
       color: colors.alertTextError,
       borderColor: colors.alertBorderError,
-      backGroundColor: colors.alertBackgroundError
+      backGroundColor: colors.alertBackgroundError,
+      role: 'alert'
     },
     warning: {
       icon: <AlertWarnIcon fill={colors.alertIconWarning} />,
       color: colors.alertTextWarning,
       borderColor: colors.alertBorderWarning,
-      backGroundColor: colors.alertBackgroundWarning
+      backGroundColor: colors.alertBackgroundWarning,
+      role: 'alert'
     },
     success: {
       icon: <AlertSuccessIcon fill={colors.alertIconSuccess} />,
       color: colors.alertTextSuccess,
       borderColor: colors.alertBorderSuccess,
-      backGroundColor: colors.alertBackgroundSuccess
+      backGroundColor: colors.alertBackgroundSuccess,
+      role: 'status'
     },
     info: {
       icon: <InfoIcon fill={colors.alertIconInfo} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
-      backGroundColor: colors.alertBackgroundInfo
+      backGroundColor: colors.alertBackgroundInfo,
+      role: 'status'
     },
     loading: {
       icon: <DeferredSpinner timeout={0} />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
-      backGroundColor: colors.alertBackgroundInfo
+      backGroundColor: colors.alertBackgroundInfo,
+      role: 'status'
     }
   };
 
@@ -146,7 +152,7 @@ export function Alert(props: AlertProps & React.HTMLAttributes<HTMLDivElement>) 
     <StyledAlert
       className={classNames('alert', className)}
       isInline={isInline}
-      role="alert"
+      role={variantInfo.role}
       aria-label={translate('alert.tooltip', variant)}
       variantInfo={variantInfo}
       {...domProps}>

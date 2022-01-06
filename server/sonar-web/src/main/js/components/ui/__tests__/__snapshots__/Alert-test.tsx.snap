@@ -119,6 +119,7 @@ exports[`should render properly 1`] = `
       "icon": <AlertErrorIcon
         fill="#a4030f"
       />,
+      "role": "alert",
     }
   }
 >
@@ -135,6 +136,7 @@ exports[`should render properly 1`] = `
           "icon": <AlertErrorIcon
             fill="#a4030f"
           />,
+          "role": "alert",
         }
       }
     >
@@ -159,6 +161,7 @@ Object {
   "icon": <AlertErrorIcon
     fill="#a4030f"
   />,
+  "role": "alert",
 }
 `;
 
@@ -170,6 +173,7 @@ Object {
   "icon": <AlertWarnIcon
     fill="#db781a"
   />,
+  "role": "alert",
 }
 `;
 
@@ -181,6 +185,7 @@ Object {
   "icon": <AlertSuccessIcon
     fill="#6d9867"
   />,
+  "role": "status",
 }
 `;
 
@@ -192,6 +197,7 @@ Object {
   "icon": <InfoIcon
     fill="#0271b9"
   />,
+  "role": "status",
 }
 `;
 
@@ -203,5 +209,6 @@ Object {
   "icon": <DeferredSpinner
     timeout={0}
   />,
+  "role": "status",
 }
 `;

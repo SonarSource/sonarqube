@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should open the popup when the button is clicked 1`] = `
-<li
+<div
   className="issue-meta dropdown"
 >
   <Toggler
@@ -41,11 +41,11 @@ exports[`should open the popup when the button is clicked 1`] = `
       </span>
     </ButtonLink>
   </Toggler>
-</li>
+</div>
 `;
 
 exports[`should render correctly 1`] = `
-<li
+<div
   className="issue-meta dropdown"
 >
   <Toggler
@@ -73,5 +73,5 @@ exports[`should render correctly 1`] = `
       </span>
     </ButtonLink>
   </Toggler>
-</li>
+</div>
 `;

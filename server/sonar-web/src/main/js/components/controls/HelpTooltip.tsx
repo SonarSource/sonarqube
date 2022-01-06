@@ -31,11 +31,18 @@ interface Props extends Pick<IconProps, 'size'> {
   onShow?: () => void;
   overlay: React.ReactNode;
   placement?: Placement;
+  ariaLabel?: string;
+  ariaLabelledby?: string;
 }
 
-export default function HelpTooltip({ size = 12, ...props }: Props) {
+export default function HelpTooltip({ size = 12, ariaLabel, ariaLabelledby, ...props }: Props) {
+  const role = ariaLabel || ariaLabelledby ? 'note' : undefined;
   return (
-    <div className={classNames('help-tooltip', props.className)}>
+    <div
+      className={classNames('help-tooltip', props.className)}
+      aria-labelledby={ariaLabelledby}
+      aria-label={ariaLabel}
+      role={role}>
       <Tooltip
         mouseLeaveDelay={0.25}
         onShow={props.onShow}

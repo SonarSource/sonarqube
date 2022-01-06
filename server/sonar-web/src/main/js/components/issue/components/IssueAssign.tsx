@@ -50,12 +50,7 @@ export default class IssueAssign extends React.PureComponent<Props> {
       return (
         <>
           <span className="text-top">
-            <Avatar
-              className="little-spacer-right"
-              hash={issue.assigneeAvatar}
-              name={assigneeName}
-              size={16}
-            />
+            <Avatar className="little-spacer-right" hash={issue.assigneeAvatar} name="" size={16} />
           </span>
           <span className="issue-meta-label">
             {issue.assigneeActive === false

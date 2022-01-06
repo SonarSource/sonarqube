@@ -963,6 +963,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('issues.not_all_issue_show')}
                   <HelpTooltip
                     className="spacer-left"
+                    ariaLabel={translate('issues.not_all_issue_show_why')}
                     overlay={translate('issues.not_all_issue_show_why')}
                   />
                 </Alert>

@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../api/issues';
 import Checkbox from '../../components/controls/Checkbox';
+import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { updateIssue } from './actions';
 import IssueActionsBar from './components/IssueActionsBar';
@@ -112,6 +113,7 @@ export default class IssueView extends React.PureComponent<Props> {
               checked={this.props.checked || false}
               className="issue-checkbox-container"
               onCheck={this.handleCheck}
+              title={translate('issues.action_select')}
             />
           </>
         )}
