@@ -427,6 +427,7 @@ The rules are:
 
 ### Release 9.3
 ![](/images/check.svg) Added
+* `sonar-plugin-api.src.main.java.org.sonar.api.resources.Language#publishAllFiles` to define whether the files identified with the language should be automatically published to SonarQube.
 * `org.sonar.api.batch.sensor.SensorDescriptor#processesFilesIndependently`
 
 ### Release 9.0
