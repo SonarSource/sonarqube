@@ -64,6 +64,7 @@ import PullRequestIcon from '../../../components/icons/PullRequestIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from '../../../components/icons/VulnerabilityIcon';
+import WarningIcon from '../../../components/icons/WarningIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -242,7 +243,8 @@ const exposeLibraries = () => {
         SubmitButton,
         Suggestions,
         Tooltip,
-        VulnerabilityIcon
+        VulnerabilityIcon,
+        WarningIcon
       };
     }
   });
