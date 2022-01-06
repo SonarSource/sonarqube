@@ -425,6 +425,10 @@ The rules are:
 
 ## API Changes
 
+### Release 9.3
+![](/images/check.svg) Added
+* `org.sonar.api.batch.sensor.SensorDescriptor#processesFilesIndependently`
+
 ### Release 9.0
 ![](/images/exclamation.svg) Deprecated
 * `org.sonar.api.server.rule.RulesDefinition` is deprecated. Use the `sonar-check-api` to annotate rule classes instead of loading the metadata from XML files
