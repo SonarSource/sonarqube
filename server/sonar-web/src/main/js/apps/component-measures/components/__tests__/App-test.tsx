@@ -20,10 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getMeasuresWithPeriod } from '../../../../api/measures';
+import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
+import { Alert } from '../../../../components/ui/Alert';
 import { mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { ComponentQualifier } from '../../../../types/component';
 import { App } from '../App';
 
 jest.mock('../../../../api/metrics', () => ({
@@ -112,6 +115,47 @@ it('should refresh branch status if issues are updated', async () => {
   instance.handleIssueChange(mockIssue());
   expect(fetchBranchStatus).toBeCalledWith(branchLike, 'foo');
 });
+
+it('should render a warning message when user does not have access to all projects whithin a Portfolio', async () => {
+  const wrapper = shallowRender({
+    component: mockComponent({
+      qualifier: ComponentQualifier.Portfolio,
+      canBrowseAllChildProjects: false
+    })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot(
+    'Measure menu with warning (ScreenPositionHelper)'
+  );
+});
+
+it.each([
+  [ComponentQualifier.Portfolio, true, false],
+  [ComponentQualifier.Project, false, false],
+  [ComponentQualifier.Portfolio, false, true]
+])(
+  'should not render a warning message',
+  async (
+    componentQualifier: ComponentQualifier,
+    canBrowseAllChildProjects: boolean,
+    alertIsVisible: boolean
+  ) => {
+    const wrapper = shallowRender({
+      component: mockComponent({
+        qualifier: componentQualifier,
+        canBrowseAllChildProjects
+      })
+    });
+    await waitAndUpdate(wrapper);
+    expect(
+      wrapper
+        .find(ScreenPositionHelper)
+        .dive()
+        .find(Alert)
+        .exists()
+    ).toBe(alertIsVisible);
+  }
+);
 
 function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(

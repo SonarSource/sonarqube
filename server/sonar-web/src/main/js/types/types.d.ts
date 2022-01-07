@@ -173,6 +173,7 @@ declare namespace T {
     description?: string;
     isFavorite?: boolean;
     isRecentlyBrowsed?: boolean;
+    canBrowseAllChildProjects?: boolean;
     key: string;
     match?: string;
     name: string;

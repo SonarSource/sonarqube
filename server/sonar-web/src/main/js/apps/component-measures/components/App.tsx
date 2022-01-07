@@ -27,8 +27,10 @@ import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
+import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import {
   getLocalizedMetricDomain,
@@ -43,7 +45,7 @@ import {
 } from '../../../helpers/pages';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
 import {
@@ -286,6 +288,7 @@ export class App extends React.PureComponent<Props, State> {
 
     const { branchLike } = this.props;
     const { measures } = this.state;
+    const { canBrowseAllChildProjects, qualifier } = this.props.component;
     const query = parseQuery(this.props.location.query);
     const showFullMeasures = hasFullMeasures(branchLike);
     const displayOverview = hasBubbleChart(query.metric);
@@ -295,13 +298,24 @@ export class App extends React.PureComponent<Props, State> {
       <div id="component-measures">
         <Suggestions suggestions="component_measures" />
         <Helmet defer={false} title={this.getHelmetTitle(query, displayOverview, metric)} />
-
         {measures.length > 0 ? (
           <div className="layout-page">
             <ScreenPositionHelper className="layout-page-side-outer">
               {({ top }) => (
                 <div className="layout-page-side" style={{ top }}>
                   <div className="layout-page-side-inner">
+                    {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+                      <Alert className="big-spacer-top big-spacer-right" variant="warning">
+                        {translate('component_measures.not_all_measures_are_shown')}
+                        <HelpTooltip
+                          className="spacer-left"
+                          ariaLabel={translate(
+                            'component_measures.not_all_measures_are_shown.help'
+                          )}
+                          overlay={translate('component_measures.not_all_measures_are_shown.help')}
+                        />
+                      </Alert>
+                    )}
                     <div className="layout-page-filters">
                       <Sidebar
                         measures={measures}
