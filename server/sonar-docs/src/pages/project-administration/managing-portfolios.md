@@ -18,6 +18,9 @@ Users with the Create Portfolios permission and global administrators can create
 ### Editing Portfolios
 Users need to have either **Administer** permissions for any Portfolios that they want to edit or the global **Administer System** permission.
 
+[[info]]
+|Giving a user **Administer** permission to an existing portfolio that was created using manual selection allows that user to see all project names and keys for the projects in the Portfolio, even if the user doesn't have access to those projects.
+
 ## Populating Portfolios
 After you've created a portfolio, you can populate it with projects, applications, and other portfolios.
 
