@@ -21,7 +21,6 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -38,7 +37,6 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.repository.ForkDateSupplier;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -57,13 +55,12 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ScannerPluginRepository pluginRepository;
   private final BranchConfiguration branchConfiguration;
   private final ScmRevision scmRevision;
-  private final ForkDateSupplier forkDateSupplier;
   private final InputComponentStore componentStore;
   private final ScmConfiguration scmConfiguration;
 
   public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, QualityProfiles qProfiles,
     CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
-    ScmRevision scmRevision, ForkDateSupplier forkDateSupplier, InputComponentStore componentStore, ScmConfiguration scmConfiguration) {
+    ScmRevision scmRevision, InputComponentStore componentStore, ScmConfiguration scmConfiguration) {
     this.projectInfo = projectInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.qProfiles = qProfiles;
@@ -71,7 +68,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.pluginRepository = pluginRepository;
     this.branchConfiguration = branchConfiguration;
     this.scmRevision = scmRevision;
-    this.forkDateSupplier = forkDateSupplier;
     this.componentStore = componentStore;
     this.scmConfiguration = scmConfiguration;
   }
@@ -93,7 +89,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
 
     addScmInformation(builder);
-    addForkPoint(builder);
     addNotAnalyzedFileCountsByLanguage(builder);
 
     for (QProfile qp : qProfiles.findAll()) {
@@ -112,13 +107,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     addModulesRelativePaths(builder);
 
     writer.writeMetadata(builder.build());
-  }
-
-  private void addForkPoint(ScannerReport.Metadata.Builder builder) {
-    Instant date = forkDateSupplier.get();
-    if (date != null) {
-      builder.setForkDate(date.toEpochMilli());
-    }
   }
 
   private void addModulesRelativePaths(ScannerReport.Metadata.Builder builder) {

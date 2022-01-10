@@ -39,13 +39,6 @@ public interface AnalysisMetadataHolder {
   long getAnalysisDate();
 
   /**
-   * @throws IllegalStateException if no fork date has been set
-   */
-  @CheckForNull
-  Long getForkDate();
-
-
-  /**
    * Tell whether the analysisDate has been set.
    */
   boolean hasAnalysisDateBeenSet();

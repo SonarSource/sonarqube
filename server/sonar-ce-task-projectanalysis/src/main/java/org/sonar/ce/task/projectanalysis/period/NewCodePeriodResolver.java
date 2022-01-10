@@ -85,9 +85,7 @@ public class NewCodePeriodResolver {
   }
 
   private Period resolveByReferenceBranch(String value) {
-    Long forkDate = analysisMetadataHolder.getForkDate();
-    // forkDate can be null if the scanner failed to find it
-    return newPeriod(NewCodePeriodType.REFERENCE_BRANCH, value, forkDate);
+    return newPeriod(NewCodePeriodType.REFERENCE_BRANCH, value, null);
   }
 
   private Period resolveBySpecificAnalysis(DbSession dbSession, String rootUuid, String value) {

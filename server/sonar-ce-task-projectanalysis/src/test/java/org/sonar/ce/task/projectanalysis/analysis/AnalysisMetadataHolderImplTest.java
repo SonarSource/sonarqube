@@ -95,31 +95,6 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
-  public void getForkDate_returns_date_with_same_time_as_the_one_set_with_setForkDate() {
-
-    underTest.setForkDate(SOME_DATE);
-
-    assertThat(underTest.getForkDate()).isEqualTo(SOME_DATE);
-  }
-
-  @Test
-  public void getForkDate_throws_ISE_when_holder_is_not_initialized() {
-    assertThatThrownBy(() ->  new AnalysisMetadataHolderImpl(editionProvider).getForkDate())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fork date has not been set");
-  }
-
-  @Test
-  public void setForkDate_throws_ISE_when_called_twice() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-    underTest.setForkDate(SOME_DATE);
-
-    assertThatThrownBy(() ->  underTest.setForkDate(SOME_DATE))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fork date has already been set");
-  }
-
-  @Test
   public void hasAnalysisDateBeenSet_returns_false_when_holder_is_not_initialized() {
     assertThat(new AnalysisMetadataHolderImpl(editionProvider).hasAnalysisDateBeenSet()).isFalse();
   }
@@ -273,8 +248,8 @@ public class AnalysisMetadataHolderImplTest {
   @DataProvider
   public static Object[][] anyEditionIncludingNone() {
     return Stream.concat(
-      Stream.of((Edition) null),
-      Arrays.stream(Edition.values()))
+        Stream.of((Edition) null),
+        Arrays.stream(Edition.values()))
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }
@@ -282,8 +257,8 @@ public class AnalysisMetadataHolderImplTest {
   @DataProvider
   public static Object[][] anyEditionIncludingNoneButCommunity() {
     return Stream.concat(
-      Stream.of((Edition) null),
-      Arrays.stream(Edition.values())).filter(t -> t != Edition.COMMUNITY)
+        Stream.of((Edition) null),
+        Arrays.stream(Edition.values())).filter(t -> t != Edition.COMMUNITY)
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }

@@ -33,6 +33,7 @@ import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
+import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
@@ -104,6 +105,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.MetricModule;
 import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
@@ -204,6 +206,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MutableTaskResultHolderImpl.class,
       BatchReportReaderImpl.class,
       ReferenceBranchComponentUuids.class,
+      NewCodeReferenceBranchComponentUuids.class,
       SiblingComponentsWithOpenIssues.class,
 
       // repositories
@@ -237,6 +240,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       DefaultAssignee.class,
       IssueVisitors.class,
       IssueLifecycle.class,
+      NewIssueClassifier.class,
       ComponentsWithUnprocessedIssues.class,
       ComponentIssuesRepositoryImpl.class,
       IssueFilter.class,

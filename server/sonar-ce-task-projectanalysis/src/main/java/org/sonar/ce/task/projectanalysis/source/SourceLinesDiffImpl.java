@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.source.FileSourceDao;
 
 public class SourceLinesDiffImpl implements SourceLinesDiff {
@@ -38,15 +41,20 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
   private final MovedFilesRepository movedFilesRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final PeriodHolder periodHolder;
+  private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids;
 
-  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash,
-    ReferenceBranchComponentUuids referenceBranchComponentUuids, MovedFilesRepository movedFilesRepository, AnalysisMetadataHolder analysisMetadataHolder) {
+  public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash, ReferenceBranchComponentUuids referenceBranchComponentUuids,
+    MovedFilesRepository movedFilesRepository, AnalysisMetadataHolder analysisMetadataHolder, PeriodHolder periodHolder,
+    NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids) {
     this.dbClient = dbClient;
     this.fileSourceDao = fileSourceDao;
     this.sourceLinesHash = sourceLinesHash;
     this.referenceBranchComponentUuids = referenceBranchComponentUuids;
     this.movedFilesRepository = movedFilesRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.periodHolder = periodHolder;
+    this.newCodeReferenceBranchComponentUuids = newCodeReferenceBranchComponentUuids;
   }
 
   @Override
@@ -62,6 +70,8 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
       String uuid;
       if (analysisMetadataHolder.isPullRequest()) {
         uuid = referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
+      } else if (periodHolder.hasPeriod() && periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name())) {
+        uuid = newCodeReferenceBranchComponentUuids.getComponentUuid(component.getDbKey());
       } else {
         Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
         uuid = originalFile.map(MovedFilesRepository.OriginalFile::getUuid).orElse(component.getUuid());

@@ -25,8 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -40,18 +42,22 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 
 public class SourceLinesDiffImplTest {
 
-  private DbClient dbClient = mock(DbClient.class);
-  private DbSession dbSession = mock(DbSession.class);
-  private ComponentDao componentDao = mock(ComponentDao.class);
-  private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
-  private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
-  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final DbClient dbClient = mock(DbClient.class);
+  private final DbSession dbSession = mock(DbSession.class);
+  private final ComponentDao componentDao = mock(ComponentDao.class);
+  private final FileSourceDao fileSourceDao = mock(FileSourceDao.class);
+  private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids = mock(NewCodeReferenceBranchComponentUuids.class);
+  @Rule
+  public PeriodHolderRule periodHolder = new PeriodHolderRule();
+
   @Rule
   public MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
 
-  private SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash,
-    referenceBranchComponentUuids, movedFiles, analysisMetadataHolder);
+  private final SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash,
+    referenceBranchComponentUuids, movedFiles, analysisMetadataHolder, periodHolder, newCodeReferenceBranchComponentUuids);
 
   private static final int FILE_REF = 1;
 
@@ -74,6 +80,7 @@ public class SourceLinesDiffImplTest {
 
   @Test
   public void should_find_diff_with_reference_branch_for_prs() {
+    periodHolder.setPeriod(null);
     Component component = fileComponent(FILE_REF);
 
     mockLineHashesInDb(2, CONTENT);
@@ -87,6 +94,7 @@ public class SourceLinesDiffImplTest {
 
   @Test
   public void all_file_is_modified_if_no_source_in_db() {
+    periodHolder.setPeriod(null);
     Component component = fileComponent(FILE_REF);
 
     setLineHashesInReport(component, CONTENT);
@@ -96,6 +104,7 @@ public class SourceLinesDiffImplTest {
 
   @Test
   public void should_find_no_diff_when_report_and_db_content_are_identical() {
+    periodHolder.setPeriod(null);
     Component component = fileComponent(FILE_REF);
 
     mockLineHashesInDb(FILE_REF, CONTENT);

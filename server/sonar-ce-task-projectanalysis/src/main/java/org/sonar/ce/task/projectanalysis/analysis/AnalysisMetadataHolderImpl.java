@@ -48,7 +48,6 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
-  private final InitializedProperty<Long> forkDate = new InitializedProperty<>();
 
   private final PlatformEditionProvider editionProvider;
 
@@ -86,20 +85,6 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @Override
   public boolean hasAnalysisDateBeenSet() {
     return analysisDate.isInitialized();
-  }
-
-  @Override
-  public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
-    checkState(!forkDate.isInitialized(), "Fork date has already been set");
-    this.forkDate.setProperty(date);
-    return this;
-  }
-
-  @Override
-  @CheckForNull
-  public Long getForkDate() {
-    checkState(forkDate.isInitialized(), "Fork date has not been set");
-    return this.forkDate.getProperty();
   }
 
   @Override

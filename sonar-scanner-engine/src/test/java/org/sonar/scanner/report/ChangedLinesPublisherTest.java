@@ -39,6 +39,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
@@ -57,6 +58,7 @@ public class ChangedLinesPublisherTest {
   private InputModuleHierarchy inputModuleHierarchy = mock(InputModuleHierarchy.class);
   private InputComponentStore inputComponentStore = mock(InputComponentStore.class);
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private ReferenceBranchSupplier referenceBranchSupplier = mock(ReferenceBranchSupplier.class);
   private ScannerReportWriter writer;
   private ScmProvider provider = mock(ScmProvider.class);
   private DefaultInputProject project = mock(DefaultInputProject.class);
@@ -67,7 +69,7 @@ public class ChangedLinesPublisherTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private ChangedLinesPublisher publisher = new ChangedLinesPublisher(scmConfiguration, project, inputComponentStore, branchConfiguration);
+  private ChangedLinesPublisher publisher = new ChangedLinesPublisher(scmConfiguration, project, inputComponentStore, branchConfiguration, referenceBranchSupplier);
 
   @Before
   public void setUp() {

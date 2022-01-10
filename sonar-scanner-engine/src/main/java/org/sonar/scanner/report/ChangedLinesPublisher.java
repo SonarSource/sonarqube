@@ -22,6 +22,7 @@ package org.sonar.scanner.report;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -34,9 +35,12 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
+
+import static java.util.Optional.empty;
 
 public class ChangedLinesPublisher implements ReportPublisherStep {
   private static final Logger LOG = Loggers.get(ChangedLinesPublisher.class);
@@ -46,31 +50,38 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
   private final DefaultInputProject project;
   private final InputComponentStore inputComponentStore;
   private final BranchConfiguration branchConfiguration;
+  private final ReferenceBranchSupplier referenceBranchSupplier;
 
   public ChangedLinesPublisher(ScmConfiguration scmConfiguration, DefaultInputProject project, InputComponentStore inputComponentStore,
-    BranchConfiguration branchConfiguration) {
+    BranchConfiguration branchConfiguration, ReferenceBranchSupplier referenceBranchSupplier) {
     this.scmConfiguration = scmConfiguration;
     this.project = project;
     this.inputComponentStore = inputComponentStore;
     this.branchConfiguration = branchConfiguration;
+    this.referenceBranchSupplier = referenceBranchSupplier;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
+    Optional<String> targetBranch = getTargetBranch();
+    if (targetBranch.isPresent()) {
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+      int count = writeChangedLines(scmConfiguration.provider(), writer, targetBranch.get());
+      LOG.debug("SCM reported changed lines for {} {} in the branch", count, ScannerUtils.pluralize("file", count));
+      profiler.stopInfo();
+    }
+  }
+
+  private Optional<String> getTargetBranch() {
+    if (scmConfiguration.isDisabled() || scmConfiguration.provider() == null) {
+      return empty();
+    }
+
     String targetBranchName = branchConfiguration.targetBranchName();
-    if (scmConfiguration.isDisabled() || !branchConfiguration.isPullRequest() || targetBranchName == null) {
-      return;
+    if (branchConfiguration.isPullRequest() && targetBranchName != null) {
+      return Optional.of(targetBranchName);
     }
-
-    ScmProvider provider = scmConfiguration.provider();
-    if (provider == null) {
-      return;
-    }
-
-    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    int count = writeChangedLines(provider, writer, targetBranchName);
-    LOG.debug("SCM reported changed lines for {} {} in the branch", count, ScannerUtils.pluralize("file", count));
-    profiler.stopInfo();
+    return Optional.ofNullable(referenceBranchSupplier.get());
   }
 
   private int writeChangedLines(ScmProvider provider, ScannerReportWriter writer, String targetScmBranch) {
@@ -92,7 +103,9 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
       Set<Integer> changedLines = pathSetMap.get(e.getKey());
 
       if (changedLines == null) {
-        LOG.warn("File '{}' was detected as changed but without having changed lines", e.getKey().toAbsolutePath());
+        if (branchConfiguration.isPullRequest()) {
+          LOG.warn("File '{}' was detected as changed but without having changed lines", e.getKey().toAbsolutePath());
+        }
         // assume that no line was changed
         writeChangedLines(writer, e.getValue().scannerId(), Collections.emptySet());
       } else {

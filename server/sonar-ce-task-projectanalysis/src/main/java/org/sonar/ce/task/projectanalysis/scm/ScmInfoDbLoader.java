@@ -49,7 +49,7 @@ public class ScmInfoDbLoader {
 
   public Optional<DbScmInfo> getScmInfo(Component file) {
     Optional<String> uuid = getFileUUid(file);
-    if (!uuid.isPresent()) {
+    if (uuid.isEmpty()) {
       return Optional.empty();
     }
 

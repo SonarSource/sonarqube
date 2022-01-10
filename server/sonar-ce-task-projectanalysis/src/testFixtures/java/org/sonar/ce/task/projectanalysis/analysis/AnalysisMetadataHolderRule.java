@@ -38,7 +38,6 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
-  private final InitializedProperty<Long> forkDate = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseAnalysis = new InitializedProperty<>();
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
   private final InitializedProperty<Branch> branch = new InitializedProperty<>();
@@ -75,21 +74,9 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
-    forkDate.setProperty(date);
-    return this;
-  }
-
-  @Override
   public long getAnalysisDate() {
     checkState(analysisDate.isInitialized(), "Analysis date has not been set");
     return this.analysisDate.getProperty();
-  }
-
-  @CheckForNull
-  @Override
-  public Long getForkDate() {
-    return forkDate.getProperty();
   }
 
   @Override

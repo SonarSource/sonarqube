@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,8 +28,6 @@ import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -38,14 +35,14 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
@@ -121,12 +118,6 @@ public class IssueCounterTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule();
-
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-
-  @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(VIOLATIONS)
     .add(OPEN_ISSUES)
@@ -156,13 +147,11 @@ public class IssueCounterTest {
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-
-  private IssueCounter underTest = new IssueCounter(periodsHolder, analysisMetadataHolder, metricRepository, measureRepository);
+  private NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
+  private IssueCounter underTest = new IssueCounter(metricRepository, measureRepository, newIssueClassifier);
 
   @Test
   public void count_issues_by_status() {
-    periodsHolder.setPeriod(null);
-
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
@@ -191,8 +180,6 @@ public class IssueCounterTest {
 
   @Test
   public void count_issues_by_resolution() {
-    periodsHolder.setPeriod(null);
-
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
@@ -223,8 +210,6 @@ public class IssueCounterTest {
 
   @Test
   public void count_unresolved_issues_by_severity() {
-    periodsHolder.setPeriod(null);
-
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
@@ -249,8 +234,6 @@ public class IssueCounterTest {
 
   @Test
   public void count_unresolved_issues_by_type() {
-    periodsHolder.setPeriod(null);
-
     // bottom-up traversal -> from files to project
     // file1 : one open code smell, one closed code smell (which will be excluded from metric)
     underTest.beforeComponent(FILE1);
@@ -279,21 +262,20 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_new_issues_if_period_exists() {
-    Period period = newPeriod(1500000000000L);
-    periodsHolder.setPeriod(period);
+  public void count_new_issues() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getDate() - 1000000L).setType(RuleType.CODE_SMELL));
-    // created during the first analysis starting the period -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getDate()).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(RuleType.BUG));
+
     // created after -> 4 new issues but 1 is closed
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getDate() + 100000L).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getDate() + 100000L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getDate() + 200000L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() + 100000L));
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() + 100000L).setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createNewIssue(null, STATUS_OPEN, CRITICAL).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createNewSecurityHotspot());
+    underTest.onIssue(FILE1, createNewSecurityHotspot().setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
@@ -309,36 +291,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_all_issues_as_new_issues_if_pr() {
-    periodsHolder.setPeriod(null);
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
-    analysisMetadataHolder.setBranch(branch);
-
-    underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, 1000000L).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, 0L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, 100000L).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, 100000L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, 200000L).setType(RuleType.BUG));
-    underTest.afterComponent(FILE1);
-
-    underTest.beforeComponent(FILE2);
-    underTest.afterComponent(FILE2);
-
-    underTest.beforeComponent(PROJECT);
-    underTest.afterComponent(PROJECT);
-
-    assertVariations(FILE1, entry(NEW_VIOLATIONS_KEY, 4), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 2), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
-      entry(NEW_CODE_SMELLS_KEY, 2), entry(NEW_BUGS_KEY, 2), entry(NEW_VULNERABILITIES_KEY, 0));
-    assertVariations(PROJECT, entry(NEW_VIOLATIONS_KEY, 4), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 2), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
-      entry(NEW_CODE_SMELLS_KEY, 2), entry(NEW_BUGS_KEY, 2), entry(NEW_VULNERABILITIES_KEY, 0));
-  }
-
-  @Test
   public void exclude_hotspots_from_issue_counts() {
-    periodsHolder.setPeriod(null);
-
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createSecurityHotspot());
@@ -363,20 +316,18 @@ public class IssueCounterTest {
 
   @Test
   public void exclude_new_hotspots_from_issue_counts() {
-    Period period = newPeriod(1500000000000L);
-    periodsHolder.setPeriod(period);
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() - 1000000L));
-    // created during the first analysis starting the period -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate()));
+    underTest.onIssue(FILE1, createSecurityHotspot());
+    underTest.onIssue(FILE1, createSecurityHotspot());
 
     // created after, but closed
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() + 100000L).setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    underTest.onIssue(FILE1, createNewSecurityHotspot().setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
 
     for (String severity : Arrays.asList(CRITICAL, BLOCKER, MAJOR)) {
-      DefaultIssue issue = createSecurityHotspot(period.getDate() + 100000L);
+      DefaultIssue issue = createNewSecurityHotspot();
       issue.setSeverity(severity);
       underTest.onIssue(FILE1, issue);
     }
@@ -413,28 +364,33 @@ public class IssueCounterTest {
       .containsAll(expected);
   }
 
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, String severity) {
+    return createNewIssue(resolution, status, severity, RuleType.CODE_SMELL);
+  }
+
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, String severity, RuleType ruleType) {
+    DefaultIssue issue = createIssue(resolution, status, severity, ruleType);
+    when(newIssueClassifier.isNew(any(), eq(issue))).thenReturn(true);
+    return issue;
+  }
+
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity) {
-    return createIssue(resolution, status, severity, RuleType.CODE_SMELL, new Date().getTime());
+    return createIssue(resolution, status, severity, RuleType.CODE_SMELL);
   }
 
-  private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, long creationDate) {
-    return createIssue(resolution, status, severity, RuleType.CODE_SMELL, creationDate);
-  }
-
-  private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, RuleType ruleType, long creationDate) {
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, RuleType ruleType) {
     return new DefaultIssue()
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
-      .setType(ruleType)
-      .setCreationDate(new Date(creationDate));
+      .setType(ruleType);
   }
 
   private static DefaultIssue createSecurityHotspot() {
-    return createSecurityHotspot(new Date().getTime());
+    return createIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT);
   }
 
-  private static DefaultIssue createSecurityHotspot(long creationDate) {
-    return createIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT, creationDate);
+  private DefaultIssue createNewSecurityHotspot() {
+    return createNewIssue(null, STATUS_OPEN, "MAJOR", RuleType.SECURITY_HOTSPOT);
   }
 
   private static Period newPeriod(long date) {

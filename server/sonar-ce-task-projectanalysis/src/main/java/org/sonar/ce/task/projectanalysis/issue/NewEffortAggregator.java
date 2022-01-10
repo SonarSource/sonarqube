@@ -22,16 +22,12 @@ package org.sonar.ce.task.projectanalysis.issue;
 import com.google.common.base.MoreObjects;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
@@ -46,25 +42,22 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
  */
 public class NewEffortAggregator extends IssueVisitor {
   private final Map<String, NewEffortCounter> counterByComponentUuid = new HashMap<>();
-  private final PeriodHolder periodHolder;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MeasureRepository measureRepository;
 
   private final Metric newMaintainabilityEffortMetric;
   private final Metric newReliabilityEffortMetric;
   private final Metric newSecurityEffortMetric;
+  private final NewIssueClassifier newIssueClassifier;
 
   private NewEffortCounter counter = null;
 
-  public NewEffortAggregator(PeriodHolder periodHolder, AnalysisMetadataHolder analysisMetadataHolder, MetricRepository metricRepository,
-    MeasureRepository measureRepository) {
-    this.periodHolder = periodHolder;
-    this.analysisMetadataHolder = analysisMetadataHolder;
+  public NewEffortAggregator(MetricRepository metricRepository, MeasureRepository measureRepository, NewIssueClassifier newIssueClassifier) {
     this.measureRepository = measureRepository;
 
     this.newMaintainabilityEffortMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
     this.newReliabilityEffortMetric = metricRepository.getByKey(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY);
     this.newSecurityEffortMetric = metricRepository.getByKey(NEW_SECURITY_REMEDIATION_EFFORT_KEY);
+    this.newIssueClassifier = newIssueClassifier;
   }
 
   @Override
@@ -82,17 +75,13 @@ public class NewEffortAggregator extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.resolution() == null && issue.effortInMinutes() != null) {
-      if (analysisMetadataHolder.isPullRequest()) {
-        counter.add(issue, null);
-      } else if (periodHolder.hasPeriodDate()) {
-        counter.add(issue, periodHolder.getPeriod());
-      }
+      counter.add(component, issue);
     }
   }
 
   @Override
   public void afterComponent(Component component) {
-    if (periodHolder.hasPeriodDate() || analysisMetadataHolder.isPullRequest()) {
+    if (newIssueClassifier.isEnabled()) {
       computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
       computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
       computeMeasure(component, newSecurityEffortMetric, counter.securitySum);
@@ -105,7 +94,7 @@ public class NewEffortAggregator extends IssueVisitor {
     measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariation(variation).createNoValue());
   }
 
-  private static class NewEffortCounter {
+  private class NewEffortCounter {
     private final EffortSum maintainabilitySum = new EffortSum();
     private final EffortSum reliabilitySum = new EffortSum();
     private final EffortSum securitySum = new EffortSum();
@@ -116,8 +105,8 @@ public class NewEffortAggregator extends IssueVisitor {
       securitySum.add(otherCounter.securitySum);
     }
 
-    void add(DefaultIssue issue, @Nullable Period period) {
-      long newEffort = calculate(issue, period);
+    void add(Component component, DefaultIssue issue) {
+      long newEffort = calculate(component, issue);
       switch (issue.type()) {
         case CODE_SMELL:
           maintainabilitySum.add(newEffort);
@@ -136,10 +125,11 @@ public class NewEffortAggregator extends IssueVisitor {
       }
     }
 
-    long calculate(DefaultIssue issue, @Nullable Period period) {
-      if (period == null || period.isOnPeriod(issue.creationDate())) {
+    long calculate(Component component, DefaultIssue issue) {
+      if (newIssueClassifier.isNew(component, issue)) {
         return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
       }
+
       return 0L;
     }
   }

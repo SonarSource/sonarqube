@@ -27,7 +27,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 
-class IssueLocations {
+public class IssueLocations {
 
   private IssueLocations() {
     // do not instantiate
@@ -41,7 +41,7 @@ class IssueLocations {
    * TODO should be a method of DefaultIssue, as soon as it's no
    * longer in sonar-core and can access sonar-db-dao.
    */
-  public static IntStream allLinesFor(DefaultIssue issue, String componentId) {
+  public static IntStream allLinesFor(DefaultIssue issue, String componentUuid) {
     DbIssues.Locations locations = issue.getLocations();
     if (locations == null) {
       return IntStream.empty();
@@ -51,7 +51,7 @@ class IssueLocations {
       locations.hasTextRange() ? Stream.of(locations.getTextRange()) : Stream.empty(),
       locations.getFlowList().stream()
         .flatMap(f -> f.getLocationList().stream())
-        .filter(l -> Objects.equals(componentIdOf(issue, l), componentId))
+        .filter(l -> Objects.equals(componentIdOf(issue, l), componentUuid))
         .map(DbIssues.Location::getTextRange));
     return textRanges.flatMapToInt(range -> IntStream.rangeClosed(range.getStartLine(), range.getEndLine()));
   }

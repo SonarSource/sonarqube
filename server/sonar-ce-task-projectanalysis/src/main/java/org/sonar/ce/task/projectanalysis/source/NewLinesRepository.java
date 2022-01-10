@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 public class NewLinesRepository {
   private final BatchReportReader reportReader;
@@ -48,11 +49,14 @@ public class NewLinesRepository {
   }
 
   public boolean newLinesAvailable() {
-    return analysisMetadataHolder.isPullRequest() || periodHolder.hasPeriodDate();
+    return analysisMetadataHolder.isPullRequest() || periodHolder.hasPeriodDate() || isReferenceBranch();
   }
 
   public Optional<Set<Integer>> getNewLines(Component file) {
     Preconditions.checkArgument(file.getType() == Component.Type.FILE, "Changed lines are only available on files, but was: " + file.getType().name());
+    if (!newLinesAvailable()) {
+      return Optional.empty();
+    }
     Optional<Set<Integer>> reportChangedLines = getChangedLinesFromReport(file);
     if (reportChangedLines.isPresent()) {
       return reportChangedLines;
@@ -61,17 +65,12 @@ public class NewLinesRepository {
   }
 
   /**
-   * If the changed lines are not in the report or if we are not analyzing a P/R we fall back to this method.
-   * If there is a period and SCM information, we compare the change dates of each line with the start of the period to figure out
-   * if a line is new or not.
+   * If the changed lines are not in the report or if we are not analyzing a P/R or a branch using a "reference branch", we fall back to this method.
+   * If there is a period and SCM information, we compare the change dates of each line with the start of the period to figure out if a line is new or not.
    */
   private Optional<Set<Integer>> computeNewLinesFromScm(Component component) {
-    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
-      return Optional.empty();
-    }
-
     Optional<ScmInfo> scmInfoOpt = scmInfoRepository.getScmInfo(component);
-    if (!scmInfoOpt.isPresent()) {
+    if (scmInfoOpt.isEmpty()) {
       return Optional.empty();
     }
 
@@ -80,14 +79,18 @@ public class NewLinesRepository {
     Set<Integer> lines = new HashSet<>();
 
     // in PRs, we consider changes introduced in this analysis as new, hence subtracting 1.
-    long referenceDate = analysisMetadataHolder.isPullRequest() ? analysisMetadataHolder.getAnalysisDate() - 1 : periodHolder.getPeriod().getDate();
-    for (int i=0; i<allChangesets.length; i++) {
+    long referenceDate = useAnalysisDateAsReferenceDate() ? (analysisMetadataHolder.getAnalysisDate() - 1) : periodHolder.getPeriod().getDate();
+    for (int i = 0; i < allChangesets.length; i++) {
       if (isLineInPeriod(allChangesets[i].getDate(), referenceDate)) {
-        lines.add(i+1);
+        lines.add(i + 1);
       }
     }
 
     return Optional.of(lines);
+  }
+
+  private boolean useAnalysisDateAsReferenceDate() {
+    return analysisMetadataHolder.isPullRequest() || NewCodePeriodType.REFERENCE_BRANCH.name().equals(periodHolder.getPeriod().getMode());
   }
 
   /**
@@ -98,11 +101,15 @@ public class NewLinesRepository {
   }
 
   private Optional<Set<Integer>> getChangedLinesFromReport(Component file) {
-    if (analysisMetadataHolder.isPullRequest()) {
+    if (analysisMetadataHolder.isPullRequest() || isReferenceBranch()) {
       return reportChangedLinesCache.computeIfAbsent(file, this::readFromReport);
     }
 
     return Optional.empty();
+  }
+
+  private boolean isReferenceBranch() {
+    return periodHolder.hasPeriod() && periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name());
   }
 
   private Optional<Set<Integer>> readFromReport(Component file) {

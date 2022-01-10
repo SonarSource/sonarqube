@@ -214,30 +214,6 @@ public class GitScmProvider extends ScmProvider {
   @Override
   @CheckForNull
   public Instant forkDate(String referenceBranchName, Path projectBaseDir) {
-    try (Repository repo = buildRepo(projectBaseDir)) {
-      Ref targetRef = resolveTargetRef(referenceBranchName, repo);
-      if (targetRef == null) {
-        LOG.warn("Branch '{}' not found in git", referenceBranchName);
-        return null;
-      }
-
-      if (isDiffAlgoInvalid(repo.getConfig())) {
-        LOG.warn("The diff algorithm configured in git is not supported. "
-          + "No information regarding changes in the branch will be collected, which can lead to unexpected results.");
-        return null;
-      }
-
-      Optional<RevCommit> mergeBaseCommit = findMergeBase(repo, targetRef);
-      if (!mergeBaseCommit.isPresent()) {
-        LOG.warn("No fork point found between HEAD and " + targetRef.getName());
-        return null;
-      }
-
-      return Instant.ofEpochSecond(mergeBaseCommit.get().getCommitTime());
-    } catch (Exception e) {
-      LOG.warn("Failed to find fork point with git", e);
-    }
-
     return null;
   }
 

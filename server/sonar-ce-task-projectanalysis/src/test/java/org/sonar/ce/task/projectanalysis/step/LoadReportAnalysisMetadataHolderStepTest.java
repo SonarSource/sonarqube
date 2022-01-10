@@ -104,18 +104,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void set_fork_date() {
-    reportReader.setMetadata(
-      newBatchReportBuilder()
-        .setForkDate(ANALYSIS_DATE)
-        .build());
-
-    underTest.execute(new TestComputationStepContext());
-
-    assertThat(analysisMetadataHolder.getForkDate()).isEqualTo(ANALYSIS_DATE);
-  }
-
-  @Test
   public void set_project_from_dto() {
     reportReader.setMetadata(
       newBatchReportBuilder()

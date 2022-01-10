@@ -89,7 +89,7 @@ import org.sonar.scanner.report.TestExecutionPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
-import org.sonar.scanner.repository.ForkDateSupplier;
+import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
 import org.sonar.scanner.repository.QualityProfileLoader;
@@ -230,7 +230,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectCoverageAndDuplicationExclusions.class,
 
       // Report
-      ForkDateSupplier.class,
+      ReferenceBranchSupplier.class,
       ScannerMetrics.class,
       ReportPublisher.class,
       AnalysisContextReportPublisher.class,

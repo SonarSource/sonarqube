@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import java.util.Optional;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
@@ -28,7 +27,7 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
@@ -44,32 +43,31 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
 
   private final ComponentIssuesRepository componentIssuesRepository;
   private final MeasureRepository measureRepository;
-  private final PeriodHolder periodHolder;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final Metric newSecurityReviewRatingMetric;
   private final Metric newSecurityHotspotsReviewedMetric;
   private final Metric newSecurityHotspotsReviewedStatusMetric;
   private final Metric newSecurityHotspotsToReviewStatusMetric;
+  private final NewIssueClassifier newIssueClassifier;
 
-  public NewSecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, PeriodHolder periodHolder,
-    AnalysisMetadataHolder analysisMetadataHolder, MetricRepository metricRepository) {
+  public NewSecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, MetricRepository metricRepository,
+    NewIssueClassifier newIssueClassifier) {
     super(FILE, POST_ORDER, NewSecurityReviewMeasuresVisitor.CounterFactory.INSTANCE);
     this.componentIssuesRepository = componentIssuesRepository;
     this.measureRepository = measureRepository;
-    this.periodHolder = periodHolder;
-    this.analysisMetadataHolder = analysisMetadataHolder;
     this.newSecurityReviewRatingMetric = metricRepository.getByKey(NEW_SECURITY_REVIEW_RATING_KEY);
     this.newSecurityHotspotsReviewedMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
     this.newSecurityHotspotsReviewedStatusMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY);
     this.newSecurityHotspotsToReviewStatusMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY);
+    this.newIssueClassifier = newIssueClassifier;
   }
 
   @Override
   public void visitProject(Component project, Path<SecurityReviewCounter> path) {
-    computeMeasure(project, path);
-    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
+    if (!newIssueClassifier.isEnabled()) {
       return;
     }
+    computeMeasure(project, path);
+
     // The following measures are only computed on projects level as they are required to compute the others measures on applications
     measureRepository.add(project, newSecurityHotspotsReviewedStatusMetric, Measure.newMeasureBuilder().setVariation(path.current().getHotspotsReviewed()).createNoValue());
     measureRepository.add(project, newSecurityHotspotsToReviewStatusMetric, Measure.newMeasureBuilder().setVariation(path.current().getHotspotsToReview()).createNoValue());
@@ -86,13 +84,10 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
   }
 
   private void computeMeasure(Component component, Path<SecurityReviewCounter> path) {
-    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
-      return;
-    }
     componentIssuesRepository.getIssues(component)
       .stream()
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
-      .filter(issue -> analysisMetadataHolder.isPullRequest() || periodHolder.getPeriod().isOnPeriod(issue.creationDate()))
+      .filter(issue -> newIssueClassifier.isNew(component, issue))
       .forEach(issue -> path.current().processHotspot(issue));
 
     Optional<Double> percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());

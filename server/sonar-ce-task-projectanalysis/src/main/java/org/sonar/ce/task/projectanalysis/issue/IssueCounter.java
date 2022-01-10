@@ -27,14 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.rules.RuleType;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
@@ -116,20 +113,17 @@ public class IssueCounter extends IssueVisitor {
     .put(SECURITY_HOTSPOT, NEW_SECURITY_HOTSPOTS_KEY)
     .build();
 
-  private final PeriodHolder periodHolder;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
+  private final NewIssueClassifier newIssueClassifier;
   private final Map<String, Counters> countersByComponentUuid = new HashMap<>();
 
   private Counters currentCounters;
 
-  public IssueCounter(PeriodHolder periodHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    MetricRepository metricRepository, MeasureRepository measureRepository) {
-    this.periodHolder = periodHolder;
-    this.analysisMetadataHolder = analysisMetadataHolder;
+  public IssueCounter(MetricRepository metricRepository, MeasureRepository measureRepository, NewIssueClassifier newIssueClassifier) {
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
+    this.newIssueClassifier = newIssueClassifier;
   }
 
   @Override
@@ -139,7 +133,6 @@ public class IssueCounter extends IssueVisitor {
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
-      // no need to keep the children in memory. They can be garbage-collected.
       Counters childCounters = countersByComponentUuid.remove(child.getUuid());
       currentCounters.add(childCounters);
     }
@@ -148,13 +141,8 @@ public class IssueCounter extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     currentCounters.add(issue);
-    if (analysisMetadataHolder.isPullRequest()) {
+    if (newIssueClassifier.isNew(component, issue)) {
       currentCounters.addOnPeriod(issue);
-    } else if (periodHolder.hasPeriodDate()) {
-      Period period = periodHolder.getPeriod();
-      if (period.isOnPeriod(issue.creationDate())){
-        currentCounters.addOnPeriod(issue);
-      }
     }
   }
 
@@ -196,7 +184,7 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addNewMeasures(Component component) {
-    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
+    if (!newIssueClassifier.isEnabled()) {
       return;
     }
     double unresolvedVariations = currentCounters.counterForPeriod().unresolved;

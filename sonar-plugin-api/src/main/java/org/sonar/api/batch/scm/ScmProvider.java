@@ -87,8 +87,10 @@ public abstract class ScmProvider {
    *
    * @return null if the SCM provider was not able to compute the date
    * @since 8.4
+   * @deprecated Not used anymore since 9.3
    */
   @CheckForNull
+  @Deprecated
   public Instant forkDate(String referenceBranchName, Path rootBaseDir) {
     return null;
   }

@@ -174,10 +174,9 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(branch);
 
     setProjectPeriod(project.uuid(), NewCodePeriodType.REFERENCE_BRANCH, "master");
-    when(analysisMetadataHolder.getForkDate()).thenReturn(123456789L);
 
     underTest.execute(new TestComputationStepContext());
-    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", 123456789L);
+    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", null);
   }
 
   @Test
@@ -186,7 +185,6 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setupRoot(branch);
 
     setProjectPeriod(project.uuid(), NewCodePeriodType.REFERENCE_BRANCH, "master");
-    when(analysisMetadataHolder.getForkDate()).thenReturn(null);
 
     underTest.execute(new TestComputationStepContext());
     assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", null);

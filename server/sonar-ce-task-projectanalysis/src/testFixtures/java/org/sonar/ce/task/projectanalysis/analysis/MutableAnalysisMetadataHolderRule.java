@@ -56,19 +56,8 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
-    return delegate.setForkDate(date);
-  }
-
-  @Override
   public long getAnalysisDate() {
     return delegate.getAnalysisDate();
-  }
-
-  @CheckForNull
-  @Override
-  public Long getForkDate() {
-    return delegate.getForkDate();
   }
 
   @Override

@@ -42,82 +42,53 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ForkDateSupplierTest {
+public class ReferenceBranchSupplierTest {
   private final static String PROJECT_KEY = "project";
   private final static String BRANCH_KEY = "branch";
   private final static Path BASE_DIR = Paths.get("root");
 
-  private NewCodePeriodLoader newCodePeriodLoader = mock(NewCodePeriodLoader.class);
-  private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
-  private DefaultInputProject project = mock(DefaultInputProject.class);
-  private ScmConfiguration scmConfiguration = mock(ScmConfiguration.class);
-  private ScmProvider scmProvider = mock(ScmProvider.class);
-  private ProjectBranches projectBranches = mock(ProjectBranches.class);
-  private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-  private ForkDateSupplier forkDateSupplier = new ForkDateSupplier(newCodePeriodLoader, branchConfiguration, project, scmConfiguration, projectBranches, analysisWarnings);
+  private final NewCodePeriodLoader newCodePeriodLoader = mock(NewCodePeriodLoader.class);
+  private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private final DefaultInputProject project = mock(DefaultInputProject.class);
+  private final ProjectBranches projectBranches = mock(ProjectBranches.class);
+  private final ReferenceBranchSupplier referenceBranchSupplier = new ReferenceBranchSupplier(newCodePeriodLoader, branchConfiguration, project, projectBranches);
 
   @Before
   public void setUp() {
     when(projectBranches.isEmpty()).thenReturn(false);
     when(project.key()).thenReturn(PROJECT_KEY);
     when(project.getBaseDir()).thenReturn(BASE_DIR);
-    when(scmConfiguration.isDisabled()).thenReturn(false);
-    when(scmConfiguration.provider()).thenReturn(scmProvider);
   }
 
   @Test
-  public void returns_forkDate_for_branches_with_ref() {
-    Instant date = Instant.now();
+  public void returns_reference_branch_when_set() {
     when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
     when(branchConfiguration.branchName()).thenReturn(BRANCH_KEY);
-    when(scmProvider.forkDate("master", BASE_DIR)).thenReturn(date);
     when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
 
-    assertThat(forkDateSupplier.get()).isEqualTo(date);
+    assertThat(referenceBranchSupplier.get()).isEqualTo("master");
   }
 
   @Test
   public void uses_default_branch_if_no_branch_specified() {
-    Instant date = Instant.now();
     when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
     when(branchConfiguration.branchName()).thenReturn(null);
     when(projectBranches.defaultBranchName()).thenReturn("default");
     when(newCodePeriodLoader.load(PROJECT_KEY, "default")).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
-    when(scmProvider.forkDate("master", BASE_DIR)).thenReturn(date);
 
-    assertThat(forkDateSupplier.get()).isEqualTo(date);
-
-    verifyNoInteractions(analysisWarnings);
+    assertThat(referenceBranchSupplier.get()).isEqualTo("master");
   }
 
   @Test
   public void returns_null_if_no_branches() {
     when(projectBranches.isEmpty()).thenReturn(true);
 
-    assertThat(forkDateSupplier.get()).isNull();
+    assertThat(referenceBranchSupplier.get()).isNull();
 
     verify(branchConfiguration).isPullRequest();
     verify(projectBranches).isEmpty();
     verifyNoMoreInteractions(branchConfiguration);
-    verifyNoInteractions(scmConfiguration, scmProvider, analysisWarnings, newCodePeriodLoader);
-  }
-
-  @Test
-  public void returns_null_if_scm_disabled() {
-    when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
-    when(branchConfiguration.branchName()).thenReturn(BRANCH_KEY);
-    when(scmConfiguration.isDisabled()).thenReturn(true);
-    when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, "master"));
-
-    assertThat(forkDateSupplier.get()).isNull();
-
-    verify(scmConfiguration).isDisabled();
-    verify(branchConfiguration, times(2)).branchName();
-    verify(branchConfiguration).isPullRequest();
-    verify(analysisWarnings).addUnique(anyString());
-
-    verifyNoInteractions(scmProvider);
-    verifyNoMoreInteractions(branchConfiguration);
+    verifyNoInteractions(newCodePeriodLoader);
   }
 
   @Test
@@ -126,24 +97,23 @@ public class ForkDateSupplierTest {
     when(branchConfiguration.branchName()).thenReturn(BRANCH_KEY);
     when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH, BRANCH_KEY));
 
-    assertThat(forkDateSupplier.get()).isNull();
+    assertThat(referenceBranchSupplier.get()).isNull();
 
     verify(branchConfiguration, times(2)).branchName();
     verify(branchConfiguration).isPullRequest();
     verify(newCodePeriodLoader).load(PROJECT_KEY, BRANCH_KEY);
 
-    verifyNoInteractions(scmProvider, analysisWarnings, scmConfiguration);
     verifyNoMoreInteractions(branchConfiguration);
   }
 
   @Test
   public void returns_null_if_pull_request() {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
-    assertThat(forkDateSupplier.get()).isNull();
+    assertThat(referenceBranchSupplier.get()).isNull();
 
     verify(branchConfiguration).isPullRequest();
 
-    verifyNoInteractions(newCodePeriodLoader, analysisWarnings, scmProvider, scmConfiguration);
+    verifyNoInteractions(newCodePeriodLoader);
     verifyNoMoreInteractions(branchConfiguration);
   }
 
@@ -153,9 +123,7 @@ public class ForkDateSupplierTest {
     when(branchConfiguration.branchName()).thenReturn(BRANCH_KEY);
     when(newCodePeriodLoader.load(PROJECT_KEY, BRANCH_KEY)).thenReturn(createResponse(NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "2"));
 
-    assertThat(forkDateSupplier.get()).isNull();
-
-    verifyNoInteractions(scmProvider, analysisWarnings, scmConfiguration);
+    assertThat(referenceBranchSupplier.get()).isNull();
   }
 
   private NewCodePeriods.ShowWSResponse createResponse(NewCodePeriods.NewCodePeriodType type, String value) {

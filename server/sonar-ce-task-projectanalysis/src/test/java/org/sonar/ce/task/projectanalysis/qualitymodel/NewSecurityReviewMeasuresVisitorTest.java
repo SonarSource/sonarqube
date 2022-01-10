@@ -20,15 +20,13 @@
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import java.util.Arrays;
-import java.util.Date;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
@@ -37,14 +35,15 @@ import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.ce.task.projectanalysis.issue.FillComponentIssuesVisitorRule;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.component.BranchType;
 import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -71,14 +70,7 @@ import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
 
 public class NewSecurityReviewMeasuresVisitorTest {
-
   private static final Offset<Double> VARIATION_COMPARISON_OFFSET = Offset.offset(0.01);
-
-  private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323L;
-  private static final Date DEFAULT_CREATION_DATE = new Date(1000L);
-  private static final Date BEFORE_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC - 5000L);
-  private static final Date AFTER_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC + 5000L);
-
   private static final String LANGUAGE_KEY_1 = "lKey1";
 
   private static final int PROJECT_REF = 1;
@@ -110,31 +102,32 @@ public class NewSecurityReviewMeasuresVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("mode", null, LEAK_PERIOD_SNAPSHOT_IN_MILLISEC));
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
   @Rule
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
+  private final NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
+  private final VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
+    new NewSecurityReviewMeasuresVisitor(componentIssuesRepositoryRule, measureRepository, metricRepository, newIssueClassifier)));
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
-    new NewSecurityReviewMeasuresVisitor(componentIssuesRepositoryRule, measureRepository, periodsHolder, analysisMetadataHolder, metricRepository)));
+  @Before
+  public void setup() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+  }
 
   @Test
   public void compute_measures_when_100_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newIssue().setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED));
     fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF,
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -149,20 +142,20 @@ public class NewSecurityReviewMeasuresVisitorTest {
   public void compute_measures_when_more_than_80_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newIssue().setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -178,20 +171,20 @@ public class NewSecurityReviewMeasuresVisitorTest {
   public void compute_measures_when_more_than_70_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newIssue().setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -207,19 +200,19 @@ public class NewSecurityReviewMeasuresVisitorTest {
   public void compute_measures_when_more_than_50_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
       newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -235,20 +228,20 @@ public class NewSecurityReviewMeasuresVisitorTest {
   public void compute_measures_when_more_30_than_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
       newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -264,18 +257,18 @@ public class NewSecurityReviewMeasuresVisitorTest {
   public void compute_measures_when_less_than_30_percent_hotspots_reviewed() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
       newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
       // Should not be taken into account
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -291,8 +284,8 @@ public class NewSecurityReviewMeasuresVisitorTest {
   public void compute_A_rating_and_no_percent_when_no_new_hotspot_on_new_code() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
+      oldHotspot(STATUS_TO_REVIEW, null),
+      oldHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -301,50 +294,19 @@ public class NewSecurityReviewMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_measures_on_pr() {
-    periodsHolder.setPeriod(null);
-    Branch b = mock(Branch.class);
-    when(b.getType()).thenReturn(BranchType.PULL_REQUEST);
-    analysisMetadataHolder.setBranch(b);
-    treeRootHolder.setRoot(ROOT_PROJECT);
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      // Should not be taken into account
-      newIssue());
-    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      // Dates is not taken into account on PR
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(BEFORE_LEAK_PERIOD_DATE));
-
-    underTest.visit(ROOT_PROJECT);
-
-    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
-    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 57.14);
-    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 55.55);
-    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 55.55);
-    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 55.55);
-  }
-
-  @Test
   public void compute_status_related_measures() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       // Should not be taken into account
       newIssue());
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_TO_REVIEW, null),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED),
       newIssue());
 
     underTest.visit(ROOT_PROJECT);
@@ -367,7 +329,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
   @Test
   public void no_measure_if_there_is_no_period() {
-    periodsHolder.setPeriod(null);
+    when(newIssueClassifier.isEnabled()).thenReturn(false);
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null),
@@ -380,7 +342,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
   private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasVariation(expectedReviewRating.getIndex());
-    if (expectedHotspotsReviewed != null){
+    if (expectedHotspotsReviewed != null) {
       assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasVariation(expectedHotspotsReviewed,
         VARIATION_COMPARISON_OFFSET);
     } else {
@@ -401,22 +363,33 @@ public class NewSecurityReviewMeasuresVisitorTest {
     }
   }
 
-  private static DefaultIssue newHotspot(String status, @Nullable String resolution) {
-    return new DefaultIssue()
-      .setKey(Uuids.create())
+  private DefaultIssue newHotspot(String status, @Nullable String resolution) {
+    return createHotspot(status, resolution, true);
+  }
+
+  private DefaultIssue oldHotspot(String status, @Nullable String resolution) {
+    return createHotspot(status, resolution, false);
+  }
+
+  private DefaultIssue createHotspot(String status, @Nullable String resolution, boolean isNew) {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey(UuidFactoryFast.getInstance().create())
       .setSeverity(MINOR)
       .setStatus(status)
       .setResolution(resolution)
-      .setType(RuleType.SECURITY_HOTSPOT)
-      .setCreationDate(DEFAULT_CREATION_DATE);
+      .setType(RuleType.SECURITY_HOTSPOT);
+    when(newIssueClassifier.isNew(any(), eq(issue))).thenReturn(isNew);
+    return issue;
   }
 
-  private static DefaultIssue newIssue() {
-    return new DefaultIssue()
+  private DefaultIssue newIssue() {
+    DefaultIssue issue = new DefaultIssue()
       .setKey(Uuids.create())
       .setSeverity(MAJOR)
-      .setType(RuleType.BUG)
-      .setCreationDate(DEFAULT_CREATION_DATE);
+      .setType(RuleType.BUG);
+    when(newIssueClassifier.isNew(any(), eq(issue))).thenReturn(false);
+    return issue;
+
   }
 
 }

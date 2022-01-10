@@ -23,15 +23,14 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.formula.counter.RatingValue;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.measure.Rating;
 
@@ -69,23 +68,20 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
 
   private final MeasureRepository measureRepository;
   private final ComponentIssuesRepository componentIssuesRepository;
-  private final PeriodHolder periodHolder;
-
   private final Map<String, Metric> metricsByKey;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final NewIssueClassifier newIssueClassifier;
 
   public NewReliabilityAndSecurityRatingMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository,
-    ComponentIssuesRepository componentIssuesRepository, PeriodHolder periodHolder, AnalysisMetadataHolder analysisMetadataHolder) {
-    super(LEAVES, POST_ORDER, CounterFactory.INSTANCE);
+    ComponentIssuesRepository componentIssuesRepository, NewIssueClassifier newIssueClassifier) {
+    super(LEAVES, POST_ORDER, new CounterFactory(newIssueClassifier));
     this.measureRepository = measureRepository;
     this.componentIssuesRepository = componentIssuesRepository;
-    this.periodHolder = periodHolder;
 
     // Output metrics
     this.metricsByKey = ImmutableMap.of(
       NEW_RELIABILITY_RATING_KEY, metricRepository.getByKey(NEW_RELIABILITY_RATING_KEY),
       NEW_SECURITY_RATING_KEY, metricRepository.getByKey(NEW_SECURITY_RATING_KEY));
-    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.newIssueClassifier = newIssueClassifier;
   }
 
   @Override
@@ -104,7 +100,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
-    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
+    if (!newIssueClassifier.isEnabled()) {
       return;
     }
     initRatingsToA(path);
@@ -129,7 +125,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
       .stream()
       .filter(issue -> issue.resolution() == null)
       .filter(issue -> issue.type().equals(BUG) || issue.type().equals(VULNERABILITY))
-      .forEach(issue -> path.current().processIssue(issue, analysisMetadataHolder.isPullRequest(), periodHolder));
+      .forEach(issue -> path.current().processIssue(issue));
   }
 
   private static void addToParent(Path<Counter> path) {
@@ -138,21 +134,24 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     }
   }
 
-  static final class Counter {
-    private Map<String, RatingValue> newRatingValueByMetric = ImmutableMap.of(
+  static class Counter {
+    private final Map<String, RatingValue> newRatingValueByMetric = Map.of(
       NEW_RELIABILITY_RATING_KEY, new RatingValue(),
       NEW_SECURITY_RATING_KEY, new RatingValue());
+    private final NewIssueClassifier newIssueClassifier;
+    private final Component component;
 
-    private Counter() {
-      // prevents instantiation
+    public Counter(NewIssueClassifier newIssueClassifier, Component component) {
+      this.newIssueClassifier = newIssueClassifier;
+      this.component = component;
     }
 
     void add(Counter otherCounter) {
       newRatingValueByMetric.forEach((metric, rating) -> rating.increment(otherCounter.newRatingValueByMetric.get(metric)));
     }
 
-    void processIssue(Issue issue, boolean isPR, PeriodHolder periodHolder) {
-      if (isPR || periodHolder.getPeriod().isOnPeriod(((DefaultIssue) issue).creationDate())) {
+    void processIssue(Issue issue) {
+      if (newIssueClassifier.isNew(component, (DefaultIssue) issue)) {
         Rating rating = RATING_BY_SEVERITY.get(issue.severity());
         if (issue.type().equals(BUG)) {
           newRatingValueByMetric.get(NEW_RELIABILITY_RATING_KEY).increment(rating);
@@ -164,15 +163,15 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private static final class CounterFactory extends SimpleStackElementFactory<NewReliabilityAndSecurityRatingMeasuresVisitor.Counter> {
-    public static final CounterFactory INSTANCE = new CounterFactory();
+    private final NewIssueClassifier newIssueClassifier;
 
-    private CounterFactory() {
-      // prevents instantiation
+    private CounterFactory(NewIssueClassifier newIssueClassifier) {
+      this.newIssueClassifier = newIssueClassifier;
     }
 
     @Override
     public Counter createForAny(Component component) {
-      return new Counter();
+      return new Counter(newIssueClassifier, component);
     }
   }
 }

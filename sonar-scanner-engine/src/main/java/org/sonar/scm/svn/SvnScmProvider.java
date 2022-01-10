@@ -54,12 +54,10 @@ public class SvnScmProvider extends ScmProvider {
 
   private final SvnConfiguration configuration;
   private final SvnBlameCommand blameCommand;
-  private final FindFork findFork;
 
-  public SvnScmProvider(SvnConfiguration configuration, SvnBlameCommand blameCommand, FindFork findFork) {
+  public SvnScmProvider(SvnConfiguration configuration, SvnBlameCommand blameCommand) {
     this.configuration = configuration;
     this.blameCommand = blameCommand;
-    this.findFork = findFork;
   }
 
   @Override
@@ -202,12 +200,7 @@ public class SvnScmProvider extends ScmProvider {
   @CheckForNull
   @Override
   public Instant forkDate(String referenceBranch, Path rootBaseDir) {
-    try {
-      return findFork.findDate(rootBaseDir, referenceBranch);
-    } catch (SVNException e) {
-      LOG.warn("Unable to find fork date with '" + referenceBranch + "'", e);
-      return null;
-    }
+    return null;
   }
 
   ChangedLinesComputer newChangedLinesComputer(Path rootBaseDir, Set<Path> changedFiles) {

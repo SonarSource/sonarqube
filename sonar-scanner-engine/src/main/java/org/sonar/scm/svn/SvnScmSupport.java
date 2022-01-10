@@ -55,8 +55,7 @@ public class SvnScmSupport {
   public static List<Object> getObjects() {
     return Arrays.asList(SvnScmProvider.class,
       SvnBlameCommand.class,
-      SvnConfiguration.class,
-      FindFork.class
+      SvnConfiguration.class
     );
   }
 }

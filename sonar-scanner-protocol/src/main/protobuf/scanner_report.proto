@@ -56,7 +56,7 @@ message Metadata {
 
   string target_branch_name = 18;
 
-  int64 forkDate = 19;
+  reserved 19; // forkDate (no longer used)
 
   map<string, int32> not_analyzed_files_by_language = 20;
 

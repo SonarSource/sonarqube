@@ -76,7 +76,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   }
 
   private void loadMetadata(ScannerReport.Metadata reportMetadata) {
-    analysisMetadata.setForkDate(reportMetadata.getForkDate() > 0 ? reportMetadata.getForkDate() : null);
     analysisMetadata.setAnalysisDate(reportMetadata.getAnalysisDate());
     analysisMetadata.setRootComponentRef(reportMetadata.getRootComponentRef());
     analysisMetadata.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());

@@ -21,12 +21,11 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 
 import java.util.Arrays;
 import java.util.Date;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -34,17 +33,17 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.ce.task.projectanalysis.issue.FillComponentIssuesVisitorRule;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.ce.task.projectanalysis.measure.MeasureAssert;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
-import org.sonar.ce.task.projectanalysis.period.Period;
-import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.Uuids;
-import org.sonar.db.component.BranchType;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -74,7 +73,6 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   private static final long LEAK_PERIOD_SNAPSHOT_IN_MILLISEC = 12323L;
   private static final Date DEFAULT_ISSUE_CREATION_DATE = new Date(1000L);
-  private static final Date BEFORE_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC - 5000L);
   private static final Date AFTER_LEAK_PERIOD_DATE = new Date(LEAK_PERIOD_SNAPSHOT_IN_MILLISEC + 5000L);
 
   static final String LANGUAGE_KEY_1 = "lKey1";
@@ -109,19 +107,18 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   @Rule
-  public PeriodHolderRule periodsHolder = new PeriodHolderRule().setPeriod(new Period("mode", null, LEAK_PERIOD_SNAPSHOT_IN_MILLISEC));
-
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
-
   @Rule
   public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
-    new NewReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule,
-      periodsHolder, analysisMetadataHolder)));
+  private final NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
+  private final VisitorsCrawler underTest = new VisitorsCrawler(Arrays.asList(fillComponentIssuesVisitorRule,
+    new NewReliabilityAndSecurityRatingMeasuresVisitor(metricRepository, measureRepository, componentIssuesRepositoryRule, newIssueClassifier)));
+
+  @Before
+  public void before() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+  }
 
   @Test
   public void measures_created_for_project_are_all_A_when_they_have_no_FILE_child() {
@@ -136,7 +133,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   @Test
   public void no_measure_if_there_is_no_period() {
-    periodsHolder.setPeriod(null);
+    when(newIssueClassifier.isEnabled()).thenReturn(false);
     treeRootHolder.setRoot(builder(PROJECT, 1).build());
 
     underTest.visit(treeRootHolder.getRoot());
@@ -148,17 +145,16 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public void compute_new_security_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newVulnerabilityIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newVulnerabilityIssue(10L, MAJOR),
       // Should not be taken into account
-      newVulnerabilityIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newBugIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      oldVulnerabilityIssue(1L, MAJOR),
+      newBugIssue(1L, MAJOR));
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newVulnerabilityIssue(2L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newVulnerabilityIssue(3L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newVulnerabilityIssue(2L, CRITICAL),
+      newVulnerabilityIssue(3L, MINOR),
       // Should not be taken into account
-      newVulnerabilityIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE).setResolution(RESOLUTION_FIXED));
-    fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF,
-      newVulnerabilityIssue(7L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED));
+    fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF, newVulnerabilityIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -186,8 +182,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   @Test
   public void compute_new_security_rating_to_A_when_no_new_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newVulnerabilityIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE));
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, oldVulnerabilityIssue(1L, MAJOR));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -202,17 +197,17 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public void compute_new_reliability_rating() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newBugIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(10L, MAJOR),
       // Should not be taken into account
-      newBugIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
-      newVulnerabilityIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      oldBugIssue(1L, MAJOR),
+      newVulnerabilityIssue(1L, MAJOR));
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
-      newBugIssue(2L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newBugIssue(3L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(2L, CRITICAL),
+      newBugIssue(3L, MINOR),
       // Should not be taken into account
-      newBugIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE).setResolution(RESOLUTION_FIXED));
+      newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED));
     fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF,
-      newBugIssue(7L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newBugIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -240,8 +235,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   @Test
   public void compute_new_reliability_rating_to_A_when_no_new_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newBugIssue(1L, MAJOR).setCreationDate(BEFORE_LEAK_PERIOD_DATE));
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, oldBugIssue(1L, MAJOR));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -256,10 +250,10 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public void compute_E_reliability_and_security_rating_on_blocker_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newBugIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newVulnerabilityIssue(1L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(10L, BLOCKER),
+      newVulnerabilityIssue(1L, BLOCKER),
       // Should not be taken into account
-      newBugIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newBugIssue(1L, MAJOR));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -271,10 +265,10 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public void compute_D_reliability_and_security_rating_on_critical_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newBugIssue(10L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newVulnerabilityIssue(15L, CRITICAL).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(10L, CRITICAL),
+      newVulnerabilityIssue(15L, CRITICAL),
       // Should not be taken into account
-      newCodeSmellIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newCodeSmellIssue(1L, MAJOR));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -284,18 +278,12 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
 
   @Test
   public void compute_C_reliability_and_security_rating_on_major_issue() {
-    // Calculate metric not because a period is set, but because it is a PR
-    periodsHolder.setPeriod(null);
-    Branch b = mock(Branch.class);
-    when(b.getType()).thenReturn(BranchType.PULL_REQUEST);
-    analysisMetadataHolder.setBranch(b);
-
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newBugIssue(10L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newVulnerabilityIssue(15L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(10L, MAJOR),
+      newVulnerabilityIssue(15L, MAJOR),
       // Should not be taken into account
-      newCodeSmellIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newCodeSmellIssue(1L, MAJOR));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -307,10 +295,10 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   public void compute_B_reliability_and_security_rating_on_minor_issue() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
-      newBugIssue(10L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
-      newVulnerabilityIssue(15L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newBugIssue(10L, MINOR),
+      newVulnerabilityIssue(15L, MINOR),
       // Should not be taken into account
-      newCodeSmellIssue(1L, MAJOR).setCreationDate(AFTER_LEAK_PERIOD_DATE));
+      newCodeSmellIssue(1L, MAJOR));
 
     underTest.visit(ROOT_PROJECT);
 
@@ -338,26 +326,36 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
       .hasVariation(rating.getIndex());
   }
 
-  private static DefaultIssue newBugIssue(long effort, String severity) {
-    return newIssue(effort, severity, BUG);
+  private DefaultIssue newBugIssue(long effort, String severity) {
+    return createIssue(effort, severity, BUG, true);
   }
 
-  private static DefaultIssue newVulnerabilityIssue(long effort, String severity) {
-    return newIssue(effort, severity, VULNERABILITY);
+  private DefaultIssue oldBugIssue(long effort, String severity) {
+    return createIssue(effort, severity, BUG, false);
   }
 
-  private static DefaultIssue newCodeSmellIssue(long effort, String severity) {
-    return newIssue(effort, severity, CODE_SMELL);
+  private DefaultIssue newVulnerabilityIssue(long effort, String severity) {
+    return createIssue(effort, severity, VULNERABILITY, true);
   }
 
-  private static DefaultIssue newIssue(long effort, String severity, RuleType type) {
-    return newIssue(severity, type)
+  private DefaultIssue oldVulnerabilityIssue(long effort, String severity) {
+    return createIssue(effort, severity, VULNERABILITY, false);
+  }
+
+  private DefaultIssue newCodeSmellIssue(long effort, String severity) {
+    return createIssue(effort, severity, CODE_SMELL, true);
+  }
+
+  private DefaultIssue createIssue(long effort, String severity, RuleType type, boolean isNew) {
+    DefaultIssue issue = createIssue(severity, type)
       .setEffort(Duration.create(effort));
+    when(newIssueClassifier.isNew(any(), eq(issue))).thenReturn(isNew);
+    return issue;
   }
 
-  private static DefaultIssue newIssue(String severity, RuleType type) {
+  private static DefaultIssue createIssue(String severity, RuleType type) {
     return new DefaultIssue()
-      .setKey(Uuids.create())
+      .setKey(UuidFactoryFast.getInstance().create())
       .setSeverity(severity)
       .setType(type)
       .setCreationDate(DEFAULT_ISSUE_CREATION_DATE);
