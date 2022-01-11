@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -181,6 +183,22 @@ public class ServerUserSession extends AbstractUserSession {
       .allMatch(Boolean::valueOf);
   }
 
+  @Override
+  protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) {
+    if (permissionsByProjectUuid == null) {
+      permissionsByProjectUuid = new HashMap<>();
+    }
+
+    Set<ComponentDto> portfolioHierarchyComponents = resolvePortfolioHierarchyComponents(portfolioUuid);
+
+    Set<String> portfolioHierarchyComponentUuids = portfolioHierarchyComponents.stream().map(ComponentDto::getCopyComponentUuid).collect(Collectors.toSet());
+
+    return portfolioHierarchyComponentUuids
+      .stream()
+      .map(uuid -> hasPermission(permission, uuid))
+      .allMatch(Boolean::valueOf);
+  }
+
   private boolean hasPermission(String permission, String projectUuid) {
     Set<String> projectPermissions = permissionsByProjectUuid.computeIfAbsent(projectUuid, this::loadProjectPermissions);
     return projectPermissions.contains(permission);
@@ -217,6 +235,41 @@ public class ServerUserSession extends AbstractUserSession {
         .map(ComponentDto::getCopyComponentUuid)
         .collect(toSet());
     }
+  }
+
+  private List<ComponentDto> getDirectChildComponents(String portfolioUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.componentDao().selectDescendants(dbSession, ComponentTreeQuery.builder()
+        .setBaseUuid(portfolioUuid)
+        .setQualifiers(Arrays.asList(Qualifiers.PROJECT, Qualifiers.SUBVIEW))
+        .setStrategy(Strategy.CHILDREN).build());
+    }
+  }
+
+  private Set<ComponentDto> resolvePortfolioHierarchyComponents(String parentComponentUuid) {
+    Set<ComponentDto> portfolioHierarchyProjects = new HashSet<>();
+
+    resolvePortfolioHierarchyComponents(parentComponentUuid, portfolioHierarchyProjects);
+
+    return portfolioHierarchyProjects;
+  }
+
+  private void resolvePortfolioHierarchyComponents(String parentComponentUuid, Set<ComponentDto> hierarchyChildComponents) {
+    List<ComponentDto> childComponents = getDirectChildComponents(parentComponentUuid);
+
+    if (childComponents.isEmpty()) {
+      return;
+    }
+
+    childComponents.forEach(c -> {
+      if (c.getCopyComponentUuid() != null) {
+        hierarchyChildComponents.add(c);
+      }
+
+      if (Qualifiers.SUBVIEW.equals(c.qualifier())) {
+        resolvePortfolioHierarchyComponents(c.uuid(), hierarchyChildComponents);
+      }
+    });
   }
 
   private Set<GlobalPermission> loadGlobalPermissions() {

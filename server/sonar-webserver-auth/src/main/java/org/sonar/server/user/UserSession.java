@@ -201,6 +201,8 @@ public interface UserSession {
 
   boolean hasChildProjectsPermission(String permission, ProjectDto component);
 
+  boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto component);
+
   /**
    * Using {@link #hasComponentPermission(String, ComponentDto)} is recommended
    * because it does not have to load project if the referenced component

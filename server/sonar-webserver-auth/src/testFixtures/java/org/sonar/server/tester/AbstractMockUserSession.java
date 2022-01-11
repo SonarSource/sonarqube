@@ -45,6 +45,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private final Set<GlobalPermission> permissions = new HashSet<>();
   private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private final Map<String, Set<String>> applicationProjects = new HashMap<>();
+  private final Map<String, Set<String>> portfolioProjects = new HashMap<>();
   private final Set<String> projectPermissions = new HashSet<>();
   private boolean systemAdministrator = false;
   private boolean resetPassword = false;
@@ -133,6 +134,19 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return clazz.cast(this);
   }
 
+  public T registerPortfolioProjects(PortfolioDto portfolio, ProjectDto... portfolioProjects) {
+    registerPortfolios(portfolio);
+    registerProjects(portfolioProjects);
+
+    Set<String> portfolioProjectsUuid = Arrays.stream(portfolioProjects)
+      .map(ProjectDto::getUuid)
+      .collect(Collectors.toSet());
+
+    this.portfolioProjects.put(portfolio.getUuid(), portfolioProjectsUuid);
+
+    return clazz.cast(this);
+  }
+
   public T addProjectPermission(String permission, ComponentDto... components) {
     Arrays.stream(components).forEach(component -> {
       checkArgument(
@@ -185,6 +199,13 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   @Override
   protected boolean hasChildProjectsPermission(String permission, String applicationUuid) {
     return applicationProjects.containsKey(applicationUuid) && applicationProjects.get(applicationUuid)
+      .stream()
+      .allMatch(projectUuid -> projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid));
+  }
+
+  @Override
+  protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) {
+    return portfolioProjects.containsKey(portfolioUuid) && portfolioProjects.get(portfolioUuid)
       .stream()
       .allMatch(projectUuid -> projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid));
   }

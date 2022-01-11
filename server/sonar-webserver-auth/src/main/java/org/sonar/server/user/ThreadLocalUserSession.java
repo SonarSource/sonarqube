@@ -199,6 +199,11 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto portfolio) {
+    return get().hasPortfolioChildProjectsPermission(permission, portfolio);
+  }
+
+  @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return get().hasComponentUuidPermission(permission, componentUuid);
   }

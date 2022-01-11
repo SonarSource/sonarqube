@@ -728,7 +728,7 @@ public class ComponentActionTest {
       .addProjectPermission(UserRole.ADMIN, project);
 
     String result = execute(project.getDbKey());
-    assertJson(result).ignoreFields("snapshotDate", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(result).ignoreFields("snapshotDate", "canBrowseAllChildProjects", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test

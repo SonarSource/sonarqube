@@ -131,6 +131,15 @@ public abstract class AbstractUserSession implements UserSession {
   }
 
   @Override
+  public final boolean hasPortfolioChildProjectsPermission(String permission, ComponentDto portfolio) {
+    if (isRoot()) {
+      return true;
+    }
+
+    return hasPortfolioChildProjectsPermission(permission, portfolio.uuid());
+  }
+
+  @Override
   public final boolean hasComponentUuidPermission(String permission, String componentUuid) {
     if (isRoot()) {
       return true;
@@ -146,6 +155,8 @@ public abstract class AbstractUserSession implements UserSession {
   protected abstract boolean hasProjectUuidPermission(String permission, String projectUuid);
 
   protected abstract boolean hasChildProjectsPermission(String permission, String applicationUuid);
+
+  protected abstract boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid);
 
   @Override
   public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {

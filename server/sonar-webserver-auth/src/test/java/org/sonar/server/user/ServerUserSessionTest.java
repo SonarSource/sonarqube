@@ -45,6 +45,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
@@ -393,6 +394,107 @@ public class ServerUserSessionTest {
     // change privacy of the project without updating the cache
     db.getDbClient().componentDao().setPrivateForRootComponentUuidWithoutAudit(db.getSession(), project.uuid(), true);
     assertThat(session.hasChildProjectsPermission(USER, application)).isTrue();
+  }
+
+  @Test
+  public void test_hasPortfolioChildProjectsPermission_for_logged_in_user() {
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project4 = db.components().insertPrivateProject();
+
+    UserDto user = db.users().insertUser();
+    UserSession session = newUserSession(user);
+
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto subPortfolio = db.components().insertComponent(newSubPortfolio(portfolio));
+
+    // Add public project1 to private portfolio
+    db.components().addPortfolioProject(portfolio, project1);
+    db.components().insertComponent(newProjectCopy(project1, portfolio));
+
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
+
+    // Add private project2 with USER permissions to private portfolio
+    db.users().insertProjectPermissionOnUser(user, USER, project2);
+    db.components().addPortfolioProject(portfolio, project2);
+    db.components().insertComponent(newProjectCopy(project2, portfolio));
+
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
+
+    // Add private project4 with USER permissions to sub-portfolio
+    db.users().insertProjectPermissionOnUser(user, USER, project4);
+    db.components().addPortfolioProject(subPortfolio, project4);
+    db.components().insertComponent(newProjectCopy(project4, subPortfolio));
+    db.components().addPortfolioReference(portfolio, subPortfolio.uuid());
+
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
+
+    // Add private project3 without permissions to private portfolio
+    db.components().addPortfolioProject(portfolio, project3);
+    db.components().insertComponent(newProjectCopy(project3, portfolio));
+
+    assertThat(session.hasChildProjectsPermission(USER, portfolio)).isFalse();
+  }
+
+  @Test
+  public void test_hasPortfolioChildProjectsPermission_for_anonymous_user() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    db.users().insertPermissionOnAnyone(USER);
+
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+
+    db.components().addPortfolioProject(portfolio, project);
+    // add computed project
+    db.components().insertComponent(newProjectCopy(project, portfolio));
+
+    UserSession session = newAnonymousSession();
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isFalse();
+  }
+
+  @Test
+  public void hasPortfolioChildProjectsPermission_keeps_cache_of_permissions_of_logged_in_user() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    UserDto user = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(user, USER, project);
+
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    db.components().addPortfolioProject(portfolio, project);
+    // add computed project
+    db.components().insertComponent(newProjectCopy(project, portfolio));
+
+    UserSession session = newUserSession(user);
+
+    // feed the cache
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
+
+    // change permissions without updating the cache
+    db.users().deletePermissionFromUser(project, user, USER);
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
+
+    // cache is refreshed when user logs in again
+    session = newUserSession(user);
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isFalse();
+  }
+
+  @Test
+  public void hasPortfolioChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
+    db.users().insertPermissionOnAnyone(USER);
+
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    db.components().addPortfolioProject(portfolio, project);
+
+    UserSession session = newAnonymousSession();
+
+    // feed the cache
+    assertThat(session.hasChildProjectsPermission(USER, portfolio)).isTrue();
+
+    // change privacy of the project without updating the cache
+    db.getDbClient().componentDao().setPrivateForRootComponentUuidWithoutAudit(db.getSession(), project.uuid(), true);
+    assertThat(session.hasChildProjectsPermission(USER, portfolio)).isTrue();
   }
 
   @Test

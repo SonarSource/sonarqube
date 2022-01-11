@@ -127,6 +127,9 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
+    protected boolean hasPortfolioChildProjectsPermission(String permission, String portfolioUuid) { throw notImplemented(); }
+
+    @Override
     public boolean isSystemAdministrator() {
       throw notImplemented();
     }
