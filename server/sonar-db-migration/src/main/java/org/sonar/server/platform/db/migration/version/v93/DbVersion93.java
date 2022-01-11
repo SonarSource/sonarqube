@@ -30,6 +30,8 @@ public class DbVersion93 implements DbVersion {
       .add(6202, "Drop index 'uniq_portfolio_references'", DropUniqPortfolioReferencesIndex.class)
       .add(6203, "Add column 'branch_uuid' to 'portfolio_references'", AddBranchToPortfolioReferences.class)
       .add(6204, "Create index 'uniq_portfolio_references'", CreateIndexForPortfolioReferences.class)
+      .add(6205, "Create table 'new_code_reference_branch_issues'", CreateNewCodeReferenceBranchIssues.class)
+      .add(6206, "Create index 'uniq_new_code_reference_issues'", CreateIndexForNewCodeReferenceBranchIssues.class)
 
     ;
   }
