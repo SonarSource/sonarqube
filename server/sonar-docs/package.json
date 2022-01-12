@@ -110,5 +110,5 @@
       "\\.(ts|tsx)$": "ts-jest"
     }
   },
-  "packageManager": "yarn@3.0.2"
+  "packageManager": "yarn@3.1.1"
 }
