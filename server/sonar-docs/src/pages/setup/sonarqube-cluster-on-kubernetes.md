@@ -166,11 +166,6 @@ This documentation only contains the most important Helm chart customizations. S
 
 As SonarQube is intended to be run anywhere, there are some drawbacks that are currently known when operating in Kubernetes. This list is not comprehensive, but something to keep in mind and points for us to improve on.
 
-### No Sidecar Support
-
-There is currently no support for additional sidecar containers.
-If you want to use a sidecar container with the SonarQube deployment, you have to manually alter the deployment.
-
 ### Problems with Azure Fileshare PVC
 
 Currently, there is a known limitation when working on AKS that resonates around the use of Azure Fileshare. We recommend using another storage class for persistency on AKS.
