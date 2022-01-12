@@ -174,6 +174,15 @@ public abstract class AbstractUserSession implements UserSession {
     return doKeepAuthorizedProjects(permission, projects);
   }
 
+  @Override
+  public List<ComponentDto> filterAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    if (isRoot()) {
+      return new ArrayList<>(components);
+    }
+
+    return doFilterAuthorizedComponents(permission, components);
+  }
+
   /**
    * Naive implementation, to be overridden if needed
    */
@@ -191,6 +200,15 @@ public abstract class AbstractUserSession implements UserSession {
     boolean allowPublicComponent = PUBLIC_PERMISSIONS.contains(permission);
     return components.stream()
       .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasComponentPermission(permission, c))
+      .collect(MoreCollectors.toList());
+  }
+
+  /**
+   * Naive implementation, to be overridden if needed
+   */
+  protected List<ComponentDto> doFilterAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    return components.stream()
+      .filter(c -> (PUBLIC_PERMISSIONS.contains(permission) && !c.isPrivate()) || hasComponentPermission(permission, c))
       .collect(MoreCollectors.toList());
   }
 

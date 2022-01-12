@@ -297,6 +297,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public List<ComponentDto> filterAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    return currentUserSession.filterAuthorizedComponents(permission, components);
+  }
+
+  @Override
   @CheckForNull
   public String getLogin() {
     return currentUserSession.getLogin();

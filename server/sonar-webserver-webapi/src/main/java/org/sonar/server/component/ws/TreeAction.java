@@ -177,6 +177,8 @@ public class TreeAction implements ComponentsWsAction {
 
       ComponentTreeQuery query = toComponentTreeQuery(treeRequest, baseComponent);
       List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
+      components = filterAuthorizedComponents(components);
+
       int total = components.size();
       components = sortComponents(components, treeRequest);
       components = paginateComponents(components, treeRequest);
@@ -186,6 +188,10 @@ public class TreeAction implements ComponentsWsAction {
       return buildResponse(dbSession, baseComponent, components, referenceComponentsByUuid,
         Paging.forPageIndex(treeRequest.getPage()).withPageSize(treeRequest.getPageSize()).andTotal(total));
     }
+  }
+
+  private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
+    return userSession.filterAuthorizedComponents(UserRole.USER, components);
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {

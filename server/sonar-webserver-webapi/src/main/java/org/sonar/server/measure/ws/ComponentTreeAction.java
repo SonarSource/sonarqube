@@ -434,6 +434,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       }
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
+      components = filterAuthorizedComponents(components);
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
 
       int componentCount = components.size();
@@ -572,6 +573,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .stream()
       .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest.getMetricPeriodSort()))
       .collect(MoreCollectors.toList(components.size()));
+  }
+
+  private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
+    return userSession.filterAuthorizedComponents(UserRole.USER, components);
   }
 
   private static boolean componentWithMeasuresOnly(ComponentTreeRequest wsRequest) {

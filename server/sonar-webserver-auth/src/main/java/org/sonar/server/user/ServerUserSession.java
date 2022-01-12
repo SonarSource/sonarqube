@@ -248,9 +248,7 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Set<ComponentDto> resolvePortfolioHierarchyComponents(String parentComponentUuid) {
     Set<ComponentDto> portfolioHierarchyProjects = new HashSet<>();
-
     resolvePortfolioHierarchyComponents(parentComponentUuid, portfolioHierarchyProjects);
-
     return portfolioHierarchyProjects;
   }
 
@@ -305,6 +303,18 @@ public class ServerUserSession extends AbstractUserSession {
         .filter(c -> authorizedProjectUuids.contains(c.projectUuid()) || authorizedProjectUuids.contains(c.getMainBranchProjectUuid()))
         .collect(MoreCollectors.toList(components.size()));
     }
+  }
+
+  @Override
+  protected List<ComponentDto> doFilterAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    if (permissionsByProjectUuid == null) {
+      permissionsByProjectUuid = new HashMap<>();
+    }
+
+    return components
+      .stream()
+      .filter(x -> hasPermission(permission, defaultIfEmpty(x.getCopyComponentUuid(), x.uuid())))
+      .collect(Collectors.toList());
   }
 
   @Override
