@@ -35,7 +35,6 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -49,16 +48,14 @@ class DefaultBlameOutput implements BlameOutput {
 
   private final ScannerReportWriter writer;
   private AnalysisWarnings analysisWarnings;
-  private final ScannerWsClient client;
   private final Set<InputFile> allFilesToBlame = new LinkedHashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;
 
-  DefaultBlameOutput(ScannerReportWriter writer, AnalysisWarnings analysisWarnings, List<InputFile> filesToBlame, ScannerWsClient client) {
+  DefaultBlameOutput(ScannerReportWriter writer, AnalysisWarnings analysisWarnings, List<InputFile> filesToBlame) {
     this.writer = writer;
     this.analysisWarnings = analysisWarnings;
-    this.client = client;
     this.allFilesToBlame.addAll(filesToBlame);
     count = 0;
     total = filesToBlame.size();
@@ -137,9 +134,9 @@ class DefaultBlameOutput implements BlameOutput {
         LOG.warn("  * " + f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
-      String link = client.baseUrl() + "/documentation/analysis/scm-integration/";
+      String link = "/documentation/analysis/scm-integration/";
       analysisWarnings.addUnique(String.format("Missing blame information for %d %s. This may lead to some features not working correctly. " +
-          "Please check the analysis logs and refer to <a href=\"%s\" target=\"_blank\">the documentation</a>.",
+        "Please check the analysis logs and refer to <a href=\"%s\" target=\"_blank\">the documentation</a>.",
         allFilesToBlame.size(),
         allFilesToBlame.size() > 1 ? "files" : "file",
         link));

@@ -31,7 +31,6 @@ import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -51,11 +50,10 @@ public final class ScmPublisher {
   private final FileSystem fs;
   private final ScannerReportWriter writer;
   private AnalysisWarnings analysisWarnings;
-  private final ScannerWsClient client;
   private final BranchConfiguration branchConfiguration;
 
   public ScmPublisher(ScmConfiguration configuration, ProjectRepositoriesSupplier projectRepositoriesSupplier, InputComponentStore componentStore, FileSystem fs,
-    ReportPublisher reportPublisher, BranchConfiguration branchConfiguration, AnalysisWarnings analysisWarnings, ScannerWsClient client) {
+    ReportPublisher reportPublisher, BranchConfiguration branchConfiguration, AnalysisWarnings analysisWarnings) {
     this.configuration = configuration;
     this.projectRepositoriesSupplier = projectRepositoriesSupplier;
     this.componentStore = componentStore;
@@ -63,7 +61,6 @@ public final class ScmPublisher {
     this.branchConfiguration = branchConfiguration;
     this.writer = reportPublisher.getWriter();
     this.analysisWarnings = analysisWarnings;
-    this.client = client;
   }
 
   public void publish() {
@@ -82,7 +79,7 @@ public final class ScmPublisher {
     if (!filesToBlame.isEmpty()) {
       String key = provider.key();
       LOG.info("SCM Publisher SCM provider for this project is: " + key);
-      DefaultBlameOutput output = new DefaultBlameOutput(writer, analysisWarnings, filesToBlame, client);
+      DefaultBlameOutput output = new DefaultBlameOutput(writer, analysisWarnings, filesToBlame);
       try {
         provider.blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
       } catch (Exception e) {

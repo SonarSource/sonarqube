@@ -59,7 +59,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
 
 public class GitScmProvider extends ScmProvider {
 
@@ -71,12 +70,12 @@ public class GitScmProvider extends ScmProvider {
   private final System2 system2;
   private final String documentationLink;
 
-  public GitScmProvider(JGitBlameCommand jgitBlameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2, ScannerWsClient client) {
+  public GitScmProvider(JGitBlameCommand jgitBlameCommand, AnalysisWarnings analysisWarnings, GitIgnoreCommand gitIgnoreCommand, System2 system2) {
     this.jgitBlameCommand = jgitBlameCommand;
     this.analysisWarnings = analysisWarnings;
     this.gitIgnoreCommand = gitIgnoreCommand;
     this.system2 = system2;
-    this.documentationLink = client.baseUrl() + "/documentation/analysis/scm-integration/";
+    this.documentationLink =  "/documentation/analysis/scm-integration/";
   }
 
   @Override
