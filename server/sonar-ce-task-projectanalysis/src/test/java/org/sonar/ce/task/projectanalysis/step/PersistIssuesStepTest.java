@@ -42,7 +42,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -100,7 +100,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
     underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient), protoIssueCache,
-      new IssueStorage(), new SequenceUuidFactory());
+      new IssueStorage(), UuidFactoryImpl.INSTANCE);
   }
 
   @After
@@ -115,44 +115,46 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
+    String issueKey = "ISSUE-1";
 
     protoIssueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
-      .setType(RuleType.CODE_SMELL)
-      .setRuleKey(rule.getKey())
-      .setComponentUuid(file.uuid())
-      .setComponentKey(file.getKey())
-      .setProjectUuid(project.uuid())
-      .setProjectKey(project.getKey())
-      .setSeverity(BLOCKER)
-      .setStatus(STATUS_OPEN)
-      .setTags(singletonList("test"))
-      .setNew(false)
-      .setCopied(true)
-      .setType(RuleType.BUG)
-      .setCreationDate(new Date(NOW))
-      .setSelectedAt(NOW)
-      .addComment(new DefaultIssueComment()
-        .setKey("COMMENT")
-        .setIssueKey("ISSUE")
-        .setUserUuid("john_uuid")
-        .setMarkdownText("Some text")
-        .setCreatedAt(new Date(NOW))
-        .setUpdatedAt(new Date(NOW))
-        .setNew(true))
-      .setCurrentChange(
-        new FieldDiffs()
-          .setIssueKey("ISSUE")
+        .setKey(issueKey)
+        .setType(RuleType.CODE_SMELL)
+        .setRuleKey(rule.getKey())
+        .setComponentUuid(file.uuid())
+        .setComponentKey(file.getKey())
+        .setProjectUuid(project.uuid())
+        .setProjectKey(project.getKey())
+        .setSeverity(BLOCKER)
+        .setStatus(STATUS_OPEN)
+        .setTags(singletonList("test"))
+        .setNew(false)
+        .setCopied(true)
+        .setType(RuleType.BUG)
+        .setCreationDate(new Date(NOW))
+        .setSelectedAt(NOW)
+        .addComment(new DefaultIssueComment()
+          .setKey("COMMENT")
+          .setIssueKey(issueKey)
           .setUserUuid("john_uuid")
-          .setDiff("technicalDebt", null, 1L)
-          .setCreationDate(new Date(NOW))))
+          .setMarkdownText("Some text")
+          .setCreatedAt(new Date(NOW))
+          .setUpdatedAt(new Date(NOW))
+          .setNew(true))
+        .setCurrentChange(
+          new FieldDiffs()
+            .setIssueKey(issueKey)
+            .setUserUuid("john_uuid")
+            .setDiff("technicalDebt", null, 1L)
+            .setCreationDate(new Date(NOW))))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
-    assertThat(result.getKey()).isEqualTo("ISSUE");
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+
+    assertThat(result.getKey()).isEqualTo(issueKey);
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
@@ -161,7 +163,10 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(result.getTags()).containsExactlyInAnyOrder("test");
 
-    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
+    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
+    assertThat(isNewCodeOnReferencedBranch).isFalse();
+
+    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
@@ -174,29 +179,31 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
+    String issueKey = "ISSUE-2";
 
     protoIssueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
-      .setType(RuleType.CODE_SMELL)
-      .setRuleKey(rule.getKey())
-      .setComponentUuid(file.uuid())
-      .setComponentKey(file.getKey())
-      .setProjectUuid(project.uuid())
-      .setProjectKey(project.getKey())
-      .setSeverity(BLOCKER)
-      .setStatus(STATUS_OPEN)
-      .setNew(false)
-      .setCopied(true)
-      .setType(RuleType.BUG)
-      .setCreationDate(new Date(NOW))
-      .setSelectedAt(NOW))
+        .setKey(issueKey)
+        .setType(RuleType.CODE_SMELL)
+        .setRuleKey(rule.getKey())
+        .setComponentUuid(file.uuid())
+        .setComponentKey(file.getKey())
+        .setProjectUuid(project.uuid())
+        .setProjectKey(project.getKey())
+        .setSeverity(BLOCKER)
+        .setStatus(STATUS_OPEN)
+        .setNew(false)
+        .setIsOnReferencedBranch(true)
+        .setCopied(true)
+        .setType(RuleType.BUG)
+        .setCreationDate(new Date(NOW))
+        .setSelectedAt(NOW))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
-    assertThat(result.getKey()).isEqualTo("ISSUE");
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.getKey()).isEqualTo(issueKey);
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
@@ -205,7 +212,10 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(result.getTags()).isEmpty();
 
-    assertThat(dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"))).isEmpty();
+    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
+    assertThat(isNewCodeOnReferencedBranch).isFalse();
+
+    assertThat(dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey))).isEmpty();
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }
@@ -217,42 +227,45 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     when(system2.now()).thenReturn(NOW);
+    String issueKey = "ISSUE-3";
 
     protoIssueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
-      .setType(RuleType.CODE_SMELL)
-      .setRuleKey(rule.getKey())
-      .setComponentUuid(file.uuid())
-      .setComponentKey(file.getKey())
-      .setProjectUuid(project.uuid())
-      .setProjectKey(project.getKey())
-      .setSeverity(BLOCKER)
-      .setStatus(STATUS_OPEN)
-      .setNew(true)
-      .setCopied(true)
-      .setType(RuleType.BUG)
-      .setCreationDate(new Date(NOW))
-      .setSelectedAt(NOW)
-      .addComment(new DefaultIssueComment()
-        .setKey("COMMENT")
-        .setIssueKey("ISSUE")
-        .setUserUuid("john_uuid")
-        .setMarkdownText("Some text")
-        .setUpdatedAt(new Date(NOW))
-        .setCreatedAt(new Date(NOW))
-        .setNew(true))
-      .setCurrentChange(new FieldDiffs()
-        .setIssueKey("ISSUE")
-        .setUserUuid("john_uuid")
-        .setDiff("technicalDebt", null, 1L)
-        .setCreationDate(new Date(NOW))))
+        .setKey(issueKey)
+        .setType(RuleType.CODE_SMELL)
+        .setRuleKey(rule.getKey())
+        .setComponentUuid(file.uuid())
+        .setComponentKey(file.getKey())
+        .setProjectUuid(project.uuid())
+        .setProjectKey(project.getKey())
+        .setSeverity(BLOCKER)
+        .setStatus(STATUS_OPEN)
+        .setNew(true)
+        .setIsOnReferencedBranch(true)
+        .setIsOnChangedLine(true)
+        .setCopied(true)
+        .setType(RuleType.BUG)
+        .setCreationDate(new Date(NOW))
+        .setSelectedAt(NOW)
+        .addComment(new DefaultIssueComment()
+          .setKey("COMMENT")
+          .setIssueKey(issueKey)
+          .setUserUuid("john_uuid")
+          .setMarkdownText("Some text")
+          .setUpdatedAt(new Date(NOW))
+          .setCreatedAt(new Date(NOW))
+          .setNew(true))
+        .setCurrentChange(new FieldDiffs()
+          .setIssueKey(issueKey)
+          .setUserUuid("john_uuid")
+          .setDiff("technicalDebt", null, 1L)
+          .setCreationDate(new Date(NOW))))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
-    assertThat(result.getKey()).isEqualTo("ISSUE");
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.getKey()).isEqualTo(issueKey);
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
@@ -260,7 +273,10 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
 
-    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
+    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
+    assertThat(isNewCodeOnReferencedBranch).isTrue();
+
+    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
@@ -307,9 +323,10 @@ public class PersistIssuesStepTest extends BaseStepTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null));
     session.commit();
+    String issueKey = "ISSUE-4";
 
     protoIssueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
+      .setKey(issueKey)
       .setType(RuleType.CODE_SMELL)
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
@@ -320,13 +337,15 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setStatus(STATUS_OPEN)
       .setCreationDate(new Date(NOW))
       .setNew(true)
+      .setIsOnReferencedBranch(true)
+      .setIsOnChangedLine(true)
       .setType(RuleType.BUG)).close();
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
-    assertThat(result.getKey()).isEqualTo("ISSUE");
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.getKey()).isEqualTo(issueKey);
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
@@ -335,6 +354,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
+
+    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
+    assertThat(isNewCodeOnReferencedBranch).isTrue();
   }
 
   @Test
@@ -350,12 +372,12 @@ public class PersistIssuesStepTest extends BaseStepTest {
     DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
 
     issueCacheAppender.append(
-      issue.toDefaultIssue()
-        .setStatus(STATUS_CLOSED)
-        .setResolution(RESOLUTION_FIXED)
-        .setSelectedAt(NOW)
-        .setNew(false)
-        .setChanged(true))
+        issue.toDefaultIssue()
+          .setStatus(STATUS_CLOSED)
+          .setResolution(RESOLUTION_FIXED)
+          .setSelectedAt(NOW)
+          .setNew(false)
+          .setChanged(true))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -381,20 +403,20 @@ public class PersistIssuesStepTest extends BaseStepTest {
     DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
 
     issueCacheAppender.append(
-      issue.toDefaultIssue()
-        .setStatus(STATUS_CLOSED)
-        .setResolution(RESOLUTION_FIXED)
-        .setSelectedAt(NOW)
-        .setNew(false)
-        .setChanged(true)
-        .addComment(new DefaultIssueComment()
-          .setKey("COMMENT")
-          .setIssueKey(issue.getKey())
-          .setUserUuid("john_uuid")
-          .setMarkdownText("Some text")
-          .setCreatedAt(new Date(NOW))
-          .setUpdatedAt(new Date(NOW))
-          .setNew(true)))
+        issue.toDefaultIssue()
+          .setStatus(STATUS_CLOSED)
+          .setResolution(RESOLUTION_FIXED)
+          .setSelectedAt(NOW)
+          .setNew(false)
+          .setChanged(true)
+          .addComment(new DefaultIssueComment()
+            .setKey("COMMENT")
+            .setIssueKey(issue.getKey())
+            .setUserUuid("john_uuid")
+            .setMarkdownText("Some text")
+            .setCreatedAt(new Date(NOW))
+            .setUpdatedAt(new Date(NOW))
+            .setNew(true)))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -422,17 +444,17 @@ public class PersistIssuesStepTest extends BaseStepTest {
     DiskCache.CacheAppender issueCacheAppender = protoIssueCache.newAppender();
 
     issueCacheAppender.append(
-      issue.toDefaultIssue()
-        .setStatus(STATUS_CLOSED)
-        .setResolution(RESOLUTION_FIXED)
-        .setSelectedAt(NOW)
-        .setNew(false)
-        .setChanged(true)
-        .setCurrentChange(new FieldDiffs()
-          .setIssueKey("ISSUE")
-          .setUserUuid("john_uuid")
-          .setDiff("technicalDebt", null, 1L)
-          .setCreationDate(new Date(NOW))))
+        issue.toDefaultIssue()
+          .setStatus(STATUS_CLOSED)
+          .setResolution(RESOLUTION_FIXED)
+          .setSelectedAt(NOW)
+          .setNew(false)
+          .setChanged(true)
+          .setCurrentChange(new FieldDiffs()
+            .setIssueKey("ISSUE")
+            .setUserUuid("john_uuid")
+            .setDiff("technicalDebt", null, 1L)
+            .setCreationDate(new Date(NOW))))
       .close();
 
     TestComputationStepContext context = new TestComputationStepContext();

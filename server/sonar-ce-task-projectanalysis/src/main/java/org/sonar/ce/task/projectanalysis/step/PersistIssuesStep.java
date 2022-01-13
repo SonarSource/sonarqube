@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.server.issue.IssueStorage;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
@@ -71,8 +72,7 @@ public class PersistIssuesStep implements ComputationStep {
     context.getStatistics().add("cacheSize", humanReadableByteCountSI(protoIssueCache.fileSize()));
     IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
-
-      CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
+         CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       List<DefaultIssue> addedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> updatedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
 
@@ -112,6 +112,9 @@ public class PersistIssuesStep implements ComputationStep {
       String ruleUuid = ruleRepository.getByKey(i.ruleKey()).getUuid();
       IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleUuid, now);
       mapper.insert(dto);
+      if (i.isOnReferencedBranch() && i.isOnChangedLine()) {
+        mapper.insertAsNewOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
+      }
       statistics.inserts++;
     });
 

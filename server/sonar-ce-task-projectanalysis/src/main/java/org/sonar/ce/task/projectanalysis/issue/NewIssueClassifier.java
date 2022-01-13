@@ -55,7 +55,10 @@ public class NewIssueClassifier {
       }
 
       if (periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name())) {
-        return hasAtLeastOneLocationOnChangedLines(component, issue);
+        issue.setIsOnReferencedBranch(true);
+        boolean isOnChangedLine = hasAtLeastOneLocationOnChangedLines(component, issue);
+        issue.setIsOnChangedLine(isOnChangedLine);
+        return isOnChangedLine;
       }
     }
     return false;

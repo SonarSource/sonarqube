@@ -56,6 +56,8 @@ public class DefaultIssueTest {
       .setAuthorLogin("steph")
       .setChecksum("c7b5db46591806455cf082bb348631e8")
       .setNew(true)
+      .setIsOnReferencedBranch(true)
+      .setIsOnChangedLine(true)
       .setBeingClosed(true)
       .setOnDisabledRule(true)
       .setCopied(true)
@@ -83,6 +85,8 @@ public class DefaultIssueTest {
     assertThat(issue.authorLogin()).isEqualTo("steph");
     assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
     assertThat(issue.isNew()).isTrue();
+    assertThat(issue.isOnReferencedBranch()).isTrue();
+    assertThat(issue.isOnChangedLine()).isTrue();
     assertThat(issue.isCopied()).isTrue();
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.isOnDisabledRule()).isTrue();

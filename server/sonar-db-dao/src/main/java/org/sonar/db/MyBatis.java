@@ -73,6 +73,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
 import org.sonar.db.mapping.ProjectMappingDto;
 import org.sonar.db.mapping.ProjectMappingsMapper;
@@ -197,6 +198,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
+    confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);

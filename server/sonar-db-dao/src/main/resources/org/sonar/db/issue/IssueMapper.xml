@@ -118,6 +118,14 @@
     #{quickFixAvailable, jdbcType=BOOLEAN})
   </insert>
 
+  <insert id="insertAsNewOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
+    INSERT INTO new_code_reference_issues (uuid, issue_key, created_at)
+    VALUES (
+    #{uuid,jdbcType=VARCHAR},
+    #{issueKey,jdbcType=VARCHAR},
+    #{createdAt,jdbcType=BIGINT})
+  </insert>
+
   <!--
     IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
   -->
@@ -185,7 +193,29 @@
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <sql id="isNewCodeOnReferencedBranchSql">
+    select
+    case when exists
+    (
+    select i.uuid from new_code_reference_issues i
+    where i.issue_key = #{issueKey,jdbcType=VARCHAR}
+    )
+    then 1
+    else 0
+    end
+  </sql>
+
+  <select id="isNewCodeOnReferencedBranch" parameterType="String" resultType="boolean">
+    <include refid="isNewCodeOnReferencedBranchSql"/>
+  </select>
+
+  <select id="isNewCodeOnReferencedBranch" parameterType="String" resultType="boolean" databaseId="oracle">
+    <include refid="isNewCodeOnReferencedBranchSql"/>
+    from dual
+  </select>
+
+  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY">
     select
     <include refid="issueColumns"/>
     from issues i
@@ -384,7 +414,7 @@
     from
     (select
         row_number() over(order by i.issue_creation_date ASC) as row_number,
-          <include refid="issueColumnsInInnerQuery" />
+          <include refid="issueColumnsInInnerQuery"/>
         from issues i
         where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
       order by row_number asc

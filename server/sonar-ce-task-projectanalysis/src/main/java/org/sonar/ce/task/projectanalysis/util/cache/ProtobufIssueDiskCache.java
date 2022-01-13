@@ -123,6 +123,8 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setCloseDate(next.hasCloseDate() ? new Date(next.getCloseDate()) : null);
     defaultIssue.setCurrentChangeWithoutAddChange(next.hasCurrentChanges() ? toDefaultIssueChanges(next.getCurrentChanges()) : null);
     defaultIssue.setNew(next.getIsNew());
+    defaultIssue.setIsOnReferencedBranch(next.getIsOnReferencedBranch());
+    defaultIssue.setIsOnChangedLine(next.getIsOnChangedLine());
     defaultIssue.setCopied(next.getIsCopied());
     defaultIssue.setBeingClosed(next.getBeingClosed());
     defaultIssue.setOnDisabledRule(next.getOnDisabledRule());
@@ -171,6 +173,8 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.closeDate()).map(Date::getTime).ifPresent(builder::setCloseDate);
     ofNullable(defaultIssue.currentChange()).ifPresent(c -> builder.setCurrentChanges(toProtoIssueChanges(c)));
     builder.setIsNew(defaultIssue.isNew());
+    builder.setIsOnReferencedBranch(defaultIssue.isOnReferencedBranch());
+    builder.setIsOnChangedLine(defaultIssue.isOnChangedLine());
     builder.setIsCopied(defaultIssue.isCopied());
     builder.setBeingClosed(defaultIssue.isBeingClosed());
     builder.setOnDisabledRule(defaultIssue.isOnDisabledRule());

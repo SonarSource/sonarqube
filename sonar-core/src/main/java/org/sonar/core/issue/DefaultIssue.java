@@ -100,6 +100,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   // true if the issue did not exist in the previous scan.
   private boolean isNew = true;
 
+  // true if the issue is on a branch using the reference branch new code strategy
+  private boolean isOnReferencedBranch = false;
+
+  // true if the issue is on a changed line on a branch using the reference branch new code strategy
+  private boolean isOnChangedLine = false;
+
   // true if the issue is being copied between branch
   private boolean isCopied = false;
 
@@ -388,6 +394,14 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return isNew;
   }
 
+  public boolean isOnReferencedBranch() {
+    return isOnReferencedBranch;
+  }
+
+  public boolean isOnChangedLine() {
+    return isOnChangedLine;
+  }
+
   @Override
   public boolean isCopied() {
     return isCopied;
@@ -400,6 +414,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setNew(boolean b) {
     isNew = b;
+    return this;
+  }
+
+  public DefaultIssue setIsOnReferencedBranch(boolean b) {
+    isOnReferencedBranch = b;
+    return this;
+  }
+
+  public DefaultIssue setIsOnChangedLine(boolean b) {
+    isOnChangedLine = b;
     return this;
   }
 

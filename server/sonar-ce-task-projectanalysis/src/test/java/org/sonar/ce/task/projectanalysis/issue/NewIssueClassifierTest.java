@@ -38,6 +38,8 @@ import org.sonar.db.protobuf.DbIssues;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class NewIssueClassifierTest {
@@ -86,6 +88,8 @@ public class NewIssueClassifierTest {
     DefaultIssue issue = mock(DefaultIssue.class);
     when(issue.creationDate()).thenReturn(new Date(2000L));
     assertThat(newIssueClassifier.isNew(mock(Component.class), issue)).isTrue();
+    verify(issue).creationDate();
+    verifyNoMoreInteractions(issue);
   }
 
   @Test
@@ -105,6 +109,8 @@ public class NewIssueClassifierTest {
         .build())
       .build());
     assertThat(newIssueClassifier.isNew(file, issue)).isTrue();
+    verify(issue).setIsOnReferencedBranch(true);
+    verify(issue).setIsOnChangedLine(true);
   }
 
   @Test
@@ -124,6 +130,8 @@ public class NewIssueClassifierTest {
         .build())
       .build());
     assertThat(newIssueClassifier.isNew(file, issue)).isFalse();
+    verify(issue).setIsOnReferencedBranch(true);
+    verify(issue).setIsOnChangedLine(false);
   }
 
   @Test
@@ -132,6 +140,8 @@ public class NewIssueClassifierTest {
     DefaultIssue issue = mock(DefaultIssue.class);
     when(issue.creationDate()).thenReturn(new Date(500L));
     assertThat(newIssueClassifier.isNew(mock(Component.class), issue)).isFalse();
+    verify(issue).creationDate();
+    verifyNoMoreInteractions(issue);
   }
 
   @Test

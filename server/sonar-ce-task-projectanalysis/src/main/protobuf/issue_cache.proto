@@ -75,6 +75,9 @@ message Issue {
   repeated Comment comments = 38;
 
   optional bool quickFixAvailable = 39;
+
+  optional bool isOnReferencedBranch = 40;
+  optional bool isOnChangedLine = 41;
 }
 
 message Comment {
