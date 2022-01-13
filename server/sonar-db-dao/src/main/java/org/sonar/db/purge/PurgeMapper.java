@@ -84,9 +84,11 @@ public interface PurgeMapper {
 
   List<PurgeableAnalysisDto> selectPurgeableAnalyses(@Param("componentUuid") String componentUuid);
 
+  void deleteIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
+
   void deleteIssueChangesByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteNewCodeReferenceIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
@@ -100,6 +102,8 @@ public interface PurgeMapper {
   void deleteIssuesFromKeys(@Param("keys") List<String> keys);
 
   void deleteIssueChangesFromIssueKeys(@Param("issueKeys") List<String> issueKeys);
+
+  void deleteNewCodeReferenceIssuesFromKeys(@Param("issueKeys") List<String> keys);
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 

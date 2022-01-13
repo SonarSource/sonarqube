@@ -105,6 +105,7 @@ import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newSnapshot;
 import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
+import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.selectAllDeliveryUuids;
 
@@ -527,6 +528,7 @@ public class PurgeDaoTest {
     IssueChangeDto issueChange1 = db.issues().insertChange(issue1);
     IssueDto issue2 = db.issues().insert(rule, project, file);
     FileSourceDto fileSource = db.fileSources().insertFileSource(file);
+    db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue1));
 
     ComponentDto otherProject = db.components().insertPrivateProject();
     ComponentDto otherModule = db.components().insertComponent(newModuleDto(otherProject));
@@ -537,6 +539,7 @@ public class PurgeDaoTest {
     IssueChangeDto otherIssueChange1 = db.issues().insertChange(otherIssue1);
     IssueDto otherIssue2 = db.issues().insert(rule, otherProject, otherFile);
     FileSourceDto otherFileSource = db.fileSources().insertFileSource(otherFile);
+    db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(otherIssue1));
 
     underTest.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
     dbSession.commit();
@@ -546,6 +549,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("snapshots")).containsOnly(otherAnalysis.getUuid());
     assertThat(uuidsIn("issues", "kee")).containsOnly(otherIssue1.getKey(), otherIssue2.getKey());
     assertThat(uuidsIn("issue_changes", "kee")).containsOnly(otherIssueChange1.getKey());
+    assertThat(uuidsIn("new_code_reference_issues", "issue_key")).containsOnly(otherIssue1.getKey());
     assertThat(uuidsIn("file_sources", "file_uuid")).containsOnly(otherFileSource.getFileUuid());
   }
 
@@ -1103,12 +1107,15 @@ public class PurgeDaoTest {
       issue.setStatus("CLOSED");
       issue.setIssueCloseDate(DateUtils.addDays(new Date(), -31));
     });
+    db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(oldClosed));
 
     IssueDto notOldEnoughClosed = db.issues().insert(rule, project, file, issue -> {
       issue.setStatus("CLOSED");
       issue.setIssueCloseDate(new Date());
     });
+    db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notOldEnoughClosed));
     IssueDto notClosed = db.issues().insert(rule, project, file);
+    db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notClosed));
 
     when(system2.now()).thenReturn(new Date().getTime());
     underTest.purge(dbSession, newConfigurationWith30Days(system2, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
@@ -1120,7 +1127,10 @@ public class PurgeDaoTest {
     // others remain
     assertThat(db.countRowsOfTable("issues")).isEqualTo(2);
     assertThat(db.getDbClient().issueDao().selectByKey(dbSession, notOldEnoughClosed.getKey())).isNotEmpty();
+    assertThat(db.getDbClient().issueDao().isNewCodeOnReferencedBranch(dbSession, notOldEnoughClosed.getKey())).isTrue();
     assertThat(db.getDbClient().issueDao().selectByKey(dbSession, notClosed.getKey())).isNotEmpty();
+    assertThat(db.getDbClient().issueDao().isNewCodeOnReferencedBranch(dbSession, notClosed.getKey())).isTrue();
+    assertThat(db.getDbClient().issueDao().isNewCodeOnReferencedBranch(dbSession, oldClosed.getKey())).isFalse();
   }
 
   @Test

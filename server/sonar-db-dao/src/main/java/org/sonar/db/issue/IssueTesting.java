@@ -117,4 +117,11 @@ public class IssueTesting {
       .setUpdatedAt(1_400_000_000_000L);
   }
 
+  public static NewCodeReferenceIssueDto newCodeReferenceIssue(IssueDto issue) {
+    return new NewCodeReferenceIssueDto()
+      .setUuid(Uuids.createFast())
+      .setIssueKey(issue.getKey())
+      .setCreatedAt(1_400_000_000_000L);
+  }
+
 }

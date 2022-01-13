@@ -218,4 +218,12 @@ public class IssueDbTester {
     db.commit();
   }
 
+  /**
+   * Inserts an issue as new code in a branch using reference branch for new code
+   */
+  public void insertNewCodeReferenceIssue(NewCodeReferenceIssueDto dto) {
+    db.getDbClient().issueDao().insertAsNewOnReferenceBranch(db.getSession(), dto);
+    db.commit();
+  }
+
 }

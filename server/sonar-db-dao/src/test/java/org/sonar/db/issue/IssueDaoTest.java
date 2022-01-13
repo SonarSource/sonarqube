@@ -50,6 +50,7 @@ import static org.junit.Assert.assertFalse;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 
 public class IssueDaoTest {
 
@@ -440,6 +441,30 @@ public class IssueDaoTest {
         assertThat(underTest.selectModuleAndDirComponentUuidsOfOpenIssuesForProjectUuid(db.getSession(), projectUuid))
           .isEmpty();
       });
+  }
+
+  @Test
+  public void selectByKey_givenOneIssueWithQuickFix_selectOneIssueWithQuickFix2() {
+    prepareIssuesComponent();
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
+      .setMessage("the message")
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID)
+      .setQuickFixAvailable(true));
+    underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
+      .setMessage("the message")
+      .setRuleUuid(RULE.getUuid())
+      .setComponentUuid(FILE_UUID)
+      .setProjectUuid(PROJECT_UUID)
+      .setQuickFixAvailable(true));
+    IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+
+    underTest.insertAsNewOnReferenceBranch(db.getSession(),
+      newCodeReferenceIssue(issue1));
+
+    assertThat(underTest.isNewCodeOnReferencedBranch(db.getSession(), ISSUE_KEY1)).isTrue();
+    assertThat(underTest.isNewCodeOnReferencedBranch(db.getSession(), ISSUE_KEY2)).isFalse();
   }
 
   private static IssueDto newIssueDto(String key) {

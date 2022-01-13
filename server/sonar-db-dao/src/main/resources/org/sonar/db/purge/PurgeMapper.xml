@@ -268,13 +268,25 @@
       event_component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteIssuesByProjectUuid" parameterType="map">
+    delete from issues
+    where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteIssueChangesByProjectUuid" parameterType="map">
     delete from issue_changes where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteIssuesByProjectUuid" parameterType="map">
-    delete from issues
-    where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  <delete id="deleteNewCodeReferenceIssuesByProjectUuid" parameterType="map">
+    delete from new_code_reference_issues
+    where
+      issue_key in (
+        select
+          kee
+        from issues
+        where
+          project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      )
   </delete>
 
   <delete id="deleteFileSourcesByProjectUuid">
@@ -369,10 +381,10 @@
     FROM portfolio_projects
     WHERE uuid in (
       SELECT ppb.portfolio_project_uuid FROM portfolio_proj_branches ppb
-      <!-- branch was selected -->
-      WHERE ppb.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
-      <!-- and was the only one selected in the project -->
-      AND (SELECT count(*) FROM portfolio_proj_branches ppb2 WHERE ppb2.portfolio_project_uuid = ppb.portfolio_project_uuid) = 1
+    <!-- branch was selected -->
+    WHERE ppb.branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+    <!-- and was the only one selected in the project -->
+    AND (SELECT count(*) FROM portfolio_proj_branches ppb2 WHERE ppb2.portfolio_project_uuid = ppb.portfolio_project_uuid) = 1
     )
   </delete>
 
@@ -396,6 +408,14 @@
     </foreach>
   </delete>
 
+  <delete id="deleteNewCodeReferenceIssuesFromKeys" parameterType="map">
+    DELETE FROM new_code_reference_issues
+    WHERE issue_key IN
+    <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
+      #{issueKey,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
   <delete id="deleteCeScannerContextOfCeActivityByRootUuidOrBefore">
     delete from ce_scanner_context
     where
@@ -403,7 +423,7 @@
       select
         uuid
       from ce_activity
-      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
     )
   </delete>
 
@@ -414,7 +434,7 @@
       select
         uuid
       from ce_activity
-      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
     )
   </delete>
 
@@ -425,7 +445,7 @@
       select
         uuid
       from ce_activity
-      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
     )
   </delete>
 
@@ -436,13 +456,13 @@
       select
         uuid
       from ce_activity
-      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
     )
   </delete>
 
   <delete id="deleteCeActivityByRootUuidOrBefore">
     delete from ce_activity
-      <include refid="whereClauseCeActivityByRootUuidOrBefore" />
+      <include refid="whereClauseCeActivityByRootUuidOrBefore"/>
   </delete>
 
   <sql id="whereClauseCeActivityByRootUuidOrBefore">
@@ -565,7 +585,8 @@
   </delete>
 
   <delete id="deleteLiveMeasuresByComponentUuids">
-    delete from live_measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="(" separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
+    delete from live_measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="("
+                                                               separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
   <delete id="deleteUserDismissedMessagesByProjectUuid">

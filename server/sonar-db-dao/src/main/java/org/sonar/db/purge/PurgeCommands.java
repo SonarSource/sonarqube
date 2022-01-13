@@ -206,6 +206,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
+    profiler.start("deleteIssues (new_code_reference_issues)");
+    purgeMapper.deleteNewCodeReferenceIssuesByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteIssues (issues)");
     purgeMapper.deleteIssuesByProjectUuid(rootUuid);
     session.commit();

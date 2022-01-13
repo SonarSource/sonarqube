@@ -111,6 +111,11 @@ public class IssueDao implements Dao {
     mapper(session).update(dto);
   }
 
+  public void insertAsNewOnReferenceBranch(DbSession session, NewCodeReferenceIssueDto dto) {
+    IssueMapper mapper = mapper(session);
+    mapper.insertAsNewOnReferenceBranch(dto);
+  }
+
   private static IssueMapper mapper(DbSession session) {
     return session.getMapper(IssueMapper.class);
   }

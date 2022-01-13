@@ -66,6 +66,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
+import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 
 @RunWith(DataProviderRunner.class)
 public class PurgeCommandsTest {
@@ -532,6 +533,25 @@ public class PurgeCommandsTest {
     underTest.deleteIssues(projectOrView.uuid());
 
     assertThat(dbTester.countRowsOfTable("ISSUE_CHANGES")).isZero();
+  }
+
+  @Test
+  @UseDataProvider("projectsAndViews")
+  public void deleteIssues_deletes_new_code_reference_issues(ComponentDto projectOrView) {
+    RuleDefinitionDto rule = dbTester.rules().insert();
+    dbTester.components().insertComponent(projectOrView);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
+    int count = 5;
+    IntStream.range(0, count).forEach(i -> {
+      IssueDto issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(projectOrView));
+      dbTester.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue));
+      issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(file));
+      dbTester.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue));
+    });
+
+    underTest.deleteIssues(projectOrView.uuid());
+
+    assertThat(dbTester.countRowsOfTable("NEW_CODE_REFERENCE_ISSUES")).isZero();
   }
 
   @Test
