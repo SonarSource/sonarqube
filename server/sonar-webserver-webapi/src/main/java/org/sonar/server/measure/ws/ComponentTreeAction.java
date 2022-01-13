@@ -106,8 +106,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -576,7 +576,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
-    return userSession.filterAuthorizedComponents(UserRole.USER, components);
+    return userSession.keepAuthorizedComponents(UserRole.USER, components);
   }
 
   private static boolean componentWithMeasuresOnly(ComponentTreeRequest wsRequest) {

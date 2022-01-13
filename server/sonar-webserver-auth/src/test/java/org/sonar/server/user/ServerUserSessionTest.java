@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
@@ -693,19 +694,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_logged_in_user() {
-    UserDto user = db.users().insertUser();
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnUser(user, ADMIN, privateProject);
-
-    UserSession underTest = newUserSession(user);
-
-    assertThat(underTest.keepAuthorizedComponents(ISSUE_ADMIN, Arrays.asList(privateProject, publicProject))).isEmpty();
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(privateProject, publicProject))).containsExactly(privateProject);
-  }
-
-  @Test
   public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_anonymous() {
     ComponentDto publicProject = db.components().insertPublicProject();
     ComponentDto privateProject = db.components().insertPrivateProject();
@@ -715,19 +703,6 @@ public class ServerUserSessionTest {
 
     assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(privateProject, publicProject))).isEmpty();
     assertThat(underTest.keepAuthorizedComponents(ISSUE_ADMIN, Arrays.asList(privateProject, publicProject))).containsExactly(publicProject);
-  }
-
-  @Test
-  public void keepAuthorizedComponents_returns_all_specified_components_if_root() {
-    UserDto root = db.users().insertUser();
-    root = db.users().makeRoot(root);
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
-
-    UserSession underTest = newUserSession(root);
-
-    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(privateProject, publicProject)))
-      .containsExactly(privateProject, publicProject);
   }
 
   @Test
@@ -744,17 +719,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void filterAuthorizedComponents_returns_empty_list_if_no_permissions_are_granted() {
-    ComponentDto publicProject = db.components().insertPublicProject();
-    ComponentDto privateProject = db.components().insertPrivateProject();
-
-    UserSession underTest = newAnonymousSession();
-
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(privateProject, publicProject))).isEmpty();
-  }
-
-  @Test
-  public void filterAuthorizedComponents_filters_components_with_granted_permissions_for_logged_in_user() {
+  public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_logged_in_user() {
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto project3 = db.components().insertPrivateProject();
@@ -778,49 +743,49 @@ public class ServerUserSessionTest {
 
     // Add public project1 to private portfolio
     db.components().addPortfolioProject(portfolio, project1);
-    db.components().insertComponent(newProjectCopy(project1, portfolio));
+    var copyProject1 = db.components().insertComponent(newProjectCopy(project1, portfolio));
 
     // Add private project2 with USER permissions to private portfolio
     db.users().insertProjectPermissionOnUser(user, USER, project2);
     db.components().addPortfolioProject(portfolio, project2);
-    db.components().insertComponent(newProjectCopy(project2, portfolio));
+    var copyProject2 = db.components().insertComponent(newProjectCopy(project2, portfolio));
 
     // Add private project4 with USER permissions to sub-portfolio
     db.users().insertProjectPermissionOnUser(user, USER, project4);
     db.components().addPortfolioProject(subPortfolio, project4);
-    db.components().insertComponent(newProjectCopy(project4, subPortfolio));
+    var copyProject4 = db.components().insertComponent(newProjectCopy(project4, subPortfolio));
     db.components().addPortfolioReference(portfolio, subPortfolio.uuid());
 
     // Add private project3 without permissions to private portfolio
     db.components().addPortfolioProject(portfolio, project3);
-    db.components().insertComponent(newProjectCopy(project3, portfolio));
+    var copyProject3 = db.components().insertComponent(newProjectCopy(project3, portfolio));
 
     // Add private project5 with USER permissions to app
     db.users().insertProjectPermissionOnUser(user, USER, project5);
     db.components().addApplicationProject(app, project5);
-    db.components().insertComponent(newProjectCopy(project5, app));
+    var copyProject5 = db.components().insertComponent(newProjectCopy(project5, app));
     db.components().addPortfolioReference(portfolio, app.uuid());
 
     // Add private project6 to private app2
     db.components().addApplicationProject(app2, project6);
-    db.components().insertComponent(newProjectCopy(project6, app2));
+    var copyProject6 = db.components().insertComponent(newProjectCopy(project6, app2));
     db.components().addPortfolioReference(portfolio, app2.uuid());
 
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).isEmpty();
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(portfolio))).hasSize(1);
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(portfolio))).containsExactly(portfolio);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, List.of(portfolio))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(USER, List.of(portfolio))).containsExactly(portfolio);
 
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).isEmpty();
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(app, subPortfolio, app2))).hasSize(2);
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(USER, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio);
 
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).isEmpty();
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).hasSize(4);
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2, project4, project5);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2, project4, project5);
+
+    assertThat(underTest.keepAuthorizedComponents(USER, Arrays.asList(copyProject1, copyProject2, copyProject3, copyProject4, copyProject5, copyProject6)))
+        .containsExactly(copyProject1, copyProject2, copyProject4, copyProject5);
   }
 
   @Test
-  public void filterAuthorizedComponents_returns_all_specified_components_if_root() {
+  public void keepAuthorizedComponents_returns_all_specified_components_if_root() {
     UserDto root = db.users().insertUser();
     root = db.users().makeRoot(root);
     UserSession underTest = newUserSession(root);
@@ -867,76 +832,14 @@ public class ServerUserSessionTest {
     db.components().insertComponent(newProjectCopy(project6, app2));
     db.components().addPortfolioReference(portfolio, app2.uuid());
 
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).hasSize(1);
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).containsExactly(portfolio);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).hasSize(1);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).containsExactly(portfolio);
 
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).hasSize(3);
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio, app2);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).hasSize(3);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).containsExactly(app, subPortfolio, app2);
 
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).hasSize(6);
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2, project3, project4, project5, project6);
-  }
-
-  @Test
-  public void filterAuthorizedComponents_filters_components_with_granted_permissions_for_anonymous() {
-    UserSession underTest = newAnonymousSession();
-
-    ComponentDto project1 = db.components().insertPublicProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-    ComponentDto project3 = db.components().insertPrivateProject();
-    ComponentDto project4 = db.components().insertPrivateProject();
-    ComponentDto project5 = db.components().insertPrivateProject();
-    ComponentDto project6 = db.components().insertPrivateProject();
-
-    ComponentDto portfolio = db.components().insertPublicPortfolio();
-    db.users().insertProjectPermissionOnAnyone(ISSUE_ADMIN, portfolio);
-
-    ComponentDto subPortfolio = db.components().insertComponent(newSubPortfolio(portfolio));
-    db.users().insertProjectPermissionOnAnyone(ISSUE_ADMIN, subPortfolio);
-
-    ComponentDto app = db.components().insertPrivateApplication();
-
-    ComponentDto app2 = db.components().insertPublicApplication();
-    db.users().insertProjectPermissionOnAnyone(ISSUE_ADMIN, app2);
-
-    // Add public project1 to portfolio
-    db.components().addPortfolioProject(portfolio, project1);
-    db.components().insertComponent(newProjectCopy(project1, portfolio));
-    db.users().insertProjectPermissionOnAnyone(ISSUE_ADMIN, project1);
-
-    // Add private project2 to portfolio
-    db.components().addPortfolioProject(portfolio, project2);
-    db.components().insertComponent(newProjectCopy(project2, portfolio));
-
-    // Add private project4 to sub-portfolio
-    db.components().addPortfolioProject(subPortfolio, project4);
-    db.components().insertComponent(newProjectCopy(project4, subPortfolio));
-    db.components().addPortfolioReference(portfolio, subPortfolio.uuid());
-
-    // Add private project3 to portfolio
-    db.components().addPortfolioProject(portfolio, project3);
-    db.components().insertComponent(newProjectCopy(project3, portfolio));
-
-    // Add private project5 to app
-    db.components().addApplicationProject(app, project5);
-    db.components().insertComponent(newProjectCopy(project5, app));
-    db.components().addPortfolioReference(portfolio, app.uuid());
-
-    // Add private project6 to app2
-    db.components().addApplicationProject(app2, project6);
-    db.components().insertComponent(newProjectCopy(project6, app2));
-    db.components().addPortfolioReference(portfolio, app2.uuid());
-
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(portfolio))).isEmpty();
-    assertThat(underTest.filterAuthorizedComponents(ISSUE_ADMIN, Arrays.asList(portfolio))).hasSize(1);
-
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(app, subPortfolio, app2))).isEmpty();
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(app, subPortfolio, app2))).hasSize(2);
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(app, subPortfolio, app2))).containsExactly(subPortfolio, app2);
-
-    assertThat(underTest.filterAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).isEmpty();
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).hasSize(1);
-    assertThat(underTest.filterAuthorizedComponents(USER, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).hasSize(6);
+    assertThat(underTest.keepAuthorizedComponents(ADMIN, Arrays.asList(project1, project2, project3, project4, project5, project6))).containsExactly(project1, project2, project3, project4, project5, project6);
   }
 
   @Test

@@ -218,8 +218,4 @@ public class ThreadLocalUserSession implements UserSession {
     return get().keepAuthorizedProjects(permission, projects);
   }
 
-  @Override
-  public List<ComponentDto> filterAuthorizedComponents(String permission, Collection<ComponentDto> components) {
-    return get().filterAuthorizedComponents(permission, components);
-  }
 }

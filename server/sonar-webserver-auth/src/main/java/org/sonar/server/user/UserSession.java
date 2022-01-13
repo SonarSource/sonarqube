@@ -224,8 +224,6 @@ public interface UserSession {
 
   List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects);
 
-  List<ComponentDto> filterAuthorizedComponents(String permission, Collection<ComponentDto> components);
-
   /**
    * Ensures that {@link #hasComponentPermission(String, ComponentDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.

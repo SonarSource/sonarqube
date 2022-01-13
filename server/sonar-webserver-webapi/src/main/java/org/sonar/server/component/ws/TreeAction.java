@@ -191,7 +191,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
-    return userSession.filterAuthorizedComponents(UserRole.USER, components);
+    return userSession.keepAuthorizedComponents(UserRole.USER, components);
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {

@@ -75,7 +75,6 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ProjectDto())).isFalse();
     assertThat(threadLocalUserSession.hasPortfolioChildProjectsPermission(USER, new ComponentDto())).isFalse();
     assertThat(threadLocalUserSession.hasProjectPermission(USER, new ProjectDto().getUuid())).isFalse();
-    assertThat(threadLocalUserSession.filterAuthorizedComponents(USER, Arrays.asList(new ComponentDto().setPrivate(true)))).isEmpty();
   }
 
   @Test
@@ -101,8 +100,6 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ProjectDto())).isTrue();
     assertThat(threadLocalUserSession.hasPortfolioChildProjectsPermission(USER, new ComponentDto())).isTrue();
     assertThat(threadLocalUserSession.hasProjectPermission(USER, new ProjectDto().getUuid())).isTrue();
-    assertThat(threadLocalUserSession.filterAuthorizedComponents(USER, Arrays.asList(new ComponentDto().setPrivate(true)))).hasSize(1);
-    assertThat(threadLocalUserSession.filterAuthorizedComponents(USER, Arrays.asList(new ComponentDto().setPrivate(true)))).containsExactly(new ComponentDto());
   }
 
   @Test

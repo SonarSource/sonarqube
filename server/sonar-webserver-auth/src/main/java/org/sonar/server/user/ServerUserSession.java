@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -297,24 +298,40 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> projectUuids = components.stream()
         .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.projectUuid()))
         .collect(MoreCollectors.toSet(components.size()));
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, projectUuids, getUuid(), permission);
+
+      Map<String, ComponentDto> originalComponents = findComponentsByCopyComponentUuid(components,
+          dbSession);
+
+      Set<String> originalComponentsProjectUuids = originalComponents.values().stream()
+          .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.projectUuid()))
+          .collect(MoreCollectors.toSet(components.size()));
+
+      Set<String> allProjectUuids = new HashSet<>(projectUuids);
+      allProjectUuids.addAll(originalComponentsProjectUuids);
+
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, allProjectUuids, getUuid(), permission);
 
       return components.stream()
-        .filter(c -> authorizedProjectUuids.contains(c.projectUuid()) || authorizedProjectUuids.contains(c.getMainBranchProjectUuid()))
+        .filter(c -> {
+          if (c.getCopyComponentUuid() != null) {
+            var componentDto = originalComponents.get(c.getCopyComponentUuid());
+            return componentDto != null && authorizedProjectUuids.contains(defaultIfEmpty(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
+          }
+
+          return authorizedProjectUuids.contains(c.projectUuid()) || authorizedProjectUuids.contains(
+              c.getMainBranchProjectUuid());
+        })
         .collect(MoreCollectors.toList(components.size()));
     }
   }
 
-  @Override
-  protected List<ComponentDto> doFilterAuthorizedComponents(String permission, Collection<ComponentDto> components) {
-    if (permissionsByProjectUuid == null) {
-      permissionsByProjectUuid = new HashMap<>();
-    }
-
-    return components
-      .stream()
-      .filter(x -> hasPermission(permission, defaultIfEmpty(x.getCopyComponentUuid(), x.uuid())))
-      .collect(Collectors.toList());
+  private Map<String, ComponentDto> findComponentsByCopyComponentUuid(Collection<ComponentDto> components, DbSession dbSession) {
+    Set<String> copyComponentsUuid = components.stream()
+        .map(ComponentDto::getCopyComponentUuid)
+        .filter(Objects::nonNull)
+        .collect(MoreCollectors.toSet(components.size()));
+    return dbClient.componentDao().selectByUuids(dbSession, copyComponentsUuid).stream()
+        .collect(Collectors.toMap(ComponentDto::uuid, componentDto -> componentDto));
   }
 
   @Override
