@@ -5,7 +5,7 @@
   "repository": "SonarSource/sonarqube",
   "license": "LGPL-3.0",
   "dependencies": {
-    "@emotion/react": "^11.7.0",
+    "@emotion/react": "11.7.0",
     "@emotion/styled": "11.6.0",
     "classnames": "2.2.6",
     "clipboard": "2.0.6",
@@ -54,12 +54,13 @@
   "devDependencies": {
     "@babel/core": "7.8.7",
     "@babel/plugin-proposal-object-rest-spread": "7.8.3",
+    "@babel/plugin-transform-modules-commonjs": "7.8.3",
     "@babel/plugin-transform-react-constant-elements": "7.8.3",
     "@babel/plugin-transform-react-jsx-self": "7.8.3",
     "@babel/plugin-transform-react-jsx-source": "7.8.3",
     "@babel/preset-env": "7.9.0",
     "@babel/preset-react": "7.8.3",
-    "@emotion/jest": "^11.6.0",
+    "@emotion/jest": "11.6.0",
     "@types/classnames": "2.2.10",
     "@types/clipboard": "2.0.1",
     "@types/d3-array": "1.2.4",
