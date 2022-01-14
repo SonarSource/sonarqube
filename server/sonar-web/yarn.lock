@@ -3132,7 +3132,6 @@ __metadata:
     postcss-custom-properties: 9.1.1
     prettier: 1.19.1
     prop-types: 15.7.2
-    querystring: 0.2.1
     react: 16.13.0
     react-countup: 4.3.3
     react-day-picker: 7.3.0
@@ -11604,13 +11603,6 @@ fsevents@~2.3.2:
     object-assign: ^4.1.0
     strict-uri-encode: ^1.0.0
   checksum: 3b2bae6a8454cf0edf11cf1aa4d1f920398bbdabc1c39222b9bb92147e746fcd97faf00e56f494728fb66b2961b495ba0fde699d5d3bd06b11472d664b36c6cf
-  languageName: node
-  linkType: hard
-
-"querystring@npm:0.2.1":
-  version: 0.2.1
-  resolution: "querystring@npm:0.2.1"
-  checksum: 7b83b45d641e75fd39cd6625ddfd44e7618e741c61e95281b57bbae8fde0afcc12cf851924559e5cc1ef9baa3b1e06e22b164ea1397d65dd94b801f678d9c8ce
   languageName: node
   linkType: hard
 

@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { stringify } from 'querystring';
 import * as React from 'react';
+import { Link } from 'react-router';
 import { doImport } from '../../../api/project-dump';
 import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
+import { getComponentBackgroundTaskUrl } from '../../../helpers/urls';
 import { DumpStatus, DumpTask } from '../../../types/project-dump';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 
@@ -119,19 +119,19 @@ export default class Import extends React.Component<Props> {
 
   renderWhenImportFailed() {
     const { componentKey } = this.props;
-    const detailsUrl = `${getBaseUrl()}/project/background_tasks?${stringify({
-      id: encodeURIComponent(componentKey),
-      status: TaskStatuses.Failed,
-      taskType: TaskTypes.ProjectImport
-    })}`;
+    const detailsUrl = getComponentBackgroundTaskUrl(
+      componentKey,
+      TaskStatuses.Failed,
+      TaskTypes.ProjectImport
+    );
 
     return (
       <div className="boxed-group-inner">
         <Alert id="export-in-progress" variant="error">
           {translate('project_dump.failed_import')}
-          <a className="spacer-left" href={detailsUrl}>
+          <Link className="spacer-left" to={detailsUrl}>
             {translate('project_dump.see_details')}
-          </a>
+          </Link>
         </Alert>
 
         {this.renderImportForm()}

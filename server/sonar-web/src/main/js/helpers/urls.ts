@@ -81,8 +81,12 @@ export function getApplicationAdminUrl(key: string) {
   return { pathname: '/application/console', query: { id: key } };
 }
 
-export function getComponentBackgroundTaskUrl(componentKey: string, status?: string): Location {
-  return { pathname: '/project/background_tasks', query: { id: componentKey, status } };
+export function getComponentBackgroundTaskUrl(
+  componentKey: string,
+  status?: string,
+  taskType?: string
+): Location {
+  return { pathname: '/project/background_tasks', query: { id: componentKey, status, taskType } };
 }
 
 export function getBranchLikeUrl(project: string, branchLike?: BranchLike): Location {

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isNil, omitBy } from 'lodash';
-import { stringify } from 'querystring';
 import { getCookie } from './cookies';
 import { translate } from './l10n';
+import { stringify } from './stringify-queryparams';
 import { getBaseUrl } from './system';
 
 export function getCSRFTokenName(): string {
