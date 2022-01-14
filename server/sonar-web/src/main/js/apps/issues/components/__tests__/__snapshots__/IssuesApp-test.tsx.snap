@@ -37,7 +37,7 @@ exports[`should show warnning when not all projects are accessible 1`] = `
       className="layout-page-side-inner"
     >
       <Alert
-        className="big-spacer-top big-spacer-right"
+        className="big-spacer-top big-spacer-right big-spacer-left"
         variant="warning"
       >
         issues.not_all_issue_show

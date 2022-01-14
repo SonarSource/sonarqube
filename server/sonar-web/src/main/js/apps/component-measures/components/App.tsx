@@ -305,7 +305,9 @@ export class App extends React.PureComponent<Props, State> {
                 <div className="layout-page-side" style={{ top }}>
                   <div className="layout-page-side-inner">
                     {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-                      <Alert className="big-spacer-top big-spacer-right" variant="warning">
+                      <Alert
+                        className="big-spacer-top big-spacer-right big-spacer-left"
+                        variant="warning">
                         {translate('component_measures.not_all_measures_are_shown')}
                         <HelpTooltip
                           className="spacer-left"

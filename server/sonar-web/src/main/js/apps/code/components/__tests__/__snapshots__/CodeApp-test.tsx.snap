@@ -61,6 +61,7 @@ Object {
   "onSelect": [Function],
   "rootComponent": Object {
     "breadcrumbs": Array [],
+    "canBrowseAllChildProjects": true,
     "key": "my-project",
     "name": "MyProject",
     "qualifier": "VW",
@@ -144,6 +145,7 @@ Object {
   "onSelect": [Function],
   "rootComponent": Object {
     "breadcrumbs": Array [],
+    "canBrowseAllChildProjects": true,
     "key": "my-project",
     "name": "MyProject",
     "qualifier": "VW",
@@ -164,6 +166,47 @@ Object {
   },
   "selected": undefined,
 }
+`;
+
+exports[`should render a warning message when user does not have access to all projects whithin a Portfolio: Project page with warning 1`] = `
+<div
+  className="page page-limited"
+>
+  <Styled(Alert)
+    variant="warning"
+  >
+    component_measures.not_all_measures_are_shown
+    <HelpTooltip
+      ariaLabel="component_measures.not_all_measures_are_shown.help"
+      className="spacer-left"
+      overlay="component_measures.not_all_measures_are_shown.help"
+    />
+  </Styled(Alert)>
+  <Suggestions
+    suggestions="code"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="projects.page"
+  />
+  <A11ySkipTarget
+    anchor="code_main"
+  />
+  <div
+    className="code-components"
+  >
+    <div
+      className="display-flex-center display-flex-column no-file"
+    >
+      <span
+        className="h1 text-muted"
+      >
+        code_viewer.no_source_code_displayed_due_to_empty_analysis.VW
+      </span>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`should render correclty when no sub component for APP 1`] = `
@@ -216,6 +259,7 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "APP",
@@ -240,6 +284,7 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "APP",
@@ -270,6 +315,7 @@ exports[`should render correclty when no sub component for APP: with sub compone
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "APP",
@@ -290,6 +336,7 @@ exports[`should render correclty when no sub component for APP: with sub compone
         baseComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "APP",
@@ -338,6 +385,7 @@ exports[`should render correclty when no sub component for APP: with sub compone
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "APP",
@@ -404,6 +452,7 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "SVW",
@@ -428,6 +477,7 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "SVW",
@@ -458,6 +508,7 @@ exports[`should render correclty when no sub component for SVW: with sub compone
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "SVW",
@@ -478,6 +529,7 @@ exports[`should render correclty when no sub component for SVW: with sub compone
         baseComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "SVW",
@@ -516,6 +568,7 @@ exports[`should render correclty when no sub component for SVW: with sub compone
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "SVW",
@@ -582,6 +635,7 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "TRK",
@@ -606,6 +660,7 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "TRK",
@@ -636,6 +691,7 @@ exports[`should render correclty when no sub component for TRK: with sub compone
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "TRK",
@@ -656,6 +712,7 @@ exports[`should render correclty when no sub component for TRK: with sub compone
         baseComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "TRK",
@@ -704,6 +761,7 @@ exports[`should render correclty when no sub component for TRK: with sub compone
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "TRK",
@@ -770,6 +828,7 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "VW",
@@ -794,6 +853,7 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "VW",
@@ -824,6 +884,7 @@ exports[`should render correclty when no sub component for VW: with sub componen
     component={
       Object {
         "breadcrumbs": Array [],
+        "canBrowseAllChildProjects": true,
         "key": "foo",
         "name": "foo",
         "qualifier": "VW",
@@ -844,6 +905,7 @@ exports[`should render correclty when no sub component for VW: with sub componen
         baseComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "VW",
@@ -882,6 +944,7 @@ exports[`should render correclty when no sub component for VW: with sub componen
         rootComponent={
           Object {
             "breadcrumbs": Array [],
+            "canBrowseAllChildProjects": true,
             "key": "foo",
             "name": "foo",
             "qualifier": "VW",

@@ -959,7 +959,9 @@ export default class App extends React.PureComponent<Props, State> {
             style={{ top }}>
             <div className="layout-page-side-inner">
               {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-                <Alert className="big-spacer-top big-spacer-right" variant="warning">
+                <Alert
+                  className="big-spacer-top big-spacer-right big-spacer-left"
+                  variant="warning">
                   {translate('issues.not_all_issue_show')}
                   <HelpTooltip
                     className="spacer-left"

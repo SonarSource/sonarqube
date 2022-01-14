@@ -58,7 +58,13 @@ it.each([
   [ComponentQualifier.Portfolio],
   [ComponentQualifier.SubPortfolio]
 ])('should render correclty when no sub component for %s', async qualifier => {
-  const component = { breadcrumbs: [], name: 'foo', key: 'foo', qualifier };
+  const component = {
+    breadcrumbs: [],
+    name: 'foo',
+    key: 'foo',
+    qualifier,
+    canBrowseAllChildProjects: true
+  };
   (retrieveComponent as jest.Mock<any>).mockResolvedValueOnce({
     breadcrumbs: [],
     component,
@@ -186,7 +192,10 @@ it('should correcly display new/overall measure for portfolio', async () => {
   });
 
   const wrapper = shallowRender({
-    component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
+    component: mockComponent({
+      qualifier: ComponentQualifier.Portfolio,
+      canBrowseAllChildProjects: true
+    }),
     metrics
   });
   await waitAndUpdate(wrapper);
@@ -215,6 +224,39 @@ it('should handle select correctly', () => {
     query: { branch: undefined, id: 'test' }
   });
 });
+
+it('should render a warning message when user does not have access to all projects whithin a Portfolio', async () => {
+  const wrapper = shallowRender({
+    component: mockComponent({
+      qualifier: ComponentQualifier.Portfolio,
+      canBrowseAllChildProjects: false
+    })
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('Project page with warning');
+});
+
+it.each([
+  [ComponentQualifier.Portfolio, true, false],
+  [ComponentQualifier.Project, false, false],
+  [ComponentQualifier.Portfolio, false, true]
+])(
+  'should not render a warning message',
+  async (
+    componentQualifier: ComponentQualifier,
+    canBrowseAllChildProjects: boolean,
+    alertIsVisible: boolean
+  ) => {
+    const wrapper = shallowRender({
+      component: mockComponent({
+        qualifier: componentQualifier,
+        canBrowseAllChildProjects
+      })
+    });
+    await waitAndUpdate(wrapper);
+    expect(wrapper.find('Styled(Alert)').exists()).toBe(alertIsVisible);
+  }
+);
 
 function shallowRender(props: Partial<CodeApp['props']> = {}) {
   return shallow<CodeApp>(

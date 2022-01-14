@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { Location } from 'history';
 import { debounce, intersection } from 'lodash';
@@ -26,13 +27,16 @@ import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
+import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { fetchBranchStatus, fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
+import { isPortfolioLike } from '../../../types/component';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
 import {
@@ -264,6 +268,7 @@ export class CodeApp extends React.Component<Props, State> {
       searchResults,
       sourceViewer
     } = this.state;
+    const { canBrowseAllChildProjects, qualifier } = component;
 
     const showSearch = searchResults !== undefined;
 
@@ -291,6 +296,16 @@ export class CodeApp extends React.Component<Props, State> {
 
     return (
       <div className="page page-limited">
+        {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+          <StyledAlert variant="warning">
+            {translate('component_measures.not_all_measures_are_shown')}
+            <HelpTooltip
+              className="spacer-left"
+              ariaLabel={translate('component_measures.not_all_measures_are_shown.help')}
+              overlay={translate('component_measures.not_all_measures_are_shown.help')}
+            />
+          </StyledAlert>
+        )}
         <Suggestions suggestions="code" />
         <Helmet
           defer={false}
@@ -381,6 +396,10 @@ export class CodeApp extends React.Component<Props, State> {
     );
   }
 }
+const StyledAlert = styled(Alert)`
+  display: inline-flex;
+  margin-bottom: 15px;
+`;
 
 const mapStateToProps = (state: any): StateToProps => ({
   metrics: getMetrics(state)
