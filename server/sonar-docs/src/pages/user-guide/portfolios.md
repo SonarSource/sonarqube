@@ -7,15 +7,15 @@ url: /user-guide/portfolios/
 
 ## Portfolios Home Page
 
-The Portfolio Home Page is the central place for managers and tech leads to keep an eye on the Releasability of the projects under their supervision. Releasability is based on the project's quality gate: Passed is releasable and Failed is not. Each Portfolio home page offers an aggregate view of the releasability of all projects in the Portfolio.
+The Portfolio Home Page is the central place for managers and tech leads to keep an eye on the Releasability of the projects under their supervision. Releasability is based on the portfolio's projects' [quality gates](/user-guide/quality-gates/). Each Portfolio home page offers an aggregate view of the releasability of all projects in the Portfolio.
 
-At the top of the page, you can easily see whether the overall Portfolio is currently rated as releasable and if any projects in the Portfolio have failed their Quality Gate. And the Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings show the overall health of the Portfolio in these three domains, along with an indicator of the worst-performing project(s) in each domain. Note that Portfolios only focus on projects' main branches.
+At the top of the page, you can  see the overall releasablilty of the Portfolio, a graph showing the releasability trend, and the number of project branches that are failing and passing their quality gate. 
 
-For each domain, you'll see:
+The Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings show the overall health of the Portfolio on both New Code and Overall Code. 
 
-* the rating (see [Metric Definitions](/user-guide/metric-definitions/) for more details about how they are computed)
-* an indicator of when the rating last changed
-* an indicator of the worst-performing project(s) in the domain
+Below the New Code rating for each metric, you'll see how many project branches are at risk and how many are doing well. 
+
+Below the Overall Code rating, you'll see a graph showing the trend for each metric. Additionally, you'll see the number of at risk project branches.
 
 ## Releasability Rating
 
