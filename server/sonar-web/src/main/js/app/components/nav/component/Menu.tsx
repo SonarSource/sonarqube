@@ -522,7 +522,7 @@ export class Menu extends React.PureComponent<Props> {
   renderExtensions = (query: Query) => {
     const extensions = this.props.component.extensions || [];
     const withoutSecurityExtension = extensions.filter(
-      extension => !extension.key.startsWith('securityreport/')
+      extension => !extension.key.startsWith('securityreport/') && !extension.key.startsWith('developer/job')
     );
 
     if (withoutSecurityExtension.length === 0) {
