@@ -56,6 +56,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssueQueryFactoryTest {
@@ -163,7 +164,29 @@ public class IssueQueryFactoryTest {
     assertThat(query.componentUuids()).containsOnly(file.uuid());
     assertThat(query.createdAfter().date()).isEqualTo(new Date(leakPeriodStart));
     assertThat(query.createdAfter().inclusive()).isFalse();
+    assertThat(query.newCodeOnReference()).isNull();
+  }
 
+  @Test
+  public void leak_period_does_not_rely_on_date_for_reference_branch() {
+    long leakPeriodStart = addDays(new Date(), -14).getTime();
+
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodMode(REFERENCE_BRANCH.name())
+      .setPeriodParam("master"));
+
+    SearchRequest request = new SearchRequest()
+      .setComponentUuids(Collections.singletonList(file.uuid()))
+      .setOnComponentOnly(true)
+      .setSinceLeakPeriod(true);
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.componentUuids()).containsOnly(file.uuid());
+    assertThat(query.newCodeOnReference()).isTrue();
+    assertThat(query.createdAfter()).isNull();
   }
 
   @Test
@@ -319,11 +342,15 @@ public class IssueQueryFactoryTest {
     ComponentDto project2 = db.components().insertPublicProject();
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
     ComponentDto project3 = db.components().insertPublicProject();
+    ComponentDto project4 = db.components().insertPublicProject();
+    SnapshotDto analysis2 = db.components().insertSnapshot(project4,
+      s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
     ComponentDto application = db.components().insertPublicApplication();
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
-    userSession.registerApplication(application, project1, project2, project3);
+    db.components().insertComponents(newProjectCopy("PC4", project4, application));
+    userSession.registerApplication(application, project1, project2, project3, project4);
 
     IssueQuery result = underTest.create(new SearchRequest()
       .setComponentUuids(singletonList(application.uuid()))
@@ -332,6 +359,8 @@ public class IssueQueryFactoryTest {
     assertThat(result.createdAfterByProjectUuids()).hasSize(1);
     assertThat(result.createdAfterByProjectUuids().entrySet()).extracting(Map.Entry::getKey, e -> e.getValue().date(), e -> e.getValue().inclusive()).containsOnly(
       tuple(project1.uuid(), new Date(analysis1.getPeriodDate()), false));
+    assertThat(result.newCodeOnReferenceByProjectUuids()).hasSize(1);
+    assertThat(result.newCodeOnReferenceByProjectUuids()).containsOnly(project4.uuid());
     assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
   }
 

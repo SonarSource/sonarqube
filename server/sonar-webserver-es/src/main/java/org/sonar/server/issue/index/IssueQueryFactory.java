@@ -20,7 +20,6 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.time.Clock;
 import java.time.DateTimeException;
@@ -57,6 +56,7 @@ import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Collections2.transform;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
@@ -72,6 +72,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
@@ -146,7 +147,7 @@ public class IssueQueryFactory {
 
       setCreatedAfterFromRequest(dbSession, builder, request, allComponents, timeZone);
       String sort = request.getSort();
-      if (!Strings.isNullOrEmpty(sort)) {
+      if (!isNullOrEmpty(sort)) {
         builder.sort(sort);
         builder.asc(request.getAsc());
       }
@@ -184,6 +185,7 @@ public class IssueQueryFactory {
       checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
       setCreatedAfterFromDates(builder, createdAfter, createdInLast, true);
     } else {
+      // If the filter is on leak period
       checkArgument(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
       checkArgument(createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_IN_LAST, PARAM_SINCE_LEAK_PERIOD));
 
@@ -191,16 +193,34 @@ public class IssueQueryFactory {
       ComponentDto component = componentUuids.iterator().next();
 
       if (!QUALIFIERS_WITHOUT_LEAK_PERIOD.contains(component.qualifier()) && request.getPullRequest() == null) {
-        Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, component);
-        setCreatedAfterFromDates(builder, createdAfterFromSnapshot, null, false);
+        Optional<SnapshotDto> snapshot = getLastAnalysis(dbSession, component);
+        boolean isLastAnalysisUsingReferenceBranch = isLastAnalysisUsingReferenceBranch(snapshot);
+        if (isLastAnalysisUsingReferenceBranch) {
+          builder.newCodeOnReference(true);
+        } else {
+          // if last analysis has no period date, then no issue should be considered new.
+          Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(snapshot);
+          setCreatedAfterFromDates(builder, createdAfterFromSnapshot, null, false);
+        }
       }
     }
   }
 
-  private Date findCreatedAfterFromComponentUuid(DbSession dbSession, ComponentDto component) {
-    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
-    // if last analysis has no period date, then no issue should be considered new.
+  private Date findCreatedAfterFromComponentUuid(Optional<SnapshotDto> snapshot) {
     return snapshot.map(s -> longToDate(s.getPeriodDate())).orElseGet(() -> new Date(clock.millis()));
+  }
+
+  private static boolean isLastAnalysisUsingReferenceBranch(Optional<SnapshotDto> snapshot) {
+    String periodMode = snapshot.map(SnapshotDto::getPeriodMode).orElse("");
+    return periodMode.equals(REFERENCE_BRANCH.name());
+  }
+
+  private Optional<SnapshotDto> getLastAnalysis(DbSession dbSession, ComponentDto component) {
+    return dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
+  }
+
+  private List<SnapshotDto> getLastAnalysis(DbSession dbSession, Set<String> projectUuids) {
+    return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, SearchRequest request, List<ComponentDto> allComponents) {
@@ -332,12 +352,22 @@ public class IssueQueryFactory {
       .flatMap(app -> dbClient.componentDao().selectProjectsFromView(dbSession, app, app).stream())
       .collect(toSet());
 
-    Map<String, PeriodStart> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
+    List<SnapshotDto> snapshots = getLastAnalysis(dbSession, projectUuids);
+
+    Set<String> newCodeReferenceByProjects = snapshots
       .stream()
-      .filter(s -> s.getPeriodDate() != null)
+      .filter(s -> !isNullOrEmpty(s.getPeriodMode()) && s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
+      .map(SnapshotDto::getComponentUuid)
+      .collect(toSet());
+
+    Map<String, PeriodStart> leakByProjects = snapshots
+      .stream()
+      .filter(s -> s.getPeriodDate() != null &&
+        (isNullOrEmpty(s.getPeriodMode()) || !s.getPeriodMode().equals(REFERENCE_BRANCH.name())))
       .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
+    builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);
   }
 
   private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {

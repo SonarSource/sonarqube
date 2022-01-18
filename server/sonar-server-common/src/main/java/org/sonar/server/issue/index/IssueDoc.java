@@ -336,4 +336,13 @@ public class IssueDoc extends BaseDoc {
     setField(IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY, v == null ? null : v.getScore());
     return this;
   }
+
+  public boolean isNewCodeReference() {
+    return getField(IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE);
+  }
+
+  public IssueDoc setIsNewCodeReference(boolean b) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE, b);
+    return this;
+  }
 }

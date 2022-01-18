@@ -19,7 +19,6 @@
  */
 package org.sonar.server.hotspot.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +36,7 @@ import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
@@ -67,6 +67,7 @@ import org.sonarqube.ws.Hotspots.SearchWsResponse;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -82,7 +83,9 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
@@ -94,7 +97,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsUtils.nullToEmpty;
 
 public class SearchAction implements HotspotsWsAction {
-  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_RESOLUTION = "resolution";
@@ -130,7 +133,7 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private static Set<String> setFromList(@Nullable List<String> list) {
-    return list != null ? ImmutableSet.copyOf(list) : ImmutableSet.of();
+    return list != null ? Set.copyOf(list) : Set.of();
   }
 
   private static WsRequest toWsRequest(Request request) {
@@ -344,24 +347,16 @@ public class SearchAction implements HotspotsWsAction {
       if (Qualifiers.APP.equals(project.qualifier())) {
         builder.viewUuids(singletonList(projectUuid));
         if (wsRequest.isSinceLeakPeriod() && wsRequest.getPullRequest().isEmpty()) {
-          addCreatedAfterByProjects(builder, dbSession, project);
+          addSinceLeakPeriodFilterByProjects(builder, dbSession, project);
         }
       } else {
         builder.projectUuids(singletonList(projectUuid));
         if (wsRequest.isSinceLeakPeriod() && wsRequest.getPullRequest().isEmpty()) {
-          var sinceDate = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid())
-            .map(s -> longToDate(s.getPeriodDate()))
-            .orElseGet(() -> new Date(system2.now()));
-          builder.createdAfter(sinceDate, false);
+          addSinceLeakPeriodFilter(dbSession, project, builder);
         }
       }
 
-      if (project.getMainBranchProjectUuid() == null) {
-        builder.mainBranch(true);
-      } else {
-        builder.branchUuid(project.uuid());
-        builder.mainBranch(false);
-      }
+      addMainBranchFilter(project, builder);
     }
 
     if (!wsRequest.getHotspotKeys().isEmpty()) {
@@ -379,6 +374,15 @@ public class SearchAction implements HotspotsWsAction {
 
     wsRequest.getStatus().ifPresent(status -> builder.resolved(STATUS_REVIEWED.equals(status)));
     wsRequest.getResolution().ifPresent(resolution -> builder.resolutions(singleton(resolution)));
+    addSecurityStandardFilters(wsRequest, builder);
+
+    IssueQuery query = builder.build();
+    SearchOptions searchOptions = new SearchOptions()
+      .setPage(wsRequest.page, wsRequest.index);
+    return issueIndex.search(query, searchOptions);
+  }
+
+  private static void addSecurityStandardFilters(WsRequest wsRequest, IssueQuery.Builder builder) {
     if (!wsRequest.getOwaspTop10().isEmpty()) {
       builder.owaspTop10(wsRequest.getOwaspTop10());
     }
@@ -388,18 +392,38 @@ public class SearchAction implements HotspotsWsAction {
     if (!wsRequest.getSonarsourceSecurity().isEmpty()) {
       builder.sonarsourceSecurity(wsRequest.getSonarsourceSecurity());
     }
-
     if (!wsRequest.getCwe().isEmpty()) {
       builder.cwe(wsRequest.getCwe());
     }
-
-    IssueQuery query = builder.build();
-    SearchOptions searchOptions = new SearchOptions()
-      .setPage(wsRequest.page, wsRequest.index);
-    return issueIndex.search(query, searchOptions);
   }
 
-  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, ComponentDto application) {
+  private static void addMainBranchFilter(@NotNull ComponentDto project, IssueQuery.Builder builder) {
+    if (project.getMainBranchProjectUuid() == null) {
+      builder.mainBranch(true);
+    } else {
+      builder.branchUuid(project.uuid());
+      builder.mainBranch(false);
+    }
+  }
+
+  private void addSinceLeakPeriodFilter(DbSession dbSession, @NotNull ComponentDto project, IssueQuery.Builder builder) {
+    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, project.uuid());
+
+    boolean isLastAnalysisUsingReferenceBranch = snapshot.map(SnapshotDto::getPeriodMode)
+      .orElse("").equals(REFERENCE_BRANCH.name());
+
+    if (isLastAnalysisUsingReferenceBranch) {
+      builder.newCodeOnReference(true);
+    } else {
+      var sinceDate = snapshot
+        .map(s -> longToDate(s.getPeriodDate()))
+        .orElseGet(() -> new Date(system2.now()));
+
+      builder.createdAfter(sinceDate, false);
+    }
+  }
+
+  private void addSinceLeakPeriodFilterByProjects(IssueQuery.Builder builder, DbSession dbSession, ComponentDto application) {
     Set<String> projectUuids;
     if (application.getMainBranchProjectUuid() == null) {
       projectUuids = dbClient.applicationProjectsDao().selectProjects(dbSession, application.uuid()).stream()
@@ -412,10 +436,23 @@ public class SearchAction implements HotspotsWsAction {
     }
 
     long now = system2.now();
-    Map<String, IssueQuery.PeriodStart> leakByProjects = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
-      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
+
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
+
+    Set<String> newCodeReferenceByProjects = snapshots
+      .stream()
+      .filter(s -> !isNullOrEmpty(s.getPeriodMode()) && s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
+      .map(SnapshotDto::getComponentUuid)
+      .collect(toSet());
+
+    Map<String, IssueQuery.PeriodStart> leakByProjects = snapshots
+      .stream()
+      .filter(s -> isNullOrEmpty(s.getPeriodMode()) || !s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
+      .collect(uniqueIndex(SnapshotDto::getComponentUuid, s ->
+        new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
+    builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);
   }
 
   private void loadComponents(DbSession dbSession, SearchResponseData searchResponseData) {

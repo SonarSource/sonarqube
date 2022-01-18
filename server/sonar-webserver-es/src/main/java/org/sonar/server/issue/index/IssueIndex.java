@@ -149,6 +149,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LANG
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LINE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
@@ -452,6 +453,8 @@ public class IssueIndex {
     addComponentRelatedFilters(query, filters);
     addDatesFilter(filters, query);
     addCreatedAfterByProjectsFilter(filters, query);
+    addNewCodeReferenceFilter(filters, query);
+    addNewCodeReferenceFilterByProjectsFilter(filters, query);
     return filters;
   }
 
@@ -562,11 +565,11 @@ public class IssueIndex {
   private static RequestFiltersComputer newFilterComputer(SearchOptions options, AllFilters allFilters) {
     Collection<String> facetNames = options.getFacets();
     Set<TopAggregationDefinition<?>> facets = Stream.concat(
-      Stream.of(EFFORT_TOP_AGGREGATION),
-      facetNames.stream()
-        .map(FACETS_BY_NAME::get)
-        .filter(Objects::nonNull)
-        .map(Facet::getTopAggregationDef))
+        Stream.of(EFFORT_TOP_AGGREGATION),
+        facetNames.stream()
+          .map(FACETS_BY_NAME::get)
+          .filter(Objects::nonNull)
+          .map(Facet::getTopAggregationDef))
       .collect(MoreCollectors.toSet(facetNames.size()));
 
     return new RequestFiltersComputer(allFilters, facets);
@@ -644,6 +647,28 @@ public class IssueIndex {
         termQuery(FIELD_ISSUE_FUNC_CREATED_AT, BaseDoc.dateToEpochSeconds(createdAt)));
     }
   }
+
+  private static void addNewCodeReferenceFilter(AllFilters filters, IssueQuery query) {
+    Boolean newCodeOnReference = query.newCodeOnReference();
+
+    if (newCodeOnReference != null) {
+      filters.addFilter(
+        FIELD_ISSUE_NEW_CODE_REFERENCE, new SimpleFieldFilterScope(FIELD_ISSUE_NEW_CODE_REFERENCE),
+        termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true));
+    }
+  }
+
+  private static void addNewCodeReferenceFilterByProjectsFilter(AllFilters allFilters, IssueQuery query) {
+    Collection<String> newCodeOnReferenceByProjectUuids = query.newCodeOnReferenceByProjectUuids();
+    BoolQueryBuilder boolQueryBuilder = boolQuery();
+
+    newCodeOnReferenceByProjectUuids.forEach(projectOrProjectBranchUuid -> boolQueryBuilder.should(boolQuery()
+      .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
+      .filter(termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true))));
+
+    allFilters.addFilter("__is_new_code_reference_by_project_uuids", new SimpleFieldFilterScope("newCodeReferenceByProjectUuids"), boolQueryBuilder);
+  }
+
 
   private static void addCreatedAfterByProjectsFilter(AllFilters allFilters, IssueQuery query) {
     Map<String, PeriodStart> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
@@ -865,7 +890,7 @@ public class IssueIndex {
         t ->
           // add sub-aggregation to return issue count for current user
           aggregationHelper.getSubAggregationHelper()
-            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
+            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[]{uuid})
             .ifPresent(t::subAggregation));
       esRequest.aggregation(aggregation);
     }

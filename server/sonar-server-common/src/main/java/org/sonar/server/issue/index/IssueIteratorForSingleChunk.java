@@ -42,6 +42,7 @@ import org.sonar.db.ResultSetIterator;
 import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.DatabaseUtils.getLong;
 import static org.sonar.db.rule.RuleDefinitionDto.deserializeSecurityStandardsString;
@@ -81,16 +82,19 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     "i.tags",
     "i.issue_type",
     "r.security_standards",
-    "c.qualifier"
+    "c.qualifier",
+    "n.uuid"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
     "inner join rules r on r.uuid = i.rule_uuid " +
     "inner join components c on c.uuid = i.component_uuid ";
 
+  private static final String SQL_NEW_CODE_JOIN = "left join new_code_reference_issues n on n.issue_key = i.kee ";
+
   private static final String PROJECT_FILTER = " and c.project_uuid = ? and i.project_uuid = ? ";
   private static final String ISSUE_KEY_FILTER_PREFIX = " and i.kee in (";
-  private static final String ISSUE_KEY_FILTER_SUFFIX = ")";
+  private static final String ISSUE_KEY_FILTER_SUFFIX = ") ";
 
   static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
   static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
@@ -151,6 +155,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       sql += IntStream.range(0, issueKeys.size()).mapToObj(i -> "?").collect(Collectors.joining(","));
       sql += ISSUE_KEY_FILTER_SUFFIX;
     }
+    sql += SQL_NEW_CODE_JOIN;
     return sql;
   }
 
@@ -237,6 +242,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setVulnerabilityProbability(sqCategory.getVulnerability());
 
       doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(23)) ? IssueScope.TEST : IssueScope.MAIN);
+      doc.setIsNewCodeReference(!isNullOrEmpty(rs.getString(24)));
       return doc;
     }
 

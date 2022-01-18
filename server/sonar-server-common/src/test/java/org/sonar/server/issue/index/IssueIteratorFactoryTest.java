@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 
 public class IssueIteratorFactoryTest {
 
@@ -119,11 +120,15 @@ public class IssueIteratorFactoryTest {
     IssueDto dirIssue = dbTester.issues().insert(rule, project, directory);
     IssueDto projectIssue = dbTester.issues().insert(rule, project, project);
 
+    dbTester.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(fileIssue));
+
     Map<String, IssueDoc> issuesByKey = issuesByKey();
 
     assertThat(issuesByKey)
       .hasSize(4)
       .containsOnlyKeys(fileIssue.getKey(), moduleIssue.getKey(), dirIssue.getKey(), projectIssue.getKey());
+
+    assertThat(issuesByKey.get(fileIssue.getKey()).isNewCodeReference()).isTrue();
   }
 
   @Test

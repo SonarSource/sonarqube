@@ -99,7 +99,9 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.issue.IssueTesting.newIssue;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 
 @RunWith(DataProviderRunner.class)
 public class SearchActionTest {
@@ -1480,6 +1482,47 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(Stream.concat(
           hotspotsInLeakPeriod.stream(),
           atLeakPeriod.stream())
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_hotspots_on_the_leak_period_when_sinceLeakPeriod_is_true_and_branch_uses_reference_branch() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    dbTester.components().insertSnapshot(project, t -> t.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    List<IssueDto> hotspotsInLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i)))
+      .collect(toList());
+
+    hotspotsInLeakPeriod.stream().forEach(i -> dbTester.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(i)));
+
+    List<IssueDto> hotspotsNotInLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i)))
+      .collect(toList());
+    indexIssues();
+
+    SearchWsResponse responseAll = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseAll.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Stream.of(
+          hotspotsInLeakPeriod.stream(),
+          hotspotsNotInLeakPeriod.stream())
+        .flatMap(t -> t)
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
+
+    SearchWsResponse responseOnLeak = newRequest(project,
+      t -> t.setParam("sinceLeakPeriod", "true"))
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseOnLeak.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(hotspotsInLeakPeriod
+        .stream()
         .map(IssueDto::getKey)
         .toArray(String[]::new));
   }

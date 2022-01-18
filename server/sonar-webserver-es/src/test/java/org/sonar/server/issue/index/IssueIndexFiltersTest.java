@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.assertj.core.api.Fail;
 import org.elasticsearch.search.SearchHit;
@@ -502,6 +503,51 @@ public class IssueIndexFiltersTest {
   }
 
   @Test
+  public void filter_by_new_code_reference_by_projects() {
+    ComponentDto project1 = newPrivateProjectDto();
+    IssueDoc project1Issue1 = newDoc(project1).setIsNewCodeReference(true);
+    IssueDoc project1Issue2 = newDoc(project1).setIsNewCodeReference(false);
+    ComponentDto project2 = newPrivateProjectDto();
+    IssueDoc project2Issue1 = newDoc(project2).setIsNewCodeReference(false);
+    IssueDoc project2Issue2 = newDoc(project2).setIsNewCodeReference(true);
+    indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2);
+
+    // Search for issues of project 1 and project 2 that are new code on a branch using reference for new code
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+        .newCodeOnReferenceByProjectUuids(Set.of(project1.uuid(), project2.uuid())),
+      project1Issue1.key(), project2Issue2.key());
+  }
+
+  @Test
+  public void filter_by_new_code_reference_branches() {
+    ComponentDto project1 = newPrivateProjectDto();
+    IssueDoc project1Issue1 = newDoc(project1).setIsNewCodeReference(true);
+    IssueDoc project1Issue2 = newDoc(project1).setIsNewCodeReference(false);
+
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    IssueDoc project1Branch1Issue1 = newDoc(project1Branch1).setIsNewCodeReference(false);
+    IssueDoc project1Branch1Issue2 = newDoc(project1Branch1).setIsNewCodeReference(true);
+
+    ComponentDto project2 = newPrivateProjectDto();
+
+    IssueDoc project2Issue1 = newDoc(project2).setIsNewCodeReference(true);
+    IssueDoc project2Issue2 = newDoc(project2).setIsNewCodeReference(false);
+
+    ComponentDto project2Branch1 = db.components().insertProjectBranch(project2);
+    IssueDoc project2Branch1Issue1 = newDoc(project2Branch1).setIsNewCodeReference(false);
+    IssueDoc project2Branch1Issue2 = newDoc(project2Branch1).setIsNewCodeReference(true);
+
+    indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2,
+      project1Branch1Issue1, project1Branch1Issue2, project2Branch1Issue1, project2Branch1Issue2);
+
+    // Search for issues of project 1 branch 1 and project 2 branch 1 that are new code on a branch using reference for new code
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+        .mainBranch(false)
+        .newCodeOnReferenceByProjectUuids(Set.of(project1Branch1.uuid(), project2Branch1.uuid())),
+      project1Branch1Issue2.key(), project2Branch1Issue2.key());
+  }
+
+  @Test
   public void filter_by_severities() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project, null);
@@ -754,6 +800,17 @@ public class IssueIndexFiltersTest {
 
     assertThatSearchReturnsOnly(IssueQuery.builder().createdAt(parseDate("2014-09-20")), "I1");
     assertThatSearchReturnsEmpty(IssueQuery.builder().createdAt(parseDate("2014-09-21")));
+  }
+
+  @Test
+  public void filter_by_new_code_reference() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(newDoc("I1", file).setIsNewCodeReference(true),
+      newDoc("I2", file).setIsNewCodeReference(false));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().newCodeOnReference(true), "I1");
   }
 
   @Test

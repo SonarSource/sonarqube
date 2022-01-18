@@ -97,6 +97,8 @@ public class IssueQuery {
   private final String branchUuid;
   private final Boolean mainBranch;
   private final ZoneId timeZone;
+  private final Boolean newCodeOnReference;
+  private final Collection<String> newCodeOnReferenceByProjectUuids;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -135,6 +137,8 @@ public class IssueQuery {
     this.branchUuid = builder.branchUuid;
     this.mainBranch = builder.mainBranch;
     this.timeZone = builder.timeZone;
+    this.newCodeOnReference = builder.newCodeOnReference;
+    this.newCodeOnReferenceByProjectUuids = defaultCollection(builder.newCodeOnReferenceByProjectUuids);
   }
 
   public Collection<String> issueKeys() {
@@ -300,6 +304,15 @@ public class IssueQuery {
     return timeZone;
   }
 
+  @CheckForNull
+  public Boolean newCodeOnReference() {
+    return newCodeOnReference;
+  }
+
+  public Collection<String> newCodeOnReferenceByProjectUuids() {
+    return newCodeOnReferenceByProjectUuids;
+  }
+
   public static class Builder {
     private Collection<String> issueKeys;
     private Collection<String> severities;
@@ -337,6 +350,8 @@ public class IssueQuery {
     private String branchUuid;
     private Boolean mainBranch = true;
     private ZoneId timeZone;
+    private Boolean newCodeOnReference = null;
+    private Collection<String> newCodeOnReferenceByProjectUuids;
 
     private Builder() {
 
@@ -546,6 +561,16 @@ public class IssueQuery {
 
     public Builder timeZone(ZoneId timeZone) {
       this.timeZone = timeZone;
+      return this;
+    }
+
+    public Builder newCodeOnReference(@Nullable Boolean newCodeOnReference) {
+      this.newCodeOnReference = newCodeOnReference;
+      return this;
+    }
+
+    public Builder newCodeOnReferenceByProjectUuids(@Nullable Collection<String> newCodeOnReferenceByProjectUuids) {
+      this.newCodeOnReferenceByProjectUuids = newCodeOnReferenceByProjectUuids;
       return this;
     }
   }
