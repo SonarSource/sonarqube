@@ -298,12 +298,14 @@ export class CodeApp extends React.Component<Props, State> {
       <div className="page page-limited">
         {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
           <StyledAlert variant="warning">
-            {translate('component_measures.not_all_measures_are_shown')}
-            <HelpTooltip
-              className="spacer-left"
-              ariaLabel={translate('component_measures.not_all_measures_are_shown.help')}
-              overlay={translate('component_measures.not_all_measures_are_shown.help')}
-            />
+            <AlertContent>
+              {translate('component_measures.not_all_measures_are_shown')}
+              <HelpTooltip
+                className="spacer-left"
+                ariaLabel={translate('component_measures.not_all_measures_are_shown.help')}
+                overlay={translate('component_measures.not_all_measures_are_shown.help')}
+              />
+            </AlertContent>
           </StyledAlert>
         )}
         <Suggestions suggestions="code" />
@@ -399,6 +401,11 @@ export class CodeApp extends React.Component<Props, State> {
 const StyledAlert = styled(Alert)`
   display: inline-flex;
   margin-bottom: 15px;
+`;
+
+const AlertContent = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const mapStateToProps = (state: any): StateToProps => ({

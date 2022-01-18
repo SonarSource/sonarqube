@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import key from 'keymaster';
 import { debounce, keyBy } from 'lodash';
 import * as React from 'react';
@@ -308,14 +309,18 @@ export class App extends React.PureComponent<Props, State> {
                       <Alert
                         className="big-spacer-top big-spacer-right big-spacer-left"
                         variant="warning">
-                        {translate('component_measures.not_all_measures_are_shown')}
-                        <HelpTooltip
-                          className="spacer-left"
-                          ariaLabel={translate(
-                            'component_measures.not_all_measures_are_shown.help'
-                          )}
-                          overlay={translate('component_measures.not_all_measures_are_shown.help')}
-                        />
+                        <AlertContent>
+                          {translate('component_measures.not_all_measures_are_shown')}
+                          <HelpTooltip
+                            className="spacer-left"
+                            ariaLabel={translate(
+                              'component_measures.not_all_measures_are_shown.help'
+                            )}
+                            overlay={translate(
+                              'component_measures.not_all_measures_are_shown.help'
+                            )}
+                          />
+                        </AlertContent>
                       </Alert>
                     )}
                     <div className="layout-page-filters">
@@ -341,5 +346,10 @@ export class App extends React.PureComponent<Props, State> {
 }
 
 const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
+
+const AlertContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 export default withRouter(connect(null, mapDispatchToProps)(App));

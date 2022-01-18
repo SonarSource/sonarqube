@@ -108,14 +108,12 @@ export default class IssueView extends React.PureComponent<Props> {
           </div>
         )}
         {hasCheckbox && (
-          <>
-            <Checkbox
-              checked={this.props.checked || false}
-              className="issue-checkbox-container"
-              onCheck={this.handleCheck}
-              title={translate('issues.action_select')}
-            />
-          </>
+          <Checkbox
+            checked={this.props.checked || false}
+            className="issue-checkbox-container"
+            onCheck={this.handleCheck}
+            title={translate('issues.action_select')}
+          />
         )}
       </div>
     );

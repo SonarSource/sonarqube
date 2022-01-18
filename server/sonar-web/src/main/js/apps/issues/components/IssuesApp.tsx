@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import key from 'keymaster';
 import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
@@ -42,6 +43,7 @@ import {
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
+import { KeyCodes } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
@@ -129,6 +131,7 @@ export interface State {
 
 const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
+const BRANCH_STATUS_REFRESH_INTERVAL = 1000;
 
 export default class App extends React.PureComponent<Props, State> {
   mounted = false;
@@ -162,7 +165,7 @@ export default class App extends React.PureComponent<Props, State> {
       referencedUsers: {},
       selected: getOpen(props.location.query)
     };
-    this.refreshBranchStatus = debounce(this.refreshBranchStatus, 1000);
+    this.refreshBranchStatus = debounce(this.refreshBranchStatus, BRANCH_STATUS_REFRESH_INTERVAL);
   }
 
   componentDidMount() {
@@ -265,24 +268,19 @@ export default class App extends React.PureComponent<Props, State> {
     if (key.getScope() !== 'issues') {
       return;
     }
-    if (event.keyCode === 18) {
-      // alt
+    if (event.keyCode === KeyCodes.Alt) {
       event.preventDefault();
       this.setState(actions.enableLocationsNavigator);
-    } else if (event.keyCode === 40 && event.altKey) {
-      // alt + down
+    } else if (event.keyCode === KeyCodes.DownArrow && event.altKey) {
       event.preventDefault();
       this.selectNextLocation();
-    } else if (event.keyCode === 38 && event.altKey) {
-      // alt + up
+    } else if (event.keyCode === KeyCodes.UpArrow && event.altKey) {
       event.preventDefault();
       this.selectPreviousLocation();
-    } else if (event.keyCode === 37 && event.altKey) {
-      // alt + left
+    } else if (event.keyCode === KeyCodes.LeftArrow && event.altKey) {
       event.preventDefault();
       this.selectPreviousFlow();
-    } else if (event.keyCode === 39 && event.altKey) {
-      // alt + right
+    } else if (event.keyCode === KeyCodes.RightArrow && event.altKey) {
       event.preventDefault();
       this.selectNextFlow();
     }
@@ -292,7 +290,7 @@ export default class App extends React.PureComponent<Props, State> {
     if (key.getScope() !== 'issues') {
       return;
     }
-    if (event.keyCode === 18) {
+    if (event.keyCode === KeyCodes.Alt) {
       // alt
       this.setState(actions.disableLocationsNavigator);
     }
@@ -499,7 +497,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchIssuesUntil = (
-    p: number,
+    page: number,
     done: (pageIssues: T.Issue[], paging: T.Paging) => boolean
   ): Promise<FetchIssuesPromise> => {
     const recursiveFetch = (p: number, prevIssues: T.Issue[]): Promise<FetchIssuesPromise> => {
@@ -511,7 +509,7 @@ export default class App extends React.PureComponent<Props, State> {
       });
     };
 
-    return recursiveFetch(p, []);
+    return recursiveFetch(page, []);
   };
 
   fetchMoreIssues = () => {
@@ -551,9 +549,9 @@ export default class App extends React.PureComponent<Props, State> {
 
     const isSameComponent = (issue: T.Issue) => issue.component === openIssue.component;
 
-    const done = (pageIssues: T.Issue[], paging: T.Paging) => {
+    const done = (pageIssues: T.Issue[], p: T.Paging) => {
       const lastIssue = pageIssues[pageIssues.length - 1];
-      if (paging.total <= paging.pageIndex * paging.pageSize) {
+      if (p.total <= p.pageIndex * p.pageSize) {
         return true;
       }
       if (lastIssue.component !== openIssue.component) {
@@ -631,19 +629,19 @@ export default class App extends React.PureComponent<Props, State> {
     return Promise.resolve({ issues, paging });
   };
 
-  getButtonLabel = (checked: string[], checkAll?: boolean, paging?: T.Paging) => {
-    if (checked.length > 0) {
-      let count;
-      if (checkAll && paging) {
-        count = paging.total > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : paging.total;
-      } else {
-        count = Math.min(checked.length, MAX_PAGE_SIZE);
-      }
-
-      return translateWithParameters('issues.bulk_change_X_issues', count);
-    } else {
+  getButtonLabel = (checked: string[], checkAll = false, paging?: T.Paging) => {
+    if (checked.length === 0) {
       return translate('bulk_change');
     }
+
+    let count;
+    if (checkAll && paging) {
+      count = paging.total > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : paging.total;
+    } else {
+      count = Math.min(checked.length, MAX_PAGE_SIZE);
+    }
+
+    return translateWithParameters('issues.bulk_change_X_issues', count);
   };
 
   handleFilterChange = (changes: Partial<Query>) => {
@@ -747,7 +745,7 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
-  handlePopupToggle = (issue: string, popupName: string, open?: boolean) => {
+  handlePopupToggle = (issue: string, popupName: string, open: boolean | undefined = undefined) => {
     this.setState((state: State) => {
       const { openPopup } = state;
       const samePopup = openPopup && openPopup.name === popupName && openPopup.issue === issue;
@@ -962,12 +960,14 @@ export default class App extends React.PureComponent<Props, State> {
                 <Alert
                   className="big-spacer-top big-spacer-right big-spacer-left"
                   variant="warning">
-                  {translate('issues.not_all_issue_show')}
-                  <HelpTooltip
-                    className="spacer-left"
-                    ariaLabel={translate('issues.not_all_issue_show_why')}
-                    overlay={translate('issues.not_all_issue_show_why')}
-                  />
+                  <AlertContent>
+                    {translate('issues.not_all_issue_show')}
+                    <HelpTooltip
+                      className="spacer-left"
+                      ariaLabel={translate('issues.not_all_issue_show_why')}
+                      overlay={translate('issues.not_all_issue_show_why')}
+                    />
+                  </AlertContent>
                 </Alert>
               )}
               <A11ySkipTarget
@@ -1133,3 +1133,8 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const AlertContent = styled.div`
+  display: flex;
+  align-items: center;
+`;

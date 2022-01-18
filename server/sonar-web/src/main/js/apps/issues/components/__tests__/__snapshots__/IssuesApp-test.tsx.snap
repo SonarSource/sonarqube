@@ -40,12 +40,14 @@ exports[`should show warnning when not all projects are accessible 1`] = `
         className="big-spacer-top big-spacer-right big-spacer-left"
         variant="warning"
       >
-        issues.not_all_issue_show
-        <HelpTooltip
-          ariaLabel="issues.not_all_issue_show_why"
-          className="spacer-left"
-          overlay="issues.not_all_issue_show_why"
-        />
+        <Styled(div)>
+          issues.not_all_issue_show
+          <HelpTooltip
+            ariaLabel="issues.not_all_issue_show_why"
+            className="spacer-left"
+            overlay="issues.not_all_issue_show_why"
+          />
+        </Styled(div)>
       </Alert>
       <A11ySkipTarget
         anchor="issues_sidebar"

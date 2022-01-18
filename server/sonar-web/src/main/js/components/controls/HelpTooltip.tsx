@@ -35,7 +35,14 @@ interface Props extends Pick<IconProps, 'size'> {
   ariaLabelledby?: string;
 }
 
-export default function HelpTooltip({ size = 12, ariaLabel, ariaLabelledby, ...props }: Props) {
+const DEFAULT_SIZE = 12;
+
+export default function HelpTooltip({
+  size = DEFAULT_SIZE,
+  ariaLabel,
+  ariaLabelledby,
+  ...props
+}: Props) {
   const role = ariaLabel || ariaLabelledby ? 'note' : undefined;
   return (
     <div
@@ -56,7 +63,7 @@ export default function HelpTooltip({ size = 12, ariaLabel, ariaLabelledby, ...p
   );
 }
 
-export function DarkHelpTooltip({ size = 12, ...props }: Omit<Props, 'children'>) {
+export function DarkHelpTooltip({ size = DEFAULT_SIZE, ...props }: Omit<Props, 'children'>) {
   return (
     <HelpTooltip {...props}>
       <HelpIcon fill={colors.transparentBlack} fillInner={colors.white} size={size} />
