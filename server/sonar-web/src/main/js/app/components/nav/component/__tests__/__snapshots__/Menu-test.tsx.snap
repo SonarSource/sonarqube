@@ -344,7 +344,7 @@ exports[`should work for a branch 1`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "branch": "release",
               "id": "foo",
@@ -628,7 +628,7 @@ exports[`should work for a branch 2`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "branch": "release",
               "id": "foo",
@@ -789,7 +789,7 @@ exports[`should work for all qualifiers 1`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
             },
@@ -996,7 +996,7 @@ exports[`should work for all qualifiers 2`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
             },
@@ -1105,7 +1105,7 @@ exports[`should work for all qualifiers 3`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
             },
@@ -1218,7 +1218,7 @@ exports[`should work for all qualifiers 4`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
             },
@@ -1394,7 +1394,7 @@ exports[`should work for pull requests 1`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
               "pullRequest": "1001",
@@ -1526,7 +1526,7 @@ exports[`should work for pull requests 2`] = `
         style={Object {}}
         to={
           Object {
-            "pathname": "component_measures",
+            "pathname": "/component_measures",
             "query": Object {
               "id": "foo",
               "pullRequest": "1001",

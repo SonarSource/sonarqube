@@ -223,7 +223,7 @@ export class Menu extends React.PureComponent<Props> {
   renderComponentMeasuresLink = () => {
     return this.renderMenuLink({
       label: translate('layout.measures'),
-      to: { pathname: 'component_measures' }
+      to: { pathname: '/component_measures' }
     });
   };
 
