@@ -145,7 +145,10 @@ export class Menu extends React.PureComponent<Props> {
     return (
       <li>
         {hasAnalysis ? (
-          <Link to={{ ...to, query: { ...query, ...to.query } }} {...omit(props, ['to'])}>
+          <Link
+            activeClassName="active"
+            to={{ ...to, query: { ...query, ...to.query } }}
+            {...omit(props, ['to'])}>
             {label}
           </Link>
         ) : (

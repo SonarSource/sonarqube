@@ -302,6 +302,7 @@ exports[`should work for a branch 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -320,6 +321,7 @@ exports[`should work for a branch 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -337,6 +339,7 @@ exports[`should work for a branch 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -354,6 +357,7 @@ exports[`should work for a branch 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -371,6 +375,7 @@ exports[`should work for a branch 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -581,6 +586,7 @@ exports[`should work for a branch 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -599,6 +605,7 @@ exports[`should work for a branch 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -616,6 +623,7 @@ exports[`should work for a branch 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -633,6 +641,7 @@ exports[`should work for a branch 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -650,6 +659,7 @@ exports[`should work for a branch 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -739,6 +749,7 @@ exports[`should work for all qualifiers 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -756,6 +767,7 @@ exports[`should work for all qualifiers 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -772,6 +784,7 @@ exports[`should work for all qualifiers 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -788,6 +801,7 @@ exports[`should work for all qualifiers 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -804,6 +818,7 @@ exports[`should work for all qualifiers 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -958,6 +973,7 @@ exports[`should work for all qualifiers 2`] = `
   <NavBarTabs>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -975,6 +991,7 @@ exports[`should work for all qualifiers 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -991,6 +1008,7 @@ exports[`should work for all qualifiers 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1007,6 +1025,7 @@ exports[`should work for all qualifiers 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1063,6 +1082,7 @@ exports[`should work for all qualifiers 3`] = `
   <NavBarTabs>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1080,6 +1100,7 @@ exports[`should work for all qualifiers 3`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1096,6 +1117,7 @@ exports[`should work for all qualifiers 3`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1112,6 +1134,7 @@ exports[`should work for all qualifiers 3`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1155,6 +1178,7 @@ exports[`should work for all qualifiers 4`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1172,6 +1196,7 @@ exports[`should work for all qualifiers 4`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1188,6 +1213,7 @@ exports[`should work for all qualifiers 4`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1204,6 +1230,7 @@ exports[`should work for all qualifiers 4`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1220,6 +1247,7 @@ exports[`should work for all qualifiers 4`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1324,6 +1352,7 @@ exports[`should work for pull requests 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1342,6 +1371,7 @@ exports[`should work for pull requests 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1359,6 +1389,7 @@ exports[`should work for pull requests 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1376,6 +1407,7 @@ exports[`should work for pull requests 1`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1452,6 +1484,7 @@ exports[`should work for pull requests 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1470,6 +1503,7 @@ exports[`should work for pull requests 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1487,6 +1521,7 @@ exports[`should work for pull requests 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
@@ -1504,6 +1539,7 @@ exports[`should work for pull requests 2`] = `
     </li>
     <li>
       <Link
+        activeClassName="active"
         onlyActiveOnIndex={false}
         style={Object {}}
         to={
