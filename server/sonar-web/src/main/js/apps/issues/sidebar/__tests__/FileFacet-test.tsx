@@ -28,7 +28,7 @@ import { Query } from '../../utils';
 import FileFacet from '../FileFacet';
 
 jest.mock('../../../../api/components', () => ({
-  getFiles: jest.fn().mockResolvedValue({})
+  getFiles: jest.fn().mockResolvedValue({ components: [] })
 }));
 
 beforeEach(() => jest.clearAllMocks());

@@ -28,7 +28,7 @@ import { Query } from '../../utils';
 import DirectoryFacet from '../DirectoryFacet';
 
 jest.mock('../../../../api/components', () => ({
-  getDirectories: jest.fn().mockResolvedValue({})
+  getDirectories: jest.fn().mockResolvedValue({ components: [] })
 }));
 
 beforeEach(() => jest.clearAllMocks());

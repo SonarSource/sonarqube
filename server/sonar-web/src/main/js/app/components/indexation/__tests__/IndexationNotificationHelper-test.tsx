@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 jest.mock('../../../../api/ce', () => ({
-  getIndexationStatus: jest.fn()
+  getIndexationStatus: jest.fn().mockResolvedValue({})
 }));
 
 jest.mock('../../../../helpers/storage', () => ({

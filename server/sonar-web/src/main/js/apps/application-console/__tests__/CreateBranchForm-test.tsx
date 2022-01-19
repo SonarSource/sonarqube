@@ -26,7 +26,7 @@ import { Application } from '../../../types/application';
 import CreateBranchForm from '../CreateBranchForm';
 
 jest.mock('../../../api/application', () => ({
-  getApplicationDetails: jest.fn().mockResolvedValue({}),
+  getApplicationDetails: jest.fn().mockResolvedValue({ projects: [] }),
   addApplicationBranch: jest.fn(),
   updateApplicationBranch: jest.fn()
 }));
