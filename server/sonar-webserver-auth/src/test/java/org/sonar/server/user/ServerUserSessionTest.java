@@ -403,6 +403,7 @@ public class ServerUserSessionTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     ComponentDto project3 = db.components().insertPrivateProject();
     ComponentDto project4 = db.components().insertPrivateProject();
+    ComponentDto project5 = db.components().insertPrivateProject();
 
     UserDto user = db.users().insertUser();
     UserSession session = newUserSession(user);
@@ -429,13 +430,22 @@ public class ServerUserSessionTest {
     db.components().insertComponent(newProjectCopy(project4, subPortfolio));
     db.components().addPortfolioReference(portfolio, subPortfolio.uuid());
 
+    // The predicate should work both on view and subview components
     assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isTrue();
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, subPortfolio)).isTrue();
 
     // Add private project3 without permissions to private portfolio
     db.components().addPortfolioProject(portfolio, project3);
     db.components().insertComponent(newProjectCopy(project3, portfolio));
 
     assertThat(session.hasChildProjectsPermission(USER, portfolio)).isFalse();
+
+    // Add private project5 without permissions to sub-portfolio
+    db.components().addPortfolioProject(subPortfolio, project5);
+    db.components().insertComponent(newProjectCopy(project5, subPortfolio));
+
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, portfolio)).isFalse();
+    assertThat(session.hasPortfolioChildProjectsPermission(USER, subPortfolio)).isFalse();
   }
 
   @Test
