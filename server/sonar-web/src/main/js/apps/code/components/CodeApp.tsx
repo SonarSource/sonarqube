@@ -296,8 +296,9 @@ export class CodeApp extends React.Component<Props, State> {
 
     return (
       <div className="page page-limited">
+        <A11ySkipTarget anchor="code_main" />
         {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-          <StyledAlert variant="warning">
+          <StyledAlert variant="warning" className="it__portfolio_warning">
             <AlertContent>
               {translate('component_measures.not_all_measures_are_shown')}
               <HelpTooltip
@@ -313,8 +314,6 @@ export class CodeApp extends React.Component<Props, State> {
           defer={false}
           title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle}
         />
-        <A11ySkipTarget anchor="code_main" />
-
         {!hasComponents && (
           <Search
             branchLike={branchLike}

@@ -956,9 +956,16 @@ export default class App extends React.PureComponent<Props, State> {
             className="layout-page-side"
             style={{ top }}>
             <div className="layout-page-side-inner">
+              <A11ySkipTarget
+                anchor="issues_sidebar"
+                label={
+                  openIssue ? translate('issues.skip_to_list') : translate('issues.skip_to_filters')
+                }
+                weight={10}
+              />
               {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
                 <Alert
-                  className="big-spacer-top big-spacer-right big-spacer-left"
+                  className="big-spacer-top big-spacer-right big-spacer-left it__portfolio_warning"
                   variant="warning">
                   <AlertContent>
                     {translate('issues.not_all_issue_show')}
@@ -970,13 +977,7 @@ export default class App extends React.PureComponent<Props, State> {
                   </AlertContent>
                 </Alert>
               )}
-              <A11ySkipTarget
-                anchor="issues_sidebar"
-                label={
-                  openIssue ? translate('issues.skip_to_list') : translate('issues.skip_to_filters')
-                }
-                weight={10}
-              />
+
               {openIssue ? this.renderConciseIssuesList() : this.renderFacets()}
             </div>
           </section>

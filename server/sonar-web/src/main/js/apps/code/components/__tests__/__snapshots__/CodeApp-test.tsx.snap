@@ -172,7 +172,11 @@ exports[`should render a warning message when user does not have access to all p
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Styled(Alert)
+    className="it__portfolio_warning"
     variant="warning"
   >
     <Styled(div)>
@@ -191,9 +195,6 @@ exports[`should render a warning message when user does not have access to all p
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <div
     className="code-components"
@@ -215,6 +216,9 @@ exports[`should render correclty when no sub component for APP 1`] = `
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -222,9 +226,6 @@ exports[`should render correclty when no sub component for APP 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <div
     className="code-components"
@@ -246,6 +247,9 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -253,9 +257,6 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -302,6 +303,9 @@ exports[`should render correclty when no sub component for APP: with sub compone
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -309,9 +313,6 @@ exports[`should render correclty when no sub component for APP: with sub compone
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -408,6 +409,9 @@ exports[`should render correclty when no sub component for SVW 1`] = `
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -415,9 +419,6 @@ exports[`should render correclty when no sub component for SVW 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <div
     className="code-components"
@@ -439,6 +440,9 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -446,9 +450,6 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -495,6 +496,9 @@ exports[`should render correclty when no sub component for SVW: with sub compone
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -502,9 +506,6 @@ exports[`should render correclty when no sub component for SVW: with sub compone
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -591,6 +592,9 @@ exports[`should render correclty when no sub component for TRK 1`] = `
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -598,9 +602,6 @@ exports[`should render correclty when no sub component for TRK 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     title="code.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <div
     className="code-components"
@@ -622,6 +623,9 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -629,9 +633,6 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
     defer={false}
     encodeSpecialCharacters={true}
     title="code.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -678,6 +679,9 @@ exports[`should render correclty when no sub component for TRK: with sub compone
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -685,9 +689,6 @@ exports[`should render correclty when no sub component for TRK: with sub compone
     defer={false}
     encodeSpecialCharacters={true}
     title="code.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -784,6 +785,9 @@ exports[`should render correclty when no sub component for VW 1`] = `
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -791,9 +795,6 @@ exports[`should render correclty when no sub component for VW 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <div
     className="code-components"
@@ -815,6 +816,9 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -822,9 +826,6 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
@@ -871,6 +872,9 @@ exports[`should render correclty when no sub component for VW: with sub componen
 <div
   className="page page-limited"
 >
+  <A11ySkipTarget
+    anchor="code_main"
+  />
   <Suggestions
     suggestions="code"
   />
@@ -878,9 +882,6 @@ exports[`should render correclty when no sub component for VW: with sub componen
     defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
-  />
-  <A11ySkipTarget
-    anchor="code_main"
   />
   <withRouter(Search)
     component={
