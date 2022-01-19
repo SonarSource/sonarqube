@@ -21,13 +21,22 @@ const { createFilePath, createRemoteFileNode } = require('gatsby-source-filesyst
 const fs = require('fs-extra');
 const path = require('path');
 
-const documentationFileName = 'documentation.md';
-const manifestFileName = 'manifest.mf';
-const manifestIssueTrackerUrlSection = 'Plugin-IssueTrackerUrl';
+const DOCUMENTATION_FILE_NAME = 'documentation.md';
+const MANIFEST_FILE_NAME = 'manifest.mf';
+const MANIFEST_ISSUE_TRACKER_URL_SECTION = 'Plugin-IssueTrackerUrl';
+const LANG_TO_ANALYZER_MAP = {
+  vb6: 'vb'
+};
+const STATIC_NAV_TREE_DEFINITION = path.normalize(
+  `${__dirname}/../../static/StaticNavigationTree.json`
+);
+const EXPANDED_PLUGIN_DOCS_DIR = path.normalize(
+  `${__dirname}/../../build/tmp/plugin-documentation`
+);
 
 let overrides;
 
-function processPluginOverridesIfAvailable(content) {
+function processPluginOverrides(content) {
   if (overrides === undefined) {
     const pluginFileList = getPluginFilesList();
 
@@ -50,51 +59,71 @@ function processPluginOverridesIfAvailable(content) {
 }
 
 function addIssueTrackerLink(page) {
-  let issueTrackerLink = '## Issue Tracker';
-  issueTrackerLink += '\r\n';
-  issueTrackerLink += `Check the [issue tracker](${page.issueTrackerUrl}) for this language.`;
+  if (page.issueTrackerUrl) {
+    let issueTrackerLink = '## Issue Tracker';
+    issueTrackerLink += '\r\n';
+    issueTrackerLink += `Check the [issue tracker](${page.issueTrackerUrl}) for this language.`;
 
-  page.content = `${page.content}\r\n${issueTrackerLink}`;
+    page.content = `${page.content}\r\n${issueTrackerLink}`;
+  }
 
   return page;
 }
 
 function getPluginFilesList() {
-  const dir = path.normalize(`${__dirname}/../../build/tmp/plugin-documentation/`);
-
-  if (fs.pathExistsSync(dir)) {
-    return fs.readdirSync(dir).map(subDir => {
-      const pluginDir = path.normalize(`${dir}/${subDir}`);
-
-      if (fs.pathExistsSync(pluginDir)) {
-        return fs
-          .readdirSync(pluginDir)
-          .map(fileName => path.normalize(`${pluginDir}/${fileName}`));
+  const analyzers = [];
+  const walk = leaf => {
+    if (typeof leaf === 'object') {
+      if (leaf.children) {
+        leaf.children.forEach(walk);
       }
+    } else {
+      const match = leaf.match(/^\/analysis\/languages\/(\w+)\/$/);
+      if (match && match[1] && match[1] !== 'overview') {
+        analyzers.push(LANG_TO_ANALYZER_MAP[match[1]] || match[1]);
+      }
+    }
+  };
 
-      return [];
-    });
-  }
+  const tree = JSON.parse(fs.readFileSync(STATIC_NAV_TREE_DEFINITION, 'utf8'));
+  tree.forEach(walk);
 
-  return [];
+  return analyzers.map(analyzer => {
+    const analyzerDir = path.normalize(`${EXPANDED_PLUGIN_DOCS_DIR}/sonar-${analyzer}-plugin`);
+
+    if (!fs.pathExistsSync(analyzerDir)) {
+      throw Error(
+        `Couldn't find the "${analyzer}" analyzer in the build dir. Looked for "${analyzerDir}", but couldn't find it.`
+      );
+    }
+
+    return fs
+      .readdirSync(analyzerDir)
+      .map(fileName => path.normalize(`${analyzerDir}/${fileName}`));
+  });
 }
 
 function processPluginFileList(pluginFileList) {
   let md;
   let mf;
+  let pluginDir;
 
   pluginFileList.forEach(fileFullName => {
     const fileName = path.basename(fileFullName);
 
-    if (fileName.toLowerCase() === documentationFileName.toLowerCase()) {
+    if (pluginDir === undefined) {
+      pluginDir = path.dirname(fileFullName);
+    }
+
+    if (fileName.toLowerCase() === DOCUMENTATION_FILE_NAME.toLowerCase()) {
       md = fileFullName;
-    } else if (fileName.toLowerCase() === manifestFileName.toLowerCase()) {
+    } else if (fileName.toLowerCase() === MANIFEST_FILE_NAME.toLowerCase()) {
       mf = fileFullName;
     }
   });
 
   if (!md) {
-    return undefined;
+    throw Error(`Couldn't find the "${DOCUMENTATION_FILE_NAME}" file in "${pluginDir}".`);
   }
 
   return { ...parsePluginMarkdownFile(md), ...parsePluginManifestFile(mf) };
@@ -115,6 +144,10 @@ function parsePluginMarkdownFile(fileFullPath) {
 }
 
 function parsePluginManifestFile(fileFullPath) {
+  if (!fileFullPath) {
+    return undefined;
+  }
+
   const mfContent = fs.readFileSync(fileFullPath, 'utf-8');
   const regex = /^Plugin-IssueTrackerUrl:\s*(.+\r?\n?\s?\w+)$/m;
   const match = mfContent.match(regex);
@@ -133,7 +166,7 @@ function loadNodeContent(fileNode) {
 }
 
 function loadNodeContentSync(fileNode) {
-  let content = processPluginOverridesIfAvailable(fs.readFileSync(fileNode.absolutePath, 'utf-8'));
+  let content = processPluginOverrides(fs.readFileSync(fileNode.absolutePath, 'utf-8'));
 
   content = cleanContent(content);
   content = handleIncludes(content, fileNode);

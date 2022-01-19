@@ -3,12 +3,4 @@ title: Ruby
 url: /analysis/languages/ruby/
 ---
 
-
-
-## Language-Specific Properties
-
-Discover and update the Ruby-specific [properties](/analysis/analysis-parameters/) in: <!-- sonarcloud -->Project <!-- /sonarcloud --> **[Administration > General Settings > Ruby](/#sonarqube-admin#/admin/settings?category=ruby)**
-
-## Related Pages
-* [Importing External Issues](/analysis/external-issues/) (Rubocop)
-* [Test Coverage & Execution](/analysis/coverage/) (SimpleCov)
+This is a placeholder file. It is required for Gatsby, but its content will be dynamically replaced.
