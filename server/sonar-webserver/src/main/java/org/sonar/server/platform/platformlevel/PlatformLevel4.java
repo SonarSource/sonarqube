@@ -180,6 +180,7 @@ import org.sonar.server.projectanalysis.ws.ProjectAnalysisWsModule;
 import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
+import org.sonar.server.pushapi.ServerPushWsModule;
 import org.sonar.server.qualitygate.ProjectsInWarningModule;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
@@ -547,6 +548,9 @@ public class PlatformLevel4 extends PlatformLevel {
       CoreExtensionStopper.class,
 
       MultipleAlmFeatureProvider.class,
+
+      // ServerPush endpoints
+      ServerPushWsModule.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
       ReportAnalysisFailureNotificationModule.class,

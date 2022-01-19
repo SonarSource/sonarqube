@@ -1,0 +1,16 @@
+sonarqube {
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: WebServer :: PushAPI"
+    }
+}
+dependencies {
+
+    compile project(':server:sonar-webserver-auth')
+    compile project(':server:sonar-webserver-ws')
+
+    testCompile 'junit:junit'
+    testCompile 'org.assertj:assertj-core'
+    testCompile 'org.mockito:mockito-core'
+
+    testCompile testFixtures(project(':server:sonar-webserver-ws'))
+}

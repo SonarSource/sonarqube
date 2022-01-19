@@ -21,6 +21,7 @@ dependencies {
   compile project(':server:sonar-process')
   compile project(':server:sonar-webserver-core')
   compile project(':server:sonar-webserver-webapi')
+  compile project(':server:sonar-webserver-pushapi')
   compile project(':server:sonar-webserver-monitoring')
 
   compileOnly 'com.google.code.findbugs:jsr305'
