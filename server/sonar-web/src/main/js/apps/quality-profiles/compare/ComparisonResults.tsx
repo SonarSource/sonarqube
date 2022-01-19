@@ -53,7 +53,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     return (
       <ul>
         {Object.keys(params).map(key => (
-          <li className="spacer-top" key={key}>
+          <li className="spacer-top break-word" key={key}>
             <code>
               {key}
               {': '}
