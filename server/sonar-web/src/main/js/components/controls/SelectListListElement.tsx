@@ -27,7 +27,7 @@ interface Props {
   element: string;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
-  renderElement: (element: string) => React.ReactNode;
+  renderElement: (element: string) => React.ReactNode | [React.ReactNode, React.ReactNode];
   selected: boolean;
 }
 
@@ -60,23 +60,28 @@ export default class SelectListListElement extends React.PureComponent<Props, St
   };
 
   render() {
+    let item = this.props.renderElement(this.props.element);
+    let extra;
+    if (Array.isArray(item)) {
+      extra = item[1];
+      item = item[0];
+    }
     return (
       <li
-        className={classNames({
+        className={classNames('display-flex-center', {
           'select-list-list-disabled': this.props.disabled
         })}>
         <Checkbox
           checked={this.props.selected}
-          className={classNames('select-list-list-checkbox display-flex-center', {
+          className={classNames('select-list-list-checkbox flex-1', {
             active: this.props.active
           })}
           disabled={this.props.disabled}
           loading={this.state.loading}
           onCheck={this.handleCheck}>
-          <span className="little-spacer-left flex-1">
-            {this.props.renderElement(this.props.element)}
-          </span>
+          <span className="little-spacer-left">{item}</span>
         </Checkbox>
+        {extra && <span className="select-list-list-extra">{extra}</span>}
       </li>
     );
   }

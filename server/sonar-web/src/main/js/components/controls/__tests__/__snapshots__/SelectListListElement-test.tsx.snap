@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display a loader when checking 1`] = `
+exports[`should display a loader when checking: default 1`] = `
 <li
-  className=""
+  className="display-flex-center"
 >
   <Checkbox
     checked={false}
-    className="select-list-list-checkbox display-flex-center"
+    className="select-list-list-checkbox flex-1"
     loading={false}
     onCheck={[Function]}
     thirdState={false}
   >
     <span
-      className="little-spacer-left flex-1"
+      className="little-spacer-left"
     >
       foo
     </span>
@@ -20,19 +20,19 @@ exports[`should display a loader when checking 1`] = `
 </li>
 `;
 
-exports[`should display a loader when checking 2`] = `
+exports[`should display a loader when checking: loading 1`] = `
 <li
-  className=""
+  className="display-flex-center"
 >
   <Checkbox
     checked={false}
-    className="select-list-list-checkbox display-flex-center"
+    className="select-list-list-checkbox flex-1"
     loading={true}
     onCheck={[Function]}
     thirdState={false}
   >
     <span
-      className="little-spacer-left flex-1"
+      className="little-spacer-left"
     >
       foo
     </span>

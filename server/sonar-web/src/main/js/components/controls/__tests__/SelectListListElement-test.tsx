@@ -22,26 +22,36 @@ import * as React from 'react';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import SelectListListElement from '../SelectListListElement';
 
-const listElement = (
-  <SelectListListElement
-    element="foo"
-    key="foo"
-    onSelect={jest.fn(() => Promise.resolve())}
-    onUnselect={jest.fn(() => Promise.resolve())}
-    renderElement={(foo: string) => foo}
-    selected={false}
-  />
-);
-
 it('should display a loader when checking', async () => {
-  const wrapper = shallow<SelectListListElement>(listElement);
-  expect(wrapper).toMatchSnapshot();
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot('default');
   expect(wrapper.state().loading).toBe(false);
 
-  (wrapper.instance() as SelectListListElement).handleCheck(true);
+  wrapper.instance().handleCheck(true);
   expect(wrapper.state().loading).toBe(true);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loading');
 
   await waitAndUpdate(wrapper);
   expect(wrapper.state().loading).toBe(false);
 });
+
+it('should correctly handle a render callback that returns 2 elements', () => {
+  const wrapper = shallowRender({
+    renderElement: (foo: string) => [foo, 'extra info']
+  });
+  expect(wrapper.find('.select-list-list-extra').exists()).toBe(true);
+});
+
+function shallowRender(props: Partial<SelectListListElement['props']> = {}) {
+  return shallow<SelectListListElement>(
+    <SelectListListElement
+      element="foo"
+      key="foo"
+      onSelect={jest.fn(() => Promise.resolve())}
+      onUnselect={jest.fn(() => Promise.resolve())}
+      renderElement={(foo: string) => foo}
+      selected={false}
+      {...props}
+    />
+  );
+}
