@@ -14,7 +14,7 @@ exports[`should render with malformed version 1`] = `
 
 exports[`should render with version 1`] = `
 <Tooltip
-  overlay="api_documentation.will_be_removed_in_x.7.0"
+  overlay="api_documentation.will_be_removed_in_x.6.0"
 >
   <span
     className="badge badge-warning"

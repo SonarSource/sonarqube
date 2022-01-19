@@ -25,7 +25,7 @@ import { parseVersion } from '../utils';
 export default function DeprecatedBadge({ since }: { since?: string }) {
   const version = since && parseVersion(since);
   const overlay = version
-    ? translateWithParameters('api_documentation.will_be_removed_in_x', `${version.major + 2}.0`)
+    ? translateWithParameters('api_documentation.will_be_removed_in_x', `${version.major + 1}.0`)
     : translate('api_documentation.deprecation_tooltip');
   const label = since
     ? translateWithParameters('api_documentation.deprecated_since_x', since)
