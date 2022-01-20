@@ -35,12 +35,6 @@ To manually install a plugin:
 
 ## Uninstalling plugins
 
-To uninstall a plugin from the Marketplace (**Administration > Marketplace**):
-1. Sort the **Plugins** list by installed plugins by selecting **Installed** above the list.
-2. Find the plugin you want to uninstall.
-3. Click the **Uninstall** button to the right of the plugin information.
-4. Restart your SonarQube server.
-
-To uninstall a plugin manually:
+To uninstall a plugin:
 1. Delete the plugin from the `$SONARQUBE-HOME/extensions/plugins` folder.
 2. Restart your SonarQube server.
