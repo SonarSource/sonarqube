@@ -29,6 +29,7 @@ import SearchBox from '../../../components/controls/SearchBox';
 import ClockIcon from '../../../components/icons/ClockIcon';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
@@ -286,16 +287,16 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.keyCode) {
-      case 13:
+    switch (event.nativeEvent.code) {
+      case KeyboardCodes.Enter:
         event.preventDefault();
         this.openSelected();
         return;
-      case 38:
+      case KeyboardCodes.UpArrow:
         event.preventDefault();
         this.selectPrevious();
         return;
-      case 40:
+      case KeyboardCodes.DownArrow:
         event.preventDefault();
         this.selectNext();
         // keep this return to prevent fall-through in case more cases will be adder later

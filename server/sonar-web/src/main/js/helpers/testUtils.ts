@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ReactWrapper, ShallowWrapper } from 'enzyme';
+import { KeyboardCodes, KeyboardKeys } from './keycodes';
 
 export function mockEvent(overrides = {}) {
   return {
@@ -68,37 +69,26 @@ export function change(element: ShallowWrapper | ReactWrapper, value: string, ev
   }
 }
 
-export const KEYCODE_MAP: { [keycode: number]: string } = {
-  13: 'enter',
-  37: 'left',
-  38: 'up',
-  39: 'right',
-  40: 'down'
+export const KEYCODE_MAP: { [code in KeyboardCodes]?: string } = {
+  [KeyboardCodes.Enter]: 'enter',
+  [KeyboardCodes.LeftArrow]: 'left',
+  [KeyboardCodes.UpArrow]: 'up',
+  [KeyboardCodes.RightArrow]: 'right',
+  [KeyboardCodes.DownArrow]: 'down'
 };
 
-export function keydown(key: number | string): void {
-  let keyCode;
-  if (typeof key === 'number') {
-    keyCode = key;
-  } else {
-    // eslint-disable-next-line no-console
-    console.warn('Using strings in keydown() is deprecated. Consider using the KeyCodes enum.');
-    const mapped = Object.entries(KEYCODE_MAP).find(([_, value]) => value === key);
-    if (!mapped) {
-      throw new Error(`Cannot map key "${key}" to a keyCode!`);
-    }
-    keyCode = mapped[0];
-  }
-
-  const event = new KeyboardEvent('keydown', { keyCode, which: keyCode } as KeyboardEventInit);
+export function keydown(args: { code?: KeyboardCodes; key?: KeyboardKeys }): void {
+  const event = new KeyboardEvent('keydown', args as KeyboardEventInit);
   document.dispatchEvent(event);
 }
 
-export function elementKeydown(element: ShallowWrapper, keyCode: number): void {
+export function elementKeydown(element: ShallowWrapper, code: KeyboardCodes): void {
   const event = {
     currentTarget: { element },
-    keyCode,
-    preventDefault() {}
+    nativeEvent: { code },
+    preventDefault() {
+      /*noop*/
+    }
   };
 
   if (typeof element.type() === 'string') {

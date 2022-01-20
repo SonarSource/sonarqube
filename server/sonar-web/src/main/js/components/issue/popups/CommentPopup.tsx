@@ -21,10 +21,11 @@ import * as React from 'react';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import FormattingTips from '../../common/FormattingTips';
 
-interface Props {
+export interface CommentPopupProps {
   comment?: Pick<T.IssueComment, 'markdown'>;
   onComment: (text: string) => void;
   toggleComment: (visible: boolean) => void;
@@ -37,8 +38,8 @@ interface State {
   textComment: string;
 }
 
-export default class CommentPopup extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
+export default class CommentPopup extends React.PureComponent<CommentPopupProps, State> {
+  constructor(props: CommentPopupProps) {
     super(props);
     this.state = {
       textComment: props.comment ? props.comment.markdown : ''
@@ -60,10 +61,16 @@ export default class CommentPopup extends React.PureComponent<Props, State> {
   };
 
   handleKeyboard = (event: React.KeyboardEvent) => {
-    if (event.keyCode === 13 && (event.metaKey || event.ctrlKey)) {
-      // Ctrl + Enter
+    if (event.nativeEvent.code === KeyboardCodes.Enter && (event.metaKey || event.ctrlKey)) {
       this.handleCommentClick();
-    } else if ([37, 38, 39, 40].includes(event.keyCode)) {
+    } else if (
+      [
+        KeyboardCodes.UpArrow,
+        KeyboardCodes.DownArrow,
+        KeyboardCodes.LeftArrow,
+        KeyboardCodes.RightArrow
+      ].includes(event.nativeEvent.code as KeyboardCodes)
+    ) {
       // Arrow keys
       event.stopPropagation();
     }

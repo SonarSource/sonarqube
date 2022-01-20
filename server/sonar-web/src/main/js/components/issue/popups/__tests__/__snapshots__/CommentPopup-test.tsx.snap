@@ -12,7 +12,7 @@ exports[`should render the comment popup correctly when changing a comment 1`] =
         autoFocus={true}
         onChange={[Function]}
         onKeyDown={[Function]}
-        placeholder=""
+        placeholder="placeholder test"
         rows={2}
         value="*test*"
       />

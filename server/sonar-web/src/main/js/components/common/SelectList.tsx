@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import key from 'keymaster';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
+import { KeyboardCodes } from '../../helpers/keycodes';
 import SelectListItem from './SelectListItem';
 
 interface Props {
@@ -76,7 +77,11 @@ export default class SelectList extends React.PureComponent<Props, State> {
       filter: (event: KeyboardEvent & { target: HTMLElement }) => {
         const { tagName } = event.target || event.srcElement;
         const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-        return [13, 38, 40].includes(event.keyCode) || !isInput;
+        return (
+          [KeyboardCodes.Enter, KeyboardCodes.UpArrow, KeyboardCodes.DownArrow].includes(
+            event.code as KeyboardCodes
+          ) || !isInput
+        );
       }
     });
 

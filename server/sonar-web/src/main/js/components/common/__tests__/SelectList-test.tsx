@@ -19,9 +19,31 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { click, keydown } from '../../../helpers/testUtils';
+import { KeyboardCodes } from '../../../helpers/keycodes';
+import { click, KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
 import SelectList from '../SelectList';
 import SelectListItem from '../SelectListItem';
+
+jest.mock('keymaster', () => {
+  const key: any = (bindKey: string, _: string, callback: Function) => {
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
+      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
+        return callback();
+      }
+      return true;
+    });
+  };
+  let scope = 'key-scope';
+
+  key.getScope = () => scope;
+  key.setScope = (newScope: string) => {
+    scope = newScope;
+  };
+  key.deleteScope = jest.fn();
+
+  return key;
+});
 
 it('should render correctly without children', () => {
   const onSelect = jest.fn();
@@ -56,7 +78,7 @@ it('should render correctly with children', () => {
 it('should correclty handle user actions', () => {
   const onSelect = jest.fn();
   const items = ['item', 'seconditem', 'third'];
-  const list = mount(
+  const list = mount<SelectList>(
     <SelectList currentItem="seconditem" items={items} onSelect={onSelect}>
       {items.map(item => (
         <SelectListItem item={item} key={item}>
@@ -66,12 +88,15 @@ it('should correclty handle user actions', () => {
       ))}
     </SelectList>
   );
-  keydown(40);
-  expect(list.state()).toMatchSnapshot();
-  keydown(40);
-  expect(list.state()).toMatchSnapshot();
-  keydown(38);
-  expect(list.state()).toMatchSnapshot();
+  expect(list.state().active).toBe('seconditem');
+  keydown({ code: KeyboardCodes.DownArrow });
+  expect(list.state().active).toBe('third');
+  keydown({ code: KeyboardCodes.DownArrow });
+  expect(list.state().active).toBe('item');
+  keydown({ code: KeyboardCodes.UpArrow });
+  expect(list.state().active).toBe('third');
+  keydown({ code: KeyboardCodes.UpArrow });
+  expect(list.state().active).toBe('seconditem');
   click(list.find('a').at(2));
-  expect(onSelect.mock.calls).toMatchSnapshot(); // eslint-disable-linelist
+  expect(onSelect).toBeCalledWith('third');
 });

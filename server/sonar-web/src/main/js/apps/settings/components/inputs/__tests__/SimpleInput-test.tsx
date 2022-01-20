@@ -19,23 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { KeyboardCodes } from '../../../../../helpers/keycodes';
 import { mockSetting } from '../../../../../helpers/mocks/settings';
+import { mockEvent } from '../../../../../helpers/testMocks';
 import { change } from '../../../../../helpers/testUtils';
-import SimpleInput from '../SimpleInput';
+import SimpleInput, { SimpleInputProps } from '../SimpleInput';
 
 it('should render input', () => {
-  const onChange = jest.fn();
-  const input = shallow(
-    <SimpleInput
-      className="input-large"
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      type="text"
-      setting={mockSetting()}
-      value="bar"
-    />
-  ).find('input');
+  const input = shallowRender().find('input');
   expect(input.length).toBe(1);
   expect(input.prop('type')).toBe('text');
   expect(input.prop('className')).toContain('input-large');
@@ -46,20 +37,51 @@ it('should render input', () => {
 
 it('should call onChange', () => {
   const onChange = jest.fn();
-  const input = shallow(
-    <SimpleInput
-      className="input-large"
-      isDefault={false}
-      name="foo"
-      onChange={onChange}
-      type="text"
-      setting={mockSetting()}
-      value="bar"
-    />
-  ).find('input');
+  const input = shallowRender({ onChange }).find('input');
   expect(input.length).toBe(1);
   expect(input.prop('onChange')).toBeDefined();
 
   change(input, 'qux');
   expect(onChange).toBeCalledWith('qux');
 });
+
+it('should handle enter', () => {
+  const onSave = jest.fn();
+  shallowRender({ onSave })
+    .instance()
+    .handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.Enter } }));
+  expect(onSave).toBeCalled();
+});
+
+it('should handle esc', () => {
+  const onCancel = jest.fn();
+  shallowRender({ onCancel })
+    .instance()
+    .handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.Escape } }));
+  expect(onCancel).toBeCalled();
+});
+
+it('should ignore other keys', () => {
+  const onSave = jest.fn();
+  const onCancel = jest.fn();
+  shallowRender({ onCancel, onSave })
+    .instance()
+    .handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.LeftArrow } }));
+  expect(onSave).not.toBeCalled();
+  expect(onCancel).not.toBeCalled();
+});
+
+function shallowRender(overrides: Partial<SimpleInputProps> = {}) {
+  return shallow<SimpleInput>(
+    <SimpleInput
+      className="input-large"
+      isDefault={false}
+      name="foo"
+      onChange={jest.fn()}
+      type="text"
+      setting={mockSetting()}
+      value="bar"
+      {...overrides}
+    />
+  );
+}

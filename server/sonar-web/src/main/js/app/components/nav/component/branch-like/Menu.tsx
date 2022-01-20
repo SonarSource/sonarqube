@@ -28,7 +28,7 @@ import {
   isPullRequest,
   isSameBranchLike
 } from '../../../../../helpers/branch-like';
-import { KeyCodes } from '../../../../../helpers/keycodes';
+import { KeyboardCodes } from '../../../../../helpers/keycodes';
 import { translate } from '../../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../../helpers/urls';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
@@ -109,16 +109,16 @@ export class Menu extends React.PureComponent<Props, State> {
   };
 
   handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.keyCode) {
-      case KeyCodes.Enter:
+    switch (event.nativeEvent.code) {
+      case KeyboardCodes.Enter:
         event.preventDefault();
         this.openHighlightedBranchLike();
         break;
-      case KeyCodes.UpArrow:
+      case KeyboardCodes.UpArrow:
         event.preventDefault();
         this.highlightSiblingBranchlike(-1);
         break;
-      case KeyCodes.DownArrow:
+      case KeyboardCodes.DownArrow:
         event.preventDefault();
         this.highlightSiblingBranchlike(+1);
         break;

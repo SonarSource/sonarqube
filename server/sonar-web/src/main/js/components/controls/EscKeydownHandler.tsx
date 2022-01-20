@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { KeyCodes } from '../../helpers/keycodes';
+import { KeyboardCodes } from '../../helpers/keycodes';
 
 interface Props {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ export default class EscKeydownHandler extends React.Component<Props> {
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
-    if (event.keyCode === KeyCodes.Escape) {
+    if (event.code === KeyboardCodes.Escape) {
       this.props.onKeydown();
     }
   };

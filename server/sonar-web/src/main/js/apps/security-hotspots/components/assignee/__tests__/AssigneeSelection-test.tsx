@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { searchUsers } from '../../../../../api/users';
-import { KeyCodes } from '../../../../../helpers/keycodes';
+import { KeyboardCodes } from '../../../../../helpers/keycodes';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import AssigneeSelection from '../AssigneeSelection';
@@ -34,7 +34,7 @@ it('should render correctly', () => {
 });
 
 it('should handle keydown', () => {
-  const mockEvent = (keyCode: number) => ({ preventDefault: jest.fn(), keyCode });
+  const mockEvent = (code: KeyboardCodes) => ({ preventDefault: jest.fn(), nativeEvent: { code } });
   const suggestedUsers = [
     mockUser({ login: '1' }) as T.UserActive,
     mockUser({ login: '2' }) as T.UserActive,
@@ -44,29 +44,29 @@ it('should handle keydown', () => {
   const onSelect = jest.fn();
   const wrapper = shallowRender({ onSelect });
 
-  wrapper.instance().handleKeyDown(mockEvent(KeyCodes.UpArrow) as any);
+  wrapper.instance().handleKeyDown(mockEvent(KeyboardCodes.UpArrow) as any);
   expect(wrapper.state().highlighted).toEqual({ login: '', name: 'unassigned' });
 
   wrapper.setState({ suggestedUsers });
 
   // press down to highlight the first
-  wrapper.instance().handleKeyDown(mockEvent(KeyCodes.DownArrow) as any);
+  wrapper.instance().handleKeyDown(mockEvent(KeyboardCodes.DownArrow) as any);
   expect(wrapper.state().highlighted).toBe(suggestedUsers[0]);
 
   // press up to loop around to last
-  wrapper.instance().handleKeyDown(mockEvent(KeyCodes.UpArrow) as any);
+  wrapper.instance().handleKeyDown(mockEvent(KeyboardCodes.UpArrow) as any);
   expect(wrapper.state().highlighted).toBe(suggestedUsers[2]);
 
   // press down to loop around to first
-  wrapper.instance().handleKeyDown(mockEvent(KeyCodes.DownArrow) as any);
+  wrapper.instance().handleKeyDown(mockEvent(KeyboardCodes.DownArrow) as any);
   expect(wrapper.state().highlighted).toBe(suggestedUsers[0]);
 
   // press down highlight the next
-  wrapper.instance().handleKeyDown(mockEvent(KeyCodes.DownArrow) as any);
+  wrapper.instance().handleKeyDown(mockEvent(KeyboardCodes.DownArrow) as any);
   expect(wrapper.state().highlighted).toBe(suggestedUsers[1]);
 
   // press enter to select the highlighted user
-  wrapper.instance().handleKeyDown(mockEvent(KeyCodes.Enter) as any);
+  wrapper.instance().handleKeyDown(mockEvent(KeyboardCodes.Enter) as any);
   expect(onSelect).toBeCalledWith(suggestedUsers[1]);
 });
 

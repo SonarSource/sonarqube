@@ -43,7 +43,7 @@ import {
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
-import { KeyCodes } from '../../../helpers/keycodes';
+import { KeyboardCodes, KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
@@ -268,19 +268,19 @@ export default class App extends React.PureComponent<Props, State> {
     if (key.getScope() !== 'issues') {
       return;
     }
-    if (event.keyCode === KeyCodes.Alt) {
+    if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
       this.setState(actions.enableLocationsNavigator);
-    } else if (event.keyCode === KeyCodes.DownArrow && event.altKey) {
+    } else if (event.code === KeyboardCodes.DownArrow && event.altKey) {
       event.preventDefault();
       this.selectNextLocation();
-    } else if (event.keyCode === KeyCodes.UpArrow && event.altKey) {
+    } else if (event.code === KeyboardCodes.UpArrow && event.altKey) {
       event.preventDefault();
       this.selectPreviousLocation();
-    } else if (event.keyCode === KeyCodes.LeftArrow && event.altKey) {
+    } else if (event.code === KeyboardCodes.LeftArrow && event.altKey) {
       event.preventDefault();
       this.selectPreviousFlow();
-    } else if (event.keyCode === KeyCodes.RightArrow && event.altKey) {
+    } else if (event.code === KeyboardCodes.RightArrow && event.altKey) {
       event.preventDefault();
       this.selectNextFlow();
     }
@@ -290,8 +290,7 @@ export default class App extends React.PureComponent<Props, State> {
     if (key.getScope() !== 'issues') {
       return;
     }
-    if (event.keyCode === KeyCodes.Alt) {
-      // alt
+    if (event.key === KeyboardKeys.Alt) {
       this.setState(actions.disableLocationsNavigator);
     }
   };

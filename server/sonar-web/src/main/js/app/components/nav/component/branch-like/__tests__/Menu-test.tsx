@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Link } from 'react-router';
 import SearchBox from '../../../../../../components/controls/SearchBox';
-import { KeyCodes } from '../../../../../../helpers/keycodes';
+import { KeyboardCodes } from '../../../../../../helpers/keycodes';
 import {
   mockPullRequest,
   mockSetOfBranchAndPullRequest
@@ -93,14 +93,14 @@ it('should handle keyboard shortcut correctly', () => {
 
   const { onKeyDown } = wrapper.find(SearchBox).props();
 
-  onKeyDown!(mockEvent({ keyCode: KeyCodes.UpArrow }));
+  onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.UpArrow } }));
   expect(wrapper.state().selectedBranchLike).toBe(branchLikes[5]);
 
-  onKeyDown!(mockEvent({ keyCode: KeyCodes.DownArrow }));
-  onKeyDown!(mockEvent({ keyCode: KeyCodes.DownArrow }));
+  onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
+  onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.DownArrow } }));
   expect(wrapper.state().selectedBranchLike).toBe(branchLikes[0]);
 
-  onKeyDown!(mockEvent({ keyCode: KeyCodes.Enter }));
+  onKeyDown!(mockEvent({ nativeEvent: { code: KeyboardCodes.Enter } }));
   expect(push).toHaveBeenCalled();
 });
 

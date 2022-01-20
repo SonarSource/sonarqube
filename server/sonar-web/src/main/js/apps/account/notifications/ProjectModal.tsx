@@ -25,6 +25,7 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import SearchBox from '../../../components/controls/SearchBox';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -61,16 +62,16 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.keyCode) {
-      case 13:
+    switch (event.nativeEvent.code) {
+      case KeyboardCodes.Enter:
         event.preventDefault();
         this.handleSelectHighlighted();
         break;
-      case 38:
+      case KeyboardCodes.UpArrow:
         event.preventDefault();
         this.handleHighlightPrevious();
         break;
-      case 40:
+      case KeyboardCodes.DownArrow:
         event.preventDefault();
         this.handleHighlightNext();
         break;

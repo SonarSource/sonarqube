@@ -20,7 +20,7 @@
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { searchUsers } from '../../../../api/users';
-import { KeyCodes } from '../../../../helpers/keycodes';
+import { KeyboardCodes } from '../../../../helpers/keycodes';
 import { translate } from '../../../../helpers/l10n';
 import { isUserActive } from '../../../../helpers/users';
 import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
@@ -104,16 +104,16 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
   };
 
   handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.keyCode) {
-      case KeyCodes.Enter:
+    switch (event.nativeEvent.code) {
+      case KeyboardCodes.Enter:
         event.preventDefault();
         this.selectHighlighted();
         break;
-      case KeyCodes.UpArrow:
+      case KeyboardCodes.UpArrow:
         event.preventDefault();
         this.highlightPrevious();
         break;
-      case KeyCodes.DownArrow:
+      case KeyboardCodes.DownArrow:
         event.preventDefault();
         this.highlightNext();
         break;

@@ -62,6 +62,8 @@ interface State {
 
 const SAFE_SET_STATE_DELAY = 3000;
 
+const formNoop = (e: React.FormEvent<HTMLFormElement>) => e.preventDefault();
+
 export class Definition extends React.PureComponent<Props, State> {
   timeout?: number;
   mounted = false;
@@ -189,7 +191,7 @@ export class Definition extends React.PureComponent<Props, State> {
               </span>
             )}
           </div>
-          <form>
+          <form onSubmit={formNoop}>
             <Input
               hasValueChanged={hasValueChanged}
               onCancel={this.handleCancel}

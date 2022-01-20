@@ -19,7 +19,9 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import MultiSelect from '../MultiSelect';
+import { KeyboardCodes } from '../../../helpers/keycodes';
+import { mockEvent } from '../../../helpers/testUtils';
+import MultiSelect, { MultiSelectProps } from '../MultiSelect';
 
 const props = {
   selectedElements: ['bar'],
@@ -31,14 +33,10 @@ const props = {
   placeholder: ''
 };
 
-const elements = [
-  { key: 'foo', label: 'foo' },
-  { key: 'bar', label: 'bar' },
-  { key: 'baz', label: 'baz' }
-];
+const elements = ['foo', 'bar', 'baz'];
 
 it('should render multiselect with selected elements', () => {
-  const multiselect = shallow(<MultiSelect {...props} />);
+  const multiselect = shallowRender();
   // Will not only the selected element
   expect(multiselect).toMatchSnapshot();
 
@@ -55,9 +53,53 @@ it('should render with the focus inside the search input', () => {
    * Need to attach to document body to have it set to `document.activeElement`
    * See: https://github.com/jsdom/jsdom/issues/2723#issuecomment-580163361
    */
-  const multiselect = mount(<MultiSelect {...props} />, { attachTo: document.body });
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const multiselect = mount(<MultiSelect {...props} />, { attachTo: container });
 
   expect(multiselect.find('input').getDOMNode()).toBe(document.activeElement);
 
   multiselect.unmount();
 });
+
+it.each([
+  [KeyboardCodes.DownArrow, 1, 1],
+  [KeyboardCodes.UpArrow, 1, 1],
+  [KeyboardCodes.LeftArrow, 1, 0]
+])('should handle keyboard event: %s', (code, stopPropagationCalls, preventDefaultCalls) => {
+  const wrapper = shallowRender();
+
+  const stopPropagation = jest.fn();
+  const preventDefault = jest.fn();
+  const event = mockEvent({ preventDefault, stopPropagation, code });
+
+  wrapper.instance().handleKeyboard(event);
+
+  expect(stopPropagation).toBeCalledTimes(stopPropagationCalls);
+  expect(preventDefault).toBeCalledTimes(preventDefaultCalls);
+});
+
+it('should handle keyboard event: enter', () => {
+  const wrapper = shallowRender();
+
+  wrapper.instance().toggleSelect = jest.fn();
+
+  wrapper.instance().handleKeyboard(mockEvent({ code: KeyboardCodes.Enter }));
+
+  expect(wrapper.instance().toggleSelect).toBeCalled();
+});
+
+function shallowRender(overrides: Partial<MultiSelectProps> = {}) {
+  return shallow<MultiSelect>(
+    <MultiSelect
+      selectedElements={['bar']}
+      elements={[]}
+      onSearch={() => Promise.resolve()}
+      onSelect={jest.fn()}
+      onUnselect={jest.fn()}
+      renderLabel={(element: string) => element}
+      placeholder=""
+      {...overrides}
+    />
+  );
+}

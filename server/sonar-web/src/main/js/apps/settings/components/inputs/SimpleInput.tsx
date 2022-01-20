@@ -19,21 +19,22 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { KeyboardCodes } from '../../../../helpers/keycodes';
 import { DefaultSpecializedInputProps } from '../../utils';
 
-interface Props extends DefaultSpecializedInputProps {
+export interface SimpleInputProps extends DefaultSpecializedInputProps {
   value: string | number;
 }
 
-export default class SimpleInput extends React.PureComponent<Props> {
+export default class SimpleInput extends React.PureComponent<SimpleInputProps> {
   handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onChange(event.currentTarget.value);
   };
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.keyCode === 13 && this.props.onSave) {
+    if (event.nativeEvent.code === KeyboardCodes.Enter && this.props.onSave) {
       this.props.onSave();
-    } else if (event.keyCode === 27 && this.props.onCancel) {
+    } else if (event.nativeEvent.code === KeyboardCodes.Escape && this.props.onCancel) {
       this.props.onCancel();
     }
   };

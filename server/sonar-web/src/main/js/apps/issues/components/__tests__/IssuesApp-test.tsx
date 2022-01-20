@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import key from 'keymaster';
 import * as React from 'react';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
-import { KeyCodes } from '../../../../helpers/keycodes';
+import { KeyboardCodes, KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
@@ -63,7 +63,8 @@ jest.mock('../../../../helpers/handleRequiredAuthentication', () => jest.fn());
 jest.mock('keymaster', () => {
   const key: any = (bindKey: string, _: string, callback: Function) => {
     document.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (bindKey.split(',').includes(KEYCODE_MAP[event.keyCode])) {
+      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
+      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
         return callback();
       }
       return true;
@@ -217,25 +218,25 @@ it('should correctly bind key events for issue navigation', async () => {
 
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
-  keydown(KeyCodes.DownArrow);
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[1].key);
 
-  keydown(KeyCodes.UpArrow);
-  keydown(KeyCodes.UpArrow);
+  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ code: KeyboardCodes.UpArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
-  keydown(KeyCodes.DownArrow);
-  keydown(KeyCodes.DownArrow);
-  keydown(KeyCodes.DownArrow);
-  keydown(KeyCodes.DownArrow);
-  keydown(KeyCodes.DownArrow);
-  keydown(KeyCodes.DownArrow);
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(wrapper.state('selected')).toBe(ISSUES[3].key);
 
-  keydown(KeyCodes.RightArrow);
+  keydown({ code: KeyboardCodes.RightArrow });
   expect(push).toBeCalledTimes(1);
 
-  keydown(KeyCodes.LeftArrow);
+  keydown({ code: KeyboardCodes.LeftArrow });
   expect(push).toBeCalledTimes(2);
   expect(window.addEventListener).toBeCalledTimes(2);
 });
@@ -432,28 +433,28 @@ describe('keydown event handler', () => {
   });
 
   it('should handle alt', () => {
-    instance.handleKeyDown(mockEvent({ keyCode: 18 }));
+    instance.handleKeyDown(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).toHaveBeenCalledWith(enableLocationsNavigator);
   });
   it('should handle alt+↓', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 40 }));
+    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.DownArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectNextLocation);
   });
   it('should handle alt+↑', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 38 }));
+    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.UpArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectPreviousLocation);
   });
   it('should handle alt+←', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 37 }));
+    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.LeftArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectPreviousFlow);
   });
   it('should handle alt+→', () => {
-    instance.handleKeyDown(mockEvent({ altKey: true, keyCode: 39 }));
+    instance.handleKeyDown(mockEvent({ altKey: true, code: KeyboardCodes.RightArrow }));
     expect(instance.setState).toHaveBeenCalledWith(selectNextFlow);
   });
   it('should ignore different scopes', () => {
     key.setScope('notissues');
-    instance.handleKeyDown(mockEvent({ keyCode: 18 }));
+    instance.handleKeyDown(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).not.toHaveBeenCalled();
   });
 });
@@ -472,13 +473,13 @@ describe('keyup event handler', () => {
   });
 
   it('should handle alt', () => {
-    instance.handleKeyUp(mockEvent({ keyCode: 18 }));
+    instance.handleKeyUp(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).toHaveBeenCalledWith(disableLocationsNavigator);
   });
 
   it('should ignore different scopes', () => {
     key.setScope('notissues');
-    instance.handleKeyUp(mockEvent({ keyCode: 18 }));
+    instance.handleKeyUp(mockEvent({ key: KeyboardKeys.Alt }));
     expect(instance.setState).not.toHaveBeenCalled();
   });
 });

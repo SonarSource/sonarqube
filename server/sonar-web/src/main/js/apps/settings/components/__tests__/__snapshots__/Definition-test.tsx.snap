@@ -34,7 +34,9 @@ exports[`should render correctly 1`] = `
     <div
       className="settings-definition-state"
     />
-    <form>
+    <form
+      onSubmit={[Function]}
+    >
       <Input
         hasValueChanged={false}
         onCancel={[Function]}

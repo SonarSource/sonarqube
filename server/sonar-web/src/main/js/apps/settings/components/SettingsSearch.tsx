@@ -23,7 +23,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import { withRouter } from '../../../components/hoc/withRouter';
-import { KeyCodes } from '../../../helpers/keycodes';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { getSettingsAppAllDefinitions, Store } from '../../../store/rootReducer';
 import { SettingCategoryDefinition } from '../../../types/settings';
 import { ADDITIONAL_SETTING_DEFINITIONS, buildSettingLink } from '../utils';
@@ -118,16 +118,16 @@ export class SettingsSearch extends React.Component<Props, State> {
   };
 
   handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.keyCode) {
-      case KeyCodes.Enter:
+    switch (event.nativeEvent.code) {
+      case KeyboardCodes.Enter:
         event.preventDefault();
         this.openSelected();
         return;
-      case KeyCodes.UpArrow:
+      case KeyboardCodes.UpArrow:
         event.preventDefault();
         this.selectPrevious();
         return;
-      case KeyCodes.DownArrow:
+      case KeyboardCodes.DownArrow:
         event.preventDefault();
         this.selectNext();
         // keep this return to prevent fall-through in case more cases will be adder later

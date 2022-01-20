@@ -21,10 +21,11 @@ import classNames from 'classnames';
 import { difference } from 'lodash';
 import * as React from 'react';
 import SearchBox from '../../components/controls/SearchBox';
+import { KeyboardCodes } from '../../helpers/keycodes';
 import { translateWithParameters } from '../../helpers/l10n';
 import MultiSelectOption from './MultiSelectOption';
 
-interface Props {
+export interface MultiSelectProps {
   allowNewElements?: boolean;
   allowSelection?: boolean;
   elements: string[];
@@ -55,9 +56,9 @@ interface DefaultProps {
   validateSearchInput: (value: string) => string;
 }
 
-type PropsWithDefault = Props & DefaultProps;
+type PropsWithDefault = MultiSelectProps & DefaultProps;
 
-export default class MultiSelect extends React.PureComponent<Props, State> {
+export default class MultiSelect extends React.PureComponent<MultiSelectProps, State> {
   container?: HTMLDivElement | null;
   searchInput?: HTMLInputElement | null;
   mounted = false;
@@ -70,7 +71,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     validateSearchInput: (value: string) => value
   };
 
-  constructor(props: Props) {
+  constructor(props: MultiSelectProps) {
     super(props);
     this.state = {
       activeIdx: 0,
@@ -137,23 +138,23 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     });
   };
 
-  handleKeyboard = (evt: KeyboardEvent) => {
-    switch (evt.keyCode) {
-      case 40: // down
-        evt.stopPropagation();
-        evt.preventDefault();
+  handleKeyboard = (event: KeyboardEvent) => {
+    switch (event.code) {
+      case KeyboardCodes.DownArrow:
+        event.stopPropagation();
+        event.preventDefault();
         this.setState(this.selectNextElement);
         break;
-      case 38: // up
-        evt.stopPropagation();
-        evt.preventDefault();
+      case KeyboardCodes.UpArrow:
+        event.stopPropagation();
+        event.preventDefault();
         this.setState(this.selectPreviousElement);
         break;
-      case 37: // left
-      case 39: // right
-        evt.stopPropagation();
+      case KeyboardCodes.LeftArrow:
+      case KeyboardCodes.RightArrow:
+        event.stopPropagation();
         break;
-      case 13: // enter
+      case KeyboardCodes.Enter:
         if (this.state.activeIdx >= 0) {
           this.toggleSelect(this.getAllElements(this.props, this.state)[this.state.activeIdx]);
         }
@@ -175,7 +176,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
 
   onUnselectItem = (item: string) => this.props.onUnselect(item);
 
-  isNewElement = (elem: string, { selectedElements, elements }: Props) =>
+  isNewElement = (elem: string, { selectedElements, elements }: MultiSelectProps) =>
     elem.length > 0 && selectedElements.indexOf(elem) === -1 && elements.indexOf(elem) === -1;
 
   updateSelectedElements = (props: PropsWithDefault) => {
@@ -207,7 +208,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     });
   };
 
-  getAllElements = (props: Props, state: State) => {
+  getAllElements = (props: MultiSelectProps, state: State) => {
     if (this.isNewElement(state.query, props)) {
       return [...state.selectedElements, ...state.unselectedElements, state.query];
     } else {
@@ -217,7 +218,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
 
   setElementActive = (idx: number) => this.setState({ activeIdx: idx });
 
-  selectNextElement = (state: State, props: Props) => {
+  selectNextElement = (state: State, props: MultiSelectProps) => {
     const { activeIdx } = state;
     const allElements = this.getAllElements(props, state);
     if (activeIdx < 0 || activeIdx >= allElements.length - 1) {
@@ -227,7 +228,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     }
   };
 
-  selectPreviousElement = (state: State, props: Props) => {
+  selectPreviousElement = (state: State, props: MultiSelectProps) => {
     const { activeIdx } = state;
     const allElements = this.getAllElements(props, state);
     if (activeIdx <= 0) {

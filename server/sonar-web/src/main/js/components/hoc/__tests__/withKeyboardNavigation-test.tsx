@@ -19,6 +19,7 @@
  */
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
 import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
@@ -43,7 +44,8 @@ const COMPONENTS = [
 jest.mock('keymaster', () => {
   const key: any = (bindKey: string, _: string, callback: Function) => {
     document.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (bindKey.split(',').includes(KEYCODE_MAP[event.keyCode])) {
+      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
+      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
         return callback();
       }
       return true;
@@ -78,28 +80,28 @@ it('should correctly bind key events for component navigation', () => {
     })
   );
 
-  keydown('down');
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[2]);
   expect(onSelect).not.toBeCalled();
 
-  keydown('up');
-  keydown('up');
+  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ code: KeyboardCodes.UpArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
   expect(onSelect).not.toBeCalled();
 
-  keydown('up');
+  keydown({ code: KeyboardCodes.UpArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[2]);
 
-  keydown('down');
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
 
-  keydown('right');
+  keydown({ code: KeyboardCodes.RightArrow });
   expect(onSelect).toBeCalledWith(COMPONENTS[0]);
 
-  keydown('enter');
+  keydown({ code: KeyboardCodes.Enter });
   expect(onSelect).toBeCalledWith(COMPONENTS[0]);
 
-  keydown('left');
+  keydown({ code: KeyboardCodes.LeftArrow });
   expect(onGoToParent).toBeCalled();
 });
 
@@ -116,18 +118,18 @@ it('should support not cycling through elements, and triggering a callback on re
     })
   );
 
-  keydown('down');
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
-  keydown('down');
-  keydown('down');
-  keydown('down');
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[2]);
   expect(onEndOfList).toBeCalled();
 
-  keydown('up');
-  keydown('up');
-  keydown('up');
-  keydown('up');
+  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ code: KeyboardCodes.UpArrow });
+  keydown({ code: KeyboardCodes.UpArrow });
   expect(onHighlight).toBeCalledWith(COMPONENTS[0]);
 });
 
@@ -148,19 +150,19 @@ it('should correctly bind key events for codeview navigation', () => {
 
   expect(onHighlight).not.toBeCalled();
 
-  keydown('down');
+  keydown({ code: KeyboardCodes.DownArrow });
   expect(onHighlight).not.toBeCalled();
 
-  keydown('up');
+  keydown({ code: KeyboardCodes.UpArrow });
   expect(onHighlight).not.toBeCalled();
 
-  keydown('right');
+  keydown({ code: KeyboardCodes.RightArrow });
   expect(onSelect).not.toBeCalled();
 
-  keydown('enter');
+  keydown({ code: KeyboardCodes.Enter });
   expect(onSelect).not.toBeCalled();
 
-  keydown('left');
+  keydown({ code: KeyboardCodes.LeftArrow });
   expect(onGoToParent).toBeCalled();
 });
 

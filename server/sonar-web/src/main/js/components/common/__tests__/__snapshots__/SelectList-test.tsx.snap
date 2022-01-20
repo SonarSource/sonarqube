@@ -1,31 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correclty handle user actions 1`] = `
-Object {
-  "active": "third",
-}
-`;
-
-exports[`should correclty handle user actions 2`] = `
-Object {
-  "active": "item",
-}
-`;
-
-exports[`should correclty handle user actions 3`] = `
-Object {
-  "active": "third",
-}
-`;
-
-exports[`should correclty handle user actions 4`] = `
-Array [
-  Array [
-    "third",
-  ],
-]
-`;
-
 exports[`should render correctly with children 1`] = `
 <ul
   className="menu"

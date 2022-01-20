@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getSuggestions } from '../../../../api/components';
+import { KeyboardCodes } from '../../../../helpers/keycodes';
 import { change, elementKeydown, submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import ProjectModal from '../ProjectModal';
 
@@ -102,27 +103,24 @@ it('should handle up and down keys', async () => {
   });
   await waitAndUpdate(wrapper);
 
-  // Down.
-  elementKeydown(wrapper.dive().find('SearchBox'), 40);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.DownArrow);
   expect(wrapper.state('highlighted')).toEqual(foo);
-  elementKeydown(wrapper.dive().find('SearchBox'), 40);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.DownArrow);
   expect(wrapper.state('highlighted')).toEqual(bar);
-  elementKeydown(wrapper.dive().find('SearchBox'), 40);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.DownArrow);
   expect(wrapper.state('highlighted')).toEqual(foo);
 
-  // Up.
-  elementKeydown(wrapper.dive().find('SearchBox'), 38);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.UpArrow);
   expect(wrapper.state('highlighted')).toEqual(bar);
-  elementKeydown(wrapper.dive().find('SearchBox'), 38);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.UpArrow);
   expect(wrapper.state('highlighted')).toEqual(foo);
-  elementKeydown(wrapper.dive().find('SearchBox'), 38);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.UpArrow);
   expect(wrapper.state('highlighted')).toEqual(bar);
 
-  // Enter.
-  elementKeydown(wrapper.dive().find('SearchBox'), 13);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.Enter);
   expect(wrapper.state('selectedProject')).toEqual(bar);
   expect(onSubmit).not.toHaveBeenCalled();
-  elementKeydown(wrapper.dive().find('SearchBox'), 13);
+  elementKeydown(wrapper.dive().find('SearchBox'), KeyboardCodes.Enter);
   expect(onSubmit).toHaveBeenCalledWith(bar);
 });
 
