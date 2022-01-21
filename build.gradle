@@ -163,7 +163,7 @@ subprojects {
   }
 
   ext {
-    protobufVersion = '3.19.1'
+    protobufVersion = '3.19.3'
 
     // define a method which can be called by project to change Java version to compile to
     configureCompileJavaToVersion = { javaVersion ->
