@@ -222,7 +222,7 @@ public class IssueDbTester {
    * Inserts an issue as new code in a branch using reference branch for new code
    */
   public void insertNewCodeReferenceIssue(NewCodeReferenceIssueDto dto) {
-    db.getDbClient().issueDao().insertAsNewOnReferenceBranch(db.getSession(), dto);
+    db.getDbClient().issueDao().insertAsNewCodeOnReferenceBranch(db.getSession(), dto);
     db.commit();
   }
 

@@ -58,10 +58,6 @@ public class IssueDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
-  public boolean isNewCodeOnReferencedBranch(DbSession session, String issueKey) {
-    return mapper(session).isNewCodeOnReferencedBranch(issueKey);
-  }
-
   public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid) {
     return mapper(session).selectIssueKeysByComponentUuid(componentUuid);
   }
@@ -111,9 +107,12 @@ public class IssueDao implements Dao {
     mapper(session).update(dto);
   }
 
-  public void insertAsNewOnReferenceBranch(DbSession session, NewCodeReferenceIssueDto dto) {
-    IssueMapper mapper = mapper(session);
-    mapper.insertAsNewOnReferenceBranch(dto);
+  public void insertAsNewCodeOnReferenceBranch(DbSession session, NewCodeReferenceIssueDto dto) {
+    mapper(session).insertAsNewCodeOnReferenceBranch(dto);
+  }
+
+  public void deleteAsNewCodeOnReferenceBranch(DbSession session, String issueKey) {
+    mapper(session).deleteAsNewCodeOnReferenceBranch(issueKey);
   }
 
   private static IssueMapper mapper(DbSession session) {

@@ -1126,11 +1126,17 @@ public class PurgeDaoTest {
 
     // others remain
     assertThat(db.countRowsOfTable("issues")).isEqualTo(2);
-    assertThat(db.getDbClient().issueDao().selectByKey(dbSession, notOldEnoughClosed.getKey())).isNotEmpty();
-    assertThat(db.getDbClient().issueDao().isNewCodeOnReferencedBranch(dbSession, notOldEnoughClosed.getKey())).isTrue();
-    assertThat(db.getDbClient().issueDao().selectByKey(dbSession, notClosed.getKey())).isNotEmpty();
-    assertThat(db.getDbClient().issueDao().isNewCodeOnReferencedBranch(dbSession, notClosed.getKey())).isTrue();
-    assertThat(db.getDbClient().issueDao().isNewCodeOnReferencedBranch(dbSession, oldClosed.getKey())).isFalse();
+
+    Optional<IssueDto> notOldEnoughClosedFromQuery = db.getDbClient().issueDao().selectByKey(dbSession, notOldEnoughClosed.getKey());
+    assertThat(notOldEnoughClosedFromQuery).isNotEmpty();
+    assertThat(notOldEnoughClosedFromQuery.get().isNewCodeReferenceIssue()).isTrue();
+
+    Optional<IssueDto> notClosedFromQuery = db.getDbClient().issueDao().selectByKey(dbSession, notClosed.getKey());
+    assertThat(notClosedFromQuery).isNotEmpty();
+    assertThat(notClosedFromQuery.get().isNewCodeReferenceIssue()).isTrue();
+
+    Optional<IssueDto> oldClosedFromQuery = db.getDbClient().issueDao().selectByKey(dbSession, oldClosed.getKey());
+    assertThat(oldClosedFromQuery).isEmpty();
   }
 
   @Test

@@ -56,7 +56,7 @@ message Issue {
 
   optional bool isFromExternalRuleEngine = 25;
 
-   // FUNCTIONAL DATES
+  // FUNCTIONAL DATES
   optional int64 creationDate = 26;
   optional int64 updateDate = 27;
   optional int64 closeDate = 28;
@@ -78,6 +78,7 @@ message Issue {
 
   optional bool isOnReferencedBranch = 40;
   optional bool isOnChangedLine = 41;
+  optional bool isNoLongerNewCodeReferenceIssue = 42;
 }
 
 message Comment {

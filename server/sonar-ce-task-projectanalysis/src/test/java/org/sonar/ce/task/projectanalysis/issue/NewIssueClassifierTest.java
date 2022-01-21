@@ -109,8 +109,8 @@ public class NewIssueClassifierTest {
         .build())
       .build());
     assertThat(newIssueClassifier.isNew(file, issue)).isTrue();
-    verify(issue).setIsOnReferencedBranch(true);
-    verify(issue).setIsOnChangedLine(true);
+    assertThat(newIssueClassifier.isOnBranchUsingReferenceBranch()).isTrue();
+    assertThat(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(file, issue)).isTrue();
   }
 
   @Test
@@ -130,8 +130,52 @@ public class NewIssueClassifierTest {
         .build())
       .build());
     assertThat(newIssueClassifier.isNew(file, issue)).isFalse();
-    verify(issue).setIsOnReferencedBranch(true);
-    verify(issue).setIsOnChangedLine(false);
+    assertThat(newIssueClassifier.isOnBranchUsingReferenceBranch()).isTrue();
+    assertThat(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(file, issue)).isFalse();
+  }
+
+  @Test
+  public void isNew_returns_false_for_issue_which_was_new_but_it_is_not_located_on_changed_lines_anymore() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    Component file = mock(Component.class);
+    DefaultIssue issue = mock(DefaultIssue.class);
+    when(file.getType()).thenReturn(Component.Type.FILE);
+    when(file.getUuid()).thenReturn("fileUuid");
+    when(newLinesRepository.getNewLines(file)).thenReturn(Optional.of(Set.of(2, 3)));
+    when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder()
+        .setStartLine(10)
+        .setStartOffset(1)
+        .setEndLine(10)
+        .setEndOffset(2)
+        .build())
+      .build());
+    when(issue.isNewCodeReferenceIssue()).thenReturn(true);
+    assertThat(newIssueClassifier.isNew(file, issue)).isFalse();
+    assertThat(newIssueClassifier.isOnBranchUsingReferenceBranch()).isTrue();
+    assertThat(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(file, issue)).isFalse();
+  }
+
+  @Test
+  public void isNew_returns_true_for_issue_which_was_new_and_is_still_located_on_changed_lines() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    Component file = mock(Component.class);
+    DefaultIssue issue = mock(DefaultIssue.class);
+    when(file.getType()).thenReturn(Component.Type.FILE);
+    when(file.getUuid()).thenReturn("fileUuid");
+    when(newLinesRepository.getNewLines(file)).thenReturn(Optional.of(Set.of(2, 3)));
+    when(issue.getLocations()).thenReturn(DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder()
+        .setStartLine(2)
+        .setStartOffset(1)
+        .setEndLine(2)
+        .setEndOffset(2)
+        .build())
+      .build());
+    when(issue.isNewCodeReferenceIssue()).thenReturn(true);
+    assertThat(newIssueClassifier.isNew(file, issue)).isTrue();
+    assertThat(newIssueClassifier.isOnBranchUsingReferenceBranch()).isTrue();
+    assertThat(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(file, issue)).isTrue();
   }
 
   @Test

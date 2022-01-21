@@ -112,6 +112,7 @@ public class IssueDtoTest {
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
     assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
     assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isNewCodeReferenceIssue()).isFalse();
   }
 
   @Test
@@ -182,7 +183,7 @@ public class IssueDtoTest {
         "path/to/module/uuid", "123", "projectKey", "key=value", "ruleUuid");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
-
+    assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
   }
 
   @Test
@@ -214,7 +215,7 @@ public class IssueDtoTest {
         "path/to/module/uuid", "123", "projectKey", "key=value");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
-
+    assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
@@ -246,7 +247,8 @@ public class IssueDtoTest {
       .setCloseDate(dateNow)
       .setUpdateDate(dateNow)
       .setSelectedAt(dateNow.getTime())
-      .setQuickFixAvailable(true);
+      .setQuickFixAvailable(true)
+      .setIsNewCodeReferenceIssue(true);
     return defaultIssue;
   }
 }

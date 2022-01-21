@@ -41,7 +41,7 @@ public class NewIssueClassifier {
 
   public boolean isEnabled() {
     return analysisMetadataHolder.isPullRequest() || periodHolder.hasPeriodDate() ||
-      (periodHolder.hasPeriod() && periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name()));
+      (periodHolder.hasPeriod() && isOnBranchUsingReferenceBranch());
   }
 
   public boolean isNew(Component component, DefaultIssue issue) {
@@ -54,17 +54,21 @@ public class NewIssueClassifier {
         return periodHolder.getPeriod().isOnPeriod(issue.creationDate());
       }
 
-      if (periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name())) {
-        issue.setIsOnReferencedBranch(true);
-        boolean isOnChangedLine = hasAtLeastOneLocationOnChangedLines(component, issue);
-        issue.setIsOnChangedLine(isOnChangedLine);
-        return isOnChangedLine;
+      if (isOnBranchUsingReferenceBranch()) {
+        return hasAtLeastOneLocationOnChangedLines(component, issue);
       }
     }
     return false;
   }
 
-  private boolean hasAtLeastOneLocationOnChangedLines(Component component, DefaultIssue issue) {
+  public boolean isOnBranchUsingReferenceBranch() {
+    if (periodHolder.hasPeriod()) {
+      return periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name());
+    }
+    return false;
+  }
+
+  public boolean hasAtLeastOneLocationOnChangedLines(Component component, DefaultIssue issue) {
     if (component.getType() != Component.Type.FILE) {
       return false;
     }

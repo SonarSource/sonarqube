@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.container;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.PicoContainer;

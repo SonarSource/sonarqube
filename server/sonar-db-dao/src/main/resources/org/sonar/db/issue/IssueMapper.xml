@@ -39,7 +39,8 @@
     root.kee as projectKey,
     i.project_uuid as projectUuid,
     i.issue_type as type,
-    i.quick_fix_available as quickFixAvailable
+    i.quick_fix_available as quickFixAvailable,
+    <include refid="isNewCodeReferenceIssue"/>
   </sql>
 
    <sql id="issueColumnsInInnerQuery">
@@ -68,6 +69,16 @@
     i.project_uuid,
     i.issue_type,
     i.quick_fix_available
+  </sql>
+
+  <sql id="isNewCodeReferenceIssue" databaseId="mssql">
+    cast(case when n.uuid is null then 0 else 1 end as bit) as isNewCodeReferenceIssue
+  </sql>
+  <sql id="isNewCodeReferenceIssue" databaseId="oracle">
+    case when n.uuid is null then 0 else 1 end as isNewCodeReferenceIssue
+  </sql>
+  <sql id="isNewCodeReferenceIssue">
+    n.uuid is not null as isNewCodeReferenceIssue
   </sql>
 
   <sql id="sortColumn">
@@ -118,12 +129,17 @@
     #{quickFixAvailable, jdbcType=BOOLEAN})
   </insert>
 
-  <insert id="insertAsNewOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
+  <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
     INSERT INTO new_code_reference_issues (uuid, issue_key, created_at)
     VALUES (
     #{uuid,jdbcType=VARCHAR},
     #{issueKey,jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT})
+  </insert>
+
+  <insert id="deleteAsNewCodeOnReferenceBranch" parameterType="String" useGeneratedKeys="false">
+    DELETE FROM new_code_reference_issues
+    where issue_key = #{issueKey, jdbcType=VARCHAR}
   </insert>
 
   <!--
@@ -190,28 +206,8 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where i.kee=#{kee,jdbcType=VARCHAR}
-  </select>
-
-  <sql id="isNewCodeOnReferencedBranchSql">
-    select
-    case when exists
-    (
-    select i.uuid from new_code_reference_issues i
-    where i.issue_key = #{issueKey,jdbcType=VARCHAR}
-    )
-    then 1
-    else 0
-    end
-  </sql>
-
-  <select id="isNewCodeOnReferencedBranch" parameterType="String" resultType="boolean">
-    <include refid="isNewCodeOnReferencedBranchSql"/>
-  </select>
-
-  <select id="isNewCodeOnReferencedBranch" parameterType="String" resultType="boolean" databaseId="oracle">
-    <include refid="isNewCodeOnReferencedBranchSql"/>
-    from dual
   </select>
 
   <select id="scrollNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}"
@@ -222,6 +218,7 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
@@ -234,6 +231,7 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where
     (r.is_external is NULL or r.is_external = ${_false}) and
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
@@ -256,6 +254,8 @@
       ic.issue_key = i.kee
       and ic.change_type = 'diff'
       and ic.change_data like '%status=%|CLOSED%'
+    left join new_code_reference_issues n on
+      i.kee = n.issue_key
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
@@ -291,6 +291,7 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
@@ -304,6 +305,7 @@
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where
       i.kee in
         <foreach collection="keys" open="(" close=")" item="key" separator=",">
@@ -341,6 +343,7 @@
     inner join rules r on r.uuid = i.rule_uuid
     inner join components p on p.uuid = i.component_uuid
     inner join components root on root.uuid = i.project_uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where
     (r.is_external is NULL or r.is_external = ${_false}) and
     i.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
@@ -402,6 +405,7 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
     where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
     order by i.issue_creation_date ASC
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
@@ -424,6 +428,7 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
   </select>
 
    <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="oracle">
@@ -447,6 +452,7 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
+    left join new_code_reference_issues n on i.kee = n.issue_key
   </select>
 </mapper>
 

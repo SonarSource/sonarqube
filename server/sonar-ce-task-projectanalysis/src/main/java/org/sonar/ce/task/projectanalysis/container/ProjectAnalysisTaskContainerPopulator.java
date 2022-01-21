@@ -33,7 +33,6 @@ import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
-import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
@@ -64,12 +63,14 @@ import org.sonar.ce.task.projectanalysis.issue.IssueAssigner;
 import org.sonar.ce.task.projectanalysis.issue.IssueCounter;
 import org.sonar.ce.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.ce.task.projectanalysis.issue.IssueLifecycle;
+import org.sonar.ce.task.projectanalysis.issue.IssueOnReferenceBranchVisitor;
 import org.sonar.ce.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.ce.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.ce.task.projectanalysis.issue.IssuesRepositoryVisitor;
 import org.sonar.ce.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.ce.task.projectanalysis.issue.NewEffortAggregator;
+import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.PullRequestSourceBranchMerger;
 import org.sonar.ce.task.projectanalysis.issue.PullRequestTrackerExecution;
@@ -105,8 +106,8 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.measure.MeasureToMeasureDto;
 import org.sonar.ce.task.projectanalysis.metric.MetricModule;
 import org.sonar.ce.task.projectanalysis.notification.NotificationFactory;
-import org.sonar.ce.task.projectanalysis.issue.NewIssueClassifier;
 import org.sonar.ce.task.projectanalysis.period.NewCodePeriodResolver;
+import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolderImpl;
@@ -266,6 +267,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MovedIssueVisitor.class,
       IssuesRepositoryVisitor.class,
       RemoveProcessedComponentsVisitor.class,
+      IssueOnReferenceBranchVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       LoadComponentUuidsHavingOpenIssuesVisitor.class,

@@ -444,7 +444,7 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void selectByKey_givenOneIssueWithQuickFix_selectOneIssueWithQuickFix2() {
+  public void selectByKey_givenOneIssueNewOnReferenceBranch_selectOneIssueWithNewOnReferenceBranch() {
     prepareIssuesComponent();
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
@@ -459,12 +459,18 @@ public class IssueDaoTest {
       .setProjectUuid(PROJECT_UUID)
       .setQuickFixAvailable(true));
     IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    IssueDto issue2 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY2);
 
-    underTest.insertAsNewOnReferenceBranch(db.getSession(),
-      newCodeReferenceIssue(issue1));
+    assertThat(issue1.isNewCodeReferenceIssue()).isFalse();
+    assertThat(issue2.isNewCodeReferenceIssue()).isFalse();
 
-    assertThat(underTest.isNewCodeOnReferencedBranch(db.getSession(), ISSUE_KEY1)).isTrue();
-    assertThat(underTest.isNewCodeOnReferencedBranch(db.getSession(), ISSUE_KEY2)).isFalse();
+    underTest.insertAsNewCodeOnReferenceBranch(db.getSession(), newCodeReferenceIssue(issue1));
+
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).isNewCodeReferenceIssue()).isTrue();
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY2).isNewCodeReferenceIssue()).isFalse();
+
+    underTest.deleteAsNewCodeOnReferenceBranch(db.getSession(), ISSUE_KEY1);
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).isNewCodeReferenceIssue()).isFalse();
   }
 
   private static IssueDto newIssueDto(String key) {

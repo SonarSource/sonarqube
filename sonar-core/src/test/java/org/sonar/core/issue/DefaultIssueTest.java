@@ -58,6 +58,8 @@ public class DefaultIssueTest {
       .setNew(true)
       .setIsOnReferencedBranch(true)
       .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(true)
+      .setIsNoLongerNewCodeReferenceIssue(true)
       .setBeingClosed(true)
       .setOnDisabledRule(true)
       .setCopied(true)
@@ -87,6 +89,8 @@ public class DefaultIssueTest {
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isOnReferencedBranch()).isTrue();
     assertThat(issue.isOnChangedLine()).isTrue();
+    assertThat(issue.isNewCodeReferenceIssue()).isTrue();
+    assertThat(issue.isNoLongerNewCodeReferenceIssue()).isTrue();
     assertThat(issue.isCopied()).isTrue();
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.isOnDisabledRule()).isTrue();

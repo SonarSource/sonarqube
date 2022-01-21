@@ -75,6 +75,7 @@ public class PersistIssuesStep implements ComputationStep {
          CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       List<DefaultIssue> addedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> updatedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
+      List<DefaultIssue> noLongerNewIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
 
       IssueMapper mapper = dbSession.getMapper(IssueMapper.class);
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
@@ -92,10 +93,17 @@ public class PersistIssuesStep implements ComputationStep {
             persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
             updatedIssues.clear();
           }
+        } else if (issue.isNoLongerNewCodeReferenceIssue()) {
+          noLongerNewIssues.add(issue);
+          if (noLongerNewIssues.size() >= ISSUE_BATCHING_SIZE) {
+            persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
+            noLongerNewIssues.clear();
+          }
         }
       }
       persistNewIssues(statistics, addedIssues, mapper, changeMapper);
       persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
+      persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
       flushSession(dbSession);
     } finally {
       statistics.dumpTo(context);
@@ -113,7 +121,7 @@ public class PersistIssuesStep implements ComputationStep {
       IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleUuid, now);
       mapper.insert(dto);
       if (i.isOnReferencedBranch() && i.isOnChangedLine()) {
-        mapper.insertAsNewOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
+        mapper.insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
       }
       statistics.inserts++;
     });
@@ -147,6 +155,18 @@ public class PersistIssuesStep implements ComputationStep {
     }
 
     updatedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
+  }
+
+  private static void persistNoLongerNewIssues(IssueStatistics statistics, List<DefaultIssue> noLongerNewIssues, IssueMapper mapper) {
+    if (noLongerNewIssues.isEmpty()) {
+      return;
+    }
+
+    noLongerNewIssues.forEach(i -> {
+      mapper.deleteAsNewCodeOnReferenceBranch(i.key());
+      statistics.updates++;
+    });
+
   }
 
   private static void flushSession(DbSession dbSession) {

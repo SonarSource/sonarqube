@@ -68,6 +68,7 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
@@ -162,9 +163,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(result.getTags()).containsExactlyInAnyOrder("test");
-
-    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
-    assertThat(isNewCodeOnReferencedBranch).isFalse();
+    assertThat(result.isNewCodeReferenceIssue()).isFalse();
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
@@ -211,9 +210,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(result.getTags()).isEmpty();
-
-    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
-    assertThat(isNewCodeOnReferencedBranch).isFalse();
+    assertThat(result.isNewCodeReferenceIssue()).isFalse();
 
     assertThat(dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey))).isEmpty();
     assertThat(context.getStatistics().getAll()).contains(
@@ -272,9 +269,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(BLOCKER);
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
-
-    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
-    assertThat(isNewCodeOnReferencedBranch).isTrue();
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
@@ -354,9 +349,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
-
-    boolean isNewCodeOnReferencedBranch = dbClient.issueDao().isNewCodeOnReferencedBranch(session, result.getKey());
-    assertThat(isNewCodeOnReferencedBranch).isTrue();
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
   }
 
   @Test
@@ -388,6 +381,60 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(issueReloaded.getResolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
+  }
+
+  @Test
+  public void handle_no_longer_new_issue() {
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    db.rules().insert(rule);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    when(system2.now()).thenReturn(NOW);
+    String issueKey = "ISSUE-5";
+
+    DefaultIssue defaultIssue = new DefaultIssue()
+      .setKey(issueKey)
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
+      .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
+      .setNew(true)
+      .setIsOnReferencedBranch(true)
+      .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(true)
+      .setIsNoLongerNewCodeReferenceIssue(false)
+      .setCopied(false)
+      .setType(RuleType.BUG)
+      .setCreationDate(new Date(NOW))
+      .setSelectedAt(NOW);
+
+    IssueDto issueDto = IssueDto.toDtoForComputationInsert(defaultIssue, rule.getUuid(), NOW);
+    dbClient.issueDao().insert(session, issueDto);
+    dbClient.issueDao().insertAsNewCodeOnReferenceBranch(session, newCodeReferenceIssue(issueDto));
+    session.commit();
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
+
+    protoIssueCache.newAppender().append(defaultIssue.setNew(false)
+        .setIsOnReferencedBranch(true)
+        .setIsOnChangedLine(false)
+        .setIsNewCodeReferenceIssue(false)
+        .setIsNoLongerNewCodeReferenceIssue(true))
+      .close();
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
+
+    result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.isNewCodeReferenceIssue()).isFalse();
   }
 
   @Test

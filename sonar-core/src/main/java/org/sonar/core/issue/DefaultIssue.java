@@ -125,6 +125,10 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private Long selectedAt;
 
   private boolean quickFixAvailable;
+  private boolean isNewCodeReferenceIssue;
+
+  // true if the issue is no longer new in its branch
+  private boolean isNoLongerNewCodeReferenceIssue = false;
 
   @Override
   public String key() {
@@ -545,6 +549,24 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setQuickFixAvailable(boolean quickFixAvailable) {
     this.quickFixAvailable = quickFixAvailable;
+    return this;
+  }
+
+  public boolean isNewCodeReferenceIssue() {
+    return isNewCodeReferenceIssue;
+  }
+
+  public DefaultIssue setIsNewCodeReferenceIssue(boolean isNewCodeReferenceIssue) {
+    this.isNewCodeReferenceIssue = isNewCodeReferenceIssue;
+    return this;
+  }
+
+  public boolean isNoLongerNewCodeReferenceIssue() {
+    return isNoLongerNewCodeReferenceIssue;
+  }
+
+  public DefaultIssue setIsNoLongerNewCodeReferenceIssue(boolean isNoLongerNewCodeReferenceIssue) {
+    this.isNoLongerNewCodeReferenceIssue = isNoLongerNewCodeReferenceIssue;
     return this;
   }
 

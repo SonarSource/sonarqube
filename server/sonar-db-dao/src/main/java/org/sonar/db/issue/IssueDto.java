@@ -77,6 +77,7 @@ public final class IssueDto implements Serializable {
   private long createdAt;
   private long updatedAt;
   private boolean quickFixAvailable;
+  private boolean isNewCodeReferenceIssue;
 
   // functional dates stored as Long
   private Long issueCreationDate;
@@ -141,6 +142,8 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
       .setQuickFixAvailable(issue.isQuickFixAvailable())
+      .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
+
 
       // technical dates
       .setCreatedAt(now)
@@ -188,6 +191,7 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
       .setQuickFixAvailable(issue.isQuickFixAvailable())
+      .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
 
       // technical date
       .setUpdatedAt(now);
@@ -702,6 +706,15 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  public boolean isNewCodeReferenceIssue() {
+    return isNewCodeReferenceIssue;
+  }
+
+  public IssueDto setIsNewCodeReferenceIssue(boolean isNewCodeReferenceIssue) {
+    this.isNewCodeReferenceIssue = isNewCodeReferenceIssue;
+    return this;
+  }
+
   public int getType() {
     return type;
   }
@@ -758,6 +771,7 @@ public final class IssueDto implements Serializable {
     issue.setLocations(parseLocations());
     issue.setIsFromExternalRuleEngine(isExternal);
     issue.setQuickFixAvailable(quickFixAvailable);
+    issue.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
     return issue;
   }
 }

@@ -37,8 +37,6 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
-  boolean isNewCodeOnReferencedBranch(@Param("issueKey") String issueKey);
-
   Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid);
 
   List<IssueDto> selectByComponentUuidPaginated(@Param("componentUuid") String componentUuid,
@@ -52,7 +50,9 @@ public interface IssueMapper {
 
   int update(IssueDto issue);
 
-  void insertAsNewOnReferenceBranch(NewCodeReferenceIssueDto issue);
+  void insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto issue);
+
+  void deleteAsNewCodeOnReferenceBranch(String issueKey);
 
   int updateIfBeforeSelectedDate(IssueDto issue);
 
