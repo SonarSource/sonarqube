@@ -24,9 +24,14 @@ import BranchIcon from '../../../components/icons/BranchIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import {
+  ComponentQualifier,
+  isApplication,
+  isPortfolioLike,
+  isProject
+} from '../../../types/component';
 
 export function getTooltip(component: T.ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -59,11 +64,13 @@ export interface Props {
   component: T.ComponentMeasure;
   previous?: T.ComponentMeasure;
   rootComponent: T.ComponentMeasure;
+  unclickable?: boolean;
 }
 
 export default function ComponentName({
   branchLike,
   component,
+  unclickable = false,
   rootComponent,
   previous,
   canBrowse = false
@@ -84,14 +91,23 @@ export default function ComponentName({
 
   let inner = null;
 
-  if (component.refKey && component.qualifier !== ComponentQualifier.SubPortfolio) {
+  if (
+    !unclickable &&
+    (isPortfolioLike(component.qualifier) ||
+      isApplication(component.qualifier) ||
+      isProject(component.qualifier))
+  ) {
     const branch = [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
       rootComponent.qualifier as ComponentQualifier
     )
       ? component.branch
       : undefined;
     inner = (
-      <Link className="link-with-icon" to={getProjectUrl(component.refKey, branch)}>
+      <Link
+        className="link-with-icon"
+        to={getComponentOverviewUrl(component.refKey || component.key, component.qualifier, {
+          branch
+        })}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );

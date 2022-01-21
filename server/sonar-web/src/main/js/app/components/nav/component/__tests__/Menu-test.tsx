@@ -120,24 +120,22 @@ it('should work for pull requests', () => {
   );
 });
 
-it('should work for all qualifiers', () => {
-  [
-    ComponentQualifier.Project,
-    ComponentQualifier.Portfolio,
-    ComponentQualifier.SubPortfolio,
-    ComponentQualifier.Application
-  ].forEach(checkWithQualifier);
-  expect.assertions(4);
-
-  function checkWithQualifier(qualifier: string) {
-    const component = {
-      ...baseComponent,
-      canBrowseAllChildProjects: true,
-      configuration: { showSettings: true },
-      qualifier
-    };
-    expect(shallowRender({ component })).toMatchSnapshot();
-  }
+it.each([
+  [ComponentQualifier.Project, false],
+  [ComponentQualifier.Portfolio, false],
+  [ComponentQualifier.Portfolio, true],
+  [ComponentQualifier.SubPortfolio, false],
+  [ComponentQualifier.SubPortfolio, true],
+  [ComponentQualifier.Application, false]
+])('should work for qualifier: %s, %s', (qualifier, enableGovernance) => {
+  const component = {
+    ...baseComponent,
+    canBrowseAllChildProjects: true,
+    configuration: { showSettings: true },
+    extensions: enableGovernance ? [{ key: 'governance/', name: 'governance' }] : [],
+    qualifier
+  };
+  expect(shallowRender({ component })).toMatchSnapshot();
 });
 
 it('should disable links if no analysis has been done', () => {

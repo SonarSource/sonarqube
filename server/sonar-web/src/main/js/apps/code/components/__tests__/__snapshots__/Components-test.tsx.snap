@@ -40,6 +40,7 @@ exports[`renders correctly 1`] = `
         }
       }
       hasBaseComponent={false}
+      isBaseComponent={true}
       key="foo"
       metrics={
         Array [
@@ -213,6 +214,7 @@ exports[`renders correctly for leak 1`] = `
         }
       }
       hasBaseComponent={false}
+      isBaseComponent={true}
       key="foo"
       metrics={
         Array [

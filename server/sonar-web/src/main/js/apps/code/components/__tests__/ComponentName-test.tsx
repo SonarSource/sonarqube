@@ -105,6 +105,24 @@ describe('#ComponentName', () => {
       })
     ).toMatchSnapshot();
   });
+
+  it.each([
+    [ComponentQualifier.Application, 'refKey'],
+    [ComponentQualifier.Portfolio, 'refKey'],
+    [ComponentQualifier.SubPortfolio, 'refKey'],
+    [ComponentQualifier.Project, 'refKey'],
+    [ComponentQualifier.Project, undefined]
+  ])('should render breadcrumb correctly for %s', (qualifier, refKey) => {
+    expect(
+      shallowRender({
+        component: mockComponentMeasure(false, {
+          refKey,
+          qualifier
+        }),
+        unclickable: true
+      })
+    ).toMatchSnapshot();
+  });
 });
 
 function shallowRender(props: Partial<Props> = {}) {

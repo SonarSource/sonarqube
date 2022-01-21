@@ -34,6 +34,7 @@ interface Props {
   canBrowse?: boolean;
   component: T.ComponentMeasure;
   hasBaseComponent: boolean;
+  isBaseComponent?: boolean;
   metrics: T.Metric[];
   previous?: T.ComponentMeasure;
   rootComponent: T.ComponentMeasure;
@@ -48,6 +49,7 @@ export class Component extends React.PureComponent<Props> {
       canBrowse = false,
       component,
       hasBaseComponent,
+      isBaseComponent = false,
       metrics,
       previous,
       rootComponent,
@@ -87,6 +89,7 @@ export class Component extends React.PureComponent<Props> {
               component={component}
               previous={previous}
               rootComponent={rootComponent}
+              unclickable={isBaseComponent}
             />
           </div>
         </td>

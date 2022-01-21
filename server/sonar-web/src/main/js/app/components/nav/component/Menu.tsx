@@ -188,14 +188,21 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
+  renderBreakdownLink = () => {
+    return this.isPortfolio() && this.isGovernanceEnabled()
+      ? this.renderMenuLink({
+          label: translate('portfolio_breakdown.page'),
+          to: { pathname: '/code' }
+        })
+      : null;
+  };
+
   renderCodeLink = () => {
-    const isPortfolio = this.isPortfolio();
-    const isApplication = this.isApplication();
-    const label =
-      isPortfolio || isApplication ? translate('view_projects.page') : translate('code.page');
-    if (this.isDeveloper()) {
+    if (this.isPortfolio() || this.isDeveloper()) {
       return null;
     }
+
+    const label = this.isApplication() ? translate('view_projects.page') : translate('code.page');
 
     return this.renderMenuLink({ label, to: { pathname: '/code' } });
   };
@@ -627,6 +634,7 @@ export class Menu extends React.PureComponent<Props> {
       <div className="display-flex-center display-flex-space-between">
         <NavBarTabs>
           {this.renderDashboardLink()}
+          {this.renderBreakdownLink()}
           {this.renderIssuesLink()}
           {this.renderSecurityHotspotsLink()}
           {this.renderSecurityReports()}

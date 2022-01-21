@@ -49,6 +49,7 @@ exports[`should render correctly 1`] = `
             "qualifier": "TRK",
           }
         }
+        unclickable={false}
       />
     </div>
   </td>
@@ -185,6 +186,7 @@ exports[`should render correctly for a file 1`] = `
             "qualifier": "TRK",
           }
         }
+        unclickable={false}
       />
     </div>
   </td>
@@ -262,6 +264,137 @@ exports[`should render correctly for a file 1`] = `
 </tr>
 `;
 
+exports[`should render correctly: is base component 1`] = `
+<tr
+  className=""
+>
+  <td
+    className="blank"
+  />
+  <td
+    className="thin nowrap"
+  />
+  <td
+    className="code-name-cell"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <ComponentName
+        canBrowse={false}
+        component={
+          Object {
+            "key": "bar",
+            "measures": Array [
+              Object {
+                "metric": "bugs",
+                "value": "12",
+              },
+              Object {
+                "metric": "vulnerabilities",
+                "value": "1",
+              },
+            ],
+            "name": "Bar",
+            "qualifier": "TRK",
+          }
+        }
+        rootComponent={
+          Object {
+            "key": "foo",
+            "measures": Array [
+              Object {
+                "bestValue": false,
+                "metric": "bugs",
+                "value": "12",
+              },
+            ],
+            "name": "Foo",
+            "qualifier": "TRK",
+          }
+        }
+        unclickable={true}
+      />
+    </div>
+  </td>
+  <td
+    className="thin nowrap text-right"
+    key="bugs"
+  >
+    <div
+      className="code-components-cell"
+    >
+      <ComponentMeasure
+        component={
+          Object {
+            "key": "bar",
+            "measures": Array [
+              Object {
+                "metric": "bugs",
+                "value": "12",
+              },
+              Object {
+                "metric": "vulnerabilities",
+                "value": "1",
+              },
+            ],
+            "name": "Bar",
+            "qualifier": "TRK",
+          }
+        }
+        metric={
+          Object {
+            "id": "bugs",
+            "key": "bugs",
+            "name": "Bugs",
+            "type": "PERCENT",
+          }
+        }
+      />
+    </div>
+  </td>
+  <td
+    className="thin nowrap text-right"
+    key="vulnerabilities"
+  >
+    <div
+      className="code-components-cell"
+    >
+      <ComponentMeasure
+        component={
+          Object {
+            "key": "bar",
+            "measures": Array [
+              Object {
+                "metric": "bugs",
+                "value": "12",
+              },
+              Object {
+                "metric": "vulnerabilities",
+                "value": "1",
+              },
+            ],
+            "name": "Bar",
+            "qualifier": "TRK",
+          }
+        }
+        metric={
+          Object {
+            "id": "vulnerabilities",
+            "key": "vulnerabilities",
+            "name": "Vulnerabilities",
+            "type": "PERCENT",
+          }
+        }
+      />
+    </div>
+  </td>
+  <td
+    className="blank"
+  />
+</tr>
+`;
+
 exports[`should render correctly: with base component 1`] = `
 <tr
   className=""
@@ -314,6 +447,7 @@ exports[`should render correctly: with base component 1`] = `
             "qualifier": "TRK",
           }
         }
+        unclickable={false}
       />
     </div>
   </td>

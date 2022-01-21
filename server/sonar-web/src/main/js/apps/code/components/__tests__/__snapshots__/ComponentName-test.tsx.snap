@@ -1,5 +1,90 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`#ComponentName should render breadcrumb correctly for APP 1`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="Foo
+
+foo"
+>
+  <span>
+    <QualifierIcon
+      qualifier="APP"
+    />
+     
+    Foo
+  </span>
+</span>
+`;
+
+exports[`#ComponentName should render breadcrumb correctly for SVW 1`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="Foo
+
+foo"
+>
+  <span>
+    <QualifierIcon
+      qualifier="SVW"
+    />
+     
+    Foo
+  </span>
+</span>
+`;
+
+exports[`#ComponentName should render breadcrumb correctly for TRK 1`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="Foo
+
+foo"
+>
+  <span>
+    <QualifierIcon
+      qualifier="TRK"
+    />
+     
+    Foo
+  </span>
+</span>
+`;
+
+exports[`#ComponentName should render breadcrumb correctly for TRK 2`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="Foo
+
+foo"
+>
+  <span>
+    <QualifierIcon
+      qualifier="TRK"
+    />
+     
+    Foo
+  </span>
+</span>
+`;
+
+exports[`#ComponentName should render breadcrumb correctly for VW 1`] = `
+<span
+  className="max-width-100 display-inline-block text-ellipsis"
+  title="Foo
+
+foo"
+>
+  <span>
+    <QualifierIcon
+      qualifier="VW"
+    />
+     
+    Foo
+  </span>
+</span>
+`;
+
 exports[`#ComponentName should render correctly for dirs 1`] = `
 <span
   className="max-width-100 display-inline-block text-ellipsis"

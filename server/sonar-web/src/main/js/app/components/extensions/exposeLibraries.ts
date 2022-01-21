@@ -51,6 +51,7 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
+import BulletListIcon from '../../../components/icons/BulletListIcon';
 import CheckIcon from '../../../components/icons/CheckIcon';
 import ClearIcon from '../../../components/icons/ClearIcon';
 import DetachIcon from '../../../components/icons/DetachIcon';
@@ -106,6 +107,7 @@ import {
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
 import {
+  getCodeUrl,
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
@@ -155,6 +157,7 @@ const exposeLibraries = () => {
         renderOwaspTop10Category,
         renderSansTop25Category,
         renderSonarSourceSecurityCategory,
+        getCodeUrl,
         getComponentDrilldownUrl,
         getComponentIssuesUrl,
         getComponentSecurityHotspotsUrl,
@@ -192,6 +195,7 @@ const exposeLibraries = () => {
         AlertWarnIcon,
         BranchIcon: BranchLikeIcon,
         BoxedTabs,
+        BulletListIcon,
         Button,
         Checkbox,
         CheckIcon,

@@ -37,6 +37,7 @@ export default function Breadcrumbs({ branchLike, breadcrumbs, rootComponent }: 
             canBrowse={index < breadcrumbs.length - 1}
             component={component}
             rootComponent={rootComponent}
+            unclickable={true}
           />
         </li>
       ))}

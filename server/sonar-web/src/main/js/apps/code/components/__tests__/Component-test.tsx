@@ -26,6 +26,7 @@ import { Component } from '../Component';
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ hasBaseComponent: true })).toMatchSnapshot('with base component');
+  expect(shallowRender({ isBaseComponent: true })).toMatchSnapshot('is base component');
 });
 
 it('should render correctly for a file', () => {

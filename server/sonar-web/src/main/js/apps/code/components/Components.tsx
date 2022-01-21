@@ -62,6 +62,7 @@ export class Components extends React.PureComponent<Props> {
                 canBePinned={canBePinned}
                 component={baseComponent}
                 hasBaseComponent={false}
+                isBaseComponent={true}
                 key={baseComponent.key}
                 metrics={this.props.metrics}
                 rootComponent={rootComponent}
