@@ -863,13 +863,13 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void repositories_facet_should_return_top_10_items() {
-    rangeClosed(1, 11).forEach(i -> db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
+  public void repositories_facet_should_return_top_100_items() {
+    rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
     index();
 
     SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
 
-    assertThat(result.getFacets().get(FACET_REPOSITORIES)).hasSize(10);
+    assertThat(result.getFacets().get(FACET_REPOSITORIES)).hasSize(100);
   }
 
   @Test
