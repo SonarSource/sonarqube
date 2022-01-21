@@ -21,6 +21,9 @@
   padding-top: 10vh;
   max-width: 300px;
   margin: 0 auto;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .login-title {

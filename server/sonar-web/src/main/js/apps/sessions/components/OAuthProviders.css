@@ -17,16 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.oauth-providers > ul {
-  width: 200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.oauth-providers > ul > li {
-  position: relative;
-  margin-bottom: 30px;
-}
 
 .oauth-providers-help {
   position: absolute;

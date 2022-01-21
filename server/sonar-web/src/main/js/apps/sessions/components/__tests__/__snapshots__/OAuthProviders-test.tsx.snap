@@ -1,43 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<section
+<Styled(div)
   className="oauth-providers"
 >
-  <ul>
-    <OAuthProvider
-      format={[Function]}
-      identityProvider={
-        Object {
-          "backgroundColor": "#000",
-          "iconPath": "/some/path",
-          "key": "foo",
-          "name": "Foo",
-        }
+  <OAuthProvider
+    format={[Function]}
+    identityProvider={
+      Object {
+        "backgroundColor": "#000",
+        "iconPath": "/some/path",
+        "key": "foo",
+        "name": "Foo",
       }
-      key="foo"
-      returnTo=""
-    />
-    <OAuthProvider
-      format={[Function]}
-      identityProvider={
-        Object {
-          "backgroundColor": "#00F",
-          "helpMessage": "Help message!",
-          "iconPath": "/icon/path",
-          "key": "bar",
-          "name": "Bar",
-        }
+    }
+    key="foo"
+    returnTo=""
+  />
+  <OAuthProvider
+    format={[Function]}
+    identityProvider={
+      Object {
+        "backgroundColor": "#00F",
+        "helpMessage": "Help message!",
+        "iconPath": "/icon/path",
+        "key": "bar",
+        "name": "Bar",
       }
-      key="bar"
-      returnTo=""
-    />
-  </ul>
-</section>
+    }
+    key="bar"
+    returnTo=""
+  />
+</Styled(div)>
 `;
 
 exports[`should render correctly 2`] = `
-<li>
+<Styled(div)>
   <IdentityProviderLink
     backgroundColor="#000"
     iconPath="/some/path"
@@ -48,11 +46,11 @@ exports[`should render correctly 2`] = `
       login.login_with_x.Foo
     </span>
   </IdentityProviderLink>
-</li>
+</Styled(div)>
 `;
 
 exports[`should render correctly 3`] = `
-<li>
+<Styled(div)>
   <IdentityProviderLink
     backgroundColor="#00F"
     iconPath="/icon/path"
@@ -67,11 +65,11 @@ exports[`should render correctly 3`] = `
     className="oauth-providers-help"
     overlay="Help message!"
   />
-</li>
+</Styled(div)>
 `;
 
 exports[`should use the custom label formatter 1`] = `
-<li>
+<Styled(div)>
   <IdentityProviderLink
     backgroundColor="#000"
     iconPath="/some/path"
@@ -82,5 +80,5 @@ exports[`should use the custom label formatter 1`] = `
       custom_format.Foo
     </span>
   </IdentityProviderLink>
-</li>
+</Styled(div)>
 `;

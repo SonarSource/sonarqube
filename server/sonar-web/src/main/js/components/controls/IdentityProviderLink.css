@@ -19,7 +19,6 @@
  */
 a.identity-provider-link {
   display: block;
-  width: auto;
   line-height: 22px;
   padding: var(--gridSize) calc(1.5 * var(--gridSize));
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -28,8 +27,6 @@ a.identity-provider-link {
   background-color: var(--darkBlue);
   color: #fff;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 a.identity-provider-link.small {

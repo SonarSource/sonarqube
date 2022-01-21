@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import classNames from 'classnames';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
@@ -35,18 +36,16 @@ interface Props {
 export default function OAuthProviders(props: Props) {
   const formatFunction = props.formatLabel || defaultFormatLabel;
   return (
-    <section className={classNames('oauth-providers', props.className)}>
-      <ul>
-        {props.identityProviders.map(identityProvider => (
-          <OAuthProvider
-            format={formatFunction}
-            identityProvider={identityProvider}
-            key={identityProvider.key}
-            returnTo={props.returnTo}
-          />
-        ))}
-      </ul>
-    </section>
+    <Container className={classNames('oauth-providers', props.className)}>
+      {props.identityProviders.map(identityProvider => (
+        <OAuthProvider
+          format={formatFunction}
+          identityProvider={identityProvider}
+          key={identityProvider.key}
+          returnTo={props.returnTo}
+        />
+      ))}
+    </Container>
   );
 }
 
@@ -58,7 +57,7 @@ interface ItemProps {
 
 function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
   return (
-    <li>
+    <IdentityProviderWrapper>
       <IdentityProviderLink
         backgroundColor={identityProvider.backgroundColor}
         iconPath={identityProvider.iconPath}
@@ -72,10 +71,20 @@ function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
       {identityProvider.helpMessage && (
         <HelpTooltip className="oauth-providers-help" overlay={identityProvider.helpMessage} />
       )}
-    </li>
+    </IdentityProviderWrapper>
   );
 }
 
 function defaultFormatLabel(name: string) {
   return translateWithParameters('login.login_with_x', name);
 }
+
+const Container = styled.div`
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+`;
+
+const IdentityProviderWrapper = styled.div`
+  margin-bottom: 30px;
+`;
