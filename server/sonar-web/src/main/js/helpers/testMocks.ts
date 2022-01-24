@@ -777,3 +777,9 @@ export function mockDumpStatus(props: Partial<DumpStatus> = {}): DumpStatus {
     ...props
   };
 }
+
+export function mockRuleRepository(
+  override: Partial<{ key: string; language: string; name: string }> = {}
+) {
+  return { key: 'css', language: 'css', name: 'SonarQube', ...override };
+}

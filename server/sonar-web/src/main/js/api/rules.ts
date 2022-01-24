@@ -61,6 +61,15 @@ export function takeFacet(response: SearchRulesResponse, property: string) {
   return facet ? facet.values : [];
 }
 
+export function getRuleRepositories(parameters: {
+  q: string;
+}): Promise<Array<{ key: string; language: string; name: string }>> {
+  return getJSON('api/rules/repositories', parameters).then(
+    ({ repositories }) => repositories,
+    throwGlobalError
+  );
+}
+
 export function getRuleDetails(parameters: {
   actives?: boolean;
   key: string;

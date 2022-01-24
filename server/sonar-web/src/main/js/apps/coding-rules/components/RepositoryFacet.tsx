@@ -19,8 +19,12 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { getRuleRepositories } from '../../../api/rules';
+import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { translate } from '../../../helpers/l10n';
+import { highlightTerm } from '../../../helpers/search';
 import { getLanguages, Store } from '../../../store/rootReducer';
-import Facet, { BasicProps } from './Facet';
+import { BasicProps } from './Facet';
 
 interface StateProps {
   referencedLanguages: T.Dict<{ key: string; name: string }>;
@@ -30,12 +34,21 @@ interface Props extends BasicProps, StateProps {
   referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
 }
 
-class RepositoryFacet extends React.PureComponent<Props> {
+export class RepositoryFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
     const { referencedLanguages } = this.props;
     const language = referencedLanguages[languageKey];
     return (language && language.name) || languageKey;
   };
+
+  handleSearch(query: string) {
+    return getRuleRepositories({ q: query }).then(repos => {
+      return {
+        paging: { pageIndex: 1, pageSize: repos.length, total: repos.length },
+        results: repos.map(r => r.key)
+      };
+    });
+  }
 
   renderName = (repositoryKey: string) => {
     const { referencedRepositories } = this.props;
@@ -56,14 +69,38 @@ class RepositoryFacet extends React.PureComponent<Props> {
     return (repository && repository.name) || repositoryKey;
   };
 
+  renderSearchTextName = (repositoryKey: string, query: string) => {
+    const { referencedRepositories } = this.props;
+    const repository = referencedRepositories[repositoryKey];
+
+    return repository ? (
+      <>
+        {highlightTerm(repository.name, query)}
+        <span className="note little-spacer-left">{this.getLanguageName(repository.language)}</span>
+      </>
+    ) : (
+      repositoryKey
+    );
+  };
+
   render() {
-    const { referencedLanguages, referencedRepositories, ...facetProps } = this.props;
     return (
-      <Facet
-        {...facetProps}
+      <ListStyleFacet<string>
+        facetHeader={translate('coding_rules.facet.repositories')}
+        fetching={false}
+        getFacetItemText={this.renderTextName}
+        getSearchResultKey={rep => rep}
+        getSearchResultText={this.renderTextName}
+        onChange={this.props.onChange}
+        onSearch={this.handleSearch}
+        onToggle={this.props.onToggle}
+        open={this.props.open}
         property="repositories"
-        renderName={this.renderName}
-        renderTextName={this.renderTextName}
+        renderFacetItem={this.renderName}
+        renderSearchResult={this.renderSearchTextName}
+        searchPlaceholder={translate('search.search_for_repositories')}
+        stats={this.props.stats}
+        values={this.props.values}
       />
     );
   }
