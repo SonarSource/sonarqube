@@ -80,6 +80,16 @@ public class ServletResponse implements Response {
       response.reset();
       return this;
     }
+
+    public ServletStream flushBuffer() throws IOException {
+      response.flushBuffer();
+      return this;
+    }
+
+    public ServletStream setCharacterEncoding(String charset) {
+      response.setCharacterEncoding(charset);
+      return this;
+    }
   }
 
   @Override

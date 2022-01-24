@@ -1,6 +1,6 @@
-/*
+package org.sonar.server.pushapi;/*
  * SonarQube
- * Copyright (C) 2009-2022 SonarSource SA
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
 
-import com.google.common.collect.Iterables;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
+import org.sonar.server.ws.WsActionTester;
 
-public class WsActionTester {
-
-  public static final String CONTROLLER_KEY = "test";
-  protected final WebService.Action action;
-
-  public WsActionTester(WsAction wsAction) {
-    WebService.Context context = new WebService.Context();
-    WebService.NewController newController = context.createController(CONTROLLER_KEY);
-    wsAction.define(newController);
-    newController.done();
-    action = Iterables.get(context.controller(CONTROLLER_KEY).actions(), 0);
+public class WsPushActionTester extends WsActionTester {
+  public WsPushActionTester(WsAction wsAction) {
+    super(wsAction);
   }
 
-  public WebService.Action getDef() {
-    return action;
-  }
-
-  public TestRequest newRequest() {
-    TestRequest request = new TestRequest();
+  public TestPushRequest newPushRequest() {
+    TestPushRequest request = new TestPushRequest();
     request.setAction(action);
     return request;
   }

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ws;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -81,6 +83,20 @@ public class ServletResponseTest {
     underTest.stream().setStatus(404);
 
     verify(response).setStatus(404);
+  }
+
+  @Test
+  public void setCharacterEncoding_encodingIsSet() {
+    underTest.stream().setCharacterEncoding("UTF-8");
+
+    verify(response).setCharacterEncoding("UTF-8");
+  }
+
+  @Test
+  public void flushBuffer_bufferIsFlushed() throws IOException {
+    underTest.stream().flushBuffer();
+
+    verify(response).flushBuffer();
   }
 
   @Test

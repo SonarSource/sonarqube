@@ -33,14 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestResponse {
 
-  private final DumbResponse dumbResponse;
+  private final TestableResponse testableResponse;
 
-  public TestResponse(DumbResponse dumbResponse) {
-    this.dumbResponse = dumbResponse;
+  public TestResponse(TestableResponse dumbResponse) {
+    this.testableResponse = dumbResponse;
   }
 
   public InputStream getInputStream() {
-    return new ByteArrayInputStream(dumbResponse.getFlushedOutput());
+    return new ByteArrayInputStream(testableResponse.getFlushedOutput());
   }
 
   public <T extends GeneratedMessageV3> T getInputObject(Class<T> protobufClass) {
@@ -55,20 +55,20 @@ public class TestResponse {
   }
 
   public String getInput() {
-    return new String(dumbResponse.getFlushedOutput(), StandardCharsets.UTF_8);
+    return new String(testableResponse.getFlushedOutput(), StandardCharsets.UTF_8);
   }
 
   public String getMediaType() {
-    return dumbResponse.stream().mediaType();
+    return testableResponse.mediaType();
   }
 
   public int getStatus() {
-    return dumbResponse.stream().status();
+    return testableResponse.status();
   }
 
   @CheckForNull
   public String getHeader(String headerKey) {
-    return dumbResponse.getHeader(headerKey);
+    return testableResponse.getHeader(headerKey);
   }
 
   public void assertJson(String expectedJson) {

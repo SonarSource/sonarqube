@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2022 SonarSource SA
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.server.pushapi;
 
 import com.google.common.base.Throwables;
 import java.io.ByteArrayOutputStream;
@@ -30,31 +30,45 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.ws.ServletResponse;
+import org.sonar.server.ws.TestableResponse;
 
-public class DumbResponse implements Response, TestableResponse {
-  private InMemoryStream stream;
+import static org.mockito.Mockito.mock;
+
+public class DumbPushResponse extends ServletResponse implements TestableResponse {
+
+  public DumbPushResponse() {
+    super(mock(HttpServletResponse.class));
+  }
+
+  private DumbPushResponse.InMemoryStream stream;
 
   private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
   private Map<String, String> headers = new HashMap<>();
 
-  public class InMemoryStream implements Response.Stream {
+  public class InMemoryStream extends ServletStream {
     private String mediaType;
 
     private int status = 200;
 
+    public InMemoryStream() {
+      super(mock(HttpServletResponse.class));
+    }
+
     @Override
-    public Response.Stream setMediaType(String s) {
+    public ServletStream setMediaType(String s) {
       this.mediaType = s;
       return this;
     }
 
     @Override
-    public Response.Stream setStatus(int i) {
+    public ServletStream setStatus(int i) {
       this.status = i;
       return this;
     }
@@ -62,10 +76,6 @@ public class DumbResponse implements Response, TestableResponse {
     @Override
     public OutputStream output() {
       return output;
-    }
-
-    public String outputAsString() {
-      return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
   }
 
@@ -80,9 +90,9 @@ public class DumbResponse implements Response, TestableResponse {
   }
 
   @Override
-  public InMemoryStream stream() {
+  public ServletStream stream() {
     if (stream == null) {
-      stream = new InMemoryStream();
+      stream = new DumbPushResponse.InMemoryStream();
     }
     return stream;
   }
@@ -94,17 +104,13 @@ public class DumbResponse implements Response, TestableResponse {
     return this;
   }
 
-  public String outputAsString() {
-    return new String(output.toByteArray(), StandardCharsets.UTF_8);
-  }
-
   @CheckForNull
   public String mediaType() {
-    return stream().mediaType;
+    return ((DumbPushResponse.InMemoryStream) stream()).mediaType;
   }
 
   public int status() {
-    return stream().status;
+    return ((InMemoryStream) stream()).status;
   }
 
   @Override

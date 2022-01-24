@@ -17,6 +17,7 @@ dependencies {
   compile 'org.assertj:assertj-core'
   compile 'org.hamcrest:hamcrest-core'
   compile 'org.jsoup:jsoup'
+  compile 'org.mockito:mockito-core'
 
   compileOnly 'com.google.code.findbugs:jsr305'
 }

@@ -54,6 +54,7 @@ class TomcatAccessLog {
       appender.setEncoder(fileEncoder);
       appender.start();
       valve.addAppender(appender);
+      valve.setAsyncSupported(true);
       tomcat.getHost().getPipeline().addValve(valve);
     }
   }

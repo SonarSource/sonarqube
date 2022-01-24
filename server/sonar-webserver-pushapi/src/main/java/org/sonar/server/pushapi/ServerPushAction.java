@@ -19,9 +19,35 @@
  */
 package org.sonar.server.pushapi;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import org.sonar.server.ws.ServletRequest;
+import org.sonar.server.ws.ServletResponse;
 import org.sonar.server.ws.WsAction;
 
-public interface ServerPushAction extends WsAction {
-  //marker interface
+public abstract class ServerPushAction implements WsAction {
+
+  protected boolean isServerSideEventsRequest(ServletRequest request) {
+    Map<String, String> headers = request.getHeaders();
+    String accept = headers.get("accept");
+    if (accept != null) {
+      return accept.contains("text/event-stream");
+    }
+    return false;
+  }
+
+  protected void setHeadersForResponse(ServletResponse response) throws IOException {
+    response.stream().setStatus(HttpServletResponse.SC_OK);
+    response.stream().setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.stream().setMediaType("text/event-stream");
+    // By adding this header, and not closing the connection,
+    // we disable HTTP chunking, and we can use write()+flush()
+    // to send data in the text/event-stream protocol
+    response.setHeader("Connection", "close");
+    response.stream().flushBuffer();
+  }
+
 
 }

@@ -210,4 +210,11 @@ public class ServletRequestTest {
     assertThat(underTest.getReader()).isEqualTo(reader);
   }
 
+  @Test
+  public void startAsync() {
+    underTest.startAsync();
+
+    verify(source).startAsync();
+  }
+
 }

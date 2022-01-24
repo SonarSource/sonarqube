@@ -20,6 +20,8 @@ dependencies {
   compileOnly 'javax.servlet:javax.servlet-api'
   compileOnly 'org.apache.tomcat.embed:tomcat-embed-core'
 
+  testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'junit:junit'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'javax.servlet:javax.servlet-api'
   testCompile 'org.apache.tomcat.embed:tomcat-embed-core'

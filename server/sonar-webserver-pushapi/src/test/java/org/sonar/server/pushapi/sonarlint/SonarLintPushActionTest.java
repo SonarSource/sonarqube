@@ -21,9 +21,9 @@ package org.sonar.server.pushapi.sonarlint;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.TestRequest;
+import org.sonar.server.pushapi.TestPushRequest;
+import org.sonar.server.pushapi.WsPushActionTester;
 import org.sonar.server.ws.TestResponse;
-import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class SonarLintPushActionTest {
 
-  private final WsActionTester ws = new WsActionTester(new SonarLintPushAction());
+  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction());
 
   @Test
   public void defineTest() {
@@ -45,18 +45,31 @@ public class SonarLintPushActionTest {
   }
 
   @Test
-  public void handle_returnsNoResponseWhenParamsProvided() {
-    TestResponse response = ws.newRequest()
+  public void handle_returnsNoResponseWhenParamsAndHeadersProvided() {
+    TestResponse response = ws.newPushRequest()
       .setParam("projectKeys", "project1,project2")
+      .setParam("languages", "java")
+      .setHeader("accept", "text/event-stream")
+      .execute();
+
+    assertThat(response.getInput()).isEqualTo("Hello world");
+  }
+
+  @Test
+  public void handle_whenAcceptHeaderNotProvided_statusCode406() {
+    TestResponse testResponse = ws.newPushRequest().
+       setParam("projectKeys", "project1,project2")
       .setParam("languages", "java")
       .execute();
 
-    assertThat(response.getStatus()).isEqualTo(204);
+    assertThat(testResponse.getStatus()).isEqualTo(406);
   }
 
   @Test
   public void handle_whenParamsNotProvided_throwException() {
-    TestRequest testRequest = ws.newRequest();
+    TestPushRequest testRequest =  ws.newPushRequest()
+      .setHeader("accept", "text/event-stream");
+
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'projectKeys' parameter is missing");

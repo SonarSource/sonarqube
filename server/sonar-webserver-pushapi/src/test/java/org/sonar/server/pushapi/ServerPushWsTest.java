@@ -46,7 +46,7 @@ public class ServerPushWsTest {
     assertThat(controller.actions()).isNotEmpty();
   }
 
-  private static class DummyServerPushAction implements ServerPushAction {
+  private static class DummyServerPushAction extends ServerPushAction {
 
     @Override
     public void define(WebService.NewController context) {

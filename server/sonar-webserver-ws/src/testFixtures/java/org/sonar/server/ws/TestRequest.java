@@ -73,17 +73,17 @@ public class TestRequest extends ValidatingRequest {
   }
 
   @Override
-  protected String readParam(String key) {
+  public String readParam(String key) {
     return params.get(key);
   }
 
   @Override
-  protected List<String> readMultiParam(String key) {
+  public List<String> readMultiParam(String key) {
     return multiParams.get(key);
   }
 
   @Override
-  protected InputStream readInputStreamParam(String key) {
+  public InputStream readInputStreamParam(String key) {
     String value = readParam(key);
     if (value == null) {
       return null;
@@ -92,7 +92,7 @@ public class TestRequest extends ValidatingRequest {
   }
 
   @Override
-  protected Part readPart(String key) {
+  public Part readPart(String key) {
     return parts.get(key);
   }
 

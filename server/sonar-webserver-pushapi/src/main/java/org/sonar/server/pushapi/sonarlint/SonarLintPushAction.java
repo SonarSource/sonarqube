@@ -19,14 +19,20 @@
  */
 package org.sonar.server.pushapi.sonarlint;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.pushapi.ServerPushAction;
+import org.sonar.server.ws.ServletRequest;
+import org.sonar.server.ws.ServletResponse;
 
-public class SonarLintPushAction implements ServerPushAction {
+public class SonarLintPushAction extends ServerPushAction {
 
   private static final Logger LOGGER = Loggers.get(SonarLintPushAction.class);
 
@@ -56,14 +62,29 @@ public class SonarLintPushAction implements ServerPushAction {
   }
 
   @Override
-  public void handle(Request request, Response response) {
+  public void handle(Request request, Response response) throws IOException {
+    ServletRequest servletRequest = (ServletRequest) request;
+    ServletResponse servletResponse = (ServletResponse) response;
+
     String projectKeys = request.getParam(PROJECT_PARAM_KEY).getValue();
     String languages = request.getParam(LANGUAGE_PARAM_KEY).getValue();
 
-    //to remove later
+    // to remove later
     LOGGER.debug(projectKeys != null ? projectKeys : "");
     LOGGER.debug(languages != null ? languages : "");
 
-    response.noContent();
+    AsyncContext asyncContext = servletRequest.startAsync();
+    asyncContext.setTimeout(0);
+
+    if (!isServerSideEventsRequest(servletRequest)) {
+      servletResponse.stream().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+      return;
+    }
+
+    setHeadersForResponse(servletResponse);
+
+    //test response to remove later
+    response.stream().output().write("Hello world".getBytes(StandardCharsets.UTF_8));
+    response.stream().output().flush();
   }
 }

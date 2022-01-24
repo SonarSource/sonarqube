@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.impl.ws.PartImpl;
 import org.sonar.api.impl.ws.ValidatingRequest;
@@ -120,6 +121,10 @@ public class ServletRequest extends ValidatingRequest {
       Loggers.get(ServletRequest.class).warn("Can't read file part for parameter " + key, e);
       return null;
     }
+  }
+
+  public AsyncContext startAsync() {
+    return source.startAsync();
   }
 
   private boolean isMultipartContent() {

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2022 SonarSource SA
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,29 +19,17 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.collect.Iterables;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.Response;
 
-public class WsActionTester {
+public interface TestableResponse {
 
-  public static final String CONTROLLER_KEY = "test";
-  protected final WebService.Action action;
+  byte[] getFlushedOutput();
 
-  public WsActionTester(WsAction wsAction) {
-    WebService.Context context = new WebService.Context();
-    WebService.NewController newController = context.createController(CONTROLLER_KEY);
-    wsAction.define(newController);
-    newController.done();
-    action = Iterables.get(context.controller(CONTROLLER_KEY).actions(), 0);
-  }
+  Response.Stream stream();
 
-  public WebService.Action getDef() {
-    return action;
-  }
+  String getHeader(String headerKey);
 
-  public TestRequest newRequest() {
-    TestRequest request = new TestRequest();
-    request.setAction(action);
-    return request;
-  }
+  int status();
+
+  String mediaType();
 }
