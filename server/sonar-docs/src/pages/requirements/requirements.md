@@ -3,7 +3,7 @@ title: Prerequisites and Overview
 url: /requirements/requirements/
 ---
 ## Prerequisite
-The only prerequisite for running SonarQube is to have Java (Oracle JRE 11 or OpenJDK 11) installed on your machine.
+You must be able to install Java (Oracle JRE 11 or OpenJDK 11) on the machine where you plan to run SonarQube.
 
 ## Hardware Requirements
 1. A small-scale (individual or small team) instance of the SonarQube server requires at least 2GB of RAM to run efficiently and 1GB of free RAM for the OS. If you are installing an instance for a large teams or Enterprise, please consider the additional recommendations below.
@@ -136,3 +136,6 @@ The following should be ensured:
 
 * [Fontconfig](https://en.wikipedia.org/wiki/Fontconfig) is installed on the server hosting SonarQube
 * A package of [FreeType](https://www.freetype.org/) fonts is installed on the SonarQube server. The exact packages available will vary by distribution, but a commonly used package is `libfreetype6`
+
+### FIPS
+SonarQube will not run on Linux hosts where FIPS (Federal Information Processing Standard) is enforced.
