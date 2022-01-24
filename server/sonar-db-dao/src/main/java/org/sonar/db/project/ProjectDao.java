@@ -29,6 +29,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
 
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+
 public class ProjectDao implements Dao {
   private final System2 system2;
   private final AuditPersister auditPersister;
@@ -76,7 +78,8 @@ public class ProjectDao implements Dao {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
-    return mapper(session).selectApplicationsByKeys(keys);
+
+    return executeLargeInputs(keys, partition -> mapper(session).selectApplicationsByKeys(partition));
   }
 
   public List<ProjectDto> selectProjects(DbSession session) {

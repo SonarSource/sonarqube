@@ -19,12 +19,16 @@
  */
 package org.sonar.db.project;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -107,6 +111,34 @@ public class ProjectDaoTest {
         tuple("projectName_p1", "projectKee_o1_p1", "uuid_o1_p1", "desc_p1", "tag1,tag2", false),
         tuple("projectName_p2", "projectKee_o1_p2", "uuid_o1_p2", "desc_p2", "tag1,tag2", false),
         tuple("projectName_p1", "projectKee_o2_p1", "uuid_o2_p1", "desc_p1", "tag1,tag2", false));
+  }
+
+  @Test
+  public void select_applications_by_keys() {
+    var applications = new ArrayList<ProjectDto>();
+
+    for (int i = 0; i < 1500; i++) {
+      ProjectDto project = db.components().insertPrivateProjectDto();
+      ProjectDto app = db.components().insertPrivateApplicationDto();
+      db.components().addApplicationProject(app, project);
+      applications.add(i, app);
+    }
+
+    Set<String> applicationsId = new HashSet<>();
+
+    List<Tuple> applicationsData = applications
+      .stream()
+      .map(x -> {
+        applicationsId.add(x.getKey());
+        return tuple(x.getKey(), x.getName(), x.getUuid(), x.getDescription(), x.isPrivate());
+      })
+      .collect(Collectors.toList());
+
+    List<ProjectDto> selectedApplications = projectDao.selectApplicationsByKeys(db.getSession(), applicationsId);
+
+    assertThat(selectedApplications)
+      .extracting(ProjectDto::getKey, ProjectDto::getName, ProjectDto::getUuid, ProjectDto::getDescription, ProjectDto::isPrivate)
+      .containsExactlyInAnyOrderElementsOf(applicationsData);
   }
 
   @Test
