@@ -301,11 +301,11 @@ export class CodeApp extends React.Component<Props, State> {
         {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
           <StyledAlert variant="warning" className="it__portfolio_warning">
             <AlertContent>
-              {translate('component_measures.not_all_measures_are_shown')}
+              {translate('code_viewer.not_all_measures_are_shown')}
               <HelpTooltip
                 className="spacer-left"
-                ariaLabel={translate('component_measures.not_all_measures_are_shown.help')}
-                overlay={translate('component_measures.not_all_measures_are_shown.help')}
+                ariaLabel={translate('code_viewer.not_all_measures_are_shown.help')}
+                overlay={translate('code_viewer.not_all_measures_are_shown.help')}
               />
             </AlertContent>
           </StyledAlert>
