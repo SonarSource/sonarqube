@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -429,33 +430,6 @@ public class GitScmProviderTest {
 
     assertThat(newScmProvider().branchChangedLines("master", worktree, Collections.singleton(filePath)))
       .isEmpty();
-  }
-
-  @Test
-  public void branchChangedLines_should_always_detect_trailing_lines_that_are_not_endings() throws IOException, GitAPIException {
-    String fileName = "file-m1.xoo";
-    Path filePath = worktree.resolve(fileName);
-
-    StringBuilder newFileContent = new StringBuilder();
-    newFileContent
-      .append(randomizedContent(fileName, 3))
-      .append("\r\n")
-      .append("\n");
-
-    createAndCommitFile(fileName, newFileContent.toString());
-    ObjectId forkPoint = git.getRepository().exactRef("HEAD").getObjectId();
-
-    git.branchCreate().setName("b1").setStartPoint(forkPoint.getName()).call();
-    git.checkout().setName("b1").call();
-
-    String newFileContent2 = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8)
-      .replaceAll("\r\n", "     \n");
-    Files.write(filePath, newFileContent2.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
-    commit(fileName);
-
-    assertThat(newScmProvider().branchChangedLines("master", worktree, Collections.singleton(filePath)))
-      .containsOnly(
-        entry(worktree.resolve(fileName), new HashSet<>(Arrays.asList(4))));
   }
 
   @Test

@@ -191,7 +191,7 @@ public class GitScmProvider extends ScmProvider {
       // copied from DiffCommand so that we can use a custom DiffFormatter which ignores white spaces.
       diffFmt.setRepository(repo);
       diffFmt.setProgressMonitor(NullProgressMonitor.INSTANCE);
-      diffFmt.setDiffComparator(RawTextComparator.DEFAULT);
+      diffFmt.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
 
       Path workTree = repo.getWorkTree().toPath();
       String relativePath = workTree.relativize(changedFile).toString();
