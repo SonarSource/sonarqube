@@ -94,17 +94,17 @@ Select your build technology below to expand the instructions for configuring br
 |
 | steps:
 | # Prepare Analysis Configuration task
-| - task: SonarQubePrepare@4
+| - task: SonarQubePrepare@5
 |   inputs:
 |     SonarQube: 'YourSonarqubeServerEndpoint'
 |     scannerMode: 'MSBuild'
 |     projectKey: 'YourProjectKey'
 |
 | # Run Code Analysis task
-| - task: SonarQubeAnalyze@4
+| - task: SonarQubeAnalyze@5
 |
 | # Publish Quality Gate Result task
-| - task: SonarQubePublish@4
+| - task: SonarQubePublish@5
 |   inputs:
 |     pollingTimeoutSec: '300'
 | ```
@@ -135,14 +135,14 @@ Select your build technology below to expand the instructions for configuring br
 |
 | steps:
 | # Prepare Analysis Configuration task
-| - task: SonarQubePrepare@4
+| - task: SonarQubePrepare@5
 |   inputs:
 |     SonarQube: 'YourSonarqubeServerEndpoint'
 |     scannerMode: 'Other'
 |     extraProperties: 'sonar.projectKey=YourProjectKey'
 |
 | # Publish Quality Gate Result task
-| - task: SonarQubePublish@4
+| - task: SonarQubePublish@5
 |   inputs:
 |     pollingTimeoutSec: '300'
 | ```
@@ -167,7 +167,7 @@ Select your build technology below to expand the instructions for configuring br
 |
 | steps:
 | # Prepare Analysis Configuration task
-| - task: SonarQubePrepare@4
+| - task: SonarQubePrepare@5
 |   inputs:
 |     SonarQube: 'YourSonarqubeServerEndpoint'
 |     scannerMode: 'CLI'
@@ -175,10 +175,10 @@ Select your build technology below to expand the instructions for configuring br
 |     cliProjectKey: 'YourProjectKey'
 |
 | # Run Code Analysis task
-| - task: SonarQubeAnalyze@4
+| - task: SonarQubeAnalyze@5
 |
 | # Publish Quality Gate Result task
-| - task: SonarQubePublish@4
+| - task: SonarQubePublish@5
 |   inputs:
 |     pollingTimeoutSec: '300'
 | ```
@@ -249,7 +249,7 @@ Select your build technology below to expand the instructions for configuring br
 |       unzip build-wrapper.zip
 |
 | # Prepare Analysis Configuration task
-| - task: SonarQubePrepare@4
+| - task: SonarQubePrepare@5
 |   inputs:
 |     SonarQube: 'YourSonarqubeServerEndpoint'
 |     scannerMode: 'CLI'
@@ -265,10 +265,10 @@ Select your build technology below to expand the instructions for configuring br
 |        ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw_output <Your build command>
 |
 | # Run Code Analysis task
-| - task: SonarQubeAnalyze@4
+| - task: SonarQubeAnalyze@5
 |
 | # Publish Quality Gate Result task
-| - task: SonarQubePublish@4
+| - task: SonarQubePublish@5
 |   inputs:
 |     pollingTimeoutSec: '300'
 | ```
