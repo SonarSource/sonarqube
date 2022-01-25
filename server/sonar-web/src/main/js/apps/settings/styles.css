@@ -37,7 +37,7 @@
 }
 
 #settings-page .top-bar-outer {
-  height: 80px;
+  height: 120px;
 }
 
 #settings-page .top-bar {
@@ -51,13 +51,8 @@
 #settings-page .top-bar-inner {
   max-width: 1280px;
   margin: 0 auto;
-  height: 80px;
-  box-sizing: border-box;
-}
-
-#settings-page .top-bar-outer.with-search,
-#settings-page .top-bar-inner.with-search {
   height: 120px;
+  box-sizing: border-box;
 }
 
 #settings-page .page-title,

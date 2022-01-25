@@ -19,7 +19,7 @@
  */
 import { LocationDescriptor } from 'history';
 import { hasMessage, translate } from '../../helpers/l10n';
-import { getGlobalSettingsUrl } from '../../helpers/urls';
+import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
 import { Setting, SettingCategoryDefinition, SettingDefinition } from '../../types/settings';
 
@@ -168,8 +168,18 @@ export function isRealSettingKey(key: string) {
   ].includes(key);
 }
 
-export function buildSettingLink(definition: SettingCategoryDefinition): LocationDescriptor {
+export function buildSettingLink(
+  definition: SettingCategoryDefinition,
+  component?: T.Component
+): LocationDescriptor {
   const { category, key } = definition;
+
+  if (component !== undefined) {
+    return {
+      ...getProjectSettingsUrl(component.key, category),
+      hash: `#${escape(key)}`
+    };
+  }
 
   const query: T.Dict<string> = {};
 
@@ -186,6 +196,21 @@ export function buildSettingLink(definition: SettingCategoryDefinition): Locatio
     hash: `#${escape(key)}`
   };
 }
+
+export const ADDITIONAL_PROJECT_SETTING_DEFINITIONS: SettingCategoryDefinition[] = [
+  {
+    name: 'DevOps Platform Integration',
+    description: `
+      Display your Quality Gate status directly in your DevOps Platform.
+      Each DevOps Platform instance must be configured globally first, and given a unique name. Pick the instance your project is hosted on.
+      `,
+    category: 'pull_request_decoration_binding',
+    key: ``,
+    fields: [],
+    options: [],
+    subCategory: ''
+  }
+];
 
 export const ADDITIONAL_SETTING_DEFINITIONS: SettingCategoryDefinition[] = [
   {

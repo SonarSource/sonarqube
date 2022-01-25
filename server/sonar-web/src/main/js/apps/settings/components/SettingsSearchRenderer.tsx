@@ -30,6 +30,7 @@ import { buildSettingLink, isRealSettingKey } from '../utils';
 
 export interface SettingsSearchRendererProps {
   className?: string;
+  component?: T.Component;
   results?: SettingCategoryDefinition[];
   searchQuery: string;
   selectedResult?: string;
@@ -42,7 +43,7 @@ export interface SettingsSearchRendererProps {
 }
 
 export default function SettingsSearchRenderer(props: SettingsSearchRendererProps) {
-  const { className, results, searchQuery, selectedResult, showResults } = props;
+  const { className, component, results, searchQuery, selectedResult, showResults } = props;
 
   const scrollableNodeRef = React.useRef(null);
   const selectedNodeRef = React.useRef<HTMLLIElement>(null);
@@ -79,7 +80,7 @@ export default function SettingsSearchRenderer(props: SettingsSearchRendererProp
                     <Link
                       onClick={props.onClickOutside}
                       onMouseEnter={() => props.onMouseOverResult(r.key)}
-                      to={buildSettingLink(r)}>
+                      to={buildSettingLink(r, component)}>
                       <div className="settings-search-result-title display-flex-space-between">
                         <h3>{r.name || r.subCategory}</h3>
                       </div>

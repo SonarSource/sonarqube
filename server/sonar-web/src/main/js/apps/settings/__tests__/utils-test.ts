@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { mockComponent } from '../../../helpers/mocks/component';
 import { mockDefinition } from '../../../helpers/mocks/settings';
 import {
   Setting,
@@ -90,10 +91,12 @@ describe('buildSettingLink', () => {
   it.each([
     [
       mockDefinition({ key: 'anykey' }),
+      undefined,
       { hash: '#anykey', pathname: '/admin/settings', query: { category: 'foo category' } }
     ],
     [
       mockDefinition({ key: 'sonar.auth.gitlab.name' }),
+      undefined,
       {
         hash: '#sonar.auth.gitlab.name',
         pathname: '/admin/settings',
@@ -102,6 +105,7 @@ describe('buildSettingLink', () => {
     ],
     [
       mockDefinition({ key: 'sonar.auth.github.token' }),
+      undefined,
       {
         hash: '#sonar.auth.github.token',
         pathname: '/admin/settings',
@@ -110,13 +114,23 @@ describe('buildSettingLink', () => {
     ],
     [
       mockDefinition({ key: 'sonar.almintegration.azure' }),
+      undefined,
       {
         hash: '#sonar.almintegration.azure',
         pathname: '/admin/settings',
         query: { alm: 'azure', category: 'foo category' }
       }
+    ],
+    [
+      mockDefinition({ key: 'defKey' }),
+      mockComponent({ key: 'componentKey' }),
+      {
+        hash: '#defKey',
+        pathname: '/project/settings',
+        query: { id: 'componentKey', category: 'foo category' }
+      }
     ]
-  ])('should work as expected', (definition, expectedUrl) => {
-    expect(buildSettingLink(definition)).toEqual(expectedUrl);
+  ])('should work as expected', (definition, component, expectedUrl) => {
+    expect(buildSettingLink(definition, component)).toEqual(expectedUrl);
   });
 });

@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { KeyboardCodes } from '../../../../helpers/keycodes';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockDefinition } from '../../../../helpers/mocks/settings';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { mockEvent, waitAndUpdate } from '../../../../helpers/testUtils';
@@ -134,6 +135,14 @@ describe('instance', () => {
 
     wrapper.instance().handleKeyDown(mockEvent({ nativeEvent: { code: KeyboardCodes.UpArrow } }));
     expect(wrapper.state().selectedResult).toBe('foo');
+  });
+});
+
+describe('project settings search', () => {
+  it('should load the correct definitions', () => {
+    const wrapper = shallowRender({ component: mockComponent(), definitions: [] });
+
+    expect(Object.keys(wrapper.instance().definitionsByKey)).toHaveLength(1);
   });
 });
 

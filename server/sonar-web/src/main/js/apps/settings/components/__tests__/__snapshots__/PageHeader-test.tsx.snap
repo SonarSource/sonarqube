@@ -20,6 +20,31 @@ exports[`should render correctly: for project 1`] = `
       >
         project_settings.page.description
       </div>
+      <withRouter(Connect(SettingsSearch))
+        className="big-spacer-top"
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
+      />
     </div>
   </div>
 </header>
@@ -27,13 +52,13 @@ exports[`should render correctly: for project 1`] = `
 
 exports[`should render correctly: global 1`] = `
 <header
-  className="top-bar-outer with-search"
+  className="top-bar-outer"
 >
   <div
     className="top-bar"
   >
     <div
-      className="top-bar-inner bordered-bottom big-padded-top padded-bottom with-search"
+      className="top-bar-inner bordered-bottom big-padded-top padded-bottom"
     >
       <h1
         className="page-title"

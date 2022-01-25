@@ -26,11 +26,16 @@ import { withRouter } from '../../../components/hoc/withRouter';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { getSettingsAppAllDefinitions, Store } from '../../../store/rootReducer';
 import { SettingCategoryDefinition } from '../../../types/settings';
-import { ADDITIONAL_SETTING_DEFINITIONS, buildSettingLink } from '../utils';
+import {
+  ADDITIONAL_PROJECT_SETTING_DEFINITIONS,
+  ADDITIONAL_SETTING_DEFINITIONS,
+  buildSettingLink
+} from '../utils';
 import SettingsSearchRenderer from './SettingsSearchRenderer';
 
 interface Props {
   className?: string;
+  component?: T.Component;
   definitions: SettingCategoryDefinition[];
   router: InjectedRouter;
 }
@@ -58,7 +63,9 @@ export class SettingsSearch extends React.Component<Props, State> {
     this.doSearch = debounce(this.doSearch, DEBOUNCE_DELAY);
     this.handleFocus = debounce(this.handleFocus, DEBOUNCE_DELAY);
 
-    const definitions = props.definitions.concat(ADDITIONAL_SETTING_DEFINITIONS);
+    const definitions = props.definitions.concat(
+      props.component ? ADDITIONAL_PROJECT_SETTING_DEFINITIONS : ADDITIONAL_SETTING_DEFINITIONS
+    );
     this.index = this.buildSearchIndex(definitions);
     this.definitionsByKey = keyBy(definitions, 'key');
   }
@@ -171,11 +178,12 @@ export class SettingsSearch extends React.Component<Props, State> {
   };
 
   render() {
-    const { className } = this.props;
+    const { className, component } = this.props;
 
     return (
       <SettingsSearchRenderer
         className={className}
+        component={component}
         onClickOutside={this.hideResults}
         onMouseOverResult={this.handleMouseOverResult}
         onSearchInputChange={this.handleSearchChange}
