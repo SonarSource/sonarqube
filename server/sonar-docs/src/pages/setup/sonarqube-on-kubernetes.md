@@ -17,13 +17,9 @@ When you want to operate SonarQube on Kubernetes, consider the following recomme
 
 ### Prerequisites
 
-#### SonarQube Helm Chart
+#### Supported Versions
 
-| Kubernetes Version  | Helm Chart Version | SonarQube Version |
-| -------- | ----------------------------- | ----------------- |
-| 1.19 | 1.1 | 9.1 |
-| 1.20 | 1.1 | 9.1 |
-| 1.21 | 1.1 | 9.1 |
+The SonarQube helm chart should only be used with the latest version of SonarQube and a supported version of Kubernetes. There is a dedicated helm chart for the LTS version of SonarQube that follows the same patch policy as the application, while also being compatible with the supported versions of Kubernetes. 
 
 
 ### Pod Security Policies
