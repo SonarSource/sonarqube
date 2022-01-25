@@ -21,8 +21,7 @@ export const enum SettingsKey {
   DaysBeforeDeletingInactiveBranchesAndPRs = 'sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs',
   DefaultProjectVisibility = 'projects.default.visibility',
   ServerBaseUrl = 'sonar.core.serverBaseURL',
-  PluginRiskConsent = 'sonar.plugins.risk.consent',
-  ProjectReportFrequency = 'sonar.governance.report.project.branch.frequency'
+  PluginRiskConsent = 'sonar.plugins.risk.consent'
 }
 
 export type Setting = SettingValue & { definition: SettingDefinition; hasValue: boolean };

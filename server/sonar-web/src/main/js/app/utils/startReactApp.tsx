@@ -27,7 +27,6 @@ import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
 import accountRoutes from '../../apps/account/routes';
-import applicationSettingsRoutes from '../../apps/application-settings/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
@@ -118,6 +117,16 @@ function renderRedirects() {
         onEnter={(nextState, replace) => {
           replace({
             pathname: '/project/admin/extension/developer-server/application-console',
+            query: { id: nextState.location.query.id }
+          });
+        }}
+      />
+
+      <Route
+        path="/application/settings"
+        onEnter={(nextState, replace) => {
+          replace({
+            pathname: '/project/admin/extension/governance/application_report',
             query: { id: nextState.location.query.id }
           });
         }}
@@ -226,7 +235,6 @@ function renderComponentRoutes() {
         <RouteWithChildRoutes path="project/import_export" childRoutes={projectDumpRoutes} />
         <RouteWithChildRoutes path="project/settings" childRoutes={settingsRoutes} />
         <RouteWithChildRoutes path="project_roles" childRoutes={projectPermissionsRoutes} />
-        <RouteWithChildRoutes path="application/settings" childRoutes={applicationSettingsRoutes} />
         <RouteWithChildRoutes path="project/webhooks" childRoutes={webhooksRoutes} />
         <Route
           path="project/deletion"

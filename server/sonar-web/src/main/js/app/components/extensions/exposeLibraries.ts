@@ -99,6 +99,7 @@ import {
   postJSONBody,
   request
 } from '../../../helpers/request';
+import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import {
   getStandards,
   renderCWECategory,
@@ -162,7 +163,8 @@ const exposeLibraries = () => {
         getComponentIssuesUrl,
         getComponentSecurityHotspotsUrl,
         getMeasureHistoryUrl,
-        getRulesUrl
+        getRulesUrl,
+        sanitizeStringRestricted
       };
     }
   });
