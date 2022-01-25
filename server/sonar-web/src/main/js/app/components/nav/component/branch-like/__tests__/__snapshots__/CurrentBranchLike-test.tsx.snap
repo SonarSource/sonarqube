@@ -81,7 +81,7 @@ exports[`applications should render correctly when there is only one branch and 
           style={Object {}}
           to={
             Object {
-              "pathname": "/application/console",
+              "pathname": "/project/admin/extension/developer-server/application-console",
               "query": Object {
                 "id": "my-project",
               },

@@ -92,23 +92,6 @@ exports[`should disable links if application has inaccessible projects 1`] = `
               style={Object {}}
               to={
                 Object {
-                  "pathname": "/application/console",
-                  "query": Object {
-                    "id": "foo",
-                  },
-                }
-              }
-            >
-              application_console.page
-            </Link>
-          </li>
-          <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
                   "pathname": "/project/deletion",
                   "query": Object {
                     "id": "foo",
@@ -1105,23 +1088,6 @@ exports[`should work for qualifier: APP, false 1`] = `
         <ul
           className="menu"
         >
-          <li>
-            <Link
-              activeClassName="active"
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              to={
-                Object {
-                  "pathname": "/application/console",
-                  "query": Object {
-                    "id": "foo",
-                  },
-                }
-              }
-            >
-              application_console.page
-            </Link>
-          </li>
           <li>
             <Link
               activeClassName="active"

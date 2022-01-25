@@ -36,7 +36,6 @@ import { ComponentQualifier, isPortfolioLike } from '../../../../types/component
 import './Menu.css';
 
 const SETTINGS_URLS = [
-  '/application/console',
   '/project/admin',
   '/project/baseline',
   '/project/branches',
@@ -319,7 +318,6 @@ export class Menu extends React.PureComponent<Props> {
       this.renderSettingsLink(query, isApplication, isPortfolio),
       this.renderBranchesLink(query, isProject),
       this.renderBaselineLink(query, isApplication, isPortfolio),
-      this.renderConsoleAppLink(query, isApplication),
       this.renderReportSettingsLink(query, isApplication),
       ...this.renderAdminExtensions(query, isApplication),
       this.renderImportExportLink(query, isProject),
@@ -407,19 +405,6 @@ export class Menu extends React.PureComponent<Props> {
       <li key="baseline">
         <Link activeClassName="active" to={{ pathname: '/project/baseline', query }}>
           {translate('project_baseline.page')}
-        </Link>
-      </li>
-    );
-  };
-
-  renderConsoleAppLink = (query: Query, isApplication: boolean) => {
-    if (!isApplication) {
-      return null;
-    }
-    return (
-      <li key="app-console">
-        <Link activeClassName="active" to={{ pathname: '/application/console', query }}>
-          {translate('application_console.page')}
         </Link>
       </li>
     );

@@ -50,7 +50,7 @@ it('should show form and callback when submitted - admin', async () => {
   await openAndSubmitForm(wrapper);
 
   expect(routerPush).toBeCalledWith({
-    pathname: '/application/console',
+    pathname: '/project/admin/extension/developer-server/application-console',
     query: {
       id: 'new app'
     }

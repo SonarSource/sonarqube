@@ -78,7 +78,10 @@ export function getPortfolioAdminUrl(key: string) {
 }
 
 export function getApplicationAdminUrl(key: string) {
-  return { pathname: '/application/console', query: { id: key } };
+  return {
+    pathname: '/project/admin/extension/developer-server/application-console',
+    query: { id: key }
+  };
 }
 
 export function getComponentBackgroundTaskUrl(

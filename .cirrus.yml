@@ -122,6 +122,7 @@ eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
       - private/core-extension-securityreport/eslint-report/
       - private/core-extension-license/eslint-report/
       - private/core-extension-governance/eslint-report/
+      - private/core-extension-developer-server/eslint-report/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
@@ -131,6 +132,7 @@ jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
       - private/core-extension-securityreport/coverage/
       - private/core-extension-license/coverage/
       - private/core-extension-governance/coverage/
+      - private/core-extension-developer-server/coverage/
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE

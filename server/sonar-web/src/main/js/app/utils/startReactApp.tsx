@@ -27,7 +27,6 @@ import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
 import accountRoutes from '../../apps/account/routes';
-import applicationConsoleRoutes from '../../apps/application-console/routes';
 import applicationSettingsRoutes from '../../apps/application-settings/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
@@ -111,6 +110,16 @@ function renderRedirects() {
         path="/dashboard/index/:key"
         onEnter={(nextState, replace) => {
           replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
+        }}
+      />
+
+      <Route
+        path="/application/console"
+        onEnter={(nextState, replace) => {
+          replace({
+            pathname: '/project/admin/extension/developer-server/application-console',
+            query: { id: nextState.location.query.id }
+          });
         }}
       />
 
@@ -217,7 +226,6 @@ function renderComponentRoutes() {
         <RouteWithChildRoutes path="project/import_export" childRoutes={projectDumpRoutes} />
         <RouteWithChildRoutes path="project/settings" childRoutes={settingsRoutes} />
         <RouteWithChildRoutes path="project_roles" childRoutes={projectPermissionsRoutes} />
-        <RouteWithChildRoutes path="application/console" childRoutes={applicationConsoleRoutes} />
         <RouteWithChildRoutes path="application/settings" childRoutes={applicationSettingsRoutes} />
         <RouteWithChildRoutes path="project/webhooks" childRoutes={webhooksRoutes} />
         <Route
