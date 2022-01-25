@@ -1,23 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly 1`] = `
-<div
-  className="big-spacer-right"
+<Tooltip
+  overlay="code_viewer.portfolio_code_toggle_disabled.help"
+  visible={false}
 >
   <div
-    className="button-group"
+    className="big-spacer-right button-group"
   >
     <Button
       className="button-active"
+      disabled={false}
       onClick={[Function]}
     >
       projects.view.new_code
     </Button>
     <Button
+      disabled={false}
       onClick={[Function]}
     >
       projects.view.overall_code
     </Button>
   </div>
-</div>
+</Tooltip>
 `;

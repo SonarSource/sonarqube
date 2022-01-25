@@ -19,29 +19,35 @@
  */
 import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 export interface PortfolioNewCodeToggleProps {
+  enabled: boolean;
   showNewCode: boolean;
   onNewCodeToggle: (newSelected: boolean) => void;
 }
 
 export default function PortfolioNewCodeToggle(props: PortfolioNewCodeToggleProps) {
-  const { showNewCode } = props;
+  const { showNewCode, enabled } = props;
   return (
-    <div className="big-spacer-right">
-      <div className="button-group">
+    <Tooltip
+      overlay={translate('code_viewer.portfolio_code_toggle_disabled.help')}
+      visible={enabled ? false : undefined}>
+      <div className="big-spacer-right button-group">
         <Button
+          disabled={!enabled}
           className={showNewCode ? 'button-active' : undefined}
           onClick={() => props.onNewCodeToggle(true)}>
           {translate('projects.view.new_code')}
         </Button>
         <Button
+          disabled={!enabled}
           className={showNewCode ? undefined : 'button-active'}
           onClick={() => props.onNewCodeToggle(false)}>
           {translate('projects.view.overall_code')}
         </Button>
       </div>
-    </div>
+    </Tooltip>
   );
 }

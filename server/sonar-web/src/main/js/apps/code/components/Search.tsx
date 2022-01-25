@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit } from 'lodash';
+import { isEmpty, omit } from 'lodash';
 import * as React from 'react';
 import { getTree } from '../../../api/components';
 import SearchBox from '../../../components/controls/SearchBox';
@@ -133,13 +133,14 @@ export class Search extends React.PureComponent<Props, State> {
 
   render() {
     const { component, newCodeSelected } = this.props;
-    const { loading } = this.state;
+    const { loading, query } = this.state;
     const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
     return (
       <div className="code-search" id="code-search">
         {isPortfolio && (
           <PortfolioNewCodeToggle
+            enabled={isEmpty(query)}
             onNewCodeToggle={this.props.onNewCodeToggle}
             showNewCode={newCodeSelected}
           />

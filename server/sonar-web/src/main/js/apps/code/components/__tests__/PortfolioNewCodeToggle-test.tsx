@@ -20,10 +20,18 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
+import Tooltip from '../../../../components/controls/Tooltip';
 import PortfolioNewCodeToggle, { PortfolioNewCodeToggleProps } from '../PortfolioNewCodeToggle';
 
 it('renders correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should show tooltips when disabled', () => {
+  const wrapper = shallowRender({ enabled: false });
+  expect(wrapper.find(Tooltip).props().visible).toBeUndefined();
+  wrapper.setProps({ enabled: true });
+  expect(wrapper.find(Tooltip).props().visible).toBe(false);
 });
 
 it('should toggle correctly', () => {
@@ -46,6 +54,11 @@ it('should toggle correctly', () => {
 
 function shallowRender(props?: Partial<PortfolioNewCodeToggleProps>) {
   return shallow(
-    <PortfolioNewCodeToggle showNewCode={true} onNewCodeToggle={jest.fn()} {...props} />
+    <PortfolioNewCodeToggle
+      showNewCode={true}
+      enabled={true}
+      onNewCodeToggle={jest.fn()}
+      {...props}
+    />
   );
 }

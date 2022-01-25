@@ -19,12 +19,13 @@ exports[`should render correcly 1`] = `
 </div>
 `;
 
-exports[`should render correcly: node code toggle for portfolio 1`] = `
+exports[`should render correcly: new code toggle for portfolio 1`] = `
 <div
   className="code-search"
   id="code-search"
 >
   <PortfolioNewCodeToggle
+    enabled={true}
     onNewCodeToggle={[MockFunction]}
     showNewCode={false}
   />
@@ -38,6 +39,30 @@ exports[`should render correcly: node code toggle for portfolio 1`] = `
   <DeferredSpinner
     className="spacer-left"
     loading={false}
+  />
+</div>
+`;
+
+exports[`should render correcly: new code toggle for portfolio disabled 1`] = `
+<div
+  className="code-search"
+  id="code-search"
+>
+  <PortfolioNewCodeToggle
+    enabled={false}
+    onNewCodeToggle={[MockFunction]}
+    showNewCode={false}
+  />
+  <SearchBox
+    minLength={3}
+    onChange={[Function]}
+    onKeyDown={[Function]}
+    placeholder="code.search_placeholder.portfolio"
+    value="bar"
+  />
+  <DeferredSpinner
+    className="spacer-left"
+    loading={true}
   />
 </div>
 `;

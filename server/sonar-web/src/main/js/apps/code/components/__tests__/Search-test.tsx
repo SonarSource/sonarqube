@@ -44,7 +44,13 @@ it('should render correcly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(
     shallowRender({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) })
-  ).toMatchSnapshot('node code toggle for portfolio');
+  ).toMatchSnapshot('new code toggle for portfolio');
+  expect(
+    shallowRender({
+      component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
+      location: mockLocation({ query: { id: 'foo', search: 'bar' } })
+    })
+  ).toMatchSnapshot('new code toggle for portfolio disabled');
 });
 
 it('should search correct query on mount', async () => {
