@@ -43,12 +43,10 @@ import org.sonar.ce.task.projectexport.steps.LoadProjectStep;
 import org.sonar.ce.task.projectexport.steps.PublishDumpStep;
 import org.sonar.ce.task.projectexport.steps.WriteMetadataStep;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.ce.task.step.ExecuteStatelessInitExtensionsStep;
 
 public class ProjectExportComputationSteps extends AbstractComputationSteps {
   private static final List<Class<? extends ComputationStep>> STEPS_CLASSES = Arrays.asList(
     LoadProjectStep.class,
-    ExecuteStatelessInitExtensionsStep.class,
     WriteMetadataStep.class,
     ExportComponentsStep.class,
     ExportSettingsStep.class,
