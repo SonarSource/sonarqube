@@ -388,14 +388,14 @@ The goal of this versioning strategy is both to:
 
 The rules are:
 
-* Each ~two months a new version of SonarQube is released. This version should increment the minor digit of the previous version (ex: 4.2 -> 4.3)
-* After three (or more) releases, a bug-fix version is released, and becomes the new LTS. The major digit of the subsequent version is incremented to start a new cycle (ex: 5.6 -> 6.0)
+* Every ~two months a new version of SonarQube is released. This version should increment the minor digit of the previous version (ex: 8.2 -> 8.3)
+* Every ~eighteen months, a bug-fix version is released, and becomes the new LTS. The major digit of the subsequent version is incremented to start a new cycle (ex: 7.9 -> 8.0)
 
 And here is the strategy in action:
 ```
-4.4 -> 4.5 -> 5.0 -> 5.1 -> 5.2 -> ... -> 5.5 -> 6.0 -> ...     <- New release every ~2 months
+7.8 -> 7.9 -> 8.0 -> 8.1 -> 8.2 -> ... -> 8.9 -> 9.0 -> ...     <- New release every ~2 months
         |                                  |
-      4.5.1 -> 4.5.2 -> ...              5.5.1 -> 5.5.2 -> ...  <- New LTS
+      7.9.1 -> 7.9.2 -> ...              8.9.1 -> 8.9.2 -> ...  <- New LTS
 ```
 
 ### API Deprecation Strategy
@@ -403,14 +403,12 @@ The goal of this deprecation strategy is to make sure that deprecated APIs will 
 
 The rules are:
 
-* An API must be deprecated before being dropped
-* A deprecated API must be fully supported until its drop (For instance the implementation of a deprecated method can't be replaced by `throw new UnsupportedOperationException())`
-* If an API is deprecated in version X.Y, this API will be dropped in version (X+2).0. Example: an API deprecated in 4.1 is supported in 4.2, 4.3, 5.0, 5.1, 5.2, 5.3 and is dropped in version 6.0.
-* According to the versioning strategy, that means that an API can remain deprecated before being dropped during 6 to 12 months.
+* An API must be deprecated before being dropped. Furthermore, if the underlying feature is not being dropped, a replacement API must immediately be provided.
+* A deprecated API must be fully supported until its drop (For instance the implementation of a deprecated method can't be replaced by `throw new UnsupportedOperationException()`)
+* If an API is deprecated in version X.Y, this API is planned to be dropped in version (X+1).0. Example: an API deprecated in 9.1 is supported in 9.2, 9.3, and so forth for the entire 9.N cycle; it will be dropped in version 10.0
+* According to this versioning strategy, an API can remain deprecated for up to 18 months, and for as short as 2 months
 * Any release of a SonarQube plugin must at least depend on the latest LTS version of the SonarQube API
-* For each SonarQube plugin there must at least one release on each LTS version of SonarQube, which means at least one release each 6 months.
-* No use of deprecated APIs is accepted when releasing a plugin. It raises a critical issue in SonarQube analysis. This issue can't be postponed.
-* No deprecated API introduced 2 major versions ago is accepted when releasing SonarQube. It raises a critical issue in SonarQube analysis. This issue can't be postponed.
+* For each SonarQube plugin there must at least one release on each LTS version of SonarQube, which means at least one release each ~18 months.
 * An API is marked as deprecated with both:
    * the annotation @Deprecated
    * the javadoc tag @deprecated whose message must start with "in x.y", for example:
