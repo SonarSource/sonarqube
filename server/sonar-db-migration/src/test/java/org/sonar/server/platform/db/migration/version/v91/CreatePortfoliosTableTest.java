@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v91;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
@@ -47,9 +48,19 @@ public class CreatePortfoliosTableTest {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     underTest.execute();
-    //re-entrant
+    // re-entrant
     underTest.execute();
 
     db.assertTableExists(TABLE_NAME);
+  }
+
+  @Test
+  public void selection_expression_column_should_be_4000() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
+
+    underTest.execute();
+
+    db.assertTableExists(TABLE_NAME);
+    db.assertColumnDefinition(TABLE_NAME, "selection_expression", Types.VARCHAR, 4000, true);
   }
 }

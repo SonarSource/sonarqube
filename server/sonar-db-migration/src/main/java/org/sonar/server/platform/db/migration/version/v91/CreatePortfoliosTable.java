@@ -26,6 +26,7 @@ import org.sonar.server.platform.db.migration.step.CreateTableChange;
 
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
@@ -46,7 +47,7 @@ public class CreatePortfoliosTable extends CreateTableChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName("parent_uuid").setIsNullable(true).setLimit(UUID_SIZE).build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName("private").setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_mode").setIsNullable(false).setLimit(50).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_expression").setIsNullable(true).setLimit(50).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("selection_expression").setIsNullable(true).setLimit(MAX_SIZE).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
       .addColumn(newBigIntegerColumnDefBuilder().setColumnName("updated_at").setIsNullable(false).build())
       .build());
