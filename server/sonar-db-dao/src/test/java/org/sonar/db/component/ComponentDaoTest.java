@@ -995,6 +995,26 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void select_projects_from_view_should_escape_like_sensitive_characters() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+
+    ComponentDto view = db.components().insertPrivatePortfolio();
+
+    //subview with uuid containing special character ( '_' ) for 'like' SQL clause
+    ComponentDto subView1 = db.components().insertComponent(newSubView(view, "A_C", "A_C-key"));
+    db.components().insertComponent(newProjectCopy(project1, subView1));
+    db.components().insertComponent(newProjectCopy(project2, subView1));
+
+    ComponentDto subView2 = db.components().insertComponent(newSubView(view, "ABC", "ABC-key"));
+    db.components().insertComponent(newProjectCopy(project3, subView2));
+
+    assertThat(underTest.selectProjectsFromView(dbSession, subView1.uuid(), view.uuid())).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
+    assertThat(underTest.selectProjectsFromView(dbSession, subView2.uuid(), view.uuid())).containsExactlyInAnyOrder(project3.uuid());
+  }
+
+  @Test
   public void select_projects() {
     ComponentDto provisionedProject = db.components().insertPrivateProject();
     ComponentDto provisionedView = db.components().insertPrivatePortfolio();
