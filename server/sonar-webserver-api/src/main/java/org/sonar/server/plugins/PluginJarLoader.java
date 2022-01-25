@@ -155,11 +155,6 @@ public class PluginJarLoader {
       return false;
     }
 
-    if (plugin.getType() != BUNDLED && !plugin.getRequiredPlugins().isEmpty()) {
-      LOG.warn("Use of 'Plugin-Dependencies' mechanism is planned for removal. Update the plugin {} [{}] to shade its dependencies instead.",
-        plugin.getName(), plugin.getKey());
-    }
-
     for (PluginInfo.RequiredPlugin requiredPlugin : plugin.getRequiredPlugins()) {
       PluginInfo installedRequirement = allPluginsByKeys.get(requiredPlugin.getKey());
       if (installedRequirement == null) {

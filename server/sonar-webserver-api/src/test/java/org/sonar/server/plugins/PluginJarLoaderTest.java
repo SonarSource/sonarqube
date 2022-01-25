@@ -195,16 +195,6 @@ public class PluginJarLoaderTest {
   }
 
   @Test
-  public void warn_if_external_plugin_has_dependencies() throws IOException {
-    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
-    copyTestPluginTo("test-require-plugin", fs.getInstalledExternalPluginsDir());
-
-    underTest.loadPlugins();
-    assertThat(logs.logs()).contains("Use of 'Plugin-Dependencies' mechanism is planned for removal. "
-      + "Update the plugin Test Require Plugin [testrequire] to shade its dependencies instead.");
-  }
-
-  @Test
   public void fail_if_external_plugin_has_same_key_has_bundled_plugin() throws IOException {
     File jar = createJar(fs.getInstalledExternalPluginsDir(), "plugin1", "main", null);
     createJar(fs.getInstalledBundledPluginsDir(), "plugin1", "main", null);
