@@ -444,14 +444,20 @@
       and p.scope = 'PRJ'
       and p.qualifier in ('VW', 'APP')
   </select>
-
   <select id="selectProjectsFromView" resultType="String">
     select p.copy_component_uuid
     from components p
     where
       p.enabled = ${_true}
       and p.project_uuid = #{projectViewUuid,jdbcType=VARCHAR}
-      and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR}
+    <choose>
+      <when test="_databaseId == 'mssql'">
+        and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} {escape '\'}
+      </when>
+      <otherwise>
+        and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR} ESCAPE '\'
+      </otherwise>
+    </choose>
       and p.qualifier = 'TRK'
       and p.copy_component_uuid is not null
   </select>

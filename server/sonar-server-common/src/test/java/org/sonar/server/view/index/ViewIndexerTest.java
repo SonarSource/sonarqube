@@ -58,6 +58,11 @@ public class ViewIndexerTest {
   private final ViewIndexer underTest = new ViewIndexer(dbClient, es.client());
 
   @Test
+  public void getIndexTypes() {
+    assertThat(underTest.getIndexTypes()).containsExactly(TYPE_VIEW);
+  }
+
+  @Test
   public void index_nothing() {
     underTest.indexOnStartup(emptySet());
     assertThat(es.countDocuments(TYPE_VIEW)).isZero();

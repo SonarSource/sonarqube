@@ -19,7 +19,6 @@
  */
 package org.sonar.server.view.index;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +56,7 @@ public class ViewIndexer implements ResilientIndexer {
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(TYPE_VIEW);
+    return Set.of(TYPE_VIEW);
   }
 
   @Override
