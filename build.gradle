@@ -328,8 +328,8 @@ subprojects {
       dependency 'com.hazelcast:hazelcast-kubernetes:2.2.3'
       dependency 'com.ibm.icu:icu4j:3.4.4'
       // Documentation must be updated if mssql-jdbc is updated: https://github.com/SonarSource/sonarqube/commit/03e4773ebf6cba854cdcf57a600095f65f4f53e7
-      dependency 'com.microsoft.sqlserver:mssql-jdbc:9.2.0.jre11'
-      dependency 'com.oracle.database.jdbc:ojdbc8:19.3.0.0'
+      dependency 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11'
+      dependency 'com.oracle.database.jdbc:ojdbc8:21.4.0.0.1'
       dependency 'org.aspectj:aspectjtools:1.9.6'
       // upgrade okhttp3 dependency kotlin to get rid of not exploitable CVE-2020-29582
       dependency 'org.jetbrains.kotlin:kotlin-stdlib-common:1.4.21'
@@ -411,7 +411,7 @@ subprojects {
         entry 'log4j-over-slf4j'
         entry 'slf4j-api'
       }
-      dependency 'org.postgresql:postgresql:42.2.19'
+      dependency 'org.postgresql:postgresql:42.3.1'
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:4.1.21'
       dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.36.0.63'

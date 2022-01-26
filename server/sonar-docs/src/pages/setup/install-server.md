@@ -57,7 +57,7 @@ Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permi
 |
 |To use integrated security: 
 |
-|1. Download the [Microsoft SQL JDBC Driver 9.2.0 package](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#92) and copy `mssql-jdbc_auth-9.2.0.x64.dll` to any folder in your path. 
+|1. Download the [Microsoft SQL JDBC Driver 9.4.1 package](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#94) and copy `mssql-jdbc_auth-9.4.1.x64.dll` to any folder in your path. 
 |
 |2. **If you're running SonarQube as a Windows service,** make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
 |
