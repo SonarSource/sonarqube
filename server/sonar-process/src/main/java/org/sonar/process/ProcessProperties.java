@@ -85,6 +85,7 @@ public class ProcessProperties {
     SEARCH_JAVA_ADDITIONAL_OPTS("sonar.search.javaAdditionalOpts", ""),
     SEARCH_REPLICAS("sonar.search.replicas"),
     SEARCH_INITIAL_STATE_TIMEOUT("sonar.search.initialStateTimeout"),
+    SONAR_ES_BOOTSTRAP_CHECKS_DISABLE("sonar.es.bootstrap.checks.disable"),
 
     WEB_HOST("sonar.web.host"),
     WEB_JAVA_OPTS("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),

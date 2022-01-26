@@ -46,7 +46,8 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     fromJvmDotOptionsFile(tmpDir, res);
     fromSystemJvmOptionsClass(tmpDir, res);
 
-    if (!props.value("sonar.jdbc.url", "").contains("jdbc:h2") && !props.valueAsBoolean("sonar.es.bootstrap.checks.disable")) {
+    boolean defaultDisableBootstrapChecks = props.value("sonar.jdbc.url", "").contains("jdbc:h2");
+    if (!props.valueAsBoolean("sonar.es.bootstrap.checks.disable", defaultDisableBootstrapChecks)) {
       res.put("-Des.enforce.bootstrap.checks=", "true");
     }
 

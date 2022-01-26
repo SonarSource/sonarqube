@@ -112,6 +112,58 @@ public class EsJvmOptionsTest {
       .doesNotContain("-Des.enforce.bootstrap.checks=true");
   }
 
+  @Test
+  public void boostrap_checks_can_be_set_true_if_h2() throws IOException {
+    properties.put("sonar.jdbc.url", "jdbc:h2:tcp://ffoo:bar/sonar");
+    properties.put("sonar.es.bootstrap.checks.disable", "true");
+
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+        .isNotEmpty()
+        .doesNotContain("-Des.enforce.bootstrap.checks=true");
+  }
+
+  @Test
+  public void boostrap_checks_can_be_set_false_if_h2() throws IOException {
+    properties.put("sonar.jdbc.url", "jdbc:h2:tcp://ffoo:bar/sonar");
+    properties.put("sonar.es.bootstrap.checks.disable", "false");
+
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+        .isNotEmpty()
+        .contains("-Des.enforce.bootstrap.checks=true");
+  }
+
+  @Test
+  public void boostrap_checks_can_be_set_true_if_jdbc_other_than_h2() throws IOException {
+    properties.put("sonar.jdbc.url", randomAlphanumeric(53));
+    properties.put("sonar.es.bootstrap.checks.disable", "true");
+
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+        .isNotEmpty()
+        .doesNotContain("-Des.enforce.bootstrap.checks=true");
+  }
+
+  @Test
+  public void boostrap_checks_can_be_set_false_if_jdbc_other_than_h2() throws IOException {
+    properties.put("sonar.jdbc.url", randomAlphanumeric(53));
+    properties.put("sonar.es.bootstrap.checks.disable", "false");
+
+    File tmpDir = temporaryFolder.newFolder();
+    EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
+
+    assertThat(underTest.getAll())
+        .isNotEmpty()
+        .contains("-Des.enforce.bootstrap.checks=true");
+  }
+
   /**
    * This test may fail if SQ's test are not executed with target Java version 8.
    */
