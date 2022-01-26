@@ -8,6 +8,7 @@ exports[`should render correctly 1`] = `
     Object {
       "pathname": "/component_measures",
       "query": Object {
+        "asc": undefined,
         "id": "project123",
         "metric": "other",
         "view": "list",

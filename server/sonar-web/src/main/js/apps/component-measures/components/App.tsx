@@ -284,6 +284,7 @@ export class App extends React.PureComponent<Props, State> {
         rootComponent={component}
         router={this.props.router}
         selected={query.selected}
+        asc={query.asc}
         updateQuery={this.updateQuery}
         view={query.view}
       />

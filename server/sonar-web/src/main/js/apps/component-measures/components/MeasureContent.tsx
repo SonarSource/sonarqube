@@ -64,6 +64,7 @@ interface Props {
   rootComponent: ComponentMeasure;
   router: InjectedRouter;
   selected?: string;
+  asc?: boolean;
   updateQuery: (query: Partial<Query>) => void;
   view: MeasurePageView;
 }
@@ -110,13 +111,14 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   }
 
   fetchComponentTree = () => {
-    const { metricKeys, opts, strategy } = this.getComponentRequestParams(
-      this.props.view,
-      this.props.requestedMetric
-    );
-    const componentKey = this.props.selected || this.props.rootComponent.key;
-    const baseComponentMetrics = [this.props.requestedMetric.key];
-    if (this.props.requestedMetric.key === MetricKey.ncloc) {
+    const { asc, branchLike, metrics, requestedMetric, rootComponent, selected, view } = this.props;
+    // if asc is undefined we dont want to pass it inside options
+    const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, requestedMetric, {
+      ...(asc !== undefined && { asc })
+    });
+    const componentKey = selected || rootComponent.key;
+    const baseComponentMetrics = [requestedMetric.key];
+    if (requestedMetric.key === MetricKey.ncloc) {
       baseComponentMetrics.push('ncloc_language_distribution');
     }
     Promise.all([
@@ -124,19 +126,17 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       getMeasures({
         component: componentKey,
         metricKeys: baseComponentMetrics.join(),
-        ...getBranchLikeQuery(this.props.branchLike)
+        ...getBranchLikeQuery(branchLike)
       })
     ]).then(([tree, measures]) => {
       if (this.mounted) {
-        const metric = tree.metrics.find(m => m.key === this.props.requestedMetric.key);
+        const metric = tree.metrics.find(m => m.key === requestedMetric.key);
         const components = tree.components.map(component =>
-          enhanceComponent(component, metric, this.props.metrics)
+          enhanceComponent(component, metric, metrics)
         );
 
-        const measure = measures.find(measure => measure.metric === this.props.requestedMetric.key);
-        const secondaryMeasure = measures.find(
-          measure => measure.metric !== this.props.requestedMetric.key
-        );
+        const measure = measures.find(measure => measure.metric === requestedMetric.key);
+        const secondaryMeasure = measures.find(measure => measure.metric !== requestedMetric.key);
 
         this.setState(({ selectedComponent }) => ({
           baseComponent: tree.baseComponent,
@@ -159,13 +159,15 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   };
 
   fetchMoreComponents = () => {
-    const { metrics, view } = this.props;
+    const { metrics, view, asc } = this.props;
     const { baseComponent, metric, paging } = this.state;
     if (!baseComponent || !paging || !metric) {
       return;
     }
+    // if asc is undefined we dont want to pass it inside options
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, metric, {
-      p: paging.pageIndex + 1
+      p: paging.pageIndex + 1,
+      ...(asc !== undefined && { asc })
     });
     this.setState({ loadingMoreComponents: true });
     getComponentTree(strategy, baseComponent.key, metricKeys, opts).then(
@@ -283,6 +285,17 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth: true });
   };
 
+  getDefaultShowBestMeasures() {
+    const { asc, view } = this.props;
+    if (asc !== undefined && view === 'list') {
+      return true;
+    } else if (view === 'tree') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   renderMeasure() {
     const { view } = this.props;
     const { metric } = this.state;
@@ -295,7 +308,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         <FilesView
           branchLike={this.props.branchLike}
           components={this.state.components}
-          defaultShowBestMeasures={view === 'tree'}
+          defaultShowBestMeasures={this.getDefaultShowBestMeasures()}
           fetchMore={this.fetchMoreComponents}
           handleOpen={this.onOpenComponent}
           handleSelect={this.onSelectComponent}

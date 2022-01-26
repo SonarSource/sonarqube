@@ -93,6 +93,20 @@ it('should render correctly for a project', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render correctly when asc prop is defined', async () => {
+  const wrapper = shallowRender({ asc: true });
+  expect(wrapper.type()).toBeNull();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should render correctly when view prop is tree', async () => {
+  const wrapper = shallowRender({ view: 'tree' });
+  expect(wrapper.type()).toBeNull();
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+});
+
 it('should render correctly for a file', async () => {
   (getComponentTree as jest.Mock).mockResolvedValueOnce({
     paging: { pageIndex: 1, pageSize: 500, total: 0 },
@@ -115,6 +129,85 @@ it('should correctly handle scrolling', () => {
     bottomOffset: 400,
     smooth: true
   });
+});
+
+it('should test fetchMoreComponents to work correctly', async () => {
+  (getComponentTree as jest.Mock).mockResolvedValueOnce({
+    paging: { pageIndex: 12, pageSize: 500, total: 0 },
+    baseComponent: mockComponentMeasure(false),
+    components: [],
+    metrics: [METRICS.bugs]
+  });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  wrapper.instance().fetchMoreComponents();
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should test getComponentRequestParams response for different arguments', () => {
+  const wrapper = shallowRender({ asc: false });
+  const metric = {
+    direction: -1,
+    key: 'new_reliability_rating'
+  };
+  const reqParamsList = {
+    metricKeys: ['new_reliability_rating'],
+    opts: {
+      additionalFields: 'metrics',
+      asc: true,
+      metricPeriodSort: 1,
+      metricSort: 'new_reliability_rating',
+      metricSortFilter: 'withMeasuresOnly',
+      ps: 500,
+      s: 'metricPeriod'
+    },
+    strategy: 'leaves'
+  };
+  expect(wrapper.instance().getComponentRequestParams('list', metric, { asc: true })).toEqual(
+    reqParamsList
+  );
+  // when options.asc is not passed the opts.asc will take the default value
+  reqParamsList.opts.asc = false;
+  expect(wrapper.instance().getComponentRequestParams('list', metric, {})).toEqual(reqParamsList);
+
+  const reqParamsTreeMap = {
+    metricKeys: ['new_reliability_rating', 'new_lines'],
+    opts: {
+      additionalFields: 'metrics',
+      asc: true,
+      metricPeriodSort: 1,
+      metricSort: 'new_lines',
+      metricSortFilter: 'withMeasuresOnly',
+      ps: 500,
+      s: 'metricPeriod'
+    },
+    strategy: 'children'
+  };
+  expect(wrapper.instance().getComponentRequestParams('treemap', metric, { asc: true })).toEqual(
+    reqParamsTreeMap
+  );
+  // when options.asc is not passed the opts.asc will take the default value
+  reqParamsTreeMap.opts.asc = false;
+  expect(wrapper.instance().getComponentRequestParams('treemap', metric, {})).toEqual(
+    reqParamsTreeMap
+  );
+
+  const reqParamsTree = {
+    metricKeys: ['new_reliability_rating'],
+    opts: {
+      additionalFields: 'metrics',
+      asc: false,
+      ps: 500,
+      s: 'qualifier,name'
+    },
+    strategy: 'children'
+  };
+  expect(wrapper.instance().getComponentRequestParams('tree', metric, { asc: false })).toEqual(
+    reqParamsTree
+  );
+  // when options.asc is not passed the opts.asc will take the default value
+  reqParamsTree.opts.asc = true;
+  expect(wrapper.instance().getComponentRequestParams('tree', metric, {})).toEqual(reqParamsTree);
 });
 
 function shallowRender(props: Partial<MeasureContent['props']> = {}) {

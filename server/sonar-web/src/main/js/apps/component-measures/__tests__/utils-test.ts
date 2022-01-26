@@ -124,10 +124,13 @@ describe('parseQuery', () => {
       selected: '',
       view: utils.DEFAULT_VIEW
     });
-    expect(utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree' })).toEqual({
+    expect(
+      utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree', asc: 'false' })
+    ).toEqual({
       metric: 'foo',
       selected: 'bar',
-      view: 'tree'
+      view: 'tree',
+      asc: false
     });
   });
 

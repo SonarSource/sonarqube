@@ -142,6 +142,27 @@ describe('#getComponentDrilldownUrl', () => {
       query: { id: COMPLEX_COMPONENT_KEY, metric: METRIC }
     });
   });
+
+  it('should add asc param only when its list view', () => {
+    expect(
+      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC, asc: false })
+    ).toEqual({
+      pathname: '/component_measures',
+      query: { id: SIMPLE_COMPONENT_KEY, metric: METRIC }
+    });
+
+    expect(
+      getComponentDrilldownUrl({
+        componentKey: SIMPLE_COMPONENT_KEY,
+        metric: METRIC,
+        listView: true,
+        asc: false
+      })
+    ).toEqual({
+      pathname: '/component_measures',
+      query: { id: SIMPLE_COMPONENT_KEY, metric: METRIC, asc: 'false', view: 'list' }
+    });
+  });
 });
 
 describe('#getComponentDrilldownUrlWithSelection', () => {

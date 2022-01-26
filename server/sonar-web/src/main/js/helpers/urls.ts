@@ -27,6 +27,7 @@ import { SecurityStandard } from '../types/security';
 import { Dict, HomePage } from '../types/types';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 import { IS_SSR } from './browser';
+import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
 
 export interface Location {
@@ -161,14 +162,16 @@ export function getComponentDrilldownUrl(options: {
   selectionKey?: string;
   treemapView?: boolean;
   listView?: boolean;
+  asc?: boolean;
 }): Location {
-  const { componentKey, metric, branchLike, selectionKey, treemapView, listView } = options;
+  const { componentKey, metric, branchLike, selectionKey, treemapView, listView, asc } = options;
   const query: Query = { id: componentKey, metric, ...getBranchLikeQuery(branchLike) };
   if (treemapView) {
     query.view = 'treemap';
   }
   if (listView) {
     query.view = 'list';
+    query.asc = serializeOptionalBoolean(asc);
   }
   if (selectionKey) {
     query.selected = selectionKey;

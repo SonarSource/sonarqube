@@ -22,7 +22,12 @@ import { enhanceMeasure } from '../../components/measure/utils';
 import { isBranch, isPullRequest } from '../../helpers/branch-like';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
-import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
+import {
+  cleanQuery,
+  parseAsOptionalBoolean,
+  parseAsString,
+  serializeString
+} from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MeasurePageView } from '../../types/measures';
@@ -217,6 +222,7 @@ export interface Query {
   metric: string;
   selected?: string;
   view: MeasurePageView;
+  asc?: boolean;
 }
 
 export const parseQuery = memoize(
@@ -225,7 +231,8 @@ export const parseQuery = memoize(
     return {
       metric,
       selected: parseAsString(urlQuery['selected']),
-      view: parseView(metric, urlQuery['view'])
+      view: parseView(metric, urlQuery['view']),
+      asc: parseAsOptionalBoolean(urlQuery['asc'])
     };
   }
 );
