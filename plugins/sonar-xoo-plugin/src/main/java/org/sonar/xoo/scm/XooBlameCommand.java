@@ -65,30 +65,37 @@ public class XooBlameCommand extends BlameCommand {
   }
 
   private static List<BlameLine> readFile(File inputStream) throws IOException {
+    Date now = new Date();
     try (CSVParser csvParser = CSVFormat.RFC4180
       .withIgnoreEmptyLines()
       .withIgnoreSurroundingSpaces()
       .parse(new FileReader(inputStream))) {
       List<CSVRecord> records = csvParser.getRecords();
       return records.stream()
-        .map(XooBlameCommand::convertToBlameLine)
+        .map(r -> convertToBlameLine(now, r))
         .collect(toList());
     }
   }
 
-  private static BlameLine convertToBlameLine(CSVRecord csvRecord) {
+  private static BlameLine convertToBlameLine(Date now, CSVRecord csvRecord) {
     checkState(csvRecord.size() >= 3, "Not enough fields on line %s", csvRecord);
     String revision = trimToNull(csvRecord.get(0));
     String author = trimToNull(csvRecord.get(1));
     BlameLine blameLine = new BlameLine().revision(revision).author(author);
     String dateStr = trimToNull(csvRecord.get(2));
     if (dateStr != null) {
-      Date dateTime = DateUtils.parseDateTimeQuietly(dateStr);
-      if (dateTime != null) {
-        blameLine.date(dateTime);
-      } else {
-        // Will throw an exception, when date is not in format "yyyy-MM-dd"
-        blameLine.date(DateUtils.parseDate(dateStr));
+      // try to load a relative number of days
+      try {
+        int days = Integer.parseInt(dateStr);
+        blameLine.date(DateUtils.addDays(now, days));
+      } catch (NumberFormatException e) {
+        Date dateTime = DateUtils.parseDateTimeQuietly(dateStr);
+        if (dateTime != null) {
+          blameLine.date(dateTime);
+        } else {
+          // Will throw an exception, when date is not in format "yyyy-MM-dd"
+          blameLine.date(DateUtils.parseDate(dateStr));
+        }
       }
     }
     return blameLine;
