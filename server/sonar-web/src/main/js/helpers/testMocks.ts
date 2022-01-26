@@ -22,6 +22,7 @@ import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { Language } from '../types/languages';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
 import {
@@ -36,7 +37,6 @@ import {
   HealthType,
   IdentityProvider,
   Issue,
-  Language,
   LoggedInUser,
   Measure,
   MeasureEnhanced,

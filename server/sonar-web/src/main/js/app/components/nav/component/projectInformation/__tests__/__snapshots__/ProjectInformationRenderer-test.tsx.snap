@@ -189,7 +189,7 @@ exports[`should render a private project correctly 1`] = `
           }
         }
       />
-      <Connect(MetaQualityProfiles)
+      <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
           Array [
@@ -448,7 +448,7 @@ exports[`should render correctly: default 1`] = `
           }
         }
       />
-      <Connect(MetaQualityProfiles)
+      <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
           Array [
@@ -606,7 +606,7 @@ exports[`should render correctly: no badges 1`] = `
           }
         }
       />
-      <Connect(MetaQualityProfiles)
+      <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
           Array [
@@ -759,7 +759,7 @@ exports[`should render correctly: no badges, no notifications 1`] = `
           }
         }
       />
-      <Connect(MetaQualityProfiles)
+      <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
           Array [
@@ -907,7 +907,7 @@ exports[`should render correctly: with notifications 1`] = `
           }
         }
       />
-      <Connect(MetaQualityProfiles)
+      <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
           Array [
@@ -1061,7 +1061,7 @@ exports[`should render with description 1`] = `
           }
         }
       />
-      <Connect(MetaQualityProfiles)
+      <withLanguagesContext(MetaQualityProfiles)
         headerClassName="big-spacer-top"
         profiles={
           Array [

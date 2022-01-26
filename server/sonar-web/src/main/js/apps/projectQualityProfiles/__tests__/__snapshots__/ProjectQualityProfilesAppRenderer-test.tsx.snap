@@ -246,7 +246,7 @@ exports[`should render correctly: add language 1`] = `
           project_quality_profile.add_language.action
         </Button>
       </div>
-      <Connect(AddLanguageModal)
+      <withLanguagesContext(AddLanguageModal)
         onClose={[MockFunction]}
         onSubmit={[MockFunction]}
         profilesByLanguage={

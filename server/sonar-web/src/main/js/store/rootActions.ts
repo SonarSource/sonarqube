@@ -20,7 +20,6 @@
 import { InjectedRouter } from 'react-router';
 import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
-import { getLanguages } from '../api/languages';
 import { getAllMetrics } from '../api/metrics';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
@@ -30,19 +29,7 @@ import { Status } from '../types/types';
 import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
-import { receiveLanguages } from './languages';
 import { receiveMetrics } from './metrics';
-
-export function fetchLanguages() {
-  return (dispatch: Dispatch) => {
-    getLanguages().then(
-      languages => dispatch(receiveLanguages(languages)),
-      () => {
-        /* do nothing */
-      }
-    );
-  };
-}
 
 export function fetchMetrics() {
   return (dispatch: Dispatch) => {

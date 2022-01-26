@@ -17,19 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import App from '../App';
+import { Languages } from '../../../types/languages';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App languages={{}} {...props}>
-      <div />
-    </App>
-  );
-}
+export const LanguagesContext = React.createContext<Languages>({});

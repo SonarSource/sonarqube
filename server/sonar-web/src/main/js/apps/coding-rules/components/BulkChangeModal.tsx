@@ -19,13 +19,15 @@
  */
 import * as React from 'react';
 import { bulkActivateRules, bulkDeactivateRules, Profile } from '../../../api/quality-profiles';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { Dict, Languages } from '../../../types/types';
+import { Languages } from '../../../types/languages';
+import { Dict } from '../../../types/types';
 import { Query, serializeQuery } from '../query';
 
 interface Props {
@@ -51,7 +53,7 @@ interface State {
   submitting: boolean;
 }
 
-export default class BulkChangeModal extends React.PureComponent<Props, State> {
+export class BulkChangeModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -253,3 +255,5 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withLanguagesContext(BulkChangeModal);

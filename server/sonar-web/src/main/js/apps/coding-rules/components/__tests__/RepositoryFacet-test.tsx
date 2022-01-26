@@ -75,7 +75,7 @@ it('should render search repository correctly', () => {
 function shallowRender(props: Partial<RepositoryFacet['props']> = {}) {
   return shallow<RepositoryFacet>(
     <RepositoryFacet
-      referencedLanguages={{ l: mockLanguage() }}
+      languages={{ l: mockLanguage() }}
       referencedRepositories={{
         l: mockRuleRepository(),
         noName: mockRuleRepository({ name: undefined })

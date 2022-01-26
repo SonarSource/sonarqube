@@ -42,17 +42,9 @@ import {
 } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { isLoggedIn } from '../../../helpers/users';
-import { getCurrentUser, getLanguages, Store } from '../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { SecurityStandard } from '../../../types/security';
-import {
-  CurrentUser,
-  Dict,
-  Languages,
-  Paging,
-  RawQuery,
-  Rule,
-  RuleActivation
-} from '../../../types/types';
+import { CurrentUser, Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
 import {
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
@@ -88,7 +80,6 @@ const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface Props extends WithRouterProps {
   currentUser: CurrentUser;
-  languages: Languages;
 }
 
 interface State {
@@ -533,7 +524,7 @@ export class App extends React.PureComponent<Props, State> {
   isFiltered = () => Object.keys(serializeQuery(this.state.query)).length > 0;
 
   renderBulkButton = () => {
-    const { currentUser, languages } = this.props;
+    const { currentUser } = this.props;
     const { canWrite, paging, query, referencedProfiles } = this.state;
     const canUpdate = canWrite || Object.values(referencedProfiles).some(p => p.actions?.edit);
 
@@ -543,12 +534,7 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       paging && (
-        <BulkChange
-          languages={languages}
-          query={query}
-          referencedProfiles={referencedProfiles}
-          total={paging.total}
-        />
+        <BulkChange query={query} referencedProfiles={referencedProfiles} total={paging.total} />
       )
     );
   };
@@ -705,8 +691,7 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
 }
 
 const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state),
-  languages: getLanguages(state)
+  currentUser: getCurrentUser(state)
 });
 
 export default withRouter(connect(mapStateToProps)(App));

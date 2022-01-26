@@ -17,12 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getLanguages, Store } from '../../../store/rootReducer';
-import App from './App';
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { Languages } from '../../../../types/languages';
+import withLanguagesContext from '../withLanguagesContext';
 
-const mapStateToProps = (state: Store) => ({
-  languages: getLanguages(state)
+jest.mock('../LanguagesContext', () => {
+  return {
+    LanguagesContext: {
+      Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
+        return children({ c: { key: 'c', name: 'c' } });
+      }
+    }
+  };
 });
 
-export default connect(mapStateToProps)(App);
+class Wrapped extends React.Component<{ languages: Languages }> {
+  render() {
+    return <div />;
+  }
+}
+
+const UnderTest = withLanguagesContext(Wrapped);
+
+it('should inject languages', () => {
+  const wrapper = shallow(<UnderTest />);
+  expect(wrapper.dive().type()).toBe(Wrapped);
+  expect(wrapper.dive<Wrapped>().props().languages).toEqual({ c: { key: 'c', name: 'c' } });
+});

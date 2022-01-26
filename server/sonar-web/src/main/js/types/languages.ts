@@ -17,30 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import '../AppContainer';
 
-jest.mock('react-redux', () => ({
-  connect: jest.fn(() => (a: any) => a)
-}));
+import { Dict } from './types';
 
-jest.mock('../../../../store/rootReducer', () => {
-  return {
-    getLanguages: jest.fn(() => [
-      { key: 'css', name: 'CSS' },
-      { key: 'js', name: 'JS' }
-    ])
-  };
-});
+export interface Language {
+  key: string;
+  name: string;
+}
 
-describe('redux', () => {
-  it('should correctly map state and dispatch props', () => {
-    const [mapStateToProps] = (connect as jest.Mock).mock.calls[0];
-    const { languages } = mapStateToProps({});
-
-    expect(languages).toEqual([
-      { key: 'css', name: 'CSS' },
-      { key: 'js', name: 'JS' }
-    ]);
-  });
-});
+export type Languages = Dict<Language>;

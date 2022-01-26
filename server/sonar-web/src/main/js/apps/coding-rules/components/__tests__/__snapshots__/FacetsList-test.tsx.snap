@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <Connect(LanguageFacet)
+  <withLanguagesContext(LanguageFacet)
     disabled={false}
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
@@ -18,7 +18,7 @@ exports[`should render correctly 1`] = `
     onToggle={[MockFunction]}
     open={false}
   />
-  <Connect(RepositoryFacet)
+  <withLanguagesContext(RepositoryFacet)
     onChange={[MockFunction]}
     onToggle={[MockFunction]}
     open={false}

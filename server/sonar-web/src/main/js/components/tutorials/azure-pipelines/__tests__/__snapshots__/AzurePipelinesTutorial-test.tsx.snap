@@ -181,7 +181,7 @@ exports[`should render correctly 4`] = `
       className="boxed-group-inner"
     >
       <div>
-        <Connect(BranchAnalysisStepContent)
+        <withLanguagesContext(BranchAnalysisStepContent)
           component={
             Object {
               "breadcrumbs": Array [],

@@ -18,27 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { getLanguages, Store } from '../../store/rootReducer';
+import { LanguagesContext } from '../../app/components/languages/LanguagesContext';
 import { getWrappedDisplayName } from './utils';
 
 export function withCLanguageFeature<P>(
   WrappedComponent: React.ComponentType<P & { hasCLanguageFeature: boolean }>
 ) {
-  class Wrapper extends React.Component<P & { hasCLanguageFeature: boolean }> {
+  class Wrapper extends React.Component<Omit<P, 'hasCLanguageFeature'>> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withCLanguageFeature');
 
     render() {
-      return <WrappedComponent {...this.props} />;
+      return (
+        <LanguagesContext.Consumer>
+          {languages => {
+            const hasCLanguageFeature = languages['c'] !== undefined;
+
+            return (
+              <WrappedComponent {...(this.props as P)} hasCLanguageFeature={hasCLanguageFeature} />
+            );
+          }}
+        </LanguagesContext.Consumer>
+      );
     }
   }
 
-  function mapStateToProps(state: Store) {
-    const languages = getLanguages(state);
-    const hasCLanguageFeature = languages['c'] !== undefined;
-
-    return { hasCLanguageFeature };
-  }
-
-  return connect(mapStateToProps)(Wrapper);
+  return Wrapper;
 }

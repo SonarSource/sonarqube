@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
       onboarding.tutorial.with.gitlab_ci.title
     </h1>
   </div>
-  <Connect(withCLanguageFeature(ProjectKeyStep))
+  <withCLanguageFeature(ProjectKeyStep)
     component={
       Object {
         "breadcrumbs": Array [],

@@ -19,13 +19,12 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withLanguagesContext from '../../app/components/languages/withLanguagesContext';
 import Histogram from '../../components/charts/Histogram';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
-import { getLanguages, Store } from '../../store/rootReducer';
+import { Languages } from '../../types/languages';
 import { MetricType } from '../../types/metrics';
-import { Languages } from '../../types/types';
 
 interface LanguageDistributionProps {
   distribution: string;
@@ -74,8 +73,4 @@ function cutLanguageName(name: string) {
   return name.length > 10 ? `${name.substr(0, 7)}...` : name;
 }
 
-const mapStateToProps = (state: Store) => ({
-  languages: getLanguages(state)
-});
-
-export default connect(mapStateToProps)(LanguageDistribution);
+export default withLanguagesContext(LanguageDistribution);

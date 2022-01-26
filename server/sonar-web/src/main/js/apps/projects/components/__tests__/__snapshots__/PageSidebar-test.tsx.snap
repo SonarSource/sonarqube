@@ -44,7 +44,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   <NewLinesFilter
     onQueryChange={[MockFunction]}
   />
-  <Connect(LanguagesFilter)
+  <withLanguagesContext(LanguagesFilter)
     onQueryChange={[MockFunction]}
     query={
       Object {
@@ -110,7 +110,7 @@ exports[`should render \`leak\` view correctly with no applications 1`] = `
   <NewLinesFilter
     onQueryChange={[MockFunction]}
   />
-  <Connect(LanguagesFilter)
+  <withLanguagesContext(LanguagesFilter)
     onQueryChange={[MockFunction]}
     query={
       Object {
@@ -169,7 +169,7 @@ exports[`should render correctly 1`] = `
     onQueryChange={[MockFunction]}
     value="3"
   />
-  <Connect(LanguagesFilter)
+  <withLanguagesContext(LanguagesFilter)
     onQueryChange={[MockFunction]}
     query={
       Object {
@@ -231,7 +231,7 @@ exports[`should render correctly with no applications 1`] = `
     onQueryChange={[MockFunction]}
     value="3"
   />
-  <Connect(LanguagesFilter)
+  <withLanguagesContext(LanguagesFilter)
     onQueryChange={[MockFunction]}
     query={
       Object {

@@ -17,12 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getLanguages, Store } from '../../../store/rootReducer';
-import LanguagesFilter from './LanguagesFilter';
+import * as React from 'react';
+import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import { Languages } from '../../../types/languages';
+import { LanguagesContext } from './LanguagesContext';
 
-const stateToProps = (state: Store) => ({
-  languages: getLanguages(state)
-});
+export interface WithLanguagesContextProps {
+  languages: Languages;
+}
 
-export default connect(stateToProps)(LanguagesFilter);
+export default function withLanguagesContext<P>(
+  WrappedComponent: React.ComponentType<P & WithLanguagesContextProps>
+) {
+  return class WithLanguagesContext extends React.PureComponent<
+    Omit<P, keyof WithLanguagesContextProps>
+  > {
+    static displayName = getWrappedDisplayName(WrappedComponent, 'withLanguagesContext');
+
+    render() {
+      return (
+        <LanguagesContext.Consumer>
+          {languages => <WrappedComponent languages={languages} {...(this.props as P)} />}
+        </LanguagesContext.Consumer>
+      );
+    }
+  };
+}

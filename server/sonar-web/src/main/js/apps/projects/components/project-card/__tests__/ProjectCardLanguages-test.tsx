@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ProjectCardLanguages from '../ProjectCardLanguages';
+import { ProjectCardLanguages } from '../ProjectCardLanguages';
 
 const languages = {
   java: { key: 'java', name: 'Java' },

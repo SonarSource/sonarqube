@@ -47,13 +47,12 @@ it('should not a disabled button when edition is not possible', () => {
 it('should display BulkChangeModal', () => {
   const wrapper = shallowRender();
   wrapper.instance().handleActivateClick(mockEvent());
-  expect(wrapper.find('BulkChangeModal')).toMatchSnapshot();
+  expect(wrapper.find('withLanguagesContext(BulkChangeModal)').exists()).toBe(true);
 });
 
 function shallowRender(props: Partial<BulkChange['props']> = {}) {
   return shallow<BulkChange>(
     <BulkChange
-      languages={{ js: { key: 'js', name: 'JavaScript' } }}
       query={{ activation: false, profile: 'key' } as BulkChange['props']['query']}
       referencedProfiles={{ key: profile }}
       total={2}

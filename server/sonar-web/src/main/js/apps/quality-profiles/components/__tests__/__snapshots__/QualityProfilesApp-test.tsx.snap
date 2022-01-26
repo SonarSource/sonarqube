@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: full 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="quality_profiles"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="quality_profiles.page"
+  />
+  <div
+    actions={Object {}}
+    exporters={Array []}
+    languages={Array []}
+    profiles={Array []}
+    updateProfiles={[Function]}
+  />
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="quality_profiles"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="quality_profiles.page"
+  />
+  <i
+    className="spinner"
+  />
+</div>
+`;

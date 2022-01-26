@@ -96,7 +96,7 @@ it('should not render link to activity page for files', () => {
 
 it('should display secondary measure too', () => {
   const wrapper = shallow(<MeasureHeader {...PROPS} secondaryMeasure={SECONDARY} />);
-  expect(wrapper.find('Connect(LanguageDistribution)')).toHaveLength(1);
+  expect(wrapper.find('withLanguagesContext(LanguageDistribution)')).toHaveLength(1);
 });
 
 it('should work with measure without value', () => {

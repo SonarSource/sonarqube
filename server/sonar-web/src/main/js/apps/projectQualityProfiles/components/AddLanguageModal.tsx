@@ -19,17 +19,17 @@
  */
 import { difference } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Profile } from '../../../api/quality-profiles';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
-import { Store } from '../../../store/rootReducer';
-import { Dict, Languages } from '../../../types/types';
+import { Languages } from '../../../types/languages';
+import { Dict } from '../../../types/types';
 
 export interface AddLanguageModalProps {
   languages: Languages;
@@ -155,8 +155,4 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
   );
 }
 
-function mapStateToProps({ languages }: Store) {
-  return { languages };
-}
-
-export default connect(mapStateToProps)(AddLanguageModal);
+export default withLanguagesContext(AddLanguageModal);

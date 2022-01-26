@@ -17,12 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getLanguages, Store } from '../../../../store/rootReducer';
-import ProjectCardLanguages from './ProjectCardLanguages';
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { getLanguages } from '../../../../api/languages';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import LanguageContextProvider from '../LanguagesContextProvider';
 
-const stateToProps = (state: Store) => ({
-  languages: getLanguages(state)
+jest.mock('../../../../api/languages', () => ({
+  getLanguages: jest.fn().mockResolvedValue({})
+}));
+
+it('should call language', async () => {
+  const languages = { c: { key: 'c', name: 'c' } };
+  (getLanguages as jest.Mock).mockResolvedValueOnce(languages);
+  const wrapper = shallowRender();
+
+  expect(getLanguages).toBeCalled();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state()).toEqual({ languages });
 });
 
-export default connect(stateToProps)(ProjectCardLanguages);
+function shallowRender() {
+  return shallow<LanguageContextProvider>(
+    <LanguageContextProvider>
+      <div />
+    </LanguageContextProvider>
+  );
+}

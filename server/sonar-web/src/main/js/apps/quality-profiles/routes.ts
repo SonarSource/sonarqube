@@ -21,7 +21,7 @@ import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 
 const routes = [
   {
-    component: lazyLoadComponent(() => import('./components/AppContainer')),
+    component: lazyLoadComponent(() => import('./components/QualityProfilesApp')),
     indexRoute: { component: lazyLoadComponent(() => import('./home/HomeContainer')) },
     childRoutes: [
       {

@@ -19,24 +19,19 @@
  */
 import { omit, uniqBy } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { getLanguages, Store } from '../../../store/rootReducer';
 import { Facet, ReferencedLanguage } from '../../../types/issues';
+import { Language, Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { Query } from '../utils';
 
-interface InstalledLanguage {
-  key: string;
-  name: string;
-}
-
 interface Props {
   fetching: boolean;
-  installedLanguages: InstalledLanguage[];
-  languages: string[];
+  languages: Languages;
+  selectedLanguages: string[];
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
@@ -62,30 +57,30 @@ class LanguageFacet extends React.PureComponent<Props> {
   };
 
   getAllPossibleOptions = () => {
-    const { installedLanguages, stats = {} } = this.props;
+    const { languages, stats = {} } = this.props;
 
     // add any language that presents in the facet, but might not be installed
     // for such language we don't know their display name, so let's just use their key
     // and make sure we reference each language only once
     return uniqBy(
-      [...installedLanguages, ...Object.keys(stats).map(key => ({ key, name: key }))],
+      [...Object.values(languages), ...Object.keys(stats).map(key => ({ key, name: key }))],
       language => language.key
     );
   };
 
-  loadSearchResultCount = (languages: InstalledLanguage[]) => {
+  loadSearchResultCount = (languages: Language[]) => {
     return this.props.loadSearchResultCount('languages', {
       languages: languages.map(language => language.key)
     });
   };
 
-  renderSearchResult = ({ name }: InstalledLanguage, term: string) => {
+  renderSearchResult = ({ name }: Language, term: string) => {
     return highlightTerm(name, term);
   };
 
   render() {
     return (
-      <ListStyleFacet<InstalledLanguage>
+      <ListStyleFacet<Language>
         facetHeader={translate('issues.facet.languages')}
         fetching={this.props.fetching}
         getFacetItemText={this.getLanguageName}
@@ -103,14 +98,10 @@ class LanguageFacet extends React.PureComponent<Props> {
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_languages')}
         stats={this.props.stats}
-        values={this.props.languages}
+        values={this.props.selectedLanguages}
       />
     );
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  installedLanguages: Object.values(getLanguages(state))
-});
-
-export default connect(mapStateToProps)(LanguageFacet);
+export default withLanguagesContext(LanguageFacet);

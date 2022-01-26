@@ -18,21 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { searchRules } from '../../../../../../api/rules';
 import Tooltip from '../../../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../../../../helpers/urls';
-import { getLanguages, Store } from '../../../../../../store/rootReducer';
-import { ComponentQualityProfile, Dict, Languages } from '../../../../../../types/types';
+import { Languages } from '../../../../../../types/languages';
+import { ComponentQualityProfile, Dict } from '../../../../../../types/types';
+import withLanguagesContext from '../../../../languages/withLanguagesContext';
 
-interface StateProps {
-  languages: Languages;
-}
-
-interface OwnProps {
+interface Props {
   headerClassName?: string;
+  languages: Languages;
   profiles: ComponentQualityProfile[];
 }
 
@@ -40,7 +37,7 @@ interface State {
   deprecatedByKey: Dict<number>;
 }
 
-export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
+export class MetaQualityProfiles extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { deprecatedByKey: {} };
 
@@ -141,8 +138,4 @@ export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnPro
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  languages: getLanguages(state)
-});
-
-export default connect(mapStateToProps)(MetaQualityProfiles);
+export default withLanguagesContext(MetaQualityProfiles);

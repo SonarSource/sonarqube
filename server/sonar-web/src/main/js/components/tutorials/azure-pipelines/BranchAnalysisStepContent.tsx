@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate } from '../../../helpers/l10n';
-import { getLanguages, Store } from '../../../store/rootReducer';
-import { Component, Languages } from '../../../types/types';
+import { Languages } from '../../../types/languages';
+import { Component } from '../../../types/types';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
 import AnalysisCommand from './commands/AnalysisCommand';
@@ -29,6 +29,7 @@ import AnalysisCommand from './commands/AnalysisCommand';
 export interface BranchesAnalysisStepProps {
   languages: Languages;
   component: Component;
+
   onStepValidationChange: (isValid: boolean) => void;
 }
 
@@ -66,8 +67,4 @@ export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  languages: getLanguages(state)
-});
-
-export default connect(mapStateToProps)(BranchAnalysisStepContent);
+export default withLanguagesContext(BranchAnalysisStepContent);

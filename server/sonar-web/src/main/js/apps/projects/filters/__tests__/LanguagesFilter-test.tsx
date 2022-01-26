@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import LanguagesFilter from '../LanguagesFilter';
+import { LanguagesFilter } from '../LanguagesFilter';
 
 const languages = {
   java: { key: 'java', name: 'Java' },

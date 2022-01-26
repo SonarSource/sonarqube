@@ -122,7 +122,6 @@ function shallowRender(props: Partial<App['props']> = {}) {
       currentUser={mockCurrentUser({
         isLoggedIn: true
       })}
-      languages={{ js: { key: 'js', name: 'JavaScript' } }}
       location={mockLocation()}
       params={{}}
       router={mockRouter()}

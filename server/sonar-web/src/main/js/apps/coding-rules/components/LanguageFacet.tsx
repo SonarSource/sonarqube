@@ -19,26 +19,21 @@
  */
 import { uniqBy } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { getLanguages, Store } from '../../../store/rootReducer';
+import { Language, Languages } from '../../../types/languages';
 import { BasicProps } from './Facet';
-
-interface InstalledLanguage {
-  key: string;
-  name: string;
-}
 
 interface Props extends BasicProps {
   disabled?: boolean;
-  installedLanguages: InstalledLanguage[];
+  languages: Languages;
 }
 
-class LanguageFacet extends React.PureComponent<Props> {
+export class LanguageFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
-    const language = this.props.installedLanguages.find(l => l.key === languageKey);
+    const language = this.props.languages[languageKey];
     return language ? language.name : languageKey;
   };
 
@@ -52,24 +47,24 @@ class LanguageFacet extends React.PureComponent<Props> {
   };
 
   getAllPossibleOptions = () => {
-    const { installedLanguages, stats = {} } = this.props;
+    const { languages, stats = {} } = this.props;
 
     // add any language that presents in the facet, but might not be installed
     // for such language we don't know their display name, so let's just use their key
     // and make sure we reference each language only once
-    return uniqBy(
-      [...installedLanguages, ...Object.keys(stats).map(key => ({ key, name: key }))],
-      language => language.key
+    return uniqBy<Language>(
+      [...Object.values(languages), ...Object.keys(stats).map(key => ({ key, name: key }))],
+      (language: Language) => language.key
     );
   };
 
-  renderSearchResult = ({ name }: InstalledLanguage, term: string) => {
+  renderSearchResult = ({ name }: Language, term: string) => {
     return highlightTerm(name, term);
   };
 
   render() {
     return (
-      <ListStyleFacet<InstalledLanguage>
+      <ListStyleFacet<Language>
         disabled={this.props.disabled}
         disabledHelper={translate('coding_rules.filters.language.inactive')}
         facetHeader={translate('coding_rules.facet.languages')}
@@ -93,8 +88,4 @@ class LanguageFacet extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  installedLanguages: Object.values(getLanguages(state))
-});
-
-export default connect(mapStateToProps)(LanguageFacet);
+export default withLanguagesContext(LanguageFacet);

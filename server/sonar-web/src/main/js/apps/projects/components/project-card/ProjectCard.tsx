@@ -38,7 +38,7 @@ import { MetricKey } from '../../../../types/metrics';
 import { CurrentUser } from '../../../../types/types';
 import { Project } from '../../types';
 import './ProjectCard.css';
-import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
+import ProjectCardLanguages from './ProjectCardLanguages';
 import ProjectCardMeasure from './ProjectCardMeasure';
 import ProjectCardMeasures from './ProjectCardMeasures';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
@@ -176,7 +176,7 @@ function renderSecondLine(
                   <span className="spacer-left">
                     <SizeRating value={Number(measures[MetricKey.ncloc])} />
                   </span>
-                  <ProjectCardLanguagesContainer
+                  <ProjectCardLanguages
                     className="small spacer-left text-ellipsis"
                     distribution={measures[MetricKey.ncloc_language_distribution]}
                   />

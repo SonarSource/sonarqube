@@ -23,7 +23,7 @@ import { bulkActivateRules, bulkDeactivateRules } from '../../../../api/quality-
 import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
 import { submit, waitAndUpdate } from '../../../../helpers/testUtils';
 import { Query } from '../../query';
-import BulkChangeModal from '../BulkChangeModal';
+import { BulkChangeModal } from '../BulkChangeModal';
 
 jest.mock('../../../../api/quality-profiles', () => ({
   bulkActivateRules: jest.fn().mockResolvedValue({ failed: 0, succeeded: 2 }),

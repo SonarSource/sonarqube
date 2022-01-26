@@ -1,52 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display BulkChangeModal 1`] = `
-<BulkChangeModal
-  action="activate"
-  languages={
-    Object {
-      "js": Object {
-        "key": "js",
-        "name": "JavaScript",
-      },
-    }
-  }
-  onClose={[Function]}
-  query={
-    Object {
-      "activation": false,
-      "profile": "key",
-    }
-  }
-  referencedProfiles={
-    Object {
-      "key": Object {
-        "actions": Object {
-          "associateProjects": true,
-          "copy": true,
-          "delete": false,
-          "edit": true,
-          "setAsDefault": true,
-        },
-        "activeDeprecatedRuleCount": 2,
-        "activeRuleCount": 10,
-        "childrenCount": 0,
-        "depth": 1,
-        "isBuiltIn": false,
-        "isDefault": false,
-        "isInherited": false,
-        "key": "key",
-        "language": "js",
-        "languageName": "JavaScript",
-        "name": "name",
-        "projectCount": 3,
-      },
-    }
-  }
-  total={2}
-/>
-`;
-
 exports[`should not a disabled button when edition is not possible 1`] = `
 <Tooltip
   overlay="coding_rules.can_not_bulk_change"

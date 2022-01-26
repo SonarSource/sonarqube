@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getRuleRepositories } from '../../../api/rules';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { getLanguages, Store } from '../../../store/rootReducer';
+import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { BasicProps } from './Facet';
 
 interface StateProps {
-  referencedLanguages: Dict<{ key: string; name: string }>;
+  languages: Languages;
 }
 
 interface Props extends BasicProps, StateProps {
@@ -37,8 +37,8 @@ interface Props extends BasicProps, StateProps {
 
 export class RepositoryFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
-    const { referencedLanguages } = this.props;
-    const language = referencedLanguages[languageKey];
+    const { languages } = this.props;
+    const language = languages[languageKey];
     return (language && language.name) || languageKey;
   };
 
@@ -107,8 +107,4 @@ export class RepositoryFacet extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  referencedLanguages: getLanguages(state)
-});
-
-export default connect(mapStateToProps)(RepositoryFacet);
+export default withLanguagesContext(RepositoryFacet);

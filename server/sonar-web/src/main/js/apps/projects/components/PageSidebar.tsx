@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
-import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
+import LanguagesFilter from '../filters/LanguagesFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
 import NewCoverageFilter from '../filters/NewCoverageFilter';
 import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
@@ -157,7 +157,7 @@ export default function PageSidebar(props: PageSidebarProps) {
           />
         </>
       )}
-      <LanguagesFilterContainer
+      <LanguagesFilter
         {...facetProps}
         facet={getFacet(facets, 'languages')}
         query={query}

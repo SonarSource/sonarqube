@@ -20,14 +20,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
-import { fetchLanguages } from '../../store/rootActions';
 import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
 interface Props {
-  fetchLanguages: () => void;
   enableGravatar: boolean;
   gravatarServerUrl: string;
 }
@@ -37,7 +35,6 @@ export class App extends React.PureComponent<Props> {
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchLanguages();
     this.setScrollbarWidth();
   }
 
@@ -100,6 +97,4 @@ const mapStateToProps = (state: Store) => {
   };
 };
 
-const mapDispatchToProps = { fetchLanguages };
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);

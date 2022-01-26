@@ -24,12 +24,11 @@ import Dropdown from '../../../components/controls/Dropdown';
 import Tooltip from '../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
-import { Dict, Languages } from '../../../types/types';
+import { Dict } from '../../../types/types';
 import { Query } from '../query';
 import BulkChangeModal from './BulkChangeModal';
 
 interface Props {
-  languages: Languages;
   query: Query;
   referencedProfiles: Dict<Profile>;
   total: number;
@@ -135,7 +134,6 @@ export default class BulkChange extends React.PureComponent<Props, State> {
         {this.state.modal && this.state.action && (
           <BulkChangeModal
             action={this.state.action}
-            languages={this.props.languages}
             onClose={this.closeModal}
             profile={this.state.profile}
             query={this.props.query}

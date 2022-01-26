@@ -21,14 +21,15 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate } from '../../../helpers/l10n';
-import { Languages } from '../../../types/types';
+import { Languages } from '../../../types/languages';
 import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';
 
 interface Props {
-  children: React.ReactElement<any>;
+  children: React.ReactElement;
   languages: Languages;
 }
 
@@ -39,7 +40,7 @@ interface State {
   profiles?: Profile[];
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export class QualityProfilesApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
@@ -59,9 +60,8 @@ export default class App extends React.PureComponent<Props, State> {
   loadData() {
     this.setState({ loading: true });
     Promise.all([getExporters(), this.fetchProfiles()]).then(
-      responses => {
+      ([exporters, profilesResponse]) => {
         if (this.mounted) {
-          const [exporters, profilesResponse] = responses;
           this.setState({
             actions: profilesResponse.actions,
             exporters,
@@ -112,3 +112,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withLanguagesContext(QualityProfilesApp);

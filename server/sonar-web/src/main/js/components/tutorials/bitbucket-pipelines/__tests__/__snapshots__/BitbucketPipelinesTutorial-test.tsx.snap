@@ -107,7 +107,7 @@ exports[`should render correctly: repo variable step content 1`] = `
 `;
 
 exports[`should render correctly: yaml file step content 1`] = `
-<Connect(withCLanguageFeature(YamlFileStep))>
+<withCLanguageFeature(YamlFileStep)>
   [Function]
-</Connect(withCLanguageFeature(YamlFileStep))>
+</withCLanguageFeature(YamlFileStep)>
 `;

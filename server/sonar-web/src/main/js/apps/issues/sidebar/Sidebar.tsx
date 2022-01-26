@@ -207,13 +207,13 @@ export class Sidebar extends React.PureComponent<Props> {
         />
         <LanguageFacet
           fetching={this.props.loadingFacets.languages === true}
-          languages={query.languages}
           loadSearchResultCount={this.props.loadSearchResultCount}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.languages}
           query={query}
           referencedLanguages={this.props.referencedLanguages}
+          selectedLanguages={query.languages}
           stats={facets.languages}
         />
         <RuleFacet

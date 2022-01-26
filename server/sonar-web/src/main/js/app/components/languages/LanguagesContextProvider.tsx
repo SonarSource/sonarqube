@@ -18,27 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { keyBy } from 'lodash';
-import { Languages } from '../types/types';
-import { ActionType } from './utils/actions';
+import * as React from 'react';
+import { getLanguages } from '../../../api/languages';
+import { Languages } from '../../../types/languages';
+import { LanguagesContext } from './LanguagesContext';
 
-export function receiveLanguages(languages: Array<{ key: string; name: string }>) {
-  return { type: 'RECEIVE_LANGUAGES', languages };
+interface State {
+  languages: Languages;
 }
 
-type Action = ActionType<typeof receiveLanguages, 'RECEIVE_LANGUAGES'>;
+export default class LanguageContextProvider extends React.PureComponent<{}, State> {
+  mounted = false;
+  state: State = {
+    languages: {}
+  };
 
-export default function(state: Languages = {}, action: Action): Languages {
-  if (action.type === 'RECEIVE_LANGUAGES') {
-    return keyBy(action.languages, 'key');
+  componentDidMount() {
+    this.mounted = true;
+
+    this.loadData();
   }
 
-  return state;
-}
+  componentWillUnmount() {
+    this.mounted = false;
+  }
 
-export function getLanguages(state: Languages) {
-  return state;
-}
+  loadData = async () => {
+    const languageList = await getLanguages().catch(() => []);
+    this.setState({ languages: keyBy(languageList, 'key') });
+  };
 
-export function getLanguageByKey(state: Languages, key: string) {
-  return state[key];
+  render() {
+    return (
+      <LanguagesContext.Provider value={this.state.languages}>
+        {this.props.children}
+      </LanguagesContext.Provider>
+    );
+  }
 }

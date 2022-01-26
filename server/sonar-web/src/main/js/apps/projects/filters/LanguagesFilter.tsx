@@ -19,9 +19,10 @@
  */
 import { difference, sortBy } from 'lodash';
 import * as React from 'react';
+import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate } from '../../../helpers/l10n';
-import { getLanguageByKey } from '../../../store/languages';
-import { Dict, Languages, RawQuery } from '../../../types/types';
+import { Languages } from '../../../types/languages';
+import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -38,7 +39,7 @@ interface Props {
   value?: string[];
 }
 
-export default class LanguagesFilter extends React.Component<Props> {
+export class LanguagesFilter extends React.Component<Props> {
   getSearchOptions = () => {
     const { facet, languages } = this.props;
     let languageKeys = Object.keys(languages);
@@ -52,10 +53,7 @@ export default class LanguagesFilter extends React.Component<Props> {
     sortBy(Object.keys(facet), [(option: string) => -facet[option], (option: string) => option]);
 
   renderOption = (option: string) => (
-    <SearchableFilterOption
-      option={getLanguageByKey(this.props.languages, option)}
-      optionKey={option}
-    />
+    <SearchableFilterOption option={this.props.languages[option]} optionKey={option} />
   );
 
   render() {
@@ -83,3 +81,5 @@ export default class LanguagesFilter extends React.Component<Props> {
     );
   }
 }
+
+export default withLanguagesContext(LanguagesFilter);
