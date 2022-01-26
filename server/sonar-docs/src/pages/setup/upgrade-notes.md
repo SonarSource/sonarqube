@@ -5,9 +5,9 @@ url: /setup/upgrade-notes/
 
 ## Release 9.3 Upgrade Notes  
 **Portfolio overview now shows ratings on both New Code and Overall Code**  
-The portfolio overview now provides a high-level view on project health according to your New Code definition as well as Overall Code. New Code ratings are shown for Reliability, Security Vulnerabilities, Security Review, and Maintainability.
+The Portfolio overview and project breakdown have been redesigned to provide a high-level view on project health according to your New Code definition as well as Overall Code. New Code ratings are shown for Reliability, Security Vulnerabilities, Security Review, and Maintainability. To see these ratings on New Code, Portfolios need to be recomputed after upgrading to 9.3.
 
-You need to recompute your portfolios after upgrading to 9.3 to see ratings on New Code.
+Along with this redesign, Portfolios and Applications no longer show users information on projects they don't have access to, and Application administration has been moved out of the Portfolio administration UI.
 
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17060)
 
