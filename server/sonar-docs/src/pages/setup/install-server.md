@@ -218,7 +218,7 @@ Follow these steps for your first installation:
 		<image_name>
 	```
 	
-	For more configuration environment variables, see the [Docker Environment Variables](/setup/environment-variables/).
+	For docker based setups, environment variables supersede all parameters that were provided with properties. See  [Docker Environment Variables](/setup/environment-variables/).
 	
 	[[warning]]
     | Use of the environment variables `SONARQUBE_JDBC_USERNAME`, `SONARQUBE_JDBC_PASSWORD`, and `SONARQUBE_JDBC_URL` is deprecated and will stop working in future releases.
