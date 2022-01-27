@@ -19,11 +19,7 @@
  */
 package org.sonar.db.ce;
 
-import java.util.HashSet;
 import java.util.Set;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableSet;
 
 public class CeTaskCharacteristicDto {
 

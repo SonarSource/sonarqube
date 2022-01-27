@@ -75,8 +75,6 @@ import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static java.lang.Math.max;
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;

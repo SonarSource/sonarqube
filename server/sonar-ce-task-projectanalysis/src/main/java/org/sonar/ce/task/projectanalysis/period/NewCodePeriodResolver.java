@@ -84,7 +84,7 @@ public class NewCodePeriodResolver {
     }
   }
 
-  private Period resolveByReferenceBranch(String value) {
+  private static Period resolveByReferenceBranch(String value) {
     return newPeriod(NewCodePeriodType.REFERENCE_BRANCH, value, null);
   }
 
