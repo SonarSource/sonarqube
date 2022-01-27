@@ -27,6 +27,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import { Component, CurrentUserSetting } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
@@ -39,9 +40,9 @@ export interface JenkinsTutorialProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
   branchesEnabled: boolean;
-  component: T.Component;
+  component: Component;
   projectBinding?: ProjectAlmBindingResponse;
-  setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
+  setCurrentUserSetting: (setting: CurrentUserSetting) => void;
   skipPreReqs: boolean;
   willRefreshAutomatically?: boolean;
 }

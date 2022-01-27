@@ -19,7 +19,8 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON } from '../helpers/request';
+import { Language } from '../types/types';
 
-export function getLanguages(): Promise<T.Language[]> {
+export function getLanguages(): Promise<Language[]> {
   return getJSON('/api/languages/list').then(r => r.languages, throwGlobalError);
 }

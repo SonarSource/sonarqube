@@ -26,6 +26,7 @@ import { withRouter } from '../../../components/hoc/withRouter';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { getSettingsAppAllDefinitions, Store } from '../../../store/rootReducer';
 import { SettingCategoryDefinition } from '../../../types/settings';
+import { Component, Dict } from '../../../types/types';
 import {
   ADDITIONAL_PROJECT_SETTING_DEFINITIONS,
   ADDITIONAL_SETTING_DEFINITIONS,
@@ -35,7 +36,7 @@ import SettingsSearchRenderer from './SettingsSearchRenderer';
 
 interface Props {
   className?: string;
-  component?: T.Component;
+  component?: Component;
   definitions: SettingCategoryDefinition[];
   router: InjectedRouter;
 }
@@ -50,7 +51,7 @@ interface State {
 const DEBOUNCE_DELAY = 250;
 
 export class SettingsSearch extends React.Component<Props, State> {
-  definitionsByKey: T.Dict<SettingCategoryDefinition>;
+  definitionsByKey: Dict<SettingCategoryDefinition>;
   index: LunrIndex;
   state: State = {
     searchQuery: '',

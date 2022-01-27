@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isEqual, isNil, omitBy } from 'lodash';
+import { RawQuery } from '../types/types';
 import { isValidDate, parseDate, toNotSoISOString, toShortNotSoISOString } from './dates';
 
-export function queriesEqual(a: T.RawQuery, b: T.RawQuery): boolean {
+export function queriesEqual(a: RawQuery, b: RawQuery): boolean {
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
 
@@ -31,7 +32,7 @@ export function queriesEqual(a: T.RawQuery, b: T.RawQuery): boolean {
   return keysA.every(key => isEqual(a[key], b[key]));
 }
 
-export function cleanQuery(query: T.RawQuery): T.RawQuery {
+export function cleanQuery(query: RawQuery): RawQuery {
   return omitBy(query, isNil);
 }
 

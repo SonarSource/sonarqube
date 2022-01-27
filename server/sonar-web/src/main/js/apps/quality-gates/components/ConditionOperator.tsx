@@ -20,10 +20,11 @@
 import * as React from 'react';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
+import { Metric } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
 
 interface Props {
-  metric: T.Metric;
+  metric: Metric;
   onOperatorChange: (op: string) => void;
   op?: string;
 }
@@ -33,7 +34,7 @@ export default class ConditionOperator extends React.PureComponent<Props> {
     this.props.onOperatorChange(value);
   };
 
-  getLabel(op: string, metric: T.Metric) {
+  getLabel(op: string, metric: Metric) {
     return metric.type === 'RATING'
       ? translate('quality_gates.operator', op, 'rating')
       : translate('quality_gates.operator', op);

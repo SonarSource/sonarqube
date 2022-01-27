@@ -29,6 +29,7 @@ import { scrollToElement } from '../../helpers/scrolling';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';
+import { Component, StandardSecurityCategories } from '../../types/types';
 import EmptyHotspotsPage from './components/EmptyHotspotsPage';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
@@ -38,7 +39,7 @@ import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   filterByCategory?: {
     standard: SecurityStandard;
     category: string;
@@ -60,7 +61,7 @@ export interface SecurityHotspotsAppRendererProps {
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   selectedHotspot: RawHotspot | undefined;
-  securityCategories: T.StandardSecurityCategories;
+  securityCategories: StandardSecurityCategories;
   standards: Standards;
 }
 

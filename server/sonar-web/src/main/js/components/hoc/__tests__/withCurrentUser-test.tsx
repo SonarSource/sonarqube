@@ -20,9 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockStore } from '../../../helpers/testMocks';
+import { CurrentUser } from '../../../types/types';
 import { withCurrentUser } from '../withCurrentUser';
 
-class X extends React.Component<{ currentUser: T.CurrentUser }> {
+class X extends React.Component<{ currentUser: CurrentUser }> {
   render() {
     return <div />;
   }

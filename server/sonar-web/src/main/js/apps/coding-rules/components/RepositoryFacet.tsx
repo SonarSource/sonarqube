@@ -24,14 +24,15 @@ import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { getLanguages, Store } from '../../../store/rootReducer';
+import { Dict } from '../../../types/types';
 import { BasicProps } from './Facet';
 
 interface StateProps {
-  referencedLanguages: T.Dict<{ key: string; name: string }>;
+  referencedLanguages: Dict<{ key: string; name: string }>;
 }
 
 interface Props extends BasicProps, StateProps {
-  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
+  referencedRepositories: Dict<{ key: string; language: string; name: string }>;
 }
 
 export class RepositoryFacet extends React.PureComponent<Props> {

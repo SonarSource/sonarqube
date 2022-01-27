@@ -20,11 +20,12 @@
 import * as React from 'react';
 import { isApplicationPeriod } from '../../../helpers/periods';
 import { ApplicationPeriod } from '../../../types/application';
+import { Period } from '../../../types/types';
 import ApplicationLeakPeriodInfo from './ApplicationLeakPeriodInfo';
 import ProjectLeakPeriodInfo from './ProjectLeakPeriodInfo';
 
 export interface LeakPeriodInfoProps {
-  leakPeriod: T.Period | ApplicationPeriod;
+  leakPeriod: Period | ApplicationPeriod;
 }
 
 export function LeakPeriodInfo({ leakPeriod }: LeakPeriodInfoProps) {

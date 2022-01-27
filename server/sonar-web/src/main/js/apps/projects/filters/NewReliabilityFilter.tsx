@@ -20,6 +20,7 @@
 import * as React from 'react';
 import BugIcon from '../../../components/icons/BugIcon';
 import { translate } from '../../../helpers/l10n';
+import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import IssuesFilter from './IssuesFilter';
 
@@ -27,7 +28,7 @@ interface Props {
   className?: string;
   facet?: Facet;
   maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   value?: any;
 }
 

@@ -20,12 +20,13 @@
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
+import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 
 interface Props {
   canBrowse: boolean;
-  component: T.ComponentMeasure;
+  component: ComponentMeasure;
   isLast: boolean;
-  handleSelect: (component: T.ComponentMeasureIntern) => void;
+  handleSelect: (component: ComponentMeasureIntern) => void;
 }
 
 export default class Breadcrumb extends React.PureComponent<Props> {

@@ -33,6 +33,7 @@ import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
+import { Component } from '../../../types/types';
 import '../background-tasks.css';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { mapFiltersToParameters, Query, updateTask } from '../utils';
@@ -43,7 +44,7 @@ import Stats from './Stats';
 import Tasks from './Tasks';
 
 interface Props {
-  component?: Pick<T.Component, 'key'> & { id: string }; // id should be removed when api/ce/activity accept a component key instead of an id
+  component?: Pick<Component, 'key'> & { id: string }; // id should be removed when api/ce/activity accept a component key instead of an id
   location: Location;
   router: Pick<Router, 'push'>;
 }

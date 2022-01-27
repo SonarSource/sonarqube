@@ -27,9 +27,10 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
+import { LoggedInUser } from '../../../types/types';
 
 interface Props {
-  currentUser: T.LoggedInUser;
+  currentUser: LoggedInUser;
 }
 
 interface State {

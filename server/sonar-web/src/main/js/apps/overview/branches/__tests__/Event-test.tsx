@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { AnalysisEvent } from '../../../../types/types';
 import { Event } from '../Event';
 
 it('should render an event correctly', () => {
@@ -34,7 +35,7 @@ it('should render a version correctly', () => {
 });
 
 it('should render rich quality gate event', () => {
-  const event: T.AnalysisEvent = {
+  const event: AnalysisEvent = {
     category: 'QUALITY_GATE',
     key: 'foo1234',
     name: '',

@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 
 export type Option = string | number;
@@ -28,7 +29,7 @@ export type Option = string | number;
 interface Props {
   property: string;
   className?: string;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   options: Option[];
   renderOption: (option: Option, isSelected: boolean) => React.ReactNode;
 

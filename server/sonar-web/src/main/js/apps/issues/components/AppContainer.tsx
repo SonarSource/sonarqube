@@ -25,6 +25,7 @@ import { parseIssueFromResponse } from '../../../helpers/issues';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { FetchIssuesPromise } from '../../../types/issues';
+import { RawQuery } from '../../../types/types';
 
 const IssuesAppContainer = lazyLoadComponent(() => import('./IssuesApp'), 'IssuesAppContainer');
 
@@ -33,7 +34,7 @@ const mapStateToProps = (state: Store) => ({
   fetchIssues
 });
 
-const fetchIssues = (query: T.RawQuery) => {
+const fetchIssues = (query: RawQuery) => {
   return searchIssues({
     ...query,
     additionalFields: '_all',

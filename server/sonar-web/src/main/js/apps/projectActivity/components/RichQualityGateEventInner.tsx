@@ -25,10 +25,11 @@ import DropdownIcon from '../../../components/icons/DropdownIcon';
 import Level from '../../../components/ui/Level';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
+import { AnalysisEvent } from '../../../types/types';
 
-export type RichQualityGateEvent = T.AnalysisEvent & Required<Pick<T.AnalysisEvent, 'qualityGate'>>;
+export type RichQualityGateEvent = AnalysisEvent & Required<Pick<AnalysisEvent, 'qualityGate'>>;
 
-export function isRichQualityGateEvent(event: T.AnalysisEvent): event is RichQualityGateEvent {
+export function isRichQualityGateEvent(event: AnalysisEvent): event is RichQualityGateEvent {
   return event.category === 'QUALITY_GATE' && event.qualityGate !== undefined;
 }
 

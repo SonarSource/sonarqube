@@ -25,16 +25,17 @@ import WarningIcon from '../../../components/icons/WarningIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchWithNewCodePeriod } from '../../../types/branch-like';
+import { NewCodePeriod } from '../../../types/types';
 
 export interface BranchListRowProps {
   branch: BranchWithNewCodePeriod;
   existingBranches: Array<string>;
-  inheritedSetting: T.NewCodePeriod;
+  inheritedSetting: NewCodePeriod;
   onOpenEditModal: (branch: BranchWithNewCodePeriod) => void;
   onResetToDefault: (branchName: string) => void;
 }
 
-function renderNewCodePeriodSetting(newCodePeriod: T.NewCodePeriod) {
+function renderNewCodePeriodSetting(newCodePeriod: NewCodePeriod) {
   switch (newCodePeriod.type) {
     case 'SPECIFIC_ANALYSIS':
       return (
@@ -60,7 +61,7 @@ function renderNewCodePeriodSetting(newCodePeriod: T.NewCodePeriod) {
 
 function branchInheritsItselfAsReference(
   branch: BranchWithNewCodePeriod,
-  inheritedSetting: T.NewCodePeriod
+  inheritedSetting: NewCodePeriod
 ) {
   return (
     !branch.newCodePeriod &&

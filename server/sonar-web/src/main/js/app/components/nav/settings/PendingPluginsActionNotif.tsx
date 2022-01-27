@@ -26,12 +26,13 @@ import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { PendingPluginResult } from '../../../../types/plugins';
+import { SysStatus } from '../../../../types/types';
 
 interface Props {
   fetchSystemStatus: () => void;
   pending: PendingPluginResult;
   refreshPending: () => void;
-  systemStatus: T.SysStatus;
+  systemStatus: SysStatus;
 }
 
 export default class PendingPluginsActionNotif extends React.PureComponent<Props> {

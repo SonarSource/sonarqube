@@ -20,12 +20,13 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
+import { WebApi } from '../../../types/types';
 import { actionsFilter, isDomainPathActive, Query, serializeQuery } from '../utils';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 
 interface Props {
-  domains: T.WebApi.Domain[];
+  domains: WebApi.Domain[];
   query: Query;
   splat: string;
 }
@@ -39,7 +40,7 @@ export default function Menu(props: Props) {
     })
     .filter(domain => domain.filteredActions.length);
 
-  const renderDomain = (domain: T.WebApi.Domain) => {
+  const renderDomain = (domain: WebApi.Domain) => {
     const internal = !domain.actions.find(action => !action.internal);
     return (
       <Link

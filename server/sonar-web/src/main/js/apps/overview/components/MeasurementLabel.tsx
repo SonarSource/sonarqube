@@ -24,6 +24,7 @@ import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { translate } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
+import { Component, MeasureEnhanced } from '../../../types/types';
 import {
   getMeasurementIconClass,
   getMeasurementLabelKeys,
@@ -35,8 +36,8 @@ import {
 interface Props {
   branchLike?: BranchLike;
   centered?: boolean;
-  component: T.Component;
-  measures: T.MeasureEnhanced[];
+  component: Component;
+  measures: MeasureEnhanced[];
   type: MeasurementType;
   useDiffMetric?: boolean;
 }

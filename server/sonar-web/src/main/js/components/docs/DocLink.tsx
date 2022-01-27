@@ -21,10 +21,11 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import DetachIcon from '../../components/icons/DetachIcon';
 import { isSonarCloud } from '../../helpers/system';
+import { AppState } from '../../types/types';
 import { withAppState } from '../hoc/withAppState';
 
 interface OwnProps {
-  appState: Pick<T.AppState, 'canAdmin'>;
+  appState: Pick<AppState, 'canAdmin'>;
   customProps?: {
     [k: string]: any;
   };

@@ -21,6 +21,7 @@ import { difference, sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getLanguageByKey } from '../../../store/languages';
+import { Dict, Languages, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -29,11 +30,11 @@ import SearchableFilterOption from './SearchableFilterOption';
 
 interface Props {
   facet?: Facet;
-  languages: T.Languages;
+  languages: Languages;
   maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   property?: string;
-  query: T.Dict<any>;
+  query: Dict<any>;
   value?: string[];
 }
 

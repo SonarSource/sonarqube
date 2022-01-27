@@ -21,12 +21,13 @@ import * as React from 'react';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
+import { Issue, IssueType } from '../../../types/types';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 
 interface Props {
-  issue: Pick<T.Issue, 'type'>;
-  onSelect: (type: T.IssueType) => void;
+  issue: Pick<Issue, 'type'>;
+  onSelect: (type: IssueType) => void;
 }
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];

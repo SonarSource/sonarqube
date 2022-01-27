@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier, TreeComponent } from '../../types/component';
+import { ComponentQualifier, TreeComponent, Visibility } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
+import { Component, ComponentMeasure, ComponentMeasureEnhanced } from '../../types/types';
 import { mockMeasureEnhanced } from '../testMocks';
 
-export function mockComponent(overrides: Partial<T.Component> = {}): T.Component {
+export function mockComponent(overrides: Partial<Component> = {}): Component {
   return {
     breadcrumbs: [],
     key: 'my-project',
@@ -46,15 +47,15 @@ export function mockTreeComponent(overrides: Partial<TreeComponent>): TreeCompon
     key: 'my-key',
     qualifier: ComponentQualifier.Project,
     name: 'component',
-    visibility: 'public',
+    visibility: Visibility.Public,
     ...overrides
   };
 }
 
 export function mockComponentMeasure(
   file = false,
-  overrides: Partial<T.ComponentMeasure> = {}
-): T.ComponentMeasure {
+  overrides: Partial<ComponentMeasure> = {}
+): ComponentMeasure {
   if (file) {
     return {
       key: 'foo:src/index.tsx',
@@ -75,10 +76,10 @@ export function mockComponentMeasure(
 }
 
 export function mockComponentMeasureEnhanced(
-  overrides: Partial<T.ComponentMeasureEnhanced> = {}
-): T.ComponentMeasureEnhanced {
+  overrides: Partial<ComponentMeasureEnhanced> = {}
+): ComponentMeasureEnhanced {
   return {
-    ...mockComponentMeasure(false, overrides as T.ComponentMeasure),
+    ...mockComponentMeasure(false, overrides as ComponentMeasure),
     leak: undefined,
     measures: [mockMeasureEnhanced()],
     value: undefined,

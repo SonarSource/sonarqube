@@ -18,18 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '../../types/component';
+import { Dict, Visibility } from '../../types/types';
 
 export interface Project {
   analysisDate?: string;
   isFavorite?: boolean;
   key: string;
   leakPeriodDate?: string;
-  measures: T.Dict<string>;
+  measures: Dict<string>;
   name: string;
   projects?: number;
   qualifier: ComponentQualifier;
   tags: string[];
-  visibility: T.Visibility;
+  visibility: Visibility;
   needIssueSync?: boolean;
 }
 

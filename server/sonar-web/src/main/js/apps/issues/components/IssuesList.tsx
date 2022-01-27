@@ -19,21 +19,22 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
+import { Component, Issue } from '../../../types/types';
 import { Query, scrollToIssue } from '../utils';
 import ListItem from './ListItem';
 
 interface Props {
   branchLike: BranchLike | undefined;
   checked: string[];
-  component: T.Component | undefined;
-  issues: T.Issue[];
+  component: Component | undefined;
+  issues: Issue[];
   onFilterChange: (changes: Partial<Query>) => void;
-  onIssueChange: (issue: T.Issue) => void;
+  onIssueChange: (issue: Issue) => void;
   onIssueCheck: ((issueKey: string) => void) | undefined;
   onIssueClick: (issueKey: string) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup: { issue: string; name: string } | undefined;
-  selectedIssue: T.Issue | undefined;
+  selectedIssue: Issue | undefined;
 }
 
 interface State {

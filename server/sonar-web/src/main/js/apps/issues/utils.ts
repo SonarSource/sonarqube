@@ -36,6 +36,7 @@ import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
 import { Facet, RawFacet } from '../../types/issues';
 import { SecurityStandard, StandardType } from '../../types/security';
+import { Dict, Issue, Paging, RawQuery, UserBase } from '../../types/types';
 
 export interface Query {
   assigned: boolean;
@@ -78,7 +79,7 @@ export const STANDARD_TYPES: StandardType[] = [
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
 const ISSUES_DEFAULT = 'sonarqube.issues.default';
 
-export function parseQuery(query: T.RawQuery): Query {
+export function parseQuery(query: RawQuery): Query {
   return {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
@@ -109,13 +110,13 @@ export function parseQuery(query: T.RawQuery): Query {
   };
 }
 
-export function getOpen(query: T.RawQuery): string | undefined {
+export function getOpen(query: RawQuery): string | undefined {
   return query.open;
 }
 
-export const areMyIssuesSelected = (query: T.RawQuery) => query.myIssues === 'true';
+export const areMyIssuesSelected = (query: RawQuery) => query.myIssues === 'true';
 
-export function serializeQuery(query: Query): T.RawQuery {
+export function serializeQuery(query: Query): RawQuery {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
@@ -148,15 +149,15 @@ export function serializeQuery(query: Query): T.RawQuery {
   return cleanQuery(filter);
 }
 
-export const areQueriesEqual = (a: T.RawQuery, b: T.RawQuery) =>
+export const areQueriesEqual = (a: RawQuery, b: RawQuery) =>
   queriesEqual(parseQuery(a), parseQuery(b));
 
-export function parseFacets(facets: RawFacet[]): T.Dict<Facet> {
+export function parseFacets(facets: RawFacet[]): Dict<Facet> {
   if (!facets) {
     return {};
   }
 
-  const result: T.Dict<Facet> = {};
+  const result: Dict<Facet> = {};
   facets.forEach(facet => {
     const values: Facet = {};
     facet.values.forEach(value => {
@@ -174,7 +175,7 @@ export function formatFacetStat(stat: number | undefined) {
 export const searchAssignees = (
   query: string,
   page = 1
-): Promise<{ paging: T.Paging; results: T.UserBase[] }> => {
+): Promise<{ paging: Paging; results: UserBase[] }> => {
   return searchUsers({ p: page, q: query }).then(({ paging, users }) => ({
     paging,
     results: users
@@ -192,7 +193,7 @@ export const saveMyIssues = (myIssues: boolean) =>
   save(ISSUES_DEFAULT, myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
 
 export function getLocations(
-  { flows, secondaryLocations }: Pick<T.Issue, 'flows' | 'secondaryLocations'>,
+  { flows, secondaryLocations }: Pick<Issue, 'flows' | 'secondaryLocations'>,
   selectedFlowIndex: number | undefined
 ) {
   if (selectedFlowIndex !== undefined) {
@@ -203,7 +204,7 @@ export function getLocations(
 }
 
 export function getSelectedLocation(
-  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>,
+  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
   selectedFlowIndex: number | undefined,
   selectedLocationIndex: number | undefined
 ) {
@@ -220,7 +221,7 @@ export function getSelectedLocation(
 }
 
 export function allLocationsEmpty(
-  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>,
+  issue: Pick<Issue, 'flows' | 'secondaryLocations'>,
   selectedFlowIndex: number | undefined
 ) {
   return getLocations(issue, selectedFlowIndex).every(location => !location.msg);
@@ -234,7 +235,7 @@ export function scrollToIssue(issue: string, smooth = true) {
 }
 
 export function shouldOpenStandardsFacet(
-  openFacets: T.Dict<boolean>,
+  openFacets: Dict<boolean>,
   query: Partial<Query>
 ): boolean {
   return (
@@ -245,7 +246,7 @@ export function shouldOpenStandardsFacet(
 }
 
 export function shouldOpenStandardsChildFacet(
-  openFacets: T.Dict<boolean>,
+  openFacets: Dict<boolean>,
   query: Partial<Query>,
   standardType: SecurityStandard
 ): boolean {
@@ -258,7 +259,7 @@ export function shouldOpenStandardsChildFacet(
 }
 
 export function shouldOpenSonarSourceSecurityFacet(
-  openFacets: T.Dict<boolean>,
+  openFacets: Dict<boolean>,
   query: Partial<Query>
 ): boolean {
   // Open it by default if the parent is open, and no other standard is open.
@@ -272,7 +273,7 @@ function isFilteredBySecurityIssueTypes(query: Partial<Query>): boolean {
   return query.types !== undefined && query.types.includes('VULNERABILITY');
 }
 
-function isOneStandardChildFacetOpen(openFacets: T.Dict<boolean>, query: Partial<Query>): boolean {
+function isOneStandardChildFacetOpen(openFacets: Dict<boolean>, query: Partial<Query>): boolean {
   return STANDARD_TYPES.some(standardType =>
     shouldOpenStandardsChildFacet(openFacets, query, standardType)
   );

@@ -20,6 +20,7 @@
 import { flatMap } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { RawQuery } from '../../../types/types';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
@@ -46,8 +47,8 @@ export interface PageSidebarProps {
   applicationsEnabled: boolean;
   facets?: Facets;
   onClearAll: () => void;
-  onQueryChange: (change: T.RawQuery) => void;
-  query: T.RawQuery;
+  onQueryChange: (change: RawQuery) => void;
+  query: RawQuery;
   view: string;
   visualization: string;
 }
@@ -59,7 +60,7 @@ export default function PageSidebar(props: PageSidebarProps) {
   const maxFacetValue = getMaxFacetValue(facets);
   const facetProps = { onQueryChange, maxFacetValue };
 
-  let linkQuery: T.RawQuery | undefined = undefined;
+  let linkQuery: RawQuery | undefined = undefined;
   if (view !== 'overall') {
     linkQuery = { view };
 

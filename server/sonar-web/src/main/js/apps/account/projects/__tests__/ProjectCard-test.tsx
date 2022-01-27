@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { MyProject } from '../../../../types/types';
 import ProjectCard from '../ProjectCard';
 
 it('should render key and name', () => {
@@ -73,6 +74,6 @@ it('should render links', () => {
   expect(wrapper.find('MetaLink').length).toBe(1);
 });
 
-function shallowRender(project: Partial<T.MyProject> = {}) {
+function shallowRender(project: Partial<MyProject> = {}) {
   return shallow(<ProjectCard project={{ key: 'key', links: [], name: 'name', ...project }} />);
 }

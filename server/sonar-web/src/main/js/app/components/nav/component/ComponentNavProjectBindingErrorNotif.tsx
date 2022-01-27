@@ -24,9 +24,10 @@ import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../../apps/setti
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectSettingsUrl } from '../../../../helpers/urls';
+import { Component } from '../../../../types/types';
 
 export interface ComponentNavProjectBindingErrorNotifProps {
-  component: T.Component;
+  component: Component;
 }
 
 export function ComponentNavProjectBindingErrorNotif(

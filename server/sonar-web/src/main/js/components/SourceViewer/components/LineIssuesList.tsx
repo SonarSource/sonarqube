@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
+import { Issue as TypeIssue } from '../../../types/types';
 import Issue from '../../issue/Issue';
 
 interface Props {
@@ -26,8 +27,8 @@ interface Props {
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   issuePopup: { issue: string; name: string } | undefined;
-  issues: T.Issue[];
-  onIssueChange: (issue: T.Issue) => void;
+  issues: TypeIssue[];
+  onIssueChange: (issue: TypeIssue) => void;
   onIssueClick: (issueKey: string) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   selectedIssue: string | undefined;

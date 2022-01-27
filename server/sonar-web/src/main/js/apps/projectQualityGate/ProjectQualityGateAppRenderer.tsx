@@ -31,12 +31,13 @@ import SelectLegacy from '../../components/controls/SelectLegacy';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { QualityGate } from '../../types/types';
 import BuiltInQualityGateBadge from '../quality-gates/components/BuiltInQualityGateBadge';
 import { USE_SYSTEM_DEFAULT } from './constants';
 
 export interface ProjectQualityGateAppRendererProps {
-  allQualityGates?: T.QualityGate[];
-  currentQualityGate?: T.QualityGate;
+  allQualityGates?: QualityGate[];
+  currentQualityGate?: QualityGate;
   loading: boolean;
   onSelect: (id: string) => void;
   onSubmit: () => void;
@@ -44,7 +45,7 @@ export interface ProjectQualityGateAppRendererProps {
   submitting: boolean;
 }
 
-function hasConditionOnNewCode(qualityGate: T.QualityGate): boolean {
+function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
   return !!qualityGate.conditions?.some(condition => isDiffMetric(condition.metric));
 }
 

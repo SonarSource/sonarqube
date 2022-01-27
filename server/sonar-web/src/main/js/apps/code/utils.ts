@@ -22,6 +22,7 @@ import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { isPortfolioLike } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
+import { Breadcrumb, ComponentMeasure } from '../../types/types';
 import {
   addComponent,
   addComponentBreadcrumbs,
@@ -74,7 +75,7 @@ const LEAK_METRICS = [
 const PAGE_SIZE = 100;
 
 interface Children {
-  components: T.ComponentMeasure[];
+  components: ComponentMeasure[];
   page: number;
   total: number;
 }
@@ -91,17 +92,17 @@ export function showLeakMeasure(branchLike?: BranchLike) {
   return isPullRequest(branchLike);
 }
 
-function skipRootDir(breadcrumbs: T.ComponentMeasure[]) {
+function skipRootDir(breadcrumbs: ComponentMeasure[]) {
   return breadcrumbs.filter(component => {
     return !(component.qualifier === 'DIR' && component.name === '/');
   });
 }
 
-function storeChildrenBase(children: T.ComponentMeasure[]) {
+function storeChildrenBase(children: ComponentMeasure[]) {
   children.forEach(addComponent);
 }
 
-function storeChildrenBreadcrumbs(parentComponentKey: string, children: T.Breadcrumb[]) {
+function storeChildrenBreadcrumbs(parentComponentKey: string, children: Breadcrumb[]) {
   const parentBreadcrumbs = getComponentBreadcrumbs(parentComponentKey);
   if (parentBreadcrumbs) {
     children.forEach(child => {
@@ -166,7 +167,7 @@ export function retrieveComponentChildren(
   qualifier: string,
   instance: { mounted: boolean },
   branchLike?: BranchLike
-): Promise<{ components: T.ComponentMeasure[]; page: number; total: number }> {
+): Promise<{ components: ComponentMeasure[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
   if (existing) {
     return Promise.resolve({
@@ -200,7 +201,7 @@ function retrieveComponentBreadcrumbs(
   component: string,
   instance: { mounted: boolean },
   branchLike?: BranchLike
-): Promise<T.Breadcrumb[]> {
+): Promise<Breadcrumb[]> {
   const existing = getComponentBreadcrumbs(component);
   if (existing) {
     return Promise.resolve(existing);
@@ -222,9 +223,9 @@ export function retrieveComponent(
   instance: { mounted: boolean },
   branchLike?: BranchLike
 ): Promise<{
-  breadcrumbs: T.Breadcrumb[];
-  component: T.ComponentMeasure;
-  components: T.ComponentMeasure[];
+  breadcrumbs: Breadcrumb[];
+  component: ComponentMeasure;
+  components: ComponentMeasure[];
   page: number;
   total: number;
 }> {

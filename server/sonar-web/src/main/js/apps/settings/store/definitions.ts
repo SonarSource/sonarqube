@@ -20,6 +20,7 @@
 import { keyBy, sortBy, uniqBy } from 'lodash';
 import { ActionType } from '../../../store/utils/actions';
 import { SettingCategoryDefinition } from '../../../types/settings';
+import { Dict } from '../../../types/types';
 import { DEFAULT_CATEGORY, getCategoryName } from '../utils';
 
 const enum Actions {
@@ -28,7 +29,7 @@ const enum Actions {
 
 type Action = ActionType<typeof receiveDefinitions, Actions.ReceiveDefinitions>;
 
-export type State = T.Dict<SettingCategoryDefinition>;
+export type State = Dict<SettingCategoryDefinition>;
 
 export function receiveDefinitions(definitions: SettingCategoryDefinition[]) {
   return { type: Actions.ReceiveDefinitions, definitions };

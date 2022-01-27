@@ -27,21 +27,22 @@ import { translate } from '../../helpers/l10n';
 import { isLoggedIn } from '../../helpers/users';
 import { getCurrentUser, Store } from '../../store/rootReducer';
 import { setHomePage } from '../../store/users';
+import { CurrentUser, HomePage } from '../../types/types';
 
 interface StateProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 interface DispatchProps {
-  setHomePage: (homepage: T.HomePage) => void;
+  setHomePage: (homepage: HomePage) => void;
 }
 
 interface Props extends StateProps, DispatchProps {
   className?: string;
-  currentPage: T.HomePage;
+  currentPage: HomePage;
 }
 
-export const DEFAULT_HOMEPAGE: T.HomePage = { type: 'PROJECTS' };
+export const DEFAULT_HOMEPAGE: HomePage = { type: 'PROJECTS' };
 
 export class HomePageSelect extends React.PureComponent<Props> {
   handleClick = () => {
@@ -95,7 +96,7 @@ const mapDispatchToProps: DispatchProps = { setHomePage };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomePageSelect);
 
-function isSameHomePage(a: T.HomePage, b: T.HomePage) {
+function isSameHomePage(a: HomePage, b: HomePage) {
   return (
     a.type === b.type &&
     (a as any).branch === (b as any).branch &&

@@ -25,17 +25,18 @@ import ListFooter from '../../../components/controls/ListFooter';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
+import { Group, Paging } from '../../../types/types';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 import Header from './Header';
 import List from './List';
 
 interface State {
-  groups?: T.Group[];
-  editedGroup?: T.Group;
-  groupToBeDeleted?: T.Group;
+  groups?: Group[];
+  editedGroup?: Group;
+  groupToBeDeleted?: Group;
   loading: boolean;
-  paging?: T.Paging;
+  paging?: Paging;
   query: string;
 }
 
@@ -124,11 +125,11 @@ export default class App extends React.PureComponent<{}, State> {
     this.setState({ editedGroup: undefined });
   };
 
-  openDeleteForm = (group: T.Group) => {
+  openDeleteForm = (group: Group) => {
     this.setState({ groupToBeDeleted: group });
   };
 
-  openEditForm = (group: T.Group) => {
+  openEditForm = (group: Group) => {
     this.setState({ editedGroup: group });
   };
 

@@ -21,16 +21,17 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
+import { ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../types/types';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.ComponentMeasureEnhanced;
+  component: ComponentMeasureEnhanced;
   isSelected: boolean;
-  otherMetrics: T.Metric[];
-  metric: T.Metric;
-  rootComponent: T.ComponentMeasure;
+  otherMetrics: Metric[];
+  metric: Metric;
+  rootComponent: ComponentMeasure;
   view: MeasurePageView;
 }
 

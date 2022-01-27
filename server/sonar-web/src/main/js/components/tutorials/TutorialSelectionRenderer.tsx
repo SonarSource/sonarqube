@@ -22,6 +22,7 @@ import EllipsisIcon from '../../components/icons/EllipsisIcon';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { Component, LoggedInUser } from '../../types/types';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -33,8 +34,8 @@ import { TutorialModes } from './types';
 export interface TutorialSelectionRendererProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   loading: boolean;
   onSelectTutorial: (mode: TutorialModes) => void;
   projectBinding?: ProjectAlmBindingResponse;

@@ -22,6 +22,7 @@ import RadioCard from '../../../components/controls/RadioCard';
 import ValidationInput from '../../../components/controls/ValidationInput';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
+import { NewCodePeriodSettingType } from '../../../types/types';
 
 export interface Props {
   className?: string;
@@ -30,7 +31,7 @@ export interface Props {
   isChanged: boolean;
   isValid: boolean;
   onChangeDays: (value: string) => void;
-  onSelect: (selection: T.NewCodePeriodSettingType) => void;
+  onSelect: (selection: NewCodePeriodSettingType) => void;
   selected: boolean;
 }
 

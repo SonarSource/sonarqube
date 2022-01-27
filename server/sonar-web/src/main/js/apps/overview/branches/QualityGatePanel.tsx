@@ -25,11 +25,12 @@ import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { QualityGateStatus } from '../../../types/quality-gates';
+import { Component } from '../../../types/types';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import QualityGatePanelSection from './QualityGatePanelSection';
 
 export interface QualityGatePanelProps {
-  component: Pick<T.Component, 'key' | 'qualifier'>;
+  component: Pick<Component, 'key' | 'qualifier'>;
   loading?: boolean;
   qgStatuses?: QualityGateStatus[];
 }

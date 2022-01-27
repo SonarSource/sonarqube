@@ -21,11 +21,12 @@ import classNames from 'classnames';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate } from '../../helpers/l10n';
+import { Visibility } from '../../types/types';
 
 interface PrivacyBadgeContainerProps {
   className?: string;
   qualifier: string;
-  visibility: T.Visibility;
+  visibility: Visibility;
 }
 
 export default function PrivacyBadgeContainer({

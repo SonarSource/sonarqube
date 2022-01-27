@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { colors } from '../../app/theme';
+import { Dict } from '../../types/types';
 import Icon, { IconProps } from './Icon';
 
 interface Props extends IconProps {
   severity: string | null | undefined;
 }
 
-const severityIcons: T.Dict<(props: IconProps) => React.ReactElement> = {
+const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
   blocker: BlockerSeverityIcon,
   critical: CriticalSeverityIcon,
   major: MajorSeverityIcon,

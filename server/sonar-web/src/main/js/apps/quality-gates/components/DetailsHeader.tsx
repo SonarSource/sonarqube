@@ -23,6 +23,7 @@ import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
+import { QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
@@ -30,7 +31,7 @@ import RenameQualityGateForm from './RenameQualityGateForm';
 
 interface Props {
   onSetDefault: () => void;
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
   refreshItem: () => Promise<void>;
   refreshList: () => Promise<void>;
 }

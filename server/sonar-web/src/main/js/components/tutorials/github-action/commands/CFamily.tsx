@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
@@ -29,7 +30,7 @@ import { OSs, TutorialModes } from '../../types';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
-  component: T.Component;
+  component: Component;
   onDone: () => void;
 }
 

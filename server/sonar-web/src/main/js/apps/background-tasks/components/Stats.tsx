@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component } from '../../../types/types';
 import StatPendingCount from './StatPendingCount';
 import StatPendingTime from './StatPendingTime';
 import StatStillFailing from './StatStillFailing';
 
 export interface Props {
-  component?: Pick<T.Component, 'key'>;
+  component?: Pick<Component, 'key'>;
   failingCount?: number;
   onCancelAllPending: () => void;
   onShowFailing: () => void;

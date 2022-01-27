@@ -26,17 +26,18 @@ import {
   HotspotStatusFilter,
   HotspotStatusOption
 } from '../../../types/security-hotspots';
+import { Component, StandardSecurityCategories } from '../../../types/types';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   hotspotKey: string;
   hotspotsReviewedMeasure?: string;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
-  securityCategories: T.StandardSecurityCategories;
+  securityCategories: StandardSecurityCategories;
 }
 
 interface State {

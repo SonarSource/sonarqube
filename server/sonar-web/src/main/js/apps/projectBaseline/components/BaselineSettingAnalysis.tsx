@@ -20,10 +20,11 @@
 import * as React from 'react';
 import RadioCard from '../../../components/controls/RadioCard';
 import { translate } from '../../../helpers/l10n';
+import { NewCodePeriodSettingType } from '../../../types/types';
 
 export interface Props {
   disabled?: boolean;
-  onSelect: (selection: T.NewCodePeriodSettingType) => void;
+  onSelect: (selection: NewCodePeriodSettingType) => void;
   selected: boolean;
 }
 

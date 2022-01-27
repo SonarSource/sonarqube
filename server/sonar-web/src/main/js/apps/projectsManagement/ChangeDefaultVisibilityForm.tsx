@@ -23,15 +23,16 @@ import Modal from '../../components/controls/Modal';
 import Radio from '../../components/controls/Radio';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
+import { Visibility } from '../../types/types';
 
 export interface Props {
-  defaultVisibility: T.Visibility;
+  defaultVisibility: Visibility;
   onClose: () => void;
-  onConfirm: (visiblity: T.Visibility) => void;
+  onConfirm: (visiblity: Visibility) => void;
 }
 
 interface State {
-  visibility: T.Visibility;
+  visibility: Visibility;
 }
 
 export default class ChangeDefaultVisibilityForm extends React.PureComponent<Props, State> {
@@ -45,7 +46,7 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
     this.props.onClose();
   };
 
-  handleVisibilityChange = (visibility: T.Visibility) => {
+  handleVisibilityChange = (visibility: Visibility) => {
     this.setState({ visibility });
   };
 

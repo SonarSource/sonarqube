@@ -25,11 +25,12 @@ import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import TagsIcon from '../../../components/icons/TagsIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
+import { Rule } from '../../../types/types';
 import { Query } from '../query';
 
 interface Props {
   onFilterChange: (changes: Partial<Query>) => void;
-  rule: T.Rule;
+  rule: Rule;
 }
 
 export default class SimilarRulesFilter extends React.PureComponent<Props> {

@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Issue } from '../../../../types/types';
 import LineIssuesList from '../LineIssuesList';
 
-const issueBase: T.Issue = {
+const issueBase: Issue = {
   actions: [],
   component: '',
   componentLongName: '',
@@ -45,7 +46,7 @@ const issueBase: T.Issue = {
 };
 
 it('render issues list', () => {
-  const issues: T.Issue[] = [
+  const issues: Issue[] = [
     { ...issueBase, key: 'foo' },
     { ...issueBase, key: 'bar' }
   ];

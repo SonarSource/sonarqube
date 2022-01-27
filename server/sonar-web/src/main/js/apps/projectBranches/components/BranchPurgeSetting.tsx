@@ -25,10 +25,11 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { Branch } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 
 interface Props {
   branch: Branch;
-  component: T.Component;
+  component: Component;
 }
 
 interface State {

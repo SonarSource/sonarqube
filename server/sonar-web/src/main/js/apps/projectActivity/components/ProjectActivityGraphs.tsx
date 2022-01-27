@@ -32,15 +32,16 @@ import {
   splitSeriesInGraphs
 } from '../../../components/activity-graph/utils';
 import { GraphType, MeasureHistory, Point, Serie } from '../../../types/project-activity';
+import { Metric, ParsedAnalysis } from '../../../types/types';
 import { datesQueryChanged, historyQueryChanged, Query } from '../utils';
 import { PROJECT_ACTIVITY_GRAPH } from './ProjectActivityAppContainer';
 
 interface Props {
-  analyses: T.ParsedAnalysis[];
+  analyses: ParsedAnalysis[];
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];
-  metrics: T.Metric[];
+  metrics: Metric[];
   project: string;
   query: Query;
   updateQuery: (changes: Partial<Query>) => void;

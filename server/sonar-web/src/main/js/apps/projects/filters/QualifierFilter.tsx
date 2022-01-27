@@ -21,6 +21,7 @@ import * as React from 'react';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
+import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -28,7 +29,7 @@ import FilterHeader from './FilterHeader';
 export interface QualifierFilterProps {
   facet?: Facet;
   maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   value: ComponentQualifier | undefined;
 }
 

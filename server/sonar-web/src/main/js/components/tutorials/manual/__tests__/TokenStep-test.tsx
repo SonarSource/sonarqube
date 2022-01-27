@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
+import { LoggedInUser } from '../../../../types/types';
 import TokenStep from '../TokenStep';
 
 jest.mock('../../../../api/user-tokens', () => ({
@@ -28,7 +29,7 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: () => Promise.resolve()
 }));
 
-const currentUser: Pick<T.LoggedInUser, 'login'> = { login: 'user' };
+const currentUser: Pick<LoggedInUser, 'login'> = { login: 'user' };
 
 it('generates token', async () => {
   const wrapper = shallow(

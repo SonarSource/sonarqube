@@ -24,6 +24,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import { Component, LoggedInUser } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import Step from '../components/Step';
 import YamlFileStep from '../components/YamlFileStep';
@@ -39,8 +40,8 @@ export enum Steps {
 export interface GitHubActionTutorialProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }

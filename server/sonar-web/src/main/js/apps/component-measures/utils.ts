@@ -27,6 +27,15 @@ import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MeasurePageView } from '../../types/measures';
 import { MetricKey } from '../../types/metrics';
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  Dict,
+  Measure,
+  MeasureEnhanced,
+  Metric,
+  RawQuery
+} from '../../types/types';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
 
@@ -58,30 +67,30 @@ const BANNED_MEASURES = [
   'new_info_violations'
 ];
 
-export function filterMeasures(measures: T.MeasureEnhanced[]): T.MeasureEnhanced[] {
+export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
   return measures.filter(measure => !BANNED_MEASURES.includes(measure.metric.key));
 }
 
 export function sortMeasures(
   domainName: string,
-  measures: Array<T.MeasureEnhanced | string>
-): Array<T.MeasureEnhanced | string> {
+  measures: Array<MeasureEnhanced | string>
+): Array<MeasureEnhanced | string> {
   const config = domains[domainName] || {};
   const configOrder = config.order || [];
   return sortBy(measures, [
-    (item: T.MeasureEnhanced | string) => {
+    (item: MeasureEnhanced | string) => {
       if (typeof item === 'string') {
         return configOrder.indexOf(item);
       }
       const idx = configOrder.indexOf(item.metric.key);
       return idx >= 0 ? idx : configOrder.length;
     },
-    (item: T.MeasureEnhanced | string) =>
+    (item: MeasureEnhanced | string) =>
       typeof item === 'string' ? item : getLocalizedMetricName(item.metric)
   ]);
 }
 
-export function addMeasureCategories(domainName: string, measures: T.MeasureEnhanced[]) {
+export function addMeasureCategories(domainName: string, measures: MeasureEnhanced[]) {
   const categories = domains[domainName] && domains[domainName].categories;
   if (categories && categories.length > 0) {
     return [...categories, ...measures];
@@ -90,10 +99,10 @@ export function addMeasureCategories(domainName: string, measures: T.MeasureEnha
 }
 
 export function enhanceComponent(
-  component: T.ComponentMeasure,
-  metric: Pick<T.Metric, 'key'> | undefined,
-  metrics: T.Dict<T.Metric>
-): T.ComponentMeasureEnhanced {
+  component: ComponentMeasure,
+  metric: Pick<Metric, 'key'> | undefined,
+  metrics: Dict<Metric>
+): ComponentMeasureEnhanced {
   if (!component.measures) {
     return { ...component, measures: [] };
   }
@@ -116,10 +125,7 @@ export function isSecurityReviewMetric(metricKey: MetricKey | string): boolean {
   ].includes(metricKey as MetricKey);
 }
 
-export function banQualityGateMeasure({
-  measures = [],
-  qualifier
-}: T.ComponentMeasure): T.Measure[] {
+export function banQualityGateMeasure({ measures = [], qualifier }: ComponentMeasure): Measure[] {
   const bannedMetrics: string[] = [];
   if (ComponentQualifier.Portfolio !== qualifier && ComponentQualifier.SubPortfolio !== qualifier) {
     bannedMetrics.push('alert_status');
@@ -130,14 +136,14 @@ export function banQualityGateMeasure({
   return measures.filter(measure => !bannedMetrics.includes(measure.metric));
 }
 
-export const groupByDomains = memoize((measures: T.MeasureEnhanced[]) => {
+export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
   const domains = toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => ({
     name: r[0],
     measures: r[1]
   }));
 
   return sortBy(domains, [
-    (domain: { name: string; measures: T.MeasureEnhanced[] }) => {
+    (domain: { name: string; measures: MeasureEnhanced[] }) => {
       const idx = KNOWN_DOMAINS.indexOf(domain.name);
       return idx >= 0 ? idx : KNOWN_DOMAINS.length;
     },
@@ -169,7 +175,7 @@ export function hasFullMeasures(branch?: BranchLike) {
   return !branch || isBranch(branch);
 }
 
-export function getMeasuresPageMetricKeys(metrics: T.Dict<T.Metric>, branch?: BranchLike) {
+export function getMeasuresPageMetricKeys(metrics: Dict<Metric>, branch?: BranchLike) {
   const metricKeys = getDisplayMetrics(Object.values(metrics)).map(metric => metric.key);
 
   if (isPullRequest(branch)) {
@@ -179,7 +185,7 @@ export function getMeasuresPageMetricKeys(metrics: T.Dict<T.Metric>, branch?: Br
   }
 }
 
-export function getBubbleMetrics(domain: string, metrics: T.Dict<T.Metric>) {
+export function getBubbleMetrics(domain: string, metrics: Dict<Metric>) {
   const conf = bubbles[domain];
   return {
     x: metrics[conf.x],
@@ -214,7 +220,7 @@ export interface Query {
 }
 
 export const parseQuery = memoize(
-  (urlQuery: T.RawQuery): Query => {
+  (urlQuery: RawQuery): Query => {
     const metric = parseAsString(urlQuery['metric']) || DEFAULT_METRIC;
     return {
       metric,

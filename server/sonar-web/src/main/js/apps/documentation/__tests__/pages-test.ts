@@ -20,6 +20,7 @@
 /* eslint-disable no-console */
 import { filterContent, ParsedContent } from '../../../helpers/markdown';
 import { mockDocumentationMarkdown } from '../../../helpers/testMocks';
+import { Dict } from '../../../types/types';
 
 jest.mock('remark', () => () => ({
   parse: jest.fn().mockReturnValue({})
@@ -92,7 +93,7 @@ it('should correctly handle overrides (replace & add)', () => {
     key: 'tata'
   };
 
-  const overrides: T.Dict<ParsedContent> = {};
+  const overrides: Dict<ParsedContent> = {};
   overrides[foo.url] = { frontmatter: overrideFooDoc, content: overrideFooDoc.content };
   overrides[`analysis/languages/${newDoc.key}`] = { frontmatter: newDoc, content: newDoc.content };
   const pages = getPages(overrides);
@@ -119,7 +120,7 @@ it('should not break the whole doc when one page cannot be parsed', () => {
   console.error = originalConsoleError;
 });
 
-function getPages(overrides: T.Dict<ParsedContent> = {}) {
+function getPages(overrides: Dict<ParsedContent> = {}) {
   // This allows the use of out-of-scope data inside jest.mock
   // Usually, it is impossible as jest.mock'ed module is hoisted on the top of the file
   return jest.requireActual('../pages').default(overrides);

@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
+import { Metric } from '../../types/types';
 import SelectLegacy from '../controls/SelectLegacy';
 import AddGraphMetric from './AddGraphMetric';
 import './styles.css';
@@ -31,7 +32,7 @@ interface Props {
   className?: string;
   removeCustomMetric?: (metric: string) => void;
   graph: GraphType;
-  metrics: T.Metric[];
+  metrics: Metric[];
   metricsTypeFilter?: string[];
   selectedMetrics?: string[];
   updateGraph: (graphType: string) => void;

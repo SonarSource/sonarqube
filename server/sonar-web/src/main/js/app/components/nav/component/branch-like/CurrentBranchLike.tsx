@@ -30,11 +30,12 @@ import { getApplicationAdminUrl } from '../../../../../helpers/urls';
 import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
+import { Component } from '../../../../../types/types';
 import { colors } from '../../../../theme';
 
 export interface CurrentBranchLikeProps {
   branchesEnabled: boolean;
-  component: T.Component;
+  component: Component;
   currentBranchLike: BranchLike;
   hasManyBranches: boolean;
   projectBinding?: ProjectAlmBindingResponse;

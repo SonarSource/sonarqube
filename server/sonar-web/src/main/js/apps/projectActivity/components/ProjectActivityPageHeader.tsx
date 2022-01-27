@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
@@ -28,7 +29,7 @@ import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption
 interface Props {
   category?: string;
   from?: Date;
-  project: Pick<T.Component, 'qualifier'>;
+  project: Pick<Component, 'qualifier'>;
   to?: Date;
   updateQuery: (changes: Partial<Query>) => void;
 }

@@ -28,6 +28,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
+import { WebApi } from '../../../types/types';
 import '../styles/web-api.css';
 import {
   getActionKey,
@@ -44,7 +45,7 @@ import Search from './Search';
 type Props = WithRouterProps;
 
 interface State {
-  domains: T.WebApi.Domain[];
+  domains: WebApi.Domain[];
 }
 
 export class WebApiApp extends React.PureComponent<Props, State> {
@@ -78,7 +79,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
     );
   }
 
-  parseDomains(domains: any[]): T.WebApi.Domain[] {
+  parseDomains(domains: any[]): WebApi.Domain[] {
     return domains.map(domain => {
       const deprecated = getLatestDeprecatedAction(domain);
       const internal = !domain.actions.find((action: any) => !action.internal);
@@ -199,7 +200,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
 export default withRouter(WebApiApp);
 
 /** Checks if all actions are deprecated, and returns the latest deprecated one */
-function getLatestDeprecatedAction(domain: Pick<T.WebApi.Domain, 'actions'>) {
+function getLatestDeprecatedAction(domain: Pick<WebApi.Domain, 'actions'>) {
   const noVersion = { major: 0, minor: 0 };
   const allActionsDeprecated = domain.actions.every(
     ({ deprecatedSince }) => deprecatedSince !== undefined

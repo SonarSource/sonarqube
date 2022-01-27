@@ -28,21 +28,28 @@ import { formatMeasure, isDiffMetric, isPeriodBestValue } from '../../../helpers
 import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  Dict,
+  Metric,
+  Paging
+} from '../../../types/types';
 import ComponentsList from './ComponentsList';
 
 interface Props {
   branchLike?: BranchLike;
-  components: T.ComponentMeasureEnhanced[];
+  components: ComponentMeasureEnhanced[];
   defaultShowBestMeasures: boolean;
   fetchMore: () => void;
-  handleSelect: (component: T.ComponentMeasureEnhanced) => void;
-  handleOpen: (component: T.ComponentMeasureEnhanced) => void;
+  handleSelect: (component: ComponentMeasureEnhanced) => void;
+  handleOpen: (component: ComponentMeasureEnhanced) => void;
   loadingMore: boolean;
-  metric: T.Metric;
-  metrics: T.Dict<T.Metric>;
-  paging?: T.Paging;
-  rootComponent: T.ComponentMeasure;
-  selectedComponent?: T.ComponentMeasureEnhanced;
+  metric: Metric;
+  metrics: Dict<Metric>;
+  paging?: Paging;
+  rootComponent: ComponentMeasure;
+  selectedComponent?: ComponentMeasureEnhanced;
   selectedIdx?: number;
   view: MeasurePageView;
 }
@@ -121,7 +128,7 @@ export default class FilesView extends React.PureComponent<Props, State> {
     this.setState({ showBestMeasures: true });
   };
 
-  hasBestValue = (component: T.ComponentMeasureEnhanced) => {
+  hasBestValue = (component: ComponentMeasureEnhanced) => {
     const { metric } = this.props;
     const focusedMeasure = component.measures.find(measure => measure.metric.key === metric.key);
     if (focusedMeasure && isDiffMetric(metric.key)) {

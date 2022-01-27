@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from './component';
+import { IssueChangelog, IssueChangelogDiff, Paging, TextRange, UserBase } from './types';
 
 export enum RiskExposure {
   LOW = 'LOW',
@@ -73,11 +74,11 @@ export interface RawHotspot {
 
 export interface Hotspot {
   assignee?: string;
-  assigneeUser?: T.UserBase;
+  assigneeUser?: UserBase;
   author: string;
-  authorUser: T.UserBase;
+  authorUser: UserBase;
   canChangeStatus: boolean;
-  changelog: T.IssueChangelog[];
+  changelog: IssueChangelog[];
   comment: HotspotComment[];
   component: HotspotComponent;
   creationDate: string;
@@ -88,9 +89,9 @@ export interface Hotspot {
   resolution?: HotspotResolution;
   rule: HotspotRule;
   status: HotspotStatus;
-  textRange?: T.TextRange;
+  textRange?: TextRange;
   updateDate: string;
-  users: T.UserBase[];
+  users: UserBase[];
 }
 
 export interface HotspotComponent {
@@ -129,14 +130,14 @@ export interface HotspotComment {
   updatable: boolean;
   createdAt: string;
   login: string;
-  user: T.UserBase;
+  user: UserBase;
 }
 
 export interface ReviewHistoryElement {
   type: ReviewHistoryType;
   date: string;
-  user: Pick<T.UserBase, 'active' | 'avatar' | 'name'>;
-  diffs?: T.IssueChangelogDiff[];
+  user: Pick<UserBase, 'active' | 'avatar' | 'name'>;
+  diffs?: IssueChangelogDiff[];
   html?: string;
   key?: string;
   updatable?: boolean;
@@ -152,7 +153,7 @@ export enum ReviewHistoryType {
 export interface HotspotSearchResponse {
   components?: { key: string; qualifier: string; name: string }[];
   hotspots: RawHotspot[];
-  paging: T.Paging;
+  paging: Paging;
 }
 
 export interface HotspotSetStatusRequest {

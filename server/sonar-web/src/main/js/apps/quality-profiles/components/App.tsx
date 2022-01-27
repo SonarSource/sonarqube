@@ -22,13 +22,14 @@ import { Helmet } from 'react-helmet-async';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
+import { Languages } from '../../../types/types';
 import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';
 
 interface Props {
   children: React.ReactElement<any>;
-  languages: T.Languages;
+  languages: Languages;
 }
 
 interface State {

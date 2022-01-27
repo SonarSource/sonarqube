@@ -21,11 +21,12 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
+import { MeasureEnhanced } from '../../../types/types';
 import { getMeasurementAfterMergeMetricKey, MeasurementType } from '../utils';
 
 export interface AfterMergeEstimateProps {
   className?: string;
-  measures: T.MeasureEnhanced[];
+  measures: MeasureEnhanced[];
   type: MeasurementType;
 }
 

@@ -22,6 +22,7 @@ import { addIssueComment } from '../../../api/issues';
 import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import { translate } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 import { updateIssue } from '../actions';
 import CommentPopup from '../popups/CommentPopup';
 
@@ -30,7 +31,7 @@ interface Props {
   commentPlaceholder: string;
   currentPopup?: string;
   issueKey: string;
-  onChange: (issue: T.Issue) => void;
+  onChange: (issue: Issue) => void;
   toggleComment: (open?: boolean, placeholder?: string, autoTriggered?: boolean) => void;
 }
 

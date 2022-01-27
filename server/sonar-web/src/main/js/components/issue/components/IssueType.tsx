@@ -26,16 +26,17 @@ import DropdownIcon from '../../../components/icons/DropdownIcon';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IssueResponse } from '../../../types/issues';
+import { Issue, RawQuery } from '../../../types/types';
 import SetTypePopup from '../popups/SetTypePopup';
 
 interface Props {
   canSetType: boolean;
   isOpen: boolean;
-  issue: Pick<T.Issue, 'type'>;
+  issue: Pick<Issue, 'type'>;
   setIssueProperty: (
-    property: keyof T.Issue,
+    property: keyof Issue,
     popup: string,
-    apiCall: (query: T.RawQuery) => Promise<IssueResponse>,
+    apiCall: (query: RawQuery) => Promise<IssueResponse>,
     value: string
   ) => void;
   togglePopup: (popup: string, show?: boolean) => void;

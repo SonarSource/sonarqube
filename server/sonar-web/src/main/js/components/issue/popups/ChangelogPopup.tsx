@@ -22,16 +22,17 @@ import { getIssueChangelog } from '../../../api/issues';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Issue, IssueChangelog } from '../../../types/types';
 import DateTimeFormatter from '../../intl/DateTimeFormatter';
 import Avatar from '../../ui/Avatar';
 import IssueChangelogDiff from '../components/IssueChangelogDiff';
 
 interface Props {
-  issue: Pick<T.Issue, 'author' | 'creationDate' | 'key'>;
+  issue: Pick<Issue, 'author' | 'creationDate' | 'key'>;
 }
 
 interface State {
-  changelog: T.IssueChangelog[];
+  changelog: IssueChangelog[];
 }
 
 export default class ChangelogPopup extends React.PureComponent<Props, State> {

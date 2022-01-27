@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
+import { Issue } from '../../../types/types';
 import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
 
 interface Props {
-  issue: Pick<T.Issue, 'flows' | 'secondaryLocations'>;
+  issue: Pick<Issue, 'flows' | 'secondaryLocations'>;
   onFlowSelect: (index: number) => void;
   selectedFlowIndex: number | undefined;
 }

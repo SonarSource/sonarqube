@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../../helpers/l10n';
+import { Permission, PermissionTemplate } from '../../../types/types';
 import Header from './Header';
 import List from './List';
 
 interface Props {
-  permissionTemplates: T.PermissionTemplate[];
-  permissions: T.Permission[];
+  permissionTemplates: PermissionTemplate[];
+  permissions: Permission[];
   ready: boolean;
   refresh: () => Promise<void>;
   topQualifiers: string[];

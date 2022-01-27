@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { isUserActive } from '../../../helpers/users';
 import { Facet } from '../../../types/issues';
+import { Dict, UserBase } from '../../../types/types';
 import { Query, searchAssignees } from '../utils';
 
 interface Props {
@@ -36,8 +37,8 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  stats: T.Dict<number> | undefined;
-  referencedUsers: T.Dict<T.UserBase>;
+  stats: Dict<number> | undefined;
+  referencedUsers: Dict<UserBase>;
 }
 
 export default class AssigneeFacet extends React.PureComponent<Props> {
@@ -79,7 +80,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     }
   };
 
-  loadSearchResultCount = (assignees: T.UserBase[]) => {
+  loadSearchResultCount = (assignees: UserBase[]) => {
     return this.props.loadSearchResultCount('assignees', {
       assigned: undefined,
       assignees: assignees.map(assignee => assignee.login)
@@ -118,7 +119,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     );
   };
 
-  renderSearchResult = (result: T.UserBase, query: string) => {
+  renderSearchResult = (result: UserBase, query: string) => {
     const displayName = isUserActive(result)
       ? result.name
       : translateWithParameters('user.x_deleted', result.login);
@@ -142,7 +143,7 @@ export default class AssigneeFacet extends React.PureComponent<Props> {
     }
 
     return (
-      <ListStyleFacet<T.UserBase>
+      <ListStyleFacet<UserBase>
         facetHeader={translate('issues.facet.assignees')}
         fetching={this.props.fetching}
         getFacetItemText={this.getAssigneeName}

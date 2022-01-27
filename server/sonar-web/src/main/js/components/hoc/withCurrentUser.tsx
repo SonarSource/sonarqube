@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { getCurrentUser, Store } from '../../store/rootReducer';
+import { CurrentUser } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
 
 export function withCurrentUser<P>(
-  WrappedComponent: React.ComponentType<P & { currentUser: T.CurrentUser }>
+  WrappedComponent: React.ComponentType<P & { currentUser: CurrentUser }>
 ) {
-  class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {
+  class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withCurrentUser');
 
     render() {

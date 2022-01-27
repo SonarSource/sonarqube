@@ -28,11 +28,12 @@ import { translate } from '../../../helpers/l10n';
 import { limitComponentName } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { AnalysisEvent } from '../../../types/types';
 
-export type DefinitionChangeEvent = T.AnalysisEvent &
-  Required<Pick<T.AnalysisEvent, 'definitionChange'>>;
+export type DefinitionChangeEvent = AnalysisEvent &
+  Required<Pick<AnalysisEvent, 'definitionChange'>>;
 
-export function isDefinitionChangeEvent(event: T.AnalysisEvent): event is DefinitionChangeEvent {
+export function isDefinitionChangeEvent(event: AnalysisEvent): event is DefinitionChangeEvent {
   return event.category === 'DEFINITION_CHANGE' && event.definitionChange !== undefined;
 }
 

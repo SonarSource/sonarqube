@@ -23,13 +23,14 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
+import { Component, NewCodePeriod } from '../../../types/types';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 import BranchListRow from './BranchListRow';
 
 interface Props {
   branchList: Branch[];
-  component: T.Component;
-  inheritedSetting: T.NewCodePeriod;
+  component: Component;
+  inheritedSetting: NewCodePeriod;
 }
 
 interface State {
@@ -88,7 +89,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     );
   }
 
-  updateBranchNewCodePeriod = (branch: string, newSetting: T.NewCodePeriod | undefined) => {
+  updateBranchNewCodePeriod = (branch: string, newSetting: NewCodePeriod | undefined) => {
     const { branches } = this.state;
 
     const updated = branches.find(b => b.name === branch);
@@ -102,7 +103,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     this.setState({ editedBranch: branch });
   };
 
-  closeEditModal = (branch?: string, newSetting?: T.NewCodePeriod) => {
+  closeEditModal = (branch?: string, newSetting?: NewCodePeriod) => {
     if (branch) {
       this.setState({
         branches: this.updateBranchNewCodePeriod(branch, newSetting),

@@ -22,13 +22,14 @@ import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/system';
+import { IdentityProvider, LoggedInUser } from '../../../types/types';
 
 export interface UserExternalIdentityProps {
-  user: T.LoggedInUser;
+  user: LoggedInUser;
 }
 
 interface State {
-  identityProvider?: T.IdentityProvider;
+  identityProvider?: IdentityProvider;
   loading: boolean;
 }
 

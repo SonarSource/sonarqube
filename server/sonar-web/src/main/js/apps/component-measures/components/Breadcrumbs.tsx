@@ -22,19 +22,20 @@ import * as React from 'react';
 import { getBreadcrumbs } from '../../../api/components';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 import Breadcrumb from './Breadcrumb';
 
 interface Props {
   backToFirst: boolean;
   branchLike?: BranchLike;
   className?: string;
-  component: T.ComponentMeasure;
-  handleSelect: (component: T.ComponentMeasureIntern) => void;
-  rootComponent: T.ComponentMeasure;
+  component: ComponentMeasure;
+  handleSelect: (component: ComponentMeasureIntern) => void;
+  rootComponent: ComponentMeasure;
 }
 
 interface State {
-  breadcrumbs: T.ComponentMeasure[];
+  breadcrumbs: ComponentMeasure[];
 }
 
 export default class Breadcrumbs extends React.PureComponent<Props, State> {

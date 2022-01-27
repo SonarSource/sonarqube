@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { getAppState, Store } from '../../../../store/rootReducer';
 import { ComponentQualifier } from '../../../../types/component';
+import { AppState, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import HoldersList from '../../shared/components/HoldersList';
 import SearchForm from '../../shared/components/SearchForm';
 import {
@@ -31,15 +32,15 @@ import {
 } from '../../utils';
 
 interface StateProps {
-  appState: Pick<T.AppState, 'qualifiers'>;
+  appState: Pick<AppState, 'qualifiers'>;
 }
 
 interface OwnProps {
   filter: string;
   grantPermissionToGroup: (groupName: string, permission: string) => Promise<void>;
   grantPermissionToUser: (login: string, permission: string) => Promise<void>;
-  groups: T.PermissionGroup[];
-  groupsPaging?: T.Paging;
+  groups: PermissionGroup[];
+  groupsPaging?: Paging;
   loadHolders: () => void;
   loading?: boolean;
   onLoadMore: () => void;
@@ -48,14 +49,14 @@ interface OwnProps {
   query: string;
   revokePermissionFromGroup: (groupName: string, permission: string) => Promise<void>;
   revokePermissionFromUser: (login: string, permission: string) => Promise<void>;
-  users: T.PermissionUser[];
-  usersPaging?: T.Paging;
+  users: PermissionUser[];
+  usersPaging?: Paging;
 }
 
 type Props = StateProps & OwnProps;
 
 export class AllHoldersList extends React.PureComponent<Props> {
-  handleToggleUser = (user: T.PermissionUser, permission: string) => {
+  handleToggleUser = (user: PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
     if (hasPermission) {
       return this.props.revokePermissionFromUser(user.login, permission);
@@ -64,7 +65,7 @@ export class AllHoldersList extends React.PureComponent<Props> {
     }
   };
 
-  handleToggleGroup = (group: T.PermissionGroup, permission: string) => {
+  handleToggleGroup = (group: PermissionGroup, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {

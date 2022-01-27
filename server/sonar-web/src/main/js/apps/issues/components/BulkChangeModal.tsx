@@ -37,6 +37,7 @@ import { Alert } from '../../../components/ui/Alert';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
+import { Component, CurrentUser, Dict, Issue, IssueType, Paging } from '../../../types/types';
 import { searchAssignees } from '../utils';
 
 interface AssigneeOption {
@@ -52,9 +53,9 @@ interface TagOption {
 }
 
 interface Props {
-  component: T.Component | undefined;
-  currentUser: T.CurrentUser;
-  fetchIssues: (x: {}) => Promise<{ issues: T.Issue[]; paging: T.Paging }>;
+  component: Component | undefined;
+  currentUser: CurrentUser;
+  fetchIssues: (x: {}) => Promise<{ issues: Issue[]; paging: Paging }>;
   onClose: () => void;
   onDone: () => void;
 }
@@ -72,10 +73,10 @@ interface FormFields {
 
 interface State extends FormFields {
   initialTags: Array<{ label: string; value: string }>;
-  issues: T.Issue[];
+  issues: Issue[];
   // used for initial loading of issues
   loading: boolean;
-  paging?: T.Paging;
+  paging?: Paging;
   // used when submitting a form
   submitting: boolean;
 }
@@ -237,8 +238,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     );
   };
 
-  getAvailableTransitions(issues: T.Issue[]) {
-    const transitions: T.Dict<number> = {};
+  getAvailableTransitions(issues: Issue[]) {
+    const transitions: Dict<number> = {};
     issues.forEach(issue => {
       if (issue.transitions) {
         issue.transitions.forEach(t => {
@@ -345,7 +346,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const types: T.IssueType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+    const types: IssueType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
     const options = types.map(type => ({ label: translate('issue.type', type), value: type }));
 
     const optionRenderer = (option: { label: string; value: string }) => (
@@ -558,7 +559,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 }
 
 function hasAction(action: string) {
-  return (issue: T.Issue) => issue.actions && issue.actions.includes(action);
+  return (issue: Issue) => issue.actions && issue.actions.includes(action);
 }
 
 function promptCreateTag(label: string) {

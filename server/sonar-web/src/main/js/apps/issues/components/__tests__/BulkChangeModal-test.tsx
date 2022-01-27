@@ -24,6 +24,7 @@ import { SubmitButton } from '../../../../components/controls/buttons';
 import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { change, waitAndUpdate } from '../../../../helpers/testUtils';
+import { Issue } from '../../../../types/types';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({
@@ -73,7 +74,7 @@ it('should display form when issues are present', async () => {
 });
 
 it('should display warning when too many issues are passed', async () => {
-  const issues: T.Issue[] = [];
+  const issues: Issue[] = [];
   for (let i = MAX_PAGE_SIZE + 1; i > 0; i--) {
     issues.push(mockIssue());
   }
@@ -85,7 +86,7 @@ it('should display warning when too many issues are passed', async () => {
 });
 
 it('should properly handle the search for assignee', async () => {
-  const issues: T.Issue[] = [];
+  const issues: Issue[] = [];
   for (let i = MAX_PAGE_SIZE + 1; i > 0; i--) {
     issues.push(mockIssue());
   }
@@ -127,7 +128,7 @@ it('should disable the submit button unless some change is configured', async ()
   });
 });
 
-const getWrapper = (issues: T.Issue[]) => {
+const getWrapper = (issues: Issue[]) => {
   return shallow<BulkChangeModal>(
     <BulkChangeModal
       component={undefined}

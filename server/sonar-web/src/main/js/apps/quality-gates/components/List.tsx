@@ -21,10 +21,11 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 
 interface Props {
-  qualityGates: T.QualityGate[];
+  qualityGates: QualityGate[];
 }
 
 export default function List({ qualityGates }: Props) {

@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import { PendingPluginResult } from '../../types/plugins';
+import { SysStatus } from '../../types/types';
 
 export interface AdminContextInterface {
   fetchSystemStatus: () => void;
   fetchPendingPlugins: () => void;
   pendingPlugins: PendingPluginResult;
-  systemStatus: T.SysStatus;
+  systemStatus: SysStatus;
 }
 
 export const defaultPendingPlugins = { installing: [], removing: [], updating: [] };

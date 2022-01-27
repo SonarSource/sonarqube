@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import EventInner from '../../apps/projectActivity/components/EventInner';
+import { AnalysisEvent } from '../../types/types';
 
 interface Props {
   addSeparator: boolean;
-  events: T.AnalysisEvent[];
+  events: AnalysisEvent[];
 }
 
 export default function GraphsTooltipsContentEvents({ addSeparator, events }: Props) {

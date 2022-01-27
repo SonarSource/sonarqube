@@ -20,11 +20,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import TypeHelper from '../../../components/shared/TypeHelper';
+import { Issue } from '../../../types/types';
 import ConciseIssueLocations from './ConciseIssueLocations';
 import ConciseIssueLocationsNavigator from './ConciseIssueLocationsNavigator';
 
 interface Props {
-  issue: T.Issue;
+  issue: Issue;
   onClick: (issueKey: string) => void;
   onFlowSelect: (index: number) => void;
   onLocationSelect: (index: number) => void;

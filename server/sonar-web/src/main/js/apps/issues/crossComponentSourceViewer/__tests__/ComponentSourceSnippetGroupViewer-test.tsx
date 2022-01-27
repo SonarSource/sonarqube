@@ -31,6 +31,7 @@ import {
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { SnippetGroup } from '../../../../types/types';
 import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
 import SnippetViewer from '../SnippetViewer';
 
@@ -53,7 +54,7 @@ it('should render correctly with secondary locations', () => {
     textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 }
   });
 
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: issue.component,
@@ -84,7 +85,7 @@ it('should render correctly with flows', () => {
     textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 }
   });
 
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: issue.component,
@@ -155,7 +156,7 @@ it('should expand block', async () => {
   const issue = mockIssue(true, {
     textRange: { startLine: 74, endLine: 74, startOffset: 5, endOffset: 10 }
   });
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: 'a',
@@ -184,7 +185,7 @@ it('should expand full component', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(
     Object.values(mockSnippetsByComponent('a', times(14)).sources)
   );
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: 'a',
@@ -214,7 +215,7 @@ it('should get the right branch when expanding', async () => {
       mockSnippetsByComponent('a', [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]).sources
     )
   );
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     locations: [mockFlowLocation()],
     ...mockSnippetsByComponent('a', [1, 2, 3, 4, 5, 6, 7])
   };
@@ -250,7 +251,7 @@ it('should handle symbol highlighting', () => {
 });
 
 it('should correctly handle lines actions', () => {
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     locations: [
       mockFlowLocation({
         component: 'a',
@@ -291,7 +292,7 @@ it('should correctly handle lines actions', () => {
 });
 
 describe('getNodes', () => {
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
     locations: [],
     sources: []
@@ -346,7 +347,7 @@ describe('getNodes', () => {
 describe('getHeight', () => {
   jest.useFakeTimers();
 
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
     locations: [],
     sources: []
@@ -397,7 +398,7 @@ describe('getHeight', () => {
 });
 
 function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']> = {}) {
-  const snippetGroup: T.SnippetGroup = {
+  const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),
     locations: [],
     sources: []

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { Project } from '../types';
 import { localizeSorting } from '../utils';
 import Coverage from './Coverage';
@@ -37,7 +38,7 @@ interface Props {
 
 export default class Visualizations extends React.PureComponent<Props> {
   renderVisualization(projects: Project[]) {
-    const visualizationToComponent: T.Dict<any> = {
+    const visualizationToComponent: Dict<any> = {
       risk: Risk,
       reliability: Reliability,
       security: Security,

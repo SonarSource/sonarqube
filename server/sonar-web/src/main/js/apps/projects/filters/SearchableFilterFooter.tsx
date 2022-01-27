@@ -20,16 +20,17 @@
 import * as React from 'react';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { translate } from '../../../helpers/l10n';
+import { Dict, RawQuery } from '../../../types/types';
 
 interface Props {
   isFavorite?: boolean;
   isLoading?: boolean;
   onInputChange?: (query: string) => void;
   onOpen?: () => void;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   options: Array<{ label: string; value: string }>;
   property: string;
-  query: T.Dict<any>;
+  query: Dict<any>;
 }
 
 export default class SearchableFilterFooter extends React.PureComponent<Props> {

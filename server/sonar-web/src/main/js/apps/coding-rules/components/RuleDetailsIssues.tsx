@@ -26,10 +26,11 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
+import { AppState, RuleDetails } from '../../../types/types';
 
 interface Props {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
-  ruleDetails: Pick<T.RuleDetails, 'key' | 'type'>;
+  appState: Pick<AppState, 'branchesEnabled'>;
+  ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
 }
 
 interface Project {

@@ -19,9 +19,10 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON } from '../helpers/request';
+import { WebApi } from '../types/types';
 
 interface RawDomain {
-  actions: T.WebApi.Action[];
+  actions: WebApi.Action[];
   deprecatedSince?: string;
   description: string;
   internal: boolean;
@@ -35,7 +36,7 @@ export function fetchWebApi(showInternal = true): Promise<RawDomain[]> {
     .catch(throwGlobalError);
 }
 
-export function fetchResponseExample(domain: string, action: string): Promise<T.WebApi.Example> {
+export function fetchResponseExample(domain: string, action: string): Promise<WebApi.Example> {
   return getJSON('/api/webservices/response_example', { controller: domain, action }).catch(
     throwGlobalError
   );

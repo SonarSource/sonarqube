@@ -24,10 +24,11 @@ import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
+import { LoggedInUser } from '../../types/types';
 
 interface Props {
   className?: string;
-  user: T.LoggedInUser;
+  user: LoggedInUser;
   onPasswordChange?: () => void;
 }
 

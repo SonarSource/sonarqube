@@ -27,13 +27,14 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { Dict } from '../../../types/types';
 import { FacetKey } from '../query';
 
 export interface BasicProps {
-  onChange: (changes: T.Dict<string | string[] | undefined>) => void;
+  onChange: (changes: Dict<string | string[] | undefined>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
-  stats?: T.Dict<number>;
+  stats?: Dict<number>;
   values: string[];
 }
 

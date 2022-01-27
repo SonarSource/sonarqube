@@ -19,6 +19,7 @@
  */
 import { Dictionary } from 'lodash';
 import * as React from 'react';
+import { AppState, Component } from '../../../types/types';
 import { withAppState } from '../../hoc/withAppState';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
@@ -31,9 +32,9 @@ import othersExample from './commands/Others';
 import { PreambuleYaml } from './PreambuleYaml';
 
 export interface AnalysisCommandProps {
-  appState: T.AppState;
+  appState: AppState;
   buildTool: BuildTools;
-  component: T.Component;
+  component: Component;
 }
 
 const YamlTemplate: Dictionary<(branchesEnabled?: boolean, projectKey?: string) => string> = {

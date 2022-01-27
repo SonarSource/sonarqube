@@ -25,6 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { getLanguages, Store } from '../../../store/rootReducer';
 import { Facet, ReferencedLanguage } from '../../../types/issues';
+import { Dict } from '../../../types/types';
 import { Query } from '../utils';
 
 interface InstalledLanguage {
@@ -41,8 +42,8 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  referencedLanguages: T.Dict<ReferencedLanguage>;
-  stats: T.Dict<number> | undefined;
+  referencedLanguages: Dict<ReferencedLanguage>;
+  stats: Dict<number> | undefined;
 }
 
 class LanguageFacet extends React.PureComponent<Props> {

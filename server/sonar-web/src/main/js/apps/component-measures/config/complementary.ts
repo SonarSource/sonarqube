@@ -1,3 +1,5 @@
+import { Dict } from '../../../types/types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -17,7 +19,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const complementary: T.Dict<string[]> = {
+export const complementary: Dict<string[]> = {
   coverage: ['uncovered_lines', 'uncovered_conditions'],
   line_coverage: ['uncovered_lines'],
   branch_coverage: ['uncovered_conditions'],

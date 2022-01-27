@@ -20,11 +20,12 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../helpers/l10n';
+import { Component } from '../../types/types';
 import Form from './Form';
 import Header from './Header';
 
 interface Props {
-  component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;
+  component: Pick<Component, 'key' | 'name' | 'qualifier'>;
 }
 
 export default function App(props: Props) {

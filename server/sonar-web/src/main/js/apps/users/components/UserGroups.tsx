@@ -21,12 +21,13 @@ import * as React from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { User } from '../../../types/types';
 import GroupsForm from './GroupsForm';
 
 interface Props {
   groups: string[];
   onUpdateUsers: () => void;
-  user: T.User;
+  user: User;
 }
 
 interface State {

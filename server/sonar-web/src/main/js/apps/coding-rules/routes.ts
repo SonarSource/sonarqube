@@ -19,10 +19,11 @@
  */
 import { RedirectFunction, RouterState } from 'react-router';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
+import { RawQuery } from '../../types/types';
 import { parseQuery, serializeQuery } from './query';
 
-function parseHash(hash: string): T.RawQuery {
-  const query: T.RawQuery = {};
+function parseHash(hash: string): RawQuery {
+  const query: RawQuery = {};
   const parts = hash.split('|');
   parts.forEach(part => {
     const tokens = part.split('=');

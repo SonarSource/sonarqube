@@ -60,6 +60,7 @@ import webhooksRoutes from '../../apps/webhooks/routes';
 import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import getHistory from '../../helpers/getHistory';
+import { AppState, CurrentUser } from '../../types/types';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
 import { PageContext } from '../components/indexation/PageUnavailableDueToIndexation';
@@ -279,8 +280,8 @@ function renderAdminRoutes() {
 
 export default function startReactApp(
   lang: string,
-  currentUser?: T.CurrentUser,
-  appState?: T.AppState
+  currentUser?: CurrentUser,
+  appState?: AppState
 ) {
   attachToGlobal();
 

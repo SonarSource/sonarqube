@@ -37,6 +37,7 @@ import { fetchBranchStatus, fetchMetrics } from '../../../store/rootActions';
 import { getMetrics } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
+import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
 import {
@@ -51,7 +52,7 @@ import Search from './Search';
 import SourceViewerWrapper from './SourceViewerWrapper';
 
 interface StateToProps {
-  metrics: T.Dict<T.Metric>;
+  metrics: Dict<Metric>;
 }
 
 interface DispatchToProps {
@@ -61,7 +62,7 @@ interface DispatchToProps {
 
 interface OwnProps {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   location: Pick<Location, 'query'>;
   router: Pick<InjectedRouter, 'push'>;
 }
@@ -69,14 +70,14 @@ interface OwnProps {
 type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
-  baseComponent?: T.ComponentMeasure;
-  breadcrumbs: T.Breadcrumb[];
-  components?: T.ComponentMeasure[];
-  highlighted?: T.ComponentMeasure;
+  baseComponent?: ComponentMeasure;
+  breadcrumbs: Breadcrumb[];
+  components?: ComponentMeasure[];
+  highlighted?: ComponentMeasure;
   loading: boolean;
   page: number;
-  searchResults?: T.ComponentMeasure[];
-  sourceViewer?: T.ComponentMeasure;
+  searchResults?: ComponentMeasure[];
+  sourceViewer?: ComponentMeasure;
   total: number;
   newCodeSelected: boolean;
 }
@@ -208,11 +209,11 @@ export class CodeApp extends React.Component<Props, State> {
     }
   };
 
-  handleHighlight = (highlighted: T.ComponentMeasure) => {
+  handleHighlight = (highlighted: ComponentMeasure) => {
     this.setState({ highlighted });
   };
 
-  handleIssueChange = (_: T.Issue) => {
+  handleIssueChange = (_: Issue) => {
     this.refreshBranchStatus();
   };
 
@@ -220,11 +221,11 @@ export class CodeApp extends React.Component<Props, State> {
     this.setState({ searchResults: undefined });
   };
 
-  handleSearchResults = (searchResults: T.ComponentMeasure[] = []) => {
+  handleSearchResults = (searchResults: ComponentMeasure[] = []) => {
     this.setState({ searchResults });
   };
 
-  handleSelect = (component: T.ComponentMeasure) => {
+  handleSelect = (component: ComponentMeasure) => {
     const { branchLike, component: rootComponent } = this.props;
 
     if (component.refKey) {

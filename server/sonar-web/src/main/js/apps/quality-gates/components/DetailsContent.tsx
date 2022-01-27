@@ -21,17 +21,18 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
 import Conditions from './Conditions';
 import Projects from './Projects';
 import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
   isDefault?: boolean;
-  metrics: T.Dict<T.Metric>;
-  onAddCondition: (condition: T.Condition) => void;
-  onRemoveCondition: (Condition: T.Condition) => void;
-  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
-  qualityGate: T.QualityGate;
+  metrics: Dict<Metric>;
+  onAddCondition: (condition: Condition) => void;
+  onRemoveCondition: (Condition: Condition) => void;
+  onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
+  qualityGate: QualityGate;
   updatedConditionId?: number;
 }
 

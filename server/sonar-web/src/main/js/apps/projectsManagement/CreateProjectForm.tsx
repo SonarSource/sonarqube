@@ -29,9 +29,10 @@ import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
+import { Visibility } from '../../types/types';
 
 interface Props {
-  defaultProjectVisibility?: T.Visibility;
+  defaultProjectVisibility?: Visibility;
   onClose: () => void;
   onProjectCreated: () => void;
 }
@@ -41,7 +42,7 @@ interface State {
   key: string;
   loading: boolean;
   name: string;
-  visibility?: T.Visibility;
+  visibility?: Visibility;
   // add index declaration to be able to do `this.setState({ [name]: value });`
   [x: string]: any;
 }
@@ -82,7 +83,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     this.setState({ [name]: value });
   };
 
-  handleVisibilityChange = (visibility: T.Visibility) => {
+  handleVisibilityChange = (visibility: Visibility) => {
     this.setState({ visibility });
   };
 

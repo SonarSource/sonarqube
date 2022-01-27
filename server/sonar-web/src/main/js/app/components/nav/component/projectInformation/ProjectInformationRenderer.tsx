@@ -21,6 +21,7 @@ import * as React from 'react';
 import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
 import { translate } from '../../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../../types/component';
+import { Component, Measure } from '../../../../../types/types';
 import DrawerLink from './DrawerLink';
 import MetaKey from './meta/MetaKey';
 import MetaLinks from './meta/MetaLinks';
@@ -33,8 +34,8 @@ import { ProjectInformationPages } from './ProjectInformationPages';
 export interface ProjectInformationRendererProps {
   canConfigureNotifications: boolean;
   canUseBadges: boolean;
-  component: T.Component;
-  measures?: T.Measure[];
+  component: Component;
+  measures?: Measure[];
   onComponentChange: (changes: {}) => void;
   onPageChange: (page: ProjectInformationPages) => void;
 }

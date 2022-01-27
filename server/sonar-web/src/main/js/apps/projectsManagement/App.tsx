@@ -32,20 +32,21 @@ import { hasGlobalPermission } from '../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
+import { AppState, LoggedInUser, Visibility } from '../../types/types';
 import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
 import Search from './Search';
 
 export interface Props {
-  currentUser: T.LoggedInUser;
-  appState: Pick<T.AppState, 'qualifiers'>;
+  currentUser: LoggedInUser;
+  appState: Pick<AppState, 'qualifiers'>;
 }
 
 interface State {
   analyzedBefore?: Date;
   createProjectForm: boolean;
-  defaultProjectVisibility?: T.Visibility;
+  defaultProjectVisibility?: Visibility;
   page: number;
   projects: Project[];
   provisioned: boolean;
@@ -54,7 +55,7 @@ interface State {
   ready: boolean;
   selection: string[];
   total: number;
-  visibility?: T.Visibility;
+  visibility?: Visibility;
 }
 
 const PAGE_SIZE = 50;
@@ -92,11 +93,11 @@ export class App extends React.PureComponent<Props, State> {
     const results = await getValues({ keys: SettingsKey.DefaultProjectVisibility });
 
     if (this.mounted && results.length > 0 && results[0].value) {
-      this.setState({ defaultProjectVisibility: results[0].value as T.Visibility });
+      this.setState({ defaultProjectVisibility: results[0].value as Visibility });
     }
   };
 
-  handleDefaultProjectVisibilityChange = async (visibility: T.Visibility) => {
+  handleDefaultProjectVisibilityChange = async (visibility: Visibility) => {
     await changeProjectDefaultVisibility(visibility);
 
     if (this.mounted) {
@@ -155,7 +156,7 @@ export class App extends React.PureComponent<Props, State> {
     );
   };
 
-  onVisibilityChanged = (newVisibility: T.Visibility | 'all') => {
+  onVisibilityChanged = (newVisibility: Visibility | 'all') => {
     this.setState(
       {
         ready: false,
@@ -262,7 +263,7 @@ export class App extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: Store) => ({
   appState: getAppState(state),
-  currentUser: getCurrentUser(state) as T.LoggedInUser
+  currentUser: getCurrentUser(state) as LoggedInUser
 });
 
 export default connect(mapStateToProps)(App);

@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BranchLike } from './branch-like';
+import { MeasureEnhanced, Metric, Status, UserBase } from './types';
 
 export interface QualityGateProjectStatus {
   conditions?: QualityGateProjectStatusCondition[];
   ignoredConditions: boolean;
-  status: T.Status;
+  status: Status;
 }
 
 export interface QualityGateProjectStatusCondition {
@@ -31,13 +32,13 @@ export interface QualityGateProjectStatusCondition {
   errorThreshold: string;
   metricKey: string;
   periodIndex: number;
-  status: T.Status;
+  status: Status;
 }
 
 export interface QualityGateApplicationStatus {
-  metrics: T.Metric[];
+  metrics: Metric[];
   projects: QualityGateApplicationStatusChildProject[];
-  status: T.Status;
+  status: Status;
 }
 
 export interface QualityGateApplicationStatusCondition {
@@ -46,7 +47,7 @@ export interface QualityGateApplicationStatusCondition {
   metric: string;
   periodIndex?: number;
   onLeak?: boolean;
-  status: T.Status;
+  status: Status;
   value: string;
   warningThreshold?: string;
 }
@@ -55,7 +56,7 @@ export interface QualityGateApplicationStatusChildProject {
   conditions: QualityGateApplicationStatusCondition[];
   key: string;
   name: string;
-  status: T.Status;
+  status: Status;
 }
 
 export interface QualityGateStatus {
@@ -63,14 +64,14 @@ export interface QualityGateStatus {
   ignoredConditions?: boolean;
   key: string;
   name: string;
-  status: T.Status;
+  status: Status;
   branchLike?: BranchLike;
 }
 
 export interface QualityGateStatusCondition {
   actual?: string;
   error?: string;
-  level: T.Status;
+  level: Status;
   metric: string;
   op: string;
   period?: number;
@@ -78,7 +79,7 @@ export interface QualityGateStatusCondition {
 }
 
 export interface QualityGateStatusConditionEnhanced extends QualityGateStatusCondition {
-  measure: T.MeasureEnhanced;
+  measure: MeasureEnhanced;
 }
 
 export interface SearchPermissionsParameters {
@@ -101,6 +102,6 @@ export interface Group {
   name: string;
 }
 
-export function isUser(item: T.UserBase | Group): item is T.UserBase {
-  return item && (item as T.UserBase).login !== undefined;
+export function isUser(item: UserBase | Group): item is UserBase {
+  return item && (item as UserBase).login !== undefined;
 }

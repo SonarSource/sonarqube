@@ -26,6 +26,7 @@ import {
 } from '../../../api/quality-profiles';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
+import { UserSelected } from '../../../types/types';
 import { Profile } from '../types';
 import ProfilePermissionsForm from './ProfilePermissionsForm';
 import ProfilePermissionsGroup from './ProfilePermissionsGroup';
@@ -43,7 +44,7 @@ interface State {
   addUserForm: boolean;
   groups?: Group[];
   loading: boolean;
-  users?: T.UserSelected[];
+  users?: UserSelected[];
 }
 
 export default class ProfilePermissions extends React.PureComponent<Props, State> {
@@ -101,7 +102,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleUserAdd = (addedUser: T.UserSelected) => {
+  handleUserAdd = (addedUser: UserSelected) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         addUserForm: false,
@@ -110,7 +111,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleUserDelete = (removedUser: T.UserSelected) => {
+  handleUserDelete = (removedUser: UserSelected) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         users: state.users && state.users.filter(user => user !== removedUser)
@@ -118,7 +119,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleGroupAdd = (addedGroup: T.Group) => {
+  handleGroupAdd = (addedGroup: Group) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         addUserForm: false,
@@ -127,7 +128,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
     }
   };
 
-  handleGroupDelete = (removedGroup: T.Group) => {
+  handleGroupDelete = (removedGroup: Group) => {
     if (this.mounted) {
       this.setState((state: State) => ({
         groups: state.groups && state.groups.filter(group => group !== removedGroup)

@@ -29,12 +29,13 @@ import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
+import { Component, CurrentUser } from '../../../types/types';
 
 export interface EmptyOverviewProps {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
-  component: T.Component;
-  currentUser: T.CurrentUser;
+  component: Component;
+  currentUser: CurrentUser;
   hasAnalyses?: boolean;
   projectBinding?: ProjectAlmBindingResponse;
 }

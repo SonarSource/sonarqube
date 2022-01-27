@@ -22,6 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
+import { Component, MeasureEnhanced } from '../../../types/types';
 import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
 import DebtValue from './DebtValue';
@@ -29,9 +30,9 @@ import SecurityHotspotsReviewed from './SecurityHotspotsReviewed';
 
 export interface MeasuresPanelIssueMeasureRowProps {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   isNewCodeTab: boolean;
-  measures: T.MeasureEnhanced[];
+  measures: MeasureEnhanced[];
   type: IssueType;
 }
 

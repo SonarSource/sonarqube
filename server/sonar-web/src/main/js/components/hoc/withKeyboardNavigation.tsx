@@ -21,17 +21,18 @@ import key from 'keymaster';
 import * as React from 'react';
 import PageActions from '../../components/ui/PageActions';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
+import { ComponentMeasure } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
 
 export interface WithKeyboardNavigationProps {
-  components?: T.ComponentMeasure[];
+  components?: ComponentMeasure[];
   cycle?: boolean;
   isFile?: boolean;
   onEndOfList?: () => void;
   onGoToParent?: () => void;
-  onHighlight?: (item: T.ComponentMeasure) => void;
-  onSelect?: (item: T.ComponentMeasure) => void;
-  selected?: T.ComponentMeasure;
+  onHighlight?: (item: ComponentMeasure) => void;
+  onSelect?: (item: ComponentMeasure) => void;
+  selected?: ComponentMeasure;
 }
 
 const KEY_SCOPE = 'key_nav';
@@ -126,7 +127,7 @@ export default function withKeyboardNavigation<P>(
 
       const { selected } = this.props;
       if (selected !== undefined) {
-        this.props.onSelect(selected as T.ComponentMeasure);
+        this.props.onSelect(selected as ComponentMeasure);
       }
     };
 

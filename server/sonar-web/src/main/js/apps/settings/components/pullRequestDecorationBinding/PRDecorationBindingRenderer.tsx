@@ -39,7 +39,7 @@ import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
 import AlmSpecificForm from './AlmSpecificForm';
 
 export interface PRDecorationBindingRendererProps {
-  formData: T.Omit<ProjectAlmBindingResponse, 'alm'>;
+  formData: Omit<ProjectAlmBindingResponse, 'alm'>;
   instances: AlmSettingsInstance[];
   isChanged: boolean;
   isConfigured: boolean;

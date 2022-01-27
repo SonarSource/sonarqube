@@ -21,20 +21,21 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { searchGroups, searchUsers } from '../../../api/quality-gates';
 import { Group, SearchPermissionsParameters } from '../../../types/quality-gates';
+import { QualityGate, UserBase } from '../../../types/types';
 import QualityGatePermissionsAddModalRenderer from './QualityGatePermissionsAddModalRenderer';
 
 interface Props {
   onClose: () => void;
-  onSubmit: (selection: T.UserBase | Group) => void;
-  qualityGate: T.QualityGate;
+  onSubmit: (selection: UserBase | Group) => void;
+  qualityGate: QualityGate;
   submitting: boolean;
 }
 
 interface State {
   loading: boolean;
   query?: string;
-  searchResults: Array<T.UserBase | Group>;
-  selection?: T.UserBase | Group;
+  searchResults: Array<UserBase | Group>;
+  selection?: UserBase | Group;
 }
 
 const DEBOUNCE_DELAY = 250;
@@ -91,7 +92,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     }
   };
 
-  handleSelection = (selection: T.UserBase | Group) => {
+  handleSelection = (selection: UserBase | Group) => {
     this.setState({ selection });
   };
 

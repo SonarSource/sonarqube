@@ -20,13 +20,14 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { change, click, waitAndUpdate } from '../../../../helpers/testUtils';
+import { RuleDetails } from '../../../../types/types';
 import RuleDetailsDescription from '../RuleDetailsDescription';
 
 jest.mock('../../../../api/rules', () => ({
   updateRule: jest.fn().mockResolvedValue('updatedrule')
 }));
 
-const RULE: T.RuleDetails = {
+const RULE: RuleDetails = {
   key: 'squid:S1133',
   repo: 'squid',
   name: 'Deprecated code should be removed',
@@ -40,7 +41,7 @@ const RULE: T.RuleDetails = {
   type: 'CODE_SMELL'
 };
 
-const EXTERNAL_RULE: T.RuleDetails = {
+const EXTERNAL_RULE: RuleDetails = {
   createdAt: '2013-07-26T09:40:51+0200',
   key: 'external_xoo:OneExternalIssuePerLine',
   repo: 'external_xoo',
@@ -51,7 +52,7 @@ const EXTERNAL_RULE: T.RuleDetails = {
   type: 'UNKNOWN'
 };
 
-const EXTERNAL_RULE_WITH_DATA: T.RuleDetails = {
+const EXTERNAL_RULE_WITH_DATA: RuleDetails = {
   key: 'external_xoo:OneExternalIssueWithDetailsPerLine',
   repo: 'external_xoo',
   name: 'One external issue per line',

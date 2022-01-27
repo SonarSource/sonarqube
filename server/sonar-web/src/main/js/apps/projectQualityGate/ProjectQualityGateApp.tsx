@@ -29,17 +29,18 @@ import {
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { translate } from '../../helpers/l10n';
+import { Component, QualityGate } from '../../types/types';
 import { USE_SYSTEM_DEFAULT } from './constants';
 import ProjectQualityGateAppRenderer from './ProjectQualityGateAppRenderer';
 
 interface Props {
-  component: T.Component;
+  component: Component;
   onComponentChange: (changes: {}) => void;
 }
 
 interface State {
-  allQualityGates?: T.QualityGate[];
-  currentQualityGate?: T.QualityGate;
+  allQualityGates?: QualityGate[];
+  currentQualityGate?: QualityGate;
   loading: boolean;
   selectedQualityGateId: string;
   submitting: boolean;
@@ -72,7 +73,7 @@ export default class ProjectQualityGateApp extends React.PureComponent<Props, St
     return !!hasPermission;
   };
 
-  isUsingDefault = async (qualityGate: T.QualityGate) => {
+  isUsingDefault = async (qualityGate: QualityGate) => {
     const { component } = this.props;
 
     if (!qualityGate.isDefault) {

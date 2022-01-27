@@ -19,19 +19,20 @@
  */
 import { memoize } from 'lodash';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
+import { RawQuery } from '../../types/types';
 
 export interface Query {
   search: string;
 }
 
 export const parseQuery = memoize(
-  (urlQuery: T.RawQuery): Query => ({
+  (urlQuery: RawQuery): Query => ({
     search: parseAsString(urlQuery['search'])
   })
 );
 
 export const serializeQuery = memoize(
-  (query: Query): T.RawQuery =>
+  (query: Query): RawQuery =>
     cleanQuery({
       search: query.search ? serializeString(query.search) : undefined
     })

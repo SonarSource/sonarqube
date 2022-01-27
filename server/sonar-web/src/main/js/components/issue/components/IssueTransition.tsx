@@ -23,6 +23,7 @@ import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 import StatusHelper from '../../shared/StatusHelper';
 import { updateIssue } from '../actions';
 import SetTransitionPopup from '../popups/SetTransitionPopup';
@@ -30,8 +31,8 @@ import SetTransitionPopup from '../popups/SetTransitionPopup';
 interface Props {
   hasTransitions: boolean;
   isOpen: boolean;
-  issue: Pick<T.Issue, 'fromHotspot' | 'key' | 'resolution' | 'status' | 'transitions' | 'type'>;
-  onChange: (issue: T.Issue) => void;
+  issue: Pick<Issue, 'fromHotspot' | 'key' | 'resolution' | 'status' | 'transitions' | 'type'>;
+  onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 

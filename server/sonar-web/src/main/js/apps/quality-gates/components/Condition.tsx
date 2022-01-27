@@ -24,16 +24,17 @@ import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { Condition as ConditionType, Metric, QualityGate } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 import ConditionModal from './ConditionModal';
 
 interface Props {
-  condition: T.Condition;
+  condition: ConditionType;
   canEdit: boolean;
-  metric: T.Metric;
-  onRemoveCondition: (Condition: T.Condition) => void;
-  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
-  qualityGate: T.QualityGate;
+  metric: Metric;
+  onRemoveCondition: (Condition: ConditionType) => void;
+  onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
+  qualityGate: QualityGate;
   updated?: boolean;
 }
 
@@ -51,7 +52,7 @@ export default class Condition extends React.PureComponent<Props, State> {
     };
   }
 
-  handleUpdateCondition = (newCondition: T.Condition) => {
+  handleUpdateCondition = (newCondition: ConditionType) => {
     this.props.onSaveCondition(newCondition, this.props.condition);
   };
 
@@ -71,7 +72,7 @@ export default class Condition extends React.PureComponent<Props, State> {
     this.setState({ deleteFormOpen: false });
   };
 
-  removeCondition = (condition: T.Condition) => {
+  removeCondition = (condition: ConditionType) => {
     deleteCondition({ id: condition.id }).then(
       () => this.props.onRemoveCondition(condition),
       () => {}

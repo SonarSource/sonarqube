@@ -29,6 +29,7 @@ import SeverityIcon from '../../../components/icons/SeverityIcon';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
+import { Rule } from '../../../types/types';
 import { Activation, Query } from '../query';
 import ActivationButton from './ActivationButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
@@ -42,7 +43,7 @@ interface Props {
   onDeactivate: (profile: string, rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   onOpen: (ruleKey: string) => void;
-  rule: T.Rule;
+  rule: Rule;
   selected: boolean;
   selectedProfile?: Profile;
 }

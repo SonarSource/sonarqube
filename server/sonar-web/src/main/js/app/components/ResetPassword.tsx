@@ -22,10 +22,11 @@ import ResetPasswordForm from '../../components/common/ResetPasswordForm';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
+import { LoggedInUser } from '../../types/types';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 
 export interface ResetPasswordProps {
-  currentUser: T.LoggedInUser;
+  currentUser: LoggedInUser;
 }
 
 export function ResetPassword({ currentUser }: ResetPasswordProps) {

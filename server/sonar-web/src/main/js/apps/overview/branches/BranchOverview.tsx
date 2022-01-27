@@ -49,6 +49,7 @@ import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus, QualityGateStatusCondition } from '../../../types/quality-gates';
+import { Analysis, Component, MeasureEnhanced, Metric, Period } from '../../../types/types';
 import '../styles.css';
 import { HISTORY_METRICS_LIST, METRICS } from '../utils';
 import BranchOverviewRenderer from './BranchOverviewRenderer';
@@ -56,21 +57,21 @@ import BranchOverviewRenderer from './BranchOverviewRenderer';
 interface Props {
   branch?: Branch;
   branchesEnabled?: boolean;
-  component: T.Component;
+  component: Component;
   projectBinding?: ProjectAlmBindingResponse;
 }
 
 interface State {
-  analyses?: T.Analysis[];
+  analyses?: Analysis[];
   appLeak?: ApplicationPeriod;
   detectedCIOnLastAnalysis?: boolean;
   graph: GraphType;
   loadingHistory?: boolean;
   loadingStatus?: boolean;
-  measures?: T.MeasureEnhanced[];
+  measures?: MeasureEnhanced[];
   measuresHistory?: MeasureHistory[];
-  metrics?: T.Metric[];
-  period?: T.Period;
+  metrics?: Metric[];
+  period?: Period;
   qgStatuses?: QualityGateStatus[];
 }
 
@@ -348,10 +349,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     );
   };
 
-  getFailedConditions = (
-    conditions: QualityGateStatusCondition[],
-    measures: T.MeasureEnhanced[]
-  ) => {
+  getFailedConditions = (conditions: QualityGateStatusCondition[], measures: MeasureEnhanced[]) => {
     return (
       conditions
         .filter(c => c.level !== 'OK')

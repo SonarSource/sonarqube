@@ -20,10 +20,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { Alert } from '../../../../components/ui/Alert';
+import { HealthType } from '../../../../types/types';
 
 interface Props {
   className?: string;
-  health: T.HealthType;
+  health: HealthType;
   healthCause: string;
 }
 

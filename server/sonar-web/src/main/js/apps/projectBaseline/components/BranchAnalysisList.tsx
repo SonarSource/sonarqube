@@ -23,17 +23,18 @@ import * as React from 'react';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { scrollToElement } from '../../../helpers/scrolling';
+import { Analysis, Dict, ParsedAnalysis } from '../../../types/types';
 import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
 
 interface Props {
   analysis: string;
   branch: string;
   component: string;
-  onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
+  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
 }
 
 interface State {
-  analyses: T.ParsedAnalysis[];
+  analyses: ParsedAnalysis[];
   loading: boolean;
   range: number;
   scroll: number;
@@ -43,7 +44,7 @@ const STICKY_BADGE_SCROLL_OFFSET = 10;
 
 export default class BranchAnalysisList extends React.PureComponent<Props, State> {
   mounted = false;
-  badges: T.Dict<HTMLDivElement> = {};
+  badges: Dict<HTMLDivElement> = {};
   scrollableNode?: HTMLDivElement;
   state: State = {
     analyses: [],
@@ -82,7 +83,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
       branch,
       project: component,
       from: range ? toShortNotSoISOString(subDays(new Date(), range)) : undefined
-    }).then((result: { analyses: T.Analysis[] }) => {
+    }).then((result: { analyses: Analysis[] }) => {
       // If the selected analysis wasn't found in the default 30 days range, redo the search
       if (initial && analysis && !result.analyses.find(a => a.key === analysis)) {
         this.handleRangeChange({ value: 0 });
@@ -94,7 +95,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
           analyses: result.analyses.map(analysis => ({
             ...analysis,
             date: parseDate(analysis.date)
-          })) as T.ParsedAnalysis[],
+          })) as ParsedAnalysis[],
           loading: false
         },
         () => {

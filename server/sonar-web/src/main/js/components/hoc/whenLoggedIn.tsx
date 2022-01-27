@@ -20,11 +20,12 @@
 import * as React from 'react';
 import handleRequiredAuthentication from '../../helpers/handleRequiredAuthentication';
 import { isLoggedIn } from '../../helpers/users';
+import { CurrentUser } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
 import { withCurrentUser } from './withCurrentUser';
 
 export function whenLoggedIn<P>(WrappedComponent: React.ComponentType<P>) {
-  class Wrapper extends React.Component<P & { currentUser: T.CurrentUser }> {
+  class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'whenLoggedIn');
 
     componentDidMount() {

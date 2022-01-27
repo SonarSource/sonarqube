@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import { OSs } from '../../types';
 import DownloadBuildWrapper from './DownloadBuildWrapper';
@@ -26,7 +27,7 @@ import ExecBuildWrapper from './ExecBuildWrapper';
 import ExecScanner from './ExecScanner';
 
 export interface ClangGCCCustomProps {
-  component: T.Component;
+  component: Component;
   host: string;
   os: OSs;
   token: string;

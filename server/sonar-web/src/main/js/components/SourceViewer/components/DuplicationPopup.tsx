@@ -27,15 +27,16 @@ import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { Dict, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../types/types';
 import { WorkspaceContextShape } from '../../workspace/context';
 
 interface Props {
-  blocks: T.DuplicationBlock[];
+  blocks: DuplicationBlock[];
   branchLike: BranchLike | undefined;
-  duplicatedFiles?: T.Dict<T.DuplicatedFile>;
+  duplicatedFiles?: Dict<DuplicatedFile>;
   inRemovedComponent: boolean;
   openComponent: WorkspaceContextShape['openComponent'];
-  sourceViewerFile: T.SourceViewerFile;
+  sourceViewerFile: SourceViewerFile;
 }
 
 export default class DuplicationPopup extends React.PureComponent<Props> {
@@ -64,7 +65,7 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     }
   };
 
-  renderDuplication(file: T.DuplicatedFile, children: React.ReactNode, line?: number) {
+  renderDuplication(file: DuplicatedFile, children: React.ReactNode, line?: number) {
     return this.shouldLink() ? (
       <a
         data-key={file.key}

@@ -24,11 +24,12 @@ import { translate } from '../../../../../helpers/l10n';
 import { scrollToElement } from '../../../../../helpers/scrolling';
 import { isDefined } from '../../../../../helpers/types';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
+import { Component } from '../../../../../types/types';
 import MenuItem from './MenuItem';
 
 export interface MenuItemListProps {
   branchLikeTree: BranchLikeTree;
-  component: T.Component;
+  component: Component;
   hasResults: boolean;
   onSelect: (branchLike: BranchLike) => void;
   selectedBranchLike: BranchLike | undefined;

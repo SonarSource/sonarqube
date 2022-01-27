@@ -26,12 +26,13 @@ import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
+import { Component, CurrentUser } from '../../../types/types';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/components/AdditionalCategoryKeys';
 
 export interface FirstAnalysisNextStepsNotifProps {
   branchesEnabled?: boolean;
-  component: T.Component;
-  currentUser: T.CurrentUser;
+  component: Component;
+  currentUser: CurrentUser;
   detectedCIOnLastAnalysis?: boolean;
   projectBinding?: ProjectAlmBindingResponse;
 }

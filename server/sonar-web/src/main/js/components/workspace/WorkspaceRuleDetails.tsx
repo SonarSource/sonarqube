@@ -24,6 +24,7 @@ import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetai
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import '../../apps/coding-rules/styles.css';
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { Dict, RuleDetails } from '../../types/types';
 
 interface Props {
   onLoad: (details: { name: string }) => void;
@@ -32,8 +33,8 @@ interface Props {
 
 interface State {
   loading: boolean;
-  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
-  ruleDetails?: T.RuleDetails;
+  referencedRepositories: Dict<{ key: string; language: string; name: string }>;
+  ruleDetails?: RuleDetails;
 }
 
 export default class WorkspaceRuleDetails extends React.PureComponent<Props, State> {

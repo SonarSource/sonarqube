@@ -27,6 +27,7 @@ import {
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
+import { Component } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
@@ -40,12 +41,12 @@ import ProjectInformation from './projectInformation/ProjectInformation';
 export interface ComponentNavProps {
   branchLikes: BranchLike[];
   currentBranchLike: BranchLike | undefined;
-  component: T.Component;
+  component: Component;
   currentTask?: Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
-  onComponentChange: (changes: Partial<T.Component>) => void;
+  onComponentChange: (changes: Partial<Component>) => void;
   onWarningDismiss: () => void;
   projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;

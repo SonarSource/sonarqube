@@ -19,6 +19,7 @@
  */
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
+import { UserToken } from '../../types/types';
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
@@ -36,7 +37,7 @@ sonarqube {
 }`;
 }
 
-export function getUniqueTokenName(tokens: T.UserToken[], initialTokenName = '') {
+export function getUniqueTokenName(tokens: UserToken[], initialTokenName = '') {
   const hasToken = (name: string) => tokens.find(token => token.name === name) !== undefined;
 
   if (!hasToken(initialTokenName)) {

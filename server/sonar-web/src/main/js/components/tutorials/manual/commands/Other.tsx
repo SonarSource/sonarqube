@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component } from '../../../../types/types';
 import { OSs } from '../../types';
 import DownloadScanner from './DownloadScanner';
 import ExecScanner from './ExecScanner';
 
 export interface OtherProps {
-  component: T.Component;
+  component: Component;
   host: string;
   os: OSs;
   token: string;

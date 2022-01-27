@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Profile as BaseProfile } from '../../api/quality-profiles';
+import { Dict } from '../../types/types';
 
 export interface Profile extends BaseProfile {
   depth: number;
@@ -34,7 +35,7 @@ export interface ProfileChangelogEvent {
   action: string;
   authorName: string;
   date: string;
-  params?: T.Dict<string | null>;
+  params?: Dict<string | null>;
   ruleKey: string;
   ruleName: string;
 }

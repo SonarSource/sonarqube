@@ -19,6 +19,7 @@
  */
 import { hasMessage, translate } from '../../helpers/l10n';
 import { isSonarCloud } from '../../helpers/system';
+import { Dict, PermissionDefinition, PermissionDefinitionGroup } from '../../types/types';
 
 export const PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE = [
   'user',
@@ -40,7 +41,7 @@ export const PERMISSIONS_ORDER_FOR_VIEW = ['user', 'admin'];
 
 export const PERMISSIONS_ORDER_FOR_DEV = ['user', 'admin'];
 
-export const PERMISSIONS_ORDER_BY_QUALIFIER: T.Dict<string[]> = {
+export const PERMISSIONS_ORDER_BY_QUALIFIER: Dict<string[]> = {
   TRK: PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   VW: PERMISSIONS_ORDER_FOR_VIEW,
   SVW: PERMISSIONS_ORDER_FOR_VIEW,
@@ -91,7 +92,7 @@ export function filterPermissions(
 export function convertToPermissionDefinitions(
   permissions: Array<string | { category: string; permissions: string[] }>,
   l10nPrefix: string
-): Array<T.PermissionDefinition | T.PermissionDefinitionGroup> {
+): Array<PermissionDefinition | PermissionDefinitionGroup> {
   return permissions.map(permission => {
     if (typeof permission === 'object') {
       return {
@@ -106,7 +107,7 @@ export function convertToPermissionDefinitions(
 }
 
 export function isPermissionDefinitionGroup(
-  permission?: T.PermissionDefinition | T.PermissionDefinitionGroup
-): permission is T.PermissionDefinitionGroup {
-  return Boolean(permission && (permission as T.PermissionDefinitionGroup).category);
+  permission?: PermissionDefinition | PermissionDefinitionGroup
+): permission is PermissionDefinitionGroup {
+  return Boolean(permission && (permission as PermissionDefinitionGroup).category);
 }

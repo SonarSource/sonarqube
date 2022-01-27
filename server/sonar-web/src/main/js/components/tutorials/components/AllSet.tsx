@@ -21,12 +21,13 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
+import { AppState } from '../../../types/types';
 import { withAppState } from '../../hoc/withAppState';
 import SentenceWithHighlights from './SentenceWithHighlights';
 
 export interface AllSetProps {
   alm: AlmKeys;
-  appState: T.AppState;
+  appState: AppState;
   willRefreshAutomatically?: boolean;
 }
 

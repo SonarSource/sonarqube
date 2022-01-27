@@ -21,11 +21,12 @@
 import * as React from 'react';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { IndexationContextInterface, IndexationStatus } from '../../../types/indexation';
+import { AppState } from '../../../types/types';
 import { IndexationContext } from './IndexationContext';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 
 interface Props {
-  appState: Pick<T.AppState, 'needIssueSync'>;
+  appState: Pick<AppState, 'needIssueSync'>;
 }
 
 export class IndexationContextProvider extends React.PureComponent<

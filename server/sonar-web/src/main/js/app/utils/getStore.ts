@@ -22,10 +22,11 @@ import { setAppState } from '../../store/appState';
 import rootReducer, { Store as State } from '../../store/rootReducer';
 import { receiveCurrentUser } from '../../store/users';
 import configureStore from '../../store/utils/configureStore';
+import { AppState, CurrentUser } from '../../types/types';
 
 let store: Store<State, any>;
 
-const createStore = (currentUser?: T.CurrentUser, appState?: T.AppState) => {
+const createStore = (currentUser?: CurrentUser, appState?: AppState) => {
   store = configureStore(rootReducer);
   if (currentUser) {
     store.dispatch(receiveCurrentUser(currentUser));
@@ -36,5 +37,5 @@ const createStore = (currentUser?: T.CurrentUser, appState?: T.AppState) => {
   return store;
 };
 
-export default (currentUser?: T.CurrentUser, appState?: T.AppState) =>
+export default (currentUser?: CurrentUser, appState?: AppState) =>
   store ? store : createStore(currentUser, appState);

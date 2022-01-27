@@ -24,10 +24,11 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
+import { Group } from '../../../types/types';
 
 interface Props {
   confirmButtonText: string;
-  group?: T.Group;
+  group?: Group;
   header: string;
   onClose: () => void;
   onSubmit: (data: { description: string; name: string }) => Promise<void>;

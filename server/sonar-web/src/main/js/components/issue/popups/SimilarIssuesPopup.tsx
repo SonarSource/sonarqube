@@ -24,6 +24,7 @@ import QualifierIcon from '../../../components/icons/QualifierIcon';
 import TagsIcon from '../../../components/icons/TagsIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { fileFromPath, limitComponentName } from '../../../helpers/path';
+import { Issue } from '../../../types/types';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import SeverityHelper from '../../shared/SeverityHelper';
@@ -31,8 +32,8 @@ import StatusHelper from '../../shared/StatusHelper';
 import Avatar from '../../ui/Avatar';
 
 interface Props {
-  issue: T.Issue;
-  onFilter: (property: string, issue: T.Issue) => void;
+  issue: Issue;
+  onFilter: (property: string, issue: Issue) => void;
 }
 
 export default class SimilarIssuesPopup extends React.PureComponent<Props> {

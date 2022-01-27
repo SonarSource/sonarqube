@@ -23,6 +23,7 @@ import * as React from 'react';
 import { deleteRule, getRuleDetails, updateRule } from '../../../../api/rules';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { RuleType } from '../../../../types/types';
 import RuleDetails from '../RuleDetails';
 
 jest.mock('../../../../api/rules', () => {
@@ -104,7 +105,7 @@ it('should correctly handle rule changes', () => {
     repo: 'bar',
     severity: 'MAJOR',
     status: 'READY',
-    type: 'BUG' as T.RuleType
+    type: 'BUG' as RuleType
   };
 
   wrapper.instance().handleRuleChange(ruleChange);

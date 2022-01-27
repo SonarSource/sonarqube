@@ -22,13 +22,14 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
+import { Component, LoggedInUser } from '../../../types/types';
 import Step from '../components/Step';
 import TokenStepGenerator from '../components/TokenStepGenerator';
 
 export interface EnvironmentVariablesStepProps {
   baseUrl: string;
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;

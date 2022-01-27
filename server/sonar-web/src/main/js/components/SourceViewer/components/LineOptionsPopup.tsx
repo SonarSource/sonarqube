@@ -22,12 +22,13 @@ import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { getCodeUrl, getPathUrlAsString } from '../../../helpers/urls';
+import { SourceLine } from '../../../types/types';
 import { ActionsDropdownItem } from '../../controls/ActionsDropdown';
 import { SourceViewerContext } from '../SourceViewerContext';
 
 export interface LineOptionsPopupProps {
   firstLineNumber: number;
-  line: T.SourceLine;
+  line: SourceLine;
 }
 
 export function LineOptionsPopup({ firstLineNumber, line }: LineOptionsPopupProps) {

@@ -27,11 +27,12 @@ import SelectList, {
   SelectListSearchParams
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
+import { User } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
   onUpdateUsers: () => void;
-  user: T.User;
+  user: User;
 }
 
 interface State {

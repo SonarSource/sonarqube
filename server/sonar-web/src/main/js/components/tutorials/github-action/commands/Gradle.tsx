@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ClipboardIconButton } from '../../../../components/controls/clipboard';
 import { translate } from '../../../../helpers/l10n';
+import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
@@ -28,7 +29,7 @@ import { buildGradleSnippet } from '../../utils';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
-  component: T.Component;
+  component: Component;
   onDone: () => void;
 }
 const gradleYamlTemplate = (branchesEnabled: boolean) => `name: Build

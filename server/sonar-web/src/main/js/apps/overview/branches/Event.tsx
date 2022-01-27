@@ -21,11 +21,12 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
+import { AnalysisEvent } from '../../../types/types';
 import { isDefinitionChangeEvent } from '../../projectActivity/components/DefinitionChangeEventInner';
 import { isRichQualityGateEvent } from '../../projectActivity/components/RichQualityGateEventInner';
 
 interface Props {
-  event: T.AnalysisEvent;
+  event: AnalysisEvent;
 }
 
 export function Event({ event }: Props) {

@@ -25,12 +25,13 @@ import withIndexationContext, {
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { Permissions } from '../../../types/permissions';
+import { CurrentUser } from '../../../types/types';
 import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
 
 interface Props extends WithIndexationContextProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 interface State {

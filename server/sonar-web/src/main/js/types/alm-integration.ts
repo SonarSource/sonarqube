@@ -1,3 +1,5 @@
+import { Dict } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -52,7 +54,7 @@ export interface BitbucketCloudRepository {
   workspace: string;
 }
 
-export type BitbucketProjectRepositories = T.Dict<{
+export type BitbucketProjectRepositories = Dict<{
   allShown: boolean;
   repositories: BitbucketRepository[];
 }>;

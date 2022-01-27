@@ -20,13 +20,14 @@
 import * as React from 'react';
 import { Button, EditButton } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
+import { Visibility } from '../../types/types';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 
 export interface Props {
-  defaultProjectVisibility?: T.Visibility;
+  defaultProjectVisibility?: Visibility;
   hasProvisionPermission?: boolean;
   onProjectCreate: () => void;
-  onChangeDefaultProjectVisibility: (visibility: T.Visibility) => void;
+  onChangeDefaultProjectVisibility: (visibility: Visibility) => void;
 }
 
 interface State {

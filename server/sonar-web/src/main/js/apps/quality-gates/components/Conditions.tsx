@@ -27,18 +27,25 @@ import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
+import {
+  AppState,
+  Condition as ConditionType,
+  Dict,
+  Metric,
+  QualityGate
+} from '../../../types/types';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 
 interface Props {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
+  appState: Pick<AppState, 'branchesEnabled'>;
   canEdit: boolean;
-  conditions: T.Condition[];
-  metrics: T.Dict<T.Metric>;
-  onAddCondition: (condition: T.Condition) => void;
-  onRemoveCondition: (Condition: T.Condition) => void;
-  onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
-  qualityGate: T.QualityGate;
+  conditions: ConditionType[];
+  metrics: Dict<Metric>;
+  onAddCondition: (condition: ConditionType) => void;
+  onRemoveCondition: (Condition: ConditionType) => void;
+  onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
+  qualityGate: QualityGate;
   updatedConditionId?: number;
 }
 
@@ -51,7 +58,7 @@ const FORBIDDEN_METRICS: string[] = [
 ];
 
 export class Conditions extends React.PureComponent<Props> {
-  renderConditionsTable = (conditions: T.Condition[], scope: 'new' | 'overall') => {
+  renderConditionsTable = (conditions: ConditionType[], scope: 'new' | 'overall') => {
     const {
       qualityGate,
       metrics,
@@ -111,7 +118,7 @@ export class Conditions extends React.PureComponent<Props> {
       isDiffMetric(condition.metric)
     );
 
-    const duplicates: T.Condition[] = [];
+    const duplicates: ConditionType[] = [];
     const savedConditions = existingConditions.filter(condition => condition.id != null);
     savedConditions.forEach(condition => {
       const sameCount = savedConditions.filter(sample => sample.metric === condition.metric).length;

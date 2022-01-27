@@ -26,10 +26,11 @@ import { Alert } from '../../../../components/ui/Alert';
 import { hasMessage, translate } from '../../../../helpers/l10n';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
 import { Task, TaskStatuses } from '../../../../types/tasks';
+import { Component } from '../../../../types/types';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 
 interface Props extends Pick<WithRouterProps, 'location'> {
-  component: T.Component;
+  component: Component;
   currentTask?: Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;

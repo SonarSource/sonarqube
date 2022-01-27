@@ -25,12 +25,13 @@ import { Button, DeleteButton, SubmitButton } from '../../../components/controls
 import Radio from '../../../components/controls/Radio';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate } from '../../../helpers/l10n';
+import { LoggedInUser, UserToken } from '../../../types/types';
 import AlertErrorIcon from '../../icons/AlertErrorIcon';
 import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
 
 interface Props {
-  currentUser: Pick<T.LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login'>;
   finished: boolean;
   initialTokenName?: string;
   open: boolean;
@@ -45,7 +46,7 @@ interface State {
   selection: string;
   tokenName?: string;
   token?: string;
-  tokens?: T.UserToken[];
+  tokens?: UserToken[];
 }
 
 export default class TokenStep extends React.PureComponent<Props, State> {

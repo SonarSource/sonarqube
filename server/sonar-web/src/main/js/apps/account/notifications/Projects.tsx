@@ -22,21 +22,22 @@ import * as React from 'react';
 import { Button } from '../../../components/controls/buttons';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
+import { Notification, NotificationProject } from '../../../types/types';
 import ProjectModal from './ProjectModal';
 import ProjectNotifications from './ProjectNotifications';
 
 export interface Props {
-  addNotification: (n: T.Notification) => void;
+  addNotification: (n: Notification) => void;
   channels: string[];
-  notifications: T.Notification[];
-  removeNotification: (n: T.Notification) => void;
+  notifications: Notification[];
+  removeNotification: (n: Notification) => void;
   types: string[];
 }
 
 const THRESHOLD_COLLAPSED = 3;
 
 interface State {
-  addedProjects: T.NotificationProject[];
+  addedProjects: NotificationProject[];
   search: string;
   showModal: boolean;
 }
@@ -44,7 +45,7 @@ interface State {
 function isNotificationProject(project: {
   project?: string;
   projectName?: string;
-}): project is T.NotificationProject {
+}): project is NotificationProject {
   return project.project !== undefined && project.projectName !== undefined;
 }
 
@@ -55,11 +56,11 @@ export default class Projects extends React.PureComponent<Props, State> {
     showModal: false
   };
 
-  filterSearch = (project: T.NotificationProject, search: string) => {
+  filterSearch = (project: NotificationProject, search: string) => {
     return project.projectName && project.projectName.toLowerCase().includes(search);
   };
 
-  handleAddProject = (project: T.NotificationProject) => {
+  handleAddProject = (project: NotificationProject) => {
     this.setState(state => {
       return {
         addedProjects: [...state.addedProjects, project]
@@ -71,7 +72,7 @@ export default class Projects extends React.PureComponent<Props, State> {
     this.setState({ search: search.toLowerCase() });
   };
 
-  handleSubmit = (selectedProject: T.NotificationProject) => {
+  handleSubmit = (selectedProject: NotificationProject) => {
     if (selectedProject) {
       this.handleAddProject(selectedProject);
     }
@@ -87,7 +88,7 @@ export default class Projects extends React.PureComponent<Props, State> {
     this.setState({ showModal: true });
   };
 
-  removeNotification = (removed: T.Notification, allProjects: T.NotificationProject[]) => {
+  removeNotification = (removed: Notification, allProjects: NotificationProject[]) => {
     const projectToRemove = allProjects.find(p => p.project === removed.project);
     if (projectToRemove) {
       this.handleAddProject(projectToRemove);
@@ -102,7 +103,7 @@ export default class Projects extends React.PureComponent<Props, State> {
 
     const projects = uniqBy(notifications, project => project.project).filter(
       isNotificationProject
-    ) as T.NotificationProject[];
+    ) as NotificationProject[];
     const notificationsByProject = groupBy(notifications, n => n.project);
     const allProjects = uniqBy([...addedProjects, ...projects], project => project.project);
     const filteredProjects = sortBy(allProjects, 'projectName').filter(p =>

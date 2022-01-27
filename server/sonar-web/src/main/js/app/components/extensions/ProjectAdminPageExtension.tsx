@@ -21,11 +21,12 @@ import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
+import { Component } from '../../../types/types';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
 export interface ProjectAdminPageExtensionProps {
-  component: T.Component;
+  component: Component;
   location: Location;
   params: { extensionKey: string; pluginKey: string };
 }

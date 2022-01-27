@@ -24,6 +24,7 @@ import { getSystemInfo } from '../../../api/system';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import UpdateNotification from '../../../app/components/update-notification/UpdateNotification';
 import { translate } from '../../../helpers/l10n';
+import { SysInfoCluster, SysInfoStandalone } from '../../../types/types';
 import '../styles.css';
 import {
   getClusterVersion,
@@ -43,7 +44,7 @@ type Props = WithRouterProps;
 
 interface State {
   loading: boolean;
-  sysInfoData?: T.SysInfoCluster | T.SysInfoStandalone;
+  sysInfoData?: SysInfoCluster | SysInfoStandalone;
 }
 
 export class App extends React.PureComponent<Props, State> {

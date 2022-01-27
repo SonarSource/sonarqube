@@ -27,13 +27,14 @@ import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/mea
 import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
+import { Component, MeasureEnhanced } from '../../../types/types';
 import { getIssueIconClass, getIssueMetricKey } from '../utils';
 
 export interface IssueLabelProps {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   helpTooltip?: string;
-  measures: T.MeasureEnhanced[];
+  measures: MeasureEnhanced[];
   type: IssueType;
   useDiffMetric?: boolean;
 }

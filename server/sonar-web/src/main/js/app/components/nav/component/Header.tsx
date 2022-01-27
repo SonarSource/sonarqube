@@ -25,15 +25,16 @@ import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
+import { Component, CurrentUser } from '../../../../types/types';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { Breadcrumb } from './Breadcrumb';
 
 export interface HeaderProps {
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   currentBranchLike: BranchLike | undefined;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   projectBinding?: ProjectAlmBindingResponse;
 }
 

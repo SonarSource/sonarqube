@@ -23,11 +23,12 @@ import ConfirmModal from '../../../components/controls/ConfirmModal';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
+import { QualityGate } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
   onRename: () => Promise<void>;
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
 }
 
 interface State {

@@ -29,6 +29,7 @@ import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
+import { Component, MeasureEnhanced, Period } from '../../../types/types';
 import MeasurementLabel from '../components/MeasurementLabel';
 import { MeasurementType } from '../utils';
 import { DrilldownMeasureValue } from './DrilldownMeasureValue';
@@ -39,10 +40,10 @@ import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 export interface MeasuresPanelProps {
   appLeak?: ApplicationPeriod;
   branch?: Branch;
-  component: T.Component;
+  component: Component;
   loading?: boolean;
-  measures?: T.MeasureEnhanced[];
-  period?: T.Period;
+  measures?: MeasureEnhanced[];
+  period?: Period;
 }
 
 export enum MeasuresPanelTabs {

@@ -22,11 +22,12 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import SimpleModal from '../../../components/controls/SimpleModal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { PermissionTemplate } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
   onSubmit: () => Promise<void>;
-  permissionTemplate: T.PermissionTemplate;
+  permissionTemplate: PermissionTemplate;
 }
 
 export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }: Props) {

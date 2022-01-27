@@ -23,6 +23,7 @@ import { searchUsers } from '../../../../../api/users';
 import { KeyboardCodes } from '../../../../../helpers/keycodes';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
+import { UserActive } from '../../../../../types/types';
 import AssigneeSelection from '../AssigneeSelection';
 
 jest.mock('../../../../../api/users', () => ({
@@ -36,9 +37,9 @@ it('should render correctly', () => {
 it('should handle keydown', () => {
   const mockEvent = (code: KeyboardCodes) => ({ preventDefault: jest.fn(), nativeEvent: { code } });
   const suggestedUsers = [
-    mockUser({ login: '1' }) as T.UserActive,
-    mockUser({ login: '2' }) as T.UserActive,
-    mockUser({ login: '3' }) as T.UserActive
+    mockUser({ login: '1' }) as UserActive,
+    mockUser({ login: '2' }) as UserActive,
+    mockUser({ login: '3' }) as UserActive
   ];
 
   const onSelect = jest.fn();

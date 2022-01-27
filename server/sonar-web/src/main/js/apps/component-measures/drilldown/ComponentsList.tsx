@@ -22,17 +22,18 @@ import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
+import { ComponentMeasure, ComponentMeasureEnhanced, Dict, Metric } from '../../../types/types';
 import { complementary } from '../config/complementary';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyResult from './EmptyResult';
 
 interface Props {
   branchLike?: BranchLike;
-  components: T.ComponentMeasureEnhanced[];
-  metric: T.Metric;
-  metrics: T.Dict<T.Metric>;
-  rootComponent: T.ComponentMeasure;
-  selectedComponent?: T.ComponentMeasureEnhanced;
+  components: ComponentMeasureEnhanced[];
+  metric: Metric;
+  metrics: Dict<Metric>;
+  rootComponent: ComponentMeasure;
+  selectedComponent?: ComponentMeasureEnhanced;
   view: MeasurePageView;
 }
 

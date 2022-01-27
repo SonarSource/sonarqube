@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { PermissionTemplate } from '../../../types/types';
 import ActionsCell from './ActionsCell';
 import NameCell from './NameCell';
 import PermissionCell from './PermissionCell';
 
 interface Props {
   refresh: () => Promise<void>;
-  template: T.PermissionTemplate;
+  template: PermissionTemplate;
   topQualifiers: string[];
 }
 

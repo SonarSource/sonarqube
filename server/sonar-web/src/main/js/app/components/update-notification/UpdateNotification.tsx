@@ -31,15 +31,16 @@ import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
 import { SystemUpgrade } from '../../../types/system';
+import { AppState, CurrentUser, Dict } from '../../../types/types';
 import './UpdateNotification.css';
 
 const MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION = 6;
 
 type GroupedSystemUpdate = {
-  [x: string]: T.Dict<SystemUpgrade[]>;
+  [x: string]: Dict<SystemUpgrade[]>;
 };
 
-const MAP_VARIANT: T.Dict<AlertVariant> = {
+const MAP_VARIANT: Dict<AlertVariant> = {
   [UpdateUseCase.NewMinorVersion]: 'info',
   [UpdateUseCase.NewPatch]: 'warning',
   [UpdateUseCase.PreLTS]: 'warning',
@@ -48,8 +49,8 @@ const MAP_VARIANT: T.Dict<AlertVariant> = {
 
 interface Props {
   dismissable: boolean;
-  appState: Pick<T.AppState, 'version'>;
-  currentUser: T.CurrentUser;
+  appState: Pick<AppState, 'version'>;
+  currentUser: CurrentUser;
 }
 
 interface State {

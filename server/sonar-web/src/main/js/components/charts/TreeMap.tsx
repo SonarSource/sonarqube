@@ -21,6 +21,7 @@ import { hierarchy as d3Hierarchy, treemap as d3Treemap } from 'd3-hierarchy';
 import * as React from 'react';
 import { formatMeasure, localizeMetric } from '../../helpers/measures';
 import { Location } from '../../helpers/urls';
+import { ComponentMeasureEnhanced } from '../../types/types';
 import './TreeMap.css';
 import TreeMapRect from './TreeMapRect';
 
@@ -35,7 +36,7 @@ export interface TreeMapItem {
   metric?: { key: string; type: string };
   size: number;
   tooltip?: React.ReactNode;
-  component: T.ComponentMeasureEnhanced;
+  component: ComponentMeasureEnhanced;
 }
 
 interface HierarchicalTreemapItem extends TreeMapItem {
@@ -45,7 +46,7 @@ interface HierarchicalTreemapItem extends TreeMapItem {
 interface Props {
   height: number;
   items: TreeMapItem[];
-  onRectangleClick?: (item: T.ComponentMeasureEnhanced) => void;
+  onRectangleClick?: (item: ComponentMeasureEnhanced) => void;
   width: number;
 }
 
@@ -65,7 +66,7 @@ export default class TreeMap extends React.PureComponent<Props> {
     return prefix.substr(0, prefix.length - lastPrefixPart.length);
   };
 
-  handleClick = (component: T.ComponentMeasureEnhanced) => {
+  handleClick = (component: ComponentMeasureEnhanced) => {
     if (this.props.onRectangleClick) {
       this.props.onRectangleClick(component);
     }

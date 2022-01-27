@@ -29,6 +29,7 @@ import { get, save } from '../../helpers/storage';
 import { isLoggedIn } from '../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
 import { EditionKey } from '../../types/editions';
+import { CurrentUser } from '../../types/types';
 
 const LicensePromptModal = lazyLoadComponent(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
@@ -38,7 +39,7 @@ const LicensePromptModal = lazyLoadComponent(
 interface StateProps {
   canAdmin?: boolean;
   currentEdition?: EditionKey;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 interface OwnProps {

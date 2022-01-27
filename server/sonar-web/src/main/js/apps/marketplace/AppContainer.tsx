@@ -22,10 +22,11 @@ import { connect } from 'react-redux';
 import AdminContext from '../../app/components/AdminContext';
 import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
 import { EditionKey } from '../../types/editions';
+import { RawQuery } from '../../types/types';
 import App from './App';
 
 interface OwnProps {
-  location: { pathname: string; query: T.RawQuery };
+  location: { pathname: string; query: RawQuery };
 }
 
 interface StateToProps {

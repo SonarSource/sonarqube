@@ -1,3 +1,5 @@
+import { NewCodePeriodSettingType } from '../../types/types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -32,7 +34,7 @@ export function getSettingValue({
   analysis?: string;
   days?: string;
   referenceBranch?: string;
-  type?: T.NewCodePeriodSettingType;
+  type?: NewCodePeriodSettingType;
 }) {
   switch (type) {
     case 'NUMBER_OF_DAYS':
@@ -48,12 +50,12 @@ export function getSettingValue({
 
 export function validateSetting(state: {
   analysis?: string;
-  currentSetting?: T.NewCodePeriodSettingType;
+  currentSetting?: NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
   overrideGeneralSetting?: boolean;
   referenceBranch?: string;
-  selected?: T.NewCodePeriodSettingType;
+  selected?: NewCodePeriodSettingType;
 }) {
   const {
     analysis = '',

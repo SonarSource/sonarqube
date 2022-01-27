@@ -28,10 +28,11 @@ import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
+import { CurrentUser } from '../../../types/types';
 import HotspotReviewHistory from './HotspotReviewHistory';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   hotspot: Hotspot;
   commentTextRef: React.RefObject<HTMLTextAreaElement>;
   onCommentUpdate: () => void;

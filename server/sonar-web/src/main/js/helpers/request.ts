@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isNil, omitBy } from 'lodash';
+import { Dict } from '../types/types';
 import { getCookie } from './cookies';
 import { translate } from './l10n';
 import { stringify } from './stringify-queryparams';
@@ -39,14 +40,14 @@ export function getCSRFTokenValue(): string {
 /**
  * Return an object containing a special http request header used to prevent CSRF attacks.
  */
-export function getCSRFToken(): T.Dict<string> {
+export function getCSRFToken(): Dict<string> {
   // Fetch API in Edge doesn't work with empty header,
   // so we ensure non-empty value
   const value = getCSRFTokenValue();
   return value ? { [getCSRFTokenName()]: value } : {};
 }
 
-export type RequestData = T.Dict<any>;
+export type RequestData = Dict<any>;
 
 export function omitNil(obj: RequestData): RequestData {
   return omitBy(obj, isNil);

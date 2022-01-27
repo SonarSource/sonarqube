@@ -25,17 +25,18 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { NewCodePeriodSettingType } from '../../../types/types';
 import BaselineSettingDays from '../../projectBaseline/components/BaselineSettingDays';
 import BaselineSettingPreviousVersion from '../../projectBaseline/components/BaselineSettingPreviousVersion';
 import { validateDays } from '../../projectBaseline/utils';
 
 interface State {
-  currentSetting?: T.NewCodePeriodSettingType;
+  currentSetting?: NewCodePeriodSettingType;
   days: string;
   loading: boolean;
   currentSettingValue?: string | number;
   saving: boolean;
-  selected?: T.NewCodePeriodSettingType;
+  selected?: NewCodePeriodSettingType;
   success: boolean;
 }
 
@@ -81,7 +82,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
     this.setState({ days, success: false });
   };
 
-  onSelectSetting = (selected: T.NewCodePeriodSettingType) => {
+  onSelectSetting = (selected: NewCodePeriodSettingType) => {
     this.setState({ selected, success: false });
   };
 

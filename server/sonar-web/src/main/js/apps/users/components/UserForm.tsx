@@ -28,12 +28,13 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
+import { User } from '../../../types/types';
 import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {
   onClose: () => void;
   onUpdateUsers: () => void;
-  user?: T.User;
+  user?: User;
 }
 
 interface State {

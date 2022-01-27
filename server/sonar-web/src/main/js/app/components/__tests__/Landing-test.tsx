@@ -21,6 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockCurrentUser, mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
+import { CurrentUser } from '../../../types/types';
 import { Landing } from '../Landing';
 
 it.each([
@@ -30,7 +31,7 @@ it.each([
     mockLoggedInUser({ homepage: { type: 'ISSUES' } }),
     expect.objectContaining({ pathname: '/issues' })
   ]
-])('should render correctly', (currentUser: T.CurrentUser, homepageUrl: string) => {
+])('should render correctly', (currentUser: CurrentUser, homepageUrl: string) => {
   const router = mockRouter();
   shallowRender({ router, currentUser });
   expect(router.replace).toHaveBeenCalledWith(homepageUrl);

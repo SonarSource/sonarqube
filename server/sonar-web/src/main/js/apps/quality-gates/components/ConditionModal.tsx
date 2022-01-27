@@ -24,25 +24,26 @@ import Radio from '../../../components/controls/Radio';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
+import { Condition, Metric, QualityGate } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
 
 interface Props {
-  condition?: T.Condition;
-  metric?: T.Metric;
-  metrics?: T.Metric[];
+  condition?: Condition;
+  metric?: Metric;
+  metrics?: Metric[];
   header: string;
-  onAddCondition: (condition: T.Condition) => void;
+  onAddCondition: (condition: Condition) => void;
   onClose: () => void;
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
 }
 
 interface State {
   error: string;
   errorMessage?: string;
-  metric?: T.Metric;
+  metric?: Metric;
   op?: string;
   scope: 'new' | 'overall';
 }
@@ -58,7 +59,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     };
   }
 
-  getSinglePossibleOperator(metric: T.Metric) {
+  getSinglePossibleOperator(metric: Metric) {
     const operators = getPossibleOperators(metric);
     return Array.isArray(operators) ? undefined : operators;
   }
@@ -66,7 +67,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   handleFormSubmit = () => {
     if (this.state.metric) {
       const { condition, qualityGate } = this.props;
-      const newCondition: T.Omit<T.Condition, 'id'> = {
+      const newCondition: Omit<Condition, 'id'> = {
         metric: this.state.metric.key,
         op: this.getSinglePossibleOperator(this.state.metric) || this.state.op,
         error: this.state.error
@@ -94,7 +95,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     });
   };
 
-  handleMetricChange = (metric: T.Metric) => {
+  handleMetricChange = (metric: Metric) => {
     this.setState({ metric, op: undefined, error: '' });
   };
 

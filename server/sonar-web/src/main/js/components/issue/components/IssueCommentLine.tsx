@@ -23,13 +23,14 @@ import Toggler from '../../../components/controls/Toggler';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { IssueComment } from '../../../types/types';
 import DateFromNow from '../../intl/DateFromNow';
 import Avatar from '../../ui/Avatar';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
 
 interface Props {
-  comment: T.IssueComment;
+  comment: IssueComment;
   onDelete: (comment: string) => void;
   onEdit: (comment: string, text: string) => void;
 }

@@ -24,10 +24,11 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
+import { QualityGate } from '../../../types/types';
 
 interface Props {
   onDelete: () => Promise<void>;
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
   router: Pick<Router, 'push'>;
 }
 

@@ -29,10 +29,11 @@ import SelectList, {
   SelectListSearchParams
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
+import { QualityGate } from '../../../types/types';
 
 interface Props {
   canEdit?: boolean;
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
 }
 
 interface State {

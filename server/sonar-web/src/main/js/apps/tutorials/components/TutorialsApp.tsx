@@ -23,10 +23,11 @@ import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { isLoggedIn } from '../../../helpers/users';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { Component, CurrentUser } from '../../../types/types';
 
 export interface TutorialsAppProps {
-  component: T.Component;
-  currentUser: T.CurrentUser;
+  component: Component;
+  currentUser: CurrentUser;
   projectBinding?: ProjectAlmBindingResponse;
 }
 

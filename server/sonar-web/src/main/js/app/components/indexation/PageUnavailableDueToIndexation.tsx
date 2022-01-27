@@ -24,10 +24,11 @@ import withIndexationContext, {
 } from '../../../components/hoc/withIndexationContext';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 
 interface Props extends WithIndexationContextProps {
   pageContext?: PageContext;
-  component?: Pick<T.Component, 'qualifier' | 'name'>;
+  component?: Pick<Component, 'qualifier' | 'name'>;
 }
 
 export enum PageContext {

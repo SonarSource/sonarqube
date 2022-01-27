@@ -24,9 +24,10 @@ import SonarLintIcon from '../../../components/icons/SonarLintIcon';
 import { translate } from '../../../helpers/l10n';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
+import { CurrentUser } from '../../../types/types';
 
 export interface SonarLintPromotionProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   qgConditions?: QualityGateStatusCondition[];
 }
 

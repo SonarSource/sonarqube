@@ -29,6 +29,17 @@ import { Alert } from '../../components/ui/Alert';
 import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
+import {
+  Dict,
+  DuplicatedFile,
+  Duplication,
+  FlowLocation,
+  Issue,
+  LinearIssueLocation,
+  Measure,
+  SourceLine,
+  SourceViewerFile
+} from '../../types/types';
 import { WorkspaceContext } from '../workspace/context';
 import DuplicationPopup from './components/DuplicationPopup';
 import {
@@ -56,7 +67,7 @@ export interface Props {
   aroundLine?: number;
   branchLike: BranchLike | undefined;
   component: string;
-  componentMeasures?: T.Measure[];
+  componentMeasures?: Measure[];
   displayAllIssues?: boolean;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
@@ -64,27 +75,27 @@ export interface Props {
   highlightedLine?: number;
   // `undefined` elements mean they are located in a different file,
   // but kept to maintaint the location indexes
-  highlightedLocations?: (T.FlowLocation | undefined)[];
+  highlightedLocations?: (FlowLocation | undefined)[];
   highlightedLocationMessage?: { index: number; text: string | undefined };
   loadComponent?: (
     component: string,
     branchLike: BranchLike | undefined
-  ) => Promise<T.SourceViewerFile>;
+  ) => Promise<SourceViewerFile>;
   loadIssues?: (
     component: string,
     from: number,
     to: number,
     branchLike: BranchLike | undefined
-  ) => Promise<T.Issue[]>;
+  ) => Promise<Issue[]>;
   loadSources?: (
     component: string,
     from: number,
     to: number,
     branchLike: BranchLike | undefined
-  ) => Promise<T.SourceLine[]>;
-  onLoaded?: (component: T.SourceViewerFile, sources: T.SourceLine[], issues: T.Issue[]) => void;
+  ) => Promise<SourceLine[]>;
+  onLoaded?: (component: SourceViewerFile, sources: SourceLine[], issues: Issue[]) => void;
   onLocationSelect?: (index: number) => void;
-  onIssueChange?: (issue: T.Issue) => void;
+  onIssueChange?: (issue: Issue) => void;
   onIssueSelect?: (issueKey: string) => void;
   onIssueUnselect?: () => void;
   scroll?: (element: HTMLElement) => void;
@@ -95,16 +106,16 @@ export interface Props {
 }
 
 interface State {
-  component?: T.SourceViewerFile;
-  duplicatedFiles?: T.Dict<T.DuplicatedFile>;
-  duplications?: T.Duplication[];
+  component?: SourceViewerFile;
+  duplicatedFiles?: Dict<DuplicatedFile>;
+  duplications?: Duplication[];
   duplicationsByLine: { [line: number]: number[] };
   hasSourcesAfter: boolean;
   highlightedSymbols: string[];
-  issueLocationsByLine: { [line: number]: T.LinearIssueLocation[] };
+  issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
   issuePopup?: { issue: string; name: string };
-  issues?: T.Issue[];
-  issuesByLine: { [line: number]: T.Issue[] };
+  issues?: Issue[];
+  issuesByLine: { [line: number]: Issue[] };
   loading: boolean;
   loadingSourcesAfter: boolean;
   loadingSourcesBefore: boolean;
@@ -113,7 +124,7 @@ interface State {
   openIssuesByLine: { [line: number]: boolean };
   selectedIssue?: string;
   sourceRemoved: boolean;
-  sources?: T.SourceLine[];
+  sources?: SourceLine[];
   symbolsByLine: { [line: number]: string[] };
 }
 
@@ -214,7 +225,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     return this.props.loadSources || defaultLoadSources;
   }
 
-  computeCoverageStatus(lines: T.SourceLine[]) {
+  computeCoverageStatus(lines: SourceLine[]) {
     return lines.map(line => ({ ...line, coverageStatus: getCoverageStatus(line) }));
   }
 
@@ -233,7 +244,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     this.setState({ loading: true });
 
     const to = (this.props.aroundLine || 0) + LINES;
-    const loadIssues = (component: T.SourceViewerFile, sources: T.SourceLine[]) => {
+    const loadIssues = (component: SourceViewerFile, sources: SourceLine[]) => {
       this.loadIssues(this.props.component, 1, to, this.props.branchLike).then(
         issues => {
           if (this.mounted) {
@@ -284,7 +295,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       }
     };
 
-    const onFailLoadSources = (response: Response, component: T.SourceViewerFile) => {
+    const onFailLoadSources = (response: Response, component: SourceViewerFile) => {
       // TODO handle other statuses
       if (this.mounted) {
         if (response.status === 403) {
@@ -295,7 +306,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       }
     };
 
-    const onResolve = (component: T.SourceViewerFile) => {
+    const onResolve = (component: SourceViewerFile) => {
       const sourcesRequest =
         component.q === 'FIL' || component.q === 'UTS' ? this.loadSources() : Promise.resolve([]);
       sourcesRequest.then(
@@ -361,7 +372,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   }
 
-  loadSources = (): Promise<T.SourceLine[]> => {
+  loadSources = (): Promise<SourceLine[]> => {
     return new Promise((resolve, reject) => {
       const onFailLoadSources = (response: Response) => {
         // TODO handle other statuses
@@ -525,19 +536,19 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     }
   };
 
-  handleOpenIssues = (line: T.SourceLine) => {
+  handleOpenIssues = (line: SourceLine) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
     }));
   };
 
-  handleCloseIssues = (line: T.SourceLine) => {
+  handleCloseIssues = (line: SourceLine) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
     }));
   };
 
-  handleIssueChange = (issue: T.Issue) => {
+  handleIssueChange = (issue: Issue) => {
     this.setState(({ issues = [] }) => {
       const newIssues = issues.map(candidate => (candidate.key === issue.key ? issue : candidate));
       return { issues: newIssues, issuesByLine: issuesByLine(newIssues) };
@@ -572,7 +583,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   };
 
-  renderCode(sources: T.SourceLine[]) {
+  renderCode(sources: SourceLine[]) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
       <SourceViewerCode
@@ -618,7 +629,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   }
 
-  renderHeader(branchLike: BranchLike | undefined, sourceViewerFile: T.SourceViewerFile) {
+  renderHeader(branchLike: BranchLike | undefined, sourceViewerFile: SourceViewerFile) {
     return this.props.slimHeader ? (
       <SourceViewerHeaderSlim branchLike={branchLike} sourceViewerFile={sourceViewerFile} />
     ) : (
@@ -682,7 +693,7 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
 function defaultLoadComponent(
   component: string,
   branchLike: BranchLike | undefined
-): Promise<T.SourceViewerFile> {
+): Promise<SourceViewerFile> {
   return Promise.all([
     getComponentForSourceViewer({ component, ...getBranchLikeQuery(branchLike) }),
     getComponentData({ component, ...getBranchLikeQuery(branchLike) })

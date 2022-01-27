@@ -35,6 +35,17 @@ import { BranchLike } from '../../../types/branch-like';
 import { isFile, isView } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  ComponentMeasureIntern,
+  Dict,
+  Issue,
+  Measure,
+  Metric,
+  Paging,
+  Period
+} from '../../../types/types';
 import { complementary } from '../config/complementary';
 import FilesView from '../drilldown/FilesView';
 import TreeMapView from '../drilldown/TreeMapView';
@@ -46,11 +57,11 @@ import MeasureViewSelect from './MeasureViewSelect';
 
 interface Props {
   branchLike?: BranchLike;
-  leakPeriod?: T.Period;
-  requestedMetric: Pick<T.Metric, 'key' | 'direction'>;
-  metrics: T.Dict<T.Metric>;
-  onIssueChange?: (issue: T.Issue) => void;
-  rootComponent: T.ComponentMeasure;
+  leakPeriod?: Period;
+  requestedMetric: Pick<Metric, 'key' | 'direction'>;
+  metrics: Dict<Metric>;
+  onIssueChange?: (issue: Issue) => void;
+  rootComponent: ComponentMeasure;
   router: InjectedRouter;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
@@ -58,14 +69,14 @@ interface Props {
 }
 
 interface State {
-  baseComponent?: T.ComponentMeasure;
-  components: T.ComponentMeasureEnhanced[];
+  baseComponent?: ComponentMeasure;
+  components: ComponentMeasureEnhanced[];
   loadingMoreComponents: boolean;
-  measure?: T.Measure;
-  metric?: T.Metric;
-  paging?: T.Paging;
-  secondaryMeasure?: T.Measure;
-  selectedComponent?: T.ComponentMeasureIntern;
+  measure?: Measure;
+  metric?: Metric;
+  paging?: Paging;
+  secondaryMeasure?: Measure;
+  selectedComponent?: ComponentMeasureIntern;
 }
 
 export default class MeasureContent extends React.PureComponent<Props, State> {
@@ -180,7 +191,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
   getComponentRequestParams(
     view: MeasurePageView,
-    metric: Pick<T.Metric, 'key' | 'direction'>,
+    metric: Pick<Metric, 'key' | 'direction'>,
     options: Object = {}
   ) {
     const strategy = view === 'list' ? 'leaves' : 'children';
@@ -231,7 +242,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     this.props.updateQuery({ view });
   };
 
-  onOpenComponent = (component: T.ComponentMeasureIntern) => {
+  onOpenComponent = (component: ComponentMeasureIntern) => {
     if (isView(this.props.rootComponent.qualifier)) {
       const comp = this.state.components.find(
         c =>
@@ -253,7 +264,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     }
   };
 
-  onSelectComponent = (component: T.ComponentMeasureIntern) => {
+  onSelectComponent = (component: ComponentMeasureIntern) => {
     this.setState({ selectedComponent: component });
   };
 
@@ -296,7 +307,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
           selectedIdx={selectedIdx}
           selectedComponent={
             selectedIdx !== undefined
-              ? (this.state.selectedComponent as T.ComponentMeasureEnhanced)
+              ? (this.state.selectedComponent as ComponentMeasureEnhanced)
               : undefined
           }
           view={view}

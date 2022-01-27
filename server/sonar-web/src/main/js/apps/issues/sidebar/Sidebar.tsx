@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
-import { isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
 import {
   Facet,
@@ -29,6 +29,7 @@ import {
   ReferencedLanguage,
   ReferencedRule
 } from '../../../types/issues';
+import { Component, Dict, UserBase } from '../../../types/types';
 import { Query } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
@@ -48,21 +49,21 @@ import TypeFacet from './TypeFacet';
 
 export interface Props {
   branchLike?: BranchLike;
-  component: T.Component | undefined;
+  component: Component | undefined;
   createdAfterIncludesTime: boolean;
-  facets: T.Dict<Facet | undefined>;
+  facets: Dict<Facet | undefined>;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
-  loadingFacets: T.Dict<boolean>;
+  loadingFacets: Dict<boolean>;
   myIssues: boolean;
   onFacetToggle: (property: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
-  openFacets: T.Dict<boolean>;
+  openFacets: Dict<boolean>;
   query: Query;
-  referencedComponentsById: T.Dict<ReferencedComponent>;
-  referencedComponentsByKey: T.Dict<ReferencedComponent>;
-  referencedLanguages: T.Dict<ReferencedLanguage>;
-  referencedRules: T.Dict<ReferencedRule>;
-  referencedUsers: T.Dict<T.UserBase>;
+  referencedComponentsById: Dict<ReferencedComponent>;
+  referencedComponentsByKey: Dict<ReferencedComponent>;
+  referencedLanguages: Dict<ReferencedLanguage>;
+  referencedRules: Dict<ReferencedRule>;
+  referencedUsers: Dict<UserBase>;
   disableDeveloperAggregatedInfo: boolean;
 }
 

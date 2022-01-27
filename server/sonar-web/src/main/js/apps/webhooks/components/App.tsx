@@ -22,17 +22,18 @@ import { Helmet } from 'react-helmet-async';
 import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
+import { LightComponent, Webhook } from '../../../types/types';
 import PageActions from './PageActions';
 import PageHeader from './PageHeader';
 import WebhooksList from './WebhooksList';
 
 interface Props {
-  component?: T.LightComponent;
+  component?: LightComponent;
 }
 
 interface State {
   loading: boolean;
-  webhooks: T.Webhook[];
+  webhooks: Webhook[];
 }
 
 export default class App extends React.PureComponent<Props, State> {

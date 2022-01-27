@@ -23,10 +23,11 @@ import Checkbox from '../../../components/controls/Checkbox';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
+import { CurrentUserSetting } from '../../../types/types';
 
 interface Props {
   notificationsOptOut?: boolean;
-  setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
+  setCurrentUserSetting: (setting: CurrentUserSetting) => void;
 }
 
 export class SonarCloudNotifications extends React.PureComponent<Props> {

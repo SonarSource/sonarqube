@@ -35,6 +35,7 @@ import { getProjectUrl } from '../../../../helpers/urls';
 import { isLoggedIn } from '../../../../helpers/users';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
+import { CurrentUser } from '../../../../types/types';
 import { Project } from '../../types';
 import './ProjectCard.css';
 import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
@@ -43,7 +44,7 @@ import ProjectCardMeasures from './ProjectCardMeasures';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
   project: Project;

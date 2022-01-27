@@ -30,11 +30,12 @@ import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
+import { LoggedInUser } from '../../../types/types';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
   className?: string;
-  currentUser: T.LoggedInUser;
+  currentUser: LoggedInUser;
 }
 
 interface State {

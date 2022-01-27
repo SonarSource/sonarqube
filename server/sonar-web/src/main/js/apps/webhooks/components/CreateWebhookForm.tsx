@@ -24,11 +24,12 @@ import ValidationModal from '../../../components/controls/ValidationModal';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
+import { Webhook } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
   onDone: (data: Values) => Promise<void>;
-  webhook?: T.Webhook;
+  webhook?: Webhook;
 }
 
 interface Values {

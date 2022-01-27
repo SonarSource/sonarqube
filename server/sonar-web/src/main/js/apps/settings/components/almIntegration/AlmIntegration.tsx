@@ -34,10 +34,11 @@ import {
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
+import { AppState, Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
-  appState: Pick<T.AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
+  appState: Pick<AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
 }
 
 export type AlmTabs = AlmKeys.Azure | AlmKeys.GitHub | AlmKeys.GitLab | AlmKeys.BitbucketServer;
@@ -46,7 +47,7 @@ interface State {
   currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
-  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
+  definitionStatus: Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   projectCount?: number;

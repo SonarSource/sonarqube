@@ -31,11 +31,12 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
 
 export interface AlmSpecificFormProps {
   alm: AlmKeys;
   instances: AlmSettingsInstance[];
-  formData: T.Omit<ProjectAlmBindingResponse, 'alm'>;
+  formData: Omit<ProjectAlmBindingResponse, 'alm'>;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   monorepoEnabled: boolean;
 }
@@ -47,7 +48,7 @@ interface LabelProps {
 
 interface CommonFieldProps extends LabelProps {
   help?: boolean;
-  helpParams?: T.Dict<string | JSX.Element>;
+  helpParams?: Dict<string | JSX.Element>;
   helpExample?: JSX.Element;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   propKey: keyof ProjectAlmBindingResponse;

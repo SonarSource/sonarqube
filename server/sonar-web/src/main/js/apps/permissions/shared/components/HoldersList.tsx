@@ -20,6 +20,12 @@
 import { partition, sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import {
+  Dict,
+  PermissionDefinitions,
+  PermissionGroup,
+  PermissionUser
+} from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
@@ -27,20 +33,20 @@ import UserHolder from './UserHolder';
 
 interface Props {
   filter?: string;
-  groups: T.PermissionGroup[];
+  groups: PermissionGroup[];
   loading?: boolean;
   onSelectPermission?: (permission: string) => void;
-  onToggleGroup: (group: T.PermissionGroup, permission: string) => Promise<void>;
-  onToggleUser: (user: T.PermissionUser, permission: string) => Promise<void>;
-  permissions: T.PermissionDefinitions;
+  onToggleGroup: (group: PermissionGroup, permission: string) => Promise<void>;
+  onToggleUser: (user: PermissionUser, permission: string) => Promise<void>;
+  permissions: PermissionDefinitions;
   query?: string;
   selectedPermission?: string;
   showPublicProjectsWarning?: boolean;
-  users: T.PermissionUser[];
+  users: PermissionUser[];
 }
 
 interface State {
-  initialPermissionsCount: T.Dict<number>;
+  initialPermissionsCount: Dict<number>;
 }
 export default class HoldersList extends React.PureComponent<Props, State> {
   state: State = { initialPermissionsCount: {} };
@@ -50,11 +56,11 @@ export default class HoldersList extends React.PureComponent<Props, State> {
     }
   }
 
-  isPermissionUser(item: T.PermissionGroup | T.PermissionUser): item is T.PermissionUser {
-    return (item as T.PermissionUser).login !== undefined;
+  isPermissionUser(item: PermissionGroup | PermissionUser): item is PermissionUser {
+    return (item as PermissionUser).login !== undefined;
   }
 
-  handleGroupToggle = (group: T.PermissionGroup, permission: string) => {
+  handleGroupToggle = (group: PermissionGroup, permission: string) => {
     const key = group.id || group.name;
     if (this.state.initialPermissionsCount[key] === undefined) {
       this.setState(state => ({
@@ -67,7 +73,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
     return this.props.onToggleGroup(group, permission);
   };
 
-  handleUserToggle = (user: T.PermissionUser, permission: string) => {
+  handleUserToggle = (user: PermissionUser, permission: string) => {
     if (this.state.initialPermissionsCount[user.login] === undefined) {
       this.setState(state => ({
         initialPermissionsCount: {
@@ -79,7 +85,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
     return this.props.onToggleUser(user, permission);
   };
 
-  getItemInitialPermissionsCount = (item: T.PermissionGroup | T.PermissionUser) => {
+  getItemInitialPermissionsCount = (item: PermissionGroup | PermissionUser) => {
     const key = this.isPermissionUser(item) ? item.login : item.id || item.name;
     return this.state.initialPermissionsCount[key] !== undefined
       ? this.state.initialPermissionsCount[key]
@@ -95,7 +101,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
     );
   }
 
-  renderItem(item: T.PermissionUser | T.PermissionGroup, permissions: T.PermissionDefinitions) {
+  renderItem(item: PermissionUser | PermissionGroup, permissions: PermissionDefinitions) {
     return this.isPermissionUser(item) ? (
       <UserHolder
         key={`user-${item.login}`}

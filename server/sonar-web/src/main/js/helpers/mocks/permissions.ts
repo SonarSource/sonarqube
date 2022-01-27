@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { PermissionGroup, PermissionUser } from '../../types/types';
 import { mockUser } from '../testMocks';
 
-export function mockPermissionGroup(overrides: Partial<T.PermissionGroup> = {}): T.PermissionGroup {
+export function mockPermissionGroup(overrides: Partial<PermissionGroup> = {}): PermissionGroup {
   return {
     name: 'sonar-admins',
     permissions: ['provisioning'],
@@ -27,7 +28,7 @@ export function mockPermissionGroup(overrides: Partial<T.PermissionGroup> = {}):
   };
 }
 
-export function mockPermissionUser(overrides: Partial<T.PermissionUser> = {}): T.PermissionUser {
+export function mockPermissionUser(overrides: Partial<PermissionUser> = {}): PermissionUser {
   return {
     ...mockUser(),
     active: true,

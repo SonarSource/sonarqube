@@ -21,12 +21,13 @@ import * as React from 'react';
 import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
+import { Issue } from '../../../types/types';
 import DateFromNow from '../../intl/DateFromNow';
 import ChangelogPopup from '../popups/ChangelogPopup';
 
 interface Props {
   isOpen: boolean;
-  issue: Pick<T.Issue, 'author' | 'creationDate' | 'key'>;
+  issue: Pick<Issue, 'author' | 'creationDate' | 'key'>;
   creationDate: string;
   togglePopup: (popup: string, show?: boolean) => void;
 }

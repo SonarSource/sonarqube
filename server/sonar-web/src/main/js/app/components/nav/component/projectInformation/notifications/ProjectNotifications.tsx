@@ -26,9 +26,10 @@ import {
 import { Alert } from '../../../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../../../helpers/l10n';
+import { Component } from '../../../../../../types/types';
 
 interface Props {
-  component: T.Component;
+  component: Component;
 }
 
 export function ProjectNotifications(props: WithNotificationsProps & Props) {

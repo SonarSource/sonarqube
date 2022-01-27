@@ -23,6 +23,7 @@ import { connect } from 'react-redux';
 import { getIdentityProviders } from '../../../api/users';
 import { getReturnUrl } from '../../../helpers/urls';
 import { doLogin } from '../../../store/rootActions';
+import { IdentityProvider } from '../../../types/types';
 import Login from './Login';
 
 interface OwnProps {
@@ -38,7 +39,7 @@ interface DispatchToProps {
 type Props = OwnProps & DispatchToProps;
 
 interface State {
-  identityProviders?: T.IdentityProvider[];
+  identityProviders?: IdentityProvider[];
 }
 
 export class LoginContainer extends React.PureComponent<Props, State> {

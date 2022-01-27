@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 import BranchLikeTabs from './BranchLikeTabs';
 import LifetimeInformation from './LifetimeInformation';
 
 export interface AppProps {
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   onBranchesChange: () => void;
 }
 

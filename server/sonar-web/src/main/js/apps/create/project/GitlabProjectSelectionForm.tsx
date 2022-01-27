@@ -33,6 +33,7 @@ import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GitlabProject } from '../../../types/alm-integration';
 import { ComponentQualifier } from '../../../types/component';
+import { Paging } from '../../../types/types';
 import { CreateProjectModes } from './types';
 
 export interface GitlabProjectSelectionFormProps {
@@ -42,7 +43,7 @@ export interface GitlabProjectSelectionFormProps {
   onLoadMore: () => void;
   onSearch: (searchQuery: string) => void;
   projects?: GitlabProject[];
-  projectsPaging: T.Paging;
+  projectsPaging: Paging;
   searching: boolean;
   searchQuery: string;
 }

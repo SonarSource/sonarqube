@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../types/branch-like';
+import { SourceViewerFile } from '../../types/types';
 
 interface SourceViewerContextShape {
   branchLike?: BranchLike;
-  file: T.SourceViewerFile;
+  file: SourceViewerFile;
 }
 
 export const SourceViewerContext = React.createContext<SourceViewerContextShape>({
   branchLike: {} as BranchLike,
-  file: {} as T.SourceViewerFile
+  file: {} as SourceViewerFile
 });

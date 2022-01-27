@@ -19,6 +19,13 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import {
+  Paging,
+  PermissionGroup,
+  PermissionTemplate,
+  PermissionUser,
+  Visibility
+} from '../types/types';
 import { BaseSearchProjectsParameters } from './components';
 
 const PAGE_SIZE = 100;
@@ -56,7 +63,7 @@ export function revokePermissionFromGroup(data: {
 }
 
 interface GetPermissionTemplatesResponse {
-  permissionTemplates: T.PermissionTemplate[];
+  permissionTemplates: PermissionTemplate[];
   defaultTemplates: Array<{ templateId: string; qualifier: string }>;
   permissions: Array<{ key: string; name: string; description: string }>;
 }
@@ -134,7 +141,7 @@ export function getPermissionsUsersForComponent(data: {
   permission?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: T.Paging; users: T.PermissionUser[] }> {
+}): Promise<{ paging: Paging; users: PermissionUser[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -147,7 +154,7 @@ export function getPermissionsGroupsForComponent(data: {
   permission?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: T.Paging; groups: T.PermissionGroup[] }> {
+}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -159,7 +166,7 @@ export function getGlobalPermissionsUsers(data: {
   permission?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: T.Paging; users: T.PermissionUser[] }> {
+}): Promise<{ paging: Paging; users: PermissionUser[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -171,7 +178,7 @@ export function getGlobalPermissionsGroups(data: {
   permission?: string;
   p?: number;
   ps?: number;
-}): Promise<{ paging: T.Paging; groups: T.PermissionGroup[] }> {
+}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -210,13 +217,13 @@ export function getPermissionTemplateGroups(
 
 export function changeProjectVisibility(
   project: string,
-  visibility: T.Visibility
+  visibility: Visibility
 ): Promise<void | Response> {
   return post('/api/projects/update_visibility', { project, visibility }).catch(throwGlobalError);
 }
 
 export function changeProjectDefaultVisibility(
-  projectVisibility: T.Visibility
+  projectVisibility: Visibility
 ): Promise<void | Response> {
   return post('/api/projects/update_default_visibility', { projectVisibility }).catch(
     throwGlobalError

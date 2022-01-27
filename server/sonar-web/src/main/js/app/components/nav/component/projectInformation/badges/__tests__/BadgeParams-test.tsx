@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Metric } from '../../../../../../../types/types';
 import BadgeParams from '../BadgeParams';
 import { BadgeType } from '../utils';
 
@@ -38,8 +39,8 @@ jest.mock('../../../../../../../api/web-api', () => ({
 }));
 
 const METRICS = {
-  alert_status: { key: 'alert_status', name: 'Quality Gate' } as T.Metric,
-  coverage: { key: 'coverage', name: 'Coverage' } as T.Metric
+  alert_status: { key: 'alert_status', name: 'Quality Gate' } as Metric,
+  coverage: { key: 'coverage', name: 'Coverage' } as Metric
 };
 
 it('should display measure badge params', () => {

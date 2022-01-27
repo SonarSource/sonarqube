@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { colors, sizes } from '../../app/theme';
 import { translate } from '../../helpers/l10n';
+import { Dict } from '../../types/types';
 import AlertErrorIcon from '../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../icons/AlertSuccessIcon';
 import AlertWarnIcon from '../icons/AlertWarnIcon';
@@ -101,7 +102,7 @@ const StyledAlert = styled.div<{ isInline: boolean; variantInfo: AlertVariantInf
 `;
 
 function getAlertVariantInfo(variant: AlertVariant): AlertVariantInformation {
-  const variantList: T.Dict<AlertVariantInformation> = {
+  const variantList: Dict<AlertVariantInformation> = {
     error: {
       icon: <AlertErrorIcon fill={colors.alertIconError} />,
       color: colors.alertTextError,

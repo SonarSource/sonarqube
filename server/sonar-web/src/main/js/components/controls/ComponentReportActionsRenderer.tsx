@@ -25,9 +25,10 @@ import Dropdown from '../../components/controls/Dropdown';
 import DropdownIcon from '../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { Branch } from '../../types/branch-like';
+import { Component } from '../../types/types';
 
 export interface ComponentReportActionsRendererProps {
-  component: T.Component;
+  component: Component;
   branch?: Branch;
   frequency: string;
   subscribed: boolean;

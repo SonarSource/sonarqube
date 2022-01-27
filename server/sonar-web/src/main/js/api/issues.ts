@@ -21,6 +21,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { IssueResponse, RawIssuesResponse } from '../types/issues';
+import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
 
 type FacetName =
   | 'assigned_to_me'
@@ -50,7 +51,7 @@ export function getFacets(
   query: RequestData,
   facets: FacetName[]
 ): Promise<{
-  facets: Array<{ property: string; values: T.FacetValue[] }>;
+  facets: Array<{ property: string; values: FacetValue[] }>;
   response: RawIssuesResponse;
 }> {
   const data = {
@@ -85,7 +86,7 @@ export function searchIssueTags(data: {
     .catch(throwGlobalError);
 }
 
-export function getIssueChangelog(issue: string): Promise<{ changelog: T.IssueChangelog[] }> {
+export function getIssueChangelog(issue: string): Promise<{ changelog: IssueChangelog[] }> {
   return getJSON('/api/issues/changelog', { issue }).catch(throwGlobalError);
 }
 
@@ -143,12 +144,12 @@ export function searchIssueAuthors(data: {
   return getJSON('/api/issues/authors', data).then(r => r.authors, throwGlobalError);
 }
 
-export function getIssueFlowSnippets(issueKey: string): Promise<T.Dict<T.SnippetsByComponent>> {
+export function getIssueFlowSnippets(issueKey: string): Promise<Dict<SnippetsByComponent>> {
   return getJSON('/api/sources/issue_snippets', { issueKey }).then(result => {
     Object.keys(result).forEach(k => {
       if (result[k].sources) {
         result[k].sources = result[k].sources.reduce(
-          (lineMap: T.Dict<T.SourceLine>, line: T.SourceLine) => {
+          (lineMap: Dict<SourceLine>, line: SourceLine) => {
             line.coverageStatus = getCoverageStatus(line);
             lineMap[line.line] = line;
             return lineMap;

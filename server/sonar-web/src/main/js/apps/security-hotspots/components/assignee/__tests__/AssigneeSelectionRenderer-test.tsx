@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockUser } from '../../../../../helpers/testMocks';
+import { UserActive } from '../../../../../types/types';
 import AssigneeSelectionRenderer, {
   HotspotAssigneeSelectRendererProps
 } from '../AssigneeSelectionRenderer';
@@ -28,17 +29,17 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
 
-  const highlightedUser = mockUser({ login: 'highlighted' }) as T.UserActive;
+  const highlightedUser = mockUser({ login: 'highlighted' }) as UserActive;
   expect(
     shallowRender({
       highlighted: highlightedUser,
-      suggestedUsers: [mockUser() as T.UserActive, highlightedUser]
+      suggestedUsers: [mockUser() as UserActive, highlightedUser]
     })
   ).toMatchSnapshot('open with results');
 });
 
 it('should call onSelect when clicked', () => {
-  const user = mockUser() as T.UserActive;
+  const user = mockUser() as UserActive;
   const onSelect = jest.fn();
   const wrapper = shallowRender({
     onSelect,

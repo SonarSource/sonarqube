@@ -1,3 +1,5 @@
+import { NewCodePeriod, Status } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -22,7 +24,7 @@ export interface Branch {
   excludedFromPurge: boolean;
   isMain: boolean;
   name: string;
-  status?: { qualityGateStatus: T.Status };
+  status?: { qualityGateStatus: Status };
 }
 
 export interface MainBranch extends Branch {
@@ -35,7 +37,7 @@ export interface PullRequest {
   branch: string;
   key: string;
   isOrphan?: true;
-  status?: { qualityGateStatus: T.Status };
+  status?: { qualityGateStatus: Status };
   target: string;
   title: string;
   url?: string;
@@ -58,5 +60,5 @@ export interface BranchLikeTree {
 export type BranchParameters = { branch?: string } | { pullRequest?: string };
 
 export interface BranchWithNewCodePeriod extends Branch {
-  newCodePeriod?: T.NewCodePeriod;
+  newCodePeriod?: NewCodePeriod;
 }

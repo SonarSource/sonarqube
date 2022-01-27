@@ -27,20 +27,21 @@ import SearchBox from '../../../components/controls/SearchBox';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { NotificationProject } from '../../../types/types';
 
 interface Props {
-  addedProjects: T.NotificationProject[];
+  addedProjects: NotificationProject[];
   closeModal: VoidFunction;
-  onSubmit: (project: T.NotificationProject) => void;
+  onSubmit: (project: NotificationProject) => void;
 }
 
 interface State {
-  highlighted?: T.NotificationProject;
+  highlighted?: NotificationProject;
   loading?: boolean;
   query?: string;
   open?: boolean;
-  selectedProject?: T.NotificationProject;
-  suggestions?: T.NotificationProject[];
+  selectedProject?: NotificationProject;
+  suggestions?: NotificationProject[];
 }
 
 export default class ProjectModal extends React.PureComponent<Props, State> {
@@ -151,7 +152,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
     );
   };
 
-  handleSelect = (selectedProject: T.NotificationProject) => {
+  handleSelect = (selectedProject: NotificationProject) => {
     this.setState({
       open: false,
       query: selectedProject.projectName,

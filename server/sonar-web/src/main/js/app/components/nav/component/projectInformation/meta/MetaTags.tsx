@@ -25,10 +25,11 @@ import TagsList from '../../../../../../components/tags/TagsList';
 import { PopupPlacement } from '../../../../../../components/ui/popups';
 import { translate } from '../../../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../../../types/component';
+import { Component } from '../../../../../../types/types';
 import MetaTagsSelector from './MetaTagsSelector';
 
 interface Props {
-  component: T.Component;
+  component: Component;
   onComponentChange: (changes: {}) => void;
 }
 

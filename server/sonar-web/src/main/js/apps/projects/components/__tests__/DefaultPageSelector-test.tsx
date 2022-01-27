@@ -29,6 +29,7 @@ import {
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { hasGlobalPermission } from '../../../../helpers/users';
+import { CurrentUser } from '../../../../types/types';
 import { DefaultPageSelector } from '../DefaultPageSelector';
 
 jest.mock(
@@ -46,7 +47,7 @@ jest.mock('../../../../helpers/storage', () => ({
 
 jest.mock('../../../../helpers/users', () => ({
   hasGlobalPermission: jest.fn().mockReturnValue(false),
-  isLoggedIn: jest.fn((u: T.CurrentUser) => u.isLoggedIn)
+  isLoggedIn: jest.fn((u: CurrentUser) => u.isLoggedIn)
 }));
 
 jest.mock('../../../../api/components', () => ({

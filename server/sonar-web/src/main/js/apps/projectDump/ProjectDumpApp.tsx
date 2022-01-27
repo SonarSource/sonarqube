@@ -25,6 +25,7 @@ import { withAppState } from '../../components/hoc/withAppState';
 import { translate } from '../../helpers/l10n';
 import { DumpStatus, DumpTask } from '../../types/project-dump';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
+import { AppState, Component } from '../../types/types';
 import Export from './components/Export';
 import Import from './components/Import';
 import './styles.css';
@@ -32,8 +33,8 @@ import './styles.css';
 const POLL_INTERNAL = 5000;
 
 interface Props {
-  appState: Pick<T.AppState, 'projectImportFeatureEnabled'>;
-  component: T.Component;
+  appState: Pick<AppState, 'projectImportFeatureEnabled'>;
+  component: Component;
 }
 
 interface State {

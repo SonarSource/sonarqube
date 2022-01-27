@@ -20,24 +20,25 @@
 import { uniqWith } from 'lodash';
 import * as React from 'react';
 import { addNotification, getNotifications, removeNotification } from '../../api/notifications';
+import { Notification } from '../../types/types';
 import { getWrappedDisplayName } from './utils';
 
 interface State {
   channels: string[];
   globalTypes: string[];
   loading: boolean;
-  notifications: T.Notification[];
+  notifications: Notification[];
   perProjectTypes: string[];
 }
 
 export interface WithNotificationsProps {
-  addNotification: (added: T.Notification) => void;
+  addNotification: (added: Notification) => void;
   channels: string[];
   globalTypes: string[];
   loading: boolean;
-  notifications: T.Notification[];
+  notifications: Notification[];
   perProjectTypes: string[];
-  removeNotification: (removed: T.Notification) => void;
+  removeNotification: (removed: Notification) => void;
 }
 
 export function withNotifications<P>(
@@ -85,14 +86,14 @@ export function withNotifications<P>(
       );
     };
 
-    addNotificationToState = (added: T.Notification) => {
+    addNotificationToState = (added: Notification) => {
       this.setState(state => {
         const notifications = uniqWith([...state.notifications, added], this.areNotificationsEqual);
         return { notifications };
       });
     };
 
-    removeNotificationFromState = (removed: T.Notification) => {
+    removeNotificationFromState = (removed: Notification) => {
       this.setState(state => {
         const notifications = state.notifications.filter(
           notification => !this.areNotificationsEqual(notification, removed)
@@ -101,7 +102,7 @@ export function withNotifications<P>(
       });
     };
 
-    addNotification = (added: T.Notification) => {
+    addNotification = (added: Notification) => {
       // optimistic update
       this.addNotificationToState(added);
 
@@ -112,7 +113,7 @@ export function withNotifications<P>(
       });
     };
 
-    removeNotification = (removed: T.Notification) => {
+    removeNotification = (removed: Notification) => {
       // optimistic update
       this.removeNotificationFromState(removed);
 
@@ -123,7 +124,7 @@ export function withNotifications<P>(
       });
     };
 
-    areNotificationsEqual = (a: T.Notification, b: T.Notification) => {
+    areNotificationsEqual = (a: Notification, b: Notification) => {
       return a.channel === b.channel && a.type === b.type && a.project === b.project;
     };
 

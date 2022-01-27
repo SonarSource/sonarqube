@@ -25,6 +25,7 @@ import ListFooter from '../../components/controls/ListFooter';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
+import { IdentityProvider, Paging, User } from '../../types/types';
 import Header from './Header';
 import Search from './Search';
 import UsersList from './UsersList';
@@ -37,10 +38,10 @@ interface Props {
 }
 
 interface State {
-  identityProviders: T.IdentityProvider[];
+  identityProviders: IdentityProvider[];
   loading: boolean;
-  paging?: T.Paging;
-  users: T.User[];
+  paging?: Paging;
+  users: User[];
 }
 
 export class UsersApp extends React.PureComponent<Props, State> {

@@ -31,6 +31,7 @@ import {
   Store
 } from '../../../store/rootReducer';
 import { Setting } from '../../../types/settings';
+import { Component } from '../../../types/types';
 import { checkValue, resetValue, saveValue } from '../store/actions';
 import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
 import {
@@ -47,7 +48,7 @@ interface Props {
   changeValue: (key: string, value: any) => void;
   changedValue: any;
   checkValue: (key: string) => boolean;
-  component?: T.Component;
+  component?: Component;
   loading: boolean;
   passValidation: (key: string) => void;
   resetValue: (key: string, component?: string) => Promise<void>;

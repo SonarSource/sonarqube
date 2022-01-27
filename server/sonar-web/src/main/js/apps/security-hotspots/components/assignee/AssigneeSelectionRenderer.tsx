@@ -25,16 +25,17 @@ import Avatar from '../../../../components/ui/Avatar';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
+import { UserActive } from '../../../../types/types';
 import './AssigneeSelection.css';
 
 export interface HotspotAssigneeSelectRendererProps {
-  highlighted?: T.UserActive;
+  highlighted?: UserActive;
   loading: boolean;
   onKeyDown: (event: React.KeyboardEvent) => void;
   onSearch: (query: string) => void;
-  onSelect: (user?: T.UserActive) => void;
+  onSelect: (user?: UserActive) => void;
   query?: string;
-  suggestedUsers?: T.UserActive[];
+  suggestedUsers?: UserActive[];
 }
 
 export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRendererProps) {

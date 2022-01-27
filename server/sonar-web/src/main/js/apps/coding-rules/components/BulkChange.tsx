@@ -24,13 +24,14 @@ import Dropdown from '../../../components/controls/Dropdown';
 import Tooltip from '../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
+import { Dict, Languages } from '../../../types/types';
 import { Query } from '../query';
 import BulkChangeModal from './BulkChangeModal';
 
 interface Props {
-  languages: T.Languages;
+  languages: Languages;
   query: Query;
-  referencedProfiles: T.Dict<Profile>;
+  referencedProfiles: Dict<Profile>;
   total: number;
 }
 

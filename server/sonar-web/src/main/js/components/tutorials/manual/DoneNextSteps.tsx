@@ -21,9 +21,10 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 
 export interface DoneNextStepsProps {
-  component: T.Component;
+  component: Component;
 }
 
 export default function DoneNextSteps({ component }: DoneNextStepsProps) {

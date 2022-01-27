@@ -25,17 +25,18 @@ import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
+import { Dict, Rule, RuleActivation } from '../../../types/types';
 
 const RULES_LIMIT = 10;
 
-function parseRules(rules: T.Rule[], actives?: T.Dict<T.RuleActivation[]>): ExtendedRule[] {
+function parseRules(rules: Rule[], actives?: Dict<RuleActivation[]>): ExtendedRule[] {
   return rules.map(rule => {
     const activations = actives && actives[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };
   });
 }
 
-interface ExtendedRule extends T.Rule {
+interface ExtendedRule extends Rule {
   activations: number;
 }
 

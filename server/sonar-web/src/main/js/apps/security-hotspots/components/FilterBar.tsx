@@ -29,10 +29,11 @@ import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
+import { Component, CurrentUser } from '../../../types/types';
 
 export interface FilterBarProps {
-  currentUser: T.CurrentUser;
-  component: T.Component;
+  currentUser: CurrentUser;
+  component: Component;
   filters: HotspotFilters;
   hotspotsReviewedMeasure?: string;
   isStaticListOfHotspots: boolean;

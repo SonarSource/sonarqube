@@ -23,6 +23,7 @@ import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadge
 import TagsList from '../../../../../components/tags/TagsList';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
+import { CurrentUser } from '../../../../../types/types';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
 import ProjectCardQualityGate from '../ProjectCardQualityGate';
@@ -108,7 +109,7 @@ it('should display applications', () => {
   ).toMatchSnapshot('with project count');
 });
 
-function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT, type?: string) {
+function shallowRender(project: Project, user: CurrentUser = USER_LOGGED_OUT, type?: string) {
   return shallow(
     <ProjectCard
       currentUser={user}

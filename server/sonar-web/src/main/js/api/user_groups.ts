@@ -19,13 +19,14 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
+import { Group, Paging, UserSelected } from '../types/types';
 
 export function searchUsersGroups(data: {
   f?: string;
   p?: number;
   ps?: number;
   q?: string;
-}): Promise<{ groups: T.Group[]; paging: T.Paging }> {
+}): Promise<{ groups: Group[]; paging: Paging }> {
   return getJSON('/api/user_groups/search', data).catch(throwGlobalError);
 }
 
@@ -36,7 +37,7 @@ export function getUsersInGroup(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<T.Paging & { users: T.UserSelected[] }> {
+}): Promise<Paging & { users: UserSelected[] }> {
   return getJSON('/api/user_groups/users', data).catch(throwGlobalError);
 }
 
@@ -48,7 +49,7 @@ export function removeUserFromGroup(data: { id?: string; name?: string; login?: 
   return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
 }
 
-export function createGroup(data: { description?: string; name: string }): Promise<T.Group> {
+export function createGroup(data: { description?: string; name: string }): Promise<Group> {
   return postJSON('/api/user_groups/create', data).then(r => r.group, throwGlobalError);
 }
 

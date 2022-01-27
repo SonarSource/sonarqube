@@ -24,26 +24,27 @@ import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn, isUserActive } from '../../../helpers/users';
+import { CurrentUser, UserActive, UserBase } from '../../../types/types';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import { withCurrentUser } from '../../hoc/withCurrentUser';
 import Avatar from '../../ui/Avatar';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   onSelect: (login: string) => void;
 }
 
 interface State {
   currentUser: string;
   query: string;
-  users: T.UserActive[];
+  users: UserActive[];
 }
 
 const LIST_SIZE = 10;
 
 export class SetAssigneePopup extends React.PureComponent<Props, State> {
-  defaultUsersArray: T.UserActive[];
+  defaultUsersArray: UserActive[];
 
   constructor(props: Props) {
     super(props);
@@ -64,7 +65,7 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
     searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, () => {});
   };
 
-  handleSearchResult = ({ users }: { users: T.UserBase[] }) => {
+  handleSearchResult = ({ users }: { users: UserBase[] }) => {
     const activeUsers = users.filter(isUserActive);
     this.setState({
       users: activeUsers,

@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
+import { Paging } from '../../../types/types';
 
 interface Props {
   analyses: unknown[];
   fetchMoreActivity: () => void;
-  paging?: T.Paging;
+  paging?: Paging;
 }
 
 export default function ProjectActivityPageFooter({ analyses, fetchMoreActivity, paging }: Props) {

@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { ComponentMeasure, ComponentMeasureEnhanced } from '../types/types';
+
 export function getComponentMeasureUniqueKey(
-  component?: T.ComponentMeasure | T.ComponentMeasureEnhanced
+  component?: ComponentMeasure | ComponentMeasureEnhanced
 ) {
   return component ? [component.key, component.branch].filter(s => !!s).join('/') : undefined;
 }

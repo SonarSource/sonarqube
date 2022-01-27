@@ -27,11 +27,12 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { ComponentMeasure, Period } from '../../../types/types';
 
 interface Props {
   className?: string;
-  component: T.ComponentMeasure;
-  period: T.Period;
+  component: ComponentMeasure;
+  period: Period;
 }
 
 export class LeakPeriodLegend extends React.PureComponent<Props & WrappedComponentProps> {

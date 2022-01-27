@@ -20,9 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../helpers/testUtils';
+import { IssueComment } from '../../../../types/types';
 import IssueCommentLine from '../IssueCommentLine';
 
-const comment: T.IssueComment = {
+const comment: IssueComment = {
   author: 'john.doe',
   authorActive: true,
   authorAvatar: 'gravatarhash',

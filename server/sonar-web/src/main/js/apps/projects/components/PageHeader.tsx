@@ -23,6 +23,7 @@ import HomePageSelect from '../../../components/controls/HomePageSelect';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
+import { CurrentUser, RawQuery } from '../../../types/types';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
 import { Project } from '../types';
 import ApplicationCreation from './ApplicationCreation';
@@ -31,13 +32,13 @@ import ProjectCreationMenu from './ProjectCreationMenu';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   onSortChange: (sort: string, desc: boolean) => void;
   projects?: Project[];
-  query: T.RawQuery;
+  query: RawQuery;
   selectedSort: string;
   total?: number;
   view: string;

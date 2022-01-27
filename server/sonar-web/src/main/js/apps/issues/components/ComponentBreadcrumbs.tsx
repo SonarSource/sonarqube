@@ -23,11 +23,12 @@ import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { ComponentQualifier, isView } from '../../../types/component';
+import { Component, Issue } from '../../../types/types';
 import { getSelectedLocation } from '../utils';
 
 interface Props {
-  component?: T.Component;
-  issue: T.Issue;
+  component?: Component;
+  issue: Issue;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
 }

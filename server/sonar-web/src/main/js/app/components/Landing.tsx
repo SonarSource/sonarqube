@@ -22,9 +22,10 @@ import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { getHomePageUrl } from '../../helpers/urls';
 import { isLoggedIn } from '../../helpers/users';
+import { CurrentUser } from '../../types/types';
 
 export interface LandingProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   router: Router;
 }
 

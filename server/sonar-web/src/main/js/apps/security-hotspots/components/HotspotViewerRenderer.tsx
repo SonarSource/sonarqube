@@ -35,6 +35,7 @@ import {
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
+import { Component, CurrentUser, StandardSecurityCategories } from '../../../types/types';
 import Assignee from './assignee/Assignee';
 import HotspotOpenInIdeButton from './HotspotOpenInIdeButton';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
@@ -46,8 +47,8 @@ import StatusUpdateSuccessModal from './StatusUpdateSuccessModal';
 
 export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
-  component: T.Component;
-  currentUser: T.CurrentUser;
+  component: Component;
+  currentUser: CurrentUser;
   hotspot?: Hotspot;
   hotspotsReviewedMeasure?: string;
   lastStatusChangedTo?: HotspotStatusOption;
@@ -58,7 +59,7 @@ export interface HotspotViewerRendererProps {
   onShowCommentForm: () => void;
   onSwitchFilterToStatusOfUpdatedHotspot: () => void;
   showStatusUpdateSuccessModal: boolean;
-  securityCategories: T.StandardSecurityCategories;
+  securityCategories: StandardSecurityCategories;
 }
 
 export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {

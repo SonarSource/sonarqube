@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import CodeSnippet from '../../common/CodeSnippet';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
@@ -30,7 +31,7 @@ import { BuildTools } from '../types';
 
 export interface ProjectKeyStepProps {
   buildTool?: BuildTools;
-  component: T.Component;
+  component: Component;
   finished: boolean;
   hasCLanguageFeature: boolean;
   onDone: () => void;

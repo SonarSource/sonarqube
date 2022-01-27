@@ -20,13 +20,14 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { RuleParameter } from '../../../types/types';
 
 interface Props {
-  params: T.RuleParameter[];
+  params: RuleParameter[];
 }
 
 export default class RuleDetailsParameters extends React.PureComponent<Props> {
-  renderParameter = (param: T.RuleParameter) => (
+  renderParameter = (param: RuleParameter) => (
     <tr className="coding-rules-detail-parameter" key={param.key}>
       <td className="coding-rules-detail-parameter-name">{param.key}</td>
       <td className="coding-rules-detail-parameter-description">

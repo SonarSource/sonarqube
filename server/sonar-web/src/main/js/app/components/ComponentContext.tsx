@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../types/branch-like';
+import { Component } from '../../types/types';
 
 interface ComponentContextType {
   branchLike: BranchLike | undefined;
-  component: T.Component | undefined;
+  component: Component | undefined;
 }
 
 export const ComponentContext = React.createContext<ComponentContextType>({

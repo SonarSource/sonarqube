@@ -23,13 +23,14 @@ import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { SettingWithCategory } from '../../../types/settings';
+import { Component } from '../../../types/types';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 
 export interface SubCategoryDefinitionsListProps {
   category: string;
-  component?: T.Component;
+  component?: Component;
   fetchValues: Function;
   location: Location;
   settings: Array<SettingWithCategory>;

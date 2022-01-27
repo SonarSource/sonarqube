@@ -25,6 +25,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {
@@ -34,7 +35,7 @@ interface Props {
   open: boolean;
   resolved: boolean;
   resolutions: string[];
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
 }
 
 const RESOLUTIONS = ['', 'FALSE-POSITIVE', 'FIXED', 'REMOVED', 'WONTFIX'];

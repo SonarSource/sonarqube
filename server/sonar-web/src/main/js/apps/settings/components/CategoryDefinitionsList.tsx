@@ -19,12 +19,13 @@
  */
 import { connect } from 'react-redux';
 import { getSettingsAppSettingsForCategory, Store } from '../../../store/rootReducer';
+import { Component } from '../../../types/types';
 import { fetchValues } from '../store/actions';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 
 interface Props {
   category: string;
-  component?: T.Component;
+  component?: Component;
 }
 
 const mapStateToProps = (state: Store, ownProps: Props) => ({

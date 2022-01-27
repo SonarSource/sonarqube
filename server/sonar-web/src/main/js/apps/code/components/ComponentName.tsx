@@ -32,8 +32,9 @@ import {
   isPortfolioLike,
   isProject
 } from '../../../types/component';
+import { ComponentMeasure } from '../../../types/types';
 
-export function getTooltip(component: T.ComponentMeasure) {
+export function getTooltip(component: ComponentMeasure) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
 
   if (isFile && component.path) {
@@ -61,9 +62,9 @@ export function mostCommonPrefix(strings: string[]) {
 export interface Props {
   branchLike?: BranchLike;
   canBrowse?: boolean;
-  component: T.ComponentMeasure;
-  previous?: T.ComponentMeasure;
-  rootComponent: T.ComponentMeasure;
+  component: ComponentMeasure;
+  previous?: ComponentMeasure;
+  rootComponent: ComponentMeasure;
   unclickable?: boolean;
 }
 

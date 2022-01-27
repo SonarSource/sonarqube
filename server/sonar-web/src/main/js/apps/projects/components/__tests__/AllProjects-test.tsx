@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get, save } from '../../../../helpers/storage';
 import { ComponentQualifier } from '../../../../types/component';
+import { Dict } from '../../../../types/types';
 import {
   AllProjects,
   LS_PROJECTS_SORT,
@@ -110,7 +111,7 @@ it('fetches projects', () => {
 });
 
 it('redirects to the saved search', () => {
-  const localeStorageMock: T.Dict<string> = {
+  const localeStorageMock: Dict<string> = {
     [LS_PROJECTS_VIEW]: 'leak',
     [LS_PROJECTS_SORT]: 'coverage',
     [LS_PROJECTS_VISUALIZATION]: 'security'

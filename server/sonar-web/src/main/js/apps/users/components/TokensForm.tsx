@@ -22,6 +22,7 @@ import { generateToken, getTokens } from '../../../api/user-tokens';
 import { SubmitButton } from '../../../components/controls/buttons';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { UserToken } from '../../../types/types';
 import TokensFormItem, { TokenDeleteConfirmation } from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
 
@@ -36,7 +37,7 @@ interface State {
   loading: boolean;
   newToken?: { name: string; token: string };
   newTokenName: string;
-  tokens: T.UserToken[];
+  tokens: UserToken[];
 }
 
 export default class TokensForm extends React.PureComponent<Props, State> {
@@ -104,7 +105,7 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRevokeToken = (revokedToken: T.UserToken) => {
+  handleRevokeToken = (revokedToken: UserToken) => {
     this.setState(
       state => ({
         tokens: state.tokens.filter(token => token.name !== revokedToken.name)

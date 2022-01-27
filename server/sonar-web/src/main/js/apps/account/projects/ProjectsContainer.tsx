@@ -21,12 +21,13 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getMyProjects } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { MyProject } from '../../../types/types';
 import Projects from './Projects';
 
 interface State {
   loading: boolean;
   page: number;
-  projects?: T.MyProject[];
+  projects?: MyProject[];
   total?: number;
 }
 

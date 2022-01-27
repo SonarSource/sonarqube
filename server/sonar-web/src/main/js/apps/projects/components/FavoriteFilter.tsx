@@ -22,11 +22,12 @@ import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 import { isLoggedIn } from '../../../helpers/users';
+import { CurrentUser, RawQuery } from '../../../types/types';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 
 interface Props {
-  currentUser: T.CurrentUser;
-  query?: T.RawQuery;
+  currentUser: CurrentUser;
+  query?: RawQuery;
 }
 
 export default class FavoriteFilter extends React.PureComponent<Props> {

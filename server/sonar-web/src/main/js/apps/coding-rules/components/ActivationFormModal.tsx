@@ -28,19 +28,20 @@ import { Alert } from '../../../components/ui/Alert';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
 
 interface Props {
-  activation?: T.RuleActivation;
+  activation?: RuleActivation;
   modalHeader: string;
   onClose: () => void;
   onDone: (severity: string) => Promise<void>;
   profiles: Profile[];
-  rule: T.Rule | T.RuleDetails;
+  rule: Rule | RuleDetails;
 }
 
 interface State {
-  params: T.Dict<string>;
+  params: Dict<string>;
   profile: string;
   severity: string;
   submitting: boolean;
@@ -69,7 +70,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   }
 
   getParams = ({ activation, rule } = this.props) => {
-    const params: T.Dict<string> = {};
+    const params: Dict<string> = {};
     if (rule && rule.params) {
       for (const param of rule.params) {
         params[param.key] = param.defaultValue || '';
@@ -148,7 +149,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const { profile, severity, submitting } = this.state;
     const { params = [] } = rule;
     const profilesWithDepth = this.getQualityProfilesWithDepth();
-    const isCustomRule = !!(rule as T.RuleDetails).templateKey;
+    const isCustomRule = !!(rule as RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
 

@@ -22,6 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { IntlShape } from 'react-intl';
 import { mockPeriod } from '../../../../helpers/testMocks';
+import { Period } from '../../../../types/types';
 import { ProjectLeakPeriodInfo } from '../ProjectLeakPeriodInfo';
 
 jest.mock('date-fns', () => {
@@ -61,7 +62,7 @@ it('should render a more precise date', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(period: Partial<T.Period> = {}) {
+function shallowRender(period: Partial<Period> = {}) {
   return shallow(
     <ProjectLeakPeriodInfo
       intl={

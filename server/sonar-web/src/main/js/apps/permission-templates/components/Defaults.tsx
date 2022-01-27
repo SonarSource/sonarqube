@@ -20,9 +20,10 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { PermissionTemplate } from '../../../types/types';
 
 interface Props {
-  template: T.PermissionTemplate;
+  template: PermissionTemplate;
 }
 
 export default function Defaults({ template }: Props) {

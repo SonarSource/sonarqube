@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Issue } from '../../../../types/types';
 import ConciseIssue from '../ConciseIssue';
 
-const issue: T.Issue = {
+const issue: Issue = {
   actions: [],
   component: '',
   componentLongName: 'src/file.js',

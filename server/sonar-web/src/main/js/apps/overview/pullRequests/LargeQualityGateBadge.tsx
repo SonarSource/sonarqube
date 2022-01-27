@@ -26,10 +26,11 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import HelpIcon from '../../../components/icons/HelpIcon';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
+import { Component, Status } from '../../../types/types';
 
 interface Props {
-  component: T.Component;
-  level?: T.Status;
+  component: Component;
+  level?: Status;
 }
 
 export function LargeQualityGateBadge({ component, level }: Props) {

@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { PermissionTemplate } from '../../../types/types';
 import Defaults from './Defaults';
 
 interface Props {
-  template: T.PermissionTemplate;
+  template: PermissionTemplate;
 }
 
 export default function TemplateDetails({ template }: Props) {

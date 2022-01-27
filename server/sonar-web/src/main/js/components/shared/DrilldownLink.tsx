@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
+import { Dict } from '../../types/types';
 
 const ISSUE_MEASURES = [
   'violations',
@@ -48,7 +49,7 @@ const ISSUE_MEASURES = [
   'new_vulnerabilities'
 ];
 
-const issueParamsPerMetric: T.Dict<T.Dict<string>> = {
+const issueParamsPerMetric: Dict<Dict<string>> = {
   blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
   new_blocker_violations: { resolved: 'false', severities: 'BLOCKER' },
   critical_violations: { resolved: 'false', severities: 'CRITICAL' },
@@ -86,7 +87,7 @@ export default class DrilldownLink extends React.PureComponent<Props> {
   };
 
   propsToIssueParams = () => {
-    const params: T.Dict<string | boolean> = {
+    const params: Dict<string | boolean> = {
       ...(issueParamsPerMetric[this.props.metric] || { resolved: 'false' })
     };
 

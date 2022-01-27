@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { intersection } from 'lodash';
+import { Issue, LinearIssueLocation } from '../../../types/types';
 
 export function optimizeHighlightedSymbols(
   symbolsForLine: string[] = [],
@@ -30,7 +31,7 @@ export function optimizeHighlightedSymbols(
 
 export function optimizeLocationMessage(
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined,
-  optimizedSecondaryIssueLocations: T.LinearIssueLocation[]
+  optimizedSecondaryIssueLocations: LinearIssueLocation[]
 ) {
   return highlightedLocationMessage != null &&
     optimizedSecondaryIssueLocations.some(
@@ -40,7 +41,7 @@ export function optimizeLocationMessage(
     : undefined;
 }
 
-export function optimizeSelectedIssue(selectedIssue: string | undefined, issuesForLine: T.Issue[]) {
+export function optimizeSelectedIssue(selectedIssue: string | undefined, issuesForLine: Issue[]) {
   return selectedIssue !== undefined && issuesForLine.find(issue => issue.key === selectedIssue)
     ? selectedIssue
     : undefined;

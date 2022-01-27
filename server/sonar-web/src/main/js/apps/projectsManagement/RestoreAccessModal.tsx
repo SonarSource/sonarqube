@@ -24,9 +24,10 @@ import { grantPermissionToUser } from '../../api/permissions';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import { translate } from '../../helpers/l10n';
+import { LoggedInUser } from '../../types/types';
 
 interface Props {
-  currentUser: Pick<T.LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login'>;
   onClose: () => void;
   onRestoreAccess: () => void;
   project: Project;

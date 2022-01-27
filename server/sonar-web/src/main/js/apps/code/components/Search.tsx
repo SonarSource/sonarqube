@@ -27,16 +27,17 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentMeasure } from '../../../types/types';
 import PortfolioNewCodeToggle from './PortfolioNewCodeToggle';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.ComponentMeasure;
+  component: ComponentMeasure;
   location: Location;
   newCodeSelected: boolean;
   onSearchClear: () => void;
   onNewCodeToggle: (newCode: boolean) => void;
-  onSearchResults: (results?: T.ComponentMeasure[]) => void;
+  onSearchResults: (results?: ComponentMeasure[]) => void;
   router: Router;
 }
 

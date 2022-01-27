@@ -47,6 +47,14 @@ import {
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import {
+  ComponentMeasure,
+  Dict,
+  Issue,
+  MeasureEnhanced,
+  Metric,
+  Period
+} from '../../../types/types';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
 import {
@@ -69,15 +77,15 @@ import MeasuresEmpty from './MeasuresEmpty';
 
 interface Props extends WithRouterProps {
   branchLike?: BranchLike;
-  component: T.ComponentMeasure;
+  component: ComponentMeasure;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
 }
 
 interface State {
-  leakPeriod?: T.Period;
+  leakPeriod?: Period;
   loading: boolean;
-  measures: T.MeasureEnhanced[];
-  metrics: T.Dict<T.Metric>;
+  measures: MeasureEnhanced[];
+  metrics: Dict<Metric>;
 }
 
 export class App extends React.PureComponent<Props, State> {
@@ -167,7 +175,7 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 
-  getHelmetTitle = (query: Query, displayOverview: boolean, metric?: T.Metric) => {
+  getHelmetTitle = (query: Query, displayOverview: boolean, metric?: Metric) => {
     if (displayOverview && query.metric) {
       return isProjectOverview(query.metric)
         ? translate('component_measures.overview.project_overview.facet')
@@ -195,7 +203,7 @@ export class App extends React.PureComponent<Props, State> {
     return metric;
   };
 
-  handleIssueChange = (_: T.Issue) => {
+  handleIssueChange = (_: Issue) => {
     this.refreshBranchStatus();
   };
 
@@ -228,7 +236,7 @@ export class App extends React.PureComponent<Props, State> {
     }
   };
 
-  renderContent = (displayOverview: boolean, query: Query, metric?: T.Metric) => {
+  renderContent = (displayOverview: boolean, query: Query, metric?: Metric) => {
     const { branchLike, component } = this.props;
     const { leakPeriod } = this.state;
     if (displayOverview) {

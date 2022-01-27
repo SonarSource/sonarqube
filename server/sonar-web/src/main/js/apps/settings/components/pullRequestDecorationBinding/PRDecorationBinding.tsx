@@ -43,17 +43,18 @@ import {
 } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
 import { Permissions } from '../../../../types/permissions';
+import { Component, CurrentUser } from '../../../../types/types';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
-type FormData = T.Omit<ProjectAlmBindingResponse, 'alm'>;
+type FormData = Omit<ProjectAlmBindingResponse, 'alm'>;
 
 interface StateProps {
   monorepoEnabled: boolean;
 }
 
 interface Props {
-  component: T.Component;
-  currentUser: T.CurrentUser;
+  component: Component;
+  currentUser: CurrentUser;
 }
 
 interface State {
@@ -71,7 +72,7 @@ interface State {
 }
 
 const REQUIRED_FIELDS_BY_ALM: {
-  [almKey in AlmKeys]: Array<keyof T.Omit<FormData, 'key'>>;
+  [almKey in AlmKeys]: Array<keyof Omit<FormData, 'key'>>;
 } = {
   [AlmKeys.Azure]: ['repository', 'slug'],
   [AlmKeys.BitbucketServer]: ['repository', 'slug'],
@@ -174,7 +175,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
   submitProjectAlmBinding(
     alm: AlmKeys,
     key: string,
-    almSpecificFields?: T.Omit<FormData, 'key'>
+    almSpecificFields?: Omit<FormData, 'key'>
   ): Promise<void> {
     const almSetting = key;
     const project = this.props.component.key;

@@ -33,6 +33,7 @@ import {
   removeWhitePageClass
 } from '../../../helpers/pages';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { QualityGate } from '../../../types/types';
 import '../styles.css';
 import Details from './Details';
 import List from './List';
@@ -41,7 +42,7 @@ import ListHeader from './ListHeader';
 interface State {
   canCreate: boolean;
   loading: boolean;
-  qualityGates: T.QualityGate[];
+  qualityGates: QualityGate[];
 }
 
 class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>, State> {
@@ -86,12 +87,12 @@ class App extends React.PureComponent<Pick<WithRouterProps, 'params' | 'router'>
     );
   };
 
-  openDefault(qualityGates: T.QualityGate[]) {
+  openDefault(qualityGates: QualityGate[]) {
     const defaultQualityGate = qualityGates.find(gate => Boolean(gate.isDefault))!;
     this.props.router.replace(getQualityGateUrl(String(defaultQualityGate.id)));
   }
 
-  handleSetDefault = (qualityGate: T.QualityGate) => {
+  handleSetDefault = (qualityGate: QualityGate) => {
     this.setState(({ qualityGates }) => {
       return {
         qualityGates: qualityGates.map(candidate => {

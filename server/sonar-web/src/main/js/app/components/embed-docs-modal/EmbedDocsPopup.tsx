@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { SuggestionLink } from '../../../types/types';
 import { SuggestionsContext } from './SuggestionsContext';
 
 interface Props {
@@ -33,7 +34,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
     return <li className="menu-header">{text}</li>;
   }
 
-  renderSuggestions = ({ suggestions }: { suggestions: T.SuggestionLink[] }) => {
+  renderSuggestions = ({ suggestions }: { suggestions: SuggestionLink[] }) => {
     if (suggestions.length === 0) {
       return null;
     }

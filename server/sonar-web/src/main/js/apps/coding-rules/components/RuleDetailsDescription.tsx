@@ -23,12 +23,13 @@ import FormattingTips from '../../../components/common/FormattingTips';
 import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { RuleDetails } from '../../../types/types';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 
 interface Props {
   canWrite: boolean | undefined;
-  onChange: (newRuleDetails: T.RuleDetails) => void;
-  ruleDetails: T.RuleDetails;
+  onChange: (newRuleDetails: RuleDetails) => void;
+  ruleDetails: RuleDetails;
 }
 
 interface State {

@@ -20,6 +20,7 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
+import { RuleActivation, RuleDetails } from '../types/types';
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app').catch(throwGlobalError);
@@ -73,7 +74,7 @@ export function getRuleRepositories(parameters: {
 export function getRuleDetails(parameters: {
   actives?: boolean;
   key: string;
-}): Promise<{ actives?: T.RuleActivation[]; rule: T.RuleDetails }> {
+}): Promise<{ actives?: RuleActivation[]; rule: RuleDetails }> {
   return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
@@ -91,7 +92,7 @@ export function createRule(data: {
   status?: string;
   template_key: string;
   type?: string;
-}): Promise<T.RuleDetails> {
+}): Promise<RuleDetails> {
   return postJSON('/api/rules/create', data).then(
     r => r.rule,
     response => {
@@ -122,6 +123,6 @@ export function updateRule(data: {
   severity?: string;
   status?: string;
   tags?: string;
-}): Promise<T.RuleDetails> {
+}): Promise<RuleDetails> {
   return postJSON('/api/rules/update', data).then(r => r.rule, throwGlobalError);
 }

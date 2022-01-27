@@ -19,17 +19,18 @@
  */
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { WebApi } from '../../../types/types';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 
 interface Props {
-  params: T.WebApi.Param[];
+  params: WebApi.Param[];
   showDeprecated: boolean;
   showInternal: boolean;
 }
 
 export default class Params extends React.PureComponent<Props> {
-  renderKey(param: T.WebApi.Param) {
+  renderKey(param: WebApi.Param) {
     return (
       <td className="markdown" style={{ width: 180 }}>
         <code>{param.key}</code>
@@ -69,7 +70,7 @@ export default class Params extends React.PureComponent<Props> {
     );
   }
 
-  renderConstraint(param: T.WebApi.Param, field: keyof T.WebApi.Param, label: string) {
+  renderConstraint(param: WebApi.Param, field: keyof WebApi.Param, label: string) {
     const value = param[field];
     if (value !== undefined) {
       return (

@@ -23,6 +23,7 @@ import EscKeydownHandler from '../../../../components/controls/EscKeydownHandler
 import OutsideClickHandler from '../../../../components/controls/OutsideClickHandler';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { LoggedInUser, UserActive, UserBase } from '../../../../types/types';
 import AssigneeSelection from './AssigneeSelection';
 
 export interface AssigneeRendererProps {
@@ -30,10 +31,10 @@ export interface AssigneeRendererProps {
   editing: boolean;
   loading: boolean;
 
-  assignee?: T.UserBase;
-  loggedInUser?: T.LoggedInUser;
+  assignee?: UserBase;
+  loggedInUser?: LoggedInUser;
 
-  onAssign: (user: T.UserActive) => void;
+  onAssign: (user: UserActive) => void;
   onEnterEditionMode: () => void;
   onExitEditionMode: () => void;
 }

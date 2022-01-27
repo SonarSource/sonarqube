@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { getHostUrl } from '../../../../helpers/urls';
+import { Component } from '../../../../types/types';
 import { BuildTools, ManualTutorialConfig } from '../../types';
 import ClangGCCCustom from './ClangGCCCommand';
 import DotNet from './DotNet';
@@ -27,7 +28,7 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
-  component: T.Component;
+  component: Component;
   languageConfig: ManualTutorialConfig;
   token?: string;
 }

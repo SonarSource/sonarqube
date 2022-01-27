@@ -24,6 +24,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { RequestData } from '../../helpers/request';
 import { MetricKey } from '../../types/metrics';
+import { Dict } from '../../types/types';
 import { convertToFilter, Query } from './query';
 
 interface SortingOption {
@@ -59,7 +60,7 @@ export const SORTING_LEAK_METRICS: SortingOption[] = [
   { value: 'new_lines', class: 'projects-leak-sorting-option' }
 ];
 
-export const SORTING_SWITCH: T.Dict<string> = {
+export const SORTING_SWITCH: Dict<string> = {
   analysis_date: 'analysis_date',
   name: 'name',
   reliability: 'new_reliability',
@@ -128,7 +129,7 @@ const LEAK_METRICS = [
   MetricKey.projects
 ];
 
-const METRICS_BY_VISUALIZATION: T.Dict<string[]> = {
+const METRICS_BY_VISUALIZATION: Dict<string[]> = {
   risk: [
     MetricKey.reliability_rating,
     MetricKey.security_rating,
@@ -214,7 +215,7 @@ export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) 
       return {
         facets: getFacetsMap(facets),
         projects: components.map(component => {
-          const componentMeasures: T.Dict<string> = {};
+          const componentMeasures: Dict<string> = {};
           measures
             .filter(measure => measure.component === component.key)
             .forEach(measure => {
@@ -276,14 +277,14 @@ export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Qu
 }
 
 function mapFacetValues(values: Array<{ val: string; count: number }>) {
-  const map: T.Dict<number> = {};
+  const map: Dict<number> = {};
   values.forEach(value => {
     map[value.val] = value.count;
   });
   return map;
 }
 
-const propertyToMetricMap: T.Dict<string | undefined> = {
+const propertyToMetricMap: Dict<string | undefined> = {
   analysis_date: 'analysisDate',
   reliability: 'reliability_rating',
   new_reliability: 'new_reliability_rating',
@@ -309,7 +310,7 @@ const propertyToMetricMap: T.Dict<string | undefined> = {
 const metricToPropertyMap = invert(propertyToMetricMap);
 
 function getFacetsMap(facets: Facet[]) {
-  const map: T.Dict<T.Dict<number>> = {};
+  const map: Dict<Dict<number>> = {};
   facets.forEach(facet => {
     const property = metricToPropertyMap[facet.property];
     const { values } = facet;

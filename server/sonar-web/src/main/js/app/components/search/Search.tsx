@@ -34,6 +34,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
+import { CurrentUser, Dict } from '../../../types/types';
 import RecentHistory from '../RecentHistory';
 import './Search.css';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
@@ -42,7 +43,7 @@ const SearchResults = lazyLoadComponent(() => import('./SearchResults'));
 const SearchResult = lazyLoadComponent(() => import('./SearchResult'));
 
 interface OwnProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 type Props = OwnProps & WithRouterProps;
@@ -52,7 +53,7 @@ interface State {
   loadingMore?: string;
   more: More;
   open: boolean;
-  projects: T.Dict<{ name: string }>;
+  projects: Dict<{ name: string }>;
   query: string;
   results: Results;
   selected?: string;
@@ -62,7 +63,7 @@ interface State {
 export class Search extends React.PureComponent<Props, State> {
   input?: HTMLInputElement | null;
   node?: HTMLElement | null;
-  nodes: T.Dict<HTMLElement>;
+  nodes: Dict<HTMLElement>;
   mounted = false;
 
   constructor(props: Props) {

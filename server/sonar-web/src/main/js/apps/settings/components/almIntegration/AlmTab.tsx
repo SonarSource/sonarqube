@@ -23,6 +23,7 @@ import {
   AlmBindingDefinitionBase,
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
 import { AlmTabs } from './AlmIntegration';
 import AlmTabRenderer from './AlmTabRenderer';
 
@@ -30,7 +31,7 @@ interface Props {
   almTab: AlmTabs;
   branchesEnabled: boolean;
   definitions: AlmBindingDefinition[];
-  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
+  definitionStatus: Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;

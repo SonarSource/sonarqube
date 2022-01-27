@@ -23,6 +23,7 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
+import { Webhook } from '../../../types/types';
 import CreateWebhookForm from './CreateWebhookForm';
 import DeleteWebhookForm from './DeleteWebhookForm';
 import DeliveriesForm from './DeliveriesForm';
@@ -30,7 +31,7 @@ import DeliveriesForm from './DeliveriesForm';
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
   onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhook: T.Webhook;
+  webhook: Webhook;
 }
 
 interface State {

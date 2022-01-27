@@ -22,6 +22,7 @@ import * as React from 'react';
 import CoverageRating from '../../../../../components/ui/CoverageRating';
 import { ComponentQualifier } from '../../../../../types/component';
 import { MetricKey } from '../../../../../types/metrics';
+import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
 jest.mock('date-fns', () => ({
@@ -59,7 +60,7 @@ describe('New code measures', () => {
 });
 
 function shallowRender(
-  measuresOverride: T.Dict<string | undefined> = {},
+  measuresOverride: Dict<string | undefined> = {},
   props: Partial<ProjectCardMeasuresProps> = {}
 ) {
   const measures = {

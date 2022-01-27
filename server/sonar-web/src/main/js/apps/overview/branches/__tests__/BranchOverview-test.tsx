@@ -37,6 +37,7 @@ import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { GraphType } from '../../../../types/project-activity';
+import { Measure, Metric } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
 import BranchOverviewRenderer from '../BranchOverviewRenderer';
 
@@ -49,8 +50,8 @@ jest.mock('../../../../api/measures', () => {
   const { mockMeasure, mockMetric } = jest.requireActual('../../../../helpers/testMocks');
   return {
     getMeasuresWithPeriodAndMetrics: jest.fn((_, metricKeys: string[]) => {
-      const metrics: T.Metric[] = [];
-      const measures: T.Measure[] = [];
+      const metrics: Metric[] = [];
+      const measures: Measure[] = [];
       metricKeys.forEach(key => {
         if (key === 'unknown_metric') {
           return;

@@ -22,6 +22,7 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
+import { AppState } from '../../types/types';
 import { ResetButtonLink } from '../controls/buttons';
 import Modal from '../controls/Modal';
 import { withAppState } from '../hoc/withAppState';
@@ -30,7 +31,7 @@ import SystemUpgradeItem from './SystemUpgradeItem';
 import { UpdateUseCase } from './utils';
 
 interface Props {
-  appState: Pick<T.AppState, 'edition' | 'version'>;
+  appState: Pick<AppState, 'edition' | 'version'>;
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
   latestLTS: string;

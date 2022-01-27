@@ -22,6 +22,7 @@ import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { click, waitAndUpdate } from '../../../../helpers/testUtils';
 import { MetricKey } from '../../../../types/metrics';
+import { SourceViewerFile } from '../../../../types/types';
 import MeasuresOverlay from '../MeasuresOverlay';
 
 jest.mock('../../../../api/issues', () => ({
@@ -139,7 +140,7 @@ jest.mock('../../../../api/metrics', () => ({
     ])
 }));
 
-const sourceViewerFile: T.SourceViewerFile = {
+const sourceViewerFile: SourceViewerFile = {
   key: 'component-key',
   measures: {},
   path: 'src/file.js',

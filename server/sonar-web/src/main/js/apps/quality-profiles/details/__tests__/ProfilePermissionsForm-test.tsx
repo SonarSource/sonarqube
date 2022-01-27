@@ -22,6 +22,7 @@ import * as React from 'react';
 import { addGroup, addUser, searchGroups, searchUsers } from '../../../../api/quality-profiles';
 import { mockGroup, mockUser } from '../../../../helpers/testMocks';
 import { submit, waitAndUpdate } from '../../../../helpers/testUtils';
+import { UserSelected } from '../../../../types/types';
 import ProfilePermissionsForm from '../ProfilePermissionsForm';
 import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 
@@ -43,7 +44,7 @@ it('correctly adds users', async () => {
   const onUserAdd = jest.fn();
   const wrapper = shallowRender({ onUserAdd });
 
-  const user: T.UserSelected = { ...mockUser(), name: 'John doe', active: true, selected: true };
+  const user: UserSelected = { ...mockUser(), name: 'John doe', active: true, selected: true };
   wrapper.instance().handleValueChange(user);
   expect(wrapper.find(ProfilePermissionsFormSelect).prop('selected')).toBe(user);
 

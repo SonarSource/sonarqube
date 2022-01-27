@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { removeUser } from '../../../../api/quality-profiles';
 import { click } from '../../../../helpers/testUtils';
+import { UserSelected } from '../../../../types/types';
 import ProfilePermissionsUser from '../ProfilePermissionsUser';
 
 jest.mock('../../../../api/quality-profiles', () => ({
@@ -28,7 +29,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
 }));
 
 const profile = { language: 'js', name: 'Sonar way' };
-const user: T.UserSelected = { login: 'luke', name: 'Luke Skywalker', selected: true };
+const user: UserSelected = { login: 'luke', name: 'Luke Skywalker', selected: true };
 
 beforeEach(() => {
   jest.clearAllMocks();

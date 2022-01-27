@@ -30,11 +30,12 @@ import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { translateWithParameters } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
+import { Component } from '../../types/types';
 import ProjectQualityProfilesAppRenderer from './ProjectQualityProfilesAppRenderer';
 import { ProjectProfile } from './types';
 
 interface Props {
-  component: T.Component;
+  component: Component;
 }
 
 interface State {

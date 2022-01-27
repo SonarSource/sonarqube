@@ -1,3 +1,5 @@
+import { LightComponent } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -42,14 +44,14 @@ export enum ProjectKeyValidationResult {
   OnlyDigits = 'only_digits'
 }
 
-export interface TreeComponent extends T.LightComponent {
+export interface TreeComponent extends LightComponent {
   id?: string;
   name: string;
   path?: string;
   refId?: string;
   refKey?: string;
   tags?: string[];
-  visibility: T.Visibility;
+  visibility: Visibility;
 }
 
 export interface TreeComponentWithPath extends TreeComponent {

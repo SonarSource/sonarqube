@@ -20,6 +20,7 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
+import { Analysis, Paging } from '../types/types';
 
 export function getProjectActivity(
   data: {
@@ -29,7 +30,7 @@ export function getProjectActivity(
     p?: number;
     ps?: number;
   } & BranchParameters
-): Promise<{ analyses: T.Analysis[]; paging: T.Paging }> {
+): Promise<{ analyses: Analysis[]; paging: Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
 

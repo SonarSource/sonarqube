@@ -1,3 +1,5 @@
+import { Dict, Rule, RuleActivation } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -23,10 +25,10 @@ export interface GetRulesAppResponse {
 }
 
 export interface SearchRulesResponse {
-  actives?: T.Dict<T.RuleActivation[]>;
+  actives?: Dict<RuleActivation[]>;
   facets?: { property: string; values: { count: number; val: string }[] }[];
   p: number;
   ps: number;
-  rules: T.Rule[];
+  rules: Rule[];
   total: number;
 }

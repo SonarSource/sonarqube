@@ -22,6 +22,7 @@ import * as React from 'react';
 import { ButtonLink } from '../../../components/controls/buttons';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
+import { HomePage } from '../../../types/types';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
 it('should render correctly', () => {
@@ -40,7 +41,7 @@ it('should render correctly', () => {
 
 it('should correctly call webservices', async () => {
   const setHomePage = jest.fn();
-  const currentPage: T.HomePage = { type: 'MY_ISSUES' };
+  const currentPage: HomePage = { type: 'MY_ISSUES' };
   const wrapper = shallowRender({ setHomePage, currentPage });
 
   // Set homepage.

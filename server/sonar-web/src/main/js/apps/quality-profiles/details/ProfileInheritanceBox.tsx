@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { ProfileInheritanceDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileLink from '../components/ProfileLink';
 
@@ -30,7 +31,7 @@ interface Props {
   displayLink?: boolean;
   extendsBuiltIn?: boolean;
   language: string;
-  profile: T.ProfileInheritanceDetails;
+  profile: ProfileInheritanceDetails;
   type?: string;
 }
 

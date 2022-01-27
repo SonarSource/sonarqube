@@ -27,6 +27,7 @@ import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHi
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { SOURCE_SCOPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { formatFacetStat, Query } from '../utils';
 
 export interface ScopeFacetProps {
@@ -35,7 +36,7 @@ export interface ScopeFacetProps {
   onToggle: (property: string) => void;
   open: boolean;
   scopes: string[];
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
 }
 
 export default function ScopeFacet(props: ScopeFacetProps) {

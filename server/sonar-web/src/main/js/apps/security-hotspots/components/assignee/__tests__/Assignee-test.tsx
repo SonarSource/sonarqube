@@ -25,6 +25,7 @@ import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { HotspotStatus } from '../../../../../types/security-hotspots';
+import { UserActive } from '../../../../../types/types';
 import { Assignee } from '../Assignee';
 import AssigneeRenderer from '../AssigneeRenderer';
 
@@ -58,9 +59,9 @@ it('should handle edition event correctly', () => {
 });
 
 it.each([
-  ['assign to user', mockUser() as T.UserActive],
-  ['unassign', { login: '', name: 'unassigned' } as T.UserActive]
-])('should handle %s event', async (_, user: T.UserActive) => {
+  ['assign to user', mockUser() as UserActive],
+  ['unassign', { login: '', name: 'unassigned' } as UserActive]
+])('should handle %s event', async (_, user: UserActive) => {
   const hotspot = mockHotspot();
   const onAssigneeChange = jest.fn();
 

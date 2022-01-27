@@ -20,13 +20,14 @@
 import { without } from 'lodash';
 import * as React from 'react';
 import GroupIcon from '../../../../components/icons/GroupIcon';
+import { PermissionDefinitions, PermissionGroup } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import PermissionCell from './PermissionCell';
 
 interface Props {
-  group: T.PermissionGroup;
-  onToggle: (group: T.PermissionGroup, permission: string) => Promise<void>;
-  permissions: T.PermissionDefinitions;
+  group: PermissionGroup;
+  onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
+  permissions: PermissionDefinitions;
   selectedPermission?: string;
 }
 

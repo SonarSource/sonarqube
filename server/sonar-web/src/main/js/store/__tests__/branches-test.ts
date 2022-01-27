@@ -22,13 +22,14 @@ import { mockBranch, mockPullRequest } from '../../helpers/mocks/branch-like';
 import { mockQualityGateStatusCondition } from '../../helpers/mocks/quality-gates';
 import { BranchLike } from '../../types/branch-like';
 import { QualityGateStatusCondition } from '../../types/quality-gates';
+import { Status } from '../../types/types';
 import reducer, {
   getBranchStatusByBranchLike,
   registerBranchStatusAction,
   State
 } from '../branches';
 
-type TestArgs = [BranchLike, string, T.Status, QualityGateStatusCondition[], boolean?];
+type TestArgs = [BranchLike, string, Status, QualityGateStatusCondition[], boolean?];
 
 const FAILING_CONDITION = mockQualityGateStatusCondition();
 const COMPONENT = 'foo';

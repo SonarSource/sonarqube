@@ -21,6 +21,7 @@ import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers
 import { loadL10nBundle } from '../helpers/l10n';
 import { parseJSON, request } from '../helpers/request';
 import { getBaseUrl, getSystemStatus } from '../helpers/system';
+import { AppState } from '../types/types';
 import './styles/sonar.ts';
 
 installWebAnalyticsHandler();
@@ -43,7 +44,7 @@ if (isMainApp()) {
 } else {
   // login, maintenance or setup pages
 
-  const appStatePromise: Promise<T.AppState | undefined> = new Promise(resolve => {
+  const appStatePromise: Promise<AppState | undefined> = new Promise(resolve => {
     loadAppState()
       .then(data => {
         resolve(data);

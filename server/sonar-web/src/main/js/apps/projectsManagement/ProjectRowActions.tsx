@@ -24,11 +24,12 @@ import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
+import { LoggedInUser } from '../../types/types';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';
 
 export interface Props {
-  currentUser: Pick<T.LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login'>;
   project: Project;
 }
 

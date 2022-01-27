@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { colors } from '../../../app/theme';
+import { RuleInheritance } from '../../../types/types';
 
 interface Props {
   className?: string;
-  inheritance: T.RuleInheritance;
+  inheritance: RuleInheritance;
 }
 
 export default function RuleInheritanceIcon({ className, inheritance, ...other }: Props) {

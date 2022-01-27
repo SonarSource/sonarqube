@@ -20,15 +20,16 @@
 import * as React from 'react';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import { translate } from '../../../helpers/l10n';
+import { Notification, NotificationProject } from '../../../types/types';
 import NotificationsList from './NotificationsList';
 
 interface Props {
-  addNotification: (n: T.Notification) => void;
+  addNotification: (n: Notification) => void;
   channels: string[];
   collapsed: boolean;
-  notifications: T.Notification[];
-  project: T.NotificationProject;
-  removeNotification: (n: T.Notification) => void;
+  notifications: Notification[];
+  project: NotificationProject;
+  removeNotification: (n: Notification) => void;
   types: string[];
 }
 

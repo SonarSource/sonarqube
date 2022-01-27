@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component } from '../../../../types/types';
 import RenderOptions from '../../components/RenderOptions';
 import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
 
 export interface DotNetProps {
-  component: T.Component;
+  component: Component;
   host: string;
   token: string;
 }

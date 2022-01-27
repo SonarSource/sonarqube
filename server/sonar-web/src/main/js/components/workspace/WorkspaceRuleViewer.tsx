@@ -23,7 +23,7 @@ import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeade
 import WorkspaceRuleDetails from './WorkspaceRuleDetails';
 import WorkspaceRuleTitle from './WorkspaceRuleTitle';
 
-export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
+export interface Props extends Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   rule: RuleDescriptor;
   height: number;
   onClose: (componentKey: string) => void;

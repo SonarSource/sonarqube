@@ -24,6 +24,7 @@ import { WorkspaceContext } from '../../../components/workspace/context';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricType } from '../../../types/metrics';
+import { ComponentMeasure as TypeComponentMeasure, Metric } from '../../../types/types';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentName from './ComponentName';
 import ComponentPin from './ComponentPin';
@@ -32,12 +33,12 @@ interface Props {
   branchLike?: BranchLike;
   canBePinned?: boolean;
   canBrowse?: boolean;
-  component: T.ComponentMeasure;
+  component: TypeComponentMeasure;
   hasBaseComponent: boolean;
   isBaseComponent?: boolean;
-  metrics: T.Metric[];
-  previous?: T.ComponentMeasure;
-  rootComponent: T.ComponentMeasure;
+  metrics: Metric[];
+  previous?: TypeComponentMeasure;
+  rootComponent: TypeComponentMeasure;
   selected?: boolean;
 }
 

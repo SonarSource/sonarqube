@@ -23,11 +23,12 @@ import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
+import { Component, MeasureEnhanced } from '../../../types/types';
 
 export interface DrilldownMeasureValueProps {
   branchLike?: BranchLike;
-  component: T.Component;
-  measures: T.MeasureEnhanced[];
+  component: Component;
+  measures: MeasureEnhanced[];
   metric: MetricKey;
 }
 

@@ -22,12 +22,13 @@ import { getDelivery } from '../../../api/webhooks';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Webhook, WebhookDelivery } from '../../../types/types';
 import DeliveryItem from './DeliveryItem';
 
 interface Props {
-  delivery: T.WebhookDelivery;
+  delivery: WebhookDelivery;
   onClose: () => void;
-  webhook: T.Webhook;
+  webhook: Webhook;
 }
 
 interface State {

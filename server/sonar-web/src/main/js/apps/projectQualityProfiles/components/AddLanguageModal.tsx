@@ -29,12 +29,13 @@ import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { Store } from '../../../store/rootReducer';
+import { Dict, Languages } from '../../../types/types';
 
 export interface AddLanguageModalProps {
-  languages: T.Languages;
+  languages: Languages;
   onClose: () => void;
   onSubmit: (key: string) => Promise<void>;
-  profilesByLanguage: T.Dict<Profile[]>;
+  profilesByLanguage: Dict<Profile[]>;
   unavailableLanguages: string[];
 }
 

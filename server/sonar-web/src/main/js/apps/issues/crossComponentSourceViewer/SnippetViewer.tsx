@@ -31,37 +31,48 @@ import {
 import { translate } from '../../../helpers/l10n';
 import { scrollHorizontally } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
+import {
+  Dict,
+  Duplication,
+  ExpandDirection,
+  FlowLocation,
+  Issue,
+  IssuesByLine,
+  LinearIssueLocation,
+  SourceLine,
+  SourceViewerFile
+} from '../../../types/types';
 import './SnippetViewer.css';
 import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 
 interface Props {
   branchLike: BranchLike | undefined;
-  component: T.SourceViewerFile;
+  component: SourceViewerFile;
   displayLineNumberOptions?: boolean;
   displaySCM?: boolean;
-  duplications?: T.Duplication[];
+  duplications?: Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
-  expandBlock: (snippetIndex: number, direction: T.ExpandDirection) => Promise<void>;
-  handleCloseIssues: (line: T.SourceLine) => void;
-  handleOpenIssues: (line: T.SourceLine) => void;
+  expandBlock: (snippetIndex: number, direction: ExpandDirection) => Promise<void>;
+  handleCloseIssues: (line: SourceLine) => void;
+  handleOpenIssues: (line: SourceLine) => void;
   handleSymbolClick: (symbols: string[]) => void;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[];
   index: number;
-  issue: Pick<T.Issue, 'key' | 'textRange' | 'line'>;
+  issue: Pick<Issue, 'key' | 'textRange' | 'line'>;
   issuePopup?: { issue: string; name: string };
-  issuesByLine: T.IssuesByLine;
+  issuesByLine: IssuesByLine;
   lastSnippetOfLastGroup: boolean;
-  loadDuplications?: (line: T.SourceLine) => void;
-  locations: T.FlowLocation[];
-  locationsByLine: { [line: number]: T.LinearIssueLocation[] };
-  onIssueChange: (issue: T.Issue) => void;
+  loadDuplications?: (line: SourceLine) => void;
+  locations: FlowLocation[];
+  locationsByLine: { [line: number]: LinearIssueLocation[] };
+  onIssueChange: (issue: Issue) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onLocationSelect: (index: number) => void;
-  openIssuesByLine: T.Dict<boolean>;
+  openIssuesByLine: Dict<boolean>;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scroll?: (element: HTMLElement, offset?: number) => void;
-  snippet: T.SourceLine[];
+  snippet: SourceLine[];
 }
 
 export default class SnippetViewer extends React.PureComponent<Props> {
@@ -101,7 +112,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     }
   };
 
-  expandBlock = (direction: T.ExpandDirection) => () =>
+  expandBlock = (direction: ExpandDirection) => () =>
     this.props.expandBlock(this.props.index, direction).then(() => {
       if (direction === 'down') {
         this.scrollToLastExpandedRow();
@@ -122,10 +133,10 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     displayDuplications: boolean;
     displaySCM?: boolean;
     index: number;
-    issuesForLine: T.Issue[];
-    issueLocations: T.LinearIssueLocation[];
-    line: T.SourceLine;
-    snippet: T.SourceLine[];
+    issuesForLine: Issue[];
+    issueLocations: LinearIssueLocation[];
+    line: SourceLine;
+    snippet: SourceLine[];
     symbols: string[];
     verticalBuffer: number;
   }) {

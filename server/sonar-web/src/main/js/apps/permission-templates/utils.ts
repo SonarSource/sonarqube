@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
+import { Permission, PermissionTemplate } from '../../types/types';
 
 export const PERMISSIONS_ORDER = [
   'user',
@@ -30,14 +31,14 @@ export const PERMISSIONS_ORDER = [
 
 export const PERMISSION_TEMPLATES_PATH = '/permission_templates';
 
-export function sortPermissions(permissions: T.Permission[]) {
+export function sortPermissions(permissions: Permission[]) {
   return sortBy(permissions, p => PERMISSIONS_ORDER.indexOf(p.key));
 }
 
 export function mergePermissionsToTemplates(
-  permissionTemplates: T.PermissionTemplate[],
-  basePermissions: T.Permission[]
-): T.PermissionTemplate[] {
+  permissionTemplates: PermissionTemplate[],
+  basePermissions: Permission[]
+): PermissionTemplate[] {
   return permissionTemplates.map(permissionTemplate => {
     // it's important to keep the order of the permission template's permissions
     // the same as the order of base permissions
@@ -53,9 +54,9 @@ export function mergePermissionsToTemplates(
 }
 
 export function mergeDefaultsToTemplates(
-  permissionTemplates: T.PermissionTemplate[],
+  permissionTemplates: PermissionTemplate[],
   defaultTemplates: Array<{ templateId: string; qualifier: string }> = []
-): T.PermissionTemplate[] {
+): PermissionTemplate[] {
   return permissionTemplates.map(permissionTemplate => {
     const defaultFor: string[] = [];
 

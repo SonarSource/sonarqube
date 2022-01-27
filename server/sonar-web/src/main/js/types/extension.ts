@@ -22,6 +22,7 @@ import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
 import { L10nBundle } from './l10n';
+import { CurrentUser, Dict } from './types';
 
 export enum AdminPageExtension {
   GovernanceConsole = 'governance/views_console'
@@ -39,17 +40,17 @@ export interface ExtensionStartMethod {
 export interface ExtensionStartMethodParameter {
   store: ReduxStore<Store, any>;
   el: HTMLElement | undefined | null;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   intl: IntlShape;
   location: Location;
   router: Router;
   theme: {
-    colors: T.Dict<string>;
-    sizes: T.Dict<string>;
-    rawSizes: T.Dict<number>;
-    fonts: T.Dict<string>;
-    zIndexes: T.Dict<string>;
-    others: T.Dict<string>;
+    colors: Dict<string>;
+    sizes: Dict<string>;
+    rawSizes: Dict<number>;
+    fonts: Dict<string>;
+    zIndexes: Dict<string>;
+    others: Dict<string>;
   };
   baseUrl: string;
   l10nBundle: L10nBundle;

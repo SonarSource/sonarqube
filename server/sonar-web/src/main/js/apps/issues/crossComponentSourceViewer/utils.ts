@@ -17,13 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ExpandDirection,
+  FlowLocation,
+  Issue,
+  LineMap,
+  Snippet,
+  SnippetGroup,
+  SnippetsByComponent,
+  SourceLine
+} from '../../../types/types';
+
 const LINES_ABOVE = 5;
 const LINES_BELOW = 5;
 export const MERGE_DISTANCE = 11; // Merge if snippets are eleven lines away (separated by 10 lines) or fewer
 export const LINES_BELOW_ISSUE = 9;
 export const EXPAND_BY_LINES = 50;
 
-function unknownComponent(key: string): T.SnippetsByComponent {
+function unknownComponent(key: string): SnippetsByComponent {
   return {
     component: {
       key,
@@ -42,7 +53,7 @@ function collision([startA, endA]: number[], [startB, endB]: number[]) {
   return !(startA > endB + MERGE_DISTANCE || endA < startB - MERGE_DISTANCE);
 }
 
-export function getPrimaryLocation(issue: T.Issue): T.FlowLocation {
+export function getPrimaryLocation(issue: Issue): FlowLocation {
   return {
     component: issue.component,
     textRange: issue.textRange || {
@@ -54,7 +65,7 @@ export function getPrimaryLocation(issue: T.Issue): T.FlowLocation {
   };
 }
 
-function addLinesBellow(params: { issue: T.Issue; locationEnd: number }) {
+function addLinesBellow(params: { issue: Issue; locationEnd: number }) {
   const { issue, locationEnd } = params;
   const issueEndLine = (issue.textRange && issue.textRange.endLine) || 0;
 
@@ -67,9 +78,9 @@ function addLinesBellow(params: { issue: T.Issue; locationEnd: number }) {
 
 export function createSnippets(params: {
   component: string;
-  issue: T.Issue;
-  locations: T.FlowLocation[];
-}): T.Snippet[] {
+  issue: Issue;
+  locations: FlowLocation[];
+}): Snippet[] {
   const { component, issue, locations } = params;
 
   const hasSecondaryLocations = issue.secondaryLocations.length > 0;
@@ -79,7 +90,7 @@ export function createSnippets(params: {
   // For each location: compute its range, and then compare with other ranges
   // to merge snippets that collide.
   const ranges = (addIssueLocation ? [getPrimaryLocation(issue), ...locations] : locations).reduce(
-    (snippets: T.Snippet[], loc, index) => {
+    (snippets: Snippet[], loc, index) => {
       const startIndex = Math.max(1, loc.textRange.startLine - LINES_ABOVE);
       const endIndex = addLinesBellow({ issue, locationEnd: loc.textRange.endLine });
 
@@ -122,7 +133,7 @@ export function createSnippets(params: {
   return hasSecondaryLocations ? ranges.sort((a, b) => a.start - b.start) : ranges;
 }
 
-export function linesForSnippets(snippets: T.Snippet[], componentLines: T.LineMap) {
+export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {
   return snippets
     .map(snippet => {
       const lines = [];
@@ -137,13 +148,13 @@ export function linesForSnippets(snippets: T.Snippet[], componentLines: T.LineMa
 }
 
 export function groupLocationsByComponent(
-  issue: T.Issue,
-  locations: T.FlowLocation[],
-  components: { [key: string]: T.SnippetsByComponent }
+  issue: Issue,
+  locations: FlowLocation[],
+  components: { [key: string]: SnippetsByComponent }
 ) {
   let currentComponent = '';
-  let currentGroup: T.SnippetGroup;
-  const groups: T.SnippetGroup[] = [];
+  let currentGroup: SnippetGroup;
+  const groups: SnippetGroup[] = [];
 
   const addGroup = (componentKey: string) => {
     currentGroup = {
@@ -177,9 +188,9 @@ export function expandSnippet({
   snippetIndex,
   snippets
 }: {
-  direction: T.ExpandDirection;
+  direction: ExpandDirection;
   snippetIndex: number;
-  snippets: T.Snippet[];
+  snippets: Snippet[];
 }) {
   const snippetToExpand = snippets.find(s => s.index === snippetIndex);
   if (!snippetToExpand) {
@@ -206,6 +217,6 @@ export function expandSnippet({
   });
 }
 
-export function inSnippet(line: number, snippet: T.SourceLine[]) {
+export function inSnippet(line: number, snippet: SourceLine[]) {
   return line >= snippet[0].line && line <= snippet[snippet.length - 1].line;
 }

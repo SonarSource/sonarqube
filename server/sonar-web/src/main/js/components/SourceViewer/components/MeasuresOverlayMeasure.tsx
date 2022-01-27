@@ -21,10 +21,11 @@ import * as React from 'react';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { isMetricKey, MetricKey } from '../../../types/metrics';
+import { Metric } from '../../../types/types';
 import Measure from '../../measure/Measure';
 
 export interface MeasureWithMetric {
-  metric: T.Metric;
+  metric: Metric;
   value?: string;
 }
 

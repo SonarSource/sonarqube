@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Defaults from './Defaults';
 
 interface Props {
-  template: T.PermissionTemplate;
+  template: PermissionTemplate;
 }
 
 export default function NameCell({ template }: Props) {

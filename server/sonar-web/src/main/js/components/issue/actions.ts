@@ -20,12 +20,13 @@
 import throwGlobalError from '../../app/utils/throwGlobalError';
 import { parseIssueFromResponse } from '../../helpers/issues';
 import { IssueResponse } from '../../types/issues';
+import { Issue } from '../../types/types';
 
 export const updateIssue = (
-  onChange: (issue: T.Issue) => void,
+  onChange: (issue: Issue) => void,
   resultPromise: Promise<IssueResponse>,
-  oldIssue?: T.Issue,
-  newIssue?: T.Issue
+  oldIssue?: Issue,
+  newIssue?: Issue
 ) => {
   const optimisticUpdate = oldIssue !== undefined && newIssue !== undefined;
   if (optimisticUpdate) {

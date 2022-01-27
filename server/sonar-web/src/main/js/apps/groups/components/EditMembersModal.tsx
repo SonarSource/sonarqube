@@ -27,16 +27,17 @@ import SelectList, {
   SelectListSearchParams
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
+import { Group, UserSelected } from '../../../types/types';
 
 interface Props {
-  group: T.Group;
+  group: Group;
   onClose: () => void;
 }
 
 interface State {
   lastSearchParams?: SelectListSearchParams;
   needToReload: boolean;
-  users: T.UserSelected[];
+  users: UserSelected[];
   usersTotalCount?: number;
   selectedUsers: string[];
 }

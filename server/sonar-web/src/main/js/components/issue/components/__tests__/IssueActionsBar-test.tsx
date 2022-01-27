@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockIssue } from '../../../../helpers/testMocks';
+import { Issue } from '../../../../types/types';
 import IssueActionsBar from '../IssueActionsBar';
 
 jest.mock('../../actions', () => ({ updateIssue: jest.fn() }));
@@ -73,7 +74,7 @@ it('should render effort correctly', () => {
 });
 
 describe('callback', () => {
-  const issue: T.Issue = mockIssue();
+  const issue: Issue = mockIssue();
   const onChangeMock = jest.fn();
   const togglePopupMock = jest.fn();
 

@@ -24,17 +24,18 @@ import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Paging, Webhook, WebhookDelivery } from '../../../types/types';
 import DeliveryAccordion from './DeliveryAccordion';
 
 interface Props {
   onClose: () => void;
-  webhook: T.Webhook;
+  webhook: Webhook;
 }
 
 interface State {
-  deliveries: T.WebhookDelivery[];
+  deliveries: WebhookDelivery[];
   loading: boolean;
-  paging?: T.Paging;
+  paging?: Paging;
 }
 
 const PAGE_SIZE = 10;

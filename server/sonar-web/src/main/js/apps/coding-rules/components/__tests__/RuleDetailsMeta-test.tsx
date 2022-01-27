@@ -19,10 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { RuleDetails } from '../../../../types/types';
 import RuleDetailsMeta from '../RuleDetailsMeta';
 import RuleDetailsTagsPopup from '../RuleDetailsTagsPopup';
 
-const RULE: T.RuleDetails = {
+const RULE: RuleDetails = {
   key: 'squid:S1133',
   repo: 'squid',
   name: 'Deprecated code should be removed',
@@ -35,7 +36,7 @@ const RULE: T.RuleDetails = {
   type: 'CODE_SMELL'
 };
 
-const EXTERNAL_RULE: T.RuleDetails = {
+const EXTERNAL_RULE: RuleDetails = {
   key: 'external_xoo:OneExternalIssuePerLine',
   repo: 'external_xoo',
   name: 'xoo:OneExternalIssuePerLine',
@@ -47,7 +48,7 @@ const EXTERNAL_RULE: T.RuleDetails = {
   type: 'UNKNOWN'
 };
 
-const EXTERNAL_RULE_WITH_DATA: T.RuleDetails = {
+const EXTERNAL_RULE_WITH_DATA: RuleDetails = {
   key: 'external_xoo:OneExternalIssueWithDetailsPerLine',
   repo: 'external_xoo',
   name: 'One external issue per line',

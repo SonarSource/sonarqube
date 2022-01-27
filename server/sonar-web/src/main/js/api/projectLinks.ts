@@ -19,8 +19,9 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
+import { ProjectLink } from '../types/types';
 
-export function getProjectLinks(projectKey: string): Promise<T.ProjectLink[]> {
+export function getProjectLinks(projectKey: string): Promise<ProjectLink[]> {
   return getJSON('/api/project_links/search', { projectKey }).then(r => r.links, throwGlobalError);
 }
 
@@ -32,6 +33,6 @@ export function createLink(data: {
   name: string;
   projectKey: string;
   url: string;
-}): Promise<T.ProjectLink> {
+}): Promise<ProjectLink> {
   return postJSON('/api/project_links/create', data).then(r => r.link, throwGlobalError);
 }

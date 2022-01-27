@@ -40,6 +40,7 @@ import {
   HotspotStatusFilter,
   RawHotspot
 } from '../../types/security-hotspots';
+import { Component, CurrentUser, Dict } from '../../types/types';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 import { SECURITY_STANDARDS } from './utils';
@@ -52,8 +53,8 @@ interface DispatchProps {
 
 interface OwnProps {
   branchLike?: BranchLike;
-  currentUser: T.CurrentUser;
-  component: T.Component;
+  currentUser: CurrentUser;
+  component: Component;
   location: Location;
   router: Router;
 }
@@ -270,7 +271,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     }
 
     if (filterByCategory || filterByCWE || filterByFile) {
-      const hotspotFilters: T.Dict<string> = {};
+      const hotspotFilters: Dict<string> = {};
 
       if (filterByCategory) {
         hotspotFilters[filterByCategory.standard] = filterByCategory.category;

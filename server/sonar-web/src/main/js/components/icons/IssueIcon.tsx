@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { IssueType } from '../../types/types';
 import BugIcon from './BugIcon';
 import CodeSmellIcon from './CodeSmellIcon';
 import { IconProps } from './Icon';
@@ -25,7 +26,7 @@ import SecurityHotspotIcon from './SecurityHotspotIcon';
 import VulnerabilityIcon from './VulnerabilityIcon';
 
 interface Props extends IconProps {
-  type: T.IssueType;
+  type: IssueType;
 }
 
 export default function IssueIcon({ type, ...iconProps }: Props) {

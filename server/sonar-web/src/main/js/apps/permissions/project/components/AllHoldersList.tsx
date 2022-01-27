@@ -20,17 +20,24 @@
 import { without } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../../../components/controls/ListFooter';
+import {
+  Component,
+  Paging,
+  PermissionGroup,
+  PermissionUser,
+  Visibility
+} from '../../../../types/types';
 import HoldersList from '../../shared/components/HoldersList';
 import SearchForm from '../../shared/components/SearchForm';
 import { convertToPermissionDefinitions, PERMISSIONS_ORDER_BY_QUALIFIER } from '../../utils';
 
 interface Props {
-  component: T.Component;
+  component: Component;
   filter: string;
   grantPermissionToGroup: (group: string, permission: string) => Promise<void>;
   grantPermissionToUser: (user: string, permission: string) => Promise<void>;
-  groups: T.PermissionGroup[];
-  groupsPaging?: T.Paging;
+  groups: PermissionGroup[];
+  groupsPaging?: Paging;
   onLoadMore: () => void;
   onFilterChange: (filter: string) => void;
   onPermissionSelect: (permissions?: string) => void;
@@ -39,13 +46,13 @@ interface Props {
   revokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
   revokePermissionFromUser: (user: string, permission: string) => Promise<void>;
   selectedPermission?: string;
-  users: T.PermissionUser[];
-  usersPaging?: T.Paging;
-  visibility?: T.Visibility;
+  users: PermissionUser[];
+  usersPaging?: Paging;
+  visibility?: Visibility;
 }
 
 export default class AllHoldersList extends React.PureComponent<Props> {
-  handleToggleUser = (user: T.PermissionUser, permission: string) => {
+  handleToggleUser = (user: PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
@@ -55,7 +62,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
     }
   };
 
-  handleToggleGroup = (group: T.PermissionGroup, permission: string) => {
+  handleToggleGroup = (group: PermissionGroup, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {

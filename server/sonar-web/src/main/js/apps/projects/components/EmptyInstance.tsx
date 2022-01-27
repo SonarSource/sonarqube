@@ -24,9 +24,10 @@ import { withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
+import { CurrentUser } from '../../../types/types';
 
 export interface EmptyInstanceProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   router: WithRouterProps['router'];
 }
 

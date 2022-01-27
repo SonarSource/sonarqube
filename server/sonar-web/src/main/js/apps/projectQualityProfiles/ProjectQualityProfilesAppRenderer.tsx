@@ -30,6 +30,7 @@ import EditIcon from '../../components/icons/EditIcon';
 import PlusCircleIcon from '../../components/icons/PlusCircleIcon';
 import { translate } from '../../helpers/l10n';
 import { getRulesUrl } from '../../helpers/urls';
+import { Component } from '../../types/types';
 import BuiltInQualityProfileBadge from '../quality-profiles/components/BuiltInQualityProfileBadge';
 import AddLanguageModal from './components/AddLanguageModal';
 import SetQualityProfileModal from './components/SetQualityProfileModal';
@@ -37,7 +38,7 @@ import { ProjectProfile } from './types';
 
 export interface ProjectQualityProfilesAppRendererProps {
   allProfiles?: Profile[];
-  component: T.Component;
+  component: Component;
   loading: boolean;
   onAddLanguage: (key: string) => Promise<void>;
   onCloseModal: () => void;

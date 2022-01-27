@@ -26,11 +26,12 @@ import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../helpers/sanitize';
 import { TaskWarning } from '../../types/tasks';
+import { CurrentUser } from '../../types/types';
 import { withCurrentUser } from '../hoc/withCurrentUser';
 
 interface Props {
   componentKey?: string;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   onClose: () => void;
   onWarningDismiss?: () => void;
   taskId?: string;

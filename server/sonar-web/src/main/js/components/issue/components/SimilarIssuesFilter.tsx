@@ -23,17 +23,18 @@ import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import FilterIcon from '../../../components/icons/FilterIcon';
 import { translate } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 import SimilarIssuesPopup from '../popups/SimilarIssuesPopup';
 
 interface Props {
   isOpen: boolean;
-  issue: T.Issue;
+  issue: Issue;
   togglePopup: (popup: string, show?: boolean) => void;
-  onFilter?: (property: string, issue: T.Issue) => void;
+  onFilter?: (property: string, issue: Issue) => void;
 }
 
 export default class SimilarIssuesFilter extends React.PureComponent<Props> {
-  handleFilter = (property: string, issue: T.Issue) => {
+  handleFilter = (property: string, issue: Issue) => {
     this.togglePopup(false);
     if (this.props.onFilter) {
       this.props.onFilter(property, issue);

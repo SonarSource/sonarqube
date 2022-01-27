@@ -30,6 +30,7 @@ import {
   hasMessage,
   translate
 } from '../../../helpers/l10n';
+import { MeasureEnhanced } from '../../../types/types';
 import {
   addMeasureCategories,
   filterMeasures,
@@ -40,7 +41,7 @@ import {
 import FacetMeasureValue from './FacetMeasureValue';
 
 interface Props {
-  domain: { name: string; measures: T.MeasureEnhanced[] };
+  domain: { name: string; measures: MeasureEnhanced[] };
   onChange: (metric: string) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -63,11 +64,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
     this.props.onToggle(this.props.domain.name);
   };
 
-  hasFacetSelected = (
-    domain: { name: string },
-    measures: T.MeasureEnhanced[],
-    selected: string
-  ) => {
+  hasFacetSelected = (domain: { name: string }, measures: MeasureEnhanced[], selected: string) => {
     const measureSelected = measures.find(measure => measure.metric.key === selected);
     const overviewSelected = domain.name === selected && this.hasOverview(domain.name);
     return measureSelected || overviewSelected;
@@ -77,7 +74,7 @@ export default class DomainFacet extends React.PureComponent<Props> {
     return this.props.showFullMeasures && hasBubbleChart(domain);
   };
 
-  renderItemFacetStat = (item: T.MeasureEnhanced) => {
+  renderItemFacetStat = (item: MeasureEnhanced) => {
     return hasFacetStat(item.metric.key) ? (
       <FacetMeasureValue displayLeak={this.props.showFullMeasures} measure={item} />
     ) : null;

@@ -25,10 +25,11 @@ import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { EditionKey } from '../../../../types/editions';
+import { AppState } from '../../../../types/types';
 
 export interface CreationTooltipProps {
   alm: AlmKeys;
-  appState: T.AppState;
+  appState: AppState;
   children: React.ReactElement<{}>;
   preventCreation: boolean;
 }

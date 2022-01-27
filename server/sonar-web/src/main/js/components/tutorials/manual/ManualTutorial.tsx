@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Component, LoggedInUser } from '../../../types/types';
 import InstanceMessage from '../../common/InstanceMessage';
 import ProjectAnalysisStep from './ProjectAnalysisStep';
 import TokenStep from './TokenStep';
@@ -29,8 +30,8 @@ export enum Steps {
 }
 
 interface Props {
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
 }
 
 interface State {

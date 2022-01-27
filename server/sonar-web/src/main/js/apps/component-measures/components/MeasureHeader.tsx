@@ -28,16 +28,17 @@ import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentMeasure, Measure as TypeMeasure, Metric, Period } from '../../../types/types';
 import { hasFullMeasures } from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.ComponentMeasure;
-  leakPeriod?: T.Period;
+  component: ComponentMeasure;
+  leakPeriod?: Period;
   measureValue?: string;
-  metric: T.Metric;
-  secondaryMeasure?: T.Measure;
+  metric: Metric;
+  secondaryMeasure?: TypeMeasure;
 }
 
 export default function MeasureHeader(props: Props) {

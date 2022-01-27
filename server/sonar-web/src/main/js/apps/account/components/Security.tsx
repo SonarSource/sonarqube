@@ -23,10 +23,11 @@ import { connect } from 'react-redux';
 import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { LoggedInUser } from '../../../types/types';
 import Tokens from './Tokens';
 
 export interface SecurityProps {
-  user: T.LoggedInUser;
+  user: LoggedInUser;
 }
 
 export function Security({ user }: SecurityProps) {
@@ -45,7 +46,7 @@ export function Security({ user }: SecurityProps) {
 }
 
 const mapStateToProps = (state: Store) => ({
-  user: getCurrentUser(state) as T.LoggedInUser
+  user: getCurrentUser(state) as LoggedInUser
 });
 
 export default connect(mapStateToProps)(Security);

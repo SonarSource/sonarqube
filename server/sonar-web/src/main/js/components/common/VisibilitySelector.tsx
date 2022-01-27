@@ -21,13 +21,14 @@ import classNames from 'classnames';
 import * as React from 'react';
 import Radio from '../../components/controls/Radio';
 import { translate } from '../../helpers/l10n';
+import { Visibility } from '../../types/types';
 
 interface Props {
   canTurnToPrivate?: boolean;
   className?: string;
-  onChange: (visibility: T.Visibility) => void;
+  onChange: (visibility: Visibility) => void;
   showDetails?: boolean;
-  visibility?: T.Visibility;
+  visibility?: Visibility;
 }
 
 export default class VisibilitySelector extends React.PureComponent<Props> {

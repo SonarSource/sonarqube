@@ -24,13 +24,14 @@ import Toggler from '../../../components/controls/Toggler';
 import Tooltip from '../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
+import { SourceLine } from '../../../types/types';
 
 export interface LineDuplicationBlockProps {
   blocksLoaded: boolean;
   duplicated: boolean;
   index: number;
-  line: T.SourceLine;
-  onClick?: (line: T.SourceLine) => void;
+  line: SourceLine;
+  onClick?: (line: SourceLine) => void;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
 }
 

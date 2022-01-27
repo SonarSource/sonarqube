@@ -21,6 +21,7 @@ import { debounce, difference, size, sortBy } from 'lodash';
 import * as React from 'react';
 import { searchProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -30,9 +31,9 @@ import SearchableFilterOption from './SearchableFilterOption';
 interface Props {
   facet?: Facet;
   maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   property?: string;
-  query: T.Dict<any>;
+  query: Dict<any>;
   value?: string[];
 }
 

@@ -29,6 +29,7 @@ import {
   GithubRepository,
   GitlabProject
 } from '../types/alm-integration';
+import { Paging } from '../types/types';
 import { ProjectBase } from './components';
 
 export function setAlmPersonalAccessToken(
@@ -198,7 +199,7 @@ export function getGithubRepositories(data: {
   pageSize: number;
   page?: number;
   query?: string;
-}): Promise<{ repositories: GithubRepository[]; paging: T.Paging }> {
+}): Promise<{ repositories: GithubRepository[]; paging: Paging }> {
   const { almSetting, organization, pageSize, page = 1, query } = data;
   return getJSON('/api/alm_integrations/list_github_repositories', {
     almSetting,
@@ -214,7 +215,7 @@ export function getGitlabProjects(data: {
   page?: number;
   pageSize?: number;
   query?: string;
-}): Promise<{ projects: GitlabProject[]; projectsPaging: T.Paging }> {
+}): Promise<{ projects: GitlabProject[]; projectsPaging: Paging }> {
   const { almSetting, pageSize, page, query } = data;
   return getJSON('/api/alm_integrations/search_gitlab_repos', {
     almSetting,

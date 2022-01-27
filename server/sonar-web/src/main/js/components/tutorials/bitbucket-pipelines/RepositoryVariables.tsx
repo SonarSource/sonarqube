@@ -23,6 +23,7 @@ import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { Component, LoggedInUser } from '../../../types/types';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import TokenStepGenerator from '../components/TokenStepGenerator';
 import { buildBitbucketCloudLink } from '../utils';
@@ -30,8 +31,8 @@ import { buildBitbucketCloudLink } from '../utils';
 export interface RepositoryVariablesProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   onDone: () => void;
   projectBinding?: ProjectAlmBindingResponse;
 }

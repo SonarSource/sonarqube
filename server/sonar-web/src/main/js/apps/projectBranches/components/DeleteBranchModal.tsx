@@ -24,10 +24,11 @@ import Modal from '../../../components/controls/Modal';
 import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 
 interface Props {
   branchLike: BranchLike;
-  component: T.Component;
+  component: Component;
   onClose: () => void;
   onDelete: () => void;
 }

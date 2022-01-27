@@ -22,10 +22,11 @@ import * as React from 'react';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
+import { Analysis as TypeAnalysis } from '../../../types/types';
 import Event from './Event';
 
 export interface AnalysisProps {
-  analysis: T.Analysis;
+  analysis: TypeAnalysis;
   qualifier: string;
 }
 

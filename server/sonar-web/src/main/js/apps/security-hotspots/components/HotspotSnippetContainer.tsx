@@ -24,12 +24,13 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Hotspot } from '../../../types/security-hotspots';
+import { Component, ExpandDirection, SourceLine } from '../../../types/types';
 import { constructSourceViewerFile } from '../utils';
 import HotspotSnippetContainerRenderer from './HotspotSnippetContainerRenderer';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   hotspot: Hotspot;
 }
 
@@ -37,7 +38,7 @@ interface State {
   highlightedSymbols: string[];
   lastLine?: number;
   loading: boolean;
-  sourceLines: T.SourceLine[];
+  sourceLines: SourceLine[];
 }
 
 const BUFFER_LINES = 5;
@@ -66,7 +67,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     this.mounted = false;
   }
 
-  checkLastLine(lines: T.SourceLine[], target: number): number | undefined {
+  checkLastLine(lines: SourceLine[], target: number): number | undefined {
     if (lines.length < 1) {
       return undefined;
     }
@@ -100,7 +101,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       from,
       to,
       ...getBranchLikeQuery(branchLike)
-    }).catch(() => [] as T.SourceLine[]);
+    }).catch(() => [] as SourceLine[]);
 
     if (this.mounted) {
       const lastLine = this.checkLastLine(sourceLines, to);
@@ -111,7 +112,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     }
   }
 
-  handleExpansion = (direction: T.ExpandDirection) => {
+  handleExpansion = (direction: ExpandDirection) => {
     const { branchLike, hotspot } = this.props;
     const { sourceLines } = this.state;
 

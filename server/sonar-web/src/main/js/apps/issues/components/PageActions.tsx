@@ -22,13 +22,14 @@ import HomePageSelect from '../../../components/controls/HomePageSelect';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
+import { Paging } from '../../../types/types';
 import IssuesCounter from './IssuesCounter';
 import TotalEffort from './TotalEffort';
 
 export interface PageActionsProps {
   canSetHome: boolean;
   effortTotal: number | undefined;
-  paging?: T.Paging;
+  paging?: Paging;
   selectedIndex?: number;
 }
 

@@ -25,9 +25,10 @@ import {
   QualityGateStatusCondition,
   QualityGateStatusConditionEnhanced
 } from '../../types/quality-gates';
+import { QualityGate } from '../../types/types';
 import { mockMeasureEnhanced, mockMetric } from '../testMocks';
 
-export function mockQualityGate(overrides: Partial<T.QualityGate> = {}): T.QualityGate {
+export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGate {
   return {
     id: '1',
     name: 'qualitygate',

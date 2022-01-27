@@ -26,6 +26,7 @@ import { hasMessage } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { EditionKey } from '../../../types/editions';
+import { LoggedInUser } from '../../../types/types';
 import { StartupModal } from '../StartupModal';
 
 jest.mock('../../../api/marketplace', () => ({
@@ -48,7 +49,7 @@ jest.mock('../../../helpers/dates', () => ({
 
 jest.mock('date-fns', () => ({ differenceInDays: jest.fn().mockReturnValue(1) }));
 
-const LOGGED_IN_USER: T.LoggedInUser = {
+const LOGGED_IN_USER: LoggedInUser = {
   groups: [],
   isLoggedIn: true,
   login: 'luke',

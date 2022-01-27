@@ -26,16 +26,17 @@ import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
+import { AppState, Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';
 
 const EmptyOverview = lazyLoadComponent(() => import('./EmptyOverview'));
 const PullRequestOverview = lazyLoadComponent(() => import('../pullRequests/PullRequestOverview'));
 
 interface Props {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
+  appState: Pick<AppState, 'branchesEnabled'>;
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
   projectBinding?: ProjectAlmBindingResponse;

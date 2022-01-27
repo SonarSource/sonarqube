@@ -25,6 +25,7 @@ import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
 import { colors, rawSizes } from '../../app/theme';
 import { isDefined } from '../../helpers/types';
+import { Chart } from '../../types/types';
 import './AdvancedTimeline.css';
 import './LineChart.css';
 
@@ -44,7 +45,7 @@ export interface Props {
   metricType: string;
   padding: number[];
   selectedDate?: Date;
-  series: T.Chart.Serie[];
+  series: Chart.Serie[];
   showAreas?: boolean;
   startDate?: Date;
   updateSelectedDate?: (selectedDate?: Date) => void;
@@ -140,7 +141,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       .range([availableHeight, 0]);
   };
 
-  getYScale = (props: Props, availableHeight: number, flatData: T.Chart.Point[]): YScale => {
+  getYScale = (props: Props, availableHeight: number, flatData: Chart.Point[]): YScale => {
     if (props.metricType === 'RATING') {
       return this.getRatingScale(availableHeight);
     } else if (props.metricType === 'LEVEL') {
@@ -152,11 +153,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       .nice();
   };
 
-  getXScale = (
-    { startDate, endDate }: Props,
-    availableWidth: number,
-    flatData: T.Chart.Point[]
-  ) => {
+  getXScale = ({ startDate, endDate }: Props, availableWidth: number, flatData: Chart.Point[]) => {
     const dateRange = extent(flatData, d => d.x) as [Date, Date];
     const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
     const end = endDate && endDate < dateRange[1] ? endDate : dateRange[1];
@@ -266,7 +263,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
       if (state.mouseOver && firstSerie) {
         const { updateTooltip } = this.props;
         const date = state.xScale.invert(xPos);
-        const bisectX = bisector<T.Chart.Point, Date>(d => d.x).right;
+        const bisectX = bisector<Chart.Point, Date>(d => d.x).right;
         let idx = bisectX(firstSerie.data, date);
         if (idx >= 0) {
           const previousPoint = firstSerie.data[idx - 1];
@@ -450,7 +447,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderLines = () => {
-    const lineGenerator = d3Line<T.Chart.Point>()
+    const lineGenerator = d3Line<Chart.Point>()
       .defined(d => Boolean(d.y || d.y === 0))
       .x(d => this.state.xScale(d.x))
       .y(d => this.state.yScale(d.y));
@@ -504,7 +501,7 @@ export default class AdvancedTimeline extends React.PureComponent<Props, State> 
   };
 
   renderAreas = () => {
-    const areaGenerator = area<T.Chart.Point>()
+    const areaGenerator = area<Chart.Point>()
       .defined(d => Boolean(d.y || d.y === 0))
       .x(d => this.state.xScale(d.x))
       .y1(d => this.state.yScale(d.y))

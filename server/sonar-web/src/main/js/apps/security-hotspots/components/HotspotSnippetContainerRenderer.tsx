@@ -24,6 +24,12 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
+import {
+  ExpandDirection,
+  LinearIssueLocation,
+  SourceLine,
+  SourceViewerFile
+} from '../../../types/types';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
 
 export interface HotspotSnippetContainerRendererProps {
@@ -32,11 +38,11 @@ export interface HotspotSnippetContainerRendererProps {
   highlightedSymbols: string[];
   hotspot: Hotspot;
   loading: boolean;
-  locations: { [line: number]: T.LinearIssueLocation[] };
-  onExpandBlock: (direction: T.ExpandDirection) => Promise<void>;
+  locations: { [line: number]: LinearIssueLocation[] };
+  onExpandBlock: (direction: ExpandDirection) => Promise<void>;
   onSymbolClick: (symbols: string[]) => void;
-  sourceLines: T.SourceLine[];
-  sourceViewerFile: T.SourceViewerFile;
+  sourceLines: SourceLine[];
+  sourceViewerFile: SourceViewerFile;
 }
 
 const noop = () => undefined;

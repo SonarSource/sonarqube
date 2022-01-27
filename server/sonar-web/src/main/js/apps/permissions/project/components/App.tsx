@@ -23,26 +23,27 @@ import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import { translate } from '../../../../helpers/l10n';
+import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 
 interface Props {
-  component: T.Component;
-  onComponentChange: (changes: Partial<T.Component>) => void;
+  component: Component;
+  onComponentChange: (changes: Partial<Component>) => void;
 }
 
 interface State {
   disclaimer: boolean;
   filter: string;
-  groups: T.PermissionGroup[];
-  groupsPaging?: T.Paging;
+  groups: PermissionGroup[];
+  groupsPaging?: Paging;
   loading: boolean;
   query: string;
   selectedPermission?: string;
-  users: T.PermissionUser[];
-  usersPaging?: T.Paging;
+  users: PermissionUser[];
+  usersPaging?: Paging;
 }
 
 export default class App extends React.PureComponent<Props, State> {
@@ -79,7 +80,7 @@ export default class App extends React.PureComponent<Props, State> {
     const { component } = this.props;
     const { filter, query, selectedPermission } = this.state;
 
-    const getUsers: Promise<{ paging?: T.Paging; users: T.PermissionUser[] }> =
+    const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
       filter !== 'groups'
         ? api.getPermissionsUsersForComponent({
             projectKey: component.key,
@@ -89,7 +90,7 @@ export default class App extends React.PureComponent<Props, State> {
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups: Promise<{ paging?: T.Paging; groups: T.PermissionGroup[] }> =
+    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
       filter !== 'users'
         ? api.getPermissionsGroupsForComponent({
             projectKey: component.key,

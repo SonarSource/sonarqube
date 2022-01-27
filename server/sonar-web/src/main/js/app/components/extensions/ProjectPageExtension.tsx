@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
 export interface ProjectPageExtensionProps {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   location: { query: { id: string } };
   params: {
     extensionKey: string;

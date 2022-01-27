@@ -28,13 +28,14 @@ import ActionsDropdown, { ActionsDropdownItem } from '../../../components/contro
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 
 interface Props {
   fromDetails?: boolean;
-  permissionTemplate: T.PermissionTemplate;
+  permissionTemplate: PermissionTemplate;
   refresh: () => void;
   router: Pick<Router, 'replace'>;
   topQualifiers: string[];

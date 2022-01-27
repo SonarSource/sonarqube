@@ -26,15 +26,16 @@ import Level from '../../../components/ui/Level';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { orderLinks } from '../../../helpers/projectLinks';
 import { getProjectUrl } from '../../../helpers/urls';
+import { MyProject, ProjectLink } from '../../../types/types';
 
 interface Props {
-  project: T.MyProject;
+  project: MyProject;
 }
 
 export default function ProjectCard({ project }: Props) {
   const { links } = project;
 
-  const orderedLinks: T.ProjectLink[] = orderLinks(
+  const orderedLinks: ProjectLink[] = orderLinks(
     links.map((link, i) => {
       const { href, name, type } = link;
       return {

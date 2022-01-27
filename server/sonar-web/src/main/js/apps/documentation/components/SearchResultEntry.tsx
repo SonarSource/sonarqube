@@ -20,11 +20,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router';
+import { Dict } from '../../../types/types';
 import { cutWords, DocumentationEntry, highlightMarks } from '../utils';
 
 export interface SearchResult {
   exactMatch?: boolean;
-  highlights: T.Dict<[number, number][]>;
+  highlights: Dict<[number, number][]>;
   longestTerm: string;
   page: DocumentationEntry;
   query: string;

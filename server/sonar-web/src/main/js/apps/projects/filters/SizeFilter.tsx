@@ -21,6 +21,7 @@ import * as React from 'react';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingAverageValue, getSizeRatingLabel } from '../../../helpers/ratings';
+import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -29,7 +30,7 @@ export interface Props {
   className?: string;
   facet?: Facet;
   maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   property?: string;
   value?: any;
 }

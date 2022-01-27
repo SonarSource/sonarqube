@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
+import { AnalysisEvent } from '../../../types/types';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
@@ -27,7 +28,7 @@ import RemoveEventForm from './forms/RemoveEventForm';
 export interface EventProps {
   analysisKey: string;
   canAdmin?: boolean;
-  event: T.AnalysisEvent;
+  event: AnalysisEvent;
   isFirst?: boolean;
   onChange?: (event: string, name: string) => Promise<void>;
   onDelete?: (analysisKey: string, event: string) => Promise<void>;

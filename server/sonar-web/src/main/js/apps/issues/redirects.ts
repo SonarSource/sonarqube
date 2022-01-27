@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from '../../helpers/urls';
+import { RawQuery } from '../../types/types';
 import { areMyIssuesSelected, parseQuery, serializeQuery } from './utils';
 
 function parseHash(hash: string) {
-  const query: T.RawQuery = {};
+  const query: RawQuery = {};
   const parts = hash.split('|');
   parts.forEach(part => {
     const tokens = part.split('=');

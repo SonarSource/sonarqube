@@ -19,4 +19,4 @@
  */
 type ActionCreator = (...args: any[]) => { type: string };
 
-export type ActionType<F extends ActionCreator, T> = T.Omit<ReturnType<F>, 'type'> & { type: T };
+export type ActionType<F extends ActionCreator, T> = Omit<ReturnType<F>, 'type'> & { type: T };

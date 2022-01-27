@@ -24,17 +24,18 @@ import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IssueResponse } from '../../../types/issues';
+import { Issue, RawQuery } from '../../../types/types';
 import SeverityHelper from '../../shared/SeverityHelper';
 import SetSeverityPopup from '../popups/SetSeverityPopup';
 
 interface Props {
   canSetSeverity: boolean;
   isOpen: boolean;
-  issue: Pick<T.Issue, 'severity'>;
+  issue: Pick<Issue, 'severity'>;
   setIssueProperty: (
-    property: keyof T.Issue,
+    property: keyof Issue,
     popup: string,
-    apiCall: (query: T.RawQuery) => Promise<IssueResponse>,
+    apiCall: (query: RawQuery) => Promise<IssueResponse>,
     value: string
   ) => void;
   togglePopup: (popup: string, show?: boolean) => void;

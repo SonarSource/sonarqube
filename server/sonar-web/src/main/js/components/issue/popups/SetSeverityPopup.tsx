@@ -21,11 +21,12 @@ import * as React from 'react';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import SeverityIcon from '../../../components/icons/SeverityIcon';
 import { translate } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 
 type Props = {
-  issue: Pick<T.Issue, 'severity'>;
+  issue: Pick<Issue, 'severity'>;
   onSelect: (severity: string) => void;
 };
 

@@ -21,10 +21,11 @@ import * as React from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import { translate } from '../../../helpers/l10n';
+import { Group } from '../../../types/types';
 import EditMembersModal from './EditMembersModal';
 
 interface Props {
-  group: T.Group;
+  group: Group;
   onEdit: () => void;
 }
 

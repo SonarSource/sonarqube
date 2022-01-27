@@ -28,6 +28,7 @@ import {
   AlmSettingsBindingStatus,
   isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
 import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
@@ -38,7 +39,7 @@ import CreationTooltip from './CreationTooltip';
 export interface AlmTabRendererProps {
   almTab: AlmTabs;
   branchesEnabled: boolean;
-  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
+  definitionStatus: Dict<AlmSettingsBindingStatus>;
   editDefinition?: boolean;
   editedDefinition?: AlmBindingDefinition;
   definitions: AlmBindingDefinition[];

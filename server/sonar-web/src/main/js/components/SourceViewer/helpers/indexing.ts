@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { flatten } from 'lodash';
+import { Duplication, Issue, LinearIssueLocation, SourceLine } from '../../../types/types';
 import { splitByTokens } from './highlight';
 import { getLinearLocations } from './issueLocations';
 
-export function issuesByLine(issues: T.Issue[]) {
-  const index: { [line: number]: T.Issue[] } = {};
+export function issuesByLine(issues: Issue[]) {
+  const index: { [line: number]: Issue[] } = {};
   issues.forEach(issue => {
     const line = issue.textRange ? issue.textRange.endLine : 0;
     if (!(line in index)) {
@@ -34,9 +35,9 @@ export function issuesByLine(issues: T.Issue[]) {
 }
 
 export function issuesByComponentAndLine(
-  issues: T.Issue[] = []
-): { [component: string]: { [line: number]: T.Issue[] } } {
-  return issues.reduce((mapping: { [component: string]: { [line: number]: T.Issue[] } }, issue) => {
+  issues: Issue[] = []
+): { [component: string]: { [line: number]: Issue[] } } {
+  return issues.reduce((mapping: { [component: string]: { [line: number]: Issue[] } }, issue) => {
     mapping[issue.component] = mapping[issue.component] || {};
     const line = issue.textRange ? issue.textRange.endLine : 0;
     mapping[issue.component][line] = mapping[issue.component][line] || [];
@@ -45,8 +46,8 @@ export function issuesByComponentAndLine(
   }, {});
 }
 
-export function locationsByLine(issues: Pick<T.Issue, 'textRange'>[]) {
-  const index: { [line: number]: T.LinearIssueLocation[] } = {};
+export function locationsByLine(issues: Pick<Issue, 'textRange'>[]) {
+  const index: { [line: number]: LinearIssueLocation[] } = {};
   issues.forEach(issue => {
     getLinearLocations(issue.textRange).forEach(location => {
       if (!(location.line in index)) {
@@ -58,7 +59,7 @@ export function locationsByLine(issues: Pick<T.Issue, 'textRange'>[]) {
   return index;
 }
 
-export function duplicationsByLine(duplications: T.Duplication[] | undefined) {
+export function duplicationsByLine(duplications: Duplication[] | undefined) {
   if (duplications == null) {
     return {};
   }
@@ -82,7 +83,7 @@ export function duplicationsByLine(duplications: T.Duplication[] | undefined) {
   return duplicationsByLine;
 }
 
-export function symbolsByLine(sources: T.SourceLine[]) {
+export function symbolsByLine(sources: SourceLine[]) {
   const index: { [line: number]: string[] } = {};
   sources.forEach(line => {
     const tokens = splitByTokens(line.code || '');

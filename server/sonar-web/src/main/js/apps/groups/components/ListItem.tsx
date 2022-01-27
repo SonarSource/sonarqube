@@ -23,12 +23,13 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
+import { Group } from '../../../types/types';
 import EditMembers from './EditMembers';
 
 export interface ListItemProps {
-  group: T.Group;
-  onDelete: (group: T.Group) => void;
-  onEdit: (group: T.Group) => void;
+  group: Group;
+  onDelete: (group: Group) => void;
+  onEdit: (group: Group) => void;
   onEditMembers: () => void;
 }
 

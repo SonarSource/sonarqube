@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
 import Step from '../components/Step';
@@ -32,7 +33,7 @@ import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
   baseUrl: string;
-  component: T.Component;
+  component: Component;
   hasCLanguageFeature: boolean;
   finished: boolean;
   onDone: () => void;
@@ -42,7 +43,7 @@ export interface JenkinsfileStepProps {
 
 export interface LanguageProps {
   onDone: () => void;
-  component: T.Component;
+  component: Component;
   baseUrl: string;
 }
 

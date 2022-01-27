@@ -29,6 +29,7 @@ import {
 import { getHostUrl } from '../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { Paging } from '../../../types/types';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
@@ -44,7 +45,7 @@ interface State {
   loadingOrganizations: boolean;
   loadingRepositories: boolean;
   organizations: GithubOrganization[];
-  repositoryPaging: T.Paging;
+  repositoryPaging: Paging;
   repositories: GithubRepository[];
   searchQuery: string;
   selectedOrganization?: GithubOrganization;

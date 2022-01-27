@@ -41,15 +41,16 @@ import {
 } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
+import { IssueType, Measure, SourceViewerFile } from '../../types/types';
 import { WorkspaceContextShape } from '../workspace/context';
 import MeasuresOverlay from './components/MeasuresOverlay';
 
 interface Props {
   branchLike: BranchLike | undefined;
-  componentMeasures?: T.Measure[];
+  componentMeasures?: Measure[];
   openComponent: WorkspaceContextShape['openComponent'];
   showMeasures?: boolean;
-  sourceViewerFile: T.SourceViewerFile;
+  sourceViewerFile: SourceViewerFile;
 }
 
 interface State {
@@ -82,7 +83,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
         <>
           <div className="source-viewer-header-measure-separator" />
 
-          {ISSUE_TYPES.map((type: T.IssueType) => {
+          {ISSUE_TYPES.map((type: IssueType) => {
             const params = {
               ...getBranchLikeQuery(branchLike),
               files: sourceViewerFile.path,

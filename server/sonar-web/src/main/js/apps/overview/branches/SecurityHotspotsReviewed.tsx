@@ -23,9 +23,10 @@ import CoverageRating from '../../../components/ui/CoverageRating';
 import { translate } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
+import { MeasureEnhanced } from '../../../types/types';
 
 export interface SecurityHotspotsReviewedProps {
-  measures: T.MeasureEnhanced[];
+  measures: MeasureEnhanced[];
   useDiffMetric?: boolean;
 }
 

@@ -21,6 +21,14 @@ import { uniq } from 'lodash';
 import { combineReducers, Dispatch } from 'redux';
 import * as api from '../api/users';
 import { isLoggedIn } from '../helpers/users';
+import {
+  CurrentUser,
+  CurrentUserSetting,
+  CurrentUserSettingNames,
+  Dict,
+  HomePage,
+  LoggedInUser
+} from '../types/types';
 import { ActionType } from './utils/actions';
 
 const enum Actions {
@@ -37,20 +45,20 @@ type Action =
   | ActionType<typeof setSonarlintAd, Actions.SetSonarlintAd>;
 
 export interface State {
-  usersByLogin: T.Dict<any>;
+  usersByLogin: Dict<any>;
   userLogins: string[];
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
-export function receiveCurrentUser(user: T.CurrentUser) {
+export function receiveCurrentUser(user: CurrentUser) {
   return { type: Actions.ReceiveCurrentUser, user };
 }
 
-export function setHomePageAction(homepage: T.HomePage) {
+export function setHomePageAction(homepage: HomePage) {
   return { type: Actions.SetHomePageAction, homepage };
 }
 
-export function setCurrentUserSettingAction(setting: T.CurrentUserSetting) {
+export function setCurrentUserSettingAction(setting: CurrentUserSetting) {
   return { type: Actions.SetCurrentUserSetting, setting };
 }
 
@@ -58,7 +66,7 @@ export function setSonarlintAd() {
   return { type: Actions.SetSonarlintAd };
 }
 
-export function setHomePage(homepage: T.HomePage) {
+export function setHomePage(homepage: HomePage) {
   return (dispatch: Dispatch) => {
     api.setHomePage(homepage).then(
       () => {
@@ -69,7 +77,7 @@ export function setHomePage(homepage: T.HomePage) {
   };
 }
 
-export function setCurrentUserSetting(setting: T.CurrentUserSetting) {
+export function setCurrentUserSetting(setting: CurrentUserSetting) {
   return (dispatch: Dispatch, getState: () => { users: State }) => {
     const oldSetting = getCurrentUserSetting(getState().users, setting.key);
     dispatch(setCurrentUserSettingAction(setting));
@@ -106,10 +114,10 @@ function currentUser(
     return action.user;
   }
   if (action.type === Actions.SetHomePageAction && isLoggedIn(state)) {
-    return { ...state, homepage: action.homepage } as T.LoggedInUser;
+    return { ...state, homepage: action.homepage } as LoggedInUser;
   }
   if (action.type === Actions.SetCurrentUserSetting && isLoggedIn(state)) {
-    let settings: T.CurrentUserSetting[];
+    let settings: CurrentUserSetting[];
     if (state.settings) {
       settings = [...state.settings];
       const index = settings.findIndex(setting => setting.key === action.setting.key);
@@ -121,10 +129,10 @@ function currentUser(
     } else {
       settings = [action.setting];
     }
-    return { ...state, settings } as T.LoggedInUser;
+    return { ...state, settings } as LoggedInUser;
   }
   if (action.type === Actions.SetSonarlintAd && isLoggedIn(state)) {
-    return { ...state, sonarLintAdSeen: true } as T.LoggedInUser;
+    return { ...state, sonarLintAdSeen: true } as LoggedInUser;
   }
   return state;
 }
@@ -135,7 +143,7 @@ export function getCurrentUser(state: State) {
   return state.currentUser;
 }
 
-export function getCurrentUserSetting(state: State, key: T.CurrentUserSettingNames) {
+export function getCurrentUserSetting(state: State, key: CurrentUserSettingNames) {
   let setting;
   if (isLoggedIn(state.currentUser) && state.currentUser.settings) {
     setting = state.currentUser.settings.find(setting => setting.key === key);

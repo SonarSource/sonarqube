@@ -24,6 +24,7 @@ import ActionsDropdown, {
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 import { isUserActive } from '../../../helpers/users';
+import { User } from '../../../types/types';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
@@ -31,7 +32,7 @@ import UserForm from './UserForm';
 interface Props {
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
-  user: T.User;
+  user: User;
 }
 
 interface State {

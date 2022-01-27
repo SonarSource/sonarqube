@@ -20,6 +20,7 @@
 import { omit } from 'lodash';
 import { combineReducers } from 'redux';
 import { ActionType } from '../../../store/utils/actions';
+import { Dict } from '../../../types/types';
 
 const enum Actions {
   CancelChange = 'settingsPage/CANCEL_CHANGE',
@@ -39,9 +40,9 @@ type Action =
   | ActionType<typeof stopLoading, Actions.StopLoading>;
 
 export interface State {
-  changedValues: T.Dict<any>;
-  loading: T.Dict<boolean>;
-  validationMessages: T.Dict<string>;
+  changedValues: Dict<any>;
+  loading: Dict<boolean>;
+  validationMessages: Dict<string>;
 }
 
 export function cancelChange(key: string) {

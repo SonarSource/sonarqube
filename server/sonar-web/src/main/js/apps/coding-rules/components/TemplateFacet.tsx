@@ -22,7 +22,7 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
-interface Props extends T.Omit<BasicProps, 'onChange' | 'values'> {
+interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
   onChange: (changes: { template: boolean | undefined }) => void;
   value: boolean | undefined;
 }

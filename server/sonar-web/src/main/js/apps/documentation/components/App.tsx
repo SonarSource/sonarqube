@@ -34,6 +34,7 @@ import { ParsedContent, separateFrontMatter } from '../../../helpers/markdown';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { isDefined } from '../../../helpers/types';
 import { InstalledPlugin, PluginType } from '../../../types/plugins';
+import { Dict } from '../../../types/types';
 import { getUrlsList } from '../navTreeUtils';
 import getPages from '../pages';
 import '../styles.css';
@@ -121,7 +122,7 @@ export default class App extends React.PureComponent<Props, State> {
       path => regex.test(path) && path !== `/${LANGUAGES_BASE_URL}/overview/`
     );
 
-    const parsedContent: T.Dict<ParsedContent> = {};
+    const parsedContent: Dict<ParsedContent> = {};
 
     pluginsWithDoc.filter(isDefined).forEach(plugin => {
       const parsed = separateFrontMatter(plugin.content);

@@ -36,12 +36,13 @@ import {
 } from '../../../helpers/security-standard';
 import { Facet } from '../../../types/issues';
 import { SecurityStandard, Standards, StandardType } from '../../../types/security';
+import { Dict } from '../../../types/types';
 import { formatFacetStat, Query, STANDARDS } from '../utils';
 
 interface Props {
   cwe: string[];
   cweOpen: boolean;
-  cweStats: T.Dict<number> | undefined;
+  cweStats: Dict<number> | undefined;
   fetchingCwe: boolean;
   fetchingOwaspTop10: boolean;
   fetchingSansTop25: boolean;
@@ -52,14 +53,14 @@ interface Props {
   open: boolean;
   owaspTop10: string[];
   owaspTop10Open: boolean;
-  owaspTop10Stats: T.Dict<number> | undefined;
+  owaspTop10Stats: Dict<number> | undefined;
   query: Partial<Query>;
   sansTop25: string[];
   sansTop25Open: boolean;
-  sansTop25Stats: T.Dict<number> | undefined;
+  sansTop25Stats: Dict<number> | undefined;
   sonarsourceSecurity: string[];
   sonarsourceSecurityOpen: boolean;
-  sonarsourceSecurityStats: T.Dict<number> | undefined;
+  sonarsourceSecurityStats: Dict<number> | undefined;
 }
 
 interface State {

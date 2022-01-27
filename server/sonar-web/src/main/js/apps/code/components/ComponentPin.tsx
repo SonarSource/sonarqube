@@ -22,10 +22,11 @@ import PinIcon from '../../../components/icons/PinIcon';
 import { WorkspaceContextShape } from '../../../components/workspace/context';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentMeasure } from '../../../types/types';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.ComponentMeasure;
+  component: ComponentMeasure;
   openComponent: WorkspaceContextShape['openComponent'];
 }
 

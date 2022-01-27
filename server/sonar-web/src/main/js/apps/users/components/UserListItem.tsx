@@ -23,6 +23,7 @@ import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
+import { IdentityProvider, User } from '../../../types/types';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserGroups from './UserGroups';
@@ -30,11 +31,11 @@ import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 
 interface Props {
-  identityProvider?: T.IdentityProvider;
+  identityProvider?: IdentityProvider;
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
   updateTokensCount: (login: string, tokensCount: number) => void;
-  user: T.User;
+  user: User;
 }
 
 interface State {

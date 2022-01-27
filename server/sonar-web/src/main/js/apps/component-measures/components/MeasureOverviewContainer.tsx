@@ -24,6 +24,14 @@ import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-li
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isView } from '../../../types/component';
+import {
+  ComponentMeasure,
+  ComponentMeasureIntern,
+  Dict,
+  Issue,
+  Metric,
+  Period
+} from '../../../types/types';
 import { Query } from '../utils';
 import MeasureOverview from './MeasureOverview';
 
@@ -31,10 +39,10 @@ interface Props {
   branchLike?: BranchLike;
   className?: string;
   domain: string;
-  leakPeriod?: T.Period;
-  metrics: T.Dict<T.Metric>;
-  onIssueChange?: (issue: T.Issue) => void;
-  rootComponent: T.ComponentMeasure;
+  leakPeriod?: Period;
+  metrics: Dict<Metric>;
+  onIssueChange?: (issue: Issue) => void;
+  rootComponent: ComponentMeasure;
   router: InjectedRouter;
   selected?: string;
   updateQuery: (query: Partial<Query>) => void;
@@ -46,7 +54,7 @@ interface LoadingState {
 }
 
 interface State {
-  component?: T.ComponentMeasure;
+  component?: ComponentMeasure;
   loading: LoadingState;
 }
 
@@ -103,7 +111,7 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
     }
   };
 
-  updateSelected = (component: T.ComponentMeasureIntern) => {
+  updateSelected = (component: ComponentMeasureIntern) => {
     if (this.state.component && isView(this.state.component.qualifier)) {
       this.props.router.push(getProjectUrl(component.refKey || component.key, component.branch));
     } else {

@@ -19,14 +19,15 @@
  */
 import * as React from 'react';
 import { fetchResponseExample as fetchResponseExampleApi } from '../../../api/web-api';
+import { WebApi } from '../../../types/types';
 
 interface Props {
-  action: T.WebApi.Action;
-  domain: T.WebApi.Domain;
+  action: WebApi.Action;
+  domain: WebApi.Domain;
 }
 
 interface State {
-  responseExample?: T.WebApi.Example;
+  responseExample?: WebApi.Example;
 }
 
 export default class ResponseExample extends React.PureComponent<Props, State> {

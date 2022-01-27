@@ -24,11 +24,12 @@ import Tooltip from '../../../components/controls/Tooltip';
 import IssueIcon from '../../../components/icons/IssueIcon';
 import { sortByType } from '../../../helpers/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Issue, SourceLine } from '../../../types/types';
 
 export interface LineIssuesIndicatorProps {
-  issues: T.Issue[];
+  issues: Issue[];
   issuesOpen?: boolean;
-  line: T.SourceLine;
+  line: SourceLine;
   onClick: () => void;
 }
 

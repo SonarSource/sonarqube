@@ -31,6 +31,7 @@ import {
   serializeStringArray
 } from '../../helpers/query';
 import { GraphType } from '../../types/project-activity';
+import { Dict, ParsedAnalysis, RawQuery } from '../../types/types';
 
 export interface Query {
   category: string;
@@ -66,13 +67,13 @@ export function selectedDateQueryChanged(prevQuery: Query, nextQuery: Query) {
 }
 
 interface AnalysesByDay {
-  byDay: T.Dict<T.ParsedAnalysis[]>;
+  byDay: Dict<ParsedAnalysis[]>;
   version: string | null;
   key: string | null;
 }
 
 export function getAnalysesByVersionByDay(
-  analyses: T.ParsedAnalysis[],
+  analyses: ParsedAnalysis[],
   query: Pick<Query, 'category' | 'from' | 'to'>
 ) {
   return analyses.reduce<AnalysesByDay[]>((acc, analysis) => {
@@ -115,7 +116,7 @@ export function getAnalysesByVersionByDay(
   }, []);
 }
 
-export function parseQuery(urlQuery: T.RawQuery): Query {
+export function parseQuery(urlQuery: RawQuery): Query {
   return {
     category: parseAsString(urlQuery['category']),
     customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
@@ -127,7 +128,7 @@ export function parseQuery(urlQuery: T.RawQuery): Query {
   };
 }
 
-export function serializeQuery(query: Query): T.RawQuery {
+export function serializeQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
     from: serializeDate(query.from),
@@ -136,7 +137,7 @@ export function serializeQuery(query: Query): T.RawQuery {
   });
 }
 
-export function serializeUrlQuery(query: Query): T.RawQuery {
+export function serializeUrlQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
     custom_metrics: serializeStringArray(query.customMetrics),

@@ -20,23 +20,24 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockIssue } from '../../../../helpers/testMocks';
+import { FlowLocation } from '../../../../types/types';
 import ConciseIssueLocationsNavigator from '../ConciseIssueLocationsNavigator';
 
-const location1: T.FlowLocation = {
+const location1: FlowLocation = {
   component: 'foo',
   componentName: 'src/foo.js',
   msg: 'Do not use foo',
   textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 }
 };
 
-const location2: T.FlowLocation = {
+const location2: FlowLocation = {
   component: 'foo',
   componentName: 'src/foo.js',
   msg: 'Do not use foo',
   textRange: { startLine: 8, endLine: 8, startOffset: 0, endOffset: 5 }
 };
 
-const location3: T.FlowLocation = {
+const location3: FlowLocation = {
   component: 'bar',
   componentName: 'src/bar.js',
   msg: 'Do not use bar',

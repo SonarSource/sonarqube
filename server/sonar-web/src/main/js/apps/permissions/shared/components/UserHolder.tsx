@@ -21,14 +21,15 @@ import { without } from 'lodash';
 import * as React from 'react';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
+import { PermissionDefinitions, PermissionUser } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 import PermissionCell from './PermissionCell';
 
 interface Props {
-  onToggle: (user: T.PermissionUser, permission: string) => Promise<void>;
-  permissions: T.PermissionDefinitions;
+  onToggle: (user: PermissionUser, permission: string) => Promise<void>;
+  permissions: PermissionDefinitions;
   selectedPermission?: string;
-  user: T.PermissionUser;
+  user: PermissionUser;
 }
 
 interface State {

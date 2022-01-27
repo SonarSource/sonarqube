@@ -22,17 +22,18 @@ import * as React from 'react';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentMeasure, Metric } from '../../../types/types';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 
 interface Props {
-  baseComponent?: T.ComponentMeasure;
+  baseComponent?: ComponentMeasure;
   branchLike?: BranchLike;
-  components: T.ComponentMeasure[];
-  metrics: T.Metric[];
-  rootComponent: T.ComponentMeasure;
-  selected?: T.ComponentMeasure;
+  components: ComponentMeasure[];
+  metrics: Metric[];
+  rootComponent: ComponentMeasure;
+  selected?: ComponentMeasure;
 }
 
 const BASE_COLUMN_COUNT = 4;

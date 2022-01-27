@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
+import { Breadcrumb, ComponentMeasure } from '../../../types/types';
 import ComponentName from './ComponentName';
 
 interface Props {
   branchLike?: BranchLike;
-  breadcrumbs: T.Breadcrumb[];
-  rootComponent: T.ComponentMeasure;
+  breadcrumbs: Breadcrumb[];
+  rootComponent: ComponentMeasure;
 }
 
 export default function Breadcrumbs({ branchLike, breadcrumbs, rootComponent }: Props) {

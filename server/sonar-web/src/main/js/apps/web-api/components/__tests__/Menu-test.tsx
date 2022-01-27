@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { WebApi } from '../../../../types/types';
 import Menu from '../Menu';
 
-const ACTION: T.WebApi.Action = {
+const ACTION: WebApi.Action = {
   key: 'foo',
   changelog: [],
   description: 'Foo Desc',
@@ -29,12 +30,12 @@ const ACTION: T.WebApi.Action = {
   internal: false,
   post: false
 };
-const DOMAIN1: T.WebApi.Domain = {
+const DOMAIN1: WebApi.Domain = {
   actions: [ACTION],
   path: 'foo',
   description: 'API Foo'
 };
-const DOMAIN2: T.WebApi.Domain = {
+const DOMAIN2: WebApi.Domain = {
   actions: [ACTION],
   path: 'bar',
   description: 'API Bar'
@@ -51,7 +52,7 @@ const SEARCH_FOO = { search: 'Foo', deprecated: false, internal: false };
 const SEARCH_BAR = { search: 'Bar', deprecated: false, internal: false };
 
 it('should render deprecated domains', () => {
-  const domain: T.WebApi.Domain = {
+  const domain: WebApi.Domain = {
     ...DOMAIN2,
     deprecatedSince: '5.0',
     actions: [{ ...ACTION, deprecatedSince: '5.0' }]
@@ -61,7 +62,7 @@ it('should render deprecated domains', () => {
 });
 
 it('should not render deprecated domains', () => {
-  const domain: T.WebApi.Domain = {
+  const domain: WebApi.Domain = {
     ...DOMAIN2,
     deprecatedSince: '5.0',
     actions: [{ ...ACTION, deprecatedSince: '5.0' }]
@@ -71,7 +72,7 @@ it('should not render deprecated domains', () => {
 });
 
 it('should render internal domains', () => {
-  const domain: T.WebApi.Domain = {
+  const domain: WebApi.Domain = {
     ...DOMAIN2,
     internal: true,
     actions: [{ ...ACTION, internal: true }]
@@ -81,7 +82,7 @@ it('should render internal domains', () => {
 });
 
 it('should not render internal domains', () => {
-  const domain: T.WebApi.Domain = {
+  const domain: WebApi.Domain = {
     ...DOMAIN2,
     internal: true,
     actions: [{ ...ACTION, internal: true }]
@@ -91,7 +92,7 @@ it('should not render internal domains', () => {
 });
 
 it('should render only domains with an action matching the query', () => {
-  const domain: T.WebApi.Domain = {
+  const domain: WebApi.Domain = {
     ...DOMAIN2,
     actions: [{ ...ACTION, key: 'bar', description: 'Bar Desc' }]
   };
@@ -100,7 +101,7 @@ it('should render only domains with an action matching the query', () => {
 });
 
 it('should also render domains with an actions description matching the query', () => {
-  const domain: T.WebApi.Domain = {
+  const domain: WebApi.Domain = {
     ...DOMAIN1,
     path: 'baz',
     description: 'API Baz',

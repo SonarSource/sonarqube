@@ -24,11 +24,12 @@ import { DeleteButton, ResetButtonLink, SubmitButton } from '../../../components
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
+import { UserSelected } from '../../../types/types';
 
 interface Props {
-  onDelete: (user: T.UserSelected) => void;
+  onDelete: (user: UserSelected) => void;
   profile: { language: string; name: string };
-  user: T.UserSelected;
+  user: UserSelected;
 }
 
 interface State {

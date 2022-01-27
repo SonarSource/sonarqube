@@ -20,13 +20,14 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
+import { Paging } from '../types/types';
 
 interface TimeMachineResponse {
   measures: {
     metric: string;
     history: Array<{ date: string; value?: string }>;
   }[];
-  paging: T.Paging;
+  paging: Paging;
 }
 
 export function getTimeMachineData(

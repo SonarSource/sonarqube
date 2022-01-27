@@ -20,6 +20,7 @@
 
 import { mockCurrentUser, mockLoggedInUser, mockUser } from '../../helpers/testMocks';
 import { isLoggedIn } from '../../helpers/users';
+import { CurrentUserSetting, HomePage, LoggedInUser } from '../../types/types';
 import reducer, {
   getCurrentUser,
   getCurrentUserSetting,
@@ -42,39 +43,39 @@ describe('reducer and actions', () => {
   });
 
   it('should allow to set the homepage', () => {
-    const homepage: T.HomePage = { type: 'PROJECTS' };
+    const homepage: HomePage = { type: 'PROJECTS' };
     const currentUser = mockLoggedInUser({ homepage: undefined });
     const initialState: State = createState({ currentUser });
 
     const newState = reducer(initialState, setHomePageAction(homepage));
     expect(newState).toEqual(
-      createState({ currentUser: { ...currentUser, homepage } as T.LoggedInUser })
+      createState({ currentUser: { ...currentUser, homepage } as LoggedInUser })
     );
   });
 
   it('should allow to set a user setting', () => {
-    const setting1: T.CurrentUserSetting = { key: 'notifications.optOut', value: '1' };
-    const setting2: T.CurrentUserSetting = { key: 'notifications.readDate', value: '2' };
-    const setting3: T.CurrentUserSetting = { key: 'notifications.optOut', value: '2' };
+    const setting1: CurrentUserSetting = { key: 'notifications.optOut', value: '1' };
+    const setting2: CurrentUserSetting = { key: 'notifications.readDate', value: '2' };
+    const setting3: CurrentUserSetting = { key: 'notifications.optOut', value: '2' };
     const currentUser = mockLoggedInUser();
     const initialState: State = createState({ currentUser });
 
     const newState = reducer(initialState, setCurrentUserSettingAction(setting1));
     expect(newState).toEqual(
-      createState({ currentUser: { ...currentUser, settings: [setting1] } as T.LoggedInUser })
+      createState({ currentUser: { ...currentUser, settings: [setting1] } as LoggedInUser })
     );
 
     const newerState = reducer(newState, setCurrentUserSettingAction(setting2));
     expect(newerState).toEqual(
       createState({
-        currentUser: { ...currentUser, settings: [setting1, setting2] } as T.LoggedInUser
+        currentUser: { ...currentUser, settings: [setting1, setting2] } as LoggedInUser
       })
     );
 
     const newestState = reducer(newerState, setCurrentUserSettingAction(setting3));
     expect(newestState).toEqual(
       createState({
-        currentUser: { ...currentUser, settings: [setting3, setting2] } as T.LoggedInUser
+        currentUser: { ...currentUser, settings: [setting3, setting2] } as LoggedInUser
       })
     );
   });

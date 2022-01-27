@@ -21,11 +21,12 @@ import * as React from 'react';
 import Dropdown from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { SourceLine } from '../../../types/types';
 import SCMPopup from './SCMPopup';
 
 export interface LineSCMProps {
-  line: T.SourceLine;
-  previousLine: T.SourceLine | undefined;
+  line: SourceLine;
+  previousLine: SourceLine | undefined;
 }
 
 export function LineSCM({ line, previousLine }: LineSCMProps) {
@@ -63,7 +64,7 @@ export function LineSCM({ line, previousLine }: LineSCMProps) {
   }
 }
 
-function isSCMChanged(s: T.SourceLine, p: T.SourceLine | undefined) {
+function isSCMChanged(s: SourceLine, p: SourceLine | undefined) {
   let changed = true;
   if (p != null && s.scmRevision != null && p.scmRevision != null) {
     changed = s.scmRevision !== p.scmRevision || s.scmDate !== p.scmDate;

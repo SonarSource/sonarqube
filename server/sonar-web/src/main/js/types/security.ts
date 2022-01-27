@@ -1,3 +1,5 @@
+import { Dict } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -27,5 +29,5 @@ export enum SecurityStandard {
 export type StandardType = SecurityStandard;
 
 export type Standards = {
-  [key in StandardType]: T.Dict<{ title: string; description?: string }>;
+  [key in StandardType]: Dict<{ title: string; description?: string }>;
 };

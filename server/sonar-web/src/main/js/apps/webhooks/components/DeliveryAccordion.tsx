@@ -23,10 +23,11 @@ import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordio
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import { WebhookDelivery } from '../../../types/types';
 import DeliveryItem from './DeliveryItem';
 
 interface Props {
-  delivery: T.WebhookDelivery;
+  delivery: WebhookDelivery;
 }
 
 interface State {

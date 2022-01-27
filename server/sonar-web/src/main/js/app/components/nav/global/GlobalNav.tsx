@@ -21,6 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import NavBar from '../../../../components/ui/NavBar';
 import { getAppState, getCurrentUser, Store } from '../../../../store/rootReducer';
+import { AppState, CurrentUser } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import Search from '../../search/Search';
@@ -30,8 +31,8 @@ import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUser from './GlobalNavUser';
 
 export interface GlobalNavProps {
-  appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
-  currentUser: T.CurrentUser;
+  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
+  currentUser: CurrentUser;
   location: { pathname: string };
 }
 

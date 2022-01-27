@@ -30,6 +30,7 @@ import { getBranchLikeQuery } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../../types/branch-like';
 import { MetricKey } from '../../../../../../types/metrics';
+import { Component, Dict, Metric } from '../../../../../../types/types';
 import BadgeButton from './BadgeButton';
 import BadgeParams from './BadgeParams';
 import './styles.css';
@@ -37,8 +38,8 @@ import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
 
 interface Props {
   branchLike?: BranchLike;
-  metrics: T.Dict<T.Metric>;
-  component: T.Component;
+  metrics: Dict<Metric>;
+  component: Component;
 }
 
 interface State {

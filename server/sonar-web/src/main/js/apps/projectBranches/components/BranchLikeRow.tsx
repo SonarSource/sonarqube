@@ -30,11 +30,12 @@ import {
 } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 import BranchPurgeSetting from './BranchPurgeSetting';
 
 export interface BranchLikeRowProps {
   branchLike: BranchLike;
-  component: T.Component;
+  component: Component;
   displayPurgeSetting?: boolean;
   onDelete: () => void;
   onRename: () => void;

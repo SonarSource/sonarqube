@@ -31,14 +31,15 @@ import { Store } from '../../store/rootReducer';
 import { Branch } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { ComponentReportStatus } from '../../types/component-report';
+import { AppState, Component, CurrentUser } from '../../types/types';
 import { withCurrentUser } from '../hoc/withCurrentUser';
 import ComponentReportActionsRenderer from './ComponentReportActionsRenderer';
 
 interface Props {
-  appState: Pick<T.AppState, 'qualifiers'>;
-  component: T.Component;
+  appState: Pick<AppState, 'qualifiers'>;
+  component: Component;
   branch?: Branch;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 interface State {

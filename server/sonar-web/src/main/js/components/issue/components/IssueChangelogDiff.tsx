@@ -20,9 +20,10 @@
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { IssueChangelogDiff as TypeIssueChangelogDiff } from '../../../types/types';
 
 interface Props {
-  diff: T.IssueChangelogDiff;
+  diff: TypeIssueChangelogDiff;
 }
 
 export default function IssueChangelogDiff({ diff }: Props) {

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import {
   ALM_INTEGRATION,
   ANALYSIS_SCOPE_CATEGORY,
@@ -33,7 +34,7 @@ import NewCodePeriod from './NewCodePeriod';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
-  component: T.Component | undefined;
+  component: Component | undefined;
   selectedCategory: string;
 }
 

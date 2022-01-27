@@ -22,12 +22,13 @@ import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { isApplication } from '../../types/component';
+import { Component } from '../../types/types';
 
 export interface NonAdminPagesContainerProps {
   children: JSX.Element;
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
   onBranchesChange: () => void;

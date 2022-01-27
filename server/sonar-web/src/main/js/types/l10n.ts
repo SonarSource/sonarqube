@@ -1,3 +1,5 @@
+import { Dict } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -24,11 +26,11 @@ export interface L10nBundleRequestParams {
 
 export interface L10nBundleRequestResponse {
   effectiveLocale: string;
-  messages: T.Dict<string>;
+  messages: Dict<string>;
 }
 
 export interface L10nBundle {
   timestamp?: string;
   locale?: string;
-  messages?: T.Dict<string>;
+  messages?: Dict<string>;
 }

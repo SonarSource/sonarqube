@@ -21,6 +21,18 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, TreeComponent, TreeComponentWithPath } from '../types/component';
+import {
+  ComponentMeasure,
+  Dict,
+  DuplicatedFile,
+  Duplication,
+  Metric,
+  MyProject,
+  Paging,
+  SourceLine,
+  SourceViewerFile,
+  Visibility
+} from '../types/types';
 
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
@@ -28,14 +40,14 @@ export interface BaseSearchProjectsParameters {
   projects?: string;
   q?: string;
   qualifiers?: string;
-  visibility?: T.Visibility;
+  visibility?: Visibility;
 }
 
 export interface ProjectBase {
   key: string;
   name: string;
   qualifier: string;
-  visibility: T.Visibility;
+  visibility: Visibility;
 }
 
 export interface Project extends ProjectBase {
@@ -52,7 +64,7 @@ export function getComponents(
   parameters: SearchProjectsParameters
 ): Promise<{
   components: Project[];
-  paging: T.Paging;
+  paging: Paging;
 }> {
   return getJSON('/api/projects/search', parameters);
 }
@@ -74,7 +86,7 @@ export function deletePortfolio(portfolio: string): Promise<void | Response> {
 export function createProject(data: {
   name: string;
   project: string;
-  visibility?: T.Visibility;
+  visibility?: Visibility;
 }): Promise<{ project: ProjectBase }> {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);
 }
@@ -97,10 +109,10 @@ export function getComponentTree(
   metrics: string[] = [],
   additional: RequestData = {}
 ): Promise<{
-  baseComponent: T.ComponentMeasure;
-  components: T.ComponentMeasure[];
-  metrics: T.Metric[];
-  paging: T.Paging;
+  baseComponent: ComponentMeasure;
+  components: ComponentMeasure[];
+  metrics: Metric[];
+  paging: Paging;
 }> {
   const url = '/api/measures/component_tree';
   const data = { ...additional, component, metricKeys: metrics.join(','), strategy };
@@ -125,7 +137,7 @@ export function getComponentLeaves(
 
 export function getComponent(
   data: { component: string; metricKeys: string } & BranchParameters
-): Promise<{ component: T.ComponentMeasure }> {
+): Promise<{ component: ComponentMeasure }> {
   return getJSON('/api/measures/component', data);
 }
 
@@ -141,7 +153,7 @@ type GetTreeParams = {
 
 export function getTree<T = TreeComponent>(
   data: GetTreeParams & { qualifiers?: string }
-): Promise<{ baseComponent: TreeComponent; components: T[]; paging: T.Paging }> {
+): Promise<{ baseComponent: TreeComponent; components: T[]; paging: Paging }> {
   return getJSON('/api/components/tree', data).catch(throwGlobalError);
 }
 
@@ -184,7 +196,7 @@ export function getBreadcrumbs(data: { component: string } & BranchParameters): 
 export function getMyProjects(data: {
   p?: number;
   ps?: number;
-}): Promise<{ paging: T.Paging; projects: T.MyProject[] }> {
+}): Promise<{ paging: Paging; projects: MyProject[] }> {
   return getJSON('/api/projects/search_my_projects', data);
 }
 
@@ -196,7 +208,7 @@ export interface Component {
   analysisDate?: string;
   qualifier: ComponentQualifier;
   tags: string[];
-  visibility: T.Visibility;
+  visibility: Visibility;
   leakPeriodDate?: string;
   needIssueSync?: boolean;
 }
@@ -211,7 +223,7 @@ export function searchProjects(
 ): Promise<{
   components: Component[];
   facets: Facet[];
-  paging: T.Paging;
+  paging: Paging;
 }> {
   const url = '/api/components/search_projects';
   return getJSON(url, data);
@@ -266,19 +278,19 @@ export function getSuggestions(
 
 export function getComponentForSourceViewer(
   data: { component: string } & BranchParameters
-): Promise<T.SourceViewerFile> {
+): Promise<SourceViewerFile> {
   return getJSON('/api/components/app', data);
 }
 
 export function getSources(
   data: { key: string; from?: number; to?: number } & BranchParameters
-): Promise<T.SourceLine[]> {
+): Promise<SourceLine[]> {
   return getJSON('/api/sources/lines', data).then(r => r.sources);
 }
 
 export function getDuplications(
   data: { key: string } & BranchParameters
-): Promise<{ duplications: T.Duplication[]; files: T.Dict<T.DuplicatedFile> }> {
+): Promise<{ duplications: Duplication[]; files: Dict<DuplicatedFile> }> {
   return getJSON('/api/duplications/show', data).catch(throwGlobalError);
 }
 

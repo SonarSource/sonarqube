@@ -20,9 +20,10 @@
 import { parseDate } from '../helpers/dates';
 import { translate, translateWithParameters } from '../helpers/l10n';
 import { ApplicationPeriod } from '../types/application';
+import { Period } from '../types/types';
 
 export function getPeriodLabel(
-  period: T.Period | undefined,
+  period: Period | undefined,
   dateFormatter: (date: string) => string
 ) {
   if (!period) {
@@ -63,7 +64,7 @@ export function getPeriodDate(period?: { date?: string }): Date | undefined {
 }
 
 export function isApplicationPeriod(
-  period: T.Period | ApplicationPeriod
+  period: Period | ApplicationPeriod
 ): period is ApplicationPeriod {
   return (period as ApplicationPeriod).project !== undefined;
 }

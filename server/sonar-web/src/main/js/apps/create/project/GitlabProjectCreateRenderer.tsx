@@ -22,6 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { GitlabProject } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { Paging } from '../../../types/types';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
@@ -37,7 +38,7 @@ export interface GitlabProjectCreateRendererProps {
   onPersonalAccessTokenCreated: () => void;
   onSearch: (searchQuery: string) => void;
   projects?: GitlabProject[];
-  projectsPaging: T.Paging;
+  projectsPaging: Paging;
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;

@@ -23,13 +23,14 @@ import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigati
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
+import { Issue, Measure } from '../../../types/types';
 
 interface Props {
   branchLike?: BranchLike;
   component: string;
-  componentMeasures: T.Measure[] | undefined;
+  componentMeasures: Measure[] | undefined;
   location: Pick<Location, 'query'>;
-  onIssueChange?: (issue: T.Issue) => void;
+  onIssueChange?: (issue: Issue) => void;
 }
 
 export class SourceViewerWrapper extends React.PureComponent<Props> {

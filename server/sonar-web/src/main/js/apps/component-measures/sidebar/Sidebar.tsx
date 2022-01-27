@@ -20,19 +20,20 @@
 import * as React from 'react';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
+import { Dict, MeasureEnhanced } from '../../../types/types';
 import { groupByDomains, KNOWN_DOMAINS, PROJECT_OVERVEW, Query } from '../utils';
 import DomainFacet from './DomainFacet';
 import ProjectOverviewFacet from './ProjectOverviewFacet';
 
 interface Props {
-  measures: T.MeasureEnhanced[];
+  measures: MeasureEnhanced[];
   selectedMetric: string;
   showFullMeasures: boolean;
   updateQuery: (query: Partial<Query>) => void;
 }
 
 interface State {
-  openFacets: T.Dict<boolean>;
+  openFacets: Dict<boolean>;
 }
 
 export default class Sidebar extends React.PureComponent<Props, State> {
@@ -84,7 +85,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   }
 }
 
-function getOpenFacets(openFacets: T.Dict<boolean>, { measures, selectedMetric }: Props) {
+function getOpenFacets(openFacets: Dict<boolean>, { measures, selectedMetric }: Props) {
   const newOpenFacets = { ...openFacets };
   const measure = measures.find(measure => measure.metric.key === selectedMetric);
   if (measure && measure.metric && measure.metric.domain) {

@@ -23,9 +23,10 @@ import SelectLegacy from '../../../components/controls/SelectLegacy';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { UserSelected } from '../../../types/types';
 import { Group } from './ProfilePermissions';
 
-type Option = T.UserSelected | Group;
+type Option = UserSelected | Group;
 type OptionWithValue = Option & { value: string };
 
 interface Props {
@@ -112,8 +113,8 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
   }
 }
 
-function isUser(option: Option): option is T.UserSelected {
-  return (option as T.UserSelected).login !== undefined;
+function isUser(option: Option): option is UserSelected {
+  return (option as UserSelected).login !== undefined;
 }
 
 function getStringValue(option: Option) {

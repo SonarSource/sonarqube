@@ -23,18 +23,19 @@ import { Helmet } from 'react-helmet-async';
 import * as api from '../../../../api/permissions';
 import Suggestions from '../../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../../helpers/l10n';
+import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
 
 interface State {
   filter: 'all' | 'groups' | 'users';
-  groups: T.PermissionGroup[];
-  groupsPaging?: T.Paging;
+  groups: PermissionGroup[];
+  groupsPaging?: Paging;
   loading: boolean;
   query: string;
-  users: T.PermissionUser[];
-  usersPaging?: T.Paging;
+  users: PermissionUser[];
+  usersPaging?: Paging;
 }
 
 export default class App extends React.PureComponent<{}, State> {
@@ -63,7 +64,7 @@ export default class App extends React.PureComponent<{}, State> {
   loadUsersAndGroups = (userPage?: number, groupsPage?: number) => {
     const { filter, query } = this.state;
 
-    const getUsers: Promise<{ paging?: T.Paging; users: T.PermissionUser[] }> =
+    const getUsers: Promise<{ paging?: Paging; users: PermissionUser[] }> =
       filter !== 'groups'
         ? api.getGlobalPermissionsUsers({
             q: query || undefined,
@@ -71,7 +72,7 @@ export default class App extends React.PureComponent<{}, State> {
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups: Promise<{ paging?: T.Paging; groups: T.PermissionGroup[] }> =
+    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
       filter !== 'users'
         ? api.getGlobalPermissionsGroups({
             q: query || undefined,
@@ -124,7 +125,7 @@ export default class App extends React.PureComponent<{}, State> {
     this.setState({ query }, this.loadHolders);
   };
 
-  addPermissionToGroup = (groups: T.PermissionGroup[], group: string, permission: string) => {
+  addPermissionToGroup = (groups: PermissionGroup[], group: string, permission: string) => {
     return groups.map(candidate =>
       candidate.name === group
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
@@ -132,7 +133,7 @@ export default class App extends React.PureComponent<{}, State> {
     );
   };
 
-  addPermissionToUser = (users: T.PermissionUser[], user: string, permission: string) => {
+  addPermissionToUser = (users: PermissionUser[], user: string, permission: string) => {
     return users.map(candidate =>
       candidate.login === user
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
@@ -140,7 +141,7 @@ export default class App extends React.PureComponent<{}, State> {
     );
   };
 
-  removePermissionFromGroup = (groups: T.PermissionGroup[], group: string, permission: string) => {
+  removePermissionFromGroup = (groups: PermissionGroup[], group: string, permission: string) => {
     return groups.map(candidate =>
       candidate.name === group
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
@@ -148,7 +149,7 @@ export default class App extends React.PureComponent<{}, State> {
     );
   };
 
-  removePermissionFromUser = (users: T.PermissionUser[], user: string, permission: string) => {
+  removePermissionFromUser = (users: PermissionUser[], user: string, permission: string) => {
     return users.map(candidate =>
       candidate.login === user
         ? { ...candidate, permissions: without(candidate.permissions, permission) }

@@ -33,6 +33,7 @@ import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
 import { BranchLike, PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
+import { Component, MeasureEnhanced, Status } from '../../../types/types';
 import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
 import MeasurementLabel from '../components/MeasurementLabel';
@@ -46,7 +47,7 @@ import LargeQualityGateBadge from './LargeQualityGateBadge';
 interface StateProps {
   conditions?: QualityGateStatusCondition[];
   ignoredConditions?: boolean;
-  status?: T.Status;
+  status?: Status;
 }
 
 interface DispatchProps {
@@ -55,14 +56,14 @@ interface DispatchProps {
 
 interface OwnProps {
   branchLike: PullRequest;
-  component: T.Component;
+  component: Component;
 }
 
 type Props = StateProps & DispatchProps & OwnProps;
 
 interface State {
   loading: boolean;
-  measures: T.MeasureEnhanced[];
+  measures: MeasureEnhanced[];
 }
 
 export class PullRequestOverview extends React.PureComponent<Props, State> {

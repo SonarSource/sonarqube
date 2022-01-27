@@ -22,9 +22,10 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import SimpleModal from '../../../components/controls/SimpleModal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Group } from '../../../types/types';
 
 interface Props {
-  group: T.Group;
+  group: Group;
   onClose: () => void;
   onSubmit: () => Promise<void>;
 }

@@ -20,10 +20,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { SourceLine } from '../../../types/types';
 import DateFormatter from '../../intl/DateFormatter';
 
 export interface SCMPopupProps {
-  line: T.SourceLine;
+  line: SourceLine;
 }
 
 export function SCMPopup({ line }: SCMPopupProps) {

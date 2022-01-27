@@ -19,11 +19,12 @@
  */
 import { partition, sortBy } from 'lodash';
 import { translate } from '../helpers/l10n';
+import { ProjectLink } from '../types/types';
 
 const PROVIDED_TYPES = ['homepage', 'ci', 'issue', 'scm', 'scm_dev'];
-type NameAndType = Pick<T.ProjectLink, 'name' | 'type'>;
+type NameAndType = Pick<ProjectLink, 'name' | 'type'>;
 
-export function isProvided(link: Pick<T.ProjectLink, 'type'>) {
+export function isProvided(link: Pick<ProjectLink, 'type'>) {
   return PROVIDED_TYPES.includes(link.type);
 }
 

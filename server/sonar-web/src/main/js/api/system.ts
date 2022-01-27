@@ -20,16 +20,17 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON, requestTryAndRepeatUntil } from '../helpers/request';
 import { SystemUpgrade } from '../types/system';
+import { SysInfoCluster, SysInfoStandalone, SysStatus } from '../types/types';
 
 export function setLogLevel(level: string): Promise<void | Response> {
   return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
 }
 
-export function getSystemInfo(): Promise<T.SysInfoCluster | T.SysInfoStandalone> {
+export function getSystemInfo(): Promise<SysInfoCluster | SysInfoStandalone> {
   return getJSON('/api/system/info').catch(throwGlobalError);
 }
 
-export function getSystemStatus(): Promise<{ id: string; version: string; status: T.SysStatus }> {
+export function getSystemStatus(): Promise<{ id: string; version: string; status: SysStatus }> {
   return getJSON('/api/system/status');
 }
 
@@ -64,7 +65,7 @@ export function restart(): Promise<void | Response> {
 export function waitSystemUPStatus(): Promise<{
   id: string;
   version: string;
-  status: T.SysStatus;
+  status: SysStatus;
 }> {
   return requestTryAndRepeatUntil(
     getSystemStatus,

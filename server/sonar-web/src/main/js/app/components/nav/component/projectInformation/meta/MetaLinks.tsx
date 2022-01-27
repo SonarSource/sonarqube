@@ -21,14 +21,15 @@ import * as React from 'react';
 import { getProjectLinks } from '../../../../../../api/projectLinks';
 import { translate } from '../../../../../../helpers/l10n';
 import { orderLinks } from '../../../../../../helpers/projectLinks';
+import { LightComponent, ProjectLink } from '../../../../../../types/types';
 import MetaLink from './MetaLink';
 
 interface Props {
-  component: T.LightComponent;
+  component: LightComponent;
 }
 
 interface State {
-  links?: T.ProjectLink[];
+  links?: ProjectLink[];
 }
 
 export default class MetaLinks extends React.PureComponent<Props, State> {

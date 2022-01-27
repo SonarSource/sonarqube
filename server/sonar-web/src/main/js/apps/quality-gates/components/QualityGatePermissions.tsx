@@ -28,10 +28,11 @@ import {
   searchUsers
 } from '../../../api/quality-gates';
 import { Group, isUser, SearchPermissionsParameters } from '../../../types/quality-gates';
+import { QualityGate, UserBase } from '../../../types/types';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
 
 interface Props {
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
 }
 
 interface State {
@@ -39,8 +40,8 @@ interface State {
   submitting: boolean;
   loading: boolean;
   showAddModal: boolean;
-  permissionToDelete?: T.UserBase | Group;
-  users: T.UserBase[];
+  permissionToDelete?: UserBase | Group;
+  users: UserBase[];
 }
 
 export default class QualityGatePermissions extends React.Component<Props, State> {
@@ -95,7 +96,7 @@ export default class QualityGatePermissions extends React.Component<Props, State
     this.setState({ showAddModal: true });
   };
 
-  handleSubmitAddPermission = async (item: T.UserBase | Group) => {
+  handleSubmitAddPermission = async (item: UserBase | Group) => {
     const { qualityGate } = this.props;
     this.setState({ submitting: true });
 
@@ -135,11 +136,11 @@ export default class QualityGatePermissions extends React.Component<Props, State
     this.setState({ permissionToDelete: undefined });
   };
 
-  handleClickDeletePermission = (permissionToDelete?: T.UserBase | Group) => {
+  handleClickDeletePermission = (permissionToDelete?: UserBase | Group) => {
     this.setState({ permissionToDelete });
   };
 
-  handleConfirmDeletePermission = async (item: T.UserBase | Group) => {
+  handleConfirmDeletePermission = async (item: UserBase | Group) => {
     const { qualityGate } = this.props;
 
     let error = false;

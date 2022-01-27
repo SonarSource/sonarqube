@@ -22,12 +22,13 @@ import { ButtonLink } from '../../../components/controls/buttons';
 import Toggler from '../../../components/controls/Toggler';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 import Avatar from '../../ui/Avatar';
 import SetAssigneePopup from '../popups/SetAssigneePopup';
 
 interface Props {
   isOpen: boolean;
-  issue: T.Issue;
+  issue: Issue;
   canAssign: boolean;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;

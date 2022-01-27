@@ -20,9 +20,10 @@
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { ParsedAnalysis } from '../../../../types/types';
 
 interface Props {
-  analysis: T.ParsedAnalysis;
+  analysis: ParsedAnalysis;
   deleteAnalysis: (analysis: string) => Promise<void>;
   onClose: () => void;
 }

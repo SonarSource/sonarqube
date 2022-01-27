@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { IssueChangelogDiff as TypeIssueChangelogDiff } from '../../../../types/types';
 import IssueChangelogDiff from '../IssueChangelogDiff';
 
 it('should render correctly', () => {
@@ -77,6 +78,6 @@ it('should render correctly effort diff', () => {
   expect(shallowRender({ diff: { key: 'effort', oldValue: '10' } })).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<{ diff: T.IssueChangelogDiff }> = {}) {
+function shallowRender(props: Partial<{ diff: TypeIssueChangelogDiff }> = {}) {
   return shallow(<IssueChangelogDiff diff={{ key: 'foo' }} {...props} />);
 }

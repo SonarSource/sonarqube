@@ -23,10 +23,11 @@ import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { IssueComment } from '../../../types/types';
 import FormattingTips from '../../common/FormattingTips';
 
 export interface CommentPopupProps {
-  comment?: Pick<T.IssueComment, 'markdown'>;
+  comment?: Pick<IssueComment, 'markdown'>;
   onComment: (text: string) => void;
   toggleComment: (visible: boolean) => void;
   placeholder: string;

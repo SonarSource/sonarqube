@@ -22,13 +22,14 @@ import InstanceMessage from '../../../components/common/InstanceMessage';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { Permission } from '../../../types/types';
 
 interface Props {
-  permissions: T.Permission[];
+  permissions: Permission[];
 }
 
 export default class ListHeader extends React.PureComponent<Props> {
-  renderTooltip(permission: T.Permission) {
+  renderTooltip(permission: Permission) {
     return permission.key === 'user' || permission.key === 'codeviewer' ? (
       <div>
         <InstanceMessage message={translate('projects_role', permission.key, 'desc')} />

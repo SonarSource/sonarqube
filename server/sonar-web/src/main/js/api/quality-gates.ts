@@ -28,19 +28,20 @@ import {
   QualityGateProjectStatus,
   SearchPermissionsParameters
 } from '../types/quality-gates';
+import { Condition, Paging, QualityGate, UserBase } from '../types/types';
 
 export function fetchQualityGates(): Promise<{
   actions: { create: boolean };
-  qualitygates: T.QualityGate[];
+  qualitygates: QualityGate[];
 }> {
   return getJSON('/api/qualitygates/list').catch(throwGlobalError);
 }
 
-export function fetchQualityGate(data: { id: number | string }): Promise<T.QualityGate> {
+export function fetchQualityGate(data: { id: number | string }): Promise<QualityGate> {
   return getJSON('/api/qualitygates/show', data).catch(throwGlobalError);
 }
 
-export function createQualityGate(data: { name: string }): Promise<T.QualityGate> {
+export function createQualityGate(data: { name: string }): Promise<QualityGate> {
   return postJSON('/api/qualitygates/create', data).catch(throwGlobalError);
 }
 
@@ -52,7 +53,7 @@ export function renameQualityGate(data: { id: string; name: string }): Promise<v
   return post('/api/qualitygates/rename', data).catch(throwGlobalError);
 }
 
-export function copyQualityGate(data: { id: string; name: string }): Promise<T.QualityGate> {
+export function copyQualityGate(data: { id: string; name: string }): Promise<QualityGate> {
   return postJSON('/api/qualitygates/copy', data).catch(throwGlobalError);
 }
 
@@ -63,12 +64,12 @@ export function setQualityGateAsDefault(data: { id: string }): Promise<void | Re
 export function createCondition(
   data: {
     gateId: string;
-  } & T.Omit<T.Condition, 'id'>
-): Promise<T.Condition> {
+  } & Omit<Condition, 'id'>
+): Promise<Condition> {
   return postJSON('/api/qualitygates/create_condition', data).catch(throwGlobalError);
 }
 
-export function updateCondition(data: T.Condition): Promise<T.Condition> {
+export function updateCondition(data: Condition): Promise<Condition> {
   return postJSON('/api/qualitygates/update_condition', data).catch(throwGlobalError);
 }
 
@@ -76,7 +77,7 @@ export function deleteCondition(data: { id: number }): Promise<void> {
   return post('/api/qualitygates/delete_condition', data);
 }
 
-export function getGateForProject(data: { project: string }): Promise<T.QualityGate | undefined> {
+export function getGateForProject(data: { project: string }): Promise<QualityGate | undefined> {
   return getJSON('/api/qualitygates/get_by_project', data).then(
     ({ qualityGate }) =>
       qualityGate && {
@@ -94,7 +95,7 @@ export function searchProjects(data: {
   query?: string;
   selected?: string;
 }): Promise<{
-  paging: T.Paging;
+  paging: Paging;
   results: Array<{ key: string; name: string; selected: boolean }>;
 }> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
@@ -140,7 +141,7 @@ export function removeUser(data: AddDeleteUserPermissionsParameters) {
   return post('/api/qualitygates/remove_user', data).catch(throwGlobalError);
 }
 
-export function searchUsers(data: SearchPermissionsParameters): Promise<{ users: T.UserBase[] }> {
+export function searchUsers(data: SearchPermissionsParameters): Promise<{ users: UserBase[] }> {
   return getJSON('/api/qualitygates/search_users', data).catch(throwGlobalError);
 }
 

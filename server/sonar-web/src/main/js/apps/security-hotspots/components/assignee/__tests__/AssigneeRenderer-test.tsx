@@ -23,6 +23,7 @@ import { EditButton } from '../../../../../components/controls/buttons';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
 import { click } from '../../../../../helpers/testUtils';
+import { UserActive } from '../../../../../types/types';
 import AssigneeRenderer, { AssigneeRendererProps } from '../AssigneeRenderer';
 import AssigneeSelection from '../AssigneeSelection';
 
@@ -57,7 +58,7 @@ it('should propagate calls correctly', () => {
   wrapper
     .find(AssigneeSelection)
     .props()
-    .onSelect(newAssignee as T.UserActive);
+    .onSelect(newAssignee as UserActive);
   expect(onAssign).toHaveBeenCalledWith(newAssignee);
 
   wrapper

@@ -1,3 +1,5 @@
+import { SourceLine, SourceLineCoverageStatus } from '../../../types/types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -17,8 +19,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function getCoverageStatus(s: T.SourceLine): T.SourceLineCoverageStatus | undefined {
-  let status: T.SourceLineCoverageStatus | undefined;
+export default function getCoverageStatus(s: SourceLine): SourceLineCoverageStatus | undefined {
+  let status: SourceLineCoverageStatus | undefined;
   if (s.lineHits != null && s.lineHits > 0) {
     status = 'partially-covered';
   }

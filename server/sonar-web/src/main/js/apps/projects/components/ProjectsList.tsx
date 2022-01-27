@@ -23,6 +23,7 @@ import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
 import { WindowScroller } from 'react-virtualized/dist/commonjs/WindowScroller';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { translate } from '../../../helpers/l10n';
+import { CurrentUser } from '../../../types/types';
 import { Query } from '../query';
 import { Project } from '../types';
 import EmptyFavoriteSearch from './EmptyFavoriteSearch';
@@ -35,7 +36,7 @@ const PROJECT_CARD_MARGIN = 20;
 
 interface Props {
   cardType?: string;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   handleFavorite: (component: string, isFavorite: boolean) => void;
   isFavorite: boolean;
   isFiltered: boolean;

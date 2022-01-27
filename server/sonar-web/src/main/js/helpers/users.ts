@@ -1,3 +1,5 @@
+import { CurrentUser, LoggedInUser, UserActive, UserBase } from '../types/types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -17,17 +19,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function hasGlobalPermission(user: T.CurrentUser, permission: string): boolean {
+export function hasGlobalPermission(user: CurrentUser, permission: string): boolean {
   if (!user.permissions) {
     return false;
   }
   return user.permissions.global.includes(permission);
 }
 
-export function isLoggedIn(user: T.CurrentUser): user is T.LoggedInUser {
+export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
   return user.isLoggedIn;
 }
 
-export function isUserActive(user: T.UserBase): user is T.UserActive {
+export function isUserActive(user: UserBase): user is UserActive {
   return user.active !== false && Boolean(user.name);
 }

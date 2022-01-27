@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { uniq } from 'lodash';
+import { LinearIssueLocation } from '../../../types/types';
 
 export interface Token {
   className: string;
@@ -83,7 +84,7 @@ function part(str: string, from: number, to: number, acc: number): string {
  */
 export function highlightIssueLocations(
   tokens: Token[],
-  issueLocations: T.LinearIssueLocation[],
+  issueLocations: LinearIssueLocation[],
   rootClassName: string = ISSUE_LOCATION_CLASS
 ): Token[] {
   issueLocations.forEach(location => {

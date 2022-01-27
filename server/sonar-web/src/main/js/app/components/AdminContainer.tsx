@@ -28,18 +28,19 @@ import { translate } from '../../helpers/l10n';
 import { setAdminPages } from '../../store/appState';
 import { getAppState, Store } from '../../store/rootReducer';
 import { PendingPluginResult } from '../../types/plugins';
+import { AppState, Extension, SysStatus } from '../../types/types';
 import AdminContext, { defaultPendingPlugins, defaultSystemStatus } from './AdminContext';
 import SettingsNav from './nav/settings/SettingsNav';
 
 interface Props {
-  appState: Pick<T.AppState, 'adminPages' | 'canAdmin'>;
+  appState: Pick<AppState, 'adminPages' | 'canAdmin'>;
   location: {};
-  setAdminPages: (adminPages: T.Extension[]) => void;
+  setAdminPages: (adminPages: Extension[]) => void;
 }
 
 interface State {
   pendingPlugins: PendingPluginResult;
-  systemStatus: T.SysStatus;
+  systemStatus: SysStatus;
 }
 
 export class AdminContainer extends React.PureComponent<Props, State> {

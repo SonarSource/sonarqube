@@ -23,12 +23,13 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Dict, Language } from '../../../types/types';
 import { Profile } from '../types';
 import ProfilesListHeader from './ProfilesListHeader';
 import ProfilesListRow from './ProfilesListRow';
 
 interface Props {
-  languages: T.Language[];
+  languages: Language[];
   location: Pick<Location, 'query'>;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
@@ -95,10 +96,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
     const { profiles, languages } = this.props;
     const { language } = this.props.location.query;
 
-    const profilesIndex: T.Dict<Profile[]> = groupBy<Profile>(
-      profiles,
-      profile => profile.language
-    );
+    const profilesIndex: Dict<Profile[]> = groupBy<Profile>(profiles, profile => profile.language);
 
     const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
 

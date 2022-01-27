@@ -26,11 +26,12 @@ import Tooltip from '../../components/controls/Tooltip';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
 import { getComponentOverviewUrl } from '../../helpers/urls';
+import { LoggedInUser } from '../../types/types';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
 interface Props {
-  currentUser: Pick<T.LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login'>;
   onProjectCheck: (project: Project, checked: boolean) => void;
   project: Project;
   selected: boolean;

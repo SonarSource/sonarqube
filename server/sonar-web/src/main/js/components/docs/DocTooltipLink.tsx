@@ -21,9 +21,10 @@ import { forEach } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import DetachIcon from '../../components/icons/DetachIcon';
+import { Dict } from '../../types/types';
 
 interface OwnProps {
-  customProps?: T.Dict<string>;
+  customProps?: Dict<string>;
 }
 
 type Props = OwnProps & React.AnchorHTMLAttributes<HTMLAnchorElement>;

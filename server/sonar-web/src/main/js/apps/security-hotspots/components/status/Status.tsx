@@ -29,12 +29,13 @@ import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
 import { isLoggedIn } from '../../../../helpers/users';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
+import { CurrentUser } from '../../../../types/types';
 import { getStatusOptionFromStatusAndResolution } from '../../utils';
 import StatusDescription from './StatusDescription';
 import StatusSelection from './StatusSelection';
 
 export interface StatusProps {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   hotspot: Hotspot;
 
   onStatusChange: (statusOption: HotspotStatusOption) => Promise<void>;

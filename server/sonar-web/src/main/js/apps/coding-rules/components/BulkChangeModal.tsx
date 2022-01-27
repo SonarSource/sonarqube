@@ -25,15 +25,16 @@ import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { Dict, Languages } from '../../../types/types';
 import { Query, serializeQuery } from '../query';
 
 interface Props {
   action: string;
-  languages: T.Languages;
+  languages: Languages;
   onClose: () => void;
   profile?: Profile;
   query: Query;
-  referencedProfiles: T.Dict<Profile>;
+  referencedProfiles: Dict<Profile>;
   total: number;
 }
 

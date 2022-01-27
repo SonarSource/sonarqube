@@ -39,16 +39,25 @@ import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import {
+  Dict,
+  DuplicatedFile,
+  Duplication,
+  FlowLocation,
+  Issue,
+  SnippetsByComponent,
+  SourceViewerFile
+} from '../../../types/types';
 import ComponentSourceSnippetGroupViewer from './ComponentSourceSnippetGroupViewer';
 import { groupLocationsByComponent } from './utils';
 
 interface Props {
   branchLike: BranchLike | undefined;
   highlightedLocationMessage?: { index: number; text: string | undefined };
-  issue: T.Issue;
-  issues: T.Issue[];
-  locations: T.FlowLocation[];
-  onIssueChange: (issue: T.Issue) => void;
+  issue: Issue;
+  issues: Issue[];
+  locations: FlowLocation[];
+  onIssueChange: (issue: Issue) => void;
   onLoaded?: () => void;
   onLocationSelect: (index: number) => void;
   scroll?: (element: HTMLElement) => void;
@@ -56,9 +65,9 @@ interface Props {
 }
 
 interface State {
-  components: T.Dict<T.SnippetsByComponent>;
-  duplicatedFiles?: T.Dict<T.DuplicatedFile>;
-  duplications?: T.Duplication[];
+  components: Dict<SnippetsByComponent>;
+  duplicatedFiles?: Dict<DuplicatedFile>;
+  duplications?: Duplication[];
   duplicationsByLine: { [line: number]: number[] };
   issuePopup?: { issue: string; name: string };
   loading: boolean;
@@ -146,7 +155,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
     });
   };
 
-  renderDuplicationPopup = (component: T.SourceViewerFile, index: number, line: number) => {
+  renderDuplicationPopup = (component: SourceViewerFile, index: number, line: number) => {
     const { duplicatedFiles, duplications } = this.state;
 
     if (!component || !duplicatedFiles) {

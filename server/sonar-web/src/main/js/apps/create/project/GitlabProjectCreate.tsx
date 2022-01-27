@@ -22,6 +22,7 @@ import { WithRouterProps } from 'react-router';
 import { getGitlabProjects, importGitlabProject } from '../../../api/alm-integrations';
 import { GitlabProject } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { Paging } from '../../../types/types';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
@@ -36,7 +37,7 @@ interface State {
   loading: boolean;
   loadingMore: boolean;
   projects?: GitlabProject[];
-  projectsPaging: T.Paging;
+  projectsPaging: Paging;
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;

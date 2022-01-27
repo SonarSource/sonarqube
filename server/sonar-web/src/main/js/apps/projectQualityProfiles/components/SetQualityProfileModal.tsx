@@ -28,12 +28,13 @@ import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import { Component } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import { USE_SYSTEM_DEFAULT } from '../constants';
 
 export interface SetQualityProfileModalProps {
   availableProfiles: Profile[];
-  component: T.Component;
+  component: Component;
   currentProfile: Profile;
   onClose: () => void;
   onSubmit: (newKey: string | undefined, oldKey: string) => Promise<void>;

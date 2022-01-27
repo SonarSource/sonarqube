@@ -25,10 +25,11 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { MainBranch } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 
 interface Props {
   branch: MainBranch;
-  component: T.Component;
+  component: Component;
   onClose: () => void;
   onRename: () => void;
 }

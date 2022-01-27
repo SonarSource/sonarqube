@@ -31,6 +31,7 @@ import TagsList from '../../../components/tags/TagsList';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
+import { Dict, RuleDetails } from '../../../types/types';
 import { Query } from '../query';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 import SimilarRulesFilter from './SimilarRulesFilter';
@@ -40,8 +41,8 @@ interface Props {
   hideSimilarRulesFilter?: boolean;
   onFilterChange: (changes: Partial<Query>) => void;
   onTagsChange: (tags: string[]) => void;
-  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
-  ruleDetails: T.RuleDetails;
+  referencedRepositories: Dict<{ key: string; language: string; name: string }>;
+  ruleDetails: RuleDetails;
 }
 
 const EXTERNAL_RULE_REPO_PREFIX = 'external_';

@@ -19,11 +19,12 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post } from '../helpers/request';
+import { Notification } from '../types/types';
 
 export function getNotifications(): Promise<{
   channels: string[];
   globalTypes: string[];
-  notifications: T.Notification[];
+  notifications: Notification[];
   perProjectTypes: string[];
 }> {
   return getJSON('/api/notifications/list').catch(throwGlobalError);

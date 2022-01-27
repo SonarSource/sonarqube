@@ -35,16 +35,17 @@ import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
+import { Component, Dict } from '../../../types/types';
 
 interface Props {
   branchLike?: BranchLike;
-  component: Pick<T.Component, 'key'>;
+  component: Pick<Component, 'key'>;
   condition: QualityGateStatusConditionEnhanced;
 }
 
 export default class QualityGateCondition extends React.PureComponent<Props> {
-  getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: T.Dict<string>) => {
-    const query: T.Dict<string | undefined> = {
+  getIssuesUrl = (sinceLeakPeriod: boolean, customQuery: Dict<string>) => {
+    const query: Dict<string | undefined> = {
       resolved: 'false',
       ...getBranchLikeQuery(this.props.branchLike),
       ...customQuery
@@ -56,7 +57,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
   };
 
   getUrlForSecurityHotspot(sinceLeakPeriod: boolean) {
-    const query: T.Dict<string | undefined> = {
+    const query: Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike)
     };
     if (sinceLeakPeriod) {
@@ -96,7 +97,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const metricKey = condition.measure.metric.key;
 
-    const METRICS_TO_URL_MAPPING: T.Dict<() => Location> = {
+    const METRICS_TO_URL_MAPPING: Dict<() => Location> = {
       [MetricKey.reliability_rating]: () =>
         this.getUrlForBugsOrVulnerabilities(IssueType.Bug, false),
       [MetricKey.new_reliability_rating]: () =>

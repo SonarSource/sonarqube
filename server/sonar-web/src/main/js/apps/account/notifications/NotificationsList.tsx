@@ -20,15 +20,16 @@
 import * as React from 'react';
 import Checkbox from '../../../components/controls/Checkbox';
 import { hasMessage, translate } from '../../../helpers/l10n';
+import { Notification } from '../../../types/types';
 
 interface Props {
-  onAdd: (n: T.Notification) => void;
-  onRemove: (n: T.Notification) => void;
+  onAdd: (n: Notification) => void;
+  onRemove: (n: Notification) => void;
   channels: string[];
   checkboxId: (type: string, channel: string) => string;
   project?: boolean;
   types: string[];
-  notifications: T.Notification[];
+  notifications: Notification[];
 }
 
 export default class NotificationsList extends React.PureComponent<Props> {

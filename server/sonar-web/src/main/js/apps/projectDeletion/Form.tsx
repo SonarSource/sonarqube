@@ -26,9 +26,10 @@ import ConfirmButton from '../../components/controls/ConfirmButton';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isApplication, isPortfolioLike } from '../../types/component';
+import { Component } from '../../types/types';
 
 interface Props {
-  component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;
+  component: Pick<Component, 'key' | 'name' | 'qualifier'>;
   router: Pick<Router, 'replace'>;
 }
 

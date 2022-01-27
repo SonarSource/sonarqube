@@ -22,6 +22,7 @@ import { combineReducers } from 'redux';
 import { Action as AppStateAction, Actions as AppStateActions } from '../../../store/appState';
 import { ActionType } from '../../../store/utils/actions';
 import { SettingValue } from '../../../types/settings';
+import { Dict } from '../../../types/types';
 
 enum Actions {
   receiveValues = 'RECEIVE_VALUES'
@@ -29,10 +30,10 @@ enum Actions {
 
 type Action = ActionType<typeof receiveValues, Actions.receiveValues>;
 
-type SettingsState = T.Dict<SettingValue>;
+type SettingsState = Dict<SettingValue>;
 
 export interface State {
-  components: T.Dict<SettingsState>;
+  components: Dict<SettingsState>;
   global: SettingsState;
 }
 

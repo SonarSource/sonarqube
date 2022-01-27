@@ -21,12 +21,13 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { getLocalizedMetricDomain, translate } from '../../../helpers/l10n';
+import { Metric } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 
 interface Props {
-  metric?: T.Metric;
-  metrics: T.Metric[];
-  onMetricChange: (metric: T.Metric) => void;
+  metric?: Metric;
+  metrics: Metric[];
+  onMetricChange: (metric: Metric) => void;
 }
 
 interface Option {

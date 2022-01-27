@@ -30,6 +30,6 @@ interface InjectedProps {
 
 export function withRouter<P extends InjectedProps>(
   WrappedComponent: React.ComponentType<P & InjectedProps>
-): React.ComponentType<T.Omit<P, keyof InjectedProps>> {
+): React.ComponentType<Omit<P, keyof InjectedProps>> {
   return originalWithRouter(WrappedComponent as any);
 }

@@ -21,6 +21,7 @@ import * as React from 'react';
 import ChartLegendIcon from '../../components/icons/ChartLegendIcon';
 import Rating from '../../components/ui/Rating';
 import { MeasureHistory } from '../../types/project-activity';
+import { Dict } from '../../types/types';
 
 export interface GraphsTooltipsContentIssuesProps {
   index: number;
@@ -31,7 +32,7 @@ export interface GraphsTooltipsContentIssuesProps {
   value: string;
 }
 
-const METRIC_RATING: T.Dict<string> = {
+const METRIC_RATING: Dict<string> = {
   bugs: 'reliability_rating',
   vulnerabilities: 'security_rating',
   code_smells: 'sqale_rating'

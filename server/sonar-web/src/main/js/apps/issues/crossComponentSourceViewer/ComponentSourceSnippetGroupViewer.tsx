@@ -26,6 +26,19 @@ import { locationsByLine } from '../../../components/SourceViewer/helpers/indexi
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
+import {
+  Dict,
+  Duplication,
+  ExpandDirection,
+  FlowLocation,
+  Issue as TypeIssue,
+  IssuesByLine,
+  LinearIssueLocation,
+  Snippet,
+  SnippetGroup,
+  SourceLine,
+  SourceViewerFile
+} from '../../../types/types';
 import SnippetViewer from './SnippetViewer';
 import {
   createSnippets,
@@ -37,34 +50,34 @@ import {
 
 interface Props {
   branchLike: BranchLike | undefined;
-  duplications?: T.Duplication[];
+  duplications?: Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   isLastOccurenceOfPrimaryComponent: boolean;
-  issue: T.Issue;
+  issue: TypeIssue;
   issuePopup?: { issue: string; name: string };
-  issuesByLine: T.IssuesByLine;
+  issuesByLine: IssuesByLine;
   lastSnippetGroup: boolean;
-  loadDuplications: (component: string, line: T.SourceLine) => void;
-  locations: T.FlowLocation[];
-  onIssueChange: (issue: T.Issue) => void;
+  loadDuplications: (component: string, line: SourceLine) => void;
+  locations: FlowLocation[];
+  onIssueChange: (issue: TypeIssue) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onLocationSelect: (index: number) => void;
   renderDuplicationPopup: (
-    component: T.SourceViewerFile,
+    component: SourceViewerFile,
     index: number,
     line: number
   ) => React.ReactNode;
   scroll?: (element: HTMLElement, offset: number) => void;
-  snippetGroup: T.SnippetGroup;
+  snippetGroup: SnippetGroup;
 }
 
 interface State {
-  additionalLines: { [line: number]: T.SourceLine };
+  additionalLines: { [line: number]: SourceLine };
   highlightedSymbols: string[];
   loading: boolean;
-  openIssuesByLine: T.Dict<boolean>;
-  snippets: T.Snippet[];
+  openIssuesByLine: Dict<boolean>;
+  snippets: Snippet[];
 }
 
 export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props, State> {
@@ -163,7 +176,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     }
   }
 
-  expandBlock = (snippetIndex: number, direction: T.ExpandDirection): Promise<void> => {
+  expandBlock = (snippetIndex: number, direction: ExpandDirection): Promise<void> => {
     const { branchLike, snippetGroup } = this.props;
     const { key } = snippetGroup.component;
     const { snippets } = this.state;
@@ -189,7 +202,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       ...getBranchLikeQuery(branchLike)
     })
       .then(lines =>
-        lines.reduce((lineMap: T.Dict<T.SourceLine>, line) => {
+        lines.reduce((lineMap: Dict<SourceLine>, line) => {
           line.coverageStatus = getCoverageStatus(line);
           lineMap[line.line] = line;
           return lineMap;
@@ -200,8 +213,8 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 
   animateBlockExpansion(
     snippetIndex: number,
-    direction: T.ExpandDirection,
-    newLinesMapped: T.Dict<T.SourceLine>
+    direction: ExpandDirection,
+    newLinesMapped: Dict<SourceLine>
   ): Promise<void> {
     if (this.mounted) {
       const { snippets } = this.state;
@@ -273,13 +286,13 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     );
   };
 
-  handleOpenIssues = (line: T.SourceLine) => {
+  handleOpenIssues = (line: SourceLine) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
     }));
   };
 
-  handleCloseIssues = (line: T.SourceLine) => {
+  handleCloseIssues = (line: SourceLine) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: false }
     }));
@@ -294,7 +307,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     });
   };
 
-  loadDuplications = (line: T.SourceLine) => {
+  loadDuplications = (line: SourceLine) => {
     this.props.loadDuplications(this.props.snippetGroup.component.key, line);
   };
 
@@ -310,10 +323,10 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     snippet
   }: {
     index: number;
-    issuesByLine: T.IssuesByLine;
+    issuesByLine: IssuesByLine;
     lastSnippetOfLastGroup: boolean;
-    locationsByLine: { [line: number]: T.LinearIssueLocation[] };
-    snippet: T.SourceLine[];
+    locationsByLine: { [line: number]: LinearIssueLocation[] };
+    snippet: SourceLine[];
   }) {
     return (
       <SnippetViewer

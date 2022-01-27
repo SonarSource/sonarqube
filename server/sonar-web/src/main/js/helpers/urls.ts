@@ -24,13 +24,14 @@ import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/com
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
+import { Dict, HomePage } from '../types/types';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 import { IS_SSR } from './browser';
 import { getBaseUrl } from './system';
 
 export interface Location {
   pathname: string;
-  query?: T.Dict<string | undefined | number>;
+  query?: Dict<string | undefined | number>;
 }
 
 type Query = Location['query'];
@@ -246,7 +247,7 @@ export function getQualityGatesUrl(): Location {
 
 export function getGlobalSettingsUrl(
   category?: string,
-  query?: T.Dict<string | undefined | number>
+  query?: Dict<string | undefined | number>
 ): Location {
   return {
     pathname: '/admin/settings',
@@ -296,7 +297,7 @@ export function getCodeUrl(
   };
 }
 
-export function getHomePageUrl(homepage: T.HomePage) {
+export function getHomePageUrl(homepage: HomePage) {
   switch (homepage.type) {
     case 'APPLICATION':
       return homepage.branch

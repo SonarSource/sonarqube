@@ -20,8 +20,9 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
+import { Component } from '../types/types';
 
-type NavComponent = T.Omit<T.Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'>;
+type NavComponent = Omit<Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'>;
 
 export function getComponentNavigation(
   data: { component: string } & BranchParameters

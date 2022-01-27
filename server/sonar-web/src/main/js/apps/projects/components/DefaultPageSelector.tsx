@@ -23,11 +23,12 @@ import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { get } from '../../../helpers/storage';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { CurrentUser } from '../../../types/types';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 import AllProjectsContainer from './AllProjectsContainer';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   location: Pick<Location, 'pathname' | 'query'>;
   router: Pick<Router, 'replace'>;
 }

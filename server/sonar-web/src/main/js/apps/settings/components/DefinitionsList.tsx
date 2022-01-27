@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { Setting } from '../../../types/settings';
+import { Component } from '../../../types/types';
 import Definition from './Definition';
 
 interface Props {
-  component?: T.Component;
+  component?: Component;
   scrollToDefinition: (element: HTMLLIElement) => void;
   settings: Setting[];
 }

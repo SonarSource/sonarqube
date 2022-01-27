@@ -28,17 +28,18 @@ import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { AdminPageExtension } from '../../../../types/extension';
 import { PendingPluginResult } from '../../../../types/plugins';
+import { Extension, SysStatus } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import SystemRestartNotif from './SystemRestartNotif';
 
 interface Props {
-  extensions: T.Extension[];
+  extensions: Extension[];
   fetchPendingPlugins: () => void;
   fetchSystemStatus: () => void;
   location: {};
   pendingPlugins: PendingPluginResult;
-  systemStatus: T.SysStatus;
+  systemStatus: SysStatus;
 }
 
 export default class SettingsNav extends React.PureComponent<Props> {
@@ -81,7 +82,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
     return this.isSomethingActive(urls);
   }
 
-  renderExtension = ({ key, name }: T.Extension) => {
+  renderExtension = ({ key, name }: Extension) => {
     return (
       <li key={key}>
         <Link activeClassName="active" to={`/admin/extension/${key}`}>

@@ -32,6 +32,14 @@ import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { isProject } from '../../../types/component';
 import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  ComponentMeasureIntern,
+  Dict,
+  Metric,
+  Paging
+} from '../../../types/types';
+import {
   BUBBLES_FETCH_LIMIT,
   getBubbleMetrics,
   getBubbleYDomain,
@@ -42,12 +50,12 @@ import EmptyResult from './EmptyResult';
 const HEIGHT = 500;
 
 interface Props {
-  component: T.ComponentMeasure;
-  components: T.ComponentMeasureEnhanced[];
+  component: ComponentMeasure;
+  components: ComponentMeasureEnhanced[];
   domain: string;
-  metrics: T.Dict<T.Metric>;
-  paging?: T.Paging;
-  updateSelected: (component: T.ComponentMeasureIntern) => void;
+  metrics: Dict<Metric>;
+  paging?: Paging;
+  updateSelected: (component: ComponentMeasureIntern) => void;
 }
 
 interface State {
@@ -59,7 +67,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     ratingFilters: {}
   };
 
-  getMeasureVal = (component: T.ComponentMeasureEnhanced, metric: T.Metric) => {
+  getMeasureVal = (component: ComponentMeasureEnhanced, metric: Metric) => {
     const measure = component.measures.find(measure => measure.metric.key === metric.key);
     if (!measure) {
       return undefined;
@@ -68,9 +76,9 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
   };
 
   getTooltip(
-    component: T.ComponentMeasureEnhanced,
+    component: ComponentMeasureEnhanced,
     values: { x: number; y: number; size: number; colors?: Array<number | undefined> },
-    metrics: { x: T.Metric; y: T.Metric; size: T.Metric; colors?: T.Metric[] }
+    metrics: { x: Metric; y: Metric; size: Metric; colors?: Metric[] }
   ) {
     const inner = [
       [component.name, isProject(component.qualifier) ? component.branch : undefined]
@@ -108,8 +116,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     });
   };
 
-  handleBubbleClick = (component: T.ComponentMeasureEnhanced) =>
-    this.props.updateSelected(component);
+  handleBubbleClick = (component: ComponentMeasureEnhanced) => this.props.updateSelected(component);
 
   getDescription(domain: string) {
     const description = `component_measures.overview.${domain}.description`;
@@ -120,7 +127,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     return translatedDescription;
   }
 
-  renderBubbleChart(metrics: { x: T.Metric; y: T.Metric; size: T.Metric; colors?: T.Metric[] }) {
+  renderBubbleChart(metrics: { x: Metric; y: Metric; size: Metric; colors?: Metric[] }) {
     const { ratingFilters } = this.state;
 
     const items = this.props.components
@@ -164,7 +171,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     }
 
     return (
-      <OriginalBubbleChart<T.ComponentMeasureEnhanced>
+      <OriginalBubbleChart<ComponentMeasureEnhanced>
         formatXTick={formatXTick}
         formatYTick={formatYTick}
         height={HEIGHT}
@@ -177,7 +184,7 @@ export default class BubbleChart extends React.PureComponent<Props, State> {
     );
   }
 
-  renderChartHeader(domain: string, sizeMetric: T.Metric, colorsMetric?: T.Metric[]) {
+  renderChartHeader(domain: string, sizeMetric: Metric, colorsMetric?: Metric[]) {
     const { ratingFilters } = this.state;
     const { paging } = this.props;
 

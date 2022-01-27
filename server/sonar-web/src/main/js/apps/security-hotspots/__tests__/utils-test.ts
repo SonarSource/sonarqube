@@ -27,6 +27,7 @@ import {
   ReviewHistoryType,
   RiskExposure
 } from '../../../types/security-hotspots';
+import { IssueChangelog } from '../../../types/types';
 import {
   getHotspotReviewHistory,
   getStatusAndResolutionFromStatusOption,
@@ -152,7 +153,7 @@ describe('mapRules', () => {
 
 describe('getHotspotReviewHistory', () => {
   it('should properly create the review history', () => {
-    const changelogElement: T.IssueChangelog = {
+    const changelogElement: IssueChangelog = {
       creationDate: '2018-10-01',
       isUserActive: true,
       user: 'me',

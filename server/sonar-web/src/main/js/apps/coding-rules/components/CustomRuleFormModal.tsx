@@ -33,12 +33,13 @@ import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
+import { Dict, RuleDetails, RuleParameter, RuleType } from '../../../types/types';
 
 interface Props {
-  customRule?: T.RuleDetails;
+  customRule?: RuleDetails;
   onClose: () => void;
-  onDone: (newRuleDetails: T.RuleDetails) => void;
-  templateRule: T.RuleDetails;
+  onDone: (newRuleDetails: RuleDetails) => void;
+  templateRule: RuleDetails;
 }
 
 interface State {
@@ -46,7 +47,7 @@ interface State {
   key: string;
   keyModifiedByUser: boolean;
   name: string;
-  params: T.Dict<string>;
+  params: Dict<string>;
   reactivating: boolean;
   severity: string;
   status: string;
@@ -59,7 +60,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
   constructor(props: Props) {
     super(props);
-    const params: T.Dict<string> = {};
+    const params: Dict<string> = {};
     if (props.customRule && props.customRule.params) {
       for (const param of props.customRule.params) {
         params[param.key] = param.defaultValue || '';
@@ -211,7 +212,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </div>
   );
 
-  renderTypeOption = ({ value }: { value: T.RuleType }) => {
+  renderTypeOption = ({ value }: { value: RuleType }) => {
     return <TypeHelper type={value} />;
   };
 
@@ -277,7 +278,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </div>
   );
 
-  renderParameterField = (param: T.RuleParameter) => (
+  renderParameterField = (param: RuleParameter) => (
     <div className="modal-field" key={param.key}>
       <label className="capitalize" htmlFor={param.key}>
         {param.key}

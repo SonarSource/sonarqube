@@ -24,6 +24,7 @@ import { Button } from '../../../components/controls/buttons';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { RuleDetails } from '../../../types/types';
 
 const ActivationFormModal = lazyLoadComponent(
   () => import('../../coding-rules/components/ActivationFormModal'),
@@ -37,7 +38,7 @@ interface Props {
 }
 
 interface State {
-  rule?: T.RuleDetails;
+  rule?: RuleDetails;
   state: 'closed' | 'opening' | 'open';
 }
 
@@ -73,7 +74,7 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
     this.setState({ state: 'closed' });
   };
 
-  isOpen(state: State): state is { state: 'open'; rule: T.RuleDetails } {
+  isOpen(state: State): state is { state: 'open'; rule: RuleDetails } {
     return state.state === 'open';
   }
 

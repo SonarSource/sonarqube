@@ -20,9 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../helpers/testUtils';
+import { Issue } from '../../../../types/types';
 import IssueType from '../IssueType';
 
-const issue: Pick<T.Issue, 'type'> = { type: 'BUG' };
+const issue: Pick<Issue, 'type'> = { type: 'BUG' };
 
 it('should render without the action when the correct rights are missing', () => {
   expect(shallowRender({ canSetType: false })).toMatchSnapshot();

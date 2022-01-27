@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { keyBy } from 'lodash';
+import { Languages } from '../types/types';
 import { ActionType } from './utils/actions';
 
 export function receiveLanguages(languages: Array<{ key: string; name: string }>) {
@@ -26,7 +27,7 @@ export function receiveLanguages(languages: Array<{ key: string; name: string }>
 
 type Action = ActionType<typeof receiveLanguages, 'RECEIVE_LANGUAGES'>;
 
-export default function(state: T.Languages = {}, action: Action): T.Languages {
+export default function(state: Languages = {}, action: Action): Languages {
   if (action.type === 'RECEIVE_LANGUAGES') {
     return keyBy(action.languages, 'key');
   }
@@ -34,10 +35,10 @@ export default function(state: T.Languages = {}, action: Action): T.Languages {
   return state;
 }
 
-export function getLanguages(state: T.Languages) {
+export function getLanguages(state: Languages) {
   return state;
 }
 
-export function getLanguageByKey(state: T.Languages, key: string) {
+export function getLanguageByKey(state: Languages, key: string) {
   return state[key];
 }

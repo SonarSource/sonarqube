@@ -22,6 +22,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { csvEscape } from '../helpers/csv';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
 export interface ProfileActions {
   associateProjects?: boolean;
@@ -98,7 +99,7 @@ export interface ProfileProject {
 
 export function getProfileProjects(
   data: RequestData
-): Promise<{ more: boolean; paging: T.Paging; results: ProfileProject[] }> {
+): Promise<{ more: boolean; paging: Paging; results: ProfileProject[] }> {
   return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
 
@@ -106,9 +107,9 @@ export function getProfileInheritance({
   language,
   name: qualityProfile
 }: Profile): Promise<{
-  ancestors: T.ProfileInheritanceDetails[];
-  children: T.ProfileInheritanceDetails[];
-  profile: T.ProfileInheritanceDetails;
+  ancestors: ProfileInheritanceDetails[];
+  children: ProfileInheritanceDetails[];
+  profile: ProfileInheritanceDetails;
 }> {
   return getJSON('/api/qualityprofiles/inheritance', {
     language,
@@ -201,8 +202,8 @@ export interface CompareResponse {
   modified: Array<{
     key: string;
     name: string;
-    left: { params: T.Dict<string>; severity: string };
-    right: { params: T.Dict<string>; severity: string };
+    left: { params: Dict<string>; severity: string };
+    right: { params: Dict<string>; severity: string };
   }>;
 }
 
@@ -234,8 +235,8 @@ export interface SearchUsersGroupsParameters {
 }
 
 interface SearchUsersResponse {
-  users: T.UserSelected[];
-  paging: T.Paging;
+  users: UserSelected[];
+  paging: Paging;
 }
 
 export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<SearchUsersResponse> {
@@ -244,7 +245,7 @@ export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<Se
 
 export interface SearchGroupsResponse {
   groups: Array<{ name: string }>;
-  paging: T.Paging;
+  paging: Paging;
 }
 
 export function searchGroups(
@@ -314,7 +315,7 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
 
 export function activateRule(data: {
   key: string;
-  params?: T.Dict<string>;
+  params?: Dict<string>;
   reset?: boolean;
   rule: string;
   severity?: string;

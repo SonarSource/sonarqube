@@ -24,10 +24,11 @@ import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../../../helpers/branch-like';
 import { translate } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';
+import { Component } from '../../../../../types/types';
 
 export interface MenuItemProps {
   branchLike: BranchLike;
-  component: T.Component;
+  component: Component;
   indent?: boolean;
   onSelect: (branchLike: BranchLike) => void;
   selected: boolean;

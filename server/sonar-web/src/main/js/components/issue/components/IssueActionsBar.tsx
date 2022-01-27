@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IssueResponse } from '../../../types/issues';
+import { Issue, RawQuery } from '../../../types/types';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
 import IssueCommentAction from './IssueCommentAction';
@@ -29,10 +30,10 @@ import IssueTransition from './IssueTransition';
 import IssueType from './IssueType';
 
 interface Props {
-  issue: T.Issue;
+  issue: Issue;
   currentPopup?: string;
   onAssign: (login: string) => void;
-  onChange: (issue: T.Issue) => void;
+  onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
@@ -48,9 +49,9 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
   };
 
   setIssueProperty = (
-    property: keyof T.Issue,
+    property: keyof Issue,
     popup: string,
-    apiCall: (query: T.RawQuery) => Promise<IssueResponse>,
+    apiCall: (query: RawQuery) => Promise<IssueResponse>,
     value: string
   ) => {
     const { issue } = this.props;
@@ -74,7 +75,7 @@ export default class IssueActionsBar extends React.PureComponent<Props, State> {
     this.props.togglePopup('comment', open);
   };
 
-  handleTransition = (issue: T.Issue) => {
+  handleTransition = (issue: Issue) => {
     this.props.onChange(issue);
     if (
       issue.resolution === 'FALSE-POSITIVE' ||

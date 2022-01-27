@@ -22,11 +22,12 @@ import * as React from 'react';
 import { KeyboardCodes } from '../../../helpers/keycodes';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { KEYCODE_MAP, keydown } from '../../../helpers/testUtils';
+import { ComponentMeasure } from '../../../types/types';
 import withKeyboardNavigation, { WithKeyboardNavigationProps } from '../withKeyboardNavigation';
 
 class X extends React.Component<{
-  components?: T.ComponentMeasure[];
-  selected?: T.ComponentMeasure;
+  components?: ComponentMeasure[];
+  selected?: ComponentMeasure;
 }> {
   render() {
     return <div />;

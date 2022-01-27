@@ -26,6 +26,16 @@ import PageActions from '../../../components/ui/PageActions';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
+import {
+  ComponentMeasure,
+  ComponentMeasureEnhanced,
+  ComponentMeasureIntern,
+  Dict,
+  Issue,
+  Metric,
+  Paging,
+  Period
+} from '../../../types/types';
 import BubbleChart from '../drilldown/BubbleChart';
 import { BUBBLES_FETCH_LIMIT, enhanceComponent, getBubbleMetrics, hasFullMeasures } from '../utils';
 import Breadcrumbs from './Breadcrumbs';
@@ -35,20 +45,20 @@ import MeasureContentHeader from './MeasureContentHeader';
 interface Props {
   branchLike?: BranchLike;
   className?: string;
-  component: T.ComponentMeasure;
+  component: ComponentMeasure;
   domain: string;
-  leakPeriod?: T.Period;
+  leakPeriod?: Period;
   loading: boolean;
-  metrics: T.Dict<T.Metric>;
-  onIssueChange?: (issue: T.Issue) => void;
-  rootComponent: T.ComponentMeasure;
-  updateLoading: (param: T.Dict<boolean>) => void;
-  updateSelected: (component: T.ComponentMeasureIntern) => void;
+  metrics: Dict<Metric>;
+  onIssueChange?: (issue: Issue) => void;
+  rootComponent: ComponentMeasure;
+  updateLoading: (param: Dict<boolean>) => void;
+  updateSelected: (component: ComponentMeasureIntern) => void;
 }
 
 interface State {
-  components: T.ComponentMeasureEnhanced[];
-  paging?: T.Paging;
+  components: ComponentMeasureEnhanced[];
+  paging?: Paging;
 }
 
 export default class MeasureOverview extends React.PureComponent<Props, State> {

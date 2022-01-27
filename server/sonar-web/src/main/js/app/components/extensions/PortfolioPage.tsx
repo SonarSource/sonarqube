@@ -20,11 +20,12 @@
 import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
+import { Component } from '../../../types/types';
 import { PageContext } from '../indexation/PageUnavailableDueToIndexation';
 import ProjectPageExtension from './ProjectPageExtension';
 
 export interface PortfolioPageProps extends WithRouterProps {
-  component: T.Component;
+  component: Component;
 }
 
 export function PortfolioPage({ component, location }: PortfolioPageProps) {

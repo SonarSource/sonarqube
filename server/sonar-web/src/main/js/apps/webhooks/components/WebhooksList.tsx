@@ -20,12 +20,13 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Webhook } from '../../../types/types';
 import WebhookItem from './WebhookItem';
 
 interface Props {
   onDelete: (webhook: string) => Promise<void>;
   onUpdate: (data: { webhook: string; name: string; url: string }) => Promise<void>;
-  webhooks: T.Webhook[];
+  webhooks: Webhook[];
 }
 
 export default class WebhooksList extends React.PureComponent<Props> {

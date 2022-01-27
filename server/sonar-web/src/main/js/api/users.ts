@@ -19,8 +19,16 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
+import {
+  CurrentUser,
+  CurrentUserSetting,
+  HomePage,
+  IdentityProvider,
+  Paging,
+  User
+} from '../types/types';
 
-export function getCurrentUser(): Promise<T.CurrentUser> {
+export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current');
 }
 
@@ -46,11 +54,11 @@ export function getUserGroups(data: {
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ paging: T.Paging; groups: UserGroup[] }> {
+}): Promise<{ paging: Paging; groups: UserGroup[] }> {
   return getJSON('/api/users/groups', data);
 }
 
-export function getIdentityProviders(): Promise<{ identityProviders: T.IdentityProvider[] }> {
+export function getIdentityProviders(): Promise<{ identityProviders: IdentityProvider[] }> {
   return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }
 
@@ -58,7 +66,7 @@ export function searchUsers(data: {
   p?: number;
   ps?: number;
   q?: string;
-}): Promise<{ paging: T.Paging; users: T.User[] }> {
+}): Promise<{ paging: Paging; users: User[] }> {
   data.q = data.q || undefined;
   return getJSON('/api/users/search', data).catch(throwGlobalError);
 }
@@ -79,22 +87,22 @@ export function updateUser(data: {
   login: string;
   name?: string;
   scmAccount: string[];
-}): Promise<T.User> {
+}): Promise<User> {
   return postJSON('/api/users/update', {
     ...data,
     scmAccount: data.scmAccount.length > 0 ? data.scmAccount : ''
   });
 }
 
-export function deactivateUser(data: { login: string }): Promise<T.User> {
+export function deactivateUser(data: { login: string }): Promise<User> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 
-export function setHomePage(homepage: T.HomePage): Promise<void | Response> {
+export function setHomePage(homepage: HomePage): Promise<void | Response> {
   return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
 }
 
-export function setUserSetting(setting: T.CurrentUserSetting): Promise<void | Response> {
+export function setUserSetting(setting: CurrentUserSetting): Promise<void | Response> {
   return post('/api/users/set_setting', setting).catch(throwGlobalError);
 }
 

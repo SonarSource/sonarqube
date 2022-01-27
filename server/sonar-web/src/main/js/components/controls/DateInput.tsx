@@ -217,7 +217,7 @@ function NullComponent() {
   return null;
 }
 
-type InputWrapperProps = T.Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> &
+type InputWrapperProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'> &
   WrappedComponentProps & {
     innerRef: React.Ref<HTMLInputElement>;
     value: Date | undefined;

@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { scrollToElement } from '../../../helpers/scrolling';
+import { Issue } from '../../../types/types';
 import ConciseIssue from './ConciseIssue';
 
 interface Props {
-  issues: T.Issue[];
+  issues: Issue[];
   onFlowSelect: (index: number) => void;
   onIssueSelect: (issueKey: string) => void;
   onLocationSelect: (index: number) => void;

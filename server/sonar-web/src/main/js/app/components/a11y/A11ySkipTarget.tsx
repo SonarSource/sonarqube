@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { A11ySkipLink } from '../../../types/types';
 import { A11yContext } from './A11yContext';
 
 interface Props {
@@ -42,8 +43,8 @@ export default function A11ySkipTarget(props: Props) {
 }
 
 interface InnerProps {
-  addA11ySkipLink: (link: T.A11ySkipLink) => void;
-  removeA11ySkipLink: (link: T.A11ySkipLink) => void;
+  addA11ySkipLink: (link: A11ySkipLink) => void;
+  removeA11ySkipLink: (link: A11ySkipLink) => void;
 }
 
 export class A11ySkipTargetInner extends React.PureComponent<Props & InnerProps> {
@@ -55,7 +56,7 @@ export class A11ySkipTargetInner extends React.PureComponent<Props & InnerProps>
     this.props.removeA11ySkipLink(this.getLink());
   }
 
-  getLink = (): T.A11ySkipLink => {
+  getLink = (): A11ySkipLink => {
     const { anchor: key, label = translate('skip_to_content'), weight } = this.props;
     return { key, label, weight };
   };

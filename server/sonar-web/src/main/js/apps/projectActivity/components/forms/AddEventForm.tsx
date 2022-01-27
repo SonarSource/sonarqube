@@ -20,11 +20,12 @@
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { ParsedAnalysis } from '../../../../types/types';
 
 interface Props {
   addEvent: (analysis: string, name: string, category?: string) => Promise<void>;
   addEventButtonText: string;
-  analysis: T.ParsedAnalysis;
+  analysis: ParsedAnalysis;
   onClose: () => void;
 }
 

@@ -20,14 +20,15 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
+import { Notification } from '../../../types/types';
 import NotificationsList from './NotificationsList';
 import SonarCloudNotifications from './SonarCloudNotifications';
 
 interface Props {
-  addNotification: (n: T.Notification) => void;
+  addNotification: (n: Notification) => void;
   channels: string[];
-  notifications: T.Notification[];
-  removeNotification: (n: T.Notification) => void;
+  notifications: Notification[];
+  removeNotification: (n: Notification) => void;
   types: string[];
 }
 

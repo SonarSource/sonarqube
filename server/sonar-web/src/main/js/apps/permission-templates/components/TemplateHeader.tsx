@@ -20,13 +20,14 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import ActionsCell from './ActionsCell';
 
 interface Props {
   loading: boolean;
   refresh: () => void;
-  template: T.PermissionTemplate;
+  template: PermissionTemplate;
   topQualifiers: string[];
 }
 

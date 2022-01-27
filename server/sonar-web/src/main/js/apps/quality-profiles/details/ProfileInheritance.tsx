@@ -22,6 +22,7 @@ import * as React from 'react';
 import { getProfileInheritance } from '../../../api/quality-profiles';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
+import { ProfileInheritanceDetails } from '../../../types/types';
 import { Profile } from '../types';
 import ChangeParentForm from './ChangeParentForm';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
@@ -33,11 +34,11 @@ interface Props {
 }
 
 interface State {
-  ancestors?: T.ProfileInheritanceDetails[];
-  children?: T.ProfileInheritanceDetails[];
+  ancestors?: ProfileInheritanceDetails[];
+  children?: ProfileInheritanceDetails[];
   formOpen: boolean;
   loading: boolean;
-  profile?: T.ProfileInheritanceDetails;
+  profile?: ProfileInheritanceDetails;
 }
 
 export default class ProfileInheritance extends React.PureComponent<Props, State> {

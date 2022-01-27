@@ -20,10 +20,11 @@
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import SettingsSearch from './SettingsSearch';
 
 export interface PageHeaderProps {
-  component?: T.Component;
+  component?: Component;
 }
 
 export default function PageHeader({ component }: PageHeaderProps) {

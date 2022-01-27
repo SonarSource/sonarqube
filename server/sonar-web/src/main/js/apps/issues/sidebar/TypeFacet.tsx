@@ -27,6 +27,7 @@ import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHi
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { ISSUE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {
@@ -34,7 +35,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
   types: string[];
 }
 

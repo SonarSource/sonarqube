@@ -24,12 +24,13 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
+import { CurrentUser, LoggedInUser } from '../../../types/types';
 import '../account.css';
 import Nav from './Nav';
 import UserCard from './UserCard';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 export class Account extends React.PureComponent<Props> {
@@ -54,7 +55,7 @@ export class Account extends React.PureComponent<Props> {
         <A11ySkipTarget anchor="account_main" />
         <header className="account-header">
           <div className="account-container clearfix">
-            <UserCard user={currentUser as T.LoggedInUser} />
+            <UserCard user={currentUser as LoggedInUser} />
             <Nav />
           </div>
         </header>

@@ -25,10 +25,11 @@ import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { getLanguages, Store } from '../../store/rootReducer';
 import { MetricType } from '../../types/metrics';
+import { Languages } from '../../types/types';
 
 interface LanguageDistributionProps {
   distribution: string;
-  languages: T.Languages;
+  languages: Languages;
 }
 
 const NUMBER_FORMAT_THRESHOLD = 1000;

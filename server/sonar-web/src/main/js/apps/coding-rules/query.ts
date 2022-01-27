@@ -30,6 +30,7 @@ import {
   serializeString,
   serializeStringArray
 } from '../../helpers/query';
+import { Dict, RawQuery, RuleInheritance } from '../../types/types';
 
 export interface Query {
   activation: boolean | undefined;
@@ -37,7 +38,7 @@ export interface Query {
   availableSince: Date | undefined;
   compareToProfile: string | undefined;
   cwe: string[];
-  inheritance: T.RuleInheritance | undefined;
+  inheritance: RuleInheritance | undefined;
   languages: string[];
   owaspTop10: string[];
   profile: string | undefined;
@@ -61,10 +62,10 @@ export interface Facet {
 
 export type Facets = { [F in FacetKey]?: Facet };
 
-export type OpenFacets = T.Dict<boolean>;
+export type OpenFacets = Dict<boolean>;
 
 export interface Activation {
-  inherit: T.RuleInheritance;
+  inherit: RuleInheritance;
   severity: string;
 }
 
@@ -74,7 +75,7 @@ export interface Actives {
   };
 }
 
-export function parseQuery(query: T.RawQuery): Query {
+export function parseQuery(query: RawQuery): Query {
   return {
     activation: parseAsOptionalBoolean(query.activation),
     activationSeverities: parseAsArray(query.active_severities, parseAsString),
@@ -98,7 +99,7 @@ export function parseQuery(query: T.RawQuery): Query {
   };
 }
 
-export function serializeQuery(query: Query): T.RawQuery {
+export function serializeQuery(query: Query): RawQuery {
   return cleanQuery({
     activation: serializeOptionalBoolean(query.activation),
     active_severities: serializeStringArray(query.activationSeverities),
@@ -122,7 +123,7 @@ export function serializeQuery(query: Query): T.RawQuery {
   });
 }
 
-export function areQueriesEqual(a: T.RawQuery, b: T.RawQuery) {
+export function areQueriesEqual(a: RawQuery, b: RawQuery) {
   return queriesEqual(parseQuery(a), parseQuery(b));
 }
 
@@ -152,15 +153,15 @@ export function getAppFacet(serverFacet: string): FacetKey {
   return serverFacet === 'active_severities' ? 'activationSeverities' : (serverFacet as FacetKey);
 }
 
-export function getOpen(query: T.RawQuery) {
+export function getOpen(query: RawQuery) {
   return query.open;
 }
 
-export function hasRuleKey(query: T.RawQuery) {
+export function hasRuleKey(query: RawQuery) {
   return Boolean(query.rule_key);
 }
 
-function parseAsInheritance(value?: string): T.RuleInheritance | undefined {
+function parseAsInheritance(value?: string): RuleInheritance | undefined {
   if (value === 'INHERITED' || value === 'NONE' || value === 'OVERRIDES') {
     return value;
   } else {
@@ -168,6 +169,6 @@ function parseAsInheritance(value?: string): T.RuleInheritance | undefined {
   }
 }
 
-function serializeInheritance(value: T.RuleInheritance | undefined): string | undefined {
+function serializeInheritance(value: RuleInheritance | undefined): string | undefined {
   return value;
 }

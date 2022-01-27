@@ -26,10 +26,11 @@ import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { ComponentQualifier } from '../../../types/component';
 import { Facet, ReferencedComponent } from '../../../types/issues';
+import { Component, Dict, Paging } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
-  component: T.Component | undefined;
+  component: Component | undefined;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   fetching: boolean;
   onChange: (changes: Partial<Query>) => void;
@@ -37,8 +38,8 @@ interface Props {
   open: boolean;
   projects: string[];
   query: Query;
-  referencedComponents: T.Dict<ReferencedComponent>;
-  stats: T.Dict<number> | undefined;
+  referencedComponents: Dict<ReferencedComponent>;
+  stats: Dict<number> | undefined;
 }
 
 interface SearchedProject {
@@ -50,7 +51,7 @@ export default class ProjectFacet extends React.PureComponent<Props> {
   handleSearch = (
     query: string,
     page = 1
-  ): Promise<{ results: SearchedProject[]; paging: T.Paging }> => {
+  ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
     const { component } = this.props;
     if (
       component &&

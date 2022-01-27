@@ -25,9 +25,10 @@ import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task } from '../../../../types/tasks';
+import { AppState } from '../../../../types/types';
 
 interface Props {
-  appState: Pick<T.AppState, 'canAdmin'>;
+  appState: Pick<AppState, 'canAdmin'>;
   currentTask?: Task;
 }
 

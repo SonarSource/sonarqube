@@ -21,10 +21,11 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
+import { LoggedInUser } from '../../../types/types';
 import UserExternalIdentity from './UserExternalIdentity';
 
 export interface ProfileProps {
-  currentUser: T.LoggedInUser;
+  currentUser: LoggedInUser;
 }
 
 export function Profile({ currentUser }: ProfileProps) {

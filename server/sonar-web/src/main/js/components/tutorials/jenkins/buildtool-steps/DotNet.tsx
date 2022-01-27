@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { Component } from '../../../../types/types';
 import FinishButton from '../../components/FinishButton';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
@@ -27,7 +28,7 @@ import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
 
 export interface DotNetCoreFrameworkProps {
-  component: T.Component;
+  component: Component;
   os: OSDotNet;
 }
 

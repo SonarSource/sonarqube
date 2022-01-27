@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { colors } from '../../app/theme';
+import { Dict } from '../../types/types';
 import Icon, { IconProps } from './Icon';
 
 interface Props extends IconProps {
   status: string;
 }
 
-const statusIcons: T.Dict<(props: IconProps) => React.ReactElement> = {
+const statusIcons: Dict<(props: IconProps) => React.ReactElement> = {
   ok: OkTestStatusIcon,
   failure: FailureTestStatusIcon,
   error: ErrorTestStatusIcon,

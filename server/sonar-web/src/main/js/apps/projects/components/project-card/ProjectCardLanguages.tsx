@@ -20,11 +20,12 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { Languages } from '../../../../types/types';
 
 interface Props {
   className?: string;
   distribution?: string;
-  languages: T.Languages;
+  languages: Languages;
 }
 
 export default function ProjectCardLanguages({ className, distribution, languages }: Props) {
@@ -46,7 +47,7 @@ export default function ProjectCardLanguages({ className, distribution, language
   );
 }
 
-function getLanguageName(languages: T.Languages, key: string): string {
+function getLanguageName(languages: Languages, key: string): string {
   if (key === '<null>') {
     return translate('unknown');
   }

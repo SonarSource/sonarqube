@@ -21,10 +21,11 @@ import { colors } from '../app/theme';
 import { AlmKeys } from '../types/alm-settings';
 import { ComponentQualifier } from '../types/component';
 import { IssueScope, IssueType } from '../types/issues';
+import { RuleType } from '../types/types';
 
 export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
-export const ISSUE_TYPES: T.IssueType[] = [
+export const ISSUE_TYPES: IssueType[] = [
   IssueType.Bug,
   IssueType.Vulnerability,
   IssueType.CodeSmell,
@@ -34,7 +35,7 @@ export const SOURCE_SCOPES = [
   { scope: IssueScope.Main, qualifier: ComponentQualifier.File },
   { scope: IssueScope.Test, qualifier: ComponentQualifier.TestFile }
 ];
-export const RULE_TYPES: T.RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
+export const RULE_TYPES: RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];
 
 export const CHART_COLORS_RANGE_PERCENT = [

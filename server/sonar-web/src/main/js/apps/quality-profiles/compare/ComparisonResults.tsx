@@ -25,10 +25,11 @@ import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import SeverityIcon from '../../../components/icons/SeverityIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { Dict } from '../../../types/types';
 import ComparisonEmpty from './ComparisonEmpty';
 import ComparisonResultActivation from './ComparisonResultActivation';
 
-type Params = T.Dict<string>;
+type Params = Dict<string>;
 
 interface Props extends CompareResponse {
   leftProfile: Profile;

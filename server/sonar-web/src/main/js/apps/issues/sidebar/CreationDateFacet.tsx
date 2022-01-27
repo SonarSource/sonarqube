@@ -35,10 +35,11 @@ import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { isPortfolioLike } from '../../../types/component';
+import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
-  component: T.Component | undefined;
+  component: Component | undefined;
   createdAfter: Date | undefined;
   createdAfterIncludesTime: boolean;
   createdAt: string;
@@ -49,7 +50,7 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   sinceLeakPeriod: boolean;
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
 }
 
 export class CreationDateFacet extends React.PureComponent<Props & WrappedComponentProps> {

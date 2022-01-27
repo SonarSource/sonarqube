@@ -23,6 +23,7 @@ import GlobalMessagesContainer from '../../../app/components/GlobalMessagesConta
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { Store } from '../../../store/rootReducer';
+import { IdentityProvider } from '../../../types/types';
 import './Login.css';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
@@ -30,7 +31,7 @@ import OAuthProviders from './OAuthProviders';
 export interface LoginProps {
   authorizationError?: boolean;
   authenticationError?: boolean;
-  identityProviders: T.IdentityProvider[];
+  identityProviders: IdentityProvider[];
   onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
 }

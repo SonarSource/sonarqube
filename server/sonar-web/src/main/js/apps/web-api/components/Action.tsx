@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { WebApi } from '../../../types/types';
 import { getActionKey, serializeQuery } from '../utils';
 import ActionChangelog from './ActionChangelog';
 import DeprecatedBadge from './DeprecatedBadge';
@@ -30,8 +31,8 @@ import Params from './Params';
 import ResponseExample from './ResponseExample';
 
 interface Props {
-  action: T.WebApi.Action;
-  domain: T.WebApi.Domain;
+  action: WebApi.Action;
+  domain: WebApi.Domain;
   showDeprecated: boolean;
   showInternal: boolean;
 }

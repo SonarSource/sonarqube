@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ReferencedRule } from '../../types/issues';
+import { IssueChangelog } from '../../types/types';
 
 export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): ReferencedRule {
   return {
@@ -27,7 +28,7 @@ export function mockReferencedRule(overrides: Partial<ReferencedRule> = {}): Ref
   };
 }
 
-export function mockIssueChangelog(overrides: Partial<T.IssueChangelog> = {}): T.IssueChangelog {
+export function mockIssueChangelog(overrides: Partial<IssueChangelog> = {}): IssueChangelog {
   return {
     creationDate: '2018-10-01',
     isUserActive: true,

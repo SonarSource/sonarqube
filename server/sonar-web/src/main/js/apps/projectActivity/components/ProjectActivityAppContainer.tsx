@@ -34,6 +34,7 @@ import { parseDate } from '../../../helpers/dates';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
+import { Component, Metric, Paging, ParsedAnalysis, RawQuery } from '../../../types/types';
 import * as actions from '../actions';
 import {
   customMetricsChanged,
@@ -46,17 +47,17 @@ import ProjectActivityApp from './ProjectActivityApp';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.Component;
+  component: Component;
   location: Location;
   router: Pick<InjectedRouter, 'push' | 'replace'>;
 }
 
 export interface State {
-  analyses: T.ParsedAnalysis[];
+  analyses: ParsedAnalysis[];
   analysesLoading: boolean;
   graphLoading: boolean;
   initialized: boolean;
-  metrics: T.Metric[];
+  metrics: Metric[];
   measuresHistory: MeasureHistory[];
   query: Query;
 }
@@ -160,7 +161,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     });
   };
 
-  fetchActivity = (project: string, p: number, ps: number, additional?: T.RawQuery) => {
+  fetchActivity = (project: string, p: number, ps: number, additional?: RawQuery) => {
     const parameters = { project, p, ps, ...getBranchLikeQuery(this.props.branchLike) };
     return api
       .getProjectActivity({ ...additional, ...parameters })
@@ -168,7 +169,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
         analyses: analyses.map(analysis => ({
           ...analysis,
           date: parseDate(analysis.date)
-        })) as T.ParsedAnalysis[],
+        })) as ParsedAnalysis[],
         paging
       }));
   };
@@ -213,8 +214,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
 
   loadAllActivities = (
     project: string,
-    prevResult?: { analyses: T.ParsedAnalysis[]; paging: T.Paging }
-  ): Promise<{ analyses: T.ParsedAnalysis[]; paging: T.Paging }> => {
+    prevResult?: { analyses: ParsedAnalysis[]; paging: Paging }
+  ): Promise<{ analyses: ParsedAnalysis[]; paging: Paging }> => {
     if (
       prevResult &&
       prevResult.paging.pageIndex * prevResult.paging.pageSize >= prevResult.paging.total
@@ -233,7 +234,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     });
   };
 
-  getTopLevelComponent = (component: T.Component) => {
+  getTopLevelComponent = (component: Component) => {
     let current = component.breadcrumbs.length - 1;
     while (
       current > 0 &&
@@ -244,13 +245,13 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     return component.breadcrumbs[current].key;
   };
 
-  filterMetrics({ qualifier }: T.Component, metrics: T.Metric[]) {
+  filterMetrics({ qualifier }: Component, metrics: Metric[]) {
     return ['VW', 'SVW'].includes(qualifier)
       ? metrics.filter(metric => metric.key !== MetricKey.security_hotspots_reviewed)
       : metrics.filter(metric => metric.key !== MetricKey.security_review_rating);
   }
 
-  firstLoadData(query: Query, component: T.Component) {
+  firstLoadData(query: Query, component: Component) {
     const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
     const topLevelComponent = this.getTopLevelComponent(component);
     Promise.all([

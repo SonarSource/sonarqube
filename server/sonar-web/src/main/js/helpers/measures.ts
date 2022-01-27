@@ -22,13 +22,14 @@ import {
   QualityGateStatusCondition,
   QualityGateStatusConditionEnhanced
 } from '../types/quality-gates';
+import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
 import { getCurrentLocale, translate, translateWithParameters } from './l10n';
 import { isDefined } from './types';
 
 export function enhanceMeasuresWithMetrics(
-  measures: T.Measure[],
-  metrics: T.Metric[]
-): T.MeasureEnhanced[] {
+  measures: Measure[],
+  metrics: Metric[]
+): MeasureEnhanced[] {
   return measures
     .map(measure => {
       const metric = metrics.find(metric => metric.key === measure.metric);
@@ -39,7 +40,7 @@ export function enhanceMeasuresWithMetrics(
 
 export function enhanceConditionWithMeasure(
   condition: QualityGateStatusCondition,
-  measures: T.MeasureEnhanced[]
+  measures: MeasureEnhanced[]
 ): QualityGateStatusConditionEnhanced | undefined {
   const measure = measures.find(m => m.metric.key === condition.metric);
 
@@ -53,7 +54,7 @@ export function enhanceConditionWithMeasure(
   return measure && { ...condition, period, measure };
 }
 
-export function isPeriodBestValue(measure: T.Measure | T.MeasureEnhanced): boolean {
+export function isPeriodBestValue(measure: Measure | MeasureEnhanced): boolean {
   return measure.period?.bestValue || false;
 }
 
@@ -124,11 +125,11 @@ export function getRatingTooltip(metricKey: MetricKey | string, value: number | 
     : translate('metric', finalMetricKey, 'tooltip', ratingLetter);
 }
 
-export function getDisplayMetrics(metrics: T.Metric[]) {
+export function getDisplayMetrics(metrics: Metric[]) {
   return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
 }
 
-export function findMeasure(measures: T.MeasureEnhanced[], metric: MetricKey | string) {
+export function findMeasure(measures: MeasureEnhanced[], metric: MetricKey | string) {
   return measures.find(measure => measure.metric.key === metric);
 }
 
@@ -196,7 +197,7 @@ function useFormatter(
 }
 
 function getFormatter(type: string): Formatter {
-  const FORMATTERS: T.Dict<Formatter> = {
+  const FORMATTERS: Dict<Formatter> = {
     INT: intFormatter,
     SHORT_INT: shortIntFormatter,
     FLOAT: floatFormatter,

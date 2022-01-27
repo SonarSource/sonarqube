@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 
 export interface SentenceWithHighlightsProps {
   highlightKeys: string[];
@@ -32,7 +33,7 @@ export default function SentenceWithHighlights({
   translationKey,
   highlightPrefixKeys
 }: SentenceWithHighlightsProps) {
-  const values: T.Dict<JSX.Element> = {};
+  const values: Dict<JSX.Element> = {};
 
   const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
   highlightKeys.forEach(key => {

@@ -28,18 +28,19 @@ import {
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { UserSelected } from '../../../types/types';
 import { Group } from './ProfilePermissions';
 import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
 
 interface Props {
   onClose: () => void;
   onGroupAdd: (group: Group) => void;
-  onUserAdd: (user: T.UserSelected) => void;
+  onUserAdd: (user: UserSelected) => void;
   profile: { language: string; name: string };
 }
 
 interface State {
-  selected?: T.UserSelected | Group;
+  selected?: UserSelected | Group;
   submitting: boolean;
 }
 
@@ -61,7 +62,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     }
   };
 
-  handleUserAdd = (user: T.UserSelected) => {
+  handleUserAdd = (user: UserSelected) => {
     const {
       profile: { language, name }
     } = this.props;
@@ -88,8 +89,8 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     const { selected } = this.state;
     if (selected) {
       this.setState({ submitting: true });
-      if ((selected as T.UserSelected).login !== undefined) {
-        this.handleUserAdd(selected as T.UserSelected);
+      if ((selected as UserSelected).login !== undefined) {
+        this.handleUserAdd(selected as UserSelected);
       } else {
         this.handleGroupAdd(selected as Group);
       }
@@ -113,7 +114,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     ]);
   };
 
-  handleValueChange = (selected: T.UserSelected | Group) => {
+  handleValueChange = (selected: UserSelected | Group) => {
     this.setState({ selected });
   };
 

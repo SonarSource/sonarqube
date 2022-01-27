@@ -22,13 +22,14 @@ import * as React from 'react';
 import StatusIndicator from '../../../../components/common/StatusIndicator';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translateWithParameters } from '../../../../helpers/l10n';
+import { HealthType } from '../../../../types/types';
 import HealthCauseItem from './HealthCauseItem';
 
 interface Props {
   biggerHealth?: boolean;
   name?: string;
   className?: string;
-  health: T.HealthType;
+  health: HealthType;
   healthCauses?: string[];
 }
 

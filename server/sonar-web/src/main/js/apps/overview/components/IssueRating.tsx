@@ -25,12 +25,13 @@ import Rating from '../../../components/ui/Rating';
 import { findMeasure } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
+import { Component, MeasureEnhanced } from '../../../types/types';
 import { getIssueRatingMetricKey, getIssueRatingName } from '../utils';
 
 export interface IssueRatingProps {
   branchLike?: BranchLike;
-  component: T.Component;
-  measures: T.MeasureEnhanced[];
+  component: Component;
+  measures: MeasureEnhanced[];
   type: IssueType;
   useDiffMetric?: boolean;
 }

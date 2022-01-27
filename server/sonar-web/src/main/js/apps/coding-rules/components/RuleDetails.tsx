@@ -25,6 +25,7 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Dict, RuleActivation, RuleDetails as TypeRuleDetails } from '../../../types/types';
 import { Activation, Query } from '../query';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
@@ -42,16 +43,16 @@ interface Props {
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
-  referencedProfiles: T.Dict<Profile>;
-  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
+  referencedProfiles: Dict<Profile>;
+  referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleKey: string;
   selectedProfile?: Profile;
 }
 
 interface State {
-  actives?: T.RuleActivation[];
+  actives?: RuleActivation[];
   loading: boolean;
-  ruleDetails?: T.RuleDetails;
+  ruleDetails?: TypeRuleDetails;
 }
 
 export default class RuleDetails extends React.PureComponent<Props, State> {
@@ -93,7 +94,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     );
   };
 
-  handleRuleChange = (ruleDetails: T.RuleDetails) => {
+  handleRuleChange = (ruleDetails: TypeRuleDetails) => {
     if (this.mounted) {
       this.setState({ ruleDetails });
     }

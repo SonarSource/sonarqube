@@ -24,11 +24,12 @@ import TreeIcon from '../../../components/icons/TreeIcon';
 import TreemapIcon from '../../../components/icons/TreemapIcon';
 import { translate } from '../../../helpers/l10n';
 import { MeasurePageView } from '../../../types/measures';
+import { Metric } from '../../../types/types';
 import { hasList, hasTree, hasTreemap } from '../utils';
 
 interface Props {
   className?: string;
-  metric: T.Metric;
+  metric: Metric;
   handleViewChange: (view: MeasurePageView) => void;
   view: MeasurePageView;
 }

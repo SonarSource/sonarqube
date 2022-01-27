@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '../../types/component';
+import { Dict, RawQuery } from '../../types/types';
 import { VISUALIZATIONS } from './utils';
 
 type Level = 'ERROR' | 'WARN' | 'OK';
@@ -48,7 +49,7 @@ export interface Query {
   [x: string]: string | number | string[] | undefined;
 }
 
-export function parseUrlQuery(urlQuery: T.RawQuery): Query {
+export function parseUrlQuery(urlQuery: RawQuery): Query {
   return {
     gate: getAsLevel(urlQuery['gate']),
     reliability: getAsNumericRating(urlQuery['reliability']),
@@ -239,7 +240,7 @@ function convertSize(metric: string, size: number): string {
 }
 
 function mapPropertyToMetric(property?: string): string | undefined {
-  const map: T.Dict<string> = {
+  const map: Dict<string> = {
     analysis_date: 'analysisDate',
     reliability: 'reliability_rating',
     new_reliability: 'new_reliability_rating',

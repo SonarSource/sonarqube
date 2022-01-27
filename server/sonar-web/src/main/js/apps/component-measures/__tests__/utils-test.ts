@@ -19,6 +19,7 @@
  */
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
+import { ComponentMeasure } from '../../../types/types';
 import * as utils from '../utils';
 
 const MEASURES = [
@@ -154,7 +155,7 @@ describe('serializeQuery', () => {
 });
 
 describe('extract measure', () => {
-  const componentBuilder = (qual: ComponentQualifier): T.ComponentMeasure => {
+  const componentBuilder = (qual: ComponentQualifier): ComponentMeasure => {
     return {
       qualifier: qual,
       key: '1',

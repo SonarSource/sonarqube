@@ -27,6 +27,7 @@ import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { PermissionTemplate } from '../../../../types/types';
 
 interface Props {
   onApply?: () => void;
@@ -38,7 +39,7 @@ interface State {
   done: boolean;
   loading: boolean;
   permissionTemplate?: string;
-  permissionTemplates?: T.PermissionTemplate[];
+  permissionTemplates?: PermissionTemplate[];
 }
 
 export default class ApplyTemplate extends React.PureComponent<Props, State> {

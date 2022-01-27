@@ -30,6 +30,7 @@ import {
 } from '../../../api/alm-integrations';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { Dict } from '../../../types/types';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
@@ -42,12 +43,12 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
 interface State {
   importing: boolean;
   loading: boolean;
-  loadingRepositories: T.Dict<boolean>;
+  loadingRepositories: Dict<boolean>;
   patIsValid?: boolean;
   projects?: AzureProject[];
-  repositories: T.Dict<AzureRepository[]>;
+  repositories: Dict<AzureRepository[]>;
   searching?: boolean;
-  searchResults?: T.Dict<AzureRepository[]>;
+  searchResults?: Dict<AzureRepository[]>;
   searchQuery?: string;
   selectedRepository?: AzureRepository;
   settings?: AlmSettingsInstance;

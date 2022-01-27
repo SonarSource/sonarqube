@@ -25,6 +25,7 @@ import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Branch } from '../../../types/branch-like';
+import { NewCodePeriod, NewCodePeriodSettingType, ParsedAnalysis } from '../../../types/types';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
@@ -38,24 +39,24 @@ export interface ProjectBaselineSelectorProps {
   branchList: Branch[];
   branchesEnabled?: boolean;
   component: string;
-  currentSetting?: T.NewCodePeriodSettingType;
+  currentSetting?: NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
-  generalSetting: T.NewCodePeriod;
+  generalSetting: NewCodePeriod;
   onCancel: () => void;
-  onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
+  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   onSelectDays: (value: string) => void;
   onSelectReferenceBranch: (value: string) => void;
-  onSelectSetting: (value?: T.NewCodePeriodSettingType) => void;
+  onSelectSetting: (value?: NewCodePeriodSettingType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onToggleSpecificSetting: (selection: boolean) => void;
   referenceBranch?: string;
   saving: boolean;
-  selected?: T.NewCodePeriodSettingType;
+  selected?: NewCodePeriodSettingType;
   overrideGeneralSetting: boolean;
 }
 
-function renderGeneralSetting(generalSetting: T.NewCodePeriod) {
+function renderGeneralSetting(generalSetting: NewCodePeriod) {
   let setting: string;
   let description: string;
   if (generalSetting.type === 'NUMBER_OF_DAYS') {

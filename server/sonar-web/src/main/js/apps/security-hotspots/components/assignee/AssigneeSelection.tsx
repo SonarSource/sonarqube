@@ -23,22 +23,23 @@ import { searchUsers } from '../../../../api/users';
 import { KeyboardCodes } from '../../../../helpers/keycodes';
 import { translate } from '../../../../helpers/l10n';
 import { isUserActive } from '../../../../helpers/users';
+import { LoggedInUser, UserActive } from '../../../../types/types';
 import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
 
 interface Props {
   allowCurrentUserSelection: boolean;
-  loggedInUser: T.LoggedInUser;
-  onSelect: (user: T.UserActive) => void;
+  loggedInUser: LoggedInUser;
+  onSelect: (user: UserActive) => void;
 }
 
 interface State {
-  highlighted?: T.UserActive;
+  highlighted?: UserActive;
   loading: boolean;
   query?: string;
-  suggestedUsers: T.UserActive[];
+  suggestedUsers: UserActive[];
 }
 
-const UNASSIGNED: T.UserActive = { login: '', name: translate('unassigned') };
+const UNASSIGNED: UserActive = { login: '', name: translate('unassigned') };
 
 export default class AssigneeSelection extends React.PureComponent<Props, State> {
   mounted = false;
@@ -92,7 +93,7 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
           this.setState({
             loading: false,
             query,
-            suggestedUsers: (result.users.filter(isUserActive) as T.UserActive[]).concat(UNASSIGNED)
+            suggestedUsers: (result.users.filter(isUserActive) as UserActive[]).concat(UNASSIGNED)
           });
         }
       })

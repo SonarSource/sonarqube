@@ -45,6 +45,15 @@ import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, getLanguages, Store } from '../../../store/rootReducer';
 import { SecurityStandard } from '../../../types/security';
 import {
+  CurrentUser,
+  Dict,
+  Languages,
+  Paging,
+  RawQuery,
+  Rule,
+  RuleActivation
+} from '../../../types/types';
+import {
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
@@ -78,8 +87,8 @@ const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface Props extends WithRouterProps {
-  currentUser: T.CurrentUser;
-  languages: T.Languages;
+  currentUser: CurrentUser;
+  languages: Languages;
 }
 
 interface State {
@@ -88,12 +97,12 @@ interface State {
   facets?: Facets;
   loading: boolean;
   openFacets: OpenFacets;
-  openRule?: T.Rule;
-  paging?: T.Paging;
+  openRule?: Rule;
+  paging?: Paging;
   query: Query;
-  referencedProfiles: T.Dict<Profile>;
-  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
-  rules: T.Rule[];
+  referencedProfiles: Dict<Profile>;
+  referencedRepositories: Dict<{ key: string; language: string; name: string }>;
+  rules: Rule[];
   selected?: string;
   usingPermalink?: boolean;
 }
@@ -184,7 +193,7 @@ export class App extends React.PureComponent<Props, State> {
 
   detachShortcuts = () => key.deleteScope('coding-rules');
 
-  getOpenRule = (props: Props, rules: T.Rule[]) => {
+  getOpenRule = (props: Props, rules: Rule[]) => {
     const open = getOpen(props.location.query);
     return open && rules.find(rule => rule.key === open);
   };
@@ -244,7 +253,7 @@ export class App extends React.PureComponent<Props, State> {
     );
   };
 
-  makeFetchRequest = (query?: T.RawQuery) =>
+  makeFetchRequest = (query?: RawQuery) =>
     searchRules({ ...this.getSearchParameters(), ...query }).then(
       ({ actives: rawActives, facets: rawFacets, p, ps, rules, total }) => {
         const actives = rawActives && parseActives(rawActives);
@@ -254,7 +263,7 @@ export class App extends React.PureComponent<Props, State> {
       }
     );
 
-  fetchFirstRules = (query?: T.RawQuery) => {
+  fetchFirstRules = (query?: RawQuery) => {
     this.setState({ loading: true });
     this.makeFetchRequest(query).then(({ actives, facets, paging, rules }) => {
       if (this.mounted) {
@@ -474,7 +483,7 @@ export class App extends React.PureComponent<Props, State> {
   handleReset = () => this.props.router.push({ pathname: this.props.location.pathname });
 
   /** Tries to take rule by index, or takes the last one  */
-  pickRuleAround = (rules: T.Rule[], selectedIndex: number | undefined) => {
+  pickRuleAround = (rules: Rule[], selectedIndex: number | undefined) => {
     if (selectedIndex === undefined || rules.length === 0) {
       return undefined;
     }
@@ -672,7 +681,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-function parseActives(rawActives: T.Dict<T.RuleActivation[]>) {
+function parseActives(rawActives: Dict<RuleActivation[]>) {
   const actives: Actives = {};
   for (const [rule, activations] of Object.entries(rawActives)) {
     actives[rule] = {};
@@ -686,7 +695,7 @@ function parseActives(rawActives: T.Dict<T.RuleActivation[]>) {
 function parseFacets(rawFacets: { property: string; values: { count: number; val: string }[] }[]) {
   const facets: Facets = {};
   for (const rawFacet of rawFacets) {
-    const values: T.Dict<number> = {};
+    const values: Dict<number> = {};
     for (const rawValue of rawFacet.values) {
       values[rawValue.val] = rawValue.count;
     }

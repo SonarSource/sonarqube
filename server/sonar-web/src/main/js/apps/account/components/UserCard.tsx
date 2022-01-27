@@ -19,9 +19,10 @@
  */
 import * as React from 'react';
 import Avatar from '../../../components/ui/Avatar';
+import { LoggedInUser } from '../../../types/types';
 
 interface Props {
-  user: T.LoggedInUser;
+  user: LoggedInUser;
 }
 
 export default function UserCard({ user }: Props) {

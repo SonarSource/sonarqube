@@ -24,12 +24,13 @@ import Dropdown from '../../components/controls/Dropdown';
 import DropdownIcon from '../../components/icons/DropdownIcon';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
 interface Props {
   addMetric: (metric: string) => void;
   className?: string;
-  metrics: T.Metric[];
+  metrics: Metric[];
   metricsTypeFilter?: string[];
   removeMetric: (metric: string) => void;
   selectedMetrics: string[];
@@ -81,7 +82,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
       .map(metric => metric.key);
   };
 
-  getSelectedMetricsElements = (metrics: T.Metric[], selectedMetrics?: string[]) => {
+  getSelectedMetricsElements = (metrics: Metric[], selectedMetrics?: string[]) => {
     const selected = selectedMetrics || this.props.selectedMetrics;
     return metrics.filter(metric => selected.includes(metric.key)).map(metric => metric.key);
   };

@@ -20,6 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { SysInfoAppNode, SysInfoCluster, SysInfoSearchNode } from '../../../types/types';
 import {
   getAppNodes,
   getClusterMainCardSection,
@@ -33,7 +34,7 @@ import HealthCard from './info-items/HealthCard';
 
 interface Props {
   expandedCards: string[];
-  sysInfoData: T.SysInfoCluster;
+  sysInfoData: SysInfoCluster;
   toggleCard: (toggledCard: string) => void;
 }
 
@@ -53,7 +54,7 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
       <li className="note system-info-health-title">
         {translate('system.application_nodes_title')}
       </li>
-      {sortBy(getAppNodes(sysInfoData), getNodeName).map((node: T.SysInfoAppNode) => (
+      {sortBy(getAppNodes(sysInfoData), getNodeName).map((node: SysInfoAppNode) => (
         <HealthCard
           health={getHealth(node)}
           healthCauses={getHealthCauses(node)}
@@ -65,7 +66,7 @@ export default function ClusterSysInfos({ expandedCards, sysInfoData, toggleCard
         />
       ))}
       <li className="note system-info-health-title">{translate('system.search_nodes_title')}</li>
-      {sortBy(getSearchNodes(sysInfoData), getNodeName).map((node: T.SysInfoSearchNode) => (
+      {sortBy(getSearchNodes(sysInfoData), getNodeName).map((node: SysInfoSearchNode) => (
         <HealthCard
           key={getNodeName(node)}
           name={getNodeName(node)}

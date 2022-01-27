@@ -24,17 +24,18 @@ import ListFooter from '../../../components/controls/ListFooter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { AzureProject, AzureRepository } from '../../../types/alm-integration';
+import { Dict } from '../../../types/types';
 import AzureProjectAccordion from './AzureProjectAccordion';
 import { CreateProjectModes } from './types';
 
 export interface AzureProjectsListProps {
   importing: boolean;
-  loadingRepositories: T.Dict<boolean>;
+  loadingRepositories: Dict<boolean>;
   onOpenProject: (key: string) => void;
   onSelectRepository: (repository: AzureRepository) => void;
   projects?: AzureProject[];
-  repositories: T.Dict<AzureRepository[]>;
-  searchResults?: T.Dict<AzureRepository[]>;
+  repositories: Dict<AzureRepository[]>;
+  searchResults?: Dict<AzureRepository[]>;
   searchQuery?: string;
   selectedRepository?: AzureRepository;
 }

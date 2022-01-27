@@ -23,16 +23,17 @@ import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
 import { MetricKey } from '../../types/metrics';
 import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
+import { Dict, Metric } from '../../types/types';
 
 export const DEFAULT_GRAPH = GraphType.issues;
 
-const GRAPHS_METRICS_DISPLAYED: T.Dict<string[]> = {
+const GRAPHS_METRICS_DISPLAYED: Dict<string[]> = {
   [GraphType.issues]: [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
   [GraphType.coverage]: [MetricKey.lines_to_cover, MetricKey.uncovered_lines],
   [GraphType.duplications]: [MetricKey.ncloc, MetricKey.duplicated_lines]
 };
 
-const GRAPHS_METRICS: T.Dict<string[]> = {
+const GRAPHS_METRICS: Dict<string[]> = {
   [GraphType.issues]: GRAPHS_METRICS_DISPLAYED[GraphType.issues].concat([
     MetricKey.reliability_rating,
     MetricKey.security_rating,
@@ -106,7 +107,7 @@ export function generateCoveredLinesMetric(
 export function generateSeries(
   measuresHistory: MeasureHistory[],
   graph: GraphType,
-  metrics: T.Metric[] | T.Dict<T.Metric>,
+  metrics: Metric[] | Dict<Metric>,
   displayedMetrics: string[]
 ): Serie[] {
   if (displayedMetrics.length <= 0 || measuresHistory === undefined) {
@@ -158,7 +159,7 @@ export function getActivityGraph(
   };
 }
 
-function findMetric(key: string, metrics: T.Metric[] | T.Dict<T.Metric>) {
+function findMetric(key: string, metrics: Metric[] | Dict<Metric>) {
   if (Array.isArray(metrics)) {
     return metrics.find(metric => metric.key === key);
   }

@@ -25,11 +25,12 @@ import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
+import { AppState } from '../../../../types/types';
 import { withAppState } from '../../../hoc/withAppState';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface PublishStepsProps {
-  appState: T.AppState;
+  appState: AppState;
 }
 export function PublishSteps(props: PublishStepsProps) {
   const {

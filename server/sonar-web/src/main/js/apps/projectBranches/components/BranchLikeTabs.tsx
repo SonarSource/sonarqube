@@ -30,13 +30,14 @@ import {
 } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';
 import RenameBranchModal from './RenameBranchModal';
 
 interface Props {
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   onBranchesChange: () => void;
 }
 

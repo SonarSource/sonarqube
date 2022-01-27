@@ -26,6 +26,7 @@ import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
 import { BranchLike } from '../types/branch-like';
+import { Status } from '../types/types';
 import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
@@ -103,7 +104,7 @@ export function requireAuthorization(router: Pick<InjectedRouter, 'replace'>) {
   return requireAuthorizationAction();
 }
 
-export function registerBranchStatus(branchLike: BranchLike, component: string, status: T.Status) {
+export function registerBranchStatus(branchLike: BranchLike, component: string, status: Status) {
   return (dispatch: Dispatch) => {
     dispatch(registerBranchStatusAction(branchLike, component, status));
   };

@@ -21,10 +21,11 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { Project } from '../../api/components';
 import { translate } from '../../helpers/l10n';
+import { LoggedInUser } from '../../types/types';
 import ProjectRow from './ProjectRow';
 
 interface Props {
-  currentUser: Pick<T.LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login'>;
   onProjectDeselected: (project: string) => void;
   onProjectSelected: (project: string) => void;
   projects: Project[];

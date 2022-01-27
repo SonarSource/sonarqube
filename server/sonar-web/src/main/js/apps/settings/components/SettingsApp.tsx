@@ -32,6 +32,7 @@ import {
   removeWhitePageClass
 } from '../../../helpers/pages';
 import { getSettingsAppDefaultCategory, Store } from '../../../store/rootReducer';
+import { Component } from '../../../types/types';
 import { fetchSettings } from '../store/actions';
 import '../styles.css';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
@@ -41,7 +42,7 @@ import CATEGORY_OVERRIDES from './CategoryOverrides';
 import PageHeader from './PageHeader';
 
 interface Props {
-  component?: T.Component;
+  component?: Component;
   defaultCategory: string;
   fetchSettings(component?: string): Promise<void>;
 }

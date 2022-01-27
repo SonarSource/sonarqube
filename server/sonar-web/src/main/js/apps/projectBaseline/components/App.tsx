@@ -27,6 +27,12 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { Branch, BranchLike } from '../../../types/branch-like';
+import {
+  Component,
+  NewCodePeriod,
+  NewCodePeriodSettingType,
+  ParsedAnalysis
+} from '../../../types/types';
 import '../styles.css';
 import { getSettingValue } from '../utils';
 import AppHeader from './AppHeader';
@@ -38,27 +44,27 @@ interface Props {
   branchLikes: BranchLike[];
   branchesEnabled?: boolean;
   canAdmin?: boolean;
-  component: T.Component;
+  component: Component;
 }
 
 interface State {
   analysis?: string;
   branchList: Branch[];
-  currentSetting?: T.NewCodePeriodSettingType;
+  currentSetting?: NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
-  generalSetting?: T.NewCodePeriod;
+  generalSetting?: NewCodePeriod;
   loading: boolean;
   overrideGeneralSetting?: boolean;
   referenceBranch?: string;
   saving: boolean;
-  selected?: T.NewCodePeriodSettingType;
+  selected?: NewCodePeriodSettingType;
   success?: boolean;
 }
 
 const DEFAULT_NUMBER_OF_DAYS = '30';
 
-const DEFAULT_GENERAL_SETTING: { type: T.NewCodePeriodSettingType } = {
+const DEFAULT_GENERAL_SETTING: { type: NewCodePeriodSettingType } = {
   type: 'PREVIOUS_VERSION'
 };
 
@@ -91,9 +97,9 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   getUpdatedState(params: {
-    currentSetting?: T.NewCodePeriodSettingType;
+    currentSetting?: NewCodePeriodSettingType;
     currentSettingValue?: string;
-    generalSetting: T.NewCodePeriod;
+    generalSetting: NewCodePeriod;
   }) {
     const { currentSetting, currentSettingValue, generalSetting } = params;
     const { referenceBranch } = this.state;
@@ -173,7 +179,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  handleSelectAnalysis = (analysis: T.ParsedAnalysis) => this.setState({ analysis: analysis.key });
+  handleSelectAnalysis = (analysis: ParsedAnalysis) => this.setState({ analysis: analysis.key });
 
   handleSelectDays = (days: string) => this.setState({ days });
 
@@ -187,7 +193,7 @@ export default class App extends React.PureComponent<Props, State> {
         this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
     );
 
-  handleSelectSetting = (selected?: T.NewCodePeriodSettingType) => this.setState({ selected });
+  handleSelectSetting = (selected?: NewCodePeriodSettingType) => this.setState({ selected });
 
   handleToggleSpecificSetting = (overrideGeneralSetting: boolean) =>
     this.setState({ overrideGeneralSetting });

@@ -21,6 +21,7 @@ import * as React from 'react';
 import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
 import Rating from '../../../components/ui/Rating';
 import { translate } from '../../../helpers/l10n';
+import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -29,12 +30,12 @@ export interface Props {
   className?: string;
   facet?: Facet;
   maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   property?: string;
   value?: any;
 }
 
-const labels: T.Dict<string> = {
+const labels: Dict<string> = {
   1: '≥ 80%',
   2: '70% - 80%',
   3: '50% - 70%',

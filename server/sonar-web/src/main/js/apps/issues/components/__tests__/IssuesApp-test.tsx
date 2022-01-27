@@ -40,6 +40,7 @@ import {
 } from '../../../../helpers/testMocks';
 import { KEYCODE_MAP, keydown, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
+import { Issue, Paging } from '../../../../types/types';
 import {
   disableLocationsNavigator,
   enableLocationsNavigator,
@@ -402,7 +403,7 @@ it('should correctly handle filter changes', () => {
 });
 
 it('should fetch issues until defined', async () => {
-  const mockDone = (_: T.Issue[], paging: T.Paging) =>
+  const mockDone = (_: Issue[], paging: Paging) =>
     paging.total <= paging.pageIndex * paging.pageSize;
 
   const wrapper = shallowRender({
@@ -504,7 +505,7 @@ it('should refresh branch status if issues are updated', async () => {
   const instance = wrapper.instance();
   await waitAndUpdate(wrapper);
 
-  const updatedIssue: T.Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
+  const updatedIssue: Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
   instance.handleIssueChange(updatedIssue);
   expect(wrapper.state().issues).toEqual([updatedIssue, ISSUES[1], ISSUES[2], ISSUES[3]]);
   expect(fetchBranchStatus).toBeCalledWith(branchLike, component.key);
@@ -520,7 +521,7 @@ it('should update the open issue when it is changed', async () => {
 
   wrapper.setState({ openIssue: ISSUES[0] });
 
-  const updatedIssue: T.Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
+  const updatedIssue: Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
   wrapper.instance().handleIssueChange(updatedIssue);
 
   expect(wrapper.state().openIssue).toBe(updatedIssue);

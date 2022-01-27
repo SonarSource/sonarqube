@@ -19,12 +19,13 @@
  */
 import { uniq } from 'lodash';
 import * as React from 'react';
+import { Issue } from '../../../types/types';
 import { getLocations } from '../utils';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
 import CrossFileLocationsNavigator from './CrossFileLocationsNavigator';
 
 interface Props {
-  issue: Pick<T.Issue, 'component' | 'key' | 'flows' | 'secondaryLocations' | 'type'>;
+  issue: Pick<Issue, 'component' | 'key' | 'flows' | 'secondaryLocations' | 'type'>;
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
   selectedFlowIndex: number | undefined;

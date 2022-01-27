@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Rating from '../../../components/ui/Rating';
 import { translate } from '../../../helpers/l10n';
+import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
@@ -30,7 +31,7 @@ interface Props {
   headerDetail?: React.ReactNode;
   maxFacetValue?: number;
   name: string;
-  onQueryChange: (change: T.RawQuery) => void;
+  onQueryChange: (change: RawQuery) => void;
   property: string;
   value?: any;
 }

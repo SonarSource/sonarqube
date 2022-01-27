@@ -32,17 +32,18 @@ import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
+import { Analysis as AnalysisType, Component, Metric } from '../../../types/types';
 import Analysis from './Analysis';
 
 export interface ActivityPanelProps {
-  analyses?: T.Analysis[];
+  analyses?: AnalysisType[];
   branchLike?: BranchLike;
-  component: Pick<T.Component, 'key' | 'qualifier'>;
+  component: Pick<Component, 'key' | 'qualifier'>;
   graph?: GraphType;
   leakPeriodDate?: Date;
   loading?: boolean;
   measuresHistory: MeasureHistory[];
-  metrics: T.Metric[];
+  metrics: Metric[];
   onGraphChange: (graph: GraphType) => void;
 }
 

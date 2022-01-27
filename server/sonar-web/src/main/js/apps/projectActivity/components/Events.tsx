@@ -19,12 +19,13 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { AnalysisEvent } from '../../../types/types';
 import Event from './Event';
 
 export interface EventsProps {
   analysisKey: string;
   canAdmin?: boolean;
-  events: T.AnalysisEvent[];
+  events: AnalysisEvent[];
   isFirst?: boolean;
   onChange?: (event: string, name: string) => Promise<void>;
   onDelete?: (analysis: string, event: string) => Promise<void>;

@@ -25,10 +25,11 @@ import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { isLoggedIn } from '../../../../helpers/users';
+import { CurrentUser, LoggedInUser } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   router: Pick<Router, 'push'>;
 }
 
@@ -46,7 +47,7 @@ export class GlobalNavUser extends React.PureComponent<Props> {
   };
 
   renderAuthenticated() {
-    const currentUser = this.props.currentUser as T.LoggedInUser;
+    const currentUser = this.props.currentUser as LoggedInUser;
     return (
       <Dropdown
         className="js-user-authenticated"

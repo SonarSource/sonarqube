@@ -19,10 +19,11 @@
  */
 import { fetchL10nBundle } from '../api/l10n';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10n';
+import { Dict } from '../types/types';
 import { toNotSoISOString } from './dates';
 import { get as loadFromLocalStorage, save as saveInLocalStorage } from './storage';
 
-export type Messages = T.Dict<string>;
+export type Messages = Dict<string>;
 
 export const DEFAULT_LOCALE = 'en';
 export const DEFAULT_MESSAGES = {

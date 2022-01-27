@@ -25,8 +25,41 @@ import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
+import {
+  AlmApplication,
+  Analysis,
+  AnalysisEvent,
+  AppState,
+  Condition,
+  CurrentUser,
+  FlowLocation,
+  Group,
+  HealthType,
+  IdentityProvider,
+  Issue,
+  Language,
+  LoggedInUser,
+  Measure,
+  MeasureEnhanced,
+  Metric,
+  Paging,
+  ParsedAnalysis,
+  Period,
+  ProfileInheritanceDetails,
+  Rule,
+  RuleActivation,
+  RuleDetails,
+  RuleParameter,
+  SnippetsByComponent,
+  SourceLine,
+  SourceViewerFile,
+  SysInfoBase,
+  SysInfoCluster,
+  SysInfoStandalone,
+  User
+} from '../types/types';
 
-export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
+export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): AlmApplication {
   return {
     backgroundColor: '#444444',
     iconPath: '/images/sonarcloud/github-white.svg',
@@ -37,7 +70,7 @@ export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T
   };
 }
 
-export function mockAnalysis(overrides: Partial<T.Analysis> = {}): T.Analysis {
+export function mockAnalysis(overrides: Partial<Analysis> = {}): Analysis {
   return {
     date: '2017-03-01T09:36:01+0100',
     events: [],
@@ -47,7 +80,7 @@ export function mockAnalysis(overrides: Partial<T.Analysis> = {}): T.Analysis {
   };
 }
 
-export function mockParsedAnalysis(overrides: Partial<T.ParsedAnalysis> = {}): T.ParsedAnalysis {
+export function mockParsedAnalysis(overrides: Partial<ParsedAnalysis> = {}): ParsedAnalysis {
   return {
     date: new Date('2017-03-01T09:37:01+0100'),
     events: [],
@@ -57,7 +90,7 @@ export function mockParsedAnalysis(overrides: Partial<T.ParsedAnalysis> = {}): T
   };
 }
 
-export function mockAnalysisEvent(overrides: Partial<T.AnalysisEvent> = {}): T.AnalysisEvent {
+export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): AnalysisEvent {
   return {
     category: 'QUALITY_GATE',
     key: 'E11',
@@ -83,7 +116,7 @@ export function mockAnalysisEvent(overrides: Partial<T.AnalysisEvent> = {}): T.A
   };
 }
 
-export function mockAppState(overrides: Partial<T.AppState> = {}): T.AppState {
+export function mockAppState(overrides: Partial<AppState> = {}): AppState {
   return {
     edition: 'community',
     productionDatabase: true,
@@ -94,9 +127,9 @@ export function mockAppState(overrides: Partial<T.AppState> = {}): T.AppState {
   };
 }
 
-export function mockBaseSysInfo(overrides: Partial<any> = {}): T.SysInfoBase {
+export function mockBaseSysInfo(overrides: Partial<any> = {}): SysInfoBase {
   return {
-    Health: 'GREEN' as T.HealthType,
+    Health: 'GREEN' as HealthType,
     'Health Causes': [],
     System: {
       Version: '7.8'
@@ -122,7 +155,7 @@ export function mockBaseSysInfo(overrides: Partial<any> = {}): T.SysInfoBase {
   };
 }
 
-export function mockClusterSysInfo(overrides: Partial<any> = {}): T.SysInfoCluster {
+export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster {
   const baseInfo = mockBaseSysInfo(overrides);
   return {
     ...baseInfo,
@@ -139,7 +172,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): T.SysInfoClust
       {
         Name: 'server9.example.com',
         Host: '10.0.0.0',
-        Health: 'GREEN' as T.HealthType,
+        Health: 'GREEN' as HealthType,
         'Health Causes': [],
         System: {
           Version: '7.8'
@@ -182,7 +215,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): T.SysInfoClust
       {
         Name: 'server9.example.com',
         Host: '10.0.0.0',
-        Health: 'GREEN' as T.HealthType,
+        Health: 'GREEN' as HealthType,
         'Health Causes': [],
         System: {
           Version: '7.8'
@@ -257,7 +290,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): T.SysInfoClust
   };
 }
 
-export function mockCondition(overrides: Partial<T.Condition> = {}): T.Condition {
+export function mockCondition(overrides: Partial<Condition> = {}): Condition {
   return {
     error: '10',
     id: 1,
@@ -270,8 +303,8 @@ export function mockCondition(overrides: Partial<T.Condition> = {}): T.Condition
 export function mockSnippetsByComponent(
   component = 'main.js',
   lines: number[] = [16]
-): T.SnippetsByComponent {
-  const sources = lines.reduce((lines: { [key: number]: T.SourceLine }, line) => {
+): SnippetsByComponent {
+  const sources = lines.reduce((lines: { [key: number]: SourceLine }, line) => {
     lines[line] = mockSourceLine({ line });
     return lines;
   }, {});
@@ -284,7 +317,7 @@ export function mockSnippetsByComponent(
   };
 }
 
-export function mockSourceLine(overrides: Partial<T.SourceLine> = {}): T.SourceLine {
+export function mockSourceLine(overrides: Partial<SourceLine> = {}): SourceLine {
   return {
     line: 16,
     code: '<span class="k">import</span> java.util.<span class="sym-9 sym">ArrayList</span>;',
@@ -299,14 +332,14 @@ export function mockSourceLine(overrides: Partial<T.SourceLine> = {}): T.SourceL
   };
 }
 
-export function mockCurrentUser(overrides: Partial<T.CurrentUser> = {}): T.CurrentUser {
+export function mockCurrentUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
   return {
     isLoggedIn: false,
     ...overrides
   };
 }
 
-export function mockLoggedInUser(overrides: Partial<T.LoggedInUser> = {}): T.LoggedInUser {
+export function mockLoggedInUser(overrides: Partial<LoggedInUser> = {}): LoggedInUser {
   return {
     groups: [],
     isLoggedIn: true,
@@ -317,7 +350,7 @@ export function mockLoggedInUser(overrides: Partial<T.LoggedInUser> = {}): T.Log
   };
 }
 
-export function mockGroup(overrides: Partial<T.Group> = {}): T.Group {
+export function mockGroup(overrides: Partial<Group> = {}): Group {
   return {
     id: 1,
     membersCount: 1,
@@ -336,8 +369,8 @@ export function mockEvent(overrides = {}) {
   } as any;
 }
 
-export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {}) {
-  const issue: T.Issue = {
+export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}) {
+  const issue: Issue = {
     actions: [],
     component: 'main.js',
     componentLongName: 'main.js',
@@ -391,9 +424,7 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
   };
 }
 
-export function mockMetric(
-  overrides: Partial<Pick<T.Metric, 'key' | 'name' | 'type'>> = {}
-): T.Metric {
+export function mockMetric(overrides: Partial<Pick<Metric, 'key' | 'name' | 'type'>> = {}): Metric {
   const key = overrides.key || 'coverage';
   const name = overrides.name || key[0].toUpperCase() + key.substr(1);
   const type = overrides.type || 'PERCENT';
@@ -405,7 +436,7 @@ export function mockMetric(
   };
 }
 
-export function mockMeasure(overrides: Partial<T.Measure> = {}): T.Measure {
+export function mockMeasure(overrides: Partial<Measure> = {}): Measure {
   return {
     bestValue: true,
     metric: 'bugs',
@@ -419,7 +450,7 @@ export function mockMeasure(overrides: Partial<T.Measure> = {}): T.Measure {
   };
 }
 
-export function mockMeasureEnhanced(overrides: Partial<T.MeasureEnhanced> = {}): T.MeasureEnhanced {
+export function mockMeasureEnhanced(overrides: Partial<MeasureEnhanced> = {}): MeasureEnhanced {
   return {
     bestValue: true,
     leak: '1',
@@ -434,7 +465,7 @@ export function mockMeasureEnhanced(overrides: Partial<T.MeasureEnhanced> = {}):
   };
 }
 
-export function mockPeriod(overrides: Partial<T.Period> = {}): T.Period {
+export function mockPeriod(overrides: Partial<Period> = {}): Period {
   return {
     date: '2019-04-23T02:12:32+0100',
     index: 0,
@@ -462,8 +493,8 @@ export function mockQualityProfile(overrides: Partial<Profile> = {}): Profile {
 }
 
 export function mockQualityProfileInheritance(
-  overrides: Partial<T.ProfileInheritanceDetails> = {}
-): T.ProfileInheritanceDetails {
+  overrides: Partial<ProfileInheritanceDetails> = {}
+): ProfileInheritanceDetails {
   return {
     activeRuleCount: 4,
     isBuiltIn: false,
@@ -511,7 +542,7 @@ export function mockRouter(overrides: { push?: Function; replace?: Function } = 
   } as InjectedRouter;
 }
 
-export function mockRule(overrides: Partial<T.Rule> = {}): T.Rule {
+export function mockRule(overrides: Partial<Rule> = {}): Rule {
   return {
     key: 'javascript:S1067',
     lang: 'js',
@@ -523,10 +554,10 @@ export function mockRule(overrides: Partial<T.Rule> = {}): T.Rule {
     tags: ['x'],
     type: 'CODE_SMELL',
     ...overrides
-  } as T.Rule;
+  } as Rule;
 }
 
-export function mockRuleActivation(overrides: Partial<T.RuleActivation> = {}): T.RuleActivation {
+export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): RuleActivation {
   return {
     createdAt: '2020-02-01',
     inherit: 'NONE',
@@ -537,7 +568,7 @@ export function mockRuleActivation(overrides: Partial<T.RuleActivation> = {}): T
   };
 }
 
-export function mockRuleDetails(overrides: Partial<T.RuleDetails> = {}): T.RuleDetails {
+export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetails {
   return {
     key: 'squid:S1337',
     repo: 'squid',
@@ -570,9 +601,7 @@ export function mockRuleDetails(overrides: Partial<T.RuleDetails> = {}): T.RuleD
   };
 }
 
-export function mockRuleDetailsParameter(
-  overrides: Partial<T.RuleParameter> = {}
-): T.RuleParameter {
+export function mockRuleDetailsParameter(overrides: Partial<RuleParameter> = {}): RuleParameter {
   return {
     defaultValue: '1',
     htmlDesc: 'description',
@@ -582,9 +611,7 @@ export function mockRuleDetailsParameter(
   };
 }
 
-export function mockSourceViewerFile(
-  overrides: Partial<T.SourceViewerFile> = {}
-): T.SourceViewerFile {
+export function mockSourceViewerFile(overrides: Partial<SourceViewerFile> = {}): SourceViewerFile {
   return {
     key: 'foo',
     measures: {
@@ -602,7 +629,7 @@ export function mockSourceViewerFile(
   };
 }
 
-export function mockStandaloneSysInfo(overrides: Partial<any> = {}): T.SysInfoStandalone {
+export function mockStandaloneSysInfo(overrides: Partial<any> = {}): SysInfoStandalone {
   const baseInfo = mockBaseSysInfo(overrides);
   return {
     ...baseInfo,
@@ -659,7 +686,7 @@ export function mockStore(state: any = {}, reducer = (state: any) => state): Sto
   return createStore(reducer, state);
 }
 
-export function mockUser(overrides: Partial<T.User> = {}): T.User {
+export function mockUser(overrides: Partial<User> = {}): User {
   return {
     active: true,
     local: true,
@@ -705,7 +732,7 @@ export function mockDocumentationEntry(
   };
 }
 
-export function mockLanguage(overrides: Partial<T.Language> = {}): T.Language {
+export function mockLanguage(overrides: Partial<Language> = {}): Language {
   return {
     key: 'css',
     name: 'CSS',
@@ -713,7 +740,7 @@ export function mockLanguage(overrides: Partial<T.Language> = {}): T.Language {
   };
 }
 
-export function mockFlowLocation(overrides: Partial<T.FlowLocation> = {}): T.FlowLocation {
+export function mockFlowLocation(overrides: Partial<FlowLocation> = {}): FlowLocation {
   return {
     component: 'main.js',
     textRange: {
@@ -726,9 +753,7 @@ export function mockFlowLocation(overrides: Partial<T.FlowLocation> = {}): T.Flo
   };
 }
 
-export function mockIdentityProvider(
-  overrides: Partial<T.IdentityProvider> = {}
-): T.IdentityProvider {
+export function mockIdentityProvider(overrides: Partial<IdentityProvider> = {}): IdentityProvider {
   return {
     backgroundColor: '#000000',
     iconPath: '/path/icon.svg',
@@ -749,7 +774,7 @@ export function mockRef(
   } as React.RefObject<HTMLElement>;
 }
 
-export function mockPaging(overrides: Partial<T.Paging> = {}): T.Paging {
+export function mockPaging(overrides: Partial<Paging> = {}): Paging {
   return {
     pageIndex: 1,
     pageSize: 100,

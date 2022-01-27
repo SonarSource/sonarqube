@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { AppState, Component } from '../../../types/types';
 import { withAppState } from '../../hoc/withAppState';
 import { BuildTools } from '../types';
 import CFamily from './commands/CFamily';
@@ -27,9 +28,9 @@ import JavaMaven from './commands/JavaMaven';
 import Others from './commands/Others';
 
 export interface AnalysisCommandProps {
-  appState: T.AppState;
+  appState: AppState;
   buildTool: BuildTools;
-  component: T.Component;
+  component: Component;
   onDone: () => void;
 }
 

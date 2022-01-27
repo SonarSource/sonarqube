@@ -27,6 +27,7 @@ import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { FacetKey, Query } from '../query';
 
 interface Props {
@@ -36,7 +37,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
-  referencedProfiles: T.Dict<Profile>;
+  referencedProfiles: Dict<Profile>;
   value: string | undefined;
 }
 

@@ -1,3 +1,5 @@
+import { FlowLocation, Issue, Paging, TextRange, UserBase } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -45,7 +47,7 @@ export interface RawIssue {
   component: string;
   flows?: Array<{
     // `componentName` is not available in RawIssue
-    locations?: Array<T.Omit<T.FlowLocation, 'componentName'>>;
+    locations?: Array<Omit<FlowLocation, 'componentName'>>;
   }>;
   key: string;
   line?: number;
@@ -54,14 +56,14 @@ export interface RawIssue {
   severity: string;
   status: string;
   subProject?: string;
-  textRange?: T.TextRange;
+  textRange?: TextRange;
 }
 
 export interface IssueResponse {
   components?: Array<{ key: string; name: string }>;
   issue: RawIssue;
   rules?: Array<{}>;
-  users?: Array<T.UserBase>;
+  users?: Array<UserBase>;
 }
 
 export interface RawIssuesResponse {
@@ -70,20 +72,20 @@ export interface RawIssuesResponse {
   facets: RawFacet[];
   issues: RawIssue[];
   languages: ReferencedLanguage[];
-  paging: T.Paging;
+  paging: Paging;
   rules?: Array<{}>;
-  users?: Array<T.UserBase>;
+  users?: Array<UserBase>;
 }
 
 export interface FetchIssuesPromise {
   components: ReferencedComponent[];
   effortTotal: number;
   facets: RawFacet[];
-  issues: T.Issue[];
+  issues: Issue[];
   languages: ReferencedLanguage[];
-  paging: T.Paging;
+  paging: Paging;
   rules: ReferencedRule[];
-  users: T.UserBase[];
+  users: UserBase[];
 }
 
 export interface ReferencedComponent {

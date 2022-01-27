@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DocNavigationItem } from 'Docs/@types/types';
+import { Dict, DocNavigationItem } from 'Docs/@types/types';
 import { sortBy } from 'lodash';
 import lunr, { LunrBuilder, LunrIndex, LunrToken } from 'lunr';
 import * as React from 'react';
@@ -68,7 +68,7 @@ export default class SearchResults extends React.PureComponent<Props> {
           return undefined;
         }
 
-        const highlights: T.Dict<[number, number][]> = {};
+        const highlights: Dict<[number, number][]> = {};
         let longestTerm = '';
         let exactMatch = false;
 

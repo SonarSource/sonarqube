@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import { hasMessage, translate } from '../../../helpers/l10n';
+import { IssueType } from '../../../types/types';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 
@@ -28,7 +29,7 @@ export interface Props {
   fromHotspot: boolean;
   onSelect: (transition: string) => void;
   transitions: string[];
-  type: T.IssueType;
+  type: IssueType;
 }
 
 export default function SetTransitionPopup({ fromHotspot, onSelect, transitions, type }: Props) {

@@ -26,6 +26,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {
@@ -34,7 +35,7 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   severities: string[];
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
 }
 
 const SEVERITIES = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];

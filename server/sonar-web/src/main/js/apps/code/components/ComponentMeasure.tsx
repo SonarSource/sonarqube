@@ -21,10 +21,11 @@ import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { getLeakValue } from '../../../components/measure/utils';
 import { isDiffMetric } from '../../../helpers/measures';
+import { ComponentMeasure as TypeComponentMeasure, Metric } from '../../../types/types';
 
 interface Props {
-  component: T.ComponentMeasure;
-  metric: T.Metric;
+  component: TypeComponentMeasure;
+  metric: Metric;
 }
 
 export default class ComponentMeasure extends React.PureComponent<Props> {

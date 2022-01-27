@@ -23,6 +23,7 @@ import { deleteIssueComment, editIssueComment } from '../../api/issues';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
+import { Issue } from '../../types/types';
 import { updateIssue } from './actions';
 import IssueActionsBar from './components/IssueActionsBar';
 import IssueCommentLine from './components/IssueCommentLine';
@@ -34,12 +35,12 @@ interface Props {
   currentPopup?: string;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
-  issue: T.Issue;
+  issue: Issue;
   onAssign: (login: string) => void;
-  onChange: (issue: T.Issue) => void;
+  onChange: (issue: Issue) => void;
   onCheck?: (issue: string) => void;
   onClick: (issueKey: string) => void;
-  onFilter?: (property: string, issue: T.Issue) => void;
+  onFilter?: (property: string, issue: Issue) => void;
   selected: boolean;
   togglePopup: (popup: string, show: boolean | void) => void;
 }

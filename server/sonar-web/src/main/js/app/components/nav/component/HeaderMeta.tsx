@@ -30,13 +30,14 @@ import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { TaskWarning } from '../../../../types/tasks';
+import { Component, CurrentUser, HomePage } from '../../../../types/types';
 import ComponentNavWarnings from './ComponentNavWarnings';
 import './HeaderMeta.css';
 
 export interface HeaderMetaProps {
   branchLike?: BranchLike;
-  currentUser: T.CurrentUser;
-  component: T.Component;
+  currentUser: CurrentUser;
+  component: Component;
   onWarningDismiss: () => void;
   warnings: TaskWarning[];
 }
@@ -93,8 +94,8 @@ export function HeaderMeta(props: HeaderMetaProps) {
   );
 }
 
-export function getCurrentPage(component: T.Component, branchLike: BranchLike | undefined) {
-  let currentPage: T.HomePage | undefined;
+export function getCurrentPage(component: Component, branchLike: BranchLike | undefined) {
+  let currentPage: HomePage | undefined;
 
   const branch = isBranch(branchLike) && !branchLike.isMain ? branchLike.name : undefined;
 

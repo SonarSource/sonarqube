@@ -20,26 +20,27 @@
 import * as React from 'react';
 import Issue from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
+import { Component, Issue as TypeIssue } from '../../../types/types';
 import { Query } from '../utils';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 
 interface Props {
   branchLike: BranchLike | undefined;
   checked: boolean;
-  component: T.Component | undefined;
-  issue: T.Issue;
-  onChange: (issue: T.Issue) => void;
+  component: Component | undefined;
+  issue: TypeIssue;
+  onChange: (issue: TypeIssue) => void;
   onCheck: ((issueKey: string) => void) | undefined;
   onClick: (issueKey: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup: string | undefined;
-  previousIssue: T.Issue | undefined;
+  previousIssue: TypeIssue | undefined;
   selected: boolean;
 }
 
 export default class ListItem extends React.PureComponent<Props> {
-  handleFilter = (property: string, issue: T.Issue) => {
+  handleFilter = (property: string, issue: TypeIssue) => {
     const { onFilterChange } = this.props;
 
     const issuesReset = { issues: [] };

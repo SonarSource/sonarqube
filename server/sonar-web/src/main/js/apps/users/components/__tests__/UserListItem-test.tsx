@@ -20,12 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../helpers/testUtils';
+import { User } from '../../../../types/types';
 import UserListItem from '../UserListItem';
 
 jest.mock('../../../../components/intl/DateFromNow');
 jest.mock('../../../../components/intl/DateTimeFormatter');
 
-const user: T.User = {
+const user: User = {
   active: true,
   lastConnectionDate: '2019-01-18T15:06:33+0100',
   local: false,

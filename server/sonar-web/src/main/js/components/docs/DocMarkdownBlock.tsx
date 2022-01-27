@@ -26,6 +26,7 @@ import remark from 'remark';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import remarkRehype from 'remark-rehype';
 import { scrollToElement } from '../../helpers/scrolling';
+import { Dict } from '../../types/types';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
 import DocLink from './DocLink';
@@ -34,7 +35,7 @@ import DocToc from './DocToc';
 import DocTooltipLink from './DocTooltipLink';
 
 interface Props {
-  childProps?: T.Dict<string>;
+  childProps?: Dict<string>;
   className?: string;
   content: string;
   isTooltip?: boolean;
@@ -118,8 +119,8 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
 }
 
 function withChildProps<P>(
-  WrappedComponent: React.ComponentType<P & { customProps?: T.Dict<any> }>,
-  childProps?: T.Dict<any>
+  WrappedComponent: React.ComponentType<P & { customProps?: Dict<any> }>,
+  childProps?: Dict<any>
 ) {
   return function withChildProps(props: P) {
     return <WrappedComponent customProps={childProps} {...props} />;

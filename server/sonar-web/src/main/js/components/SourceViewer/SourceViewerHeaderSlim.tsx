@@ -31,6 +31,7 @@ import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { getBranchLikeUrl, getComponentIssuesUrl, getPathUrlAsString } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
+import { SourceViewerFile } from '../../types/types';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {
@@ -40,7 +41,7 @@ export interface Props {
   linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
-  sourceViewerFile: T.SourceViewerFile;
+  sourceViewerFile: SourceViewerFile;
 }
 
 export default function SourceViewerHeaderSlim(props: Props) {

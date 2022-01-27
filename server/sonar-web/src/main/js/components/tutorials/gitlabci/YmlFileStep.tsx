@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
+import { AppState } from '../../../types/types';
 import { withAppState } from '../../hoc/withAppState';
 import FinishButton from '../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
@@ -29,7 +30,7 @@ import { BuildTools, TutorialModes } from '../types';
 import PipeCommand from './commands/PipeCommand';
 
 export interface YmlFileStepProps {
-  appState: T.AppState;
+  appState: AppState;
   buildTool?: BuildTools;
   finished: boolean;
   onDone: () => void;

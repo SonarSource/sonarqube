@@ -24,11 +24,12 @@ import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
+import { Component, MeasureEnhanced } from '../../../types/types';
 
 export interface DebtValueProps {
   branchLike?: BranchLike;
-  component: T.Component;
-  measures: T.MeasureEnhanced[];
+  component: Component;
+  measures: MeasureEnhanced[];
   useDiffMetric?: boolean;
 }
 

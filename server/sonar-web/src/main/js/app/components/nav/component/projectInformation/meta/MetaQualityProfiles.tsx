@@ -25,18 +25,19 @@ import Tooltip from '../../../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../../../../helpers/urls';
 import { getLanguages, Store } from '../../../../../../store/rootReducer';
+import { ComponentQualityProfile, Dict, Languages } from '../../../../../../types/types';
 
 interface StateProps {
-  languages: T.Languages;
+  languages: Languages;
 }
 
 interface OwnProps {
   headerClassName?: string;
-  profiles: T.ComponentQualityProfile[];
+  profiles: ComponentQualityProfile[];
 }
 
 interface State {
-  deprecatedByKey: T.Dict<number>;
+  deprecatedByKey: Dict<number>;
 }
 
 export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnProps, State> {
@@ -60,7 +61,7 @@ export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnPro
     Promise.all(requests).then(
       responses => {
         if (this.mounted) {
-          const deprecatedByKey: T.Dict<number> = {};
+          const deprecatedByKey: Dict<number> = {};
           responses.forEach((count, i) => {
             const profileKey = existingProfiles[i].key;
             deprecatedByKey[profileKey] = count;
@@ -87,7 +88,7 @@ export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnPro
     return count || 0;
   }
 
-  renderProfile(profile: T.ComponentQualityProfile) {
+  renderProfile(profile: ComponentQualityProfile) {
     const languageFromStore = this.props.languages[profile.language];
     const languageName = languageFromStore ? languageFromStore.name : profile.language;
 

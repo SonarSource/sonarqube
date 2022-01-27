@@ -20,12 +20,13 @@
 import * as React from 'react';
 import Toggler from '../../../components/controls/Toggler';
 import { translateWithParameters } from '../../../helpers/l10n';
+import { SourceLine } from '../../../types/types';
 import LineOptionsPopup from './LineOptionsPopup';
 
 export interface LineNumberProps {
   displayOptions: boolean;
   firstLineNumber: number;
-  line: T.SourceLine;
+  line: SourceLine;
 }
 
 export function LineNumber({ displayOptions, firstLineNumber, line }: LineNumberProps) {

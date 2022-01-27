@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Issue } from '../../../types/types';
 import ConciseIssueBox from './ConciseIssueBox';
 import ConciseIssueComponent from './ConciseIssueComponent';
 
 interface Props {
-  issue: T.Issue;
+  issue: Issue;
   onFlowSelect: (index: number) => void;
   onLocationSelect: (index: number) => void;
   onSelect: (issueKey: string) => void;
-  previousIssue: T.Issue | undefined;
+  previousIssue: Issue | undefined;
   scroll: (element: Element) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;

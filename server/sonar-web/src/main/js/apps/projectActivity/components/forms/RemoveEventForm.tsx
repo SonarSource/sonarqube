@@ -20,10 +20,11 @@
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate } from '../../../../helpers/l10n';
+import { AnalysisEvent } from '../../../../types/types';
 
 export interface RemoveEventFormProps {
   analysisKey: string;
-  event: T.AnalysisEvent;
+  event: AnalysisEvent;
   header: string;
   removeEventQuestion: string;
   onClose: () => void;

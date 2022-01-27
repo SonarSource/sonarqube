@@ -24,9 +24,10 @@ import QualifierIcon from '../../../../components/icons/QualifierIcon';
 import { isMainBranch } from '../../../../helpers/branch-like';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';
 import { BranchLike } from '../../../../types/branch-like';
+import { Component } from '../../../../types/types';
 
 interface Props {
-  component: T.Component;
+  component: Component;
   currentBranchLike: BranchLike | undefined;
 }
 

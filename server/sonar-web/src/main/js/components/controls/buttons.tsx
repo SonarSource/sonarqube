@@ -91,12 +91,12 @@ export function ButtonLink({ className, ...props }: ButtonProps) {
   return <Button {...props} className={classNames('button-link', className)} />;
 }
 
-export function SubmitButton(props: T.Omit<ButtonProps, 'type'>) {
+export function SubmitButton(props: Omit<ButtonProps, 'type'>) {
   // do not prevent default to actually submit a form
   return <Button {...props} preventDefault={false} type="submit" />;
 }
 
-export function ResetButtonLink(props: T.Omit<ButtonProps, 'type'>) {
+export function ResetButtonLink(props: Omit<ButtonProps, 'type'>) {
   return <ButtonLink {...props} type="reset" />;
 }
 

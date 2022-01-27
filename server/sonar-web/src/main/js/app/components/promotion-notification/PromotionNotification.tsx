@@ -26,11 +26,12 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 import { setSonarlintAd } from '../../../store/users';
+import { CurrentUser } from '../../../types/types';
 import './PromotionNotification.css';
 
 export interface PromotionNotificationProps {
   setSonarlintAd: () => void;
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
 }
 
 export function PromotionNotification(props: PromotionNotificationProps) {

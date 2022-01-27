@@ -21,6 +21,7 @@ import { omit, uniqBy } from 'lodash';
 import * as React from 'react';
 import { getRulesApp } from '../../api/rules';
 import { get, save } from '../../helpers/storage';
+import { Dict } from '../../types/types';
 import { lazyLoadComponent } from '../lazyLoadComponent';
 import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
 import './styles.css';
@@ -39,7 +40,7 @@ const WorkspaceComponentViewer = lazyLoadComponent(
 
 interface State {
   components: ComponentDescriptor[];
-  externalRulesRepoNames: T.Dict<string>;
+  externalRulesRepoNames: Dict<string>;
   height: number;
   maximized?: boolean;
   open: { component?: string; rule?: string };
@@ -86,7 +87,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
 
   fetchRuleNames = async () => {
     const { repositories } = await getRulesApp();
-    const externalRulesRepoNames: T.Dict<string> = {};
+    const externalRulesRepoNames: Dict<string> = {};
     repositories
       .filter(({ key }) => key.startsWith('external_'))
       .forEach(({ key, name }) => {

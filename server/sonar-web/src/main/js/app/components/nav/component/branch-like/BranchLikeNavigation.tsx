@@ -23,14 +23,15 @@ import Toggler from '../../../../../components/controls/Toggler';
 import { withAppState } from '../../../../../components/hoc/withAppState';
 import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
+import { AppState, Component } from '../../../../../types/types';
 import './BranchLikeNavigation.css';
 import CurrentBranchLike from './CurrentBranchLike';
 import Menu from './Menu';
 
 export interface BranchLikeNavigationProps {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
+  appState: Pick<AppState, 'branchesEnabled'>;
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   currentBranchLike: BranchLike;
   projectBinding?: ProjectAlmBindingResponse;
 }

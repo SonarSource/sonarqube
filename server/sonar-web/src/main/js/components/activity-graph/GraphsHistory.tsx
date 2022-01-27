@@ -23,12 +23,13 @@ import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { GraphType, MeasureHistory, Serie } from '../../types/project-activity';
+import { ParsedAnalysis } from '../../types/types';
 import GraphHistory from './GraphHistory';
 import './styles.css';
 import { getSeriesMetricType, hasHistoryData, isCustomGraph } from './utils';
 
 interface Props {
-  analyses: T.ParsedAnalysis[];
+  analyses: ParsedAnalysis[];
   graph: GraphType;
   graphs: Serie[][];
   graphEndDate?: Date;

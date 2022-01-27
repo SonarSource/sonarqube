@@ -25,11 +25,12 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { QualityGate } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
   onCopy: () => Promise<void>;
-  qualityGate: T.QualityGate;
+  qualityGate: QualityGate;
   router: Pick<Router, 'push'>;
 }
 

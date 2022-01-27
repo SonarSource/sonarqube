@@ -25,6 +25,7 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { toNotSoISOString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
+import { NewCodePeriod, NewCodePeriodSettingType, ParsedAnalysis } from '../../../types/types';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
@@ -36,7 +37,7 @@ interface Props {
   branch: BranchWithNewCodePeriod;
   branchList: Branch[];
   component: string;
-  onClose: (branch?: string, newSetting?: T.NewCodePeriod) => void;
+  onClose: (branch?: string, newSetting?: NewCodePeriod) => void;
 }
 
 interface State {
@@ -45,7 +46,7 @@ interface State {
   days: string;
   referenceBranch: string;
   saving: boolean;
-  selected?: T.NewCodePeriodSettingType;
+  selected?: NewCodePeriodSettingType;
 }
 
 export default class BranchBaselineSettingModal extends React.PureComponent<Props, State> {
@@ -74,7 +75,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
     this.mounted = false;
   }
 
-  getValueFromProps(type: T.NewCodePeriodSettingType) {
+  getValueFromProps(type: NewCodePeriodSettingType) {
     return this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type === type
       ? this.props.branch.newCodePeriod.value
       : null;
@@ -123,14 +124,14 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
   requestClose = () => this.props.onClose();
 
-  handleSelectAnalysis = (analysis: T.ParsedAnalysis) =>
+  handleSelectAnalysis = (analysis: ParsedAnalysis) =>
     this.setState({ analysis: analysis.key, analysisDate: analysis.date });
 
   handleSelectDays = (days: string) => this.setState({ days });
 
   handleSelectReferenceBranch = (referenceBranch: string) => this.setState({ referenceBranch });
 
-  handleSelectSetting = (selected: T.NewCodePeriodSettingType) => this.setState({ selected });
+  handleSelectSetting = (selected: NewCodePeriodSettingType) => this.setState({ selected });
 
   render() {
     const { branch, branchList } = this.props;

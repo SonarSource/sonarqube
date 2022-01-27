@@ -26,6 +26,7 @@ import { Button } from '../../../components/controls/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
+import { Dict } from '../../../types/types';
 import { Profile } from '../types';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
 import ProfileRulesRowOfType from './ProfileRulesRowOfType';
@@ -45,8 +46,8 @@ interface ByType {
 
 interface State {
   activatedTotal: number | null;
-  activatedByType: T.Dict<ByType>;
-  allByType: T.Dict<ByType>;
+  activatedByType: Dict<ByType>;
+  allByType: Dict<ByType>;
   compareToSonarWay: { profile: string; profileName: string; missingRuleCount: number } | null;
   total: number | null;
 }

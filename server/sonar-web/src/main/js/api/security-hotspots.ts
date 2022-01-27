@@ -29,6 +29,7 @@ import {
   HotspotSetStatusRequest,
   HotspotStatus
 } from '../types/security-hotspots';
+import { UserBase } from '../types/types';
 
 const HOTSPOTS_SEARCH_URL = '/api/hotspots/search';
 
@@ -94,7 +95,7 @@ export function getSecurityHotspotList(
 
 export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<Hotspot> {
   return getJSON('/api/hotspots/show', { hotspot: securityHotspotKey })
-    .then((response: Hotspot & { users: T.UserBase[] }) => {
+    .then((response: Hotspot & { users: UserBase[] }) => {
       const { users, ...hotspot } = response;
 
       if (users) {

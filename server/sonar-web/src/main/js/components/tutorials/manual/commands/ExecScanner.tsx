@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
+import { Component } from '../../../../types/types';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
 import { OSs } from '../../types';
@@ -28,7 +29,7 @@ import { quote } from '../../utils';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface ExecScannerProps {
-  component: T.Component;
+  component: Component;
   host: string;
   os: OSs;
   token: string;

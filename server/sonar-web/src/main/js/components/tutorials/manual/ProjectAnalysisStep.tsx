@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import Step from '../components/Step';
 import { ManualTutorialConfig } from '../types';
 import BuildToolForm from './BuildToolForm';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 interface Props {
-  component: T.Component;
+  component: Component;
   onFinish?: (projectKey?: string) => void;
   open: boolean;
   stepNumber: number;

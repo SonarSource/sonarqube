@@ -21,29 +21,30 @@ import getStore from '../../app/utils/getStore';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { getMetricByKey } from '../../store/rootReducer';
+import { Condition, Metric, QualityGate } from '../../types/types';
 
-export function checkIfDefault(qualityGate: T.QualityGate, list: T.QualityGate[]): boolean {
+export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
   const finding = list.find(candidate => candidate.id === qualityGate.id);
   return (finding && finding.isDefault) || false;
 }
 
-export function addCondition(qualityGate: T.QualityGate, condition: T.Condition): T.QualityGate {
+export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
   return { ...qualityGate, conditions };
 }
 
-export function deleteCondition(qualityGate: T.QualityGate, condition: T.Condition): T.QualityGate {
+export function deleteCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const conditions =
     qualityGate.conditions && qualityGate.conditions.filter(candidate => candidate !== condition);
   return { ...qualityGate, conditions };
 }
 
 export function replaceCondition(
-  qualityGate: T.QualityGate,
-  newCondition: T.Condition,
-  oldCondition: T.Condition
-): T.QualityGate {
+  qualityGate: QualityGate,
+  newCondition: Condition,
+  oldCondition: Condition
+): QualityGate {
   const conditions =
     qualityGate.conditions &&
     qualityGate.conditions.map(candidate => {
@@ -52,7 +53,7 @@ export function replaceCondition(
   return { ...qualityGate, conditions };
 }
 
-export function getPossibleOperators(metric: T.Metric) {
+export function getPossibleOperators(metric: Metric) {
   if (metric.direction === 1) {
     return 'LT';
   } else if (metric.direction === -1) {
@@ -66,7 +67,7 @@ export function metricKeyExists(key: string) {
   return getMetricByKey(getStore().getState(), key) !== undefined;
 }
 
-function getNoDiffMetric(metric: T.Metric) {
+function getNoDiffMetric(metric: Metric) {
   const store = getStore().getState();
   const regularMetricKey = metric.key.replace(/^new_/, '');
   if (isDiffMetric(metric.key) && metricKeyExists(regularMetricKey)) {
@@ -78,6 +79,6 @@ function getNoDiffMetric(metric: T.Metric) {
   }
 }
 
-export function getLocalizedMetricNameNoDiffMetric(metric: T.Metric) {
+export function getLocalizedMetricNameNoDiffMetric(metric: Metric) {
   return getLocalizedMetricName(getNoDiffMetric(metric));
 }

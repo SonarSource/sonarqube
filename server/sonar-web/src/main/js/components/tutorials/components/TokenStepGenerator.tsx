@@ -21,11 +21,12 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
+import { Component, LoggedInUser } from '../../../types/types';
 import EditTokenModal from './EditTokenModal';
 
 export interface TokenStepGeneratorProps {
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
 }
 
 export default function TokenStepGenerator(props: TokenStepGeneratorProps) {

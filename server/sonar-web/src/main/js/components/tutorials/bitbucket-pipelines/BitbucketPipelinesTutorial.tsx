@@ -24,6 +24,7 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
+import { Component, LoggedInUser } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import FinishButton from '../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
@@ -42,8 +43,8 @@ export enum Steps {
 export interface BitbucketPipelinesTutorialProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }

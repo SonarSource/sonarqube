@@ -33,6 +33,7 @@ import { waitAndUpdate } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
+import { Component } from '../../../types/types';
 import { ComponentContainer } from '../ComponentContainer';
 import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
@@ -87,7 +88,7 @@ it('changes component', () => {
   const wrapper = shallowRender();
   wrapper.setState({
     branchLikes: [mockMainBranch()],
-    component: { qualifier: 'TRK', visibility: 'public' } as T.Component,
+    component: { qualifier: 'TRK', visibility: 'public' } as Component,
     loading: false
   });
 

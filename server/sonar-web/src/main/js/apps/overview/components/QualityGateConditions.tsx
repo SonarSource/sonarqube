@@ -24,13 +24,14 @@ import ChevronDownIcon from '../../../components/icons/ChevronDownIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
+import { Component } from '../../../types/types';
 import QualityGateCondition from './QualityGateCondition';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
 export interface QualityGateConditionsProps {
   branchLike?: BranchLike;
-  component: Pick<T.Component, 'key'>;
+  component: Pick<Component, 'key'>;
   collapsible?: boolean;
   failedConditions: QualityGateStatusConditionEnhanced[];
 }

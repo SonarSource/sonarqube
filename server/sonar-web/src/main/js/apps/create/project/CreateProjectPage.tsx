@@ -27,6 +27,7 @@ import { withAppState } from '../../../components/hoc/withAppState';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { AppState, LoggedInUser } from '../../../types/types';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';
@@ -39,8 +40,8 @@ import './style.css';
 import { CreateProjectModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  appState: Pick<T.AppState, 'canAdmin' | 'branchesEnabled'>;
-  currentUser: T.LoggedInUser;
+  appState: Pick<AppState, 'canAdmin' | 'branchesEnabled'>;
+  currentUser: LoggedInUser;
 }
 
 interface State {

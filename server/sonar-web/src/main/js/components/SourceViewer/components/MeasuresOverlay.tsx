@@ -39,6 +39,8 @@ import {
 } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
+import { IssueType as IssueTypeEnum } from '../../../types/issues';
+import { FacetValue, IssueType, MeasureEnhanced, SourceViewerFile } from '../../../types/types';
 import Measure from '../../measure/Measure';
 import SeverityHelper from '../../shared/SeverityHelper';
 import CoverageRating from '../../ui/CoverageRating';
@@ -47,20 +49,20 @@ import MeasuresOverlayMeasure from './MeasuresOverlayMeasure';
 interface Props {
   branchLike: BranchLike | undefined;
   onClose: () => void;
-  sourceViewerFile: T.SourceViewerFile;
+  sourceViewerFile: SourceViewerFile;
 }
 
 interface Measures {
-  [metricKey: string]: T.MeasureEnhanced;
+  [metricKey: string]: MeasureEnhanced;
 }
 
 interface State {
   loading: boolean;
   measures: Measures;
-  severitiesFacet?: T.FacetValue[];
+  severitiesFacet?: FacetValue[];
   showAllMeasures: boolean;
-  tagsFacet?: T.FacetValue[];
-  typesFacet?: T.FacetValue<T.IssueType>[];
+  tagsFacet?: FacetValue[];
+  typesFacet?: FacetValue<IssueType>[];
 }
 
 export default class MeasuresOverlay extends React.PureComponent<Props, State> {
@@ -124,7 +126,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       return {
         severitiesFacet: severitiesFacet && severitiesFacet.values,
         tagsFacet: tagsFacet && tagsFacet.values,
-        typesFacet: typesFacet && (typesFacet.values as T.FacetValue<T.IssueType>[])
+        typesFacet: typesFacet && (typesFacet.values as FacetValue<IssueType>[])
       };
     });
   };
@@ -135,7 +137,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     this.setState({ showAllMeasures: true });
   };
 
-  renderMeasure = (measure: T.MeasureEnhanced | undefined) => {
+  renderMeasure = (measure: MeasureEnhanced | undefined) => {
     return measure ? <MeasuresOverlayMeasure key={measure.metric.key} measure={measure} /> : null;
   };
 
@@ -162,7 +164,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     );
   };
 
-  renderBigMeasure = (measure: T.MeasureEnhanced | undefined) => {
+  renderBigMeasure = (measure: MeasureEnhanced | undefined) => {
     return measure ? (
       <div className="measure measure-big" data-metric={measure.metric.key}>
         <span className="measure-value">
@@ -190,7 +192,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             <>
               {typesFacet && (
                 <div className="measures">
-                  {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val)).map(f => (
+                  {sortBy(typesFacet, f => ISSUE_TYPES.indexOf(f.val as IssueTypeEnum)).map(f => (
                     <div className="measure measure-one-line" key={f.val}>
                       <span className="measure-name">
                         <IssueTypeIcon className="little-spacer-right" query={f.val} />
@@ -327,7 +329,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
     );
   };
 
-  renderDomain = (domain: string, measures: T.MeasureEnhanced[]) => {
+  renderDomain = (domain: string, measures: MeasureEnhanced[]) => {
     return (
       <div className="measures-viewer-card" key={domain}>
         <div className="measures">

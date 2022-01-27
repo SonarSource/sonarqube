@@ -19,17 +19,18 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { A11ySkipLink } from '../../../types/types';
 import { A11yContext } from './A11yContext';
 
 interface State {
-  links: T.A11ySkipLink[];
+  links: A11ySkipLink[];
 }
 
 export default class A11yProvider extends React.Component<{}, State> {
   keys: string[] = [];
   state: State = { links: [] };
 
-  addA11ySkipLink = (link: T.A11ySkipLink) => {
+  addA11ySkipLink = (link: A11ySkipLink) => {
     this.setState(prevState => {
       const links = [...prevState.links];
       links.push({ ...link, weight: link.weight || 0 });
@@ -37,7 +38,7 @@ export default class A11yProvider extends React.Component<{}, State> {
     });
   };
 
-  removeA11ySkipLink = (link: T.A11ySkipLink) => {
+  removeA11ySkipLink = (link: A11ySkipLink) => {
     this.setState(prevState => {
       const links = prevState.links.filter(l => l.key !== link.key);
       return { links };

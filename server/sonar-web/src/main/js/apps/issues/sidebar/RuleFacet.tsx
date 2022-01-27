@@ -23,6 +23,7 @@ import { searchRules } from '../../../api/rules';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { Facet, ReferencedRule } from '../../../types/issues';
+import { Dict, Rule } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
@@ -33,9 +34,9 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  referencedRules: T.Dict<ReferencedRule>;
+  referencedRules: Dict<ReferencedRule>;
   rules: string[];
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
 }
 
 export default class RuleFacet extends React.PureComponent<Props> {
@@ -55,7 +56,7 @@ export default class RuleFacet extends React.PureComponent<Props> {
     }));
   };
 
-  loadSearchResultCount = (rules: T.Rule[]) => {
+  loadSearchResultCount = (rules: Rule[]) => {
     return this.props.loadSearchResultCount('rules', { rules: rules.map(rule => rule.key) });
   };
 
@@ -70,13 +71,13 @@ export default class RuleFacet extends React.PureComponent<Props> {
     return langName ? `(${langName}) ${name}` : name;
   };
 
-  renderSearchResult = (rule: T.Rule) => {
+  renderSearchResult = (rule: Rule) => {
     return this.formatRuleName(rule.name, rule.langName);
   };
 
   render() {
     return (
-      <ListStyleFacet<T.Rule>
+      <ListStyleFacet<Rule>
         facetHeader={translate('issues.facet.rules')}
         fetching={this.props.fetching}
         getFacetItemText={this.getRuleName}

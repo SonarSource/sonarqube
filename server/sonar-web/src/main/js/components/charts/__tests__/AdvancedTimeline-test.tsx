@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Chart } from '../../../types/types';
 import AdvancedTimeline from '../AdvancedTimeline';
 
 const newCodeLegendClass = '.new-code-legend';
@@ -283,7 +284,7 @@ function shallowRender(props?: Partial<AdvancedTimeline['props']>) {
   );
 }
 
-function mockData(i: number, date: string): T.Chart.Serie {
+function mockData(i: number, date: string): Chart.Serie {
   return {
     name: `t${i}`,
     type: 'type',

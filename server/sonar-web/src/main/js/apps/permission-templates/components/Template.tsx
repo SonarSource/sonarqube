@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
+import { PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
 import HoldersList from '../../permissions/shared/components/HoldersList';
 import SearchForm from '../../permissions/shared/components/SearchForm';
 import {
@@ -32,17 +33,17 @@ import TemplateHeader from './TemplateHeader';
 
 interface Props {
   refresh: () => void;
-  template: T.PermissionTemplate;
+  template: PermissionTemplate;
   topQualifiers: string[];
 }
 
 interface State {
   filter: string;
-  groups: T.PermissionGroup[];
+  groups: PermissionGroup[];
   loading: boolean;
   query: string;
   selectedPermission?: string;
-  users: T.PermissionUser[];
+  users: PermissionUser[];
 }
 
 export default class Template extends React.PureComponent<Props, State> {
@@ -95,7 +96,7 @@ export default class Template extends React.PureComponent<Props, State> {
     });
   };
 
-  handleToggleUser = (user: T.PermissionUser, permission: string) => {
+  handleToggleUser = (user: PermissionUser, permission: string) => {
     if (user.login === '<creator>') {
       return this.handleToggleProjectCreator(user, permission);
     }
@@ -113,7 +114,7 @@ export default class Template extends React.PureComponent<Props, State> {
     return request.then(() => this.requestHolders()).then(this.props.refresh);
   };
 
-  handleToggleProjectCreator = (user: T.PermissionUser, permission: string) => {
+  handleToggleProjectCreator = (user: PermissionUser, permission: string) => {
     const { template } = this.props;
     const hasPermission = user.permissions.includes(permission);
     const request = hasPermission
@@ -122,7 +123,7 @@ export default class Template extends React.PureComponent<Props, State> {
     return request.then(() => this.requestHolders()).then(this.props.refresh);
   };
 
-  handleToggleGroup = (group: T.PermissionGroup, permission: string) => {
+  handleToggleGroup = (group: PermissionGroup, permission: string) => {
     const { template } = this.props;
     const hasPermission = group.permissions.includes(permission);
     const data = {

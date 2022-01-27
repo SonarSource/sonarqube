@@ -26,13 +26,14 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
+import { ParsedAnalysis } from '../../../types/types';
 import { activityQueryChanged, getAnalysesByVersionByDay, Query } from '../utils';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 
 interface Props {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
   addVersion: (analysis: string, version: string) => Promise<void>;
-  analyses: T.ParsedAnalysis[];
+  analyses: ParsedAnalysis[];
   analysesLoading: boolean;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
@@ -127,11 +128,11 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
     this.props.updateQuery({ selectedDate: date });
   };
 
-  shouldRenderBaselineMarker(analysis: T.ParsedAnalysis): boolean {
+  shouldRenderBaselineMarker(analysis: ParsedAnalysis): boolean {
     return Boolean(this.props.leakPeriodDate && isEqual(this.props.leakPeriodDate, analysis.date));
   }
 
-  renderAnalysis(analysis: T.ParsedAnalysis) {
+  renderAnalysis(analysis: ParsedAnalysis) {
     const firstAnalysisKey = this.props.analyses[0].key;
 
     const selectedDate = this.props.query.selectedDate

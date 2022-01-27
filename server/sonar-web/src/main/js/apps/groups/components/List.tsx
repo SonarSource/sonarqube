@@ -20,12 +20,13 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { Group } from '../../../types/types';
 import ListItem from './ListItem';
 
 interface Props {
-  groups: T.Group[];
-  onDelete: (group: T.Group) => void;
-  onEdit: (group: T.Group) => void;
+  groups: Group[];
+  onDelete: (group: Group) => void;
+  onEdit: (group: Group) => void;
   onEditMembers: () => void;
   showAnyone: boolean;
 }

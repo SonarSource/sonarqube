@@ -28,14 +28,15 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { limitComponentName } from '../../../helpers/path';
+import { UserToken } from '../../../types/types';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
 
 interface Props {
   deleteConfirmation: TokenDeleteConfirmation;
   login: string;
-  onRevokeToken: (token: T.UserToken) => void;
-  token: T.UserToken;
+  onRevokeToken: (token: UserToken) => void;
+  token: UserToken;
 }
 
 interface State {

@@ -23,11 +23,12 @@ import { restart } from '../../api/system';
 import { Button } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate } from '../../helpers/l10n';
+import { SysStatus } from '../../types/types';
 
 interface Props {
   className?: string;
   fetchSystemStatus: () => void;
-  systemStatus: T.SysStatus;
+  systemStatus: SysStatus;
 }
 
 export default class RestartButton extends React.PureComponent<Props> {

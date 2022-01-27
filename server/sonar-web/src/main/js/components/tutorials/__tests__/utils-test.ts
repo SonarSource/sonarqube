@@ -22,13 +22,14 @@ import {
   mockProjectBitbucketCloudBindingResponse,
   mockProjectGithubBindingResponse
 } from '../../../helpers/mocks/alm-settings';
+import { UserToken } from '../../../types/types';
 import { buildBitbucketCloudLink, buildGithubLink, getUniqueTokenName } from '../utils';
 
 describe('getUniqueTokenName', () => {
   const initialTokenName = 'Analyze "lightsaber"';
 
   it('should return the given name when the user has no token', () => {
-    const userTokens: T.UserToken[] = [];
+    const userTokens: UserToken[] = [];
 
     expect(getUniqueTokenName(userTokens, initialTokenName)).toBe(initialTokenName);
   });

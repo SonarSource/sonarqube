@@ -62,6 +62,15 @@ import {
   ReferencedRule
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
+import {
+  Component,
+  CurrentUser,
+  Dict,
+  Issue,
+  Paging,
+  RawQuery,
+  UserBase
+} from '../../../types/types';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
@@ -92,10 +101,10 @@ import PageActions from './PageActions';
 
 interface Props {
   branchLike?: BranchLike;
-  component?: T.Component;
-  currentUser: T.CurrentUser;
+  component?: Component;
+  currentUser: CurrentUser;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
-  fetchIssues: (query: T.RawQuery) => Promise<FetchIssuesPromise>;
+  fetchIssues: (query: RawQuery) => Promise<FetchIssuesPromise>;
   location: Location;
   onBranchesChange?: () => void;
   router: Pick<Router, 'push' | 'replace'>;
@@ -107,23 +116,23 @@ export interface State {
   checkAll?: boolean;
   checked: string[];
   effortTotal?: number;
-  facets: T.Dict<Facet>;
-  issues: T.Issue[];
+  facets: Dict<Facet>;
+  issues: Issue[];
   loading: boolean;
-  loadingFacets: T.Dict<boolean>;
+  loadingFacets: Dict<boolean>;
   loadingMore: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
-  openFacets: T.Dict<boolean>;
-  openIssue?: T.Issue;
+  openFacets: Dict<boolean>;
+  openIssue?: Issue;
   openPopup?: { issue: string; name: string };
-  paging?: T.Paging;
+  paging?: Paging;
   query: Query;
-  referencedComponentsById: T.Dict<ReferencedComponent>;
-  referencedComponentsByKey: T.Dict<ReferencedComponent>;
-  referencedLanguages: T.Dict<ReferencedLanguage>;
-  referencedRules: T.Dict<ReferencedRule>;
-  referencedUsers: T.Dict<T.UserBase>;
+  referencedComponentsById: Dict<ReferencedComponent>;
+  referencedComponentsByKey: Dict<ReferencedComponent>;
+  referencedLanguages: Dict<ReferencedLanguage>;
+  referencedRules: Dict<ReferencedRule>;
+  referencedUsers: Dict<UserBase>;
   selected?: string;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
@@ -301,7 +310,7 @@ export default class App extends React.PureComponent<Props, State> {
     return index !== -1 ? index : undefined;
   }
 
-  getOpenIssue = (props: Props, issues: T.Issue[]) => {
+  getOpenIssue = (props: Props, issues: Issue[]) => {
     const open = getOpen(props.location.query);
     return open ? issues.find(issue => issue.key === open) : undefined;
   };
@@ -398,7 +407,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   createdAfterIncludesTime = () => Boolean(this.props.location.query.createdAfter?.includes('T'));
 
-  fetchIssues = (additional: T.RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
+  fetchIssues = (additional: RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
     const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
@@ -408,7 +417,7 @@ export default class App extends React.PureComponent<Props, State> {
           .join(',')
       : undefined;
 
-    const parameters: T.Dict<string | undefined> = {
+    const parameters: Dict<string | undefined> = {
       ...getBranchLikeQuery(this.props.branchLike),
       componentKeys: component && component.key,
       s: 'FILE_LINE',
@@ -441,7 +450,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     this.setState({ checked: [], loading: true });
     if (openIssueKey !== undefined) {
-      fetchPromise = this.fetchIssuesUntil(1, (pageIssues: T.Issue[], paging: T.Paging) => {
+      fetchPromise = this.fetchIssuesUntil(1, (pageIssues: Issue[], paging: Paging) => {
         if (
           paging.total <= paging.pageIndex * paging.pageSize ||
           paging.pageIndex * paging.pageSize >= MAX_INITAL_FETCH
@@ -497,9 +506,9 @@ export default class App extends React.PureComponent<Props, State> {
 
   fetchIssuesUntil = (
     page: number,
-    done: (pageIssues: T.Issue[], paging: T.Paging) => boolean
+    done: (pageIssues: Issue[], paging: Paging) => boolean
   ): Promise<FetchIssuesPromise> => {
-    const recursiveFetch = (p: number, prevIssues: T.Issue[]): Promise<FetchIssuesPromise> => {
+    const recursiveFetch = (p: number, prevIssues: Issue[]): Promise<FetchIssuesPromise> => {
       return this.fetchIssuesPage(p).then(({ issues: pageIssues, paging, ...other }) => {
         const issues = [...prevIssues, ...pageIssues];
         return done(pageIssues, paging)
@@ -546,9 +555,9 @@ export default class App extends React.PureComponent<Props, State> {
       return Promise.reject(undefined);
     }
 
-    const isSameComponent = (issue: T.Issue) => issue.component === openIssue.component;
+    const isSameComponent = (issue: Issue) => issue.component === openIssue.component;
 
-    const done = (pageIssues: T.Issue[], p: T.Paging) => {
+    const done = (pageIssues: Issue[], p: Paging) => {
       const lastIssue = pageIssues[pageIssues.length - 1];
       if (p.total <= p.pageIndex * p.pageSize) {
         return true;
@@ -623,12 +632,12 @@ export default class App extends React.PureComponent<Props, State> {
   getCheckedIssues = () => {
     const issues = this.state.checked
       .map(checked => this.state.issues.find(issue => issue.key === checked))
-      .filter((issue): issue is T.Issue => issue !== undefined);
+      .filter((issue): issue is Issue => issue !== undefined);
     const paging = { pageIndex: 1, pageSize: issues.length, total: issues.length };
     return Promise.resolve({ issues, paging });
   };
 
-  getButtonLabel = (checked: string[], checkAll = false, paging?: T.Paging) => {
+  getButtonLabel = (checked: string[], checkAll = false, paging?: Paging) => {
     if (checked.length === 0) {
       return translate('bulk_change');
     }
@@ -768,7 +777,7 @@ export default class App extends React.PureComponent<Props, State> {
     }));
   };
 
-  handleIssueChange = (issue: T.Issue) => {
+  handleIssueChange = (issue: Issue) => {
     this.refreshBranchStatus();
     this.setState(state => ({
       issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate)),
@@ -944,7 +953,7 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  renderSide(openIssue: T.Issue | undefined) {
+  renderSide(openIssue: Issue | undefined) {
     const { canBrowseAllChildProjects, qualifier = ComponentQualifier.Project } =
       this.props.component || {};
     return (
@@ -1044,8 +1053,8 @@ export default class App extends React.PureComponent<Props, State> {
     paging,
     selectedIndex
   }: {
-    openIssue: T.Issue | undefined;
-    paging: T.Paging | undefined;
+    openIssue: Issue | undefined;
+    paging: Paging | undefined;
     selectedIndex: number | undefined;
   }) {
     return openIssue ? (

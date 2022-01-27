@@ -24,6 +24,7 @@ import {
   parseAsString,
   serializeString
 } from '../../helpers/query';
+import { RawQuery, WebApi } from '../../types/types';
 
 export interface Query {
   search: string;
@@ -31,7 +32,7 @@ export interface Query {
   internal: boolean;
 }
 
-export function actionsFilter(query: Query, domain: T.WebApi.Domain, action: T.WebApi.Action) {
+export function actionsFilter(query: Query, domain: WebApi.Domain, action: WebApi.Action) {
   const lowSearchQuery = query.search.toLowerCase();
   return (
     (query.internal || !action.internal) &&
@@ -63,7 +64,7 @@ export const isDomainPathActive = (path: string, splat: string) => {
 };
 
 export const parseQuery = memoize(
-  (urlQuery: T.RawQuery): Query => ({
+  (urlQuery: RawQuery): Query => ({
     search: parseAsString(urlQuery['query']),
     deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
     internal: parseAsOptionalBoolean(urlQuery['internal']) || false
@@ -71,7 +72,7 @@ export const parseQuery = memoize(
 );
 
 export const serializeQuery = memoize(
-  (query: Partial<Query>): T.RawQuery =>
+  (query: Partial<Query>): RawQuery =>
     cleanQuery({
       query: query.search ? serializeString(query.search) : undefined,
       deprecated: query.deprecated || undefined,

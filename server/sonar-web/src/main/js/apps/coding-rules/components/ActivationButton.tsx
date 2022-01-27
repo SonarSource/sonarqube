@@ -20,16 +20,17 @@
 import * as React from 'react';
 import { Profile as BaseProfile } from '../../../api/quality-profiles';
 import { Button } from '../../../components/controls/buttons';
+import { Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import ActivationFormModal from './ActivationFormModal';
 
 interface Props {
-  activation?: T.RuleActivation;
+  activation?: RuleActivation;
   buttonText: string;
   className?: string;
   modalHeader: string;
   onDone: (severity: string) => Promise<void>;
   profiles: BaseProfile[];
-  rule: T.Rule | T.RuleDetails;
+  rule: Rule | RuleDetails;
 }
 
 interface State {

@@ -22,11 +22,12 @@ import * as React from 'react';
 import { fetchWebApi } from '../../../../../../api/web-api';
 import SelectLegacy from '../../../../../../components/controls/SelectLegacy';
 import { getLocalizedMetricName, translate } from '../../../../../../helpers/l10n';
+import { Dict, Metric } from '../../../../../../types/types';
 import { BadgeFormats, BadgeOptions, BadgeType } from './utils';
 
 interface Props {
   className?: string;
-  metrics: T.Dict<T.Metric>;
+  metrics: Dict<Metric>;
   options: BadgeOptions;
   type: BadgeType;
   updateOptions: (options: Partial<BadgeOptions>) => void;

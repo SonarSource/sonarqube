@@ -19,10 +19,11 @@
  */
 import { ExtensionStartMethod } from './extension';
 import { InstanceType } from './system';
+import { SysStatus } from './types';
 
 export interface EnhancedWindow extends Window {
   baseUrl: string;
-  serverStatus: T.SysStatus;
+  serverStatus: SysStatus;
   instance: InstanceType;
   official: boolean;
 

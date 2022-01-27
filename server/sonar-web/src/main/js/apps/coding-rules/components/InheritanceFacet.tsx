@@ -19,15 +19,16 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { RuleInheritance } from '../../../types/types';
 import Facet, { BasicProps } from './Facet';
 
-interface Props extends T.Omit<BasicProps, 'values'> {
+interface Props extends Omit<BasicProps, 'values'> {
   disabled: boolean;
-  value: T.RuleInheritance | undefined;
+  value: RuleInheritance | undefined;
 }
 
 export default class InheritanceFacet extends React.PureComponent<Props> {
-  renderName = (value: T.RuleInheritance) =>
+  renderName = (value: RuleInheritance) =>
     translate('coding_rules.filters.inheritance', value.toLowerCase());
 
   render() {

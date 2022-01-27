@@ -22,10 +22,11 @@ import CodeSnippet from '../../../components/common/CodeSnippet';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { WebhookDelivery } from '../../../types/types';
 
 interface Props {
   className?: string;
-  delivery: T.WebhookDelivery;
+  delivery: WebhookDelivery;
   loading: boolean;
   payload: string | undefined;
 }

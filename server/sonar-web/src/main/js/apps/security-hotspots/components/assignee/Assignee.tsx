@@ -24,10 +24,11 @@ import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isLoggedIn } from '../../../../helpers/users';
 import { Hotspot, HotspotStatus } from '../../../../types/security-hotspots';
+import { CurrentUser, UserActive } from '../../../../types/types';
 import AssigneeRenderer from './AssigneeRenderer';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   hotspot: Hotspot;
 
   onAssigneeChange: () => void;
@@ -61,7 +62,7 @@ export class Assignee extends React.PureComponent<Props, State> {
     this.setState({ editing: false });
   };
 
-  handleAssign = (newAssignee: T.UserActive) => {
+  handleAssign = (newAssignee: UserActive) => {
     this.setState({ loading: true });
     assignSecurityHotspot(this.props.hotspot.key, {
       assignee: newAssignee?.login

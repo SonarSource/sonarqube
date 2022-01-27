@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
+import { Component, LoggedInUser } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import { BuildTools } from '../types';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
@@ -35,8 +36,8 @@ export enum Steps {
 
 export interface GitLabCITutorialProps {
   baseUrl: string;
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   willRefreshAutomatically?: boolean;
 }
 

@@ -23,10 +23,11 @@ import { withRouter, WithRouterProps } from 'react-router';
 import { changeKey } from '../../api/components';
 import RecentHistory from '../../app/components/RecentHistory';
 import { translate } from '../../helpers/l10n';
+import { Component } from '../../types/types';
 import UpdateForm from './UpdateForm';
 
 interface Props {
-  component: Pick<T.Component, 'key' | 'name'>;
+  component: Pick<Component, 'key' | 'name'>;
 }
 
 export class Key extends React.PureComponent<Props & WithRouterProps> {

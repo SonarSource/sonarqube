@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
+import { Metric } from '../../../types/types';
 
 interface Props {
   name: string;
   value: string;
-  metric: T.Metric;
+  metric: Metric;
   onChange: (value: string) => void;
 }
 

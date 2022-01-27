@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { WebApi } from '../../../types/types';
 import { actionsFilter, getActionKey, Query } from '../utils';
 import Action from './Action';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 
 interface Props {
-  domain: T.WebApi.Domain;
+  domain: WebApi.Domain;
   query: Query;
 }
 

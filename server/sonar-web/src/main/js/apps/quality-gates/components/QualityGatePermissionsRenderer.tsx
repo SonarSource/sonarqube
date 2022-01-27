@@ -24,6 +24,7 @@ import ConfirmModal from '../../../components/controls/ConfirmModal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
+import { QualityGate, UserBase } from '../../../types/types';
 import PermissionItem from './PermissionItem';
 import QualityGatePermissionsAddModal from './QualityGatePermissionsAddModal';
 
@@ -32,15 +33,15 @@ export interface QualityGatePermissionsRendererProps {
   loading: boolean;
   onClickAddPermission: () => void;
   onCloseAddPermission: () => void;
-  onSubmitAddPermission: (item: T.UserBase | Group) => void;
+  onSubmitAddPermission: (item: UserBase | Group) => void;
   onCloseDeletePermission: () => void;
-  onConfirmDeletePermission: (item: T.UserBase | Group) => void;
-  onClickDeletePermission: (item: T.UserBase | Group) => void;
-  permissionToDelete?: T.UserBase | Group;
-  qualityGate: T.QualityGate;
+  onConfirmDeletePermission: (item: UserBase | Group) => void;
+  onClickDeletePermission: (item: UserBase | Group) => void;
+  permissionToDelete?: UserBase | Group;
+  qualityGate: QualityGate;
   showAddModal: boolean;
   submitting: boolean;
-  users: T.UserBase[];
+  users: UserBase[];
 }
 
 export default function QualityGatePermissionsRenderer(props: QualityGatePermissionsRendererProps) {

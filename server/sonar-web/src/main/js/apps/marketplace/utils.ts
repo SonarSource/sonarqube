@@ -20,6 +20,7 @@
 import { memoize } from 'lodash';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { Plugin } from '../../types/plugins';
+import { RawQuery } from '../../types/types';
 
 export interface Query {
   filter: string;
@@ -45,14 +46,14 @@ export function filterPlugins(plugins: Plugin[], search?: string): Plugin[] {
 
 export const DEFAULT_FILTER = 'all';
 export const parseQuery = memoize(
-  (urlQuery: T.RawQuery): Query => ({
+  (urlQuery: RawQuery): Query => ({
     filter: parseAsString(urlQuery['filter']) || DEFAULT_FILTER,
     search: parseAsString(urlQuery['search'])
   })
 );
 
 export const serializeQuery = memoize(
-  (query: Query): T.RawQuery =>
+  (query: Query): RawQuery =>
     cleanQuery({
       filter: query.filter === DEFAULT_FILTER ? undefined : serializeString(query.filter),
       search: query.search ? serializeString(query.search) : undefined

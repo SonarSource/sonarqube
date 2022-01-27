@@ -21,10 +21,11 @@ import classNames from 'classnames';
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
+import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
   displayLeak?: boolean;
-  measure: T.MeasureEnhanced;
+  measure: MeasureEnhanced;
 }
 
 export default function FacetMeasureValue({ measure, displayLeak }: Props) {

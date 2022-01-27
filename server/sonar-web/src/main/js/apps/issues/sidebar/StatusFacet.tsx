@@ -26,6 +26,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import StatusHelper from '../../../components/shared/StatusHelper';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {
@@ -33,7 +34,7 @@ interface Props {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
   statuses: string[];
 }
 

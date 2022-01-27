@@ -30,6 +30,7 @@ import { PopupPlacement } from '../../../components/ui/popups';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
+import { ParsedAnalysis } from '../../../types/types';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
@@ -37,7 +38,7 @@ import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 export interface ProjectActivityAnalysisProps {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
   addVersion: (analysis: string, version: string) => Promise<void>;
-  analysis: T.ParsedAnalysis;
+  analysis: ParsedAnalysis;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
   canCreateVersion: boolean;

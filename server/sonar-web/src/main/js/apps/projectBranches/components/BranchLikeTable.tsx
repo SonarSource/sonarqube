@@ -22,11 +22,12 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getBranchLikeKey } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { Component } from '../../../types/types';
 import BranchLikeRow from './BranchLikeRow';
 
 export interface BranchLikeTableProps {
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   displayPurgeSetting?: boolean;
   onDelete: (branchLike: BranchLike) => void;
   onRename: (branchLike: BranchLike) => void;

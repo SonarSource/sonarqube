@@ -24,14 +24,15 @@ import ConfirmButton from '../../components/controls/ConfirmButton';
 import ProjectLinkIcon from '../../components/icons/ProjectLinkIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getLinkName, isProvided } from '../../helpers/projectLinks';
+import { ProjectLink } from '../../types/types';
 
 interface Props {
-  link: T.ProjectLink;
+  link: ProjectLink;
   onDelete: (linkId: string) => Promise<void>;
 }
 
 export default class LinkRow extends React.PureComponent<Props> {
-  renderNameForProvided = (link: T.ProjectLink) => {
+  renderNameForProvided = (link: ProjectLink) => {
     return (
       <div className="display-inline-block text-top">
         <div>
@@ -44,7 +45,7 @@ export default class LinkRow extends React.PureComponent<Props> {
     );
   };
 
-  renderName = (link: T.ProjectLink) => {
+  renderName = (link: ProjectLink) => {
     return (
       <div>
         <ProjectLinkIcon className="little-spacer-right" type={link.type} />
@@ -59,7 +60,7 @@ export default class LinkRow extends React.PureComponent<Props> {
     );
   };
 
-  renderDeleteButton = (link: T.ProjectLink) => {
+  renderDeleteButton = (link: ProjectLink) => {
     if (isProvided(link)) {
       return null;
     }

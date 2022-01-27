@@ -43,16 +43,17 @@ import {
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
+import { AppState, Component, Status } from '../../types/types';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 
 interface Props {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
+  appState: Pick<AppState, 'branchesEnabled'>;
   children: React.ReactElement;
   location: Pick<Location, 'query' | 'pathname'>;
-  registerBranchStatus: (branchLike: BranchLike, component: string, status: T.Status) => void;
+  registerBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
   requireAuthorization: (router: Pick<Router, 'replace'>) => void;
   router: Pick<Router, 'replace'>;
 }
@@ -60,7 +61,7 @@ interface Props {
 interface State {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
-  component?: T.Component;
+  component?: Component;
   currentTask?: Task;
   isPending: boolean;
   loading: boolean;
@@ -153,7 +154,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchBranches = async (componentWithQualifier: T.Component) => {
+  fetchBranches = async (componentWithQualifier: Component) => {
     const breadcrumb = componentWithQualifier.breadcrumbs.find(({ qualifier }) => {
       return ([ComponentQualifier.Application, ComponentQualifier.Project] as string[]).includes(
         qualifier
@@ -228,7 +229,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  fetchWarnings = (component: T.Component, branchLike?: BranchLike) => {
+  fetchWarnings = (component: Component, branchLike?: BranchLike) => {
     if (component.qualifier === ComponentQualifier.Project) {
       getAnalysisStatus({
         component: component.key,
@@ -242,7 +243,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchProjectBindingErrors = async (component: T.Component) => {
+  fetchProjectBindingErrors = async (component: Component) => {
     if (
       component.qualifier === ComponentQualifier.Project &&
       component.analysisDate === undefined &&
@@ -257,7 +258,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  addQualifier = (component: T.Component) => ({
+  addQualifier = (component: Component) => ({
     ...component,
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier
   });
@@ -298,7 +299,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     newTasksInProgress: Task[],
     currentTask: Task | undefined,
     newCurrentTask: Task | undefined,
-    component: T.Component | undefined
+    component: Component | undefined
   ) => {
     const progressHasChanged = Boolean(
       tasksInProgress &&
@@ -329,7 +330,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
   needsAnotherCheck = (
     shouldFetchComponent: boolean,
-    component: T.Component | undefined,
+    component: Component | undefined,
     newTasksInProgress: Task[]
   ) => {
     return (
@@ -354,7 +355,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return !task.branch && !task.pullRequest;
   };
 
-  registerBranchStatuses = (branchLikes: BranchLike[], component: T.Component) => {
+  registerBranchStatuses = (branchLikes: BranchLike[], component: Component) => {
     branchLikes.forEach(branchLike => {
       if (branchLike.status) {
         this.props.registerBranchStatus(
@@ -366,11 +367,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     });
   };
 
-  handleComponentChange = (changes: Partial<T.Component>) => {
+  handleComponentChange = (changes: Partial<Component>) => {
     if (this.mounted) {
       this.setState(state => {
         if (state.component) {
-          const newComponent: T.Component = { ...state.component, ...changes };
+          const newComponent: Component = { ...state.component, ...changes };
           return { component: newComponent };
         }
         return null;

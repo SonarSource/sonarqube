@@ -26,6 +26,7 @@ import { getCurrentUser, getMetrics, Store } from '../../../../../store/rootRedu
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { MetricKey } from '../../../../../types/metrics';
+import { Component, CurrentUser, Dict, Measure, Metric } from '../../../../../types/types';
 import ProjectBadges from './badges/ProjectBadges';
 import InfoDrawerPage from './InfoDrawerPage';
 import ProjectNotifications from './notifications/ProjectNotifications';
@@ -35,15 +36,15 @@ import ProjectInformationRenderer from './ProjectInformationRenderer';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.Component;
-  currentUser: T.CurrentUser;
+  component: Component;
+  currentUser: CurrentUser;
   fetchMetrics: () => void;
   onComponentChange: (changes: {}) => void;
-  metrics: T.Dict<T.Metric>;
+  metrics: Dict<Metric>;
 }
 
 interface State {
-  measures?: T.Measure[];
+  measures?: Measure[];
   page: ProjectInformationPages;
 }
 

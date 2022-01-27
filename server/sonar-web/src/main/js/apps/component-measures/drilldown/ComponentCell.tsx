@@ -36,12 +36,13 @@ import {
 } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
+import { ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../types/types';
 
 export interface ComponentCellProps {
   branchLike?: BranchLike;
-  component: T.ComponentMeasureEnhanced;
-  metric: T.Metric;
-  rootComponent: T.ComponentMeasure;
+  component: ComponentMeasureEnhanced;
+  metric: Metric;
+  rootComponent: ComponentMeasure;
   view: MeasurePageView;
 }
 

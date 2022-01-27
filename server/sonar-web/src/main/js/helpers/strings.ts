@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Dict } from '../types/types';
+
 /*
  * Latinize string by removing all diacritics
  * From http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
@@ -393,7 +396,7 @@ const defaultDiacriticsRemovalap = [
   }
 ];
 
-const diacriticsMap: T.Dict<string> = {};
+const diacriticsMap: Dict<string> = {};
 defaultDiacriticsRemovalap.forEach(defaultDiacritic =>
   defaultDiacritic.letters.split('').forEach(letter => {
     diacriticsMap[letter] = defaultDiacritic.base;

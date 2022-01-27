@@ -24,13 +24,14 @@ import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
+import { AppState } from '../../../types/types';
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {
   almCounts: {
     [k in AlmKeys]: number;
   };
-  appState: Pick<T.AppState, 'canAdmin'>;
+  appState: Pick<AppState, 'canAdmin'>;
   loadingBindings: boolean;
   onSelectMode: (mode: CreateProjectModes) => void;
   onConfigMode: (mode: AlmKeys) => void;

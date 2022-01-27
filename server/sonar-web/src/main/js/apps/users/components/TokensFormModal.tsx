@@ -22,10 +22,11 @@ import { FormattedMessage } from 'react-intl';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
+import { User } from '../../../types/types';
 import TokensForm from './TokensForm';
 
 interface Props {
-  user: T.User;
+  user: User;
   onClose: () => void;
   updateTokensCount: (login: string, tokensCount: number) => void;
 }

@@ -29,11 +29,12 @@ import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/
 import { hasGlobalPermission } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
+import { AppState, LoggedInUser } from '../../../types/types';
 
 export interface ApplicationCreationProps {
-  appState: Pick<T.AppState, 'qualifiers'>;
+  appState: Pick<AppState, 'qualifiers'>;
   className?: string;
-  currentUser: T.LoggedInUser;
+  currentUser: LoggedInUser;
   router: Router;
 }
 

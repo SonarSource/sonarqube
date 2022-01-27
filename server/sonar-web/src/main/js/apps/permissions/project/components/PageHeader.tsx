@@ -21,10 +21,11 @@ import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
 import { isApplication, isPortfolioLike } from '../../../../types/component';
+import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
-  component: T.Component;
+  component: Component;
   loadHolders: () => void;
   loading: boolean;
 }

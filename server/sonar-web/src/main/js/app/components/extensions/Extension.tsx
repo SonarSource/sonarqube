@@ -28,15 +28,16 @@ import { getBaseUrl } from '../../../helpers/system';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { ExtensionStartMethod } from '../../../types/extension';
+import { CurrentUser, Dict, Extension as TypeExtension } from '../../../types/types';
 import * as theme from '../../theme';
 import getStore from '../../utils/getStore';
 
 interface Props extends WrappedComponentProps {
-  currentUser: T.CurrentUser;
-  extension: T.Extension;
+  currentUser: CurrentUser;
+  extension: TypeExtension;
   location: Location;
   onFail: (message: string) => void;
-  options?: T.Dict<any>;
+  options?: Dict<any>;
   router: Router;
 }
 

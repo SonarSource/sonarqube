@@ -27,15 +27,16 @@ import TimeFormatter from '../../../components/intl/TimeFormatter';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
+import { ParsedAnalysis } from '../../../types/types';
 import Events from '../../projectActivity/components/Events';
 import { getAnalysesByVersionByDay } from '../../projectActivity/utils';
 
 export interface BranchAnalysisListRendererProps {
-  analyses: T.ParsedAnalysis[];
+  analyses: ParsedAnalysis[];
   handleRangeChange: ({ value }: { value: number }) => void;
   handleScroll: (e: React.SyntheticEvent<HTMLDivElement>) => void;
   loading: boolean;
-  onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
+  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   range: number;
   registerBadgeNode: (version: string) => (el: HTMLDivElement) => void;
   registerScrollableNode: (el: HTMLDivElement) => void;
@@ -44,9 +45,9 @@ export interface BranchAnalysisListRendererProps {
 }
 
 function renderAnalysis(args: {
-  analysis: T.ParsedAnalysis;
+  analysis: ParsedAnalysis;
   isFirst: boolean;
-  onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
+  onSelectAnalysis: (analysis: ParsedAnalysis) => void;
   selectedAnalysisKey: string;
 }) {
   const { analysis, isFirst, onSelectAnalysis, selectedAnalysisKey } = args;

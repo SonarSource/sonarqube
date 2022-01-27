@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import FinishButton from '../../components/FinishButton';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
-  component: T.Component;
+  component: Component;
   onDone: () => void;
 }
 

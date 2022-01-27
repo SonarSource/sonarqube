@@ -24,13 +24,14 @@ import { getValues } from '../../api/settings';
 import { getHostUrl } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { SettingsKey } from '../../types/settings';
+import { Component, LoggedInUser } from '../../types/types';
 import { withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
 import { TutorialModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }

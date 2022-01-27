@@ -1,3 +1,5 @@
+import { ComponentMeasure, Metric, Period, PeriodMeasure } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -20,18 +22,18 @@
 export interface MeasuresForProjects {
   component: string;
   metric: string;
-  period?: T.PeriodMeasure;
+  period?: PeriodMeasure;
   value?: string;
 }
 
 export interface MeasuresAndMetaWithMetrics {
-  component: T.ComponentMeasure;
-  metrics: T.Metric[];
+  component: ComponentMeasure;
+  metrics: Metric[];
 }
 
 export interface MeasuresAndMetaWithPeriod {
-  component: T.ComponentMeasure;
-  period: T.Period;
+  component: ComponentMeasure;
+  period: Period;
 }
 
 export type MeasurePageView = 'list' | 'tree' | 'treemap';

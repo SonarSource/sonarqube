@@ -33,6 +33,7 @@ import { hasMessage, translate, translateWithParameters } from '../../../../help
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
+import { AppState, Component, Extension } from '../../../../types/types';
 import './Menu.css';
 
 const SETTINGS_URLS = [
@@ -52,10 +53,10 @@ const SETTINGS_URLS = [
 ];
 
 interface Props {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
+  appState: Pick<AppState, 'branchesEnabled'>;
   branchLike: BranchLike | undefined;
   branchLikes: BranchLike[] | undefined;
-  component: T.Component;
+  component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
   onToggleProjectInfo: () => void;
@@ -539,7 +540,7 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderExtension = ({ key, name }: T.Extension, isAdmin: boolean, baseQuery: Query) => {
+  renderExtension = ({ key, name }: Extension, isAdmin: boolean, baseQuery: Query) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
     const query = { ...baseQuery, qualifier: this.props.component.qualifier };
     return (

@@ -1,3 +1,5 @@
+import { Dict } from './types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -69,10 +71,10 @@ export interface SettingValueResponse {
 }
 
 export interface SettingValue {
-  fieldValues?: Array<T.Dict<string>>;
+  fieldValues?: Array<Dict<string>>;
   inherited?: boolean;
   key: string;
-  parentFieldValues?: Array<T.Dict<string>>;
+  parentFieldValues?: Array<Dict<string>>;
   parentValue?: string;
   parentValues?: string[];
   value?: string;

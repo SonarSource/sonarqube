@@ -1,3 +1,5 @@
+import { FlowLocation, LinearIssueLocation, SourceLine, TextRange } from '../../../types/types';
+
 /*
  * SonarQube
  * Copyright (C) 2009-2021 SonarSource SA
@@ -17,7 +19,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getLinearLocations(textRange: T.TextRange | undefined): T.LinearIssueLocation[] {
+export function getLinearLocations(textRange: TextRange | undefined): LinearIssueLocation[] {
   if (!textRange) {
     return [];
   }
@@ -34,14 +36,14 @@ export function getLinearLocations(textRange: T.TextRange | undefined): T.Linear
 }
 
 export function getSecondaryIssueLocationsForLine(
-  line: T.SourceLine,
-  highlightedLocations: (T.FlowLocation | undefined)[] | undefined
-): T.LinearIssueLocation[] {
+  line: SourceLine,
+  highlightedLocations: (FlowLocation | undefined)[] | undefined
+): LinearIssueLocation[] {
   if (!highlightedLocations) {
     return [];
   }
   return highlightedLocations.reduce((locations, location) => {
-    const linearLocations: T.LinearIssueLocation[] = location
+    const linearLocations: LinearIssueLocation[] = location
       ? getLinearLocations(location.textRange)
           .filter(l => l.line === line.line)
           .map(l => ({

@@ -26,10 +26,11 @@ import TagsIcon from '../../../components/icons/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Facet } from '../../../types/issues';
+import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
-  component: T.Component | undefined;
+  component: Component | undefined;
   branch?: string;
   fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
@@ -37,7 +38,7 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
   tags: string[];
 }
 

@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Component } from '../../../types/types';
 import CodeSnippet from '../../common/CodeSnippet';
 import SentenceWithFilename from './SentenceWithFilename';
 
 export interface DefaultProjectKeyProps {
-  component: T.Component;
+  component: Component;
 }
 
 const sonarProjectSnippet = (key: string) => `sonar.projectKey=${key}`;

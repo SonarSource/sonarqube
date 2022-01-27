@@ -25,6 +25,7 @@ import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { HotspotStatusFilter, RawHotspot, RiskExposure } from '../../../types/security-hotspots';
+import { Dict, StandardSecurityCategories } from '../../../types/types';
 import { groupByCategory, RISK_EXPOSURE_LEVELS } from '../utils';
 import HotspotCategory from './HotspotCategory';
 import './HotspotList.css';
@@ -36,13 +37,13 @@ interface Props {
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
-  securityCategories: T.StandardSecurityCategories;
+  securityCategories: StandardSecurityCategories;
   selectedHotspot: RawHotspot;
   statusFilter: HotspotStatusFilter;
 }
 
 interface State {
-  expandedCategories: T.Dict<boolean>;
+  expandedCategories: Dict<boolean>;
   groupedHotspots: Array<{
     risk: RiskExposure;
     categories: Array<{ key: string; hotspots: RawHotspot[]; title: string }>;
@@ -88,7 +89,7 @@ export default class HotspotList extends React.Component<Props, State> {
     removeSideBarClass();
   }
 
-  groupHotspots = (hotspots: RawHotspot[], securityCategories: T.StandardSecurityCategories) => {
+  groupHotspots = (hotspots: RawHotspot[], securityCategories: StandardSecurityCategories) => {
     const risks = groupBy(hotspots, h => h.vulnerabilityProbability);
 
     return RISK_EXPOSURE_LEVELS.map(risk => ({

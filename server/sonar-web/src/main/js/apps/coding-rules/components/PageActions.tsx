@@ -23,11 +23,12 @@ import ReloadButton from '../../../components/controls/ReloadButton';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import PageShortcutsTooltip from '../../../components/ui/PageShortcutsTooltip';
 import { translate } from '../../../helpers/l10n';
+import { Paging } from '../../../types/types';
 
 export interface PageActionsProps {
   loading: boolean;
   onReload: () => void;
-  paging?: T.Paging;
+  paging?: Paging;
   selectedIndex?: number;
 }
 

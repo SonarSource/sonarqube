@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
+import { Dict } from '../../../types/types';
 import StandardFacet from '../../issues/sidebar/StandardFacet';
 import { Facets, OpenFacets, Query } from '../query';
 import ActivationSeverityFacet from './ActivationSeverityFacet';
@@ -40,8 +41,8 @@ export interface FacetsListProps {
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: OpenFacets;
   query: Query;
-  referencedProfiles: T.Dict<Profile>;
-  referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
+  referencedProfiles: Dict<Profile>;
+  referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   selectedProfile?: Profile;
 }
 

@@ -25,11 +25,12 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
+import { Component, Period } from '../../../types/types';
 
 export interface MeasuresPanelNoNewCodeProps {
   branch?: Branch;
-  component: T.Component;
-  period?: T.Period;
+  component: Component;
+  period?: Period;
 }
 
 export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProps) {

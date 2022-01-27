@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
+import { Dict } from '../types/types';
 
 const parseCookies = memoize(
-  (documentCookie: string): T.Dict<string> => {
+  (documentCookie: string): Dict<string> => {
     const rawCookies = documentCookie.split('; ');
-    const cookies: T.Dict<string> = {};
+    const cookies: Dict<string> = {};
     rawCookies.forEach(candidate => {
       const [key, value] = candidate.split('=');
       cookies[key] = value;

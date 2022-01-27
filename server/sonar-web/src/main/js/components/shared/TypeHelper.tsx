@@ -20,10 +20,11 @@
 import * as React from 'react';
 import IssueTypeIcon from '../../components/icons/IssueTypeIcon';
 import { translate } from '../../helpers/l10n';
+import { IssueType, RuleType } from '../../types/types';
 
 interface Props {
   className?: string;
-  type: T.IssueType | T.RuleType;
+  type: IssueType | RuleType;
 }
 
 export default function TypeHelper(props: Props) {

@@ -27,11 +27,12 @@ import { hasGlobalPermission } from '../../helpers/users';
 import { Permissions } from '../../types/permissions';
 import { RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';
+import { LoggedInUser } from '../../types/types';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import './PluginRiskConsent.css';
 
 export interface PluginRiskConsentProps {
-  currentUser: T.LoggedInUser;
+  currentUser: LoggedInUser;
   router: Router;
 }
 

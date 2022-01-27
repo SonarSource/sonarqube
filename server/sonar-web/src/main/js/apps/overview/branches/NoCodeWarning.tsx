@@ -24,11 +24,12 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
+import { Component, MeasureEnhanced } from '../../../types/types';
 
 interface Props {
   branchLike?: BranchLike;
-  component: T.Component;
-  measures?: T.MeasureEnhanced[];
+  component: Component;
+  measures?: MeasureEnhanced[];
 }
 
 export function NoCodeWarning({ branchLike, component, measures }: Props) {

@@ -22,6 +22,7 @@ import * as React from 'react';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
 import { mockSourceViewerFile } from '../../../helpers/testMocks';
 import { MetricKey } from '../../../types/metrics';
+import { Measure } from '../../../types/types';
 import SourceViewerHeader from '../SourceViewerHeader';
 
 it('should render correctly for a regular file', () => {
@@ -38,7 +39,7 @@ it('should render correctly for a unit test', () => {
 });
 
 it('should render correctly if issue details are passed', () => {
-  const componentMeasures: T.Measure[] = [
+  const componentMeasures: Measure[] = [
     { metric: MetricKey.code_smells, value: '1' },
     { metric: MetricKey.file_complexity_distribution, value: '42' }, // unused, should be ignored
     { metric: MetricKey.security_hotspots, value: '2' },

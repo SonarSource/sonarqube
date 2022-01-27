@@ -24,17 +24,18 @@ import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Facet } from '../../../types/issues';
+import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
 
 interface Props {
-  component: T.Component | undefined;
+  component: Component | undefined;
   fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
   author: string[];
 }
 

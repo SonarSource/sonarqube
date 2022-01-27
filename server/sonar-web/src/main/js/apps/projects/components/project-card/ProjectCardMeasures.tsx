@@ -29,12 +29,13 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
+import { Dict } from '../../../../types/types';
 import { formatDuration } from '../../utils';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
 export interface ProjectCardMeasuresProps {
   isNewCode: boolean;
-  measures: T.Dict<string | undefined>;
+  measures: Dict<string | undefined>;
   componentQualifier: ComponentQualifier;
   newCodeStartingDate?: string;
 }

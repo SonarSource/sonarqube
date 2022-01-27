@@ -21,11 +21,12 @@ import * as React from 'react';
 import { ClearButton } from '../../../../../../components/controls/buttons';
 import ProjectLinkIcon from '../../../../../../components/icons/ProjectLinkIcon';
 import { getLinkName } from '../../../../../../helpers/projectLinks';
+import { ProjectLink } from '../../../../../../types/types';
 import isValidUri from '../../../../../utils/isValidUri';
 
 interface Props {
   iconOnly?: boolean;
-  link: T.ProjectLink;
+  link: ProjectLink;
 }
 
 interface State {

@@ -22,12 +22,13 @@ import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import AdvancedTimeline from '../../components/charts/AdvancedTimeline';
 import { formatMeasure, getShortType } from '../../helpers/measures';
 import { MeasureHistory, Serie } from '../../types/project-activity';
+import { AnalysisEvent } from '../../types/types';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
 import GraphsTooltips from './GraphsTooltips';
 
 interface Props {
-  events: T.AnalysisEvent[];
+  events: AnalysisEvent[];
   graph: string;
   graphEndDate?: Date;
   graphStartDate?: Date;

@@ -24,6 +24,7 @@ import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
 import { getAppState, getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
+import { Component } from '../../../types/types';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import CATEGORY_OVERRIDES from './CategoryOverrides';
@@ -31,7 +32,7 @@ import CATEGORY_OVERRIDES from './CategoryOverrides';
 export interface CategoriesListProps {
   branchesEnabled?: boolean;
   categories: string[];
-  component?: T.Component;
+  component?: Component;
   defaultCategory: string;
   selectedCategory: string;
 }

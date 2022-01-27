@@ -25,6 +25,7 @@ import ClockIcon from '../../../components/icons/ClockIcon';
 import FavoriteIcon from '../../../components/icons/FavoriteIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
+import { Dict } from '../../../types/types';
 import { ComponentResult } from './utils';
 
 interface Props {
@@ -32,7 +33,7 @@ interface Props {
   innerRef: (componentKey: string, node: HTMLElement | null) => void;
   onClose: () => void;
   onSelect: (componentKey: string) => void;
-  projects: T.Dict<{ name: string }>;
+  projects: Dict<{ name: string }>;
   selected: boolean;
 }
 

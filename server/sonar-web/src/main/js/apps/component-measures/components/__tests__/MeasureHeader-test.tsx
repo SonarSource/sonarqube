@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { Period } from '../../../../types/types';
 import MeasureHeader from '../MeasureHeader';
 
 const METRIC = {
@@ -50,7 +51,7 @@ const PROPS = {
     index: 1,
     mode: 'previous_version',
     parameter: '6,4'
-  } as T.Period,
+  } as Period,
   measureValue: '3.0',
   metric: METRIC
 };

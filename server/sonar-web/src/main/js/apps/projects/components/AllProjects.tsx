@@ -33,6 +33,7 @@ import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { get, save } from '../../../helpers/storage';
 import { isLoggedIn } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
+import { CurrentUser, RawQuery } from '../../../types/types';
 import { hasFilterParams, hasVisualizationParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
@@ -43,7 +44,7 @@ import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
 
 interface Props {
-  currentUser: T.CurrentUser;
+  currentUser: CurrentUser;
   isFavorite: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
   qualifiers: ComponentQualifier[];
@@ -216,7 +217,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
     }
   };
 
-  updateLocationQuery = (newQuery: T.RawQuery) => {
+  updateLocationQuery = (newQuery: RawQuery) => {
     const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
     this.props.router.push({ pathname: this.props.location.pathname, query });
   };

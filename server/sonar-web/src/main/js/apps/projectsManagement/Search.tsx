@@ -28,6 +28,7 @@ import SearchBox from '../../components/controls/SearchBox';
 import SelectLegacy from '../../components/controls/SelectLegacy';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
+import { Visibility } from '../../types/types';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 
@@ -49,7 +50,7 @@ export interface Props {
   selection: any[];
   topLevelQualifiers: string[];
   total: number;
-  visibility?: T.Visibility;
+  visibility?: Visibility;
 }
 
 interface State {

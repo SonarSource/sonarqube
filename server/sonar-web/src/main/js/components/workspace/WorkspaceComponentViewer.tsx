@@ -25,12 +25,13 @@ import { isPullRequest } from '../../helpers/branch-like';
 import { scrollToElement } from '../../helpers/scrolling';
 import { fetchBranchStatus } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
+import { Issue, SourceViewerFile } from '../../types/types';
 import SourceViewer from '../SourceViewer/SourceViewer';
 import { ComponentDescriptor } from './context';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import WorkspaceHeader, { Props as WorkspaceHeaderProps } from './WorkspaceHeader';
 
-export interface Props extends T.Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
+export interface Props extends Omit<WorkspaceHeaderProps, 'children' | 'onClose'> {
   component: ComponentDescriptor;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   height: number;
@@ -62,11 +63,11 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
     this.props.onClose(this.props.component.key);
   };
 
-  handleIssueChange = (_: T.Issue) => {
+  handleIssueChange = (_: Issue) => {
     this.refreshBranchStatus();
   };
 
-  handleLoaded = (component: T.SourceViewerFile) => {
+  handleLoaded = (component: SourceViewerFile) => {
     this.props.onLoad({
       key: this.props.component.key,
       name: component.path,

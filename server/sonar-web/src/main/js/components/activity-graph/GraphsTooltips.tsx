@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
 import { MeasureHistory, Serie } from '../../types/project-activity';
+import { AnalysisEvent } from '../../types/types';
 import DateTimeFormatter from '../intl/DateTimeFormatter';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
@@ -30,7 +31,7 @@ import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
 import { DEFAULT_GRAPH } from './utils';
 
 interface Props {
-  events: T.AnalysisEvent[];
+  events: AnalysisEvent[];
   formatValue: (tick: number | string) => string;
   graph: string;
   graphWidth: number;

@@ -20,12 +20,13 @@
 import suggestionsJson from 'Docs/EmbedDocsSuggestions.json';
 import * as React from 'react';
 import { isSonarCloud } from '../../../helpers/system';
+import { Dict, SuggestionLink } from '../../../types/types';
 import { SuggestionsContext } from './SuggestionsContext';
 
-type SuggestionsJson = T.Dict<T.SuggestionLink[]>;
+type SuggestionsJson = Dict<SuggestionLink[]>;
 
 interface State {
-  suggestions: T.SuggestionLink[];
+  suggestions: SuggestionLink[];
 }
 
 export default class SuggestionsProvider extends React.Component<{}, State> {
@@ -34,7 +35,7 @@ export default class SuggestionsProvider extends React.Component<{}, State> {
 
   fetchSuggestions = () => {
     const jsonList = suggestionsJson as SuggestionsJson;
-    let suggestions: T.SuggestionLink[] = [];
+    let suggestions: SuggestionLink[] = [];
     this.keys.forEach(key => {
       if (jsonList[key]) {
         suggestions = [...jsonList[key], ...suggestions];

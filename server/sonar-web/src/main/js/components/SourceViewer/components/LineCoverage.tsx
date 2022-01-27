@@ -20,9 +20,10 @@
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { SourceLine } from '../../../types/types';
 
 export interface LineCoverageProps {
-  line: T.SourceLine;
+  line: SourceLine;
   scroll?: (element: HTMLElement) => void;
   scrollToUncoveredLine?: boolean;
 }
@@ -49,7 +50,7 @@ export function LineCoverage({ line, scroll, scrollToUncoveredLine }: LineCovera
   );
 }
 
-function getStatusTooltip(line: T.SourceLine) {
+function getStatusTooltip(line: SourceLine) {
   if (line.coverageStatus === 'uncovered') {
     if (line.conditions) {
       return translateWithParameters('source_viewer.tooltip.uncovered.conditions', line.conditions);

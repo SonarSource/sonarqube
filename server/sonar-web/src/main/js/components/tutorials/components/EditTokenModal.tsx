@@ -27,6 +27,7 @@ import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Component, LoggedInUser } from '../../../types/types';
 import { getUniqueTokenName } from '../utils';
 
 interface State {
@@ -36,8 +37,8 @@ interface State {
 }
 
 interface Props {
-  component: T.Component;
-  currentUser: T.LoggedInUser;
+  component: Component;
+  currentUser: LoggedInUser;
   onClose: (token?: string) => void;
 }
 

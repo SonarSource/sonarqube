@@ -24,11 +24,12 @@ import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { PermissionDefinition, PermissionDefinitionGroup } from '../../../../types/types';
 import { isPermissionDefinitionGroup } from '../../utils';
 
 interface Props {
   onSelectPermission?: (permission: string) => void;
-  permission: T.PermissionDefinition | T.PermissionDefinitionGroup;
+  permission: PermissionDefinition | PermissionDefinitionGroup;
   selectedPermission?: string;
   showPublicProjectsWarning?: boolean;
 }

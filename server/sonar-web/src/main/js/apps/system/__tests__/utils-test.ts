@@ -19,6 +19,7 @@
  */
 
 import { mockClusterSysInfo, mockStandaloneSysInfo } from '../../../helpers/testMocks';
+import { SysInfoBase, SysInfoStandalone } from '../../../types/types';
 import * as u from '../utils';
 
 describe('parseQuery', () => {
@@ -68,7 +69,7 @@ describe('getSystemLogsLevel', () => {
         })
       )
     ).toBe('INFO');
-    expect(u.getSystemLogsLevel({} as T.SysInfoStandalone)).toBe('INFO');
+    expect(u.getSystemLogsLevel({} as SysInfoStandalone)).toBe('INFO');
   });
 });
 
@@ -169,13 +170,13 @@ describe('getNodeName', () => {
 
 describe('getHealthCauses', () => {
   it('should return the correct information', () => {
-    expect(u.getHealthCauses({ 'Health Causes': ['Foo'] } as T.SysInfoBase)).toEqual(['Foo']);
+    expect(u.getHealthCauses({ 'Health Causes': ['Foo'] } as SysInfoBase)).toEqual(['Foo']);
   });
 });
 
 describe('getHealth', () => {
   it('should return the correct information', () => {
-    expect(u.getHealth({ Health: 'GREEN' } as T.SysInfoBase)).toEqual('GREEN');
+    expect(u.getHealth({ Health: 'GREEN' } as SysInfoBase)).toEqual('GREEN');
   });
 });
 

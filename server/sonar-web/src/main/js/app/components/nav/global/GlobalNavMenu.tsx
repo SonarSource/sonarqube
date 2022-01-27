@@ -26,10 +26,11 @@ import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
+import { AppState, CurrentUser, Extension } from '../../../../types/types';
 
 interface Props {
-  appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
-  currentUser: T.CurrentUser;
+  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
+  currentUser: CurrentUser;
   location: { pathname: string };
 }
 
@@ -118,7 +119,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderGlobalPageLink = ({ key, name }: T.Extension) => {
+  renderGlobalPageLink = ({ key, name }: Extension) => {
     return (
       <li key={key}>
         <Link to={`/extension/${key}`}>{name}</Link>

@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function mockUserBase(overrides: Partial<T.UserBase> = {}): T.UserBase {
+import { UserBase } from '../../types/types';
+
+export function mockUserBase(overrides: Partial<UserBase> = {}): UserBase {
   return {
     login: 'userlogin',
     ...overrides

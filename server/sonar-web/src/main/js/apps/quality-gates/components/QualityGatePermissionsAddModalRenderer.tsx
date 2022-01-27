@@ -25,20 +25,21 @@ import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
+import { UserBase } from '../../../types/types';
 
 export interface QualityGatePermissionsAddModalRendererProps {
   onClose: () => void;
   onInputChange: (query: string) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
-  onSelection: (selection: T.UserBase | Group) => void;
+  onSelection: (selection: UserBase | Group) => void;
   submitting: boolean;
   loading: boolean;
   query: string;
-  searchResults: Array<T.UserBase | Group>;
-  selection?: T.UserBase | Group;
+  searchResults: Array<UserBase | Group>;
+  selection?: UserBase | Group;
 }
 
-type Option = (T.UserBase | Group) & { value: string };
+type Option = (UserBase | Group) & { value: string };
 
 export default function QualityGatePermissionsAddModalRenderer(
   props: QualityGatePermissionsAddModalRendererProps

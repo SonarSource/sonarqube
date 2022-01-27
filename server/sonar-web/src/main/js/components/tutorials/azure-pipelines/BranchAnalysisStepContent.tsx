@@ -21,13 +21,14 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { translate } from '../../../helpers/l10n';
 import { getLanguages, Store } from '../../../store/rootReducer';
+import { Component, Languages } from '../../../types/types';
 import RenderOptions from '../components/RenderOptions';
 import { BuildTools } from '../types';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 export interface BranchesAnalysisStepProps {
-  languages: T.Languages;
-  component: T.Component;
+  languages: Languages;
+  component: Component;
   onStepValidationChange: (isValid: boolean) => void;
 }
 

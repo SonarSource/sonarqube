@@ -26,11 +26,12 @@ import SearchBox from '../../../components/controls/SearchBox';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { SettingCategoryDefinition } from '../../../types/settings';
+import { Component } from '../../../types/types';
 import { buildSettingLink, isRealSettingKey } from '../utils';
 
 export interface SettingsSearchRendererProps {
   className?: string;
-  component?: T.Component;
+  component?: Component;
   results?: SettingCategoryDefinition[];
   searchQuery: string;
   selectedResult?: string;

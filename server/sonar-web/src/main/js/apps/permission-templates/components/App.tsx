@@ -25,6 +25,7 @@ import { getPermissionTemplates } from '../../../api/permissions';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { getAppState, Store } from '../../../store/rootReducer';
+import { Permission, PermissionTemplate } from '../../../types/types';
 import '../../permissions/styles.css';
 import { mergeDefaultsToTemplates, mergePermissionsToTemplates, sortPermissions } from '../utils';
 import Home from './Home';
@@ -37,8 +38,8 @@ interface Props {
 
 interface State {
   ready: boolean;
-  permissions: T.Permission[];
-  permissionTemplates: T.PermissionTemplate[];
+  permissions: Permission[];
+  permissionTemplates: PermissionTemplate[];
 }
 
 export class App extends React.PureComponent<Props, State> {

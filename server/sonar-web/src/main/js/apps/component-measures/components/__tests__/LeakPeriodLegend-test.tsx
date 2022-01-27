@@ -21,6 +21,7 @@ import { differenceInDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { IntlShape } from 'react-intl';
+import { ComponentMeasure, Period } from '../../../../types/types';
 import { LeakPeriodLegend } from '../LeakPeriodLegend';
 
 jest.mock('date-fns', () => {
@@ -40,14 +41,14 @@ const APP = {
   qualifier: 'APP'
 };
 
-const PERIOD: T.Period = {
+const PERIOD: Period = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
   mode: 'previous_version',
   parameter: '6,4'
 };
 
-const PERIOD_DAYS: T.Period = {
+const PERIOD_DAYS: Period = {
   date: '2017-05-16T13:50:02+0200',
   index: 1,
   mode: 'days',
@@ -68,7 +69,7 @@ it('should render a more precise date', () => {
   expect(getWrapper(PROJECT, PERIOD)).toMatchSnapshot();
 });
 
-function getWrapper(component: T.ComponentMeasure, period: T.Period) {
+function getWrapper(component: ComponentMeasure, period: Period) {
   return shallow(
     <LeakPeriodLegend
       component={component}

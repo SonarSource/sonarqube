@@ -20,16 +20,17 @@
 import { getBranchLikeKey } from '../helpers/branch-like';
 import { BranchLike } from '../types/branch-like';
 import { QualityGateStatusCondition } from '../types/quality-gates';
+import { Dict, Status } from '../types/types';
 import { ActionType } from './utils/actions';
 
 export interface BranchStatusData {
   conditions?: QualityGateStatusCondition[];
   ignoredConditions?: boolean;
-  status?: T.Status;
+  status?: Status;
 }
 
 export interface State {
-  byComponent: T.Dict<T.Dict<BranchStatusData>>;
+  byComponent: Dict<Dict<BranchStatusData>>;
 }
 
 const enum Actions {
@@ -41,7 +42,7 @@ type Action = ActionType<typeof registerBranchStatusAction, Actions.RegisterBran
 export function registerBranchStatusAction(
   branchLike: BranchLike,
   component: string,
-  status: T.Status,
+  status: Status,
   conditions?: QualityGateStatusCondition[],
   ignoredConditions?: boolean
 ) {

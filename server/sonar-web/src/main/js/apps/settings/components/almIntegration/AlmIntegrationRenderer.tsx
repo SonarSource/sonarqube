@@ -26,6 +26,7 @@ import {
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
+import { Dict } from '../../../../types/types';
 import { AlmTabs } from './AlmIntegration';
 import AlmTab from './AlmTab';
 import DeleteModal from './DeleteModal';
@@ -35,7 +36,7 @@ export interface AlmIntegrationRendererProps {
   currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
-  definitionStatus: T.Dict<AlmSettingsBindingStatus>;
+  definitionStatus: Dict<AlmSettingsBindingStatus>;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;

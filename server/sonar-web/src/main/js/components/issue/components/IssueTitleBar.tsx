@@ -27,6 +27,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { RuleStatus } from '../../../types/rules';
+import { Issue } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
 import { WorkspaceContext } from '../../workspace/context';
 import IssueChangelog from './IssueChangelog';
@@ -38,8 +39,8 @@ export interface IssueTitleBarProps {
   currentPopup?: string;
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
-  issue: T.Issue;
-  onFilter?: (property: string, issue: T.Issue) => void;
+  issue: Issue;
+  onFilter?: (property: string, issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 

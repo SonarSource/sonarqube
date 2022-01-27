@@ -35,6 +35,7 @@ import { getBaseUrl } from '../../../helpers/system';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
 import { ComponentQualifier } from '../../../types/component';
+import { Paging } from '../../../types/types';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 
 export interface GitHubProjectCreateRendererProps {
@@ -51,7 +52,7 @@ export interface GitHubProjectCreateRendererProps {
   onSelectRepository: (key: string) => void;
   organizations: GithubOrganization[];
   repositories?: GithubRepository[];
-  repositoryPaging: T.Paging;
+  repositoryPaging: Paging;
   searchQuery: string;
   selectedOrganization?: GithubOrganization;
   selectedRepository?: GithubRepository;

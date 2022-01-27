@@ -24,10 +24,11 @@ import { translate } from '../../../../../../helpers/l10n';
 import { formatMeasure, localizeMetric } from '../../../../../../helpers/measures';
 import { ComponentQualifier } from '../../../../../../types/component';
 import { MetricKey } from '../../../../../../types/metrics';
+import { Component, Measure } from '../../../../../../types/types';
 
 export interface MetaSizeProps {
-  component: T.Component;
-  measures: T.Measure[];
+  component: Component;
+  measures: Measure[];
 }
 
 export default function MetaSize({ component, measures }: MetaSizeProps) {

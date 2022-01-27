@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { PermissionTemplate } from '../../../../types/types';
 import Defaults from '../Defaults';
 
-const SAMPLE: T.PermissionTemplate = {
+const SAMPLE: PermissionTemplate = {
   createdAt: '2018-01-01',
   defaultFor: [],
   id: 'id',

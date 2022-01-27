@@ -22,6 +22,13 @@ import { Button } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { MetricKey } from '../../types/metrics';
+import {
+  Duplication,
+  FlowLocation,
+  Issue,
+  LinearIssueLocation,
+  SourceLine
+} from '../../types/types';
 import Line from './components/Line';
 import { getSecondaryIssueLocationsForLine } from './helpers/issueLocations';
 import {
@@ -46,7 +53,7 @@ interface Props {
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
   displayLocationMarkers?: boolean;
-  duplications: T.Duplication[] | undefined;
+  duplications: Duplication[] | undefined;
   duplicationsByLine: { [line: number]: number[] };
   hasSourcesAfter: boolean;
   hasSourcesBefore: boolean;
@@ -54,22 +61,22 @@ interface Props {
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   // `undefined` elements mean they are located in a different file,
   // but kept to maintain the location indexes
-  highlightedLocations: (T.FlowLocation | undefined)[] | undefined;
+  highlightedLocations: (FlowLocation | undefined)[] | undefined;
   highlightedSymbols: string[];
-  issueLocationsByLine: { [line: number]: T.LinearIssueLocation[] };
+  issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
   issuePopup: { issue: string; name: string } | undefined;
-  issues: T.Issue[] | undefined;
-  issuesByLine: { [line: number]: T.Issue[] };
-  loadDuplications: (line: T.SourceLine) => void;
+  issues: Issue[] | undefined;
+  issuesByLine: { [line: number]: Issue[] };
+  loadDuplications: (line: SourceLine) => void;
   loadingSourcesAfter: boolean;
   loadingSourcesBefore: boolean;
   loadSourcesAfter: () => void;
   loadSourcesBefore: () => void;
-  onIssueChange: (issue: T.Issue) => void;
+  onIssueChange: (issue: Issue) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
-  onIssuesClose: (line: T.SourceLine) => void;
+  onIssuesClose: (line: SourceLine) => void;
   onIssueSelect: (issueKey: string) => void;
-  onIssuesOpen: (line: T.SourceLine) => void;
+  onIssuesOpen: (line: SourceLine) => void;
   onIssueUnselect: () => void;
   onLocationSelect: ((index: number) => void) | undefined;
   onSymbolClick: (symbols: string[]) => void;
@@ -78,7 +85,7 @@ interface Props {
   scroll?: (element: HTMLElement) => void;
   metricKey?: string;
   selectedIssue: string | undefined;
-  sources: T.SourceLine[];
+  sources: SourceLine[];
   symbolsByLine: { [line: number]: string[] };
 }
 
@@ -91,15 +98,15 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     }
   }
 
-  getDuplicationsForLine = (line: T.SourceLine): number[] => {
+  getDuplicationsForLine = (line: SourceLine): number[] => {
     return this.props.duplicationsByLine[line.line] || EMPTY_ARRAY;
   };
 
-  getIssuesForLine = (line: T.SourceLine): T.Issue[] => {
+  getIssuesForLine = (line: SourceLine): Issue[] => {
     return this.props.issuesByLine[line.line] || EMPTY_ARRAY;
   };
 
-  getIssueLocationsForLine = (line: T.SourceLine): T.LinearIssueLocation[] => {
+  getIssueLocationsForLine = (line: SourceLine): LinearIssueLocation[] => {
     return this.props.issueLocationsByLine[line.line] || EMPTY_ARRAY;
   };
 
@@ -110,7 +117,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
     displayDuplications,
     displayIssues
   }: {
-    line: T.SourceLine;
+    line: SourceLine;
     index: number;
     displayCoverage: boolean;
     displayDuplications: boolean;

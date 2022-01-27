@@ -25,6 +25,7 @@ import {
 } from '../../../api/alm-integrations';
 import { BitbucketCloudRepository } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { Paging } from '../../../types/types';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
@@ -39,7 +40,7 @@ interface State {
   isLastPage?: boolean;
   loading: boolean;
   loadingMore: boolean;
-  projectsPaging: Omit<T.Paging, 'total'>;
+  projectsPaging: Omit<Paging, 'total'>;
   resetPat: boolean;
   repositories: BitbucketCloudRepository[];
   searching: boolean;

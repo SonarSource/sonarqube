@@ -33,12 +33,13 @@ import { translate } from '../../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../../helpers/urls';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
+import { Component } from '../../../../../types/types';
 import MenuItemList from './MenuItemList';
 
 interface Props {
   branchLikes: BranchLike[];
   canAdminComponent?: boolean;
-  component: T.Component;
+  component: Component;
   currentBranchLike: BranchLike;
   onClose: () => void;
   router: Pick<Router, 'push'>;

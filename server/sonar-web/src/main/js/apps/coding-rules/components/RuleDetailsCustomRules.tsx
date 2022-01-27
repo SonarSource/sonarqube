@@ -27,16 +27,17 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
+import { Rule, RuleDetails } from '../../../types/types';
 import CustomRuleButton from './CustomRuleButton';
 
 interface Props {
   canChange?: boolean;
-  ruleDetails: T.RuleDetails;
+  ruleDetails: RuleDetails;
 }
 
 interface State {
   loading: boolean;
-  rules?: T.Rule[];
+  rules?: Rule[];
 }
 
 export default class RuleDetailsCustomRules extends React.PureComponent<Props, State> {
@@ -77,7 +78,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     );
   };
 
-  handleRuleCreate = (newRuleDetails: T.RuleDetails) => {
+  handleRuleCreate = (newRuleDetails: RuleDetails) => {
     if (this.mounted) {
       this.setState(({ rules = [] }: State) => ({
         rules: [...rules, newRuleDetails]
@@ -95,7 +96,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
     });
   };
 
-  renderRule = (rule: T.Rule) => (
+  renderRule = (rule: Rule) => (
     <tr data-rule={rule.key} key={rule.key}>
       <td className="coding-rules-detail-list-name">
         <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
+import { Component } from '../../../types/types';
 import CodeSnippet from '../../common/CodeSnippet';
 import DefaultProjectKey from '../components/DefaultProjectKey';
 import { BuildTools } from '../types';
@@ -28,7 +29,7 @@ import { buildGradleSnippet } from '../utils';
 
 export interface PreambuleYamlProps {
   buildTool: BuildTools;
-  component: T.Component;
+  component: Component;
 }
 
 export function PreambuleYaml(props: PreambuleYamlProps) {

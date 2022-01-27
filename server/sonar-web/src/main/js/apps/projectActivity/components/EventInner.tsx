@@ -21,11 +21,12 @@ import * as React from 'react';
 import { ComponentContext } from '../../../app/components/ComponentContext';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
+import { AnalysisEvent } from '../../../types/types';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
 import { isRichQualityGateEvent, RichQualityGateEventInner } from './RichQualityGateEventInner';
 
 export interface EventInnerProps {
-  event: T.AnalysisEvent;
+  event: AnalysisEvent;
   readonly?: boolean;
 }
 

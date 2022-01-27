@@ -36,6 +36,7 @@ import {
   ReviewHistoryType,
   RiskExposure
 } from '../../types/security-hotspots';
+import { Dict, SourceViewerFile, StandardSecurityCategories } from '../../types/types';
 
 export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
 export const SECURITY_STANDARDS = [
@@ -52,8 +53,8 @@ export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.CWE]: renderCWECategory
 };
 
-export function mapRules(rules: Array<{ key: string; name: string }>): T.Dict<string> {
-  return rules.reduce((ruleMap: T.Dict<string>, r) => {
+export function mapRules(rules: Array<{ key: string; name: string }>): Dict<string> {
+  return rules.reduce((ruleMap: Dict<string>, r) => {
     ruleMap[r.key] = r.name;
     return ruleMap;
   }, {});
@@ -61,7 +62,7 @@ export function mapRules(rules: Array<{ key: string; name: string }>): T.Dict<st
 
 export function groupByCategory(
   hotspots: RawHotspot[] = [],
-  securityCategories: T.StandardSecurityCategories
+  securityCategories: StandardSecurityCategories
 ) {
   const groups = groupBy(hotspots, h => h.securityCategory);
 
@@ -72,10 +73,7 @@ export function groupByCategory(
   }));
 }
 
-export function sortHotspots(
-  hotspots: RawHotspot[],
-  securityCategories: T.Dict<{ title: string }>
-) {
+export function sortHotspots(hotspots: RawHotspot[], securityCategories: Dict<{ title: string }>) {
   return sortBy(hotspots, [
     h => RISK_EXPOSURE_LEVELS.indexOf(h.vulnerabilityProbability),
     h => getCategoryTitle(h.securityCategory, securityCategories),
@@ -83,14 +81,14 @@ export function sortHotspots(
   ]);
 }
 
-function getCategoryTitle(key: string, securityCategories: T.StandardSecurityCategories) {
+function getCategoryTitle(key: string, securityCategories: StandardSecurityCategories) {
   return securityCategories[key] ? securityCategories[key].title : key;
 }
 
 export function constructSourceViewerFile(
   { component, project }: Hotspot,
   lines?: number
-): T.SourceViewerFile {
+): SourceViewerFile {
   return {
     key: component.key,
     measures: { lines: lines ? lines.toString() : undefined },

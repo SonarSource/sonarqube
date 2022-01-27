@@ -20,12 +20,11 @@
 import remark from 'remark';
 import visit from 'unist-util-visit';
 import { filterContent, ParsedContent, separateFrontMatter } from '../../helpers/markdown';
+import { Dict } from '../../types/types';
 import Docs from './documentation.directory-loader';
 import { DocumentationEntry, DocumentationEntryScope } from './utils';
 
-export default function getPages(
-  parsedOverrides: T.Dict<ParsedContent> = {}
-): DocumentationEntry[] {
+export default function getPages(parsedOverrides: Dict<ParsedContent> = {}): DocumentationEntry[] {
   // Get entries, merge with overrides if applicable.
   const pages = ((Docs as unknown) as Array<{ content: string; path: string }>).map(file => {
     let parsed = separateFrontMatter(file.content);

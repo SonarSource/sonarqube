@@ -27,6 +27,7 @@ import { mockComponentMeasureEnhanced } from '../../../helpers/mocks/component';
 import { mockHtmlElement } from '../../../helpers/mocks/dom';
 import { mockEvent } from '../../../helpers/testMocks';
 import { click } from '../../../helpers/testUtils';
+import { ComponentMeasureEnhanced } from '../../../types/types';
 import BubbleChart from '../BubbleChart';
 
 jest.mock('react-virtualized/dist/commonjs/AutoSizer', () => ({
@@ -136,8 +137,8 @@ it('should correctly handle zooming', () => {
   });
 });
 
-function shallowRender(props: Partial<BubbleChart<T.ComponentMeasureEnhanced>['props']> = {}) {
-  return shallow<BubbleChart<T.ComponentMeasureEnhanced>>(
+function shallowRender(props: Partial<BubbleChart<ComponentMeasureEnhanced>['props']> = {}) {
+  return shallow<BubbleChart<ComponentMeasureEnhanced>>(
     <BubbleChart
       height={100}
       items={[

@@ -22,6 +22,7 @@ import { hasMessage, translate } from '../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
 import { Setting, SettingCategoryDefinition, SettingDefinition } from '../../types/settings';
+import { Component, Dict } from '../../types/types';
 
 export const DEFAULT_CATEGORY = 'general';
 
@@ -108,7 +109,7 @@ export function getEmptyValue(item: SettingDefinition | SettingCategoryDefinitio
     }
 
     if (item.type === 'PROPERTY_SET') {
-      const value: T.Dict<string> = {};
+      const value: Dict<string> = {};
       item.fields.forEach(field => (value[field.key] = getEmptyValue(field)));
       return [value];
     }
@@ -170,7 +171,7 @@ export function isRealSettingKey(key: string) {
 
 export function buildSettingLink(
   definition: SettingCategoryDefinition,
-  component?: T.Component
+  component?: Component
 ): LocationDescriptor {
   const { category, key } = definition;
 
@@ -181,7 +182,7 @@ export function buildSettingLink(
     };
   }
 
-  const query: T.Dict<string> = {};
+  const query: Dict<string> = {};
 
   if (key.startsWith('sonar.auth.gitlab')) {
     query.alm = 'gitlab';

@@ -19,15 +19,16 @@
  */
 import { keyBy } from 'lodash';
 import { combineReducers } from 'redux';
+import { Dict, Metric } from '../types/types';
 import { ActionType } from './utils/actions';
 
-export function receiveMetrics(metrics: T.Metric[]) {
+export function receiveMetrics(metrics: Metric[]) {
   return { type: 'RECEIVE_METRICS', metrics };
 }
 
 type Action = ActionType<typeof receiveMetrics, 'RECEIVE_METRICS'>;
 
-export type State = { byKey: T.Dict<T.Metric>; keys: string[] };
+export type State = { byKey: Dict<Metric>; keys: string[] };
 
 const byKey = (state: State['byKey'] = {}, action: Action) => {
   if (action.type === 'RECEIVE_METRICS') {

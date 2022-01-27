@@ -25,9 +25,10 @@ import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExpla
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { validateProjectKey } from '../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../types/component';
+import { Component } from '../../types/types';
 
 export interface UpdateFormProps {
-  component: Pick<T.Component, 'key' | 'name'>;
+  component: Pick<Component, 'key' | 'name'>;
   onKeyChange: (newKey: string) => Promise<void>;
 }
 

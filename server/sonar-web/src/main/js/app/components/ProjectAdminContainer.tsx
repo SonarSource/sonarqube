@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { BranchLike } from '../../types/branch-like';
+import { Component } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import A11ySkipTarget from './a11y/A11ySkipTarget';
 
@@ -26,7 +27,7 @@ interface Props {
   children: JSX.Element;
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
-  component: T.Component;
+  component: Component;
   isInProgress?: boolean;
   isPending?: boolean;
   onBranchesChange: () => void;

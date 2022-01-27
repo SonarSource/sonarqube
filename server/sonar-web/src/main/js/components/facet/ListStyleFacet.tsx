@@ -27,6 +27,7 @@ import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { queriesEqual } from '../../helpers/query';
+import { Dict, Paging, RawQuery } from '../../types/types';
 import FacetBox from './FacetBox';
 import FacetHeader from './FacetHeader';
 import FacetItem from './FacetItem';
@@ -37,7 +38,7 @@ import MultipleSelectionHint from './MultipleSelectionHint';
 interface SearchResponse<S> {
   maxResults?: boolean;
   results: S[];
-  paging?: T.Paging;
+  paging?: Paging;
 }
 
 export interface Props<S> {
@@ -49,23 +50,23 @@ export interface Props<S> {
   getFacetItemText: (item: string) => string;
   getSearchResultKey: (result: S) => string;
   getSearchResultText: (result: S) => string;
-  loadSearchResultCount?: (result: S[]) => Promise<T.Dict<number>>;
+  loadSearchResultCount?: (result: S[]) => Promise<Dict<number>>;
   maxInitialItems: number;
   maxItems: number;
   minSearchLength: number;
-  onChange: (changes: T.Dict<string | string[]>) => void;
+  onChange: (changes: Dict<string | string[]>) => void;
   onClear?: () => void;
   onItemClick?: (itemValue: string, multiple: boolean) => void;
   onSearch: (query: string, page?: number) => Promise<SearchResponse<S>>;
   onToggle: (property: string) => void;
   open: boolean;
   property: string;
-  query?: T.RawQuery;
+  query?: RawQuery;
   renderFacetItem: (item: string) => React.ReactNode;
   renderSearchResult: (result: S, query: string) => React.ReactNode;
   searchPlaceholder: string;
   getSortedItems?: () => string[];
-  stats: T.Dict<number> | undefined;
+  stats: Dict<number> | undefined;
   values: string[];
 }
 
@@ -74,9 +75,9 @@ interface State<S> {
   query: string;
   searching: boolean;
   searchMaxResults?: boolean;
-  searchPaging?: T.Paging;
+  searchPaging?: Paging;
   searchResults?: S[];
-  searchResultsCounts: T.Dict<number>;
+  searchResultsCounts: Dict<number>;
   showFullList: boolean;
 }
 
