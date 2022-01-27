@@ -19,6 +19,7 @@
  */
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
+import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
@@ -227,4 +228,4 @@ export class Conditions extends React.PureComponent<Props> {
   }
 }
 
-export default withAppState(Conditions);
+export default withAppState(withMetricsContext(Conditions));

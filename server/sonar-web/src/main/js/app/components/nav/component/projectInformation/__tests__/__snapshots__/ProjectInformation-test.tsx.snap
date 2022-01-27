@@ -57,16 +57,6 @@ exports[`should render correctly: default 1`] = `
           "tags": Array [],
         }
       }
-      metrics={
-        Object {
-          "coverage": Object {
-            "id": "coverage",
-            "key": "coverage",
-            "name": "Coverage",
-            "type": "PERCENT",
-          },
-        }
-      }
     />
   </InfoDrawerPage>
 </Fragment>
@@ -127,16 +117,6 @@ exports[`should render correctly: logged in user 1`] = `
             },
           ],
           "tags": Array [],
-        }
-      }
-      metrics={
-        Object {
-          "coverage": Object {
-            "id": "coverage",
-            "key": "coverage",
-            "name": "Coverage",
-            "type": "PERCENT",
-          },
         }
       }
     />
@@ -244,16 +224,6 @@ exports[`should render correctly: measures loaded 1`] = `
           "tags": Array [],
         }
       }
-      metrics={
-        Object {
-          "coverage": Object {
-            "id": "coverage",
-            "key": "coverage",
-            "name": "Coverage",
-            "type": "PERCENT",
-          },
-        }
-      }
     />
   </InfoDrawerPage>
 </Fragment>
@@ -316,16 +286,6 @@ exports[`should render correctly: private 1`] = `
           ],
           "tags": Array [],
           "visibility": "private",
-        }
-      }
-      metrics={
-        Object {
-          "coverage": Object {
-            "id": "coverage",
-            "key": "coverage",
-            "name": "Coverage",
-            "type": "PERCENT",
-          },
         }
       }
     />

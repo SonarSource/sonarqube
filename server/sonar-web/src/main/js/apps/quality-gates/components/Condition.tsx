@@ -20,11 +20,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { deleteCondition } from '../../../api/quality-gates';
+import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import { Condition as ConditionType, Metric, QualityGate } from '../../../types/types';
+import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 import ConditionModal from './ConditionModal';
 
@@ -36,6 +37,7 @@ interface Props {
   onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
   qualityGate: QualityGate;
   updated?: boolean;
+  metrics: Dict<Metric>;
 }
 
 interface State {
@@ -43,7 +45,7 @@ interface State {
   modal: boolean;
 }
 
-export default class Condition extends React.PureComponent<Props, State> {
+export class ConditionComponent extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -88,11 +90,11 @@ export default class Condition extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { condition, canEdit, metric, qualityGate, updated } = this.props;
+    const { condition, canEdit, metric, qualityGate, updated, metrics } = this.props;
     return (
       <tr className={classNames({ highlighted: updated })}>
         <td className="text-middle">
-          {getLocalizedMetricNameNoDiffMetric(metric)}
+          {getLocalizedMetricNameNoDiffMetric(metric, metrics)}
           {metric.hidden && (
             <span className="text-danger little-spacer-left">{translate('deprecated')}</span>
           )}
@@ -146,3 +148,5 @@ export default class Condition extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withMetricsContext(ConditionComponent);

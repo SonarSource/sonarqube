@@ -30,7 +30,7 @@ import { getBranchLikeQuery } from '../../../../../../helpers/branch-like';
 import { translate } from '../../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../../types/branch-like';
 import { MetricKey } from '../../../../../../types/metrics';
-import { Component, Dict, Metric } from '../../../../../../types/types';
+import { Component } from '../../../../../../types/types';
 import BadgeButton from './BadgeButton';
 import BadgeParams from './BadgeParams';
 import './styles.css';
@@ -38,7 +38,6 @@ import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
 
 interface Props {
   branchLike?: BranchLike;
-  metrics: Dict<Metric>;
   component: Component;
 }
 
@@ -137,7 +136,6 @@ export default class ProjectBadges extends React.PureComponent<Props, State> {
         </p>
         <BadgeParams
           className="big-spacer-bottom display-flex-column"
-          metrics={this.props.metrics}
           options={badgeOptions}
           type={selectedType}
           updateOptions={this.handleUpdateOptions}

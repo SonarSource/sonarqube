@@ -24,15 +24,12 @@ import { AppState, CurrentUserSettingNames } from '../types/types';
 import appState from './appState';
 import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
-import metrics, * as fromMetrics from './metrics';
 import users, * as fromUsers from './users';
 
 export type Store = {
   appState: AppState;
   branches: fromBranches.State;
   globalMessages: fromGlobalMessages.State;
-
-  metrics: fromMetrics.State;
   users: fromUsers.State;
 
   // apps
@@ -43,7 +40,6 @@ export default combineReducers<Store>({
   appState,
   branches,
   globalMessages,
-  metrics,
   users,
 
   // apps
@@ -64,18 +60,6 @@ export function getCurrentUserSetting(state: Store, key: CurrentUserSettingNames
 
 export function getCurrentUser(state: Store) {
   return fromUsers.getCurrentUser(state.users);
-}
-
-export function getMetrics(state: Store) {
-  return fromMetrics.getMetrics(state.metrics);
-}
-
-export function getMetricsKey(state: Store) {
-  return fromMetrics.getMetricsKey(state.metrics);
-}
-
-export function getMetricByKey(state: Store, key: string) {
-  return fromMetrics.getMetricByKey(state.metrics, key);
 }
 
 export function getGlobalSettingValue(state: Store, key: string) {

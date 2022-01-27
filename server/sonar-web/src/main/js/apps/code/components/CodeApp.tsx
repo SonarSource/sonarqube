@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /*
  * SonarQube
  * Copyright (C) 2009-2022 SonarSource SA
@@ -27,14 +28,14 @@ import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
-import { fetchBranchStatus, fetchMetrics } from '../../../store/rootActions';
-import { getMetrics } from '../../../store/rootReducer';
+import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
@@ -51,13 +52,8 @@ import Components from './Components';
 import Search from './Search';
 import SourceViewerWrapper from './SourceViewerWrapper';
 
-interface StateToProps {
-  metrics: Dict<Metric>;
-}
-
 interface DispatchToProps {
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
-  fetchMetrics: () => void;
 }
 
 interface OwnProps {
@@ -65,9 +61,10 @@ interface OwnProps {
   component: Component;
   location: Pick<Location, 'query'>;
   router: Pick<InjectedRouter, 'push'>;
+  metrics: Dict<Metric>;
 }
 
-type Props = StateToProps & DispatchToProps & OwnProps;
+type Props = DispatchToProps & OwnProps;
 
 interface State {
   baseComponent?: ComponentMeasure;
@@ -100,7 +97,6 @@ export class CodeApp extends React.Component<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchMetrics();
     this.handleComponentChange();
   }
 
@@ -408,16 +404,8 @@ const AlertContent = styled.div`
   align-items: center;
 `;
 
-const mapStateToProps = (state: any): StateToProps => ({
-  metrics: getMetrics(state)
-});
-
 const mapDispatchToProps: DispatchToProps = {
-  fetchBranchStatus: fetchBranchStatus as any,
-  fetchMetrics
+  fetchBranchStatus: fetchBranchStatus as any
 };
 
-export default connect<StateToProps, DispatchToProps, Props>(
-  mapStateToProps,
-  mapDispatchToProps
-)(CodeApp);
+export default connect(null, mapDispatchToProps)(withMetricsContext(CodeApp));

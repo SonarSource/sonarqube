@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { Metric } from '../../../../../../../types/types';
-import BadgeParams from '../BadgeParams';
+import { BadgeParams } from '../BadgeParams';
 import { BadgeType } from '../utils';
 
 jest.mock('../../../../../../../api/web-api', () => ({

@@ -44,8 +44,8 @@ exports[`should correctly switch scope 1`] = `
     >
       quality_gates.conditions.fails_when
     </label>
-    <MetricSelect
-      metrics={
+    <withMetricsContext(MetricSelectComponent)
+      metricsArray={
         Array [
           Object {
             "id": "new_coverage",
@@ -111,8 +111,8 @@ exports[`should correctly switch scope 2`] = `
     >
       quality_gates.conditions.fails_when
     </label>
-    <MetricSelect
-      metrics={
+    <withMetricsContext(MetricSelectComponent)
+      metricsArray={
         Array [
           Object {
             "id": "coverage",
@@ -178,8 +178,8 @@ exports[`should correctly switch scope 3`] = `
     >
       quality_gates.conditions.fails_when
     </label>
-    <MetricSelect
-      metrics={
+    <withMetricsContext(MetricSelectComponent)
+      metricsArray={
         Array [
           Object {
             "id": "new_coverage",
@@ -245,8 +245,8 @@ exports[`should render correctly 1`] = `
     >
       quality_gates.conditions.fails_when
     </label>
-    <MetricSelect
-      metrics={
+    <withMetricsContext(MetricSelectComponent)
+      metricsArray={
         Array [
           Object {
             "id": "new_coverage",
@@ -285,7 +285,7 @@ exports[`should render correctly 2`] = `
     >
       quality_gates.conditions.fails_when
     </label>
-    <MetricSelect
+    <withMetricsContext(MetricSelectComponent)
       metric={
         Object {
           "id": "coverage",
@@ -294,7 +294,7 @@ exports[`should render correctly 2`] = `
           "type": "PERCENT",
         }
       }
-      metrics={
+      metricsArray={
         Array [
           Object {
             "id": "new_coverage",

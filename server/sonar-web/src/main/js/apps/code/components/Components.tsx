@@ -40,9 +40,9 @@ const BASE_COLUMN_COUNT = 4;
 
 export class Components extends React.PureComponent<Props> {
   render() {
-    const { baseComponent, branchLike, components, rootComponent, selected } = this.props;
+    const { baseComponent, branchLike, components, rootComponent, selected, metrics } = this.props;
 
-    const colSpan = this.props.metrics.length + BASE_COLUMN_COUNT;
+    const colSpan = metrics.length + BASE_COLUMN_COUNT;
     const canBePinned = baseComponent && !['APP', 'VW', 'SVW'].includes(baseComponent.qualifier);
 
     return (
@@ -51,7 +51,7 @@ export class Components extends React.PureComponent<Props> {
           <ComponentsHeader
             baseComponent={baseComponent}
             canBePinned={canBePinned}
-            metrics={this.props.metrics.map(metric => metric.key)}
+            metrics={metrics.map(metric => metric.key)}
             rootComponent={rootComponent}
           />
         )}
@@ -65,7 +65,7 @@ export class Components extends React.PureComponent<Props> {
                 hasBaseComponent={false}
                 isBaseComponent={true}
                 key={baseComponent.key}
-                metrics={this.props.metrics}
+                metrics={metrics}
                 rootComponent={rootComponent}
               />
               <tr className="blank">

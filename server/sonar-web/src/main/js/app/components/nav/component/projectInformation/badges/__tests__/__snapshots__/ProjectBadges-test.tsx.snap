@@ -34,24 +34,8 @@ exports[`should display correctly 1`] = `
   >
     overview.badges.quality_gate.description.TRK
   </p>
-  <BadgeParams
+  <withMetricsContext(BadgeParams)
     className="big-spacer-bottom display-flex-column"
-    metrics={
-      Object {
-        "coverage": Object {
-          "id": "coverage",
-          "key": "coverage",
-          "name": "Coverage",
-          "type": "PERCENT",
-        },
-        "new_code_smells": Object {
-          "id": "new_code_smells",
-          "key": "new_code_smells",
-          "name": "New_code_smells",
-          "type": "PERCENT",
-        },
-      }
-    }
     options={
       Object {
         "metric": "alert_status",

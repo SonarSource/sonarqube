@@ -24,7 +24,7 @@ import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockCondition } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { addCondition, deleteCondition, replaceCondition } from '../../utils';
-import { Details } from '../Details';
+import Details from '../Details';
 
 jest.mock('../../../../api/quality-gates', () => {
   const { mockQualityGate } = jest.requireActual('../../../../helpers/mocks/quality-gates');
@@ -58,12 +58,6 @@ it('should refresh if the QG id changes', async () => {
 
   wrapper.setProps({ id: '2' });
   expect(fetchQualityGate).toBeCalledWith({ id: '2' });
-});
-
-it('should fetch metrics on mount', () => {
-  const fetchMetrics = jest.fn();
-  shallowRender({ fetchMetrics });
-  expect(fetchMetrics).toBeCalled();
 });
 
 it('should correctly add/replace/remove conditions', async () => {
@@ -120,9 +114,7 @@ it('should correctly handle setting default', async () => {
 function shallowRender(props: Partial<Details['props']> = {}) {
   return shallow<Details>(
     <Details
-      fetchMetrics={jest.fn()}
       id="1"
-      metrics={{}}
       onSetDefault={jest.fn()}
       qualityGates={[mockQualityGate()]}
       refreshQualityGates={jest.fn()}

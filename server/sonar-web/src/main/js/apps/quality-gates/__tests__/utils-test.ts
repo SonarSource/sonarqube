@@ -20,30 +20,27 @@
 import { mockMetric } from '../../../helpers/testMocks';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 
-jest.mock('../../../store/rootReducer', () => ({
-  getMetricByKey: (store: any, key: string) => store[key]
-}));
-
-jest.mock('../../../app/utils/getStore', () => () => ({
-  getState: () => ({
-    bugs: mockMetric({ key: 'bugs', name: 'Bugs' }),
-    existing_metric: mockMetric(),
-    new_maintainability_rating: mockMetric(),
-    sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' })
-  })
-}));
+const METRICS = {
+  bugs: mockMetric({ key: 'bugs', name: 'Bugs' }),
+  existing_metric: mockMetric(),
+  new_maintainability_rating: mockMetric(),
+  sqale_rating: mockMetric({ key: 'sqale_rating', name: 'Maintainability Rating' })
+};
 
 describe('getLocalizedMetricNameNoDiffMetric', () => {
   it('should return the correct corresponding metric', () => {
-    expect(getLocalizedMetricNameNoDiffMetric(mockMetric())).toBe('Coverage');
-    expect(getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_bugs' }))).toBe('Bugs');
+    expect(getLocalizedMetricNameNoDiffMetric(mockMetric(), {})).toBe('Coverage');
+    expect(getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_bugs' }), METRICS)).toBe(
+      'Bugs'
+    );
     expect(
       getLocalizedMetricNameNoDiffMetric(
-        mockMetric({ key: 'new_custom_metric', name: 'Custom Metric on New Code' })
+        mockMetric({ key: 'new_custom_metric', name: 'Custom Metric on New Code' }),
+        METRICS
       )
     ).toBe('Custom Metric on New Code');
     expect(
-      getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_maintainability_rating' }))
+      getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_maintainability_rating' }), METRICS)
     ).toBe('Maintainability Rating');
   });
 });

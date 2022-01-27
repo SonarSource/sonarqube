@@ -20,28 +20,33 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMetric } from '../../../../helpers/testMocks';
-import { MetricSelectComponent } from '../MetricSelect';
+import { Dict, Metric } from '../../../../types/types';
+import withMetricsContext from '../withMetricsContext';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+const metrics = {
+  coverage: mockMetric()
+};
+
+jest.mock('../MetricsContext', () => {
+  return {
+    MetricsContext: {
+      Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
+        return children({ metrics });
+      }
+    }
+  };
 });
 
-it('should correctly handle change', () => {
-  const onMetricChange = jest.fn();
-  const metric = mockMetric();
-  const metricsArray = [mockMetric({ key: 'duplication' }), metric];
-  const wrapper = shallowRender({ metricsArray, onMetricChange });
-  wrapper.instance().handleChange({ label: metric.name, value: metric.key });
-  expect(onMetricChange).toBeCalledWith(metric);
-});
-
-function shallowRender(props: Partial<MetricSelectComponent['props']> = {}) {
-  return shallow<MetricSelectComponent>(
-    <MetricSelectComponent
-      metricsArray={[mockMetric()]}
-      metrics={{}}
-      onMetricChange={jest.fn()}
-      {...props}
-    />
-  );
+class Wrapped extends React.Component<{ metrics: Dict<Metric> }> {
+  render() {
+    return <div />;
+  }
 }
+
+const UnderTest = withMetricsContext(Wrapped);
+
+it('should inject metrics', () => {
+  const wrapper = shallow(<UnderTest />);
+  expect(wrapper.dive().type()).toBe(Wrapped);
+  expect(wrapper.dive<Wrapped>().props().metrics).toEqual({ metrics });
+});

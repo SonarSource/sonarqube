@@ -19,14 +19,16 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { getLocalizedMetricDomain, translate } from '../../../helpers/l10n';
-import { Metric } from '../../../types/types';
+import { Dict, Metric } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 
 interface Props {
   metric?: Metric;
-  metrics: Metric[];
+  metricsArray: Metric[];
+  metrics: Dict<Metric>;
   onMetricChange: (metric: Metric) => void;
 }
 
@@ -36,10 +38,10 @@ interface Option {
   value: string;
 }
 
-export default class MetricSelect extends React.PureComponent<Props> {
+export class MetricSelectComponent extends React.PureComponent<Props> {
   handleChange = (option: Option | null) => {
     if (option) {
-      const { metrics } = this.props;
+      const { metricsArray: metrics } = this.props;
       const selectedMetric = metrics.find(metric => metric.key === option.value);
       if (selectedMetric) {
         this.props.onMetricChange(selectedMetric);
@@ -48,13 +50,13 @@ export default class MetricSelect extends React.PureComponent<Props> {
   };
 
   render() {
-    const { metric, metrics } = this.props;
+    const { metric, metricsArray, metrics } = this.props;
 
     const options: Array<Option & { domain?: string }> = sortBy(
-      metrics.map(metric => ({
-        value: metric.key,
-        label: getLocalizedMetricNameNoDiffMetric(metric),
-        domain: metric.domain
+      metricsArray.map(m => ({
+        value: m.key,
+        label: getLocalizedMetricNameNoDiffMetric(m, metrics),
+        domain: m.domain
       })),
       'domain'
     );
@@ -85,3 +87,5 @@ export default class MetricSelect extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withMetricsContext(MetricSelectComponent);

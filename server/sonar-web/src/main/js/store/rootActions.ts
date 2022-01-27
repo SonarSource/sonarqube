@@ -20,7 +20,6 @@
 import { InjectedRouter } from 'react-router';
 import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
-import { getAllMetrics } from '../api/metrics';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
@@ -29,18 +28,6 @@ import { Status } from '../types/types';
 import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
-import { receiveMetrics } from './metrics';
-
-export function fetchMetrics() {
-  return (dispatch: Dispatch) => {
-    getAllMetrics().then(
-      metrics => dispatch(receiveMetrics(metrics)),
-      () => {
-        /* do nothing */
-      }
-    );
-  };
-}
 
 export function fetchBranchStatus(branchLike: BranchLike, projectKey: string) {
   return (dispatch: Dispatch<any>) => {

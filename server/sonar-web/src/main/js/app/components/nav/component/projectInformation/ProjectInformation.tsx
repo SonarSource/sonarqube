@@ -21,12 +21,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { getMeasures } from '../../../../../api/measures';
 import { isLoggedIn } from '../../../../../helpers/users';
-import { fetchMetrics } from '../../../../../store/rootActions';
-import { getCurrentUser, getMetrics, Store } from '../../../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../../../store/rootReducer';
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { MetricKey } from '../../../../../types/metrics';
 import { Component, CurrentUser, Dict, Measure, Metric } from '../../../../../types/types';
+import withMetricsContext from '../../../metrics/withMetricsContext';
 import ProjectBadges from './badges/ProjectBadges';
 import InfoDrawerPage from './InfoDrawerPage';
 import ProjectNotifications from './notifications/ProjectNotifications';
@@ -38,7 +38,6 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   currentUser: CurrentUser;
-  fetchMetrics: () => void;
   onComponentChange: (changes: {}) => void;
   metrics: Dict<Metric>;
 }
@@ -56,7 +55,6 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchMetrics();
     this.loadMeasures();
   }
 
@@ -108,7 +106,7 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
           <InfoDrawerPage
             displayed={page === ProjectInformationPages.badges}
             onPageChange={this.setPage}>
-            <ProjectBadges branchLike={branchLike} metrics={metrics} component={component} />
+            <ProjectBadges branchLike={branchLike} component={component} />
           </InfoDrawerPage>
         )}
         {canConfigureNotifications && (
@@ -123,11 +121,8 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { fetchMetrics };
-
 const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state),
-  metrics: getMetrics(state)
+  currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectInformation);
+export default connect(mapStateToProps)(withMetricsContext(ProjectInformation));

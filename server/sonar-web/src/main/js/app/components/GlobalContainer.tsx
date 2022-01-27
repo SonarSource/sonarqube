@@ -27,6 +27,7 @@ import GlobalMessagesContainer from './GlobalMessagesContainer';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguageContextProvider from './languages/LanguagesContextProvider';
+import MetricContextProvider from './metrics/MetricsContextProvider';
 import GlobalNav from './nav/global/GlobalNav';
 import PromotionNotification from './promotion-notification/PromotionNotification';
 import StartupModal from './StartupModal';
@@ -53,11 +54,13 @@ export default function GlobalContainer(props: Props) {
                 <Workspace>
                   <IndexationContextProvider>
                     <LanguageContextProvider>
-                      <GlobalNav location={props.location} />
-                      <GlobalMessagesContainer />
-                      <IndexationNotification />
-                      <UpdateNotification dismissable={true} />
-                      {props.children}
+                      <MetricContextProvider>
+                        <GlobalNav location={props.location} />
+                        <GlobalMessagesContainer />
+                        <IndexationNotification />
+                        <UpdateNotification dismissable={true} />
+                        {props.children}
+                      </MetricContextProvider>
                     </LanguageContextProvider>
                   </IndexationContextProvider>
                 </Workspace>

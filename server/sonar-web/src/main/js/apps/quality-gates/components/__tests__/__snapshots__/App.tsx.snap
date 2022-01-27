@@ -79,7 +79,7 @@ exports[`should render correctly: default gate 1`] = `
     >
       <Component />
     </ScreenPositionHelper>
-    <Connect(Details)
+    <Details
       id="2"
       onSetDefault={[Function]}
       qualityGates={
@@ -121,7 +121,7 @@ exports[`should render correctly: specific gate 1`] = `
     >
       <Component />
     </ScreenPositionHelper>
-    <Connect(Details)
+    <Details
       id="1"
       onSetDefault={[Function]}
       qualityGates={

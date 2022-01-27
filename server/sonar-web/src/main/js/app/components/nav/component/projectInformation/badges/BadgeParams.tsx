@@ -23,6 +23,7 @@ import { fetchWebApi } from '../../../../../../api/web-api';
 import SelectLegacy from '../../../../../../components/controls/SelectLegacy';
 import { getLocalizedMetricName, translate } from '../../../../../../helpers/l10n';
 import { Dict, Metric } from '../../../../../../types/types';
+import withMetricsContext from '../../../../metrics/withMetricsContext';
 import { BadgeFormats, BadgeOptions, BadgeType } from './utils';
 
 interface Props {
@@ -37,7 +38,7 @@ interface State {
   badgeMetrics: string[];
 }
 
-export default class BadgeParams extends React.PureComponent<Props> {
+export class BadgeParams extends React.PureComponent<Props> {
   mounted = false;
 
   state: State = { badgeMetrics: [] };
@@ -118,9 +119,8 @@ export default class BadgeParams extends React.PureComponent<Props> {
           />
         </>
       );
-    } else {
-      return null;
     }
+    return null;
   };
 
   render() {
@@ -149,3 +149,5 @@ export default class BadgeParams extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withMetricsContext(BadgeParams);

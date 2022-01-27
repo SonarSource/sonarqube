@@ -26,7 +26,6 @@ exports[`should render correctly: loaded 1`] = `
     />
     <Memo(DetailsContent)
       isDefault={false}
-      metrics={Object {}}
       onAddCondition={[Function]}
       onRemoveCondition={[Function]}
       onSaveCondition={[Function]}

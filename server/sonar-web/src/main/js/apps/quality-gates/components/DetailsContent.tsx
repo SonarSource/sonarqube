@@ -21,14 +21,13 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
+import { Condition, QualityGate } from '../../../types/types';
 import Conditions from './Conditions';
 import Projects from './Projects';
 import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
   isDefault?: boolean;
-  metrics: Dict<Metric>;
   onAddCondition: (condition: Condition) => void;
   onRemoveCondition: (Condition: Condition) => void;
   onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
@@ -37,7 +36,7 @@ export interface DetailsContentProps {
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { isDefault, metrics, qualityGate, updatedConditionId } = props;
+  const { isDefault, qualityGate, updatedConditionId } = props;
   const conditions = qualityGate.conditions || [];
   const actions = qualityGate.actions || {};
 
@@ -52,7 +51,6 @@ export function DetailsContent(props: DetailsContentProps) {
       <Conditions
         canEdit={Boolean(actions.manageConditions)}
         conditions={conditions}
-        metrics={metrics}
         onAddCondition={props.onAddCondition}
         onRemoveCondition={props.onRemoveCondition}
         onSaveCondition={props.onSaveCondition}

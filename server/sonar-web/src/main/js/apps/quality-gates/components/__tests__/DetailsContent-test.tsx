@@ -39,7 +39,6 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<DetailsContentProps> = {}) {
   return shallow(
     <DetailsContent
-      metrics={{}}
       onAddCondition={jest.fn()}
       onRemoveCondition={jest.fn()}
       onSaveCondition={jest.fn()}

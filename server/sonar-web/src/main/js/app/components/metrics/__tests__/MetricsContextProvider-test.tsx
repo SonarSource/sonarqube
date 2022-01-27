@@ -17,31 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { getAllMetrics } from '../../../../api/metrics';
 import { mockMetric } from '../../../../helpers/testMocks';
-import { MetricSelectComponent } from '../MetricSelect';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import MetricContextProvider from '../MetricsContextProvider';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+jest.mock('../../../../api/metrics', () => ({
+  getAllMetrics: jest.fn().mockResolvedValue({})
+}));
+
+it('should call metric', async () => {
+  const metrics = { coverage: mockMetric() };
+  (getAllMetrics as jest.Mock).mockResolvedValueOnce(Object.values(metrics));
+  const wrapper = shallowRender();
+
+  expect(getAllMetrics).toBeCalled();
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state()).toEqual({ metrics });
 });
 
-it('should correctly handle change', () => {
-  const onMetricChange = jest.fn();
-  const metric = mockMetric();
-  const metricsArray = [mockMetric({ key: 'duplication' }), metric];
-  const wrapper = shallowRender({ metricsArray, onMetricChange });
-  wrapper.instance().handleChange({ label: metric.name, value: metric.key });
-  expect(onMetricChange).toBeCalledWith(metric);
-});
-
-function shallowRender(props: Partial<MetricSelectComponent['props']> = {}) {
-  return shallow<MetricSelectComponent>(
-    <MetricSelectComponent
-      metricsArray={[mockMetric()]}
-      metrics={{}}
-      onMetricChange={jest.fn()}
-      {...props}
-    />
+function shallowRender() {
+  return shallow<MetricContextProvider>(
+    <MetricContextProvider>
+      <div />
+    </MetricContextProvider>
   );
 }

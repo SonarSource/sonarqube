@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
 import { mockCondition, mockMetric } from '../../../../helpers/testMocks';
-import Condition from '../Condition';
+import { ConditionComponent } from '../Condition';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
@@ -41,12 +41,13 @@ it('should render the delete modal correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<Condition['props']> = {}) {
-  return shallow<Condition>(
-    <Condition
+function shallowRender(props: Partial<ConditionComponent['props']> = {}) {
+  return shallow<ConditionComponent>(
+    <ConditionComponent
       canEdit={false}
       condition={mockCondition()}
       metric={mockMetric()}
+      metrics={{}}
       onRemoveCondition={jest.fn()}
       onSaveCondition={jest.fn()}
       qualityGate={mockQualityGate()}

@@ -71,7 +71,6 @@ function shallowRender(props: Partial<ProjectInformation['props']> = {}) {
     <ProjectInformation
       component={mockComponent()}
       currentUser={mockCurrentUser()}
-      fetchMetrics={jest.fn()}
       metrics={{
         coverage: mockMetric()
       }}

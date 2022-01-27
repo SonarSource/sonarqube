@@ -268,7 +268,6 @@ function shallowRender(props: Partial<CodeApp['props']> = {}) {
         qualifier: 'FOO'
       }}
       fetchBranchStatus={jest.fn()}
-      fetchMetrics={jest.fn()}
       location={{ query: { branch: 'b', id: 'foo', line: '7' } }}
       metrics={METRICS}
       router={mockRouter()}

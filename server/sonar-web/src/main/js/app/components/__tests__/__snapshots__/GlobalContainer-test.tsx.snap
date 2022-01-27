@@ -18,25 +18,27 @@ exports[`should render correctly 1`] = `
             <Workspace>
               <Connect(withAppState(IndexationContextProvider))>
                 <LanguageContextProvider>
-                  <Connect(GlobalNav)
-                    location={
-                      Object {
-                        "action": "PUSH",
-                        "hash": "",
-                        "key": "key",
-                        "pathname": "/path",
-                        "query": Object {},
-                        "search": "",
-                        "state": Object {},
+                  <MetricContextProvider>
+                    <Connect(GlobalNav)
+                      location={
+                        Object {
+                          "action": "PUSH",
+                          "hash": "",
+                          "key": "key",
+                          "pathname": "/path",
+                          "query": Object {},
+                          "search": "",
+                          "state": Object {},
+                        }
                       }
-                    }
-                  />
-                  <Connect(GlobalMessages) />
-                  <Connect(withCurrentUser(withIndexationContext(IndexationNotification))) />
-                  <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
-                    dismissable={true}
-                  />
-                  <ChildComponent />
+                    />
+                    <Connect(GlobalMessages) />
+                    <Connect(withCurrentUser(withIndexationContext(IndexationNotification))) />
+                    <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
+                      dismissable={true}
+                    />
+                    <ChildComponent />
+                  </MetricContextProvider>
                 </LanguageContextProvider>
               </Connect(withAppState(IndexationContextProvider))>
             </Workspace>

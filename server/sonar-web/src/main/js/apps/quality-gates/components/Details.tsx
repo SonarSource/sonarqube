@@ -19,34 +19,21 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { fetchQualityGate } from '../../../api/quality-gates';
 import addGlobalSuccessMessage from '../../../app/utils/addGlobalSuccessMessage';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { fetchMetrics } from '../../../store/rootActions';
-import { getMetrics, Store } from '../../../store/rootReducer';
-import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
+import { Condition, QualityGate } from '../../../types/types';
 import { addCondition, checkIfDefault, deleteCondition, replaceCondition } from '../utils';
 import DetailsContent from './DetailsContent';
 import DetailsHeader from './DetailsHeader';
 
-interface OwnProps {
+interface Props {
   id: string;
   onSetDefault: (qualityGate: QualityGate) => void;
   qualityGates: QualityGate[];
   refreshQualityGates: () => Promise<void>;
 }
-
-interface StateToProps {
-  metrics: Dict<Metric>;
-}
-
-interface DispatchToProps {
-  fetchMetrics: () => void;
-}
-
-type Props = StateToProps & DispatchToProps & OwnProps;
 
 interface State {
   loading: boolean;
@@ -54,13 +41,12 @@ interface State {
   updatedConditionId?: number;
 }
 
-export class Details extends React.PureComponent<Props, State> {
+export default class Details extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchMetrics();
     this.fetchDetails();
   }
 
@@ -145,7 +131,7 @@ export class Details extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { metrics, refreshQualityGates } = this.props;
+    const { refreshQualityGates } = this.props;
     const { loading, qualityGate, updatedConditionId } = this.state;
 
     return (
@@ -162,7 +148,6 @@ export class Details extends React.PureComponent<Props, State> {
               />
               <DetailsContent
                 isDefault={checkIfDefault(qualityGate, this.props.qualityGates)}
-                metrics={metrics}
                 onAddCondition={this.handleAddCondition}
                 onRemoveCondition={this.handleRemoveCondition}
                 onSaveCondition={this.handleSaveCondition}
@@ -176,11 +161,3 @@ export class Details extends React.PureComponent<Props, State> {
     );
   }
 }
-
-const mapDispatchToProps: DispatchToProps = { fetchMetrics };
-
-const mapStateToProps = (state: Store): StateToProps => ({
-  metrics: getMetrics(state)
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Details);

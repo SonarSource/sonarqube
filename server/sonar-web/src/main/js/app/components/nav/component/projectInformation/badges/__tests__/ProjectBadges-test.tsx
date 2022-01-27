@@ -23,11 +23,9 @@ import { getProjectBadgesToken } from '../../../../../../../api/project-badges';
 import CodeSnippet from '../../../../../../../components/common/CodeSnippet';
 import { mockBranch } from '../../../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../../../helpers/mocks/component';
-import { mockMetric } from '../../../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../../../helpers/testUtils';
 import { Location } from '../../../../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../../../../types/component';
-import { MetricKey } from '../../../../../../../types/metrics';
 import BadgeButton from '../BadgeButton';
 import ProjectBadges from '../ProjectBadges';
 
@@ -73,10 +71,6 @@ function shallowRender(overrides = {}) {
   return shallow(
     <ProjectBadges
       branchLike={mockBranch()}
-      metrics={{
-        [MetricKey.coverage]: mockMetric({ key: MetricKey.coverage }),
-        [MetricKey.new_code_smells]: mockMetric({ key: MetricKey.new_code_smells })
-      }}
       component={mockComponent({ key: 'foo', qualifier: ComponentQualifier.Project })}
       {...overrides}
     />

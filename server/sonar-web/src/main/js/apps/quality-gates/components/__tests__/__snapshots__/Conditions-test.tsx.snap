@@ -63,7 +63,7 @@ exports[`should render correctly 1`] = `
         </tr>
       </thead>
       <tbody>
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -92,7 +92,7 @@ exports[`should render correctly 1`] = `
           }
           updated={false}
         />
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -221,7 +221,7 @@ exports[`should render correctly with an updated condition 1`] = `
         </tr>
       </thead>
       <tbody>
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -250,7 +250,7 @@ exports[`should render correctly with an updated condition 1`] = `
           }
           updated={true}
         />
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -348,7 +348,7 @@ exports[`should render correctly with new code conditions 1`] = `
         </tr>
       </thead>
       <tbody>
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -377,7 +377,7 @@ exports[`should render correctly with new code conditions 1`] = `
           }
           updated={false}
         />
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -449,7 +449,7 @@ exports[`should render correctly with new code conditions 1`] = `
         </tr>
       </thead>
       <tbody>
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -478,7 +478,7 @@ exports[`should render correctly with new code conditions 1`] = `
           }
           updated={false}
         />
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={false}
           condition={
             Object {
@@ -595,7 +595,7 @@ exports[`should render the add conditions button and modal 1`] = `
         </tr>
       </thead>
       <tbody>
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={true}
           condition={
             Object {
@@ -624,7 +624,7 @@ exports[`should render the add conditions button and modal 1`] = `
           }
           updated={false}
         />
-        <Condition
+        <withMetricsContext(ConditionComponent)
           canEdit={true}
           condition={
             Object {

@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getStore from '../../app/utils/getStore';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { getMetricByKey } from '../../store/rootReducer';
-import { Condition, Metric, QualityGate } from '../../types/types';
+import { Condition, Dict, Metric, QualityGate } from '../../types/types';
 
 export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
   const finding = list.find(candidate => candidate.id === qualityGate.id);
@@ -58,27 +56,24 @@ export function getPossibleOperators(metric: Metric) {
     return 'LT';
   } else if (metric.direction === -1) {
     return 'GT';
-  } else {
-    return ['LT', 'GT'];
   }
+  return ['LT', 'GT'];
 }
 
-export function metricKeyExists(key: string) {
-  return getMetricByKey(getStore().getState(), key) !== undefined;
+function metricKeyExists(key: string, metrics: Dict<Metric>) {
+  return metrics && metrics[key] !== undefined;
 }
 
-function getNoDiffMetric(metric: Metric) {
-  const store = getStore().getState();
+function getNoDiffMetric(metric: Metric, metrics: Dict<Metric>) {
   const regularMetricKey = metric.key.replace(/^new_/, '');
-  if (isDiffMetric(metric.key) && metricKeyExists(regularMetricKey)) {
-    return getMetricByKey(store, regularMetricKey);
+  if (isDiffMetric(metric.key) && metricKeyExists(regularMetricKey, metrics)) {
+    return metrics[regularMetricKey];
   } else if (metric.key === 'new_maintainability_rating') {
-    return getMetricByKey(store, 'sqale_rating') || metric;
-  } else {
-    return metric;
+    return metrics['sqale_rating'] || metric;
   }
+  return metric;
 }
 
-export function getLocalizedMetricNameNoDiffMetric(metric: Metric) {
-  return getLocalizedMetricName(getNoDiffMetric(metric));
+export function getLocalizedMetricNameNoDiffMetric(metric: Metric, metrics: Dict<Metric>) {
+  return getLocalizedMetricName(getNoDiffMetric(metric, metrics));
 }

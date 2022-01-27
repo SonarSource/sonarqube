@@ -112,7 +112,7 @@ exports[`renders correctly: default 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(ProjectInformation)
+    <Connect(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -306,7 +306,7 @@ exports[`renders correctly: has failed notification 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(ProjectInformation)
+    <Connect(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -486,7 +486,7 @@ exports[`renders correctly: has failed project binding 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(ProjectInformation)
+    <Connect(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -668,7 +668,7 @@ exports[`renders correctly: has in progress notification 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(ProjectInformation)
+    <Connect(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -850,7 +850,7 @@ exports[`renders correctly: has pending notification 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(ProjectInformation)
+    <Connect(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -1005,7 +1005,7 @@ exports[`renders correctly: has warnings 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(ProjectInformation)
+    <Connect(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
