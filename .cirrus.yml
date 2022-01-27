@@ -399,6 +399,28 @@ qa_gitlab_task:
   on_failure:
     <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
+qa_gitlab_cloud_task:
+  <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  depends_on:
+    - build
+    - docker_gitlab_container_build
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 2.4
+    memory: 5Gb
+    use_in_memory_disk: true
+  env:
+    QA_CATEGORY: GITLAB_CLOUD
+    GITLAB_API_TOKEN: ENCRYPTED[a64a349d6185822adb17480cf507583fea6ba13b53edd4be6fb0eae76cf573bf7e68d560b7e57e1cc304cc719845c223]
+    GITLAB_READ_ONLY_TOKEN: ENCRYPTED[29eb9c8643123f871329f0a88b540af401eb7f3f6f70447e0c80a955002f7998867faf2007bbb1b11880473f69384af9]
+    GITLAB_ADMIN_USERNAME: ENCRYPTED[9bce572f769cb5432a691418879d7ab9bd74727bb9c16abe31af1b1beffabdce1720b9d8c888c37a3ce589473b44d5be]
+    GITLAB_ADMIN_PASSWORD: ENCRYPTED[78e94b179d425e87d8f8b9ccaa1d117d8ffaec71eaee8ca7a3e36d1a885b85a61695f55031ab786af04d2181e3eadeb2]
+  script:
+    - ./private/cirrus/cirrus-qa.sh h2
+  on_failure:
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+
 # Azure QA is executed in a dedicated task in order to not slow down the pipeline.
 qa_azure_task:
   <<: *ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
