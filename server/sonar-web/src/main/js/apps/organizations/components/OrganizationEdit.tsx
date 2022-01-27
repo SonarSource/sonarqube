@@ -29,6 +29,7 @@ import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { hasAdvancedALMIntegration } from '../../../helpers/almIntegrations';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import OrganizationUrlInput from '../../create/components/OrganizationUrlInput';
 
 interface DispatchProps {
   updateOrganization: (organization: string, changes: T.OrganizationBase) => Promise<any>;
@@ -103,6 +104,19 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
       this.setState({ loading: false });
     }
   };
+
+  handleUrlUpdate = (url: string) => {
+    this.setState({ url });
+  };
+
+  canSubmit = (state: State) => {
+    return Boolean(
+      state.name !== undefined &&
+      state.description !== undefined &&
+      state.avatar !== undefined &&
+      state.url !== undefined
+    );
+  }
 
   render() {
     const { currentUser, organization } = this.props;
@@ -190,22 +204,12 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
               </div>
             </div>
             <div className="form-field">
-              <label htmlFor="organization-url">{translate('organization.url')}</label>
-              <input
-                className="input-super-large"
-                disabled={this.state.loading}
-                id="organization-url"
-                maxLength={256}
-                name="url"
-                onChange={e => this.setState({ url: e.target.value })}
-                type="text"
-                value={this.state.url}
-              />
+              <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
               <div className="form-field-description">
                 {translate('organization.url.description')}
               </div>
             </div>
-            <SubmitButton disabled={this.state.loading}>{translate('save')}</SubmitButton>
+            <SubmitButton disabled={this.state.loading || !this.canSubmit(this.state)}>{translate('save')}</SubmitButton>
             {this.state.loading && <i className="spinner spacer-left" />}
           </form>
         </div>
