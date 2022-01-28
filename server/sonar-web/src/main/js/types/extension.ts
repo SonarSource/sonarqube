@@ -22,7 +22,7 @@ import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
 import { AppState } from './appstate';
-import { L10nBundle } from './l10n';
+import { L10nBundle } from './l10nBundle';
 import { Dict } from './types';
 import { CurrentUser } from './users';
 

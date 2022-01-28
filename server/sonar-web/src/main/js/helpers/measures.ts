@@ -23,7 +23,8 @@ import {
   QualityGateStatusConditionEnhanced
 } from '../types/quality-gates';
 import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
-import { getCurrentLocale, translate, translateWithParameters } from './l10n';
+import { translate, translateWithParameters } from './l10n';
+import { getCurrentLocale } from './l10nBundle';
 import { isDefined } from './types';
 
 export function enhanceMeasuresWithMetrics(

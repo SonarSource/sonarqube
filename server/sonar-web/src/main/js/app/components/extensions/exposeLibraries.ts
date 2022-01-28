@@ -87,6 +87,7 @@ import {
   isPullRequest,
   sortBranches
 } from '../../../helpers/branch-like';
+import { throwGlobalError } from '../../../helpers/error';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import * as measures from '../../../helpers/measures';
@@ -119,7 +120,6 @@ import {
   getRulesUrl
 } from '../../../helpers/urls';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
-import throwGlobalError from '../../utils/throwGlobalError';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
 import Suggestions from '../embed-docs-modal/Suggestions';
 

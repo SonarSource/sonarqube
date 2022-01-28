@@ -20,7 +20,7 @@
 import { differenceInDays } from 'date-fns';
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { showLicense } from '../../../api/marketplace';
+import { showLicense } from '../../../api/editions';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { hasMessage } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
@@ -30,7 +30,7 @@ import { EditionKey } from '../../../types/editions';
 import { LoggedInUser } from '../../../types/users';
 import { StartupModal } from '../StartupModal';
 
-jest.mock('../../../api/marketplace', () => ({
+jest.mock('../../../api/editions', () => ({
   showLicense: jest.fn().mockResolvedValue(undefined)
 }));
 

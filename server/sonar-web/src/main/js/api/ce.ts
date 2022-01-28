@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../app/utils/throwGlobalError';
+import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, RequestData } from '../helpers/request';
 import { IndexationStatus } from '../types/indexation';
 import { Task, TaskWarning } from '../types/tasks';

@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { resetMessages } from '../l10n';
+
+import { Dict } from '../../types/types';
+import { getMessages } from '../l10nBundle';
 import {
   enhanceConditionWithMeasure,
   formatMeasure,
@@ -26,6 +28,36 @@ import {
 } from '../measures';
 import { mockQualityGateStatusCondition } from '../mocks/quality-gates';
 import { mockMeasureEnhanced, mockMetric } from '../testMocks';
+
+jest.unmock('../l10n');
+
+jest.mock('../l10nBundle', () => ({
+  getCurrentLocale: jest.fn().mockReturnValue('us'),
+  getMessages: jest.fn().mockReturnValue({})
+}));
+
+const resetMessages = (messages: Dict<string>) =>
+  (getMessages as jest.Mock).mockReturnValue(messages);
+
+beforeAll(() => {
+  resetMessages({
+    'work_duration.x_days': '{0}d',
+    'work_duration.x_hours': '{0}h',
+    'work_duration.x_minutes': '{0}min',
+    'work_duration.about': '~ {0}',
+    'metric.level.ERROR': 'Error',
+    'metric.level.WARN': 'Warning',
+    'metric.level.OK': 'Ok',
+    'short_number_suffix.g': 'G',
+    'short_number_suffix.k': 'k',
+    'short_number_suffix.m': 'M'
+  });
+});
+
+const HOURS_IN_DAY = 8;
+const ONE_MINUTE = 1;
+const ONE_HOUR = ONE_MINUTE * 60;
+const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
 describe('enhanceConditionWithMeasure', () => {
   it('should correctly map enhance conditions with measure data', () => {
@@ -69,30 +101,6 @@ describe('isPeriodBestValue', () => {
       )
     ).toBe(true);
   });
-});
-
-const HOURS_IN_DAY = 8;
-const ONE_MINUTE = 1;
-const ONE_HOUR = ONE_MINUTE * 60;
-const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
-
-beforeAll(() => {
-  resetMessages({
-    'work_duration.x_days': '{0}d',
-    'work_duration.x_hours': '{0}h',
-    'work_duration.x_minutes': '{0}min',
-    'work_duration.about': '~ {0}',
-    'metric.level.ERROR': 'Error',
-    'metric.level.WARN': 'Warning',
-    'metric.level.OK': 'Ok',
-    'short_number_suffix.g': 'G',
-    'short_number_suffix.k': 'k',
-    'short_number_suffix.m': 'M'
-  });
-});
-
-afterAll(() => {
-  resetMessages({});
 });
 
 describe('#formatMeasure()', () => {

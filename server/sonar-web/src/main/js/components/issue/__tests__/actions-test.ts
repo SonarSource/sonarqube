@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../../../app/utils/throwGlobalError';
+import { throwGlobalError } from '../../../helpers/error';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockIssue } from '../../../helpers/testMocks';
 import { updateIssue } from '../actions';
 
-jest.mock('../../../app/utils/throwGlobalError', () => jest.fn());
+jest.mock('../../../helpers/error', () => ({ throwGlobalError: jest.fn() }));
 
 jest.mock('../../../helpers/issues', () => ({
   parseIssueFromResponse: jest.fn()

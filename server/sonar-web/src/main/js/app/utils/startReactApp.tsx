@@ -21,7 +21,7 @@
 import { Location } from 'history';
 import { pick } from 'lodash';
 import * as React from 'react';
-import ReactDom, { render } from 'react-dom';
+import { render } from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
@@ -69,15 +69,8 @@ import GlobalContainer from '../components/GlobalContainer';
 import { PageContext } from '../components/indexation/PageUnavailableDueToIndexation';
 import MigrationContainer from '../components/MigrationContainer';
 import NonAdminPagesContainer from '../components/NonAdminPagesContainer';
+import exportModulesAsGlobals from './exportModulesAsGlobals';
 import getStore from './getStore';
-
-/*
- * Expose dependencies to extensions
- */
-function attachToGlobal() {
-  window.React = React;
-  window.ReactDOM = ReactDom;
-}
 
 function handleUpdate(this: { state: { location: Location } }) {
   const { action } = this.state.location;
@@ -202,7 +195,10 @@ function renderComponentRoutes() {
               if (query.types === 'SECURITY_HOTSPOT') {
                 replace({
                   pathname: '/security_hotspots',
-                  query: { ...pick(query, ['id', 'branch', 'pullRequest']), assignedToMe: false }
+                  query: {
+                    ...pick(query, ['id', 'branch', 'pullRequest']),
+                    assignedToMe: false
+                  }
                 });
               } else {
                 query.types = query.types
@@ -282,7 +278,7 @@ function renderAdminRoutes() {
 }
 
 export default function startReactApp(lang: string, appState: AppState, currentUser?: CurrentUser) {
-  attachToGlobal();
+  exportModulesAsGlobals();
 
   const el = document.getElementById('content');
 

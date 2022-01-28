@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { findLastIndex } from 'lodash';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import { throwGlobalError } from '../helpers/error';
 import { getJSON, post } from '../helpers/request';
 import { isDefined } from '../helpers/types';
 import {

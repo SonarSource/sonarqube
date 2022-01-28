@@ -19,7 +19,7 @@
  */
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
-import { showLicense } from '../../api/marketplace';
+import { showLicense } from '../../api/editions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import { parseDate, toShortNotSoISOString } from '../../helpers/dates';

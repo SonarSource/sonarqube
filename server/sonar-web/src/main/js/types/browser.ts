@@ -27,6 +27,6 @@ export interface EnhancedWindow extends Window {
   instance: InstanceType;
   official: boolean;
 
-  registerExtension: (key: string, start: ExtensionStartMethod) => void;
+  registerExtension: (key: string, start: ExtensionStartMethod, providesCSSFile?: boolean) => void;
   setWebAnalyticsPageChangeHandler: (pageHandler: (pathname: string) => void) => void;
 }

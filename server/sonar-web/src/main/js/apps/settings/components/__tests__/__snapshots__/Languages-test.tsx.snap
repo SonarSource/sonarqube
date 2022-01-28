@@ -16,17 +16,17 @@ exports[`should render correctly 1`] = `
       options={
         Array [
           Object {
-            "label": "Java",
+            "label": "property.category.Java",
             "originalValue": "Java",
             "value": "java",
           },
           Object {
-            "label": "JavaScript",
+            "label": "property.category.JavaScript",
             "originalValue": "JavaScript",
             "value": "javascript",
           },
           Object {
-            "label": "COBOL",
+            "label": "property.category.COBOL",
             "originalValue": "COBOL",
             "value": "cobol",
           },
@@ -63,17 +63,17 @@ exports[`should render correctly with an unknow language 1`] = `
       options={
         Array [
           Object {
-            "label": "Java",
+            "label": "property.category.Java",
             "originalValue": "Java",
             "value": "java",
           },
           Object {
-            "label": "JavaScript",
+            "label": "property.category.JavaScript",
             "originalValue": "JavaScript",
             "value": "javascript",
           },
           Object {
-            "label": "COBOL",
+            "label": "property.category.COBOL",
             "originalValue": "COBOL",
             "value": "cobol",
           },

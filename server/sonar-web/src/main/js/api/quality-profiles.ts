@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { map } from 'lodash';
-import throwGlobalError from '../app/utils/throwGlobalError';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { csvEscape } from '../helpers/csv';
+import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 

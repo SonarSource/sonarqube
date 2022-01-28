@@ -20,12 +20,12 @@
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { createUser, updateUser } from '../../../api/users';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import { User } from '../../../types/users';

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import getStore from '../getStore';
-import throwGlobalError from '../throwGlobalError';
+import getStore from '../../app/utils/getStore';
+import { throwGlobalError } from '../error';
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -35,7 +35,9 @@ it('should put the error message in the store', async () => {
 
   // We need to catch because throwGlobalError rethrows after displaying the message
   await throwGlobalError(response)
-    .then(() => fail('Should throw'))
+    .then(() => {
+      throw new Error('Should throw');
+    })
     .catch(() => {});
 
   expect(getStore().getState().globalMessages[0]).toMatchObject({
@@ -50,7 +52,9 @@ it('should put a default error messsage in the store', async () => {
 
   // We need to catch because throwGlobalError rethrows after displaying the message
   await throwGlobalError(response)
-    .then(() => fail('Should throw'))
+    .then(() => {
+      throw new Error('Should throw');
+    })
     .catch(() => {});
 
   expect(getStore().getState().globalMessages[0]).toMatchObject({
@@ -63,7 +67,9 @@ it('should handle weird response types', () => {
   const response = { weird: 'response type' };
 
   return throwGlobalError(response)
-    .then(() => fail('Should throw'))
+    .then(() => {
+      throw new Error('Should throw');
+    })
     .catch(error => {
       expect(error).toBe(response);
     });
@@ -78,7 +84,9 @@ it('should unwrap response if necessary', async () => {
 
   // We need to catch because throwGlobalError rethrows after displaying the message
   await throwGlobalError({ response })
-    .then(() => fail('Should throw'))
+    .then(() => {
+      throw new Error('Should throw');
+    })
     .catch(() => {});
 
   /* eslint-disable-next-line no-console */

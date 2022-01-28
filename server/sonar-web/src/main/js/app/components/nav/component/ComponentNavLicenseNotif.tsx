@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { isValidLicense } from '../../../../api/marketplace';
+import { isValidLicense } from '../../../../api/editions';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AppState } from '../../../../types/appstate';

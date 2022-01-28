@@ -32,3 +32,20 @@ export interface Edition {
   key: EditionKey;
   name: string;
 }
+
+export interface License {
+  contactEmail: string;
+  edition: string;
+  expiresAt: string;
+  isExpired: boolean;
+  isOfficialDistribution: boolean;
+  isSupported: boolean;
+  isValidEdition: boolean;
+  isValidServerId: boolean;
+  loc: number;
+  maxLoc: number;
+  plugins: string[];
+  remainingLocThreshold: number;
+  serverId: string;
+  type: string;
+}

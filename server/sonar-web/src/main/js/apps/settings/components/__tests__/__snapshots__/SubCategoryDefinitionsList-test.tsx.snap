@@ -11,8 +11,16 @@ exports[`should render correctly 1`] = `
       className="settings-sub-category-name"
       data-key="email"
     >
-      email
+      property.category.general.email
     </h2>
+    <div
+      className="settings-sub-category-description markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.category.general.email.description",
+        }
+      }
+    />
     <DefinitionsList
       scrollToDefinition={[Function]}
       settings={
@@ -45,8 +53,16 @@ exports[`should render correctly 1`] = `
       className="settings-sub-category-name"
       data-key="qg"
     >
-      qg
+      property.category.general.qg
     </h2>
+    <div
+      className="settings-sub-category-description markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.category.general.qg.description",
+        }
+      }
+    />
     <DefinitionsList
       scrollToDefinition={[Function]}
       settings={
@@ -83,8 +99,16 @@ exports[`should render correctly: subcategory 1`] = `
       className="settings-sub-category-name"
       data-key="qg"
     >
-      qg
+      property.category.general.qg
     </h2>
+    <div
+      className="settings-sub-category-description markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.category.general.qg.description",
+        }
+      }
+    />
     <DefinitionsList
       scrollToDefinition={[Function]}
       settings={

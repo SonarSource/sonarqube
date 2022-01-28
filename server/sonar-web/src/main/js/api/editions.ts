@@ -19,25 +19,17 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON } from '../helpers/request';
-import { WebApi } from '../types/types';
+import { License } from '../types/editions';
 
-interface RawDomain {
-  actions: WebApi.Action[];
-  deprecatedSince?: string;
-  description: string;
-  internal: boolean;
-  path: string;
-  since?: string;
+export function isValidLicense(): Promise<{ isValidLicense: boolean }> {
+  return getJSON('/api/editions/is_valid_license');
 }
 
-export function fetchWebApi(showInternal = true): Promise<RawDomain[]> {
-  return getJSON('/api/webservices/list', { include_internals: showInternal })
-    .then(r => r.webServices)
-    .catch(throwGlobalError);
-}
-
-export function fetchResponseExample(domain: string, action: string): Promise<WebApi.Example> {
-  return getJSON('/api/webservices/response_example', { controller: domain, action }).catch(
-    throwGlobalError
-  );
+export function showLicense(): Promise<License> {
+  return getJSON('/api/editions/show_license').catch((response: Response) => {
+    if (response && response.status === 404) {
+      return undefined;
+    }
+    return throwGlobalError(response);
+  });
 }

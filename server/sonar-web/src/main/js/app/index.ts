@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
-import { loadL10nBundle } from '../helpers/l10n';
+import { loadL10nBundle } from '../helpers/l10nBundle';
 import { parseJSON, request } from '../helpers/request';
 import { getBaseUrl, getSystemStatus } from '../helpers/system';
 import { AppState } from '../types/appstate';

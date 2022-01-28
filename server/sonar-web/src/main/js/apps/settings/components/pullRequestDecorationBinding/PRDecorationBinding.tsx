@@ -30,7 +30,7 @@ import {
   validateProjectAlmBinding
 } from '../../../../api/alm-settings';
 import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
-import throwGlobalError from '../../../../app/utils/throwGlobalError';
+import { throwGlobalError } from '../../../../helpers/error';
 import { HttpStatus } from '../../../../helpers/request';
 import { hasGlobalPermission } from '../../../../helpers/users';
 import {

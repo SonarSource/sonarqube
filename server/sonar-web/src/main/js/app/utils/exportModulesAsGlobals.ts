@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../helpers/error';
-import { getJSON } from '../helpers/request';
-import { WebApi } from '../types/types';
 
-interface RawDomain {
-  actions: WebApi.Action[];
-  deprecatedSince?: string;
-  description: string;
-  internal: boolean;
-  path: string;
-  since?: string;
-}
+import * as EmotionReact from '@emotion/react';
+import EmotionStyled from '@emotion/styled';
+import * as DateFns from 'date-fns';
+import Lodash from 'lodash';
+import React from 'react';
+import * as ReactDom from 'react-dom';
+import * as ReactIntl from 'react-intl';
+import ReactModal from 'react-modal';
+import * as ReactRouter from 'react-router';
 
-export function fetchWebApi(showInternal = true): Promise<RawDomain[]> {
-  return getJSON('/api/webservices/list', { include_internals: showInternal })
-    .then(r => r.webServices)
-    .catch(throwGlobalError);
-}
-
-export function fetchResponseExample(domain: string, action: string): Promise<WebApi.Example> {
-  return getJSON('/api/webservices/response_example', { controller: domain, action }).catch(
-    throwGlobalError
-  );
+/*
+ * Expose dependencies to extensions
+ */
+export default function exportModulesAsGlobals() {
+  const w = (window as unknown) as any;
+  w.EmotionReact = EmotionReact;
+  w.EmotionStyled = EmotionStyled;
+  w.DateFns = DateFns;
+  w.Lodash = Lodash;
+  w.React = React;
+  w.ReactDOM = ReactDom;
+  w.ReactIntl = ReactIntl;
+  w.ReactModal = ReactModal;
+  w.ReactRouter = ReactRouter;
 }

@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { resetMessages } from '../../../helpers/l10n';
 import { isSonarCloud } from '../../../helpers/system';
 import { convertToPermissionDefinitions } from '../utils';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
-afterEach(() => {
-  resetMessages({});
-});
+jest.mock('../../../helpers/l10nBundle', () => ({
+  getMessages: jest.fn().mockReturnValue({})
+}));
 
 describe('convertToPermissionDefinitions', () => {
   it('should convert and translate a permission definition', () => {
     (isSonarCloud as jest.Mock).mockImplementation(() => false);
 
-    resetMessages({
-      'global_permissions.admin': 'Administer System'
-    });
-
     const data = convertToPermissionDefinitions(['admin'], 'global_permissions');
     const expected = [
-      { description: 'global_permissions.admin.desc', key: 'admin', name: 'Administer System' }
+      {
+        description: 'global_permissions.admin.desc',
+        key: 'admin',
+        name: 'global_permissions.admin'
+      }
     ];
 
     expect(data).toEqual(expected);
@@ -46,17 +45,12 @@ describe('convertToPermissionDefinitions', () => {
   it('should convert and translate a permission definition for SonarCloud', () => {
     (isSonarCloud as jest.Mock).mockImplementation(() => true);
 
-    resetMessages({
-      'global_permissions.admin': 'Administer System',
-      'global_permissions.admin.sonarcloud': 'Administer Organization'
-    });
-
     const data = convertToPermissionDefinitions(['admin'], 'global_permissions');
     const expected = [
       {
-        description: 'global_permissions.admin.desc',
+        description: 'global_permissions.admin.desc.sonarcloud',
         key: 'admin',
-        name: 'Administer Organization'
+        name: 'global_permissions.admin.sonarcloud'
       }
     ];
 
@@ -66,13 +60,13 @@ describe('convertToPermissionDefinitions', () => {
   it('should fallback to basic message when SonarCloud version does not exist', () => {
     (isSonarCloud as jest.Mock).mockImplementation(() => true);
 
-    resetMessages({
-      'global_permissions.admin': 'Administer System'
-    });
-
     const data = convertToPermissionDefinitions(['admin'], 'global_permissions');
     const expected = [
-      { description: 'global_permissions.admin.desc', key: 'admin', name: 'Administer System' }
+      {
+        description: 'global_permissions.admin.desc.sonarcloud',
+        key: 'admin',
+        name: 'global_permissions.admin.sonarcloud'
+      }
     ];
 
     expect(data).toEqual(expected);

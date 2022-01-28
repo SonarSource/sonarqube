@@ -17,29 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseError } from '../../helpers/request';
-import { addGlobalErrorMessage } from '../../store/globalMessages';
-import getStore from './getStore';
 
-export default function throwGlobalError(param: Response | any): Promise<Response | any> {
-  const store = getStore();
+import { License } from '../../types/editions';
 
-  if (param.response instanceof Response) {
-    /* eslint-disable-next-line no-console */
-    console.warn('DEPRECATED: response should not be wrapped, pass it directly.');
-    param = param.response;
-  }
-
-  if (param instanceof Response) {
-    return parseError(param)
-      .then(
-        message => {
-          store.dispatch(addGlobalErrorMessage(message));
-        },
-        () => {}
-      )
-      .then(() => Promise.reject(param));
-  }
-
-  return Promise.reject(param);
+export function mockLicense(override?: Partial<License>) {
+  return {
+    contactEmail: 'contact@sonarsource.com',
+    edition: 'Developer Edition',
+    expiresAt: '2018-05-18',
+    isExpired: false,
+    isValidEdition: true,
+    isValidServerId: true,
+    isOfficialDistribution: true,
+    isSupported: false,
+    loc: 120085,
+    maxLoc: 500000,
+    plugins: ['Branches', 'PLI language'],
+    remainingLocThreshold: 490000,
+    serverId: 'AU-TpxcA-iU5OvuD2FL0',
+    type: 'production',
+    ...override
+  };
 }

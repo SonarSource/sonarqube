@@ -21,7 +21,7 @@ import * as React from 'react';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import throwGlobalError from '../../app/utils/throwGlobalError';
+import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { DumpStatus, DumpTask } from '../../types/project-dump';

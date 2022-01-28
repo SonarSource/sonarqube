@@ -23,3 +23,11 @@ document.documentElement.appendChild(content);
 
 const baseUrl = '';
 (window as any).baseUrl = baseUrl;
+
+jest.mock('../../src/main/js/helpers/l10n', () => ({
+  ...jest.requireActual('../../src/main/js/helpers/l10n'),
+  hasMessage: () => true,
+  translate: (...keys: string[]) => keys.join('.'),
+  translateWithParameters: (messageKey: string, ...parameters: Array<string | number>) =>
+    [messageKey, ...parameters].join('.')
+}));

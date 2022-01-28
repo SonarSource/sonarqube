@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isValidLicense } from '../../../../../api/marketplace';
+import { isValidLicense } from '../../../../../api/editions';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
 import { mockAppState } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
@@ -31,7 +31,7 @@ jest.mock('../../../../../helpers/l10n', () => ({
   hasMessage: jest.fn().mockReturnValue(true)
 }));
 
-jest.mock('../../../../../api/marketplace', () => ({
+jest.mock('../../../../../api/editions', () => ({
   isValidLicense: jest.fn().mockResolvedValue({ isValidLicense: false })
 }));
 

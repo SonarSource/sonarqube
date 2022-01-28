@@ -10,6 +10,17 @@ exports[`should render correctly: changed value 1`] = `
   >
     <h3
       className="settings-definition-name"
+      title="property.foo.name"
+    >
+      property.foo.name
+    </h3>
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
     />
     <div
       className="settings-definition-key note little-spacer-top"
@@ -83,6 +94,17 @@ exports[`should render correctly: in error 1`] = `
   >
     <h3
       className="settings-definition-name"
+      title="property.foo.name"
+    >
+      property.foo.name
+    </h3>
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
     />
     <div
       className="settings-definition-key note little-spacer-top"
@@ -165,6 +187,17 @@ exports[`should render correctly: loading 1`] = `
   >
     <h3
       className="settings-definition-name"
+      title="property.foo.name"
+    >
+      property.foo.name
+    </h3>
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
     />
     <div
       className="settings-definition-key note little-spacer-top"
@@ -245,6 +278,17 @@ exports[`should render correctly: original value 1`] = `
   >
     <h3
       className="settings-definition-name"
+      title="property.foo.name"
+    >
+      property.foo.name
+    </h3>
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
     />
     <div
       className="settings-definition-key note little-spacer-top"
@@ -319,6 +363,17 @@ exports[`should render correctly: success 1`] = `
   >
     <h3
       className="settings-definition-name"
+      title="property.foo.name"
+    >
+      property.foo.name
+    </h3>
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
     />
     <div
       className="settings-definition-key note little-spacer-top"
@@ -399,12 +454,15 @@ exports[`should render correctly: with description 1`] = `
   >
     <h3
       className="settings-definition-name"
-    />
+      title="property.foo.name"
+    >
+      property.foo.name
+    </h3>
     <div
       className="markdown small spacer-top"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "description",
+          "__html": "property.foo.description",
         }
       }
     />

@@ -5,6 +5,7 @@ exports[`should display facet item list 1`] = `
   property="Reliability"
 >
   <FacetHeader
+    helper="component_measures.domain_facets.Reliability.help"
     name="Reliability"
     onClick={[Function]}
     open={true}
@@ -141,6 +142,7 @@ exports[`should display facet item list with bugs selected 1`] = `
   property="Reliability"
 >
   <FacetHeader
+    helper="component_measures.domain_facets.Reliability.help"
     name="Reliability"
     onClick={[Function]}
     open={true}
@@ -281,6 +283,7 @@ exports[`should not display subtitles of new measures if there is none 1`] = `
   property="Reliability"
 >
   <FacetHeader
+    helper="component_measures.domain_facets.Reliability.help"
     name="Reliability"
     onClick={[Function]}
     open={true}
@@ -363,6 +366,7 @@ exports[`should not display subtitles of new measures if there is none, even on 
   property="Reliability"
 >
   <FacetHeader
+    helper="component_measures.domain_facets.Reliability.help"
     name="Reliability"
     onClick={[Function]}
     open={true}

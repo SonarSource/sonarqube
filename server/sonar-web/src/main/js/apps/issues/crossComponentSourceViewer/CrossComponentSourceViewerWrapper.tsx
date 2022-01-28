@@ -21,7 +21,6 @@ import { findLastIndex } from 'lodash';
 import * as React from 'react';
 import { getDuplications } from '../../../api/components';
 import { getIssueFlowSnippets } from '../../../api/issues';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
@@ -37,6 +36,7 @@ import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import {

@@ -17,35 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import throwGlobalError from '../app/utils/throwGlobalError';
-import { getJSON } from '../helpers/request';
 
-export interface License {
-  contactEmail: string;
-  edition: string;
-  expiresAt: string;
-  isExpired: boolean;
-  isOfficialDistribution: boolean;
-  isSupported: boolean;
-  isValidEdition: boolean;
-  isValidServerId: boolean;
-  loc: number;
-  maxLoc: number;
-  plugins: string[];
-  remainingLocThreshold: number;
-  serverId: string;
-  type: string;
+import { Dict } from './types';
+
+export interface L10nBundleRequestParams {
+  locale?: string;
+  ts?: string;
 }
 
-export function isValidLicense(): Promise<{ isValidLicense: boolean }> {
-  return getJSON('/api/editions/is_valid_license');
+export interface L10nBundleRequestResponse {
+  effectiveLocale: string;
+  messages: Dict<string>;
 }
 
-export function showLicense(): Promise<License> {
-  return getJSON('/api/editions/show_license').catch((response: Response) => {
-    if (response && response.status === 404) {
-      return undefined;
-    }
-    return throwGlobalError(response);
-  });
+export interface L10nBundle {
+  timestamp?: string;
+  locale?: string;
+  messages?: Dict<string>;
 }

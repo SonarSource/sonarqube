@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON } from '../helpers/request';
-import { L10nBundleRequestParams, L10nBundleRequestResponse } from '../types/l10n';
+import { L10nBundleRequestParams, L10nBundleRequestResponse } from '../types/l10nBundle';
 
 export function fetchL10nBundle(
   params: L10nBundleRequestParams

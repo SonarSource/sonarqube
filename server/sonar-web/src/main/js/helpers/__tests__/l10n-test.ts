@@ -17,82 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { fetchL10nBundle } from '../../api/l10n';
+import { Dict } from '../../types/types';
 import {
   getLocalizedCategoryMetricName,
   getLocalizedMetricDomain,
   getLocalizedMetricName,
-  getMessages,
   getShortMonthName,
   getShortWeekDayName,
   getWeekDayName,
   hasMessage,
-  loadL10nBundle,
-  resetMessages,
   translate,
   translateWithParameters
 } from '../l10n';
-import { get } from '../storage';
+import { getMessages } from '../l10nBundle';
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  jest.spyOn(window.navigator, 'languages', 'get').mockReturnValue(['de']);
-});
-
-jest.mock('../../api/l10n', () => ({
-  fetchL10nBundle: jest
-    .fn()
-    .mockResolvedValue({ effectiveLocale: 'de', messages: { test_message: 'test' } })
-}));
-
-jest.mock('../../helpers/storage', () => ({
-  get: jest.fn(),
-  save: jest.fn()
-}));
-
-describe('#loadL10nBundle', () => {
-  it('should fetch bundle without any timestamp', async () => {
-    await loadL10nBundle();
-
-    expect(fetchL10nBundle).toHaveBeenCalledWith({ locale: 'de', ts: undefined });
-  });
-
-  it('should ftech bundle without local storage timestamp if locales are different', async () => {
-    const cachedBundle = { timestamp: 'timestamp', locale: 'fr', messages: { cache: 'cache' } };
-    (get as jest.Mock).mockReturnValueOnce(JSON.stringify(cachedBundle));
-
-    await loadL10nBundle();
-
-    expect(fetchL10nBundle).toHaveBeenCalledWith({ locale: 'de', ts: undefined });
-  });
-
-  it('should fetch bundle with cached bundle timestamp and browser locale', async () => {
-    const cachedBundle = { timestamp: 'timestamp', locale: 'de', messages: { cache: 'cache' } };
-    (get as jest.Mock).mockReturnValueOnce(JSON.stringify(cachedBundle));
-
-    await loadL10nBundle();
-
-    expect(fetchL10nBundle).toHaveBeenCalledWith({ locale: 'de', ts: cachedBundle.timestamp });
-  });
-
-  it('should fallback to cached bundle if the server respond with 304', async () => {
-    const cachedBundle = { timestamp: 'timestamp', locale: 'fr', messages: { cache: 'cache' } };
-    (fetchL10nBundle as jest.Mock).mockRejectedValueOnce({ status: 304 });
-    (get as jest.Mock).mockReturnValueOnce(JSON.stringify(cachedBundle));
-
-    const bundle = await loadL10nBundle();
-
-    expect(bundle).toEqual(
-      expect.objectContaining({ locale: cachedBundle.locale, messages: cachedBundle.messages })
-    );
-  });
-});
-
-const originalMessages = getMessages();
 const MSG = 'my_message';
 
-afterEach(() => {
-  resetMessages(originalMessages);
+jest.unmock('../l10n');
+
+jest.mock('../l10nBundle', () => ({
+  getMessages: jest.fn().mockReturnValue({})
+}));
+
+const resetMessages = (messages: Dict<string>) =>
+  (getMessages as jest.Mock).mockReturnValue(messages);
+
+beforeEach(() => {
+  resetMessages({});
+});
+
+describe('hasMessage', () => {
+  it('should return that the message exists', () => {
+    resetMessages({
+      foo: 'foo',
+      'foo.bar': 'foobar'
+    });
+    expect(hasMessage('foo')).toBe(true);
+    expect(hasMessage('foo', 'bar')).toBe(true);
+  });
+
+  it('should return that the message is missing', () => {
+    expect(hasMessage('foo')).toBe(false);
+    expect(hasMessage('foo', 'bar')).toBe(false);
+  });
 });
 
 describe('translate', () => {
@@ -150,19 +117,6 @@ describe('translateWithParameters', () => {
     expect(translateWithParameters('random', 5)).toBe('random.5');
     expect(translateWithParameters('random', 1, 2, 3)).toBe('random.1.2.3');
     expect(translateWithParameters('composite.random', 1, 2)).toBe('composite.random.1.2');
-  });
-});
-
-describe('hasMessage', () => {
-  it('should return that the message exists', () => {
-    resetMessages({ foo: 'Foo', 'foo.bar': 'Foo Bar' });
-    expect(hasMessage('foo')).toBe(true);
-    expect(hasMessage('foo', 'bar')).toBe(true);
-  });
-
-  it('should return that the message is missing', () => {
-    expect(hasMessage('foo')).toBe(false);
-    expect(hasMessage('foo', 'bar')).toBe(false);
   });
 });
 

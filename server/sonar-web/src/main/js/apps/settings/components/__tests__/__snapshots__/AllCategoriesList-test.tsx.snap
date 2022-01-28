@@ -27,7 +27,7 @@ exports[`should render correctly: branches disabled 1`] = `
   >
     <IndexLink
       className=""
-      title="general"
+      title="property.category.general"
       to={
         Object {
           "pathname": "/admin/settings",
@@ -37,7 +37,7 @@ exports[`should render correctly: branches disabled 1`] = `
         }
       }
     >
-      general
+      property.category.general
     </IndexLink>
   </li>
 </ul>
@@ -88,7 +88,7 @@ exports[`should render correctly: global mode 1`] = `
   >
     <IndexLink
       className=""
-      title="general"
+      title="property.category.general"
       to={
         Object {
           "pathname": "/admin/settings",
@@ -98,7 +98,7 @@ exports[`should render correctly: global mode 1`] = `
         }
       }
     >
-      general
+      property.category.general
     </IndexLink>
   </li>
 </ul>
@@ -151,7 +151,7 @@ exports[`should render correctly: project mode 1`] = `
   >
     <IndexLink
       className=""
-      title="general"
+      title="property.category.general"
       to={
         Object {
           "pathname": "/project/settings",
@@ -162,7 +162,7 @@ exports[`should render correctly: project mode 1`] = `
         }
       }
     >
-      general
+      property.category.general
     </IndexLink>
   </li>
 </ul>
@@ -213,7 +213,7 @@ exports[`should render correctly: selected category 1`] = `
   >
     <IndexLink
       className=""
-      title="general"
+      title="property.category.general"
       to={
         Object {
           "pathname": "/admin/settings",
@@ -223,7 +223,7 @@ exports[`should render correctly: selected category 1`] = `
         }
       }
     >
-      general
+      property.category.general
     </IndexLink>
   </li>
 </ul>

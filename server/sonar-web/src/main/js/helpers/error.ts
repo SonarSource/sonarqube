@@ -17,20 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dict } from './types';
+import getStore from '../app/utils/getStore';
+import { addGlobalErrorMessage } from '../store/globalMessages';
+import { parseError } from './request';
 
-export interface L10nBundleRequestParams {
-  locale?: string;
-  ts?: string;
-}
+export function throwGlobalError(param: Response | any): Promise<Response | any> {
+  const store = getStore();
 
-export interface L10nBundleRequestResponse {
-  effectiveLocale: string;
-  messages: Dict<string>;
-}
+  if (param.response instanceof Response) {
+    /* eslint-disable-next-line no-console */
+    console.warn('DEPRECATED: response should not be wrapped, pass it directly.');
+    param = param.response;
+  }
 
-export interface L10nBundle {
-  timestamp?: string;
-  locale?: string;
-  messages?: Dict<string>;
+  if (param instanceof Response) {
+    return parseError(param)
+      .then(
+        message => {
+          store.dispatch(addGlobalErrorMessage(message));
+        },
+        () => {}
+      )
+      .then(() => Promise.reject(param));
+  }
+
+  return Promise.reject(param);
 }
