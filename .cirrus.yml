@@ -236,7 +236,7 @@ validate_task:
     - yarn_validate-ci
     - yarn_lint-report-ci
     - junit
-  timeout_in: 360m
+  timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 7.5
