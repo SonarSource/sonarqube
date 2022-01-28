@@ -22,6 +22,7 @@ package org.sonar.db.purge;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -541,17 +542,20 @@ public class PurgeCommandsTest {
     RuleDefinitionDto rule = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
+    List<String> issueKeys = new ArrayList<>();
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
       IssueDto issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(projectOrView));
       dbTester.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue));
       issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(file));
       dbTester.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(issue));
+      issueKeys.add("'" + issue.getKey() + "'");
     });
 
     underTest.deleteIssues(projectOrView.uuid());
 
-    assertThat(dbTester.countRowsOfTable("NEW_CODE_REFERENCE_ISSUES")).isZero();
+    assertThat(dbTester.countSql("select count(uuid) from new_code_reference_issues where issue_key in (" +
+      String.join(", ", issueKeys) + ")")).isZero();
   }
 
   @Test
@@ -862,14 +866,14 @@ public class PurgeCommandsTest {
 
   @DataProvider
   public static Object[] projects() {
-    return new Object[] {
+    return new Object[]{
       ComponentTesting.newPrivateProjectDto(), ComponentTesting.newPublicProjectDto(),
     };
   }
 
   @DataProvider
   public static Object[] views() {
-    return new Object[] {
+    return new Object[]{
       ComponentTesting.newPortfolio(), ComponentTesting.newApplication()
     };
   }
