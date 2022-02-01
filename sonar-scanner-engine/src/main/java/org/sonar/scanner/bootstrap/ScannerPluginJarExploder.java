@@ -22,6 +22,10 @@ package org.sonar.scanner.bootstrap;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
@@ -54,7 +58,7 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
     File lockFile = new File(cachedFile.getParentFile(), filename + "_unzip.lock");
     if (!destDir.exists()) {
       try (FileOutputStream out = new FileOutputStream(lockFile)) {
-        java.nio.channels.FileLock lock = out.getChannel().lock();
+        FileLock lock = createLockWithRetries(out.getChannel());
         try {
           // Recheck in case of concurrent processes
           if (!destDir.exists()) {
@@ -70,5 +74,22 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
       }
     }
     return destDir;
+  }
+
+  private FileLock createLockWithRetries(FileChannel channel) throws IOException {
+    int tryCount = 0;
+    while (tryCount++ < 10) {
+      try {
+        return channel.lock();
+      } catch (OverlappingFileLockException ofle) {
+        // ignore overlapping file exception
+      }
+      try {
+        Thread.sleep(200 * tryCount);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    throw new IOException("Unable to get lock after " + tryCount + " tries");
   }
 }
