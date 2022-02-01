@@ -20,6 +20,11 @@
 package org.sonar.server.platform.db.migration.def;
 
 import com.google.common.base.CharMatcher;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.CharMatcher.anyOf;
@@ -38,6 +43,99 @@ public class Validations {
   private static final CharMatcher LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER = inRange('a', 'z');
   private static final CharMatcher UPPER_CASE_ASCII_LETTERS_CHAR_MATCHER = inRange('A', 'Z');
   private static final CharMatcher UNDERSCORE_CHAR_MATCHER = anyOf("_");
+
+  // TODO: Refactor all existing identifiers that match SQL reserved keywords,
+  // the list below is used as a workaround for validating existing non-complaint identifiers
+  private static final String VALUE_COLUMN_NAME = "value";
+  private static final String GROUPS_TABLE_NAME = "groups";
+  private static final List<String> ALLOWED_IDENTIFIERS = List.of(VALUE_COLUMN_NAME, GROUPS_TABLE_NAME);
+
+  // MS SQL keywords retrieved from: com.microsoft.sqlserver.jdbc.SQLServerDatabaseMetaData#createSqlKeyWords
+  protected static final Set<String> MSSQL_KEYWORDS =  Set.of(
+          "ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION",
+          "BACKUP", "BEGIN", "BETWEEN", "BREAK", "BROWSE", "BULK", "BY",
+          "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED", "COALESCE", "COLLATE", "COLUMN", "COMMIT", "COMPUTE", "CONSTRAINT", "CONTAINS",
+          "CONTAINSTABLE", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER,CURSOR",
+          "DATABASE", "DBCC", "DEALLOCATE", "DECLARE", "DEFAULT", "DELETE", "DENY", "DESC", "DISK", "DISTINCT", "DISTRIBUTED", "DOUBLE", "DROP", "DUMP",
+          "ELSE", "END", "ERRLVL", "ESCAPE", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXTERNAL",
+          "FETCH", "FILE", "FILLFACTOR", "FOR", "FOREIGN", "FREETEXT", "FREETEXTTABLE", "FROM", "FULL", "FUNCTION",
+          "GOTO", "GRANT", "GROUP",
+          "HAVING", "HOLDLOCK",
+          "IDENTITY", "IDENTITY_INSERT", "IDENTITYCOL", "IF", "IN", "INDEX", "INNER", "INSERT", "INTERSECT", "INTO", "IS",
+          "JOIN",
+          "KEY", "KILL",
+          "LEFT", "LIKE",
+          "LINENO", "LOAD",
+          "MERGE",
+          "NATIONAL", "NOCHECK", "NONCLUSTERED", "NOT", "NULL", "NULLIF",
+          "OF", "OFF", "OFFSETS", "ON", "OPEN", "OPENDATASOURCE", "OPENQUERY", "OPENROWSET", "OPENXML", "OPTION", "OR", "ORDER", "OUTER", "OVER",
+          "PERCENT", "PIVOT", "PLAN", "PRECISION", "PRIMARY", "PRINT", "PROC", "PROCEDURE", "PUBLIC",
+          "RAISERROR", "READ", "READTEXT", "RECONFIGURE", "REFERENCES", "REPLICATION", "RESTORE", "RESTRICT",
+          "RETURN", "REVERT", "REVOKE", "RIGHT", "ROLLBACK", "ROWCOUNT", "ROWGUIDCOL", "RULE",
+          "SAVE", "SCHEMA", "SECURITYAUDIT", "SELECT", "SEMANTICKEYPHRASETABLE", "SEMANTICSIMILARITYDETAILSTABLE",
+          "SEMANTICSIMILARITYTABLE", "SESSION_USER", "SET", "SETUSER", "SHUTDOWN", "SOME", "STATISTICS", "SYSTEM_USER",
+          "TABLE", "TABLESAMPLE", "TEXTSIZE", "THEN", "TO", "TOP", "TRAN", "TRANSACTION", "TRIGGER", "TRUNCATE", "TRY_CONVERT", "TSEQUAL",
+          "UNION", "UNIQUE", "UNPIVOT", "UPDATE", "UPDATETEXT", "USE", "USER",
+          "VALUES", "VARYING", "VIEW",
+          "WAITFOR", "WHEN", "WHERE", "WHILE", "WITH", "WITHIN GROUP", "WRITETEXT");
+
+  // H2 SQL keywords retrieved from: http://www.h2database.com/html/advanced.html
+  protected static final Set<String> H2_KEYWORDS =  Set.of(
+          "ALL", "AND", "ANY", "ARRAY", "AS", "ASYMMETRIC", "AUTHORIZATION",
+          "BETWEEN", "BOTH",
+          "CASE", "CAST", "CHECK", "CONSTRAINT", "CROSS", "CURRENT_CATALOG", "CURRENT_DATE", "CURRENT_PATH",
+          "CURRENT_ROLE", "CURRENT_SCHEMA", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER",
+          "DAY", "DEFAULT", "DISTINCT",
+          "ELSE", "END", "EXISTS",
+          "FALSE", "FETCH", "FILTER", "FOR", "FOREIGN", "FROM", "FULL",
+          "GROUP", "GROUPS",
+          "HAVING", "HOUR",
+          "IF", "ILIKE", "IN", "INNER", "INTERSECT", "INTERVAL", "IS",
+          "JOIN",
+          "KEY",
+          "LEADING", "LEFT", "LIKE", "LIMIT", "LOCALTIME", "LOCALTIMESTAMP",
+          "MINUS", "MINUTE", "MONTH",
+          "NATURAL", "NOT", "NULL",
+          "OFFSET", "ON", "OR", "ORDER", "OVER",
+          "PARTITION", "PRIMARY",
+          "QUALIFY",
+          "RANGE", "REGEXP", "RIGHT", "ROW", "ROWNUM", "ROWS",
+          "SECOND", "SELECT", "SESSION_USER", "SET", "SOME", "SYMMETRIC", "SYSTEM_USER",
+          "TABLE", "TO", "TOP", "TRAILING", "TRUE",
+          "UESCAPE", "UNION", "UNIQUE", "UNKNOWN", "USER", "USING",
+          "VALUE", "VALUES",
+          "WHEN", "WHERE", "WINDOW", "WITH",
+          "YEAR",
+          "_ROWID_");
+
+  // PostgreSQL keywords retrieved from: https://www.postgresql.org/docs/current/sql-keywords-appendix.html
+  protected static final Set<String> POSTGRESQL_KEYWORDS =  Set.of(
+          "ALL", "AND", "ANY", "ARRAY", "AS", "ASYMMETRIC",
+          "BIGINT", "BINARY", "BIT", "BOOLEAN", "BOTH",
+          "CASE", "CAST", "CHAR", "CHARACTER", "COALESCE", "COLLATE", "COLLATION", "COLUMN", "CONCURRENTLY", "CREATE",
+          "CURRENT_CATALOG", "CURRENT_ROLE", "CURRENT_SCHEMA", "CURRENT_USER",
+          "DEC", "DECIMAL", "DEFERRABLE", "DESC",
+          "ELSE", "END", "EXCEPT",
+          "FALSE", "FOR", "FREEZE", "FROM", "FULL",
+          "GRANT", "GREATEST", "GROUPING",
+          "ILIKE", "IN", "INITIALLY", "INTO", "IS", "ISNULL",
+          "JOIN",
+          "LATERAL", "LEADING", "LEFT", "LIKE", "LIMIT", "LOCALTIME", "LOCALTIMESTAMP",
+          "NATIONAL", "NATURAL", "NCHAR", "NOT", "NOTNULL", "NULL",
+          "OFFSET", "ON", "ONLY", "OR", "OUTER", "OVERLAPS",
+          "PLACING",
+          "REFERENCES", "RETURNING",
+          "SETOF", "SIMILAR", "SMALLINT", "SOME", "SUBSTRING", "SYMMETRIC",
+          "TABLESAMPLE", "THEN", "TIME", "TIMESTAMP", "TO", "TRAILING", "TREAT", "TRIM", "TRUE",
+          "USER", "USING",
+          "VARCHAR", "VARIADIC", "VERBOSE",
+          "WHEN", "WINDOW", "WITH",
+          "XMLCONCAT", "XMLELEMENT", "XMLEXISTS", "XMLFOREST", "XMLNAMESPACES", "XMLPARSE", "XMLPI", "XMLROOT", "XMLSERIALIZE", "XMLTABLE",
+          "YEAR");
+
+  protected static final  Set<String> ALL_KEYWORDS = Stream.of(MSSQL_KEYWORDS, H2_KEYWORDS, POSTGRESQL_KEYWORDS)
+          .flatMap(Set::stream)
+          .collect(Collectors.toSet());
 
   private Validations() {
     // Only static stuff here
@@ -125,6 +223,14 @@ public class Validations {
     return res;
   }
 
+  private static boolean isSqlKeyword(String identifier) {
+    return ALL_KEYWORDS.contains(identifier);
+  }
+
+  private static boolean isSqlKeywordIgnoreCase(String identifier) {
+    return isSqlKeyword(identifier.toUpperCase(Locale.ENGLISH));
+  }
+
   private static void checkDbIdentifierCharacters(String identifier, String identifierDesc) {
     checkArgument(identifier.length() > 0, "Identifier must not be empty");
     checkArgument(
@@ -133,6 +239,10 @@ public class Validations {
     checkArgument(
       DIGIT_CHAR_MATCHER.or(UNDERSCORE_CHAR_MATCHER).matchesNoneOf(identifier.subSequence(0, 1)),
       "%s must not start by a number or '_', got '%s'", identifierDesc, identifier);
+    checkArgument(!isSqlKeyword(identifier.toUpperCase(Locale.ENGLISH)) || ALLOWED_IDENTIFIERS.contains(identifier),
+      "%s must not be an SQL reserved keyword, got '%s'",
+      identifierDesc,
+      identifier);
   }
 
   private static void checkDbIdentifierCharactersIgnoreCase(String identifier, String identifierDesc) {
@@ -142,5 +252,9 @@ public class Validations {
     checkArgument(
       DIGIT_CHAR_MATCHER.or(UNDERSCORE_CHAR_MATCHER).matchesNoneOf(identifier.subSequence(0, 1)),
       "%s must not start by a number or '_', got '%s'", identifierDesc, identifier);
+    checkArgument(!isSqlKeywordIgnoreCase(identifier) || ALLOWED_IDENTIFIERS.contains(identifier.toLowerCase(Locale.ENGLISH)),
+      "%s must not be an SQL reserved keyword, got '%s'",
+      identifierDesc,
+      identifier);
   }
 }

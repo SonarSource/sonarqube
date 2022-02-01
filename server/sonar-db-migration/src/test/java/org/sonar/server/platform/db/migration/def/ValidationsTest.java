@@ -22,9 +22,11 @@ package org.sonar.server.platform.db.migration.def;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.Validations.validateColumnName;
 import static org.sonar.server.platform.db.migration.def.Validations.validateIndexName;
+import static org.sonar.server.platform.db.migration.def.Validations.validateIndexNameIgnoreCase;
 
 public class ValidationsTest {
   @Test
@@ -38,6 +40,39 @@ public class ValidationsTest {
     assertThatThrownBy(() -> validateColumnName(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Column name cannot be null");
+  }
+
+  @Test
+  public void fail_when_column_name_is_an_SQL_reserved_keyword() {
+    assertThatThrownBy(() -> validateColumnName("values"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Column name must not be an SQL reserved keyword, got 'values'");
+  }
+
+  @Test
+  public void accept_allowed_identifier_for_column_name_that_is_SQL_reserved_keyword() {
+    assertThatCode(() -> validateColumnName("value"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  public void fail_when_index_name_is_an_SQL_reserved_keyword_ignoring_case() {
+    assertThatThrownBy(() -> validateIndexNameIgnoreCase("VALUES"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must not be an SQL reserved keyword, got 'VALUES'");
+
+    assertThatThrownBy(() -> validateIndexNameIgnoreCase("values"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index name must not be an SQL reserved keyword, got 'values'");
+  }
+
+  @Test
+  public void accept_allowed_identifier_for_index_name_that_is_SQL_reserved_keyword_ignoring_case() {
+    assertThatCode(() -> validateIndexNameIgnoreCase("value"))
+      .doesNotThrowAnyException();
+
+    assertThatCode(() -> validateIndexNameIgnoreCase("VALUE"))
+      .doesNotThrowAnyException();
   }
 
   @Test
