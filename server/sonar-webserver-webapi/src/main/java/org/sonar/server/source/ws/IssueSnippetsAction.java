@@ -67,7 +67,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("issue_snippets")
-      .setDescription("Get code snipets involved in an issue. Requires 'Browse' permission on the project<br/>")
+      .setDescription("Get code snipets involved in an issue. Requires 'See Source Code permission' permission on the project<br/>")
       .setSince("7.8")
       .setInternal(true)
       .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
