@@ -23,16 +23,19 @@ import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.config.GlobalPropertyChangeHandler;
 
 import javax.annotation.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SettingsChangeNotifier {
 
   @VisibleForTesting
   GlobalPropertyChangeHandler[] changeHandlers;
 
+  @Autowired(required = false)
   public SettingsChangeNotifier(GlobalPropertyChangeHandler[] changeHandlers) {
     this.changeHandlers = changeHandlers;
   }
 
+  @Autowired(required = false)
   public SettingsChangeNotifier() {
     this(new GlobalPropertyChangeHandler[0]);
   }

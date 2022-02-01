@@ -31,7 +31,6 @@ import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.server.profile.BuiltInQualityProfileAnnotationLoader;
@@ -71,19 +70,19 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.language.LanguagesProvider;
+import org.sonar.core.platform.Container;
 import org.sonar.core.platform.EditionProvider;
-import org.sonar.core.platform.Module;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
-import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
@@ -161,11 +160,11 @@ import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
-  private ComputeEngineStatus computeEngineStatus;
+  private ComputeEngineStatus computeEngineStatus = null;
   @CheckForNull
-  private ComponentContainer level1;
+  private SpringComponentContainer level1 = null;
   @CheckForNull
-  private ComponentContainer level4;
+  private SpringComponentContainer level4 = null;
 
   @Override
   public void setComputeEngineStatus(ComputeEngineStatus computeEngineStatus) {
@@ -174,24 +173,20 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   @Override
   public ComputeEngineContainer start(Props props) {
-    this.level1 = new ComponentContainer();
+    this.level1 = new SpringComponentContainer();
     populateLevel1(this.level1, props, requireNonNull(computeEngineStatus));
-    configureFromModules(this.level1);
     startLevel1(this.level1);
 
-    ComponentContainer level2 = this.level1.createChild();
+    SpringComponentContainer level2 = this.level1.createChild();
     populateLevel2(level2);
-    configureFromModules(level2);
     startLevel2(level2);
 
-    ComponentContainer level3 = level2.createChild();
+    SpringComponentContainer level3 = level2.createChild();
     populateLevel3(level3);
-    configureFromModules(level3);
     startLevel3(level3);
 
     this.level4 = level3.createChild();
     populateLevel4(this.level4, props);
-    configureFromModules(this.level4);
     startLevel4(this.level4);
 
     startupTasks();
@@ -199,36 +194,32 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     return this;
   }
 
-  private static void startLevel1(ComponentContainer level1) {
+  private static void startLevel1(SpringComponentContainer level1) {
+    level1.startComponents();
     level1.getComponentByType(CoreExtensionsLoader.class)
       .load();
     level1.getComponentByType(CECoreExtensionsInstaller.class)
       .install(level1, hasPlatformLevel(1), noAdditionalSideFilter());
-
-    if (level1.getComponentByType(AuditPersister.class) == null) {
-      level1.add(NoOpAuditPersister.class);
-    }
-    level1.startComponents();
   }
 
-  private static void startLevel2(ComponentContainer level2) {
-    level2.getComponentByType(CECoreExtensionsInstaller.class)
+  private static void startLevel2(SpringComponentContainer level2) {
+    level2.getParent().getComponentByType(CECoreExtensionsInstaller.class)
       .install(level2, hasPlatformLevel(2), noAdditionalSideFilter());
 
     level2.startComponents();
   }
 
-  private static void startLevel3(ComponentContainer level3) {
-    level3.getComponentByType(CECoreExtensionsInstaller.class)
+  private static void startLevel3(SpringComponentContainer level3) {
+    level3.getParent().getComponentByType(CECoreExtensionsInstaller.class)
       .install(level3, hasPlatformLevel(3), noAdditionalSideFilter());
 
     level3.startComponents();
   }
 
-  private static void startLevel4(ComponentContainer level4) {
-    level4.getComponentByType(CECoreExtensionsInstaller.class)
+  private static void startLevel4(SpringComponentContainer level4) {
+    level4.getParent().getComponentByType(CECoreExtensionsInstaller.class)
       .install(level4, hasPlatformLevel4OrNone(), noAdditionalSideFilter());
-    level4.getComponentByType(ServerExtensionInstaller.class)
+    level4.getParent().getComponentByType(ServerExtensionInstaller.class)
       .installExtensions(level4);
 
     level4.startComponents();
@@ -239,7 +230,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   private void startupTasks() {
-    ComponentContainer startupLevel = this.level4.createChild();
+    SpringComponentContainer startupLevel = this.level4.createChild();
     startupLevel.add(startupComponents());
     startupLevel.startComponents();
     // done in PlatformLevelStartup
@@ -272,11 +263,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   }
 
   @VisibleForTesting
-  protected ComponentContainer getComponentContainer() {
+  protected SpringComponentContainer getComponentContainer() {
     return level4;
   }
 
-  private static void populateLevel1(ComponentContainer container, Props props, ComputeEngineStatus computeEngineStatus) {
+  private static void populateLevel1(Container container, Props props, ComputeEngineStatus computeEngineStatus) {
     Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     container.add(
@@ -300,19 +291,20 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       Clock.systemDefaultZone(),
 
       // DB
-      DaoModule.class,
+      new DaoModule(),
       ReadOnlyPropertiesDao.class,
       DBSessionsImpl.class,
       DbClient.class,
 
       // Elasticsearch
-      EsModule.class,
+      new EsModule(),
 
       // rules/qprofiles
       RuleIndex.class,
 
       new OkHttpClientProvider(),
       computeEngineStatus,
+      NoOpAuditPersister.class,
 
       CoreExtensionRepositoryImpl.class,
       CoreExtensionsLoader.class,
@@ -320,9 +312,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     container.add(toArray(CorePropertyDefinitions.all()));
   }
 
-  private static void populateLevel2(ComponentContainer container) {
+  private static void populateLevel2(Container container) {
     container.add(
-      MigrationConfigurationModule.class,
+      new MigrationConfigurationModule(),
       DatabaseVersion.class,
       DatabaseCompatibility.class,
 
@@ -347,7 +339,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     );
   }
 
-  private static void populateLevel3(ComponentContainer container) {
+  private static void populateLevel3(Container container) {
     container.add(
       new StartupMetadataProvider(),
       JdbcUrlSanitizer.class,
@@ -357,7 +349,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       SynchronousAsyncExecution.class);
   }
 
-  private static void populateLevel4(ComponentContainer container, Props props) {
+  private static void populateLevel4(Container container, Props props) {
     container.add(
       ResourceTypes.class,
       DefaultResourceTypes.get(),
@@ -377,7 +369,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       RuleIndexer.class,
 
       // languages
-      Languages.class, // used by CommonRuleDefinitionsImpl
+      // used by CommonRuleDefinitionsImpl
+      LanguagesProvider.class,
 
       // measure
       MetricFinder.class,
@@ -412,7 +405,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       NewIssuesNotificationHandler.newMetadata(),
       MyNewIssuesNotificationHandler.class,
       MyNewIssuesNotificationHandler.newMetadata(),
-      IssuesChangesNotificationModule.class,
+      new IssuesChangesNotificationModule(),
 
       // Notifications
       QGChangeEmailTemplate.class,
@@ -420,7 +413,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       NotificationService.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
-      ReportAnalysisFailureNotificationModule.class,
+      new ReportAnalysisFailureNotificationModule(),
 
       // System
       ServerLogging.class,
@@ -433,21 +426,21 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CoreExtensionStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
-      CeConfigurationModule.class,
-      CeQueueModule.class,
-      CeHttpModule.class,
-      CeTaskCommonsModule.class,
-      ProjectAnalysisTaskModule.class,
-      IssueSyncTaskModule.class,
-      AuditPurgeTaskModule.class,
-      CeTaskProcessorModule.class,
+      new CeConfigurationModule(),
+      new CeQueueModule(),
+      new CeHttpModule(),
+      new CeTaskCommonsModule(),
+      new ProjectAnalysisTaskModule(),
+      new IssueSyncTaskModule(),
+      new AuditPurgeTaskModule(),
+      new CeTaskProcessorModule(),
       OfficialDistribution.class,
 
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
 
       // webhooks
-      WebhookModule.class,
+      new WebhookModule(),
 
       QualityGateFinder.class,
       QualityGateEvaluatorImpl.class
@@ -462,7 +455,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
         CEQueueStatusImpl.class);
     } else if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
       container.add(
-        CeCleaningModule.class,
+        new CeCleaningModule(),
 
         // system health
         CeDistributedInformationImpl.class,
@@ -474,7 +467,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
         DistributedCEQueueStatusImpl.class);
     } else {
       container.add(
-        CeCleaningModule.class,
+        new CeCleaningModule(),
         StandaloneCeDistributedInformation.class,
         CEQueueStatusImpl.class);
     }
@@ -489,12 +482,5 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
   private static Object[] toArray(List<?> list) {
     return list.toArray(new Object[list.size()]);
-  }
-
-  private static void configureFromModules(ComponentContainer container) {
-    List<Module> modules = container.getComponentsByType(Module.class);
-    for (Module module : modules) {
-      module.configure(container);
-    }
   }
 }

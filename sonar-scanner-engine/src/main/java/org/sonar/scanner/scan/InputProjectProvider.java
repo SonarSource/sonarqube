@@ -32,7 +32,7 @@ public class InputProjectProvider {
 
   @Bean("DefaultInputProject")
   public DefaultInputProject provide(ProjectBuildersExecutor projectBuildersExecutor, ProjectReactorValidator validator,
-    ProjectReactor projectReactor, ScannerComponentIdGenerator scannerComponentIdGenerator) {
+    ProjectReactor projectReactor, ScannerComponentIdGenerator scannerComponentIdGenerator, WorkDirectoriesInitializer workDirectoriesInit) {
     // 1 Apply project builders
     projectBuildersExecutor.execute(projectReactor);
 
@@ -41,6 +41,7 @@ public class InputProjectProvider {
 
     // 3 Create project
     DefaultInputProject project = new DefaultInputProject(projectReactor.getRoot(), scannerComponentIdGenerator.getAsInt());
+    workDirectoriesInit.execute(project);
 
     LOG.info("Project key: {}", project.key());
     LOG.info("Base dir: {}", project.getBaseDir().toAbsolutePath().toString());

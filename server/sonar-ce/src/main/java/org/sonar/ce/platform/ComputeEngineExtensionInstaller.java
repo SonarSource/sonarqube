@@ -21,14 +21,15 @@ package org.sonar.ce.platform;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 
 import static java.util.Collections.singleton;
 
 public class ComputeEngineExtensionInstaller extends ServerExtensionInstaller {
-  public ComputeEngineExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
-    super(sonarRuntime, pluginRepository, singleton(ComputeEngineSide.class));
+  public ComputeEngineExtensionInstaller(Configuration configuration, SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
+    super(configuration, sonarRuntime, pluginRepository, singleton(ComputeEngineSide.class));
   }
 
 }

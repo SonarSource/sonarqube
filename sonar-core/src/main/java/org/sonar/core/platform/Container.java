@@ -20,13 +20,14 @@
 package org.sonar.core.platform;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface Container {
   Container add(Object... objects);
 
-  Container addSingletons(Iterable<?> components);
-
   <T> T getComponentByType(Class<T> type);
+
+  <T> Optional<T> getOptionalComponentByType(Class<T> type);
 
   <T> List<T> getComponentsByType(Class<T> type);
 

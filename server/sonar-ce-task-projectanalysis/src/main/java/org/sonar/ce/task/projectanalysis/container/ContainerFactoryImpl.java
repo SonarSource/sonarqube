@@ -23,11 +23,11 @@ import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.container.TaskContainerImpl;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 public class ContainerFactoryImpl implements ContainerFactory {
   @Override
-  public TaskContainer create(ComponentContainer parent, CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders) {
+  public TaskContainer create(SpringComponentContainer parent, CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders) {
     return new TaskContainerImpl(parent, new ProjectAnalysisTaskContainerPopulator(task, componentProviders));
   }
 }

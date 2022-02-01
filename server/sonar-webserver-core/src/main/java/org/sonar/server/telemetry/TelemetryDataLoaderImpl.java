@@ -29,6 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
@@ -75,11 +76,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   @CheckForNull
   private final LicenseReader licenseReader;
 
-  public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration, DockerSupport dockerSupport) {
-    this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, internalProperties, configuration, dockerSupport, null);
-  }
-
+  @Inject
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {

@@ -25,20 +25,15 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.picocontainer.ComponentAdapter;
-import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.CeDistributedInformationImpl;
-import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
@@ -46,6 +41,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.server.property.InternalProperties;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,14 +64,13 @@ public class ComputeEngineContainerImplTest {
 
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ComputeEngineContainerImpl underTest;
-  private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
-  private ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
+  private final ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+  private final ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);
+  private final ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
 
   @Before
   public void setUp() {
     when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
-    underTest = new ComputeEngineContainerImpl();
     underTest.setComputeEngineStatus(mock(ComputeEngineStatus.class));
   }
 
@@ -95,26 +90,18 @@ public class ComputeEngineContainerImplTest {
 
     underTest.start(new Props(properties));
 
-    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
+    AnnotationConfigApplicationContext context = underTest.getComponentContainer().context();
     try {
-      assertThat(picoContainer.getComponentAdapters()).hasSizeGreaterThan(1);
-      assertThat(picoContainer.getParent().getComponentAdapters()).hasSizeGreaterThan(1);
-      assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSizeGreaterThan(1);
-      assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSizeGreaterThan(1);
-      assertThat(
-        picoContainer.getComponentAdapters().stream()
-          .map(ComponentAdapter::getComponentImplementation)
-          .collect(Collectors.toList())).doesNotContain(
-            (Class) CeDistributedInformationImpl.class).contains(
-              StandaloneCeDistributedInformation.class);
-      assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
+      assertThat(context.getBeanDefinitionNames()).hasSizeGreaterThan(1);
+      assertThat(context.getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1);
+      assertThat(context.getParent().getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1);
+      assertThat(context.getParent().getParent().getParent().getBeanDefinitionNames()).hasSizeGreaterThan(1);
+      assertThat(context.getParent().getParent().getParent().getParent()).isNull();
     } finally {
       underTest.stop();
     }
 
-    assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
-    assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();
-    assertThat(picoContainer.getLifecycleState().isDisposed()).isTrue();
+    assertThat(context.isActive()).isFalse();
   }
 
   private String cleanJdbcUrl() {

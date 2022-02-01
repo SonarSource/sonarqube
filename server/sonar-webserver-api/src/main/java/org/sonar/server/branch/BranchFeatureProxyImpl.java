@@ -19,15 +19,13 @@
  */
 package org.sonar.server.branch;
 
+import javax.annotation.Nullable;
+
 public class BranchFeatureProxyImpl implements BranchFeatureProxy {
 
   private final BranchFeatureExtension branchFeatureExtension;
 
-  public BranchFeatureProxyImpl() {
-    this.branchFeatureExtension = null;
-  }
-
-  public BranchFeatureProxyImpl(BranchFeatureExtension branchFeatureExtension) {
+  public BranchFeatureProxyImpl(@Nullable BranchFeatureExtension branchFeatureExtension) {
     this.branchFeatureExtension = branchFeatureExtension;
   }
 

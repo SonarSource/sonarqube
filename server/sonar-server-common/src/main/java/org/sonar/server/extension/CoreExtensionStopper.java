@@ -20,11 +20,11 @@
 package org.sonar.server.extension;
 
 import java.util.List;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.Container;
 
 import static java.lang.String.format;
 
@@ -35,9 +35,9 @@ import static java.lang.String.format;
 public class CoreExtensionStopper implements Startable {
   private static final Logger LOGGER = Loggers.get(CoreExtensionStopper.class);
 
-  private final ComponentContainer platformContainer;
+  private final Container platformContainer;
 
-  public CoreExtensionStopper(ComponentContainer platformContainer) {
+  public CoreExtensionStopper(Container platformContainer) {
     this.platformContainer = platformContainer;
   }
 

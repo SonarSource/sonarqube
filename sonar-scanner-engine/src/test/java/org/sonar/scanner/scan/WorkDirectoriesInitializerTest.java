@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,46 +35,47 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class WorkDirectoriesInitializerTest {
-  private WorkDirectoriesInitializer initializer;
+  private final WorkDirectoriesInitializer initializer = new WorkDirectoriesInitializer();
+  private final InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
+  private final DefaultInputProject project = mock(DefaultInputProject.class);
+  private final DefaultInputModule root = mock(DefaultInputModule.class);
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private File rootWorkDir;
   private File lock;
-  private InputModuleHierarchy hierarchy;
-  private DefaultInputModule root;
 
   @Before
   public void setUp() throws IOException {
     rootWorkDir = temp.newFolder();
-    // create files to clean
-    new File(rootWorkDir, "foo.txt").createNewFile();
-    File newFolder = new File(rootWorkDir, "foo");
+    when(hierarchy.root()).thenReturn(root);
+    createFilesToClean(rootWorkDir);
+    when(root.getWorkDir()).thenReturn(rootWorkDir.toPath());
+    when(project.getWorkDir()).thenReturn(rootWorkDir.toPath());
+  }
+
+  private void createFilesToClean(File dir) throws IOException {
+    new File(dir, "foo.txt").createNewFile();
+    File newFolder = new File(dir, "foo");
     newFolder.mkdir();
     File fileInFolder = new File(newFolder, "test");
     fileInFolder.createNewFile();
 
-    lock = new File(rootWorkDir, DirectoryLock.LOCK_FILE_NAME);
+    lock = new File(dir, DirectoryLock.LOCK_FILE_NAME);
     lock.createNewFile();
-
-    hierarchy = mock(InputModuleHierarchy.class);
-    root = mock(DefaultInputModule.class);
-    when(hierarchy.root()).thenReturn(root);
-    when(root.getWorkDir()).thenReturn(rootWorkDir.toPath());
-
-    assertThat(rootWorkDir.list().length).isGreaterThan(1);
-    initializer = new WorkDirectoriesInitializer();
+    assertThat(dir.list()).hasSizeGreaterThan(1);
   }
 
   @Test
-  public void testNonExisting() {
+  public void execute_doesnt_fail_if_nothing_to_clean() {
     temp.delete();
     initializer.execute(hierarchy);
   }
 
   @Test
-  public void testClean() {
-    initializer.execute(hierarchy);
+  public void execute_should_clean_root() {
+    initializer.execute(project);
 
     assertThat(rootWorkDir).exists();
     assertThat(lock).exists();
@@ -81,20 +83,35 @@ public class WorkDirectoriesInitializerTest {
   }
 
   @Test
-  public void cleaningRootModuleShouldNotDeleteChildrenWorkDir() throws IOException {
+  public void execute_on_hierarchy_should_clean_submodules() throws IOException {
     DefaultInputModule moduleA = mock(DefaultInputModule.class);
-    when(hierarchy.children(root)).thenReturn(Arrays.asList(moduleA));
-    File moduleAWorkdir = new File(rootWorkDir, "moduleA");
-    when(moduleA.getWorkDir()).thenReturn(moduleAWorkdir.toPath());
-    moduleAWorkdir.mkdir();
-    new File(moduleAWorkdir, "fooA.txt").createNewFile();
+    DefaultInputModule moduleB = mock(DefaultInputModule.class);
 
+    when(hierarchy.children(root)).thenReturn(Arrays.asList(moduleA));
+    when(hierarchy.children(moduleA)).thenReturn(Arrays.asList(moduleB));
+
+    File moduleAWorkdir = new File(rootWorkDir, "moduleA");
+    File moduleBWorkdir = new File(moduleAWorkdir, "moduleB");
+
+    when(moduleA.getWorkDir()).thenReturn(moduleAWorkdir.toPath());
+    when(moduleB.getWorkDir()).thenReturn(moduleBWorkdir.toPath());
+
+    moduleAWorkdir.mkdir();
+    moduleBWorkdir.mkdir();
+
+    new File(moduleAWorkdir, "fooA.txt").createNewFile();
+    new File(moduleBWorkdir, "fooB.txt").createNewFile();
+
+    initializer.execute(project);
     initializer.execute(hierarchy);
 
     assertThat(rootWorkDir).exists();
     assertThat(lock).exists();
     assertThat(rootWorkDir.list()).containsOnly(DirectoryLock.LOCK_FILE_NAME, "moduleA");
     assertThat(moduleAWorkdir).exists();
+    assertThat(moduleBWorkdir).exists();
+    assertThat(moduleAWorkdir.list()).containsOnly("moduleB");
+    assertThat(moduleBWorkdir).isEmptyDirectory();
   }
 
 }

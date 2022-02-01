@@ -20,6 +20,8 @@
 package org.sonar.server.ce.ws;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,6 +39,7 @@ public class WorkerCountAction implements CeWsAction {
   private final UserSession userSession;
   private final WorkerCountProvider workerCountProvider;
 
+  @Inject
   public WorkerCountAction(UserSession userSession, @Nullable WorkerCountProvider workerCountProvider) {
     this.userSession = userSession;
     this.workerCountProvider = workerCountProvider;

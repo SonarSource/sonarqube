@@ -29,7 +29,6 @@ dependencies {
   compile 'org.apache.logging.log4j:log4j-api'
   compile 'org.apache.tomcat.embed:tomcat-embed-core'
   compile 'org.apache.commons:commons-dbcp2'
-  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
   compile 'org.sonarsource.update-center:sonar-update-center-common'

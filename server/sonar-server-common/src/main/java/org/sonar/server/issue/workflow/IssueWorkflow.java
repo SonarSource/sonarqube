@@ -20,7 +20,7 @@
 package org.sonar.server.issue.workflow;
 
 import java.util.List;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;

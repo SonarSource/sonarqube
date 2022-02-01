@@ -19,44 +19,33 @@
  */
 package org.sonar.server.platform;
 
-import org.picocontainer.Startable;
-import org.sonar.api.utils.log.Loggers;
+import javax.annotation.Nullable;
+import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.platform.ServerStopHandler;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * @since 2.2
  */
 public class ServerLifecycleNotifier implements Startable {
 
-  private ServerStartHandler[] startHandlers;
-  private ServerStopHandler[] stopHandlers;
-  private Server server;
+  private final ServerStartHandler[] startHandlers;
+  private final ServerStopHandler[] stopHandlers;
+  private final Server server;
 
-  public ServerLifecycleNotifier(Server server, ServerStartHandler[] startHandlers, ServerStopHandler[] stopHandlers) {
-    this.startHandlers = startHandlers;
-    this.stopHandlers = stopHandlers;
+  public ServerLifecycleNotifier(Server server, @Nullable ServerStartHandler[] startHandlers, @Nullable ServerStopHandler[] stopHandlers) {
+    this.startHandlers = startHandlers != null ? startHandlers :  new ServerStartHandler[0];
+    this.stopHandlers = stopHandlers != null ? stopHandlers: new ServerStopHandler[0];
     this.server = server;
-  }
-
-  public ServerLifecycleNotifier(Server server, ServerStartHandler[] startHandlers) {
-    this(server, startHandlers, new ServerStopHandler[0]);
-  }
-
-  public ServerLifecycleNotifier(Server server, ServerStopHandler[] stopHandlers) {
-    this(server, new ServerStartHandler[0], stopHandlers);
-  }
-
-  public ServerLifecycleNotifier(Server server) {
-    this(server, new ServerStartHandler[0], new ServerStopHandler[0]);
   }
 
   @Override
   public void start() {
     /* IMPORTANT :
      we want to be sure that handlers are notified when all other services are started.
-     That's why the class Platform explicitely executes the method notifyStart(), instead of letting picocontainer
+     That's why the class Platform explicitely executes the method notifyStart(), instead of letting the ioc container
      choose the startup order.
      */
   }

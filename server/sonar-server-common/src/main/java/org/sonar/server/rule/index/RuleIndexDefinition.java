@@ -37,6 +37,8 @@ import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_
 import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
+import javax.inject.Inject;
+
 /**
  * Definition of ES index "rules", including settings and fields.
  */
@@ -82,6 +84,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   private final Configuration config;
   private final boolean enableSource;
 
+  @Inject
   public RuleIndexDefinition(Configuration config) {
     this(config, false);
   }

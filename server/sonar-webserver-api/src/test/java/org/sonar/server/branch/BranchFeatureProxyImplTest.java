@@ -31,7 +31,7 @@ public class BranchFeatureProxyImplTest {
 
   @Test
   public void return_false_when_no_extension() {
-    assertThat(new BranchFeatureProxyImpl().isEnabled()).isFalse();
+    assertThat(new BranchFeatureProxyImpl(null).isEnabled()).isFalse();
   }
 
   @Test

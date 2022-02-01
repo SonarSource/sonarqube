@@ -167,7 +167,7 @@ public class QGChangeEventListenersImplTest {
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_no_listener() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl();
+    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(null);
 
     underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 

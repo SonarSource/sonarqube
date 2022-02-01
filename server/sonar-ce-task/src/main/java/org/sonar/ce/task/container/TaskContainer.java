@@ -19,17 +19,16 @@
  */
 package org.sonar.ce.task.container;
 
-import org.picocontainer.PicoContainer;
 import org.sonar.ce.task.CeTask;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Container;
+import org.sonar.core.platform.ExtensionContainer;
 
 /**
- * The Compute Engine task container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
+ * The Compute Engine task container. Created for a specific parent {@link ExtensionContainer} and a specific {@link CeTask}.
  */
 public interface TaskContainer extends Container, AutoCloseable {
 
-  ComponentContainer getParent();
+  ExtensionContainer getParent();
 
   /**
    * Starts task container, starting any startable component in it.
@@ -41,10 +40,4 @@ public interface TaskContainer extends Container, AutoCloseable {
    */
   @Override
   void close();
-
-  /**
-   * Access to the underlying pico container.
-   */
-  PicoContainer getPicoContainer();
-
 }

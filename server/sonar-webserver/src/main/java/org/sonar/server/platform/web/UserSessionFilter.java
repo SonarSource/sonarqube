@@ -58,7 +58,7 @@ public class UserSessionFilter implements Filter {
 
     DBSessions dbSessions = platform.getContainer().getComponentByType(DBSessions.class);
     ThreadLocalSettings settings = platform.getContainer().getComponentByType(ThreadLocalSettings.class);
-    UserSessionInitializer userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
+    UserSessionInitializer userSessionInitializer = platform.getContainer().getOptionalComponentByType(UserSessionInitializer.class).orElse(null);
 
     LOG.trace("{} serves {}", Thread.currentThread(), request.getRequestURI());
     dbSessions.enableCaching();

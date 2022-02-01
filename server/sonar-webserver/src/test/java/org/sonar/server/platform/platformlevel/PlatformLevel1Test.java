@@ -21,10 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.utils.System2;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.WebServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,14 +29,12 @@ import static org.mockito.Mockito.mock;
 
 public class PlatformLevel1Test {
 
-  private PlatformLevel1 underTest = new PlatformLevel1(mock(Platform.class), new Properties());
+  private final PlatformLevel1 underTest = new PlatformLevel1(mock(Platform.class), new Properties());
 
   @Test
   public void no_missing_dependencies_between_components() {
     underTest.configureLevel();
 
-    assertThat(underTest.getAll(PropertyDefinition.class)).isNotEmpty();
-    assertThat(underTest.getOptional(WebServer.class)).isPresent();
-    assertThat(underTest.getOptional(System2.class)).isPresent();
+    assertThat(underTest.getContainer().context().getBeanDefinitionNames()).isNotEmpty();
   }
 }

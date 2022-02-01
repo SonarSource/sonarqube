@@ -79,8 +79,7 @@ public abstract class CoreExtensionsInstaller {
     }
   }
 
-  private void addDeclaredExtensions(ExtensionContainer container, Predicate<Object> extensionFilter,
-    Predicate<Object> additionalSideFilter, CoreExtension coreExtension) {
+  private void addDeclaredExtensions(ExtensionContainer container, Predicate<Object> extensionFilter, Predicate<Object> additionalSideFilter, CoreExtension coreExtension) {
     ContextImpl context = new ContextImpl(container, extensionFilter, additionalSideFilter, coreExtension.getName());
     coreExtension.load(context);
   }

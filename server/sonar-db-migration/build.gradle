@@ -11,7 +11,6 @@ dependencies {
   compile 'commons-lang:commons-lang'
   compile 'commons-codec:commons-codec'
   compile 'com.fasterxml.staxmate:staxmate'
-  compile 'org.picocontainer:picocontainer'
 
   compile project(':server:sonar-db-core')
   compile project(':server:sonar-process')

@@ -20,7 +20,7 @@
 package org.sonar.ce.monitoring;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.SystemInfoSection;

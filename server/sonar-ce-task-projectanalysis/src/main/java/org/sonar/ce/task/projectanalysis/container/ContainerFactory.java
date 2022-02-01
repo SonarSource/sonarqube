@@ -22,9 +22,9 @@ package org.sonar.ce.task.projectanalysis.container;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 public interface ContainerFactory {
 
-  TaskContainer create(ComponentContainer parent, CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders);
+  TaskContainer create(SpringComponentContainer parent, CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders);
 }

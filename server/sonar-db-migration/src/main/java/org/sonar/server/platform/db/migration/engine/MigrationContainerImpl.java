@@ -19,42 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import org.picocontainer.ComponentAdapter;
-import org.picocontainer.DefaultPicoContainer;
-import org.picocontainer.LifecycleStrategy;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.behaviors.OptInCaching;
-import org.picocontainer.monitors.NullComponentMonitor;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.StartableCloseableSafeLifecyleStrategy;
+import org.sonar.core.platform.LazyStrategy;
+import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
+import org.sonar.server.platform.db.migration.step.MigrationSteps;
+import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Collections.emptyList;
 
-public class MigrationContainerImpl extends ComponentContainer implements MigrationContainer {
+public class MigrationContainerImpl extends SpringComponentContainer implements MigrationContainer {
 
-  public MigrationContainerImpl(ComponentContainer parent, MigrationContainerPopulator populator) {
-    super(createContainer(requireNonNull(parent)), parent.getComponentByType(PropertyDefinitions.class));
-
-    populateContainer(requireNonNull(populator));
+  public MigrationContainerImpl(SpringComponentContainer parent, Class<? extends MigrationStepsExecutor> executor) {
+    super(parent, parent.getComponentByType(PropertyDefinitions.class), emptyList(), new LazyStrategy());
+    add(executor);
+    addSteps(parent.getComponentByType(MigrationSteps.class));
     startComponents();
   }
 
-  private void populateContainer(MigrationContainerPopulator populator) {
-    populator.populateContainer(this);
-  }
-
-  /**
-   * Creates a PicContainer which extends the specified ComponentContainer <strong>but is not referenced in return</strong>.
-   */
-  private static MutablePicoContainer createContainer(ComponentContainer parent) {
-    LifecycleStrategy lifecycleStrategy = new StartableCloseableSafeLifecyleStrategy() {
-      @Override
-      public boolean isLazy(ComponentAdapter<?> adapter) {
-        return true;
+  private void addSteps(MigrationSteps migrationSteps) {
+    Set<Class<? extends MigrationStep>> classes = new HashSet<>();
+    migrationSteps.readAll().forEach(step -> {
+      Class<? extends MigrationStep> stepClass = step.getStepClass();
+      if (!classes.contains(stepClass)) {
+        add(stepClass);
+        classes.add(stepClass);
       }
-    };
-    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer(), new NullComponentMonitor());
+    });
   }
 
   @Override

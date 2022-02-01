@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.platform.db.migration.engine.MigrationContainerPopulatorImpl;
 import org.sonar.server.platform.db.migration.engine.MigrationEngineImpl;
+import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 
 /**
  * Defines the components for the migration engine.
@@ -30,7 +30,7 @@ public class MigrationEngineModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      MigrationContainerPopulatorImpl.class,
+      MigrationStepsExecutorImpl.class,
       MigrationEngineImpl.class);
   }
 }

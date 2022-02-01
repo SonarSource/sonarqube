@@ -21,7 +21,6 @@ package org.sonar.server.platform.platformlevel;
 
 import java.time.Clock;
 import java.util.Properties;
-import javax.annotation.Nullable;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
@@ -29,13 +28,6 @@ import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.sonar.db.audit.AuditPersister;
-import org.sonar.db.audit.NoOpAuditPersister;
-import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
-import org.sonar.server.platform.DockerSupportImpl;
-import org.sonar.server.util.GlobalLockManagerImpl;
-import org.sonar.server.util.Paths2Impl;
-import org.sonar.server.util.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
@@ -45,6 +37,8 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.logging.LogbackHelper;
@@ -54,7 +48,9 @@ import org.sonar.server.app.WebServerProcessLogging;
 import org.sonar.server.config.ConfigurationProvider;
 import org.sonar.server.es.EsModule;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.platform.DockerSupportImpl;
 import org.sonar.server.platform.LogServerVersion;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerFileSystemImpl;
@@ -67,7 +63,10 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.util.GlobalLockManagerImpl;
 import org.sonar.server.util.OkHttpClientProvider;
+import org.sonar.server.util.Paths2Impl;
+import org.sonar.server.util.TempFolderCleaner;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
@@ -75,7 +74,6 @@ import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
 public class PlatformLevel1 extends PlatformLevel {
   private final Platform platform;
   private final Properties properties;
-  @Nullable
   private final Object[] extraRootComponents;
 
   public PlatformLevel1(Platform platform, Properties properties, Object... extraRootComponents) {
@@ -96,7 +94,7 @@ public class PlatformLevel1 extends PlatformLevel {
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition),
       ThreadLocalSettings.class,
-      new ConfigurationProvider(),
+      ConfigurationProvider.class,
       LogServerVersion.class,
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
@@ -124,11 +122,11 @@ public class PlatformLevel1 extends PlatformLevel {
       // DB
       DBSessionsImpl.class,
       DbClient.class,
-      DaoModule.class,
+      new DaoModule(),
 
       // Elasticsearch
       WebAuthorizationTypeSupport.class,
-      EsModule.class,
+      new EsModule(),
 
       // rules/qprofiles
       RuleIndex.class,
@@ -160,6 +158,7 @@ public class PlatformLevel1 extends PlatformLevel {
 
   @Override
   public PlatformLevel start() {
+    PlatformLevel start = super.start();
     get(CoreExtensionsLoader.class)
       .load();
     get(WebCoreExtensionsInstaller.class)
@@ -168,6 +167,6 @@ public class PlatformLevel1 extends PlatformLevel {
       add(NoOpAuditPersister.class);
     }
 
-    return super.start();
+    return start;
   }
 }

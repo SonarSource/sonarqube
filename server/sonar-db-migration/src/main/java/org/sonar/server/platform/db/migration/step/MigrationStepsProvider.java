@@ -20,24 +20,16 @@
 package org.sonar.server.platform.db.migration.step;
 
 import java.util.Arrays;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.springframework.context.annotation.Bean;
 
 /**
  * This class is responsible for providing the {@link MigrationSteps} to be injected in classes that need it and
  * ensures that there's only one such instance.
  */
-public class MigrationStepsProvider extends ProviderAdapter {
-  private MigrationSteps migrationSteps;
-
+public class MigrationStepsProvider {
+  @Bean("MigrationSteps")
   public MigrationSteps provide(InternalMigrationStepRegistry migrationStepRegistry, DbVersion... dbVersions) {
-    if (migrationSteps == null) {
-      migrationSteps = buildMigrationSteps(migrationStepRegistry, dbVersions);
-    }
-    return migrationSteps;
-  }
-
-  private static MigrationSteps buildMigrationSteps(InternalMigrationStepRegistry migrationStepRegistry, DbVersion[] dbVersions) {
     Arrays.stream(dbVersions).forEach(dbVersion -> dbVersion.addSteps(migrationStepRegistry));
     return migrationStepRegistry.build();
   }

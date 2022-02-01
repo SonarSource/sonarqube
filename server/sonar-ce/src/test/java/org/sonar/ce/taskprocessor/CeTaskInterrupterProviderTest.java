@@ -32,10 +32,10 @@ import static org.mockito.Mockito.mock;
 
 public class CeTaskInterrupterProviderTest {
 
-  private MapSettings settings = new MapSettings();
-  private CeWorkerController ceWorkerController = mock(CeWorkerController.class);
-  private System2 system2 = mock(System2.class);
-  private CeTaskInterrupterProvider underTest = new CeTaskInterrupterProvider();
+  private final MapSettings settings = new MapSettings();
+  private final CeWorkerController ceWorkerController = mock(CeWorkerController.class);
+  private final System2 system2 = mock(System2.class);
+  private final CeTaskInterrupterProvider underTest = new CeTaskInterrupterProvider();
 
   @Test
   public void provide_returns_a_SimpleCeTaskInterrupter_instance_if_configuration_is_empty() {
@@ -43,15 +43,6 @@ public class CeTaskInterrupterProviderTest {
 
     assertThat(instance)
       .isInstanceOf(SimpleCeTaskInterrupter.class);
-  }
-
-  @Test
-  public void provide_always_return_the_same_SimpleCeTaskInterrupter_instance() {
-    CeTaskInterrupter instance = underTest.provide(settings.asConfig(), ceWorkerController, system2);
-
-    assertThat(instance)
-      .isSameAs(underTest.provide(settings.asConfig(), ceWorkerController, system2))
-      .isSameAs(underTest.provide(new MapSettings().asConfig(), ceWorkerController, system2));
   }
 
   @Test
@@ -98,18 +89,6 @@ public class CeTaskInterrupterProviderTest {
     assertThatThrownBy(() -> underTest.provide(settings.asConfig(), ceWorkerController, system2))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("The property 'sonar.ce.task.timeoutSeconds' must be a long value >= 1. Got '" + negativeValue + "'");
-  }
-
-  @Test
-  public void provide_always_return_the_same_TimeoutCeTaskInterrupter_instance() {
-    int timeout = 1 + new Random().nextInt(2222);
-    settings.setProperty("sonar.ce.task.timeoutSeconds", timeout);
-
-    CeTaskInterrupter instance = underTest.provide(settings.asConfig(), ceWorkerController, system2);
-
-    assertThat(instance)
-      .isSameAs(underTest.provide(settings.asConfig(), ceWorkerController, system2))
-      .isSameAs(underTest.provide(new MapSettings().setProperty("sonar.ce.task.timeoutSeconds", 999).asConfig(), ceWorkerController, system2));
   }
 
   private static Object readField(CeTaskInterrupter instance, String fieldName) throws NoSuchFieldException, IllegalAccessException {

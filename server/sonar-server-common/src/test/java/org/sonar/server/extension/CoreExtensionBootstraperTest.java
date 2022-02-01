@@ -21,17 +21,16 @@ package org.sonar.server.extension;
 
 import org.junit.Test;
 import org.sonar.api.platform.Server;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class CoreExtensionBootstraperTest {
-  private ComponentContainer componentContainer = new ComponentContainer();
-  private CoreExtensionBridge bridge = mock(CoreExtensionBridge.class);
-
-  private CoreExtensionBootstraper underTest = new CoreExtensionBootstraper(componentContainer);
+  private final SpringComponentContainer componentContainer = new SpringComponentContainer();
+  private final CoreExtensionBridge bridge = mock(CoreExtensionBridge.class);
+  private final CoreExtensionBootstraper underTest = new CoreExtensionBootstraper(componentContainer);
 
   @Test
   public void onServerStart_calls_startPlugin_if_Bridge_exists_in_container() {
@@ -47,6 +46,7 @@ public class CoreExtensionBootstraperTest {
 
   @Test
   public void onServerStart_does_not_call_startPlugin_if_Bridge_does_not_exist_in_container() {
+    componentContainer.startComponents();
     underTest.onServerStart(mock(Server.class));
 
     verifyNoMoreInteractions(bridge);

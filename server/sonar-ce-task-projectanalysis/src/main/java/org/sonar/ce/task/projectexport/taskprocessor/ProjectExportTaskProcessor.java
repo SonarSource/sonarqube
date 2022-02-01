@@ -27,15 +27,15 @@ import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.ce.task.projectexport.ProjectExportContainerPopulator;
 import org.sonar.ce.task.projectexport.ProjectExportProcessor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static org.sonar.db.ce.CeTaskTypes.PROJECT_EXPORT;
 
 public class ProjectExportTaskProcessor implements CeTaskProcessor {
 
-  private final ComponentContainer componentContainer;
+  private final SpringComponentContainer componentContainer;
 
-  public ProjectExportTaskProcessor(ComponentContainer componentContainer) {
+  public ProjectExportTaskProcessor(SpringComponentContainer componentContainer) {
     this.componentContainer = componentContainer;
   }
 

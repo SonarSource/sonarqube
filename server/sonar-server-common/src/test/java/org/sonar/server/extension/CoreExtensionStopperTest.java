@@ -20,17 +20,16 @@
 package org.sonar.server.extension;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class CoreExtensionStopperTest {
-  private ComponentContainer componentContainer = new ComponentContainer();
-  private CoreExtensionBridge bridge = mock(CoreExtensionBridge.class);
-
-  private CoreExtensionStopper underTest = new CoreExtensionStopper(componentContainer);
+  private final SpringComponentContainer componentContainer = new SpringComponentContainer();
+  private final CoreExtensionBridge bridge = mock(CoreExtensionBridge.class);
+  private final CoreExtensionStopper underTest = new CoreExtensionStopper(componentContainer);
 
   @Test
   public void stop_calls_stopPlugin_if_Bridge_exists_in_container() {
@@ -46,6 +45,7 @@ public class CoreExtensionStopperTest {
 
   @Test
   public void stop_does_not_call_stopPlugin_if_Bridge_does_not_exist_in_container() {
+    componentContainer.startComponents();
     underTest.stop();
 
     verifyNoMoreInteractions(bridge);

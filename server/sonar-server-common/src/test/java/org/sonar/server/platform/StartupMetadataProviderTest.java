@@ -34,21 +34,19 @@ import org.sonar.db.property.PropertyDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 public class StartupMetadataProviderTest {
-
   private static final long A_DATE = 1_500_000_000_000L;
-
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private StartupMetadataProvider underTest = new StartupMetadataProvider();
-  private System2 system = mock(System2.class);
-  private WebServer webServer = mock(WebServer.class);
+  private final StartupMetadataProvider underTest = new StartupMetadataProvider();
+  private final System2 system = mock(System2.class);
+  private final WebServer webServer = mock(WebServer.class);
 
   @Test
   public void generate_SERVER_STARTIME_but_do_not_persist_it_if_server_is_startup_leader() {
@@ -60,10 +58,6 @@ public class StartupMetadataProviderTest {
     assertThat(metadata.getStartedAt()).isEqualTo(A_DATE);
 
     assertNotPersistedProperty(CoreProperties.SERVER_STARTTIME);
-
-    // keep a cache
-    StartupMetadata secondMetadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
-    assertThat(secondMetadata).isSameAs(metadata);
   }
 
   @Test
@@ -109,11 +103,7 @@ public class StartupMetadataProviderTest {
     // still in database
     assertPersistedProperty(CoreProperties.SERVER_STARTTIME, formatDateTime(A_DATE));
 
-    // keep a cache
-    StartupMetadata secondMetadata = underTest.provide(system, runtime, webServer, dbTester.getDbClient());
-    assertThat(secondMetadata).isSameAs(metadata);
-
-    verifyZeroInteractions(system);
+    verifyNoInteractions(system);
   }
 
   private void assertPersistedProperty(String propertyKey, String expectedValue) {

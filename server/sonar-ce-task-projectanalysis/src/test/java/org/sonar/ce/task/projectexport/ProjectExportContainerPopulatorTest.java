@@ -19,87 +19,23 @@
  */
 package org.sonar.ce.task.projectexport;
 
-import com.google.common.base.Predicate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.junit.Test;
-import org.picocontainer.PicoContainer;
-import org.sonar.ce.task.container.TaskContainer;
+import org.sonar.ce.task.projectanalysis.task.ListTaskContainer;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.setting.SettingsLoader;
-import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectExportContainerPopulatorTest {
-
-  private static final int COMPONENTS_BY_DEFAULT_IN_CONTAINER = 2;
-
   private final ProjectDescriptor descriptor = new ProjectDescriptor("project_uuid", "project_key", "Project Name");
   private final ProjectExportContainerPopulator underTest = new ProjectExportContainerPopulator(descriptor);
 
   @Test
   public void test_populateContainer() {
-    RecorderTaskContainer container = new RecorderTaskContainer();
+    ListTaskContainer container = new ListTaskContainer();
     underTest.populateContainer(container);
-    assertThat(container.addedComponents)
-      .hasSize(COMPONENTS_BY_DEFAULT_IN_CONTAINER + 8)
+    assertThat(container.getAddedComponents())
+      .hasSize(29)
       .contains(descriptor, SettingsLoader.class);
-  }
-
-  private static class RecorderTaskContainer implements TaskContainer {
-    private final List<Object> addedComponents = new ArrayList<>();
-
-    @Override
-    public ComponentContainer add(Object... objects) {
-      addedComponents.addAll(Arrays.asList(objects));
-      // not used anyway
-      return null;
-    }
-
-    @Override
-    public ComponentContainer addSingletons(Iterable<?> components) {
-      List<Object> filteredComponents = StreamSupport.stream(components.spliterator(), false)
-        .filter((Predicate<Object>) input -> !(input instanceof Class) || !ComputationStep.class.isAssignableFrom((Class<?>) input))
-        .collect(Collectors.toList());
-
-      addedComponents.addAll(filteredComponents);
-      // not used anyway
-      return null;
-    }
-
-    @Override
-    public ComponentContainer getParent() {
-      throw new UnsupportedOperationException("getParent is not implemented");
-    }
-
-    @Override
-    public void bootup() {
-      throw new UnsupportedOperationException("bootup is not implemented");
-    }
-
-    @Override
-    public void close() {
-      throw new UnsupportedOperationException("close is not implemented");
-    }
-
-    @Override
-    public PicoContainer getPicoContainer() {
-      throw new UnsupportedOperationException("getParent is not implemented");
-    }
-
-    @Override
-    public <T> T getComponentByType(Class<T> type) {
-      throw new UnsupportedOperationException("getParent is not implemented");
-    }
-
-    @Override
-    public <T> List<T> getComponentsByType(final Class<T> type) {
-      throw new UnsupportedOperationException("getParent is not implemented");
-    }
   }
 }

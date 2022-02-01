@@ -47,6 +47,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.rule.ServerRuleFinder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -61,12 +62,14 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   private List<BuiltInQProfile> qProfiles;
 
   /**
-   * Requires for pico container when no {@link BuiltInQualityProfilesDefinition} is defined at all
+   * Used by the ioc container when no {@link BuiltInQualityProfilesDefinition} is defined at all
    */
+  @Autowired(required = false)
   public BuiltInQProfileRepositoryImpl(DbClient dbClient, ServerRuleFinder ruleFinder, Languages languages) {
     this(dbClient, ruleFinder, languages, new BuiltInQualityProfilesDefinition[0]);
   }
 
+  @Autowired(required = false)
   public BuiltInQProfileRepositoryImpl(DbClient dbClient, ServerRuleFinder ruleFinder, Languages languages, BuiltInQualityProfilesDefinition... definitions) {
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;

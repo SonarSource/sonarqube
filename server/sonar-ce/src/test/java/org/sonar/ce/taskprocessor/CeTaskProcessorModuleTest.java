@@ -20,46 +20,30 @@
 package org.sonar.ce.taskprocessor;
 
 import org.junit.Test;
-import org.picocontainer.ComponentAdapter;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import org.sonar.ce.notification.ReportAnalysisFailureNotificationExecutionListener;
-import org.sonar.ce.task.CeTaskInterrupter;
-import org.sonar.core.platform.ComponentContainer;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.core.platform.ExtensionContainer;
 
 public class CeTaskProcessorModuleTest {
   private CeTaskProcessorModule underTest = new CeTaskProcessorModule();
 
   @Test
-  public void defines_CeWorker_ExecutionListener_for_CeLogging() {
-    ComponentContainer container = new ComponentContainer();
+  public void defines_module() {
+    var container = mock(ExtensionContainer.class);
 
     underTest.configure(container);
 
-    assertThat(container.getPicoContainer().getComponentAdapters(CeWorker.ExecutionListener.class)
-      .stream()
-      .map(ComponentAdapter::getComponentImplementation))
-        .contains(CeLoggingWorkerExecutionListener.class);
-  }
+    verify(container).add(CeTaskProcessorRepositoryImpl.class);
+    verify(container).add(CeLoggingWorkerExecutionListener.class);
+    verify(container).add(ReportAnalysisFailureNotificationExecutionListener.class);
+    verify(container).add(any(CeTaskInterrupterProvider.class));
+    verify(container).add(CeTaskInterrupterWorkerExecutionListener.class);
+    verify(container).add(CeWorkerFactoryImpl.class);
+    verify(container).add(CeWorkerControllerImpl.class);
+    verify(container).add(CeProcessingSchedulerExecutorServiceImpl.class);
+    verify(container).add(CeProcessingSchedulerImpl.class);
 
-  @Test
-  public void defines_ExecutionListener_for_report_processing_failure_notifications() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters(CeWorker.ExecutionListener.class)
-      .stream()
-      .map(ComponentAdapter::getComponentImplementation))
-        .contains(ReportAnalysisFailureNotificationExecutionListener.class);
-  }
-
-  @Test
-  public void defines_CeTaskInterrupterProvider_object() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-    assertThat(container.getPicoContainer().getComponentAdapter(CeTaskInterrupter.class))
-      .isInstanceOf(CeTaskInterrupterProvider.class);
   }
 }

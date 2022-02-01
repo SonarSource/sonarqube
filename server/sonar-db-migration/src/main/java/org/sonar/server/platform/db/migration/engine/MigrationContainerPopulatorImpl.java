@@ -32,35 +32,24 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
  * Responsible for:
  * <ul>
  *   <li>adding all the {@link MigrationStep} classes to the container after building it</li>
- *   <li>adding dependencies for them to the container if there aren't already available in parent container
- *   (see {@link DbVersion#getSupportComponents()})</li>
  *   <li>adding the {@link MigrationStepsExecutorImpl} to the container</li>
  * </ul>
  */
 public class MigrationContainerPopulatorImpl implements MigrationContainerPopulator {
-  private final DbVersion[] dbVersions;
   private final Class<? extends MigrationStepsExecutor> executorType;
 
-  public MigrationContainerPopulatorImpl(DbVersion... dbVersions) {
-    this(MigrationStepsExecutorImpl.class, dbVersions);
+  public MigrationContainerPopulatorImpl() {
+    this(MigrationStepsExecutorImpl.class);
   }
 
-  protected MigrationContainerPopulatorImpl(Class<? extends MigrationStepsExecutor> executorType, DbVersion... dbVersions) {
-    this.dbVersions = dbVersions;
+  protected MigrationContainerPopulatorImpl(Class<? extends MigrationStepsExecutor> executorType) {
     this.executorType = executorType;
   }
 
   @Override
   public void populateContainer(MigrationContainer container) {
     container.add(executorType);
-    populateFromDbVersion(container);
     populateFromMigrationSteps(container);
-  }
-
-  private void populateFromDbVersion(MigrationContainer container) {
-    Arrays.stream(dbVersions)
-      .flatMap(DbVersion::getSupportComponents)
-      .forEach(container::add);
   }
 
   private static void populateFromMigrationSteps(MigrationContainer container) {

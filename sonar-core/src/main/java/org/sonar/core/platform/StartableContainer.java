@@ -17,25 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
-import org.junit.Test;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class LazyBeanFactoryPostProcessorTest {
-  private final LazyBeanFactoryPostProcessor postProcessor = new LazyBeanFactoryPostProcessor();
-
-  @Test
-  public void sets_all_beans_lazy() {
-    DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-    beanFactory.registerBeanDefinition("bean1", new RootBeanDefinition());
-    assertThat(beanFactory.getBeanDefinition("bean1").isLazyInit()).isFalse();
-
-    postProcessor.postProcessBeanFactory(beanFactory);
-    assertThat(beanFactory.getBeanDefinition("bean1").isLazyInit()).isTrue();
-  }
-
+public interface StartableContainer extends ExtensionContainer {
+  StartableContainer startComponents();
 }

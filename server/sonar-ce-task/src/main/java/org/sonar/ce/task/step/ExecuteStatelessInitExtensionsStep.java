@@ -20,6 +20,7 @@
 package org.sonar.ce.task.step;
 
 import org.sonar.api.ce.ComputeEngineSide;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Execute {@link StatelessInitExtension} instances in no specific order.
@@ -31,6 +32,7 @@ public class ExecuteStatelessInitExtensionsStep implements ComputationStep {
 
   private final StatelessInitExtension[] extensions;
 
+  @Autowired(required = false)
   public ExecuteStatelessInitExtensionsStep(StatelessInitExtension[] extensions) {
     this.extensions = extensions;
   }
@@ -38,6 +40,7 @@ public class ExecuteStatelessInitExtensionsStep implements ComputationStep {
   /**
    * Used when zero {@link StatelessInitExtension} are registered into container.
    */
+  @Autowired(required = false)
   public ExecuteStatelessInitExtensionsStep() {
     this(new StatelessInitExtension[0]);
   }

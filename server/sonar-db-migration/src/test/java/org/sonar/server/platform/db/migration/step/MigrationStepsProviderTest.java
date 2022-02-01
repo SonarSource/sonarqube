@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.util.Random;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.server.platform.db.migration.version.DbVersion;
@@ -30,13 +29,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class MigrationStepsProviderTest {
 
-  private InternalMigrationStepRegistry internalMigrationStepRegistry = mock(InternalMigrationStepRegistry.class);
-  private MigrationStepsProvider underTest = new MigrationStepsProvider();
+  private final InternalMigrationStepRegistry internalMigrationStepRegistry = mock(InternalMigrationStepRegistry.class);
+  private final MigrationStepsProvider underTest = new MigrationStepsProvider();
 
   @Test
   public void provide_throws_ISE_with_registry_build_throws_ISE_because_it_is_empty() {
@@ -49,7 +47,7 @@ public class MigrationStepsProviderTest {
   }
 
   @Test
-  public void provide_calls_DbVersion_addStep_in_order_and_only_once() {
+  public void provide_calls_DbVersion_addStep_in_order() {
     DbVersion dbVersion1 = newMockFailingOnSecondBuildCall();
     DbVersion dbVersion2 = newMockFailingOnSecondBuildCall();
     DbVersion dbVersion3 = newMockFailingOnSecondBuildCall();
@@ -64,24 +62,6 @@ public class MigrationStepsProviderTest {
     inOrder.verify(dbVersion2).addSteps(internalMigrationStepRegistry);
     inOrder.verify(dbVersion3).addSteps(internalMigrationStepRegistry);
     inOrder.verifyNoMoreInteractions();
-
-    // calling a second time with another argument, it's just ignored
-    DbVersion dbVersion4 = newMockFailingOnSecondBuildCall();
-    assertThat(underTest.provide(internalMigrationStepRegistry, dbVersion4)).isSameAs(expected);
-    verifyZeroInteractions(dbVersion4);
-  }
-
-  @Test
-  public void provide_always_returns_the_same_MigrationSteps_instance_and_calls_registry_build_only_once() {
-    MigrationSteps migrationSteps = mock(MigrationSteps.class);
-    when(internalMigrationStepRegistry.build())
-      .thenReturn(migrationSteps)
-      .thenThrow(new RuntimeException("method build should not be called twice"));
-
-    for (int i = 0; i < Math.abs(new Random().nextInt(50)) + 1; i++) {
-      assertThat(underTest.provide(internalMigrationStepRegistry)).isSameAs(migrationSteps);
-    }
-
   }
 
   private static DbVersion newMockFailingOnSecondBuildCall() {

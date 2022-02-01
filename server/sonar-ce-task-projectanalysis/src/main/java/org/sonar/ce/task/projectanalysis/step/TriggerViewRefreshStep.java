@@ -23,6 +23,7 @@ import java.util.OptionalInt;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.view.TriggerViewRefreshDelegate;
 import org.sonar.ce.task.step.ComputationStep;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This step will trigger refresh of Portfolios and Applications that include the current project.
@@ -34,16 +35,18 @@ public class TriggerViewRefreshStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadata;
 
   /**
-   * Constructor used by Pico when no implementation of {@link TriggerViewRefreshDelegate} is available
+   * Constructor used by the ioc container when no implementation of {@link TriggerViewRefreshDelegate} is available
    */
+  @Autowired(required = false)
   public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata) {
     this.analysisMetadata = analysisMetadata;
     this.triggerViewRefreshDelegates = new TriggerViewRefreshDelegate[0];
   }
 
   /**
-   * Constructor used by Pico when an implementation of {@link TriggerViewRefreshDelegate} is available
+   * Constructor used by the ioc container when an implementation of {@link TriggerViewRefreshDelegate} is available
    */
+  @Autowired(required = false)
   public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata, TriggerViewRefreshDelegate[] triggerViewRefreshDelegates) {
     this.analysisMetadata = analysisMetadata;
     this.triggerViewRefreshDelegates = triggerViewRefreshDelegates;

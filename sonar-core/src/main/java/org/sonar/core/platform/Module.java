@@ -24,13 +24,11 @@ import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class Module {
-  private ComponentContainer container;
+  private Container container;
 
-  public Module configure(ComponentContainer container) {
+  public Module configure(Container container) {
     this.container = checkNotNull(container);
-
     configureModule();
-
     return this;
   }
 
@@ -43,7 +41,7 @@ public abstract class Module {
 
     for (Object object : objects) {
       if (object != null) {
-        container.addComponent(object, true);
+        container.add(object);
       }
     }
   }

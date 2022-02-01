@@ -20,16 +20,15 @@
 package org.sonar.server.projectlink.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectLinksWsModuleTest {
-
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new ProjectLinksModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 4);
+    assertThat(container.getAddedObjects()).hasSize(4);
   }
 }

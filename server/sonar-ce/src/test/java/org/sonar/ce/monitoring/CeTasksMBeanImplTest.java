@@ -33,17 +33,20 @@ import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerController;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.monitoring.CeTasksMBean.OBJECT_NAME;
 
 public class CeTasksMBeanImplTest {
   private static final long PENDING_COUNT = 2;
@@ -63,8 +66,14 @@ public class CeTasksMBeanImplTest {
     })
     .collect(MoreCollectors.toSet());
 
-  private CeWorkerController ceWorkerController = mock(CeWorkerController.class);
-  private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), ceWorkerController);
+  private final CeWorkerController ceWorkerController = mock(CeWorkerController.class);
+  private final CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration(), new DumbCeWorkerFactory(), ceWorkerController);
+
+  @BeforeClass
+  public static void beforeClass() {
+    // if any other class starts a container where CeTasksMBeanImpl is added, it will have been registered
+    Jmx.unregister(OBJECT_NAME);
+  }
 
   @Test
   public void register_and_unregister() throws Exception {
@@ -84,7 +93,7 @@ public class CeTasksMBeanImplTest {
   @CheckForNull
   private ObjectInstance getMBean() throws Exception {
     try {
-      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(CeTasksMBean.OBJECT_NAME));
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(OBJECT_NAME));
     } catch (InstanceNotFoundException e) {
       return null;
     }

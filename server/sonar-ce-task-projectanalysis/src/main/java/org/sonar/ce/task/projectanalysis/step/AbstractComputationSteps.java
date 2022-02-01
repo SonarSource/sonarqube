@@ -37,14 +37,6 @@ public abstract class AbstractComputationSteps implements ComputationSteps {
 
   @Override
   public Iterable<ComputationStep> instances() {
-    return Iterables.transform(
-      orderedStepClasses(),
-      input -> {
-        ComputationStep computationStepType = container.getComponentByType(input);
-        if (computationStepType == null) {
-          throw new IllegalStateException(String.format("Component not found: %s", input));
-        }
-        return computationStepType;
-      });
+    return Iterables.transform(orderedStepClasses(), container::getComponentByType);
   }
 }

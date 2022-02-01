@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.es.EsTester;
@@ -59,7 +60,7 @@ public class ChangePasswordActionTest {
 
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(),
     new UserIndexer(db.getDbClient(), es.client()), new DefaultGroupFinder(db.getDbClient()),
-    new MapSettings().asConfig(), null, localAuthentication);
+    new MapSettings().asConfig(), new NoOpAuditPersister(), localAuthentication);
 
   private final WsActionTester tester = new WsActionTester(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule, localAuthentication));
 

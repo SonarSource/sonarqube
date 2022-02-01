@@ -56,13 +56,10 @@ public class DefaultNotificationManager implements NotificationManager {
 
   private static final String UNABLE_TO_READ_NOTIFICATION = "Unable to read notification";
 
-  private NotificationChannel[] notificationChannels;
+  private final NotificationChannel[] notificationChannels;
   private final DbClient dbClient;
   private boolean alreadyLoggedDeserializationIssue = false;
 
-  /**
-   * Default constructor used by Pico
-   */
   public DefaultNotificationManager(NotificationChannel[] channels, DbClient dbClient) {
     this.notificationChannels = channels;
     this.dbClient = dbClient;

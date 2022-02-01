@@ -21,8 +21,11 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Random;
 import java.util.stream.IntStream;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
 import org.sonar.server.platform.WebServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PlatformLevelTest {
 
-  private PlatformLevel underTest = new PlatformLevel("name") {
+  private final PlatformLevel underTest = new PlatformLevel("name") {
 
     @Override
     protected void configureLevel() {
@@ -38,16 +41,27 @@ public class PlatformLevelTest {
     }
   };
 
+  @Before
+  public void setUp() {
+    underTest.start();
+  }
+
+  @After
+  public void tearDown() {
+    // clean up for next test
+    underTest.stop();
+  }
+
   @Test
   public void addIfStartupLeader_throws_ISE_if_container_does_not_have_WebServer_object() {
-    assertThatThrownBy(() -> underTest.addIfStartupLeader())
+    assertThatThrownBy(underTest::addIfStartupLeader)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("WebServer not available in Pico yet");
+      .hasMessageContaining("WebServer not available in the container");
   }
 
   @Test
   public void addIfStartupLeader_always_returns_the_same_instance() {
-    underTest.add(Mockito.mock(WebServer.class));
+    underTest.add(mock(WebServer.class));
 
     PlatformLevel.AddIfStartupLeader addIfStartupLeader = underTest.addIfStartupLeader();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfStartupLeader()).isSameAs(addIfStartupLeader));
@@ -55,14 +69,14 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfCluster_throws_ISE_if_container_does_not_have_WebServer_object() {
-    assertThatThrownBy(() -> underTest.addIfCluster())
+    assertThatThrownBy(underTest::addIfCluster)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("WebServer not available in Pico yet");
+      .hasMessageContaining("WebServer not available in the container");
   }
 
   @Test
   public void addIfCluster_always_returns_the_same_instance() {
-    underTest.add(Mockito.mock(WebServer.class));
+    underTest.add(mock(WebServer.class));
 
     PlatformLevel.AddIfCluster addIfCluster = underTest.addIfCluster();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfCluster()).isSameAs(addIfCluster));
@@ -70,14 +84,14 @@ public class PlatformLevelTest {
 
   @Test
   public void addIfStandalone_throws_ISE_if_container_does_not_have_WebServer_object() {
-    assertThatThrownBy(() -> underTest.addIfCluster())
+    assertThatThrownBy(underTest::addIfCluster)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("WebServer not available in Pico yet");
+      .hasMessageContaining("WebServer not available in the container");
   }
 
   @Test
   public void addIfStandalone_always_returns_the_same_instance() {
-    underTest.add(Mockito.mock(WebServer.class));
+    underTest.add(mock(WebServer.class));
 
     PlatformLevel.AddIfCluster addIfCluster = underTest.addIfCluster();
     IntStream.range(0, 1 + new Random().nextInt(4)).forEach(i -> assertThat(underTest.addIfCluster()).isSameAs(addIfCluster));

@@ -24,20 +24,23 @@ import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.utils.log.Loggers;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class LogOAuthWarning implements Startable {
 
   private final Server server;
   private final OAuth2IdentityProvider[] providers;
 
+  @Autowired(required = false)
   public LogOAuthWarning(Server server, OAuth2IdentityProvider[] providers) {
     this.server = server;
     this.providers = providers;
   }
 
   /**
-   * Used by default by picocontainer when no OAuth2IdentityProvider are present
+   * Used by default by the ioc container when no OAuth2IdentityProvider are present
    */
+  @Autowired(required = false)
   public LogOAuthWarning(Server server) {
     this(server, new OAuth2IdentityProvider[0]);
   }

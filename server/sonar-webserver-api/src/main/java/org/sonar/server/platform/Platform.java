@@ -19,14 +19,14 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 
 public interface Platform {
   void doStart();
 
   Status status();
 
-  ComponentContainer getContainer();
+  ExtensionContainer getContainer();
 
   enum Status {
     BOOTING, SAFEMODE, STARTING, UP

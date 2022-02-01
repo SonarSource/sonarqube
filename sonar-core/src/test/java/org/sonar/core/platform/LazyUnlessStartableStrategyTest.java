@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.core.platform;
 
-import java.util.List;
-import java.util.Optional;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.springframework.context.annotation.Bean;
+import org.junit.Test;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
-public class LanguagesProvider {
-  @Bean("Languages")
-  public Languages provide(Optional<List<Language>> languages) {
-    if (languages.isEmpty()) {
-      return new Languages();
-    }
-    return new Languages(languages.get().toArray(new Language[0]));
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class LazyUnlessStartableStrategyTest {
+  private final LazyUnlessStartableStrategy postProcessor = new LazyUnlessStartableStrategy();
+
+  @Test
+  public void sets_all_beans_lazy() {
+    DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+    beanFactory.registerBeanDefinition("bean1", new RootBeanDefinition());
+    assertThat(beanFactory.getBeanDefinition("bean1").isLazyInit()).isFalse();
+
+    postProcessor.postProcessBeanFactory(beanFactory);
+    assertThat(beanFactory.getBeanDefinition("bean1").isLazyInit()).isTrue();
   }
+
 }

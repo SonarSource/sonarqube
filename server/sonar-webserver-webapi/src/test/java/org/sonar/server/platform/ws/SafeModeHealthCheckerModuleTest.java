@@ -19,30 +19,28 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
-import org.picocontainer.ComponentAdapter;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
 import org.sonar.server.health.NodeHealthCheck;
 import org.sonar.server.health.WebServerSafemodeNodeCheck;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SafeModeHealthCheckerModuleTest {
-  private SafeModeHealthCheckerModule underTest = new SafeModeHealthCheckerModule();
+  private final SafeModeHealthCheckerModule underTest = new SafeModeHealthCheckerModule();
 
   @Test
   public void verify_HealthChecker() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
 
     underTest.configure(container);
 
-    assertThat(classesAddedToContainer(container))
+    assertThat(container.getAddedObjects())
       .contains(HealthCheckerImpl.class)
       .doesNotContain(HealthActionSupport.class)
       .doesNotContain(SafeModeHealthAction.class)
@@ -51,21 +49,15 @@ public class SafeModeHealthCheckerModuleTest {
 
   @Test
   public void verify_installed_HealthChecks_implementations() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
 
     underTest.configure(container);
 
-    List<Class<?>> checks = classesAddedToContainer(container).stream().filter(NodeHealthCheck.class::isAssignableFrom).collect(Collectors.toList());
-    assertThat(checks)
-      .hasSize(3)
-      .contains(WebServerSafemodeNodeCheck.class)
-      .contains(DbConnectionNodeCheck.class)
-      .contains(EsStatusNodeCheck.class);
+    List<Class<?>> checks = container.getAddedObjects().stream()
+      .filter(o -> o instanceof Class)
+      .map(o -> (Class<?>) o)
+      .filter(NodeHealthCheck.class::isAssignableFrom)
+      .collect(Collectors.toList());
+    assertThat(checks).containsOnly(WebServerSafemodeNodeCheck.class, DbConnectionNodeCheck.class, EsStatusNodeCheck.class);
   }
-
-  private List<Class<?>> classesAddedToContainer(ComponentContainer container) {
-    Collection<ComponentAdapter<?>> componentAdapters = container.getPicoContainer().getComponentAdapters();
-    return componentAdapters.stream().map(ComponentAdapter::getComponentImplementation).collect(Collectors.toList());
-  }
-
 }

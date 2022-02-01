@@ -21,9 +21,9 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.Durations;
 import org.sonar.core.extension.CoreExtensionsInstaller;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.es.MigrationEsClientImpl;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
@@ -36,8 +36,6 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationExecutorServiceIm
 import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
-import org.sonar.server.platform.db.migration.history.MigrationHistoryTable;
-import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
@@ -59,7 +57,7 @@ public class PlatformLevel2 extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
-      MigrationConfigurationModule.class,
+      new MigrationConfigurationModule(),
       DatabaseVersion.class,
       DatabaseServerCompatibility.class,
       MigrationEsClientImpl.class,
@@ -90,7 +88,6 @@ public class PlatformLevel2 extends PlatformLevel {
     // Migration state must be kept at level2 to survive moving in and then out of safe mode
     // ExecutorService must be kept at level2 because stopping it when stopping safe mode level causes error making SQ fail
     add(
-      MigrationHistoryTableImpl.class,
       DatabaseMigrationStateImpl.class,
       DatabaseMigrationExecutorServiceImpl.class);
 
@@ -101,11 +98,8 @@ public class PlatformLevel2 extends PlatformLevel {
 
   @Override
   public PlatformLevel start() {
-    // ensuring the HistoryTable exists must be the first thing done when this level is started
-    getOptional(MigrationHistoryTable.class).ifPresent(MigrationHistoryTable::start);
-
-    ComponentContainer container = getContainer();
-    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
+    SpringComponentContainer container = getContainer();
+    CoreExtensionsInstaller coreExtensionsInstaller = parent.get(WebCoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(container, hasPlatformLevel(2), noAdditionalSideFilter());
 
     return super.start();

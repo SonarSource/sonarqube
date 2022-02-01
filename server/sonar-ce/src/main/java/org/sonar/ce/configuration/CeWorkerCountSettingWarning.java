@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.configuration;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

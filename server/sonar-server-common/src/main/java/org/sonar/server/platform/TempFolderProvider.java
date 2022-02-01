@@ -22,24 +22,19 @@ package org.sonar.server.platform;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.utils.TempFolder;
+import org.springframework.context.annotation.Bean;
 
-public class TempFolderProvider extends ProviderAdapter {
-
-  private TempFolder tempFolder;
-
+public class TempFolderProvider {
+  @Bean("TempFolder")
   public TempFolder provide(ServerFileSystem fs) {
-    if (tempFolder == null) {
-      File tempDir = new File(fs.getTempDir(), "tmp");
-      try {
-        FileUtils.forceMkdir(tempDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to create temp directory " + tempDir, e);
-      }
-      tempFolder = new DefaultTempFolder(tempDir);
+    File tempDir = new File(fs.getTempDir(), "tmp");
+    try {
+      FileUtils.forceMkdir(tempDir);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to create temp directory " + tempDir, e);
     }
-    return tempFolder;
+    return new DefaultTempFolder(tempDir);
   }
 }

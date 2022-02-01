@@ -20,7 +20,7 @@
 package org.sonar.server.ce.queue;
 
 import java.util.List;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.server.ServerSide;

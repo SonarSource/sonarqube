@@ -25,7 +25,7 @@ import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static java.lang.String.format;
 
@@ -35,9 +35,9 @@ import static java.lang.String.format;
 public class CoreExtensionBootstraper implements ServerStartHandler {
   private static final Logger LOGGER = Loggers.get(CoreExtensionBootstraper.class);
 
-  private final ComponentContainer componentContainer;
+  private final SpringComponentContainer componentContainer;
 
-  public CoreExtensionBootstraper(ComponentContainer componentContainer) {
+  public CoreExtensionBootstraper(SpringComponentContainer componentContainer) {
     this.componentContainer = componentContainer;
   }
 

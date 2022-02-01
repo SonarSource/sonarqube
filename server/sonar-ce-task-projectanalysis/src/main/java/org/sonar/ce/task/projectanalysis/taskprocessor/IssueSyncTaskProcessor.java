@@ -32,18 +32,18 @@ import org.sonar.ce.task.projectanalysis.step.AbstractComputationSteps;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Container;
 import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
 public class IssueSyncTaskProcessor implements CeTaskProcessor {
   private static final Set<String> HANDLED_TYPES = ImmutableSet.of(BRANCH_ISSUE_SYNC);
 
-  private final ComponentContainer ceEngineContainer;
+  private final SpringComponentContainer ceEngineContainer;
 
-  public IssueSyncTaskProcessor(ComponentContainer ceEngineContainer) {
+  public IssueSyncTaskProcessor(SpringComponentContainer ceEngineContainer) {
     this.ceEngineContainer = ceEngineContainer;
   }
 

@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.CE_GRACEFUL_STOP_TIMEOUT;
@@ -47,10 +48,12 @@ public class CeConfigurationImpl implements CeConfiguration {
   private final long gracefulStopTimeoutInMs;
   private int workerCount;
 
+  @Autowired(required = false)
   public CeConfigurationImpl(Configuration configuration) {
     this(configuration, null);
   }
 
+  @Autowired(required = false)
   public CeConfigurationImpl(Configuration configuration, @Nullable WorkerCountProvider workerCountProvider) {
     this.workerCountProvider = workerCountProvider;
     this.gracefulStopTimeoutInMs = configuration.getLong(CE_GRACEFUL_STOP_TIMEOUT.getKey())

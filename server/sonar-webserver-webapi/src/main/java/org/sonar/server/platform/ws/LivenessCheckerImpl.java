@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
@@ -29,26 +30,16 @@ public class LivenessCheckerImpl implements LivenessChecker {
 
   private final DbConnectionNodeCheck dbConnectionNodeCheck;
   private final CeStatusNodeCheck ceStatusNodeCheck;
+  @Nullable
   private final EsStatusNodeCheck esStatusNodeCheck;
   private final WebServerStatusNodeCheck webServerStatusNodeCheck;
 
   public LivenessCheckerImpl(DbConnectionNodeCheck dbConnectionNodeCheck,
-    WebServerStatusNodeCheck webServerStatusNodeCheck, CeStatusNodeCheck ceStatusNodeCheck, EsStatusNodeCheck esStatusNodeCheck) {
+    WebServerStatusNodeCheck webServerStatusNodeCheck, CeStatusNodeCheck ceStatusNodeCheck, @Nullable EsStatusNodeCheck esStatusNodeCheck) {
     this.dbConnectionNodeCheck = dbConnectionNodeCheck;
     this.webServerStatusNodeCheck = webServerStatusNodeCheck;
     this.ceStatusNodeCheck = ceStatusNodeCheck;
     this.esStatusNodeCheck = esStatusNodeCheck;
-  }
-
-  /**
-   * Constructor used by Pico Container on non-standalone mode, so on a DCE App Node, where EsStatusNodeCheck is not available
-   */
-  public LivenessCheckerImpl(DbConnectionNodeCheck dbConnectionNodeCheck,
-    WebServerStatusNodeCheck webServerStatusNodeCheck, CeStatusNodeCheck ceStatusNodeCheck) {
-    this.dbConnectionNodeCheck = dbConnectionNodeCheck;
-    this.webServerStatusNodeCheck = webServerStatusNodeCheck;
-    this.ceStatusNodeCheck = ceStatusNodeCheck;
-    this.esStatusNodeCheck = null;
   }
 
   public boolean liveness() {

@@ -45,7 +45,7 @@ public class BranchSupportTest {
   private static final Map<String, String> NO_CHARACTERISTICS = Collections.emptyMap();
 
   private final BranchSupportDelegate branchSupportDelegate = mock(BranchSupportDelegate.class);
-  private final BranchSupport underTestNoBranch = new BranchSupport();
+  private final BranchSupport underTestNoBranch = new BranchSupport(null);
   private final BranchSupport underTestWithBranch = new BranchSupport(branchSupportDelegate);
 
   @Test

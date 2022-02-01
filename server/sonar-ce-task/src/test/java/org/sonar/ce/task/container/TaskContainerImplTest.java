@@ -19,10 +19,11 @@
  */
 package org.sonar.ce.task.container;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.picocontainer.Startable;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.Startable;
 import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,8 +31,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class TaskContainerImplTest {
-  private ComponentContainer parent = new ComponentContainer();
-  private ContainerPopulator<TaskContainer> populator = spy(new DummyContainerPopulator());
+  private final SpringComponentContainer parent = new SpringComponentContainer();
+  private final ContainerPopulator<TaskContainer> populator = spy(new DummyContainerPopulator());
+
+  @Before
+  public void before() {
+    parent.startComponents();
+  }
 
   @Test
   public void constructor_fails_fast_on_null_container() {
@@ -41,7 +47,8 @@ public class TaskContainerImplTest {
 
   @Test
   public void constructor_fails_fast_on_null_item() {
-    assertThatThrownBy(() -> new TaskContainerImpl(new ComponentContainer(), null))
+    SpringComponentContainer c = new SpringComponentContainer();
+    assertThatThrownBy(() -> new TaskContainerImpl(c, null))
       .isInstanceOf(NullPointerException.class);
   }
 
@@ -53,17 +60,9 @@ public class TaskContainerImplTest {
   }
 
   @Test
-  public void ce_container_is_not_child_of_specified_container() {
-    TaskContainerImpl ceContainer = new TaskContainerImpl(parent, populator);
-
-    assertThat(parent.getChildren()).isEmpty();
-    verify(populator).populateContainer(ceContainer);
-  }
-
-  @Test
   public void bootup_starts_components_lazily_unless_they_are_annotated_with_EagerStart() {
-    final DefaultStartable defaultStartable = new DefaultStartable();
-    final EagerStartable eagerStartable = new EagerStartable();
+    DefaultStartable defaultStartable = new DefaultStartable();
+    EagerStartable eagerStartable = new EagerStartable();
     TaskContainerImpl ceContainer = new TaskContainerImpl(parent, container -> {
       container.add(defaultStartable);
       container.add(eagerStartable);

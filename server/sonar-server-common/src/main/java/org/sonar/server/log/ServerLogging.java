@@ -23,7 +23,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import org.picocontainer.Startable;
+import javax.inject.Inject;
+import org.sonar.api.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -47,6 +48,7 @@ public class ServerLogging implements Startable {
   private final ServerProcessLogging serverProcessLogging;
   private final Database database;
 
+  @Inject
   public ServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database) {
     this(new LogbackHelper(), config, serverProcessLogging, database);
   }

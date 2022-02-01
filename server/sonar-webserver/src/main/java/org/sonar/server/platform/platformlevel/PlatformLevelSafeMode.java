@@ -49,11 +49,11 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       IndexAction.class,
 
       // Server WS
-      SafeModeHealthCheckerModule.class,
-      SafemodeSystemWsModule.class,
+      new SafeModeHealthCheckerModule(),
+      new SafemodeSystemWsModule(),
 
       // Listing WS
-      WebServicesWsModule.class,
+      new WebServicesWsModule(),
 
       // WS engine
       SafeModeUserSession.class,
@@ -64,7 +64,7 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       ServerMonitoringMetrics.class);
     addIfStartupLeader(
       DatabaseMigrationImpl.class,
-      MigrationEngineModule.class,
+      new MigrationEngineModule(),
       AutoDbMigration.class)
         .otherwiseAdd(NoopDatabaseMigrationImpl.class);
   }

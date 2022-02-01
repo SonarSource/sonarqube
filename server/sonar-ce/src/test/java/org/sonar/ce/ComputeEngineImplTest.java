@@ -29,21 +29,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ComputeEngineImplTest {
 
-  private ComputeEngineContainer computeEngineContainer = new NoOpComputeEngineContainer();
-  private ComputeEngine underTest = new ComputeEngineImpl(new Props(new Properties()), computeEngineContainer);
+  private final ComputeEngineContainer computeEngineContainer = new NoOpComputeEngineContainer();
+  private final ComputeEngine underTest = new ComputeEngineImpl(new Props(new Properties()), computeEngineContainer);
 
   @Test
   public void startup_throws_ISE_when_called_twice() {
     underTest.startup();
 
-    assertThatThrownBy(() -> underTest.startup())
+    assertThatThrownBy(underTest::startup)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("startup() can not be called multiple times");
   }
 
   @Test
   public void stopProcessing_throws_ISE_if_startup_was_not_called_before() {
-    assertThatThrownBy(() -> underTest.stopProcessing())
+    assertThatThrownBy(underTest::stopProcessing)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("stopProcessing() must not be called before startup()");
   }
@@ -53,7 +53,7 @@ public class ComputeEngineImplTest {
     underTest.startup();
     underTest.shutdown();
 
-    assertThatThrownBy(() -> underTest.stopProcessing())
+    assertThatThrownBy(underTest::stopProcessing)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("stopProcessing() can not be called after shutdown()");
   }
@@ -63,14 +63,14 @@ public class ComputeEngineImplTest {
     underTest.startup();
     underTest.stopProcessing();
 
-    assertThatThrownBy(() -> underTest.stopProcessing())
+    assertThatThrownBy(underTest::stopProcessing)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("stopProcessing() can not be called multiple times");
   }
 
   @Test
   public void shutdown_throws_ISE_if_startup_was_not_called_before() {
-    assertThatThrownBy(() -> underTest.shutdown())
+    assertThatThrownBy(underTest::shutdown)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("shutdown() must not be called before startup()");
   }
@@ -80,7 +80,7 @@ public class ComputeEngineImplTest {
     underTest.startup();
     underTest.shutdown();
 
-    assertThatThrownBy(() -> underTest.shutdown())
+    assertThatThrownBy(underTest::shutdown)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("shutdown() can not be called multiple times");
   }

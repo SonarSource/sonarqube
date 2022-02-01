@@ -24,18 +24,19 @@ import org.junit.Test;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.ce.task.projectanalysis.step.ComplexityMeasuresStep;
-import org.sonar.ce.task.projectexport.steps.LoadProjectStep;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectExportComputationStepsTest {
-
-  private TaskContainer container = mock(TaskContainer.class);
-  private ProjectExportComputationSteps underTest = new ProjectExportComputationSteps(container);
+  private final TaskContainer container = mock(TaskContainer.class);
+  private final ProjectExportComputationSteps underTest = new ProjectExportComputationSteps(container);
 
   @Test
   public void count_step_classes() {
@@ -44,29 +45,30 @@ public class ProjectExportComputationStepsTest {
 
   @Test
   public void instances_throws_ISE_if_steps_do_not_exist_in_container() {
-    assertThatThrownBy(() -> copyOf(underTest.instances()))
+    when(container.getComponentByType(any())).thenThrow(new IllegalStateException("Error"));
+    Iterable<ComputationStep> instances = underTest.instances();
+    assertThatThrownBy(() -> copyOf(instances))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Component not found: " + LoadProjectStep.class);
+      .hasMessage("Error");
   }
 
   @Test
   public void instances_throws_ISE_if_container_does_not_have_second_step() {
-    assertThatThrownBy(() -> {
-      final ComplexityMeasuresStep reportExtractionStep = mock(ComplexityMeasuresStep.class);
+    ComplexityMeasuresStep reportExtractionStep = mock(ComplexityMeasuresStep.class);
 
-      ComponentContainer componentContainer = new ComponentContainer() {
-        {
-          addSingleton(reportExtractionStep);
-        }
-      };
-      TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, container -> {
-        // do nothing
-      });
-
-      Lists.newArrayList(new ProjectExportComputationSteps(computeEngineContainer).instances());
-    })
+    SpringComponentContainer componentContainer = new SpringComponentContainer() {
+      {
+        add(reportExtractionStep);
+      }
+    }.startComponents();
+    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, container -> {
+      // do nothing
+    });
+    computeEngineContainer.startComponents();
+    Iterable<ComputationStep> instances = new ProjectExportComputationSteps(computeEngineContainer).instances();
+    assertThatThrownBy(() -> Lists.newArrayList(instances))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Component not found: class org.sonar.ce.task.projectexport.steps.LoadProjectStep");
+      .hasMessageContaining("class org.sonar.ce.task.projectexport.steps.LoadProjectStep");
 
   }
 }

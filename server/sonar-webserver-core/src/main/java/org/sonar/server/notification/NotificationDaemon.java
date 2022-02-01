@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.config.Configuration;

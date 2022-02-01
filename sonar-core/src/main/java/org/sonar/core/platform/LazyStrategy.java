@@ -17,37 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.core.platform;
 
-import org.sonar.api.Startable;
+import javax.annotation.Nullable;
+import org.springframework.beans.factory.config.BeanDefinition;
 
-/**
- * Workaround of a behaviour of picocontainer: components
- * instantiated by {@link org.picocontainer.injectors.ProviderAdapter}
- * can't have a lifecycle. The methods start() and stop()
- * of {@link Startable} are not executed.
- * The same behaviour exists for the {@link org.picocontainer.injectors.ProviderAdapter}
- * itself.
- *
- * As {@link EsClientStopper} implements {@link Startable}, it can
- * close {@link EsClient} when process shutdowns.
- *
- */
-public class EsClientStopper implements Startable {
-
-  private final EsClient esClient;
-
-  public EsClientStopper(EsClient esClient) {
-    this.esClient = esClient;
-  }
-
+public class LazyStrategy extends SpringInitStrategy {
   @Override
-  public void start() {
-    // nothing to do
-  }
-
-  @Override
-  public void stop() {
-    esClient.close();
+  protected boolean isLazyInit(BeanDefinition beanDefinition, @Nullable Class<?> clazz) {
+    return true;
   }
 }

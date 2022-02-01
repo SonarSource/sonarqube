@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.stream.Stream;
+
 import org.junit.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.scanner.ScannerSide;
@@ -32,7 +33,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.CoreExtensionRepository;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,10 +42,9 @@ import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideF
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 
 public class ScannerCoreExtensionsInstallerTest {
-  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
-  private CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
-
-  private ScannerCoreExtensionsInstaller underTest = new ScannerCoreExtensionsInstaller(sonarRuntime, coreExtensionRepository);
+  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private final CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+  private final ScannerCoreExtensionsInstaller underTest = new ScannerCoreExtensionsInstaller(sonarRuntime, coreExtensionRepository);
 
   @Test
   public void install_only_adds_ScannerSide_annotated_extension_to_container() {
@@ -61,14 +61,13 @@ public class ScannerCoreExtensionsInstallerTest {
             NoAnnotationClass.class, OtherAnnotationClass.class, MultipleAnnotationClass.class);
         }
       }));
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
 
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 2);
-    assertThat(container.getComponentByType(ScannerClass.class)).isNotNull();
-    assertThat(container.getComponentByType(MultipleAnnotationClass.class)).isNotNull();
+    assertThat(container.getAddedObjects())
+      .hasSize(2)
+      .contains(ScannerClass.class, MultipleAnnotationClass.class);
   }
 
   @ComputeEngineSide

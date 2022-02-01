@@ -17,25 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.core.platform;
 
-import org.junit.Test;
+import org.sonar.api.Startable;
+import org.springframework.beans.factory.config.BeanDefinition;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import javax.annotation.Nullable;
 
-public class EsClientStopperTest {
-
-  private EsClient client = mock(EsClient.class);
-  private EsClientStopper underTest = new EsClientStopper(client);
-
-  @Test
-  public void stop_client() {
-    underTest.start();
-    verifyNoMoreInteractions(client);
-
-    underTest.stop();
-    verify(client).close();
+public class LazyUnlessStartableStrategy extends SpringInitStrategy {
+  @Override
+  protected boolean isLazyInit(BeanDefinition beanDefinition, @Nullable Class<?> clazz) {
+    return clazz == null || !Startable.class.isAssignableFrom(clazz);
   }
 }

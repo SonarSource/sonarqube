@@ -20,7 +20,7 @@
 package org.sonar.db;
 
 import javax.sql.DataSource;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.db.dialect.Dialect;
 
 /**

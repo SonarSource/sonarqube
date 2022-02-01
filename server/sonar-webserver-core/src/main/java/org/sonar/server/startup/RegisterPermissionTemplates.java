@@ -21,7 +21,7 @@ package org.sonar.server.startup;
 
 import java.util.Date;
 import java.util.Optional;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;

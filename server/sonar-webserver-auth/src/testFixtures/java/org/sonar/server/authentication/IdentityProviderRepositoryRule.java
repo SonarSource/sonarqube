@@ -26,6 +26,10 @@ import org.sonar.api.server.authentication.IdentityProvider;
 
 public class IdentityProviderRepositoryRule extends IdentityProviderRepository implements TestRule {
 
+  public IdentityProviderRepositoryRule() {
+    super(null);
+  }
+
   public IdentityProviderRepositoryRule addIdentityProvider(IdentityProvider identityProvider) {
     providersByKey.put(identityProvider.getKey(), identityProvider);
     return this;

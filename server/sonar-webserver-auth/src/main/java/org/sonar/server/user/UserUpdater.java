@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
@@ -78,20 +79,9 @@ public class UserUpdater {
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
   private final AuditPersister auditPersister;
-
   private final CredentialsLocalAuthentication localAuthentication;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
-    CredentialsLocalAuthentication localAuthentication) {
-    this.newUserNotifier = newUserNotifier;
-    this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
-    this.defaultGroupFinder = defaultGroupFinder;
-    this.config = config;
-    this.auditPersister = null;
-    this.localAuthentication = localAuthentication;
-  }
-
+  @Inject
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, DefaultGroupFinder defaultGroupFinder, Configuration config,
     AuditPersister auditPersister, CredentialsLocalAuthentication localAuthentication) {
     this.newUserNotifier = newUserNotifier;
@@ -265,9 +255,7 @@ public class UserUpdater {
     if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
       localAuthentication.storeHashPassword(userDto, password);
       userDto.setResetPassword(false);
-      if (auditPersister != null) {
-        auditPersister.updateUserPassword(dbSession, new SecretNewValue("userLogin", userDto.getLogin()));
-      }
+      auditPersister.updateUserPassword(dbSession, new SecretNewValue("userLogin", userDto.getLogin()));
       return true;
     }
     return false;

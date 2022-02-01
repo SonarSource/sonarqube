@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.SimpleMigrationContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
@@ -59,11 +60,12 @@ public class MigrationStepsExecutorImplTest {
   public void execute_fails_with_ISE_if_no_instance_of_computation_step_exist_in_container() {
     List<RegisteredMigrationStep> steps = asList(registeredStepOf(1, MigrationStep1.class));
 
+    ((SpringComponentContainer) migrationContainer).startComponents();
     try {
       underTest.execute(steps);
       fail("execute should have thrown a IllegalStateException");
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Can not find instance of " + MigrationStep1.class);
+      assertThat(e).hasMessage("Unable to load component " + MigrationStep1.class);
     } finally {
       assertThat(logTester.logs()).hasSize(2);
       assertLogLevel(LoggerLevel.INFO, "Executing DB migrations...");
@@ -87,6 +89,7 @@ public class MigrationStepsExecutorImplTest {
   @Test
   public void execute_execute_the_instance_of_type_specified_in_step_in_stream_order() {
     migrationContainer.add(MigrationStep1.class, MigrationStep2.class, MigrationStep3.class);
+    ((SpringComponentContainer) migrationContainer).startComponents();
 
     underTest.execute(asList(
       registeredStepOf(1, MigrationStep2.class),
@@ -119,6 +122,7 @@ public class MigrationStepsExecutorImplTest {
       registeredStepOf(2, SqlExceptionFailingMigrationStep.class),
       registeredStepOf(3, MigrationStep3.class));
 
+    ((SpringComponentContainer) migrationContainer).startComponents();
     try {
       underTest.execute(steps);
       fail("a MigrationStepExecutionException should have been thrown");
@@ -147,6 +151,7 @@ public class MigrationStepsExecutorImplTest {
       registeredStepOf(2, RuntimeExceptionFailingMigrationStep.class),
       registeredStepOf(3, MigrationStep3.class));
 
+    ((SpringComponentContainer) migrationContainer).startComponents();
     try {
       underTest.execute(steps);
       fail("should throw MigrationStepExecutionException");

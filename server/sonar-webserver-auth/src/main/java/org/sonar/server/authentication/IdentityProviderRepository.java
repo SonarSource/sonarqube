@@ -19,35 +19,31 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Ordering;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
 
 public class IdentityProviderRepository {
+  private static final Predicate<IdentityProvider> IS_ENABLED_FILTER = IdentityProvider::isEnabled;
+  private static final Function<IdentityProvider, String> TO_NAME = IdentityProvider::getName;
 
   protected final Map<String, IdentityProvider> providersByKey = new HashMap<>();
 
-  public IdentityProviderRepository(List<IdentityProvider> identityProviders) {
-    this.providersByKey.putAll(FluentIterable.from(identityProviders).uniqueIndex(ToKey.INSTANCE));
-  }
-
-  /**
-   * Used by pico when no identity provider available
-   */
-  public IdentityProviderRepository() {
-      // nothing to do
+  public IdentityProviderRepository(@Nullable List<IdentityProvider> identityProviders) {
+    Optional.ofNullable(identityProviders)
+      .ifPresent(list -> list.forEach(i -> providersByKey.put(i.getKey(), i)));
   }
 
   public IdentityProvider getEnabledByKey(String key) {
     IdentityProvider identityProvider = providersByKey.get(key);
-    if (identityProvider != null && IsEnabledFilter.INSTANCE.apply(identityProvider)) {
+    if (identityProvider != null && IS_ENABLED_FILTER.test(identityProvider)) {
       return identityProvider;
     }
     throw new IllegalArgumentException(String.format("Identity provider %s does not exist or is not enabled", key));
@@ -55,35 +51,9 @@ public class IdentityProviderRepository {
 
   public List<IdentityProvider> getAllEnabledAndSorted() {
     return providersByKey.values().stream()
-      .filter(IsEnabledFilter.INSTANCE)
-      .sorted(Ordering.natural().onResultOf(ToName.INSTANCE))
+      .filter(IS_ENABLED_FILTER)
+      .sorted(Comparator.comparing(TO_NAME))
       .collect(Collectors.toList());
   }
 
-  private enum IsEnabledFilter implements Predicate<IdentityProvider> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull IdentityProvider input) {
-      return input.isEnabled();
-    }
-  }
-
-  private enum ToKey implements Function<IdentityProvider, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull IdentityProvider input) {
-      return input.getKey();
-    }
-  }
-
-  private enum ToName implements Function<IdentityProvider, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull IdentityProvider input) {
-      return input.getName();
-    }
-  }
 }

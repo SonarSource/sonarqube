@@ -19,12 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
@@ -38,42 +40,50 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class MigrationEngineImplTest {
-  private MigrationHistory migrationHistory = mock(MigrationHistory.class);
-  private ComponentContainer serverContainer = new ComponentContainer();
-  private MigrationStepsExecutor stepsExecutor = mock(MigrationStepsExecutor.class);
-  private MigrationContainerPopulator populator = container -> container.add(stepsExecutor);
-  private MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private final MigrationHistory migrationHistory = mock(MigrationHistory.class);
+  private final SpringComponentContainer serverContainer = new SpringComponentContainer();
+  private final MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private final StepRegistry stepRegistry = new StepRegistry();
+  private final MapSettings settings = new MapSettings();
+  private final MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, migrationSteps, new ConfigurationBridge(settings));
 
-  private MapSettings settings = new MapSettings();
-  private MigrationEngineImpl underTest = new MigrationEngineImpl(migrationHistory, serverContainer, populator, migrationSteps, new ConfigurationBridge(settings));
+  @Before
+  public void before() {
+    serverContainer.add(migrationSteps);
+    serverContainer.add(migrationHistory);
+    serverContainer.add(stepRegistry);
+    serverContainer.startComponents();
+  }
 
   @Test
   public void execute_execute_all_steps_of_there_is_no_last_migration_number() {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.empty());
-    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
+    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", TestMigrationStep.class));
     when(migrationSteps.readAll()).thenReturn(steps);
 
     underTest.execute();
 
-    verify(migrationSteps).readAll();
-    verify(stepsExecutor).execute(steps);
+    verify(migrationSteps, times(2)).readAll();
+    assertThat(stepRegistry.stepRan).isTrue();
   }
 
   @Test
   public void execute_execute_steps_from_last_migration_number_plus_1() {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
-    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
+    List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", TestMigrationStep.class));
     when(migrationSteps.readFrom(51)).thenReturn(steps);
+    when(migrationSteps.readAll()).thenReturn(steps);
 
     underTest.execute();
 
     verify(migrationSteps).readFrom(51);
-    verify(stepsExecutor).execute(steps);
+    assertThat(stepRegistry.stepRan).isTrue();
   }
 
   @Test
@@ -82,11 +92,12 @@ public class MigrationEngineImplTest {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
     List<RegisteredMigrationStep> steps = singletonList(new RegisteredMigrationStep(1, "doo", TestBlueGreenMigrationStep.class));
     when(migrationSteps.readFrom(51)).thenReturn(steps);
+    when(migrationSteps.readAll()).thenReturn(steps);
 
     underTest.execute();
 
     verify(migrationSteps).readFrom(51);
-    verify(stepsExecutor).execute(steps);
+    assertThat(stepRegistry.stepRan).isTrue();
   }
 
   @Test
@@ -95,7 +106,7 @@ public class MigrationEngineImplTest {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
     List<RegisteredMigrationStep> steps = asList(
       new RegisteredMigrationStep(1, "foo", TestBlueGreenMigrationStep.class),
-      new RegisteredMigrationStep(2, "bar", MigrationStep.class));
+      new RegisteredMigrationStep(2, "bar", TestMigrationStep.class));
     when(migrationSteps.readFrom(51)).thenReturn(steps);
 
     try {
@@ -103,16 +114,43 @@ public class MigrationEngineImplTest {
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("All migrations canceled. #2 does not support blue/green deployment: bar");
-      verifyZeroInteractions(stepsExecutor);
+      assertThat(stepRegistry.stepRan).isFalse();
+    }
+  }
+
+  private static class NoOpExecutor implements MigrationStepsExecutor {
+    @Override
+    public void execute(List<RegisteredMigrationStep> steps) {
+      // no op
+    }
+  }
+
+  private static class StepRegistry {
+    boolean stepRan = false;
+  }
+
+  private static class TestMigrationStep implements MigrationStep {
+    private final StepRegistry registry;
+
+    public TestMigrationStep(StepRegistry registry) {
+      this.registry = registry;
+    }
+    @Override
+    public void execute() throws SQLException {
+      registry.stepRan = true;
     }
   }
 
   @SupportsBlueGreen
   private static class TestBlueGreenMigrationStep implements MigrationStep {
+    private final StepRegistry registry;
 
+    public TestBlueGreenMigrationStep(StepRegistry registry) {
+      this.registry = registry;
+    }
     @Override
-    public void execute() {
-
+    public void execute() throws SQLException {
+      registry.stepRan = true;
     }
   }
 }

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
@@ -37,7 +38,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Broadcast a given collection of {@link QGChangeEvent} for a specific trigger to all the registered
- * {@link QGChangeEventListener} in Pico.
+ * {@link QGChangeEventListener} in the ioc container.
  *
  * This class ensures that an {@link Exception} occurring calling one of the {@link QGChangeEventListener} doesn't
  * prevent from calling the others.
@@ -47,15 +48,8 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
 
   private final QGChangeEventListener[] listeners;
 
-  /**
-   * Used by Pico when there is no QGChangeEventListener instance in container.
-   */
-  public QGChangeEventListenersImpl() {
-    this.listeners = new QGChangeEventListener[0];
-  }
-
-  public QGChangeEventListenersImpl(QGChangeEventListener[] listeners) {
-    this.listeners = listeners;
+  public QGChangeEventListenersImpl(@Nullable QGChangeEventListener[] listeners) {
+    this.listeners = listeners != null ? listeners : new QGChangeEventListener[0];
   }
 
   @Override

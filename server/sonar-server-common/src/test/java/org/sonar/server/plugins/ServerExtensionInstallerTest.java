@@ -27,10 +27,11 @@ import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -42,7 +43,6 @@ import static org.mockito.Mockito.when;
 public class ServerExtensionInstallerTest {
   private SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(Version.parse("8.0"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
   private TestPluginRepository pluginRepository = new TestPluginRepository();
-
   private TestServerExtensionInstaller underTest = new TestServerExtensionInstaller(sonarRuntime, pluginRepository);
 
   @Test
@@ -50,11 +50,11 @@ public class ServerExtensionInstallerTest {
     PluginInfo fooPluginInfo = newPlugin("foo", "Foo");
     Plugin fooPlugin = mock(Plugin.class);
     pluginRepository.add(fooPluginInfo, fooPlugin);
-    ComponentContainer componentContainer = new ComponentContainer();
+    ListContainer componentContainer = new ListContainer();
 
     underTest.installExtensions(componentContainer);
 
-    assertThat(componentContainer.getPicoContainer().getComponents()).contains(fooPlugin);
+    assertThat(componentContainer.getAddedObjects()).contains(fooPlugin);
   }
 
   private static PluginInfo newPlugin(String key, String name) {
@@ -108,7 +108,7 @@ public class ServerExtensionInstallerTest {
   private static class TestServerExtensionInstaller extends ServerExtensionInstaller {
 
     protected TestServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
-      super(sonarRuntime, pluginRepository, singleton(ServerSide.class));
+      super(mock(Configuration.class), sonarRuntime, pluginRepository, singleton(ServerSide.class));
     }
   }
 

@@ -42,8 +42,6 @@ import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class EsClientProviderTest {
-
-
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -74,9 +72,6 @@ public class EsClientProviderTest {
     assertThat(node.getHost().getPort()).isEqualTo(9000);
 
     assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [http://" + localhostHostname + ":9000]"), ""));
-
-    // keep in cache
-    assertThat(underTest.provide(settings.asConfig())).isSameAs(client);
   }
 
   @Test
@@ -99,9 +94,6 @@ public class EsClientProviderTest {
 
     assertThat(logTester.logs(LoggerLevel.INFO))
       .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [http://" + localhostHostname + ":8080, http://" + localhostHostname + ":8081]"), ""));
-
-    // keep in cache
-    assertThat(underTest.provide(settings.asConfig())).isSameAs(client);
   }
 
   @Test
@@ -147,8 +139,5 @@ public class EsClientProviderTest {
 
     assertThat(logTester.logs(LoggerLevel.INFO))
       .has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [http://" + localhostHostname + ":9001, http://" + localhostHostname + ":8081]"), ""));
-
-    // keep in cache
-    assertThat(underTest.provide(settings.asConfig())).isSameAs(client);
   }
 }

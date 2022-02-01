@@ -20,13 +20,7 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import static java.util.Optional.ofNullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -36,12 +30,20 @@ import org.sonarqube.ws.Duplications;
 import org.sonarqube.ws.Duplications.Block;
 import org.sonarqube.ws.Duplications.ShowResponse;
 
-import static java.util.Optional.ofNullable;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class ShowResponseBuilder {
 
   private final ComponentDao componentDao;
 
+  @Inject
   public ShowResponseBuilder(DbClient dbClient) {
     this.componentDao = dbClient.componentDao();
   }

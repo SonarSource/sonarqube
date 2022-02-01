@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.platform;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 
 import static com.google.common.base.Preconditions.checkState;

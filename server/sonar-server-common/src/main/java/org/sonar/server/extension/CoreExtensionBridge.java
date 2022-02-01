@@ -19,7 +19,7 @@
  */
 package org.sonar.server.extension;
 
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 /**
  * Interface implemented by the Extension point exposed by the Core Extensions that serves as the unique access
@@ -32,11 +32,11 @@ public interface CoreExtensionBridge {
   /**
    * Bootstraps the plugin.
    *
-   * @param parent the parent ComponentContainer which provides Platform components for the Privileged plugin to use.
+   * @param parent the parent SpringComponentContainer which provides Platform components for the Privileged plugin to use.
    *
    * @throws IllegalStateException if called more than once
    */
-  void startPlugin(ComponentContainer parent);
+  void startPlugin(SpringComponentContainer parent);
 
   /**
    * This method is called when Platform is shutting down.

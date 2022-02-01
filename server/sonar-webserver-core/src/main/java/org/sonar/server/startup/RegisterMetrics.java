@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
@@ -38,6 +38,7 @@ import org.sonar.server.metric.MetricToDto;
 
 import static com.google.common.collect.FluentIterable.concat;
 import static com.google.common.collect.Lists.newArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class RegisterMetrics implements Startable {
 
@@ -47,6 +48,7 @@ public class RegisterMetrics implements Startable {
   private final UuidFactory uuidFactory;
   private final Metrics[] metricsRepositories;
 
+  @Autowired(required = false)
   public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory, Metrics[] metricsRepositories) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
@@ -56,6 +58,7 @@ public class RegisterMetrics implements Startable {
   /**
    * Used when no plugin is defining Metrics
    */
+  @Autowired(required = false)
   public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory) {
     this(dbClient, uuidFactory, new Metrics[] {});
   }

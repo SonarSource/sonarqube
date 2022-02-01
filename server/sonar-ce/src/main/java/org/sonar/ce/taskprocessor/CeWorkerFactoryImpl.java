@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class CeWorkerFactoryImpl implements CeWorkerFactory {
   private final UuidFactory uuidFactory;
@@ -35,15 +36,15 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   private Set<CeWorker> ceWorkers = Collections.emptySet();
 
   /**
-   * Used by Pico when there is no {@link CeWorker.ExecutionListener} in the container.
+   * Used by the ioc container when there is no {@link CeWorker.ExecutionListener} in the container.
    */
-  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-    UuidFactory uuidFactory, CeWorkerController ceWorkerController) {
+  @Autowired(required = false)
+  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository, UuidFactory uuidFactory, CeWorkerController ceWorkerController) {
     this(queue, taskProcessorRepository, uuidFactory, ceWorkerController, new CeWorker.ExecutionListener[0]);
   }
 
-  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-    UuidFactory uuidFactory, CeWorkerController ceWorkerController,
+  @Autowired(required = false)
+  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository, UuidFactory uuidFactory, CeWorkerController ceWorkerController,
     CeWorker.ExecutionListener[] executionListeners) {
     this.queue = queue;
     this.taskProcessorRepository = taskProcessorRepository;

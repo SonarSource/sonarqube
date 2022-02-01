@@ -20,18 +20,15 @@
 package org.sonar.server.measure.live;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LiveMeasureModuleTest {
-
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new LiveMeasureModule().configure(container);
-    assertThat(container.size()).isEqualTo(3 + 2);
+    assertThat(container.getAddedObjects()).hasSize(3);
   }
-
-
 }

@@ -14,7 +14,6 @@ dependencies {
   compile 'commons-lang:commons-lang'
   compile 'org.apache.commons:commons-dbcp2'
   compile 'org.mybatis:mybatis'
-  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:slf4j-api'
   compile project(':server:sonar-process')
   compile project(path: ':sonar-plugin-api', configuration: 'shadow')

@@ -40,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerDefi
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerWrapper;
 import org.sonar.ce.task.projectanalysis.measure.MutableMeasureComputersHolder;
 import org.sonar.ce.task.step.ComputationStep;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -53,6 +54,7 @@ public class LoadMeasureComputersStep implements ComputationStep {
   private final MutableMeasureComputersHolder measureComputersHolder;
   private final MeasureComputer[] measureComputers;
 
+  @Autowired(required = false)
   public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories, MeasureComputer[] measureComputers) {
     this.measureComputersHolder = measureComputersHolder;
     this.measureComputers = measureComputers;
@@ -63,22 +65,25 @@ public class LoadMeasureComputersStep implements ComputationStep {
   }
 
   /**
-   * Constructor override used by Pico to instantiate the class when no plugin is defining metrics
+   * Constructor override used by the ioc container to instantiate the class when no plugin is defining metrics
    */
+  @Autowired(required = false)
   public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder, MeasureComputer[] measureComputers) {
     this(measureComputersHolder, new Metrics[] {}, measureComputers);
   }
 
   /**
-   * Constructor override used by Pico to instantiate the class when no plugin is defining measure computers
+   * Constructor override used by the ioc container to instantiate the class when no plugin is defining measure computers
    */
+  @Autowired(required = false)
   public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories) {
     this(measureComputersHolder, metricsRepositories, new MeasureComputer[] {});
   }
 
   /**
-   * Constructor override used by Pico to instantiate the class when no plugin is defining metrics neither measure computers
+   * Constructor override used by the ioc container to instantiate the class when no plugin is defining metrics neither measure computers
    */
+  @Autowired(required = false)
   public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder) {
     this(measureComputersHolder, new Metrics[] {}, new MeasureComputer[] {});
   }

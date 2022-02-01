@@ -20,12 +20,12 @@
 package org.sonar.server.util;
 
 import okhttp3.OkHttpClient;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
+import org.springframework.context.annotation.Bean;
 
 import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_PASSWORD;
@@ -43,28 +43,24 @@ import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_USER;
  */
 @ServerSide
 @ComputeEngineSide
-public class OkHttpClientProvider extends ProviderAdapter {
+public class OkHttpClientProvider {
 
   private static final int DEFAULT_CONNECT_TIMEOUT_IN_MS = 10_000;
   private static final int DEFAULT_READ_TIMEOUT_IN_MS = 10_000;
 
-  private okhttp3.OkHttpClient okHttpClient;
-
   /**
    * @return a {@link OkHttpClient} singleton
    */
+  @Bean("OkHttpClient")
   public OkHttpClient provide(Configuration config, SonarRuntime runtime) {
-    if (okHttpClient == null) {
-      OkHttpClientBuilder builder = new OkHttpClientBuilder();
-      builder.setConnectTimeoutMs(DEFAULT_CONNECT_TIMEOUT_IN_MS);
-      builder.setReadTimeoutMs(DEFAULT_READ_TIMEOUT_IN_MS);
-      // no need to define proxy URL as system-wide proxy is used and properly
-      // configured by bootstrap process.
-      builder.setProxyLogin(config.get(HTTP_PROXY_USER.getKey()).orElse(null));
-      builder.setProxyPassword(config.get(HTTP_PROXY_PASSWORD.getKey()).orElse(null));
-      builder.setUserAgent(format("SonarQube/%s", runtime.getApiVersion().toString()));
-      okHttpClient = builder.build();
-    }
-    return okHttpClient;
+    OkHttpClientBuilder builder = new OkHttpClientBuilder();
+    builder.setConnectTimeoutMs(DEFAULT_CONNECT_TIMEOUT_IN_MS);
+    builder.setReadTimeoutMs(DEFAULT_READ_TIMEOUT_IN_MS);
+    // no need to define proxy URL as system-wide proxy is used and properly
+    // configured by bootstrap process.
+    builder.setProxyLogin(config.get(HTTP_PROXY_USER.getKey()).orElse(null));
+    builder.setProxyPassword(config.get(HTTP_PROXY_PASSWORD.getKey()).orElse(null));
+    builder.setUserAgent(format("SonarQube/%s", runtime.getApiVersion().toString()));
+    return builder.build();
   }
 }

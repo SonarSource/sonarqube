@@ -26,10 +26,6 @@ public interface DatabaseMigration {
    * <p>
    * Migration can not be started twice but calling this method wont raise an error.
    * </p>
-   * <p>
-   * <strong>This method should be named {@code start} but it can not be because it will be called by the pico container
-   * and this will cause unwanted behavior</strong>
-   * </p>
    */
   void startIt();
 

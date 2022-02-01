@@ -27,6 +27,7 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class NotificationCenter {
 
@@ -35,6 +36,7 @@ public class NotificationCenter {
   private final NotificationDispatcherMetadata[] dispatchersMetadata;
   private final NotificationChannel[] channels;
 
+  @Autowired(required = false)
   public NotificationCenter(NotificationDispatcherMetadata[] metadata, NotificationChannel[] channels) {
     this.dispatchersMetadata = metadata;
     this.channels = channels;
@@ -43,6 +45,7 @@ public class NotificationCenter {
   /**
    * Default constructor when no channels.
    */
+  @Autowired(required = false)
   public NotificationCenter(NotificationDispatcherMetadata[] metadata) {
     this(metadata, new NotificationChannel[0]);
     LOG.warn("There is no notification channel - no notification will be delivered!");
@@ -51,10 +54,12 @@ public class NotificationCenter {
   /**
    * Default constructor when no dispatcher metadata.
    */
+  @Autowired(required = false)
   public NotificationCenter(NotificationChannel[] channels) {
     this(new NotificationDispatcherMetadata[0], channels);
   }
 
+  @Autowired(required = false)
   public NotificationCenter() {
     this(new NotificationDispatcherMetadata[0], new NotificationChannel[0]);
     LOG.warn("There is no notification channel - no notification will be delivered!");

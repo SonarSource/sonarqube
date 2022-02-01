@@ -20,15 +20,15 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QProfilesWsModuleTest {
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new QProfilesWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(31 + 2);
+    assertThat(container.getAddedObjects()).hasSize(31);
   }
 }

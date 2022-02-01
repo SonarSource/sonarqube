@@ -25,6 +25,5 @@ public class EsModule extends Module {
   @Override
   protected void configureModule() {
     add(new EsClientProvider());
-    add(EsClientStopper.class);
   }
 }

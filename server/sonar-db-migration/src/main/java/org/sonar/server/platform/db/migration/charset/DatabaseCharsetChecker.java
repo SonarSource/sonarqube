@@ -23,6 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.annotation.CheckForNull;
+import javax.inject.Inject;
+
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -46,6 +48,7 @@ public class DatabaseCharsetChecker {
   private final Database db;
   private final SqlExecutor sqlExecutor;
 
+  @Inject
   public DatabaseCharsetChecker(Database db) {
     this(db, new SqlExecutor());
   }

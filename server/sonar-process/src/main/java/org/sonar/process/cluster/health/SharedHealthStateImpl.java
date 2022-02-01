@@ -32,6 +32,7 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastObjects;
 
 import static java.util.Objects.requireNonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SharedHealthStateImpl implements SharedHealthState {
   private static final Logger LOG = LoggerFactory.getLogger(SharedHealthStateImpl.class);
@@ -39,10 +40,12 @@ public class SharedHealthStateImpl implements SharedHealthState {
 
   private final HazelcastMember hzMember;
 
+  @Autowired(required = false)
   public SharedHealthStateImpl(HazelcastMember hzMember) {
     this.hzMember = hzMember;
   }
 
+  @Autowired(required = false)
   public SharedHealthStateImpl() {
     this(null);
   }

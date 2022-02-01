@@ -20,19 +20,17 @@
 package org.sonar.server.webhook.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebhooksWsModuleTest {
-
-  private WebhooksWsModule underTest = new WebhooksWsModule();
+  private final WebhooksWsModule underTest = new WebhooksWsModule();
 
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     underTest.configure(container);
-    assertThat(container.size()).isNotZero();
+    assertThat(container.getAddedObjects()).isNotEmpty();
   }
-
 }

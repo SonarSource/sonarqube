@@ -19,6 +19,16 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
+import org.springframework.context.annotation.Bean;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -26,25 +36,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Startable;
-import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.springframework.context.annotation.Bean;
 
-import static org.sonar.core.util.FileUtils.deleteQuietly;
-
-public class GlobalTempFolderProvider implements Startable {
+public class GlobalTempFolderProvider {
   private static final Logger LOG = Loggers.get(GlobalTempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 
   private System2 system;
-  private DefaultTempFolder tempFolder;
 
   public GlobalTempFolderProvider() {
     this(new System2());
@@ -54,26 +52,24 @@ public class GlobalTempFolderProvider implements Startable {
     this.system = system;
   }
 
-  @Bean("TempFolder")
+  @Bean("GlobalTempFolder")
   public TempFolder provide(ScannerProperties scannerProps) {
-    if (tempFolder == null) {
 
-      String workingPathName = StringUtils.defaultIfBlank(scannerProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
-      Path workingPath = Paths.get(workingPathName);
+    String workingPathName = StringUtils.defaultIfBlank(scannerProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
+    Path workingPath = Paths.get(workingPathName);
 
-      if (!workingPath.isAbsolute()) {
-        Path home = findSonarHome(scannerProps);
-        workingPath = home.resolve(workingPath).normalize();
-      }
-      try {
-        cleanTempFolders(workingPath);
-      } catch (IOException e) {
-        LOG.error(String.format("failed to clean global working directory: %s", workingPath), e);
-      }
-      Path tempDir = createTempFolder(workingPath);
-      tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
+    if (!workingPath.isAbsolute()) {
+      Path home = findSonarHome(scannerProps);
+      workingPath = home.resolve(workingPath).normalize();
     }
-    return tempFolder;
+    try {
+      cleanTempFolders(workingPath);
+    } catch (IOException e) {
+      LOG.error(String.format("failed to clean global working directory: %s", workingPath), e);
+    }
+    Path tempDir = createTempFolder(workingPath);
+    return new DefaultTempFolder(tempDir.toFile(), true);
+
   }
 
   private static Path createTempFolder(Path workingPath) {
@@ -148,15 +144,4 @@ public class GlobalTempFolderProvider implements Startable {
     }
   }
 
-  @Override
-  public void start() {
-    // nothing to do
-  }
-
-  @Override
-  public void stop() {
-    if (tempFolder != null) {
-      tempFolder.stop();
-    }
-  }
 }

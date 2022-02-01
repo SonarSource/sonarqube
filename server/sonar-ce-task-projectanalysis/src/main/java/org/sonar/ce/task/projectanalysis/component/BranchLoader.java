@@ -19,12 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.scanner.protocol.output.ScannerReport;
-
 import static org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType.UNSET;
+
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 public class BranchLoader {
   private final MutableAnalysisMetadataHolder metadataHolder;
@@ -34,6 +35,7 @@ public class BranchLoader {
     this(metadataHolder, null);
   }
 
+  @Inject
   public BranchLoader(MutableAnalysisMetadataHolder metadataHolder, @Nullable BranchLoaderDelegate delegate) {
     this.metadataHolder = metadataHolder;
     this.delegate = delegate;

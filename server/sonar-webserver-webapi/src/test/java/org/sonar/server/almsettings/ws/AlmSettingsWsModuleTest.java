@@ -20,17 +20,15 @@
 package org.sonar.server.almsettings.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AlmSettingsWsModuleTest {
-
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new AlmSettingsWsModule().configure(container);
-    assertThat(container.size()).isPositive();
+    assertThat(container.getAddedObjects()).isNotEmpty();
   }
-
 }

@@ -20,21 +20,17 @@
 package org.sonar.server.root.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class RootsWsModuleTest {
   private RootWsModule underTest = new RootWsModule();
 
   @Test
   public void verify_number_of_components_added_by_module() {
-    ComponentContainer container = new ComponentContainer();
-
+    ListContainer container = new ListContainer();
     underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 4);
+    assertThat(container.getAddedObjects()).hasSize(4);
   }
 }

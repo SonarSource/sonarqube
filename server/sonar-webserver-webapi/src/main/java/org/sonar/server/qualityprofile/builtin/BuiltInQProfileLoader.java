@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile.builtin;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 
 /**
  * Startable added to {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup} responsible for initializing

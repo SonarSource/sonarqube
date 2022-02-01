@@ -19,7 +19,7 @@
  */
 package org.sonar.server.async;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.process.Jmx;
 
 public class AsyncExecutionMBeanImpl implements AsyncExecutionMBean, Startable {

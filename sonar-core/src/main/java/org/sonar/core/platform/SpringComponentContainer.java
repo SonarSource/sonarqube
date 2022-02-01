@@ -17,56 +17,65 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.System2;
-import org.sonar.core.platform.ComponentKeys;
-import org.sonar.core.platform.Container;
-import org.sonar.core.platform.ExtensionContainer;
-import org.sonar.core.platform.PluginInfo;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
-public class SpringComponentContainer implements ExtensionContainer {
+public class SpringComponentContainer implements StartableContainer {
   protected final AnnotationConfigApplicationContext context;
   @Nullable
   protected final SpringComponentContainer parent;
+  protected final List<SpringComponentContainer> children = new ArrayList<>();
 
   private final PropertyDefinitions propertyDefinitions;
   private final ComponentKeys componentKeys = new ComponentKeys();
 
-  protected SpringComponentContainer() {
-    this(null, new PropertyDefinitions(System2.INSTANCE), emptyList());
+  public SpringComponentContainer() {
+    this(null, new PropertyDefinitions(System2.INSTANCE), emptyList(), new LazyUnlessStartableStrategy());
   }
 
   protected SpringComponentContainer(List<?> externalExtensions) {
-    this(null, new PropertyDefinitions(System2.INSTANCE), externalExtensions);
+    this(null, new PropertyDefinitions(System2.INSTANCE), externalExtensions, new LazyUnlessStartableStrategy());
   }
 
   protected SpringComponentContainer(SpringComponentContainer parent) {
-    this(parent, parent.propertyDefinitions, emptyList());
+    this(parent, parent.propertyDefinitions, emptyList(), new LazyUnlessStartableStrategy());
   }
 
-  private SpringComponentContainer(@Nullable SpringComponentContainer parent, PropertyDefinitions propertyDefinitions, List<?> externalExtensions) {
+  protected SpringComponentContainer(SpringComponentContainer parent, SpringInitStrategy initStrategy) {
+    this(parent, parent.propertyDefinitions, emptyList(), initStrategy);
+  }
+
+  protected SpringComponentContainer(@Nullable SpringComponentContainer parent, PropertyDefinitions propertyDefs, List<?> externalExtensions, SpringInitStrategy initStrategy) {
     this.parent = parent;
-    this.propertyDefinitions = propertyDefinitions;
+    this.propertyDefinitions = propertyDefs;
     this.context = new AnnotationConfigApplicationContext(new PriorityBeanFactory());
+    this.context.setAllowBeanDefinitionOverriding(false);
+    ((AbstractAutowireCapableBeanFactory) context.getBeanFactory()).setParameterNameDiscoverer(null);
     if (parent != null) {
       context.setParent(parent.context);
+      parent.children.add(this);
     }
+    add(initStrategy);
     add(this);
     add(new StartableBeanPostProcessor());
     add(externalExtensions);
-    add(propertyDefinitions);
+    add(propertyDefs);
   }
 
   /**
@@ -81,11 +90,18 @@ public class SpringComponentContainer implements ExtensionContainer {
     for (Object o : objects) {
       if (o instanceof Class) {
         Class<?> clazz = (Class<?>) o;
+        if (Module.class.isAssignableFrom(clazz)) {
+          throw new IllegalStateException("Modules should be added as instances");
+        }
         context.registerBean(componentKeys.ofClass(clazz), clazz);
+        declareExtension("", o);
+      } else if (o instanceof Module) {
+        ((Module) o).configure(this);
       } else if (o instanceof Iterable) {
         add(Iterables.toArray((Iterable<?>) o, Object.class));
       } else {
         registerInstance(o);
+        declareExtension("", o);
       }
     }
     return this;
@@ -95,7 +111,6 @@ public class SpringComponentContainer implements ExtensionContainer {
     Supplier<T> supplier = () -> instance;
     Class<T> clazz = (Class<T>) instance.getClass();
     context.registerBean(componentKeys.ofInstance(instance), clazz, supplier);
-    declareExtension("", instance);
   }
 
   /**
@@ -111,16 +126,9 @@ public class SpringComponentContainer implements ExtensionContainer {
     } else if (o instanceof Iterable) {
       ((Iterable<?>) o).forEach(this::addExtension);
     } else {
-      ClassDerivedBeanDefinition bd = new ClassDerivedBeanDefinition(o.getClass());
-      bd.setInstanceSupplier(() -> o);
-      context.registerBeanDefinition(componentKeys.ofInstance(o), bd);
+      registerInstance(o);
     }
     return this;
-  }
-
-  @Override
-  public Container addSingletons(Iterable<?> components) {
-    return add(components);
   }
 
   @Override
@@ -132,6 +140,14 @@ public class SpringComponentContainer implements ExtensionContainer {
     }
   }
 
+  @Override public <T> Optional<T> getOptionalComponentByType(Class<T> type) {
+    try {
+      return Optional.of(context.getBean(type));
+    } catch (NoSuchBeanDefinitionException t) {
+      return Optional.empty();
+    }
+  }
+
   @Override
   public <T> List<T> getComponentsByType(Class<T> type) {
     try {
@@ -139,6 +155,10 @@ public class SpringComponentContainer implements ExtensionContainer {
     } catch (Exception t) {
       throw new IllegalStateException("Unable to load components " + type, t);
     }
+  }
+
+  public AnnotationConfigApplicationContext context() {
+    return context;
   }
 
   public void execute() {
@@ -161,6 +181,7 @@ public class SpringComponentContainer implements ExtensionContainer {
     }
   }
 
+  @Override
   public SpringComponentContainer startComponents() {
     doBeforeStart();
     context.refresh();
@@ -169,10 +190,22 @@ public class SpringComponentContainer implements ExtensionContainer {
   }
 
   public SpringComponentContainer stopComponents() {
-    if (context.isActive()) {
-      context.close();
+    try {
+      stopChildren();
+      if (context.isActive()) {
+        context.close();
+      }
+    } finally {
+      if (parent != null) {
+        parent.children.remove(this);
+      }
     }
     return this;
+  }
+
+  private void stopChildren() {
+    // loop over a copy of list of children in reverse order
+    Lists.reverse(new ArrayList<>(this.children)).forEach(SpringComponentContainer::stopComponents);
   }
 
   public SpringComponentContainer createChild() {

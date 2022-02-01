@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class RequestAuthenticatorImpl implements RequestAuthenticator {
 
@@ -36,6 +37,7 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   private final UserSessionFactory userSessionFactory;
   private final List<CustomAuthentication> customAuthentications;
 
+  @Autowired(required = false)
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
     UserSessionFactory userSessionFactory, CustomAuthentication[] customAuthentications) {
     this.jwtHttpHandler = jwtHttpHandler;
@@ -45,6 +47,7 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
     this.customAuthentications = Arrays.asList(customAuthentications);
   }
 
+  @Autowired(required = false)
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, HttpHeadersAuthentication httpHeadersAuthentication,
     UserSessionFactory userSessionFactory) {
     this(jwtHttpHandler, basicAuthentication, httpHeadersAuthentication, userSessionFactory, new CustomAuthentication[0]);

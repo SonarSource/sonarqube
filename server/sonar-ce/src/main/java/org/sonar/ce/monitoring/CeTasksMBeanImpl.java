@@ -22,7 +22,7 @@ package org.sonar.ce.monitoring;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.taskprocessor.CeWorker;
 import org.sonar.ce.taskprocessor.CeWorkerController;

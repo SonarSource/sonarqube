@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
+import javax.annotation.Nullable;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
-public class LazyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+public abstract class SpringInitStrategy implements BeanFactoryPostProcessor {
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-      beanDefinition.setLazyInit(true);
+      Class<?> rawClass = beanDefinition.getResolvableType().getRawClass();
+      beanDefinition.setLazyInit(isLazyInit(beanDefinition, rawClass));
     }
   }
+
+  protected abstract boolean isLazyInit(BeanDefinition beanDefinition, @Nullable Class<?> clazz);
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.platform.web;
 
 import java.io.IOException;
+import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -28,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.platform.Platform;
@@ -46,19 +47,21 @@ import static org.mockito.Mockito.when;
 
 public class UserSessionFilterTest {
 
-  private UserSessionInitializer userSessionInitializer = mock(UserSessionInitializer.class);
-  private ComponentContainer container = new ComponentContainer();
-  private Platform platform = mock(Platform.class);
-  private HttpServletRequest request = mock(HttpServletRequest.class);
-  private HttpServletResponse response = mock(HttpServletResponse.class);
-  private FilterChain chain = mock(FilterChain.class);
-  private DBSessions dbSessions = mock(DBSessions.class);
-  private ThreadLocalSettings settings = mock(ThreadLocalSettings.class);
-  private UserSessionFilter underTest = new UserSessionFilter(platform);
+  private final UserSessionInitializer userSessionInitializer = mock(UserSessionInitializer.class);
+  private final ExtensionContainer container = mock(ExtensionContainer.class);
+  private final Platform platform = mock(Platform.class);
+  private final HttpServletRequest request = mock(HttpServletRequest.class);
+  private final HttpServletResponse response = mock(HttpServletResponse.class);
+  private final FilterChain chain = mock(FilterChain.class);
+  private final DBSessions dbSessions = mock(DBSessions.class);
+  private final ThreadLocalSettings settings = mock(ThreadLocalSettings.class);
+  private final UserSessionFilter underTest = new UserSessionFilter(platform);
 
   @Before
   public void setUp() {
-    container.add(dbSessions, settings);
+    when(container.getComponentByType(DBSessions.class)).thenReturn(dbSessions);
+    when(container.getComponentByType(ThreadLocalSettings.class)).thenReturn(settings);
+    when(container.getOptionalComponentByType(UserSessionInitializer.class)).thenReturn(Optional.empty());
     when(platform.getContainer()).thenReturn(container);
   }
 
@@ -158,12 +161,12 @@ public class UserSessionFilterTest {
   }
 
   private void mockUserSessionInitializer(boolean value) {
-    container.add(userSessionInitializer);
+    when(container.getOptionalComponentByType(UserSessionInitializer.class)).thenReturn(Optional.of(userSessionInitializer));
     when(userSessionInitializer.initUserSession(request, response)).thenReturn(value);
   }
 
   private RuntimeException mockUserSessionInitializerRemoveUserSessionFailing() {
-    container.add(userSessionInitializer);
+    when(container.getOptionalComponentByType(UserSessionInitializer.class)).thenReturn(Optional.of(userSessionInitializer));
     RuntimeException thrown = new RuntimeException("Faking UserSessionInitializer.removeUserSession failing");
     doThrow(thrown)
       .when(userSessionInitializer)

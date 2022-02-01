@@ -43,6 +43,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @ServerSide
 public class PageRepository implements Startable {
@@ -53,8 +54,9 @@ public class PageRepository implements Startable {
   private List<Page> pages;
 
   /**
-   * Used by Pico when there is no {@link PageDefinition}.
+   * Used by the ioc container when there is no {@link PageDefinition}.
    */
+  @Autowired(required = false)
   public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository) {
     this.pluginRepository = pluginRepository;
     this.coreExtensionRepository = coreExtensionRepository;
@@ -64,10 +66,10 @@ public class PageRepository implements Startable {
   }
 
   /**
-   * Used by Pico when there is only {@link PageDefinition} provided both by Plugin(s).
+   * Used by the ioc container when there is only {@link PageDefinition} provided both by Plugin(s).
    */
-  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository,
-    PageDefinition[] pageDefinitions) {
+  @Autowired(required = false)
+  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository, PageDefinition[] pageDefinitions) {
     this.pluginRepository = pluginRepository;
     this.coreExtensionRepository = coreExtensionRepository;
     this.definitions = copyOf(pageDefinitions);
@@ -75,10 +77,10 @@ public class PageRepository implements Startable {
   }
 
   /**
-   * Used by Pico when there is only {@link PageDefinition} provided both by Core Extension(s).
+   * Used by the ioc container when there is only {@link PageDefinition} provided both by Core Extension(s).
    */
-  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository,
-    CorePageDefinition[] corePageDefinitions) {
+  @Autowired(required = false)
+  public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository, CorePageDefinition[] corePageDefinitions) {
     this.pluginRepository = pluginRepository;
     this.coreExtensionRepository = coreExtensionRepository;
     this.definitions = emptyList();
@@ -86,8 +88,9 @@ public class PageRepository implements Startable {
   }
 
   /**
-   * Used by Pico when there is {@link PageDefinition} provided both by Core Extension(s) and Plugin(s).
+   * Used by the ioc container when there is {@link PageDefinition} provided both by Core Extension(s) and Plugin(s).
    */
+  @Autowired(required = false)
   public PageRepository(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository,
     PageDefinition[] pageDefinitions, CorePageDefinition[] corePageDefinitions) {
     this.pluginRepository = pluginRepository;

@@ -20,7 +20,7 @@
 package org.sonar.server.platform;
 
 import java.util.Optional;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;

@@ -29,7 +29,6 @@ dependencies {
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.googlecode.java-diff-utils:diffutils'
   compile 'org.mybatis:mybatis'
-  compile 'org.picocontainer:picocontainer'
 
   compile project(':sonar-core')
   compile project(':server:sonar-ce-common')

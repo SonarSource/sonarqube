@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.Phase;
@@ -26,10 +27,7 @@ import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.PostJobDescriptor;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.scanner.postjob.PostJobOptimizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,19 +36,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PostJobExtensionDictionaryTest {
-  private PostJobOptimizer postJobOptimizer = mock(PostJobOptimizer.class);
+  private final PostJobOptimizer postJobOptimizer = mock(PostJobOptimizer.class);
 
   @Before
   public void setUp() {
     when(postJobOptimizer.shouldExecute(any(DefaultPostJobDescriptor.class))).thenReturn(true);
-  }
-
-  private PostJobExtensionDictionary newSelector(Object... extensions) {
-    ComponentContainer iocContainer = new ComponentContainer();
-    for (Object extension : extensions) {
-      iocContainer.addSingleton(extension);
-    }
-    return new PostJobExtensionDictionary(iocContainer, postJobOptimizer, mock(PostJobContext.class));
   }
 
   @Test
@@ -58,29 +48,11 @@ public class PostJobExtensionDictionaryTest {
     PrePostJob pre = new PrePostJob();
     NormalPostJob normal = new NormalPostJob();
 
-    PostJobExtensionDictionary selector = newSelector(normal, pre);
+    ExtensionContainer iocContainer = mock(ExtensionContainer.class);
+    when(iocContainer.getComponentsByType(PostJob.class)).thenReturn(List.of(pre, normal));
+
+    PostJobExtensionDictionary selector = new PostJobExtensionDictionary(iocContainer, postJobOptimizer, mock(PostJobContext.class));
     assertThat(selector.selectPostJobs()).extracting("wrappedPostJob").containsExactly(pre, normal);
-  }
-
-  interface Marker {
-
-  }
-
-  @Phase(name = Phase.Name.POST) static
-  class PostSensor implements Sensor {
-
-    @Override
-    public void describe(SensorDescriptor descriptor) {
-    }
-
-    @Override
-    public void execute(SensorContext context) {
-    }
-
-  }
-
-  class PostSensorSubclass extends PostSensor {
-
   }
 
   static class NormalPostJob implements PostJob {

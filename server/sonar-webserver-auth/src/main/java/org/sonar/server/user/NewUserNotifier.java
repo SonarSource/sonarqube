@@ -22,6 +22,7 @@ package org.sonar.server.user;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.log.Loggers;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @since 3.2
@@ -29,12 +30,14 @@ import org.sonar.api.utils.log.Loggers;
 @ServerSide
 public class NewUserNotifier {
 
-  private NewUserHandler[] handlers;
+  private final NewUserHandler[] handlers;
 
+  @Autowired(required = false)
   public NewUserNotifier(NewUserHandler[] handlers) {
     this.handlers = handlers;
   }
 
+  @Autowired(required = false)
   public NewUserNotifier() {
     this(new NewUserHandler[0]);
   }

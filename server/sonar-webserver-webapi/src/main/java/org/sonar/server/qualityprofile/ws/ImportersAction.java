@@ -24,15 +24,18 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ImportersAction implements QProfileWsAction {
 
   private final ProfileImporter[] importers;
 
+  @Autowired(required = false)
   public ImportersAction(ProfileImporter[] importers) {
     this.importers = importers;
   }
 
+  @Autowired(required = false)
   public ImportersAction() {
     this(new ProfileImporter[0]);
   }

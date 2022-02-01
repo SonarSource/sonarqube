@@ -15,7 +15,6 @@ dependencies {
   compile 'commons-io:commons-io'
   compile 'org.apache.commons:commons-dbcp2'
   compile 'org.nanohttpd:nanohttpd'
-  compile 'org.picocontainer:picocontainer'
   compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-ce-task-projectanalysis')
@@ -36,7 +35,7 @@ dependencies {
   testCompile 'org.awaitility:awaitility'
   testCompile 'org.mockito:mockito-core'
   testCompile 'org.slf4j:slf4j-api'
-  
+
   testCompile testFixtures(project(':server:sonar-db-dao'))
 
 }

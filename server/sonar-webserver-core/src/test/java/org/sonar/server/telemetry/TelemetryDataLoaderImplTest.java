@@ -41,7 +41,6 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.platform.DockerSupport;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
-import org.sonar.server.pushapi.sonarlint.SonarLintClientsRegistry;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.updatecenter.common.Version;
@@ -86,7 +85,7 @@ public class TelemetryDataLoaderImplTest {
   private final LicenseReader licenseReader = mock(LicenseReader.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
-    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport);
+    new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport, null);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
     new ProjectMeasuresIndex(es.client(), null, system2), editionProvider, internalProperties, configuration, dockerSupport, licenseReader);
 

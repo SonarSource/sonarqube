@@ -39,6 +39,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -52,6 +53,7 @@ public class NotificationService {
   private final List<NotificationHandler<? extends Notification>> handlers;
   private final DbClient dbClient;
 
+  @Autowired(required = false)
   public NotificationService(DbClient dbClient, NotificationDispatcher[] dispatchers, NotificationHandler<? extends Notification>[] handlers) {
     this.dbClient = dbClient;
     this.dispatchers = ImmutableList.copyOf(dispatchers);
@@ -59,22 +61,25 @@ public class NotificationService {
   }
 
   /**
-   * Used by Pico when there are no handler nor dispatcher.
+   * Used by the ioc container when there are no handler nor dispatcher.
    */
+  @Autowired(required = false)
   public NotificationService(DbClient dbClient) {
     this(dbClient, new NotificationDispatcher[0], new NotificationHandler[0]);
   }
 
   /**
-   * Used by Pico when there are no dispatcher.
+   * Used by the ioc container when there are no dispatcher.
    */
+  @Autowired(required = false)
   public NotificationService(DbClient dbClient, NotificationHandler[] handlers) {
     this(dbClient, new NotificationDispatcher[0], handlers);
   }
 
   /**
-   * Used by Pico when there are no handler.
+   * Used by the ioc container when there are no handler.
    */
+  @Autowired(required = false)
   public NotificationService(DbClient dbClient, NotificationDispatcher[] dispatchers) {
     this(dbClient, dispatchers, new NotificationHandler[0]);
   }

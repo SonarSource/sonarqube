@@ -54,8 +54,8 @@ public class ProjectExportContainerPopulator implements ContainerPopulator<TaskC
 
     container.add(projectDescriptor);
     container.add(steps);
-    container.addSingletons(COMPONENT_CLASSES);
-    container.addSingletons(steps.orderedStepClasses());
+    container.add(COMPONENT_CLASSES);
+    container.add(steps.orderedStepClasses());
   }
 
 }

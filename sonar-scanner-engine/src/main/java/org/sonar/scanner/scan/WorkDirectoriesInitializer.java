@@ -24,26 +24,42 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-import org.sonar.core.util.FileUtils;
+import org.sonar.api.batch.fs.internal.AbstractProjectOrModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.core.util.FileUtils;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
 /**
- * Clean and create working directories of each module.
+ * Clean and create working directories of each module, except the root.
  * Be careful that sub module work dir might be nested in parent working directory.
  */
 public class WorkDirectoriesInitializer {
   public void execute(InputModuleHierarchy moduleHierarchy) {
-    cleanAllWorkingDirs(moduleHierarchy, moduleHierarchy.root());
-    mkdirsAllWorkingDirs(moduleHierarchy, moduleHierarchy.root());
+    // dont apply to root. Root is done by InputProjectProvider
+    for (DefaultInputModule sub : moduleHierarchy.children(moduleHierarchy.root())) {
+      cleanAllWorkingDirs(moduleHierarchy, sub);
+    }
+    for (DefaultInputModule sub : moduleHierarchy.children(moduleHierarchy.root())) {
+      mkdirsAllWorkingDirs(moduleHierarchy, sub);
+    }
+  }
+
+  public void execute(DefaultInputProject project) {
+    cleanWorkingDir(project);
+    mkdirWorkingDir(project);
   }
 
   private static void cleanAllWorkingDirs(InputModuleHierarchy moduleHierarchy, DefaultInputModule module) {
     for (DefaultInputModule sub : moduleHierarchy.children(module)) {
       cleanAllWorkingDirs(moduleHierarchy, sub);
     }
-    if (Files.exists(module.getWorkDir())) {
-      deleteAllRecursivelyExceptLockFile(module.getWorkDir());
+    cleanWorkingDir(module);
+  }
+
+  private static void cleanWorkingDir(AbstractProjectOrModule projectOrModule) {
+    if (Files.exists(projectOrModule.getWorkDir())) {
+      deleteAllRecursivelyExceptLockFile(projectOrModule.getWorkDir());
     }
   }
 
@@ -51,10 +67,14 @@ public class WorkDirectoriesInitializer {
     for (DefaultInputModule sub : moduleHierarchy.children(module)) {
       mkdirsAllWorkingDirs(moduleHierarchy, sub);
     }
+    mkdirWorkingDir(module);
+  }
+
+  private static void mkdirWorkingDir(AbstractProjectOrModule projectOrModule) {
     try {
-      Files.createDirectories(module.getWorkDir());
+      Files.createDirectories(projectOrModule.getWorkDir());
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to create working dir: " + module.getWorkDir(), e);
+      throw new IllegalStateException("Fail to create working dir: " + projectOrModule.getWorkDir(), e);
     }
   }
 

@@ -29,7 +29,6 @@ dependencies {
   compile 'javax.annotation:javax.annotation-api'
   compile 'org.eclipse.jgit:org.eclipse.jgit'
   compile 'org.tmatesoft.svnkit:svnkit'
-  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jcl-over-slf4j'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:log4j-over-slf4j'
@@ -60,7 +59,6 @@ dependencies {
   testCompile 'org.mockito:mockito-core'
   testCompile project(':plugins:sonar-xoo-plugin')
   testCompile project(':sonar-plugin-api').sourceSets.test.output
-
 }
 
 license {

@@ -23,35 +23,33 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
+import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static java.lang.String.format;
 
 public class MigrationEngineImpl implements MigrationEngine {
   private final MigrationHistory migrationHistory;
-  private final ComponentContainer serverContainer;
-  private final MigrationContainerPopulator populator;
+  private final SpringComponentContainer serverContainer;
   private final MigrationSteps migrationSteps;
   private final Configuration configuration;
 
-  public MigrationEngineImpl(MigrationHistory migrationHistory, ComponentContainer serverContainer,
-    MigrationContainerPopulator populator, MigrationSteps migrationSteps, Configuration configuration) {
+  public MigrationEngineImpl(MigrationHistory migrationHistory, SpringComponentContainer serverContainer, MigrationSteps migrationSteps, Configuration configuration) {
     this.migrationHistory = migrationHistory;
     this.serverContainer = serverContainer;
-    this.populator = populator;
     this.migrationSteps = migrationSteps;
     this.configuration = configuration;
   }
 
   @Override
   public void execute() {
-    MigrationContainer migrationContainer = new MigrationContainerImpl(serverContainer, populator);
+    MigrationContainer migrationContainer = new MigrationContainerImpl(serverContainer, MigrationStepsExecutorImpl.class);
     boolean blueGreen = configuration.getBoolean(ProcessProperties.Property.BLUE_GREEN_ENABLED.getKey()).orElse(false);
     try {
       MigrationStepsExecutor stepsExecutor = migrationContainer.getComponentByType(MigrationStepsExecutor.class);

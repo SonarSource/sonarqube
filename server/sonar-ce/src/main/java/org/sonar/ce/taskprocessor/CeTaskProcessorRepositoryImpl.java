@@ -36,7 +36,7 @@ import static java.lang.String.format;
 
 /**
  * {@link CeTaskProcessorRepository} implementation which provides access to the {@link CeTaskProcessor} existing in the
- * PicoContainer the current object belongs to.
+ * ioc container the current object belongs to.
  */
 public class CeTaskProcessorRepositoryImpl implements CeTaskProcessorRepository {
   private final Map<String, CeTaskProcessor> taskProcessorByCeTaskType;

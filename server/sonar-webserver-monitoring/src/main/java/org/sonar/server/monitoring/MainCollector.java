@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 

@@ -22,7 +22,7 @@ package org.sonar.server.util;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * ScheduledExecutorService that exposes a {@code stop} method which can be invoked by Pico container to shutdown
+ * ScheduledExecutorService that exposes a {@code stop} method which can be invoked by the ioc container to shutdown
  * properly the service.
  */
 public interface StoppableScheduledExecutorService extends ScheduledExecutorService, StoppableExecutorService {

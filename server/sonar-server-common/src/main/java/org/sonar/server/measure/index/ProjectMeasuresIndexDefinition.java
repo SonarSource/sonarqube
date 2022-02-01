@@ -34,6 +34,8 @@ import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_
 import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
+import javax.inject.Inject;
+
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
   public static final Index DESCRIPTOR = Index.withRelations("projectmeasures");
@@ -71,6 +73,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     this.enableSource = enableSource;
   }
 
+  @Inject
   public ProjectMeasuresIndexDefinition(Configuration config) {
     this(config, false);
   }

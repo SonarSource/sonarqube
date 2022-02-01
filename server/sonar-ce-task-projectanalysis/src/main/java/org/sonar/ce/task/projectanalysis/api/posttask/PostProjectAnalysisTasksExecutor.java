@@ -72,14 +72,6 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   private final PostProjectAnalysisTask[] postProjectAnalysisTasks;
   private final BatchReportReader reportReader;
 
-  /**
-   * Constructor used by Pico when there is no {@link PostProjectAnalysisTask} in the container.
-   */
-  public PostProjectAnalysisTasksExecutor(org.sonar.ce.task.CeTask ceTask, AnalysisMetadataHolder analysisMetadataHolder,
-    QualityGateHolder qualityGateHolder, QualityGateStatusHolder qualityGateStatusHolder, BatchReportReader reportReader) {
-    this(ceTask, analysisMetadataHolder, qualityGateHolder, qualityGateStatusHolder, reportReader, null);
-  }
-
   public PostProjectAnalysisTasksExecutor(org.sonar.ce.task.CeTask ceTask, AnalysisMetadataHolder analysisMetadataHolder, QualityGateHolder qualityGateHolder,
     QualityGateStatusHolder qualityGateStatusHolder, BatchReportReader reportReader, @Nullable PostProjectAnalysisTask[] postProjectAnalysisTasks) {
     this.analysisMetadataHolder = analysisMetadataHolder;

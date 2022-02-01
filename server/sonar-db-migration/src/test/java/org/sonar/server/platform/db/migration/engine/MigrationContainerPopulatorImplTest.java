@@ -19,16 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
-import org.sonar.server.platform.db.migration.version.DbVersion;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -37,38 +34,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MigrationContainerPopulatorImplTest {
-  private MigrationContainer migrationContainer = new SimpleMigrationContainer();
-  private MigrationSteps migrationSteps = mock(MigrationSteps.class);
-  private MigrationContainerPopulatorImpl underTest = new MigrationContainerPopulatorImpl();
+  private final SimpleMigrationContainer migrationContainer = new SimpleMigrationContainer();
+  private final MigrationSteps migrationSteps = mock(MigrationSteps.class);
+  private final MigrationContainerPopulatorImpl underTest = new MigrationContainerPopulatorImpl();
 
   @Before
   public void setUp() {
     migrationContainer.add(migrationSteps);
-  }
-
-  @Test
-  public void populateContainer_adds_components_of_DbVersion_getSupportComponents() {
-    MigrationContainerPopulatorImpl underTest = new MigrationContainerPopulatorImpl(
-      new NoRegistryDbVersion() {
-        @Override
-        public Stream<Object> getSupportComponents() {
-          return Stream.of(Clazz2.class);
-        }
-      },
-      new NoRegistryDbVersion(),
-      new NoRegistryDbVersion() {
-        @Override
-        public Stream<Object> getSupportComponents() {
-          return Stream.of(Clazz1.class, Clazz3.class);
-        }
-      });
-    when(migrationSteps.readAll()).thenReturn(emptyList());
-
-    underTest.populateContainer(migrationContainer);
-
-    assertThat(migrationContainer.getComponentsByType(Clazz1.class)).isNotNull();
-    assertThat(migrationContainer.getComponentsByType(Clazz2.class)).isNotNull();
-    assertThat(migrationContainer.getComponentsByType(Clazz3.class)).isNotNull();
   }
 
   @Test
@@ -78,6 +50,7 @@ public class MigrationContainerPopulatorImplTest {
     // add MigrationStepsExecutorImpl's dependencies
     migrationContainer.add(mock(MigrationHistory.class));
 
+    migrationContainer.startComponents();
     underTest.populateContainer(migrationContainer);
 
     assertThat(migrationContainer.getComponentByType(MigrationStepsExecutorImpl.class)).isNotNull();
@@ -90,6 +63,7 @@ public class MigrationContainerPopulatorImplTest {
       new RegisteredMigrationStep(2, "bar", MigrationStep2.class),
       new RegisteredMigrationStep(3, "dor", MigrationStep3.class)));
 
+    migrationContainer.startComponents();
     underTest.populateContainer(migrationContainer);
 
     assertThat(migrationContainer.getComponentsByType(MigrationStep1.class)).isNotNull();
@@ -106,6 +80,7 @@ public class MigrationContainerPopulatorImplTest {
       new RegisteredMigrationStep(4, "foo2", MigrationStep1.class),
       new RegisteredMigrationStep(5, "dor", MigrationStep3.class)));
 
+    migrationContainer.startComponents();
     underTest.populateContainer(migrationContainer);
 
     assertThat(migrationContainer.getComponentsByType(MigrationStep1.class)).isNotNull();
@@ -142,17 +117,5 @@ public class MigrationContainerPopulatorImplTest {
 
   public static final class Clazz3 {
 
-  }
-
-  /**
-   * An implementation of DbVersion to be passed to {@link MigrationContainerPopulatorImpl}'s constructor which is
-   * not supposed to call the {@link DbVersion#addSteps(MigrationStepRegistry)} method and therefor has an
-   * implementation that throws a {@link UnsupportedOperationException} when called.
-   */
-  private static class NoRegistryDbVersion implements DbVersion {
-    @Override
-    public void addSteps(MigrationStepRegistry registry) {
-      throw new UnsupportedOperationException("addSteps is not supposed to be called");
-    }
   }
 }

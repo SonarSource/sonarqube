@@ -20,15 +20,15 @@
 package org.sonar.server.setting.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SettingsWsModuleTest {
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new SettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2);
+    assertThat(container.getAddedObjects()).hasSize(11);
   }
 }

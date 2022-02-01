@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
 import org.sonar.server.platform.WebServer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -42,15 +43,17 @@ public class HealthCheckerImpl implements HealthChecker {
   private final SharedHealthState sharedHealthState;
 
   /**
-   * Constructor used by Pico in standalone mode and in safe mode.
+   * Constructor used by the ioc container in standalone mode and in safe mode.
    */
+  @Autowired(required = false)
   public HealthCheckerImpl(WebServer webServer, NodeHealthCheck[] nodeHealthChecks) {
     this(webServer, nodeHealthChecks, new ClusterHealthCheck[0], null);
   }
 
   /**
-   * Constructor used by Pico in cluster mode.
+   * Constructor used by the ioc container in cluster mode.
    */
+  @Autowired(required = false)
   public HealthCheckerImpl(WebServer webServer, NodeHealthCheck[] nodeHealthChecks, ClusterHealthCheck[] clusterHealthChecks,
     @Nullable SharedHealthState sharedHealthState) {
     this.webServer = webServer;

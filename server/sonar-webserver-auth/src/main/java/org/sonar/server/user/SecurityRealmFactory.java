@@ -21,7 +21,7 @@ package org.sonar.server.user;
 
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.security.LoginPasswordAuthenticator;
@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @since 2.14
@@ -43,6 +44,7 @@ public class SecurityRealmFactory implements Startable {
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
 
+  @Autowired(required = false)
   public SecurityRealmFactory(Configuration config, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
     ignoreStartupFailure = config.getBoolean(SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey()).orElse(false);
     String realmName = config.get(SONAR_SECURITY_REALM.getKey()).orElse(null);
@@ -66,14 +68,17 @@ public class SecurityRealmFactory implements Startable {
     realm = selectedRealm;
   }
 
+  @Autowired(required = false)
   public SecurityRealmFactory(Configuration config, LoginPasswordAuthenticator[] authenticators) {
     this(config, new SecurityRealm[0], authenticators);
   }
 
+  @Autowired(required = false)
   public SecurityRealmFactory(Configuration config, SecurityRealm[] realms) {
     this(config, realms, new LoginPasswordAuthenticator[0]);
   }
 
+  @Autowired(required = false)
   public SecurityRealmFactory(Configuration config) {
     this(config, new SecurityRealm[0], new LoginPasswordAuthenticator[0]);
   }

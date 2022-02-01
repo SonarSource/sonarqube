@@ -18,7 +18,6 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   compile 'com.google.guava:guava'
-  compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jul-to-slf4j'
   compile 'org.slf4j:slf4j-api'
 

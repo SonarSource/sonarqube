@@ -19,7 +19,7 @@
  */
 package org.sonar.server.plugins;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.updatecenter.common.PluginReferential;
 

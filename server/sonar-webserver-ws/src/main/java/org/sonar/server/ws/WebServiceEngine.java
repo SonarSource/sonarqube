@@ -27,7 +27,7 @@ import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.catalina.connector.ClientAbortException;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.LocalConnector;

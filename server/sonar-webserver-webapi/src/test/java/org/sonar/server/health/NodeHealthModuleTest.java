@@ -19,20 +19,17 @@
  */
 package org.sonar.server.health;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import org.junit.Test;
-import org.picocontainer.ComponentAdapter;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.cluster.health.SharedHealthStateImpl;
 import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.core.platform.ListContainer;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -41,13 +38,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class NodeHealthModuleTest {
-  private Random random = new Random();
-  private MapSettings mapSettings = new MapSettings();
-  private NodeHealthModule underTest = new NodeHealthModule();
+  private final Random random = new Random();
+  private final MapSettings mapSettings = new MapSettings();
+  private final NodeHealthModule underTest = new NodeHealthModule();
 
   @Test
   public void no_broken_dependencies() {
-    ComponentContainer container = new ComponentContainer();
+    SpringComponentContainer container = new SpringComponentContainer();
     Server server = mock(Server.class);
     NetworkUtils networkUtils = mock(NetworkUtils.class);
     // settings required by NodeHealthProvider
@@ -72,16 +69,10 @@ public class NodeHealthModuleTest {
 
   @Test
   public void provides_implementation_of_SharedHealthState() {
-    ComponentContainer container = new ComponentContainer();
-
+    ListContainer container = new ListContainer();
     underTest.configure(container);
 
-    assertThat(classesAddedToContainer(container))
+    assertThat(container.getAddedObjects())
       .contains(SharedHealthStateImpl.class);
-  }
-
-  private List<Class<?>> classesAddedToContainer(ComponentContainer container) {
-    Collection<ComponentAdapter<?>> componentAdapters = container.getPicoContainer().getComponentAdapters();
-    return componentAdapters.stream().map(ComponentAdapter::getComponentImplementation).collect(Collectors.toList());
   }
 }

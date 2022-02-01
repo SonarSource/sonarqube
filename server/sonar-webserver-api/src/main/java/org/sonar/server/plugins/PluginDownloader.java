@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

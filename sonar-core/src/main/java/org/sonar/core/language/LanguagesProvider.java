@@ -17,31 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.platform;
+package org.sonar.core.language;
 
-import com.google.common.base.Throwables;
-import org.picocontainer.PicoLifecycleException;
+import java.util.List;
+import java.util.Optional;
 
-class PicoUtils {
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.springframework.context.annotation.Bean;
 
-  private PicoUtils() {
-    // only static methods
-  }
-
-  static Throwable sanitize(Throwable t) {
-    Throwable result = t;
-    Throwable cause = t.getCause();
-    if (t instanceof PicoLifecycleException && cause != null) {
-      if ("wrapper".equals(cause.getMessage()) && cause.getCause() != null) {
-        result = cause.getCause();
-      } else {
-        result = cause;
-      }
+public class LanguagesProvider {
+  @Bean("Languages")
+  public Languages provide(Optional<List<Language>> languages) {
+    if (languages.isPresent()) {
+      return new Languages(languages.get().toArray(new Language[0]));
+    } else {
+      return new Languages();
     }
-    return result;
-  }
-
-  static RuntimeException propagate(Throwable t) {
-    throw Throwables.propagate(sanitize(t));
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import org.apache.ibatis.session.Configuration;
 import org.hamcrest.core.Is;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,11 +44,6 @@ public class MyBatisTest {
   }
 
   private MyBatis underTest = new MyBatis(database);
-
-  @After
-  public void tearDown() {
-    underTest.stop();
-  }
 
   @Test
   public void shouldConfigureMyBatis() {

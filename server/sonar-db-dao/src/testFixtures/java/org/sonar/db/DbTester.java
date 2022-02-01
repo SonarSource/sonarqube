@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -145,15 +144,16 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   private void initDbClient() {
-    TransientPicoContainer ioc = new TransientPicoContainer();
-    ioc.addComponent(auditPersister);
-    ioc.addComponent(db.getMyBatis());
-    ioc.addComponent(system2);
-    ioc.addComponent(uuidFactory);
-    for (Class daoClass : DaoModule.classes()) {
-      ioc.addComponent(daoClass);
+    FastSpringContainer ioc = new FastSpringContainer();
+    ioc.add(auditPersister);
+    ioc.add(db.getMyBatis());
+    ioc.add(system2);
+    ioc.add(uuidFactory);
+    for (Class<?> daoClass : DaoModule.classes()) {
+      ioc.add(daoClass);
     }
-    List<Dao> daos = ioc.getComponents(Dao.class);
+    ioc.start();
+    List<Dao> daos = ioc.getComponentsByType(Dao.class);
     client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
   }
 

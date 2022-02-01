@@ -40,7 +40,7 @@ public class LivenessCheckerImplTest {
   private final EsStatusNodeCheck esStatusNodeCheck = mock(EsStatusNodeCheck.class);
 
   LivenessCheckerImpl underTest = new LivenessCheckerImpl(dbConnectionNodeCheck, webServerStatusNodeCheck, ceStatusNodeCheck, esStatusNodeCheck);
-  LivenessCheckerImpl underTestDCE = new LivenessCheckerImpl(dbConnectionNodeCheck, webServerStatusNodeCheck, ceStatusNodeCheck);
+  LivenessCheckerImpl underTestDCE = new LivenessCheckerImpl(dbConnectionNodeCheck, webServerStatusNodeCheck, ceStatusNodeCheck, null);
 
   @Test
   public void fail_when_db_connection_check_fail() {

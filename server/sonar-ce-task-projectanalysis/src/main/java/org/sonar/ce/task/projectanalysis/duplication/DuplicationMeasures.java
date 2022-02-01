@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -53,6 +54,7 @@ public class DuplicationMeasures {
   protected final MeasureRepository measureRepository;
   private final DuplicationRepository duplicationRepository;
 
+  @Inject
   public DuplicationMeasures(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
     @Nullable DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
@@ -63,9 +65,6 @@ public class DuplicationMeasures {
     this.formulas = List.of(new DuplicationFormula());
   }
 
-  /**
-   * Constructor used by Pico in Views where no DuplicationRepository is available.
-   */
   public DuplicationMeasures(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
     this(treeRootHolder, metricRepository, measureRepository, null);
   }

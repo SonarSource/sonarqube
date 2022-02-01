@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
 import org.junit.Test;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -30,35 +31,25 @@ public class StartableBeanPostProcessorTest {
   private final StartableBeanPostProcessor underTest = new StartableBeanPostProcessor();
 
   @Test
-  public void starts_pico_startable() {
-    Startable startable = mock(Startable.class);
-    underTest.postProcessBeforeInitialization(startable, "startable");
-    verify(startable).start();
-    verifyNoMoreInteractions(startable);
-  }
-
-  @Test
   public void starts_api_startable() {
-    org.sonar.api.Startable startable = mock(org.sonar.api.Startable.class);
+    Startable startable = mock(Startable.class);
     underTest.postProcessBeforeInitialization(startable, "startable");
     verify(startable).start();
-    verifyNoMoreInteractions(startable);
-  }
-
-  @Test
-  public void stops_pico_startable() {
-    Startable startable = mock(Startable.class);
-    underTest.postProcessBeforeDestruction(startable, "startable");
-    verify(startable).stop();
     verifyNoMoreInteractions(startable);
   }
 
   @Test
   public void stops_api_startable() {
-    org.sonar.api.Startable startable = mock(org.sonar.api.Startable.class);
+    Startable startable = mock(Startable.class);
     underTest.postProcessBeforeDestruction(startable, "startable");
     verify(startable).stop();
     verifyNoMoreInteractions(startable);
   }
 
+  @Test
+  public void startable_and_autoCloseable_should_require_destruction(){
+    assertThat(underTest.requiresDestruction(mock(Startable.class))).isTrue();
+    assertThat(underTest.requiresDestruction(mock(org.sonar.api.Startable.class))).isTrue();
+    assertThat(underTest.requiresDestruction(mock(Object.class))).isFalse();
+  }
 }

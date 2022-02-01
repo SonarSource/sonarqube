@@ -33,7 +33,7 @@
     <level value="INFO"/>
   </logger>
 
-  <logger name="org.sonar.scanner.bootstrap.PriorityBeanFactory">
+  <logger name="org.sonar.core.platform.PriorityBeanFactory">
     <level value="INFO"/>
   </logger>
 

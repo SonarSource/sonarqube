@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;

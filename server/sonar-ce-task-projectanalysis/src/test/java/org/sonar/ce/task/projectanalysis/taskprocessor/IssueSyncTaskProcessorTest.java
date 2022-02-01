@@ -26,18 +26,18 @@ import org.mockito.Mockito;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor.SyncComputationSteps;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
 public class IssueSyncTaskProcessorTest {
 
-  private ComponentContainer ceEngineContainer = Mockito.mock(ComponentContainer.class);
-
-  private IssueSyncTaskProcessor underTest = new IssueSyncTaskProcessor(ceEngineContainer);
-  private TaskContainer container = Mockito.spy(TaskContainer.class);
+  private final SpringComponentContainer ceEngineContainer = mock(SpringComponentContainer.class);
+  private final IssueSyncTaskProcessor underTest = new IssueSyncTaskProcessor(ceEngineContainer);
+  private final TaskContainer container = Mockito.spy(TaskContainer.class);
 
   @Test
   public void getHandledCeTaskTypes() {

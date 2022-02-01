@@ -39,42 +39,39 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.picocontainer.ComponentAdapter;
 import org.sonar.api.Property;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 @RunWith(DataProviderRunner.class)
 public class CoreExtensionsInstallerTest {
-  private SonarRuntime sonarRuntime = mock(SonarRuntime.class);
-  private CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
-  private CoreExtensionsInstaller underTest = new CoreExtensionsInstaller(sonarRuntime, coreExtensionRepository, WestSide.class) {
+  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private final CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
+  private final CoreExtensionsInstaller underTest = new CoreExtensionsInstaller(sonarRuntime, coreExtensionRepository, WestSide.class) {
 
   };
 
-  private ArgumentCaptor<CoreExtension.Context> contextCaptor = ArgumentCaptor.forClass(CoreExtension.Context.class);
+  private final ArgumentCaptor<CoreExtension.Context> contextCaptor = ArgumentCaptor.forClass(CoreExtension.Context.class);
   private static int name_counter = 0;
 
   @Test
   public void install_has_no_effect_if_CoreExtensionRepository_has_no_loaded_CoreExtension() {
-    ComponentContainer container = new ComponentContainer();
-
+    ListContainer container = new ListContainer();
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
-
     assertAddedExtensions(container, 0);
   }
 
@@ -87,7 +84,7 @@ public class CoreExtensionsInstallerTest {
     List<CoreExtension> coreExtensions = ImmutableList.of(coreExtension1, coreExtension2, coreExtension3, coreExtension4);
     InOrder inOrder = Mockito.inOrder(coreExtension1, coreExtension2, coreExtension3, coreExtension4);
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(coreExtensions.stream());
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
 
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
@@ -105,7 +102,7 @@ public class CoreExtensionsInstallerTest {
     CoreExtension coreExtension1 = newCoreExtension();
     CoreExtension coreExtension2 = newCoreExtension();
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension1, coreExtension2));
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
 
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
@@ -121,7 +118,7 @@ public class CoreExtensionsInstallerTest {
     CoreExtension coreExtension1 = newCoreExtension();
     CoreExtension coreExtension2 = newCoreExtension();
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension1, coreExtension2));
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
 
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
@@ -138,9 +135,8 @@ public class CoreExtensionsInstallerTest {
     CoreExtension coreExtension2 = newCoreExtension();
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension1, coreExtension2));
     Configuration configuration = new MapSettings().asConfig();
-    ComponentContainer container = new ComponentContainer();
-    container.add(configuration);
-
+    ExtensionContainer container = mock(ExtensionContainer.class);
+    when(container.getComponentByType(Configuration.class)).thenReturn(configuration);
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
     verify(coreExtension1).load(contextCaptor.capture());
@@ -156,12 +152,15 @@ public class CoreExtensionsInstallerTest {
     List<Object> extensions = ImmutableList.of(WestSideClass.class, EastSideClass.class, OtherSideClass.class, Latitude.class);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
-    ComponentContainer container = new ComponentContainer();
+    ExtensionContainer container = mock(ExtensionContainer.class);
 
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
-    assertAddedExtensions(container, WestSideClass.class, Latitude.class);
-    assertPropertyDefinitions(container);
+    verify(container).addExtension(coreExtension.getName(), WestSideClass.class);
+    verify(container).declareExtension(coreExtension.getName(), OtherSideClass.class);
+    verify(container).declareExtension(coreExtension.getName(), EastSideClass.class);
+    verify(container).addExtension(coreExtension.getName(), Latitude.class);
+    verifyNoMoreInteractions(container);
   }
 
   @Test
@@ -170,42 +169,15 @@ public class CoreExtensionsInstallerTest {
     List<Object> extensions = ImmutableList.of(WestSideClass.class, EastSideClass.class, OtherSideClass.class, Latitude.class);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
-    ComponentContainer container = new ComponentContainer();
+    ExtensionContainer container = mock(ExtensionContainer.class);
 
     underTest.install(container, noExtensionFilter(), t -> t != Latitude.class);
 
-    assertAddedExtensions(container, WestSideClass.class);
-    assertPropertyDefinitions(container);
-  }
-
-  @Test
-  @UseDataProvider("allMethodsToAddExtension")
-  public void install_adds_PropertyDefinition_from_annotation_no_matter_annotations(BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
-    List<Object> extensions = ImmutableList.of(WestSidePropertyDefinition.class, EastSidePropertyDefinition.class,
-      OtherSidePropertyDefinition.class, LatitudePropertyDefinition.class, BlankPropertyDefinition.class);
-    CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
-    when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
-
-    assertAddedExtensions(container, WestSidePropertyDefinition.class, LatitudePropertyDefinition.class);
-    assertPropertyDefinitions(container, "westKey", "eastKey", "otherKey", "latitudeKey", "blankKey");
-  }
-
-  @Test
-  @UseDataProvider("allMethodsToAddExtension")
-  public void install_adds_PropertyDefinition_from_annotation_no_matter_annotations_even_if_filtered_out(BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
-    List<Object> extensions = ImmutableList.of(WestSidePropertyDefinition.class, EastSidePropertyDefinition.class,
-      OtherSidePropertyDefinition.class, LatitudePropertyDefinition.class, BlankPropertyDefinition.class);
-    CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
-    when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.install(container, noExtensionFilter(), t -> false);
-
-    assertAddedExtensions(container, 0);
-    assertPropertyDefinitions(container, "westKey", "eastKey", "otherKey", "latitudeKey", "blankKey");
+    verify(container).addExtension(coreExtension.getName(), WestSideClass.class);
+    verify(container).declareExtension(coreExtension.getName(), OtherSideClass.class);
+    verify(container).declareExtension(coreExtension.getName(), EastSideClass.class);
+    verify(container).declareExtension(coreExtension.getName(), Latitude.class);
+    verifyNoMoreInteractions(container);
   }
 
   @Test
@@ -216,12 +188,13 @@ public class CoreExtensionsInstallerTest {
     List<Object> extensions = ImmutableList.of(propertyDefinitionNoCategory, propertyDefinitionWithCategory);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
-    ComponentContainer container = new ComponentContainer();
+    ExtensionContainer container = mock(ExtensionContainer.class);
 
     underTest.install(container, noExtensionFilter(), noAdditionalSideFilter());
 
-    assertAddedExtensions(container, 0);
-    assertPropertyDefinitions(container, coreExtension, propertyDefinitionNoCategory, propertyDefinitionWithCategory);
+    verify(container).declareExtension(coreExtension.getName(), propertyDefinitionNoCategory);
+    verify(container).declareExtension(coreExtension.getName(), propertyDefinitionWithCategory);
+    verifyNoMoreInteractions(container);
   }
 
   @DataProvider
@@ -244,46 +217,10 @@ public class CoreExtensionsInstallerTest {
     };
   }
 
-  private static void assertAddedExtensions(ComponentContainer container, int addedExtensions) {
-    Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
+  private static void assertAddedExtensions(ListContainer container, int addedExtensions) {
+    List<Object> adapters = container.getAddedObjects();
     assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + addedExtensions);
-  }
-
-  private static void assertAddedExtensions(ComponentContainer container, Class... classes) {
-    Collection<ComponentAdapter<?>> adapters = container.getPicoContainer().getComponentAdapters();
-    assertThat(adapters)
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + classes.length);
-
-    Stream<Class> installedExtensions = adapters.stream()
-      .map(t -> (Class) t.getComponentImplementation())
-      .filter(t -> !PropertyDefinitions.class.isAssignableFrom(t) && t != ComponentContainer.class);
-    assertThat(installedExtensions)
-      .contains(classes)
-      .hasSize(classes.length);
-  }
-
-  private void assertPropertyDefinitions(ComponentContainer container, String... keys) {
-    PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    if (keys.length == 0) {
-      assertThat(propertyDefinitions.getAll()).isEmpty();
-    } else {
-      for (String key : keys) {
-        assertThat(propertyDefinitions.get(key)).isNotNull();
-      }
-    }
-  }
-
-  private void assertPropertyDefinitions(ComponentContainer container, CoreExtension coreExtension, PropertyDefinition... definitions) {
-    PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    if (definitions.length == 0) {
-      assertThat(propertyDefinitions.getAll()).isEmpty();
-    } else {
-      for (PropertyDefinition definition : definitions) {
-        PropertyDefinition actual = propertyDefinitions.get(definition.key());
-        assertThat(actual.category()).isEqualTo(definition.category() == null ? coreExtension.getName() : definition.category());
-      }
-    }
+      .hasSize(addedExtensions);
   }
 
   private static CoreExtension newCoreExtension() {
@@ -342,12 +279,6 @@ public class CoreExtensionsInstallerTest {
 
   }
 
-  @Property(key = "westKey", name = "westName")
-  @WestSide
-  public static class WestSidePropertyDefinition {
-
-  }
-
   @Property(key = "eastKey", name = "eastName")
   @EastSide
   public static class EastSidePropertyDefinition {
@@ -357,13 +288,6 @@ public class CoreExtensionsInstallerTest {
   @Property(key = "otherKey", name = "otherName")
   @OtherSide
   public static class OtherSidePropertyDefinition {
-
-  }
-
-  @Property(key = "latitudeKey", name = "latitudeName")
-  @WestSide
-  @EastSide
-  public static class LatitudePropertyDefinition {
 
   }
 

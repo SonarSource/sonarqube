@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
 import java.lang.reflect.Constructor;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +26,8 @@ import org.springframework.lang.Nullable;
 
 /**
  * Taken from Spring's GenericApplicationContext.ClassDerivedBeanDefinition.
+ * The goal is to support multiple constructors when adding extensions for plugins when no annotations are present.
+ * Spring will pick the constructor with the highest number of arguments that it can inject.
  */
 public class ClassDerivedBeanDefinition extends RootBeanDefinition {
   public ClassDerivedBeanDefinition(Class<?> beanClass) {

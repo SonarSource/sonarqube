@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Bean;
 public class AnalysisTempFolderProvider {
   static final String TMP_NAME = ".sonartmp";
 
-  @Bean("TempFolder")
+  @Bean("AnalysisTempFolder")
   public TempFolder provide(DefaultInputProject project) {
     Path workingDir = project.getWorkDir();
     Path tempDir = workingDir.normalize().resolve(TMP_NAME);

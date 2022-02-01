@@ -63,6 +63,15 @@ public class IdentityProviderRepositoryTest {
   }
 
   @Test
+  public void fail_on_non_exist_provider() {
+    IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET, DISABLED));
+
+    assertThatThrownBy(() -> underTest.getEnabledByKey("NotExist"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Identity provider NotExist does not exist or is not enabled");
+  }
+
+  @Test
   public void return_all_enabled_providers() {
     IdentityProviderRepository underTest = new IdentityProviderRepository(asList(GITHUB, BITBUCKET, DISABLED));
 
@@ -80,7 +89,7 @@ public class IdentityProviderRepositoryTest {
 
   @Test
   public void return_nothing_when_no_identity_provider() {
-    IdentityProviderRepository underTest = new IdentityProviderRepository();
+    IdentityProviderRepository underTest = new IdentityProviderRepository(null);
 
     assertThat(underTest.getAllEnabledAndSorted()).isEmpty();
   }

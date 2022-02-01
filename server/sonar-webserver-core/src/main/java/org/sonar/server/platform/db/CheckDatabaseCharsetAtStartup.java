@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
 

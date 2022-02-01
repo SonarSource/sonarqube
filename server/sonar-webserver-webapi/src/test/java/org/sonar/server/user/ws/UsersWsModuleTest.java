@@ -20,29 +20,16 @@
 package org.sonar.server.user.ws;
 
 import org.junit.Test;
-import org.sonar.api.config.internal.ConfigurationBridge;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.process.ProcessProperties;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UsersWsModuleTest {
-  private MapSettings settings = new MapSettings();
 
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new UsersWsModule(new ConfigurationBridge(settings)).configure(container);
-    assertThat(container.size()).isEqualTo(2 + 16);
-  }
-
-  @Test
-  public void verify_count_of_added_components_in_sonarcloud() {
-    settings.setProperty(ProcessProperties.Property.SONARCLOUD_ENABLED.getKey(), true);
-
-    ComponentContainer container = new ComponentContainer();
-    new UsersWsModule(new ConfigurationBridge(settings)).configure(container);
-    assertThat(container.size()).isEqualTo(2 + 17);
+    ListContainer container = new ListContainer();
+    new UsersWsModule().configure(container);
+    assertThat(container.getAddedObjects()).hasSize(16);
   }
 }

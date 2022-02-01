@@ -20,10 +20,10 @@
 package org.sonar.server.util;
 
 import java.util.concurrent.ExecutorService;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 
 /**
- * ExecutorService that exposes a {@code stop} method which can be invoked by Pico container to shutdown properly
+ * ExecutorService that exposes a {@code stop} method which can be invoked by the ioc container to shutdown properly
  * the service.
  */
 public interface StoppableExecutorService extends ExecutorService, Startable {

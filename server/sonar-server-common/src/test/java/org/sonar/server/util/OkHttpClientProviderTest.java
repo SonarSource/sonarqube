@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OkHttpClientProviderTest {
 
-  private MapSettings settings = new MapSettings();
-  private SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
+  private final MapSettings settings = new MapSettings();
+  private final SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER, SonarEdition.COMMUNITY);
   private final OkHttpClientProvider underTest = new OkHttpClientProvider();
 
   @Rule
@@ -72,13 +72,6 @@ public class OkHttpClientProviderTest {
     Request request = client.proxyAuthenticator().authenticate(null, response);
 
     assertThat(request.header("Proxy-Authorization")).isEqualTo("Basic " + Base64.getEncoder().encodeToString("the-login:the-password".getBytes()));
-  }
-
-  @Test
-  public void get_returns_a_singleton() {
-    OkHttpClient client1 = underTest.provide(settings.asConfig(), runtime);
-    OkHttpClient client2 = underTest.provide(settings.asConfig(), runtime);
-    assertThat(client2).isNotNull().isSameAs(client1);
   }
 
   private RecordedRequest call(OkHttpClient client) throws IOException, InterruptedException {

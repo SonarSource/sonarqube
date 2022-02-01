@@ -157,16 +157,19 @@ import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 import org.sonar.db.webhook.WebhookMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class MyBatis implements Startable {
   private final List<MyBatisConfExtension> confExtensions;
   private final Database database;
   private SqlSessionFactory sessionFactory;
 
+  @Autowired(required = false)
   public MyBatis(Database database) {
     this(database, null);
   }
 
+  @Autowired(required = false)
   public MyBatis(Database database, @Nullable MyBatisConfExtension[] confExtensions) {
     this.confExtensions = confExtensions == null ? Collections.emptyList() : Arrays.asList(confExtensions);
     this.database = database;

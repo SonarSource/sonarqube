@@ -20,8 +20,9 @@
 package org.sonar.server.platform.web;
 
 import java.util.Arrays;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.web.ServletFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @since 3.5
@@ -29,10 +30,12 @@ import org.sonar.api.web.ServletFilter;
 public class RegisterServletFilters implements Startable {
   private final ServletFilter[] filters;
 
+  @Autowired(required = false)
   public RegisterServletFilters(ServletFilter[] filters) {
     this.filters = filters;
   }
 
+  @Autowired(required = false)
   public RegisterServletFilters() {
     this(new ServletFilter[0]);
   }

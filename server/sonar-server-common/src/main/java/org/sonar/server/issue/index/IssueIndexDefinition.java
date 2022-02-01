@@ -32,6 +32,8 @@ import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
+import javax.inject.Inject;
+
 /**
  * Definition of ES index "issues", including settings and fields.
  */
@@ -110,6 +112,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   private final Configuration config;
   private final boolean enableSource;
 
+  @Inject
   public IssueIndexDefinition(Configuration config) {
     this(config, false);
   }

@@ -21,7 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.extension.CoreExtensionsInstaller;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.server.async.AsyncExecutionModule;
 import org.sonar.server.platform.ServerImpl;
@@ -48,19 +48,19 @@ public class PlatformLevel3 extends PlatformLevel {
       DetectPluginChange.class);
     add(
       NoopDatabaseMigrationImpl.class,
-      ServerIdModule.class,
+      new ServerIdModule(),
       ServerImpl.class,
       DatabaseSettingLoader.class,
       DatabaseSettingsEnabler.class,
       UriReader.class,
       DefaultHttpDownloader.class,
-      AsyncExecutionModule.class);
+      new AsyncExecutionModule());
   }
 
   @Override
   public PlatformLevel start() {
-    ComponentContainer container = getContainer();
-    CoreExtensionsInstaller coreExtensionsInstaller = get(WebCoreExtensionsInstaller.class);
+    SpringComponentContainer container = getContainer();
+    CoreExtensionsInstaller coreExtensionsInstaller = parent.get(WebCoreExtensionsInstaller.class);
     coreExtensionsInstaller.install(container, hasPlatformLevel(3), noAdditionalSideFilter());
 
     return super.start();

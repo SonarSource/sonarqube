@@ -19,18 +19,19 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import java.io.File;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.ce.task.projectanalysis.util.cache.ProtobufIssueDiskCache;
+
+import javax.inject.Inject;
+import java.io.File;
 
 /**
  * Cache of all the issues involved in the analysis. Their state is as it will be
  * persisted in database (after issue tracking, auto-assignment, ...)
  */
 public class ProtoIssueCache extends ProtobufIssueDiskCache {
-
-  // this constructor is used by picocontainer
+  @Inject
   public ProtoIssueCache(TempFolder tempFolder, System2 system2) {
     super(tempFolder.newFile("issues", ".dat"), system2);
   }

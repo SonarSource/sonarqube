@@ -27,7 +27,7 @@ import fi.iki.elonen.NanoHTTPD.Response;
  *
  * <p>
  * Method {@link #register(ActionRegistry)} of the action will be called right before the HTTP server is started (server
- * is started by the Pico Container). It's the action's responsibility to call the method
+ * is started by the ioc container). It's the action's responsibility to call the method
  * {@link ActionRegistry#register(ActionRegistry)} to register itself for a given path.
  * </p>
  * <p>

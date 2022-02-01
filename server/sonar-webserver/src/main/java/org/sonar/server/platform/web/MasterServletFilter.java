@@ -57,7 +57,7 @@ public class MasterServletFilter implements Filter {
 
   @Override
   public void init(FilterConfig config) {
-    // Filters are already available in picocontainer unless a database migration is required. See
+    // Filters are already available in the container unless a database migration is required. See
     // org.sonar.server.startup.RegisterServletFilters.
     init(config, PlatformImpl.getInstance().getContainer().getComponentsByType(ServletFilter.class));
   }

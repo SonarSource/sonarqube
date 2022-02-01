@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
-import org.sonar.scanner.bootstrap.SpringComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 

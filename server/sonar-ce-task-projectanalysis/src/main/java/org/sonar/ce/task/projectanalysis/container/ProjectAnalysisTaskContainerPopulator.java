@@ -165,15 +165,15 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
     container.add(SettingsLoader.class);
     container.add(task);
     container.add(steps);
-    container.addSingletons(componentClasses());
+    container.add(componentClasses());
     for (ReportAnalysisComponentProvider componentProvider : componentProviders) {
-      container.addSingletons(componentProvider.getComponents());
+      container.add(componentProvider.getComponents());
     }
-    container.addSingletons(steps.orderedStepClasses());
+    container.add(steps.orderedStepClasses());
   }
 
   /**
-   * List of all objects to be injected in the picocontainer dedicated to computation stack.
+   * List of all objects to be injected in the ioc container dedicated to computation stack.
    * Does not contain the steps declared in {@link ReportComputationSteps#orderedStepClasses()}.
    */
   private static List<Object> componentClasses() {
@@ -191,7 +191,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       new ComputationTempFolderProvider(),
 
       ReportModulesPath.class,
-      MetricModule.class,
+      new MetricModule(),
 
       // holders
       AnalysisMetadataHolderImpl.class,

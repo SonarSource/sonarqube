@@ -32,7 +32,7 @@ public class WebAnalyticsLoaderImplTest {
 
   @Test
   public void return_empty_if_no_analytics_plugin() {
-    assertThat(new WebAnalyticsLoaderImpl().getUrlPathToJs()).isEmpty();
+    assertThat(new WebAnalyticsLoaderImpl(null).getUrlPathToJs()).isEmpty();
     assertThat(new WebAnalyticsLoaderImpl(new WebAnalytics[0]).getUrlPathToJs()).isEmpty();
   }
 

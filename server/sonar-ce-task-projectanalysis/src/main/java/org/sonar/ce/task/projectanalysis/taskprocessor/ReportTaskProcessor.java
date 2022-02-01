@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.taskprocessor;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.container.TaskContainer;
@@ -29,43 +30,36 @@ import org.sonar.ce.task.projectanalysis.container.ContainerFactory;
 import org.sonar.ce.task.step.ComputationStepExecutor;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.ce.task.taskprocessor.TaskResultHolder;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ReportTaskProcessor implements CeTaskProcessor {
 
   private static final Set<String> HANDLED_TYPES = Collections.singleton(CeTaskTypes.REPORT);
 
   private final ContainerFactory containerFactory;
-  private final ComponentContainer serverContainer;
+  private final SpringComponentContainer serverContainer;
   @CheckForNull
   private final ReportAnalysisComponentProvider[] componentProviders;
 
-  /**
-   * Used when at least one Privileged plugin is installed
-   */
-  public ReportTaskProcessor(ContainerFactory containerFactory, ComponentContainer serverContainer, ReportAnalysisComponentProvider[] componentProviders) {
+  @Autowired(required = false)
+  public ReportTaskProcessor(ContainerFactory containerFactory, SpringComponentContainer serverContainer, @Nullable ReportAnalysisComponentProvider[] componentProviders) {
     this.containerFactory = containerFactory;
     this.serverContainer = serverContainer;
     this.componentProviders = componentProviders;
   }
 
   /**
-   * Used when no privileged plugin is installed
-   */
-  public ReportTaskProcessor(ContainerFactory containerFactory, ComponentContainer serverContainer) {
-    this.containerFactory = containerFactory;
-    this.serverContainer = serverContainer;
-    this.componentProviders = null;
-  }
-
-  /**
    * Used when loaded in WebServer where none of the dependencies are available and where only
    * {@link #getHandledCeTaskTypes()} will be called.
    */
+  @Autowired(required = false)
   public ReportTaskProcessor() {
-    this(null, null, null);
+    this.containerFactory = null;
+    this.serverContainer = null;
+    this.componentProviders = null;
   }
 
   @Override

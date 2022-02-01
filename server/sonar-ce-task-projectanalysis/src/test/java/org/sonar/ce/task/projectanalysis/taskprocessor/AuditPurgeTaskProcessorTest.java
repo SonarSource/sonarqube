@@ -26,18 +26,18 @@ import org.mockito.Mockito;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor.AuditPurgeComputationSteps;
 import static org.sonar.db.ce.CeTaskTypes.AUDIT_PURGE;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AuditPurgeTaskProcessorTest {
 
-  private ComponentContainer ceEngineContainer = Mockito.mock(ComponentContainer.class);
-
-  private AuditPurgeTaskProcessor underTest = new AuditPurgeTaskProcessor(ceEngineContainer);
-  private TaskContainer container = Mockito.spy(TaskContainer.class);
+  private final SpringComponentContainer ceEngineContainer = mock(SpringComponentContainer.class);
+  private final AuditPurgeTaskProcessor underTest = new AuditPurgeTaskProcessor(ceEngineContainer);
+  private final TaskContainer container = Mockito.spy(TaskContainer.class);
 
   @Test
   public void getHandledCeTaskTypes() {

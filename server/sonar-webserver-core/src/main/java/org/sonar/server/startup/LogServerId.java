@@ -19,7 +19,7 @@
  */
 package org.sonar.server.startup;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Loggers;
 

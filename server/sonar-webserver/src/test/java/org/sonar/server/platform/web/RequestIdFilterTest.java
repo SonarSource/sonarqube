@@ -20,6 +20,7 @@
 package org.sonar.server.platform.web;
 
 import java.io.IOException;
+import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -27,7 +28,7 @@ import javax.servlet.ServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.MDC;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.web.requestid.RequestIdGenerator;
 
@@ -41,17 +42,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RequestIdFilterTest {
-  private Platform platform = mock(Platform.class);
-  private RequestIdGenerator requestIdGenerator = mock(RequestIdGenerator.class);
-  private ServletRequest servletRequest = mock(ServletRequest.class);
-  private ServletResponse servletResponse = mock(ServletResponse.class);
-  private FilterChain filterChain = mock(FilterChain.class);
-  private RequestIdFilter underTest = new RequestIdFilter(platform);
+  private final Platform platform = mock(Platform.class);
+  private final RequestIdGenerator requestIdGenerator = mock(RequestIdGenerator.class);
+  private final ServletRequest servletRequest = mock(ServletRequest.class);
+  private final ServletResponse servletResponse = mock(ServletResponse.class);
+  private final FilterChain filterChain = mock(FilterChain.class);
+  private final RequestIdFilter underTest = new RequestIdFilter(platform);
 
   @Before
   public void setUp() {
-    ComponentContainer container = new ComponentContainer();
-    container.add(requestIdGenerator);
+    ExtensionContainer container = mock(ExtensionContainer.class);
+    when(container.getOptionalComponentByType(RequestIdGenerator.class)).thenReturn(Optional.of(requestIdGenerator));
     when(platform.getContainer()).thenReturn(container);
   }
 
@@ -102,8 +103,9 @@ public class RequestIdFilterTest {
 
   @Test
   public void filter_does_not_fail_when_there_is_no_RequestIdGenerator_in_container() throws IOException, ServletException {
-    Platform platform = mock(Platform.class);
-    when(platform.getContainer()).thenReturn(new ComponentContainer());
+    ExtensionContainer container = mock(ExtensionContainer.class);
+    when(container.getOptionalComponentByType(RequestIdGenerator.class)).thenReturn(Optional.empty());
+    when(platform.getContainer()).thenReturn(container);
     RequestIdFilter underTest = new RequestIdFilter(platform);
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
@@ -111,8 +113,9 @@ public class RequestIdFilterTest {
 
   @Test
   public void filter_does_not_add_requestId_to_request_passed_on_to_chain_when_there_is_no_RequestIdGenerator_in_container() throws IOException, ServletException {
-    Platform platform = mock(Platform.class);
-    when(platform.getContainer()).thenReturn(new ComponentContainer());
+    ExtensionContainer container = mock(ExtensionContainer.class);
+    when(container.getOptionalComponentByType(RequestIdGenerator.class)).thenReturn(Optional.empty());
+    when(platform.getContainer()).thenReturn(container);
     RequestIdFilter underTest = new RequestIdFilter(platform);
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);

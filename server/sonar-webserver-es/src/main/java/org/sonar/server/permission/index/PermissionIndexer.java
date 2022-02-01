@@ -43,6 +43,7 @@ import org.sonar.server.es.ProjectIndexer;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Populates the types "authorization" of each index requiring project
@@ -55,6 +56,7 @@ public class PermissionIndexer implements ProjectIndexer {
   private final Collection<AuthorizationScope> authorizationScopes;
   private final Map<String, IndexType> indexTypeByFormat;
 
+  @Autowired(required = false)
   public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer... needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
       .map(NeedAuthorizationIndexer::getAuthorizationScope)
@@ -62,6 +64,7 @@ public class PermissionIndexer implements ProjectIndexer {
   }
 
   @VisibleForTesting
+  @Autowired(required = false)
   public PermissionIndexer(DbClient dbClient, EsClient esClient, Collection<AuthorizationScope> authorizationScopes) {
     this.dbClient = dbClient;
     this.esClient = esClient;

@@ -19,26 +19,22 @@
  */
 package org.sonar.server.config;
 
-import java.util.Optional;
-import java.util.function.UnaryOperator;
+import static java.util.function.UnaryOperator.identity;
 import org.apache.commons.lang.ArrayUtils;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.internal.Settings;
-
-import static java.util.function.UnaryOperator.identity;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
+import org.sonar.api.config.internal.Settings;
+import org.springframework.context.annotation.Bean;
 
-public class ConfigurationProvider extends ProviderAdapter {
+import java.util.Optional;
+import java.util.function.UnaryOperator;
 
-  private Configuration configuration;
+public class ConfigurationProvider {
 
+  @Bean("Configuration")
   public Configuration provide(Settings settings) {
-    if (configuration == null) {
-      configuration = new ServerConfigurationAdapter(settings);
-    }
-    return configuration;
+    return new ServerConfigurationAdapter(settings);
   }
 
   private static class ServerConfigurationAdapter implements Configuration {

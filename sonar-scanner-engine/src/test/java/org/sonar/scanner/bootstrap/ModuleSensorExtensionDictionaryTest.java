@@ -19,31 +19,27 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.picocontainer.behaviors.FieldDecorated;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.scanner.scan.SpringModuleScanContainer;
+import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.MutableFileSystem;
 import org.sonar.scanner.sensor.ModuleSensorContext;
 import org.sonar.scanner.sensor.ModuleSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ModuleSensorOptimizer;
 import org.sonar.scanner.sensor.ModuleSensorWrapper;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -61,17 +57,9 @@ public class ModuleSensorExtensionDictionaryTest {
     when(sensorOptimizer.shouldExecute(any(DefaultSensorDescriptor.class))).thenReturn(true);
   }
 
-  private ModuleSensorExtensionDictionary newSelector(Object... extensions) {
-    DefaultInputModule inputModule = mock(DefaultInputModule.class);
-    when(inputModule.definition()).thenReturn(mock(ProjectDefinition.class));
-
-    SpringComponentContainer parent = new SpringComponentContainer();
-    parent.context.refresh();
-
-    SpringComponentContainer iocContainer = new SpringModuleScanContainer(parent, inputModule);
-    iocContainer.add(Arrays.asList(extensions));
-    iocContainer.context.refresh();
-
+  private ModuleSensorExtensionDictionary newSelector(Class type, Object... instances) {
+    ExtensionContainer iocContainer = mock(ExtensionContainer.class);
+    when(iocContainer.getComponentsByType(type)).thenReturn(Arrays.asList(instances));
     return new ModuleSensorExtensionDictionary(iocContainer, mock(ModuleSensorContext.class), sensorOptimizer, fileSystem, branchConfiguration);
   }
 
@@ -80,7 +68,7 @@ public class ModuleSensorExtensionDictionaryTest {
     final Sensor sensor1 = new FakeSensor();
     final Sensor sensor2 = new FakeSensor();
 
-    ModuleSensorExtensionDictionary selector = newSelector(sensor1, sensor2);
+    ModuleSensorExtensionDictionary selector = newSelector(Sensor.class, sensor1, sensor2);
     Collection<Sensor> sensors = selector.select(Sensor.class, true, extension -> extension.equals(sensor1));
     assertThat(sensors).contains(sensor1);
     assertEquals(1, sensors.size());
@@ -90,9 +78,8 @@ public class ModuleSensorExtensionDictionaryTest {
   public void testGetFilteredExtensions() {
     Sensor sensor1 = new FakeSensor();
     Sensor sensor2 = new FakeSensor();
-    FieldDecorated.Decorator decorator = mock(FieldDecorated.Decorator.class);
 
-    ModuleSensorExtensionDictionary selector = newSelector(sensor1, sensor2, decorator);
+    ModuleSensorExtensionDictionary selector = newSelector(Sensor.class, sensor1, sensor2);
     Collection<Sensor> sensors = selector.select(Sensor.class, false, null);
 
     assertThat(sensors).containsOnly(sensor1, sensor2);
@@ -104,17 +91,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Sensor b = new FakeSensor();
     Sensor c = new FakeSensor();
 
-    SpringComponentContainer grandParent = new SpringComponentContainer();
-    grandParent.add(a);
-    grandParent.context.refresh();
+    ExtensionContainer grandParent = mock(ExtensionContainer.class);
+    when(grandParent.getComponentsByType(Sensor.class)).thenReturn(List.of(a));
 
-    SpringComponentContainer parent = grandParent.createChild();
-    parent.add(b);
-    parent.context.refresh();
+    ExtensionContainer parent = mock(ExtensionContainer.class);
+    when(parent.getComponentsByType(Sensor.class)).thenReturn(List.of(b));
+    when(parent.getParent()).thenReturn(grandParent);
 
-    SpringComponentContainer child = parent.createChild();
-    child.add(c);
-    child.context.refresh();
+    ExtensionContainer child = mock(ExtensionContainer.class);
+    when(child.getComponentsByType(Sensor.class)).thenReturn(List.of(c));
+    when(child.getParent()).thenReturn(parent);
 
     ModuleSensorExtensionDictionary dictionnary = new ModuleSensorExtensionDictionary(child, mock(ModuleSensorContext.class), mock(ModuleSensorOptimizer.class),
       fileSystem, branchConfiguration);
@@ -127,8 +113,8 @@ public class ModuleSensorExtensionDictionaryTest {
     Object b = new MethodDependentOf(a);
     Object c = new MethodDependentOf(b);
 
-    ModuleSensorExtensionDictionary selector = newSelector(b, c, a);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, b, c, a);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(3);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -141,16 +127,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Object a = new GeneratesSomething("foo");
     Object b = new MethodDependentOf("foo");
 
-    ModuleSensorExtensionDictionary selector = newSelector(a, b);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, a, b);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions.size()).isEqualTo(2);
     assertThat(extensions.get(0)).isEqualTo(a);
     assertThat(extensions.get(1)).isEqualTo(b);
 
     // different initial order
-    selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    selector = newSelector(Marker.class, b, a);
+    extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -162,16 +148,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Object a = new GeneratesSomething("foo");
     Object b = new MethodDependentOf(Arrays.asList("foo"));
 
-    ModuleSensorExtensionDictionary selector = newSelector(a, b);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, a, b);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
     assertThat(extensions.get(1)).isEqualTo(b);
 
     // different initial order
-    selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    selector = newSelector(Marker.class, b, a);
+    extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -183,16 +169,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Object a = new GeneratesSomething("foo");
     Object b = new MethodDependentOf(new String[] {"foo"});
 
-    ModuleSensorExtensionDictionary selector = newSelector(a, b);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, a, b);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
     assertThat(extensions.get(1)).isEqualTo(b);
 
     // different initial order
-    selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    selector = newSelector(Marker.class, b, a);
+    extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -204,16 +190,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Object a = new ClassDependedUpon();
     Object b = new ClassDependsUpon();
 
-    ModuleSensorExtensionDictionary selector = newSelector(a, b);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, a, b);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
     assertThat(extensions.get(1)).isEqualTo(b);
 
     // different initial order
-    selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    selector = newSelector(Marker.class, b, a);
+    extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -227,16 +213,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Object b = new InterfaceDependsUpon() {
     };
 
-    ModuleSensorExtensionDictionary selector = newSelector(a, b);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, a, b);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
     assertThat(extensions.get(1)).isEqualTo(b);
 
     // different initial order
-    selector = newSelector(b, a);
-    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    selector = newSelector(Marker.class, b, a);
+    extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -248,16 +234,16 @@ public class ModuleSensorExtensionDictionaryTest {
     Object a = new SubClass("foo");
     Object b = new MethodDependentOf("foo");
 
-    ModuleSensorExtensionDictionary selector = newSelector(b, a);
-    List<Object> extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Marker.class, b, a);
+    List<Object> extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
     assertThat(extensions.get(1)).isEqualTo(b);
 
     // change initial order
-    selector = newSelector(a, b);
-    extensions = Lists.newArrayList(selector.select(Marker.class, true, null));
+    selector = newSelector(Marker.class, a, b);
+    extensions = new ArrayList<>(selector.select(Marker.class, true, null));
 
     assertThat(extensions).hasSize(2);
     assertThat(extensions.get(0)).isEqualTo(a);
@@ -266,7 +252,8 @@ public class ModuleSensorExtensionDictionaryTest {
 
   @Test(expected = IllegalStateException.class)
   public void annotatedMethodsCanNotBePrivate() {
-    ModuleSensorExtensionDictionary selector = newSelector();
+    ModuleSensorExtensionDictionary selector = new ModuleSensorExtensionDictionary(mock(ExtensionContainer.class), mock(ModuleSensorContext.class),
+      sensorOptimizer, fileSystem, branchConfiguration);
     Object wrong = new Object() {
       @DependsUpon
       private Object foo() {
@@ -282,7 +269,7 @@ public class ModuleSensorExtensionDictionaryTest {
     NormalSensor normal = new NormalSensor();
     PostSensor post = new PostSensor();
 
-    ModuleSensorExtensionDictionary selector = newSelector(normal, post, pre);
+    ModuleSensorExtensionDictionary selector = newSelector(Sensor.class, normal, post, pre);
     assertThat(selector.selectSensors(false)).extracting("wrappedSensor").containsExactly(pre, normal, post);
   }
 
@@ -292,8 +279,8 @@ public class ModuleSensorExtensionDictionaryTest {
     NormalSensor normal = new NormalSensor();
     PostSensorSubclass post = new PostSensorSubclass();
 
-    ModuleSensorExtensionDictionary selector = newSelector(normal, post, pre);
-    List extensions = Lists.newArrayList(selector.select(Sensor.class, true, null));
+    ModuleSensorExtensionDictionary selector = newSelector(Sensor.class, normal, post, pre);
+    List extensions = new ArrayList<>(selector.select(Sensor.class, true, null));
 
     assertThat(extensions).containsExactly(pre, normal, post);
   }
@@ -302,7 +289,7 @@ public class ModuleSensorExtensionDictionaryTest {
   public void selectSensors() {
     FakeSensor nonGlobalSensor = new FakeSensor();
     FakeGlobalSensor globalSensor = new FakeGlobalSensor();
-    ModuleSensorExtensionDictionary selector = newSelector(nonGlobalSensor, globalSensor);
+    ModuleSensorExtensionDictionary selector = newSelector(Sensor.class, nonGlobalSensor, globalSensor);
 
     // verify non-global sensor
     Collection<ModuleSensorWrapper> extensions = selector.selectSensors(false);

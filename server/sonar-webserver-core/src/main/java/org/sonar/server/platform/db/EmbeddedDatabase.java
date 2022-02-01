@@ -25,7 +25,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.h2.Driver;
 import org.h2.tools.Server;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;

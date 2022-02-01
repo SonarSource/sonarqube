@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectexport.util;
 
 import java.io.File;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;

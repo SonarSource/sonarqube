@@ -19,19 +19,54 @@
  */
 package org.sonar.auth.gitlab;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.Container;
 
+import static java.util.Collections.unmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class GitLabModuleTest {
-
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new GitLabModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 10);
+    assertThat(container.getAddedObjects()).hasSize(10);
   }
 
+  private static class ListContainer implements Container {
+    private final List<Object> objects = new ArrayList<>();
+
+    @Override
+    public Container add(Object... objects) {
+      this.objects.add(objects);
+      return this;
+    }
+
+    public List<Object> getAddedObjects() {
+      return unmodifiableList(new ArrayList<>(objects));
+    }
+
+    @Override
+    public <T> T getComponentByType(Class<T> type) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> Optional<T> getOptionalComponentByType(Class<T> type) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> List<T> getComponentsByType(Class<T> type) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Container getParent() {
+      throw new UnsupportedOperationException();
+    }
+  }
 }

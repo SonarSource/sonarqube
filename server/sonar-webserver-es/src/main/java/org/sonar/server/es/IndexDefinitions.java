@@ -21,7 +21,7 @@ package org.sonar.server.es;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.newindex.BuiltIndex;

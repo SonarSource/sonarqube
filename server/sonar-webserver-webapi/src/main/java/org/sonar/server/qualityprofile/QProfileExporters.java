@@ -55,6 +55,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -67,6 +68,7 @@ public class QProfileExporters {
   private final ProfileExporter[] exporters;
   private final ProfileImporter[] importers;
 
+  @Autowired(required = false)
   public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, QProfileRules qProfileRules, ProfileExporter[] exporters, ProfileImporter[] importers) {
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
@@ -76,22 +78,25 @@ public class QProfileExporters {
   }
 
   /**
-   * Used by Pico if no {@link ProfileImporter} is found
+   * Used by the ioc container if no {@link ProfileImporter} is found
    */
+  @Autowired(required = false)
   public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, QProfileRules qProfileRules, ProfileExporter[] exporters) {
     this(dbClient, ruleFinder, qProfileRules, exporters, new ProfileImporter[0]);
   }
 
   /**
-   * Used by Pico if no {@link ProfileExporter} is found
+   * Used by the ioc container if no {@link ProfileExporter} is found
    */
+  @Autowired(required = false)
   public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, QProfileRules qProfileRules, ProfileImporter[] importers) {
     this(dbClient, ruleFinder, qProfileRules, new ProfileExporter[0], importers);
   }
 
   /**
-   * Used by Pico if no {@link ProfileImporter} nor {@link ProfileExporter} is found
+   * Used by the ioc container if no {@link ProfileImporter} nor {@link ProfileExporter} is found
    */
+  @Autowired(required = false)
   public QProfileExporters(DbClient dbClient, RuleFinder ruleFinder, QProfileRules qProfileRules) {
     this(dbClient, ruleFinder, qProfileRules, new ProfileExporter[0], new ProfileImporter[0]);
   }

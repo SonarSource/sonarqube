@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
 import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Loggers;
@@ -31,26 +31,21 @@ public class StartableBeanPostProcessor implements DestructionAwareBeanPostProce
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     if (bean instanceof Startable) {
       ((Startable) bean).start();
-    } else if (bean instanceof org.picocontainer.Startable) {
-      ((org.picocontainer.Startable) bean).start();
     }
     return bean;
   }
 
   @Override
   public boolean requiresDestruction(Object bean) {
-    return (bean instanceof Startable) || (bean instanceof org.picocontainer.Startable) || (bean instanceof AutoCloseable);
+    return bean instanceof Startable;
   }
 
   @Override
   public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
     try {
+      // note: Spring will call close() on AutoCloseable beans.
       if (bean instanceof Startable) {
         ((Startable) bean).stop();
-      } else if (bean instanceof org.picocontainer.Startable) {
-        ((org.picocontainer.Startable) bean).stop();
-      } else if (bean instanceof AutoCloseable) {
-        ((AutoCloseable) bean).close();
       }
     } catch (Exception e) {
       Loggers.get(StartableBeanPostProcessor.class)

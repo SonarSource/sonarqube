@@ -57,11 +57,7 @@ public class InternalPropertiesDao implements Dao {
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");
 
   private final System2 system2;
-  private AuditPersister auditPersister;
-
-  public InternalPropertiesDao(System2 system2) {
-    this.system2 = system2;
-  }
+  private final AuditPersister auditPersister;
 
   public InternalPropertiesDao(System2 system2, AuditPersister auditPersister) {
     this.system2 = system2;
@@ -89,7 +85,7 @@ public class InternalPropertiesDao implements Dao {
       mapper.insertAsText(key, value, now);
     }
 
-    if (auditPersister != null && auditPersister.isTrackedProperty(key)) {
+    if (auditPersister.isTrackedProperty(key)) {
       if (deletedRows > 0) {
         auditPersister.updateProperty(dbSession, new PropertyNewValue(key, value), false);
       } else {
@@ -112,7 +108,7 @@ public class InternalPropertiesDao implements Dao {
     int deletedRows = mapper.deleteByKey(key);
     mapper.insertAsEmpty(key, system2.now());
 
-    if (auditPersister != null && auditPersister.isTrackedProperty(key)) {
+    if (auditPersister.isTrackedProperty(key)) {
       if (deletedRows > 0) {
         auditPersister.updateProperty(dbSession, new PropertyNewValue(key, ""), false);
       } else {
@@ -124,7 +120,7 @@ public class InternalPropertiesDao implements Dao {
   public void delete(DbSession dbSession, String key) {
     int deletedRows = getMapper(dbSession).deleteByKey(key);
 
-    if (auditPersister != null && deletedRows > 0 && auditPersister.isTrackedProperty(key)) {
+    if (deletedRows > 0 && auditPersister.isTrackedProperty(key)) {
       auditPersister.deleteProperty(dbSession, new PropertyNewValue(key), false);
     }
   }

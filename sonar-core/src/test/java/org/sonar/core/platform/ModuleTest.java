@@ -24,8 +24,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ModuleTest {
-  ComponentContainer container = new ComponentContainer();
-  int initialSize = sizeOf(container);
+  private final ListContainer container = new ListContainer();
 
   @Test(expected = NullPointerException.class)
   public void configure_throws_NPE_if_container_is_empty() {
@@ -46,7 +45,7 @@ public class ModuleTest {
       }
     }.configure(container);
 
-    assertThat(sizeOf(container)).isSameAs(initialSize);
+    assertThat(container.getAddedObjects()).isEmpty();
   }
 
   @Test
@@ -58,7 +57,7 @@ public class ModuleTest {
       }
     }.configure(container);
 
-    assertThat(sizeOf(container)).isEqualTo(initialSize);
+    assertThat(container.getAddedObjects()).isEmpty();
   }
 
   @Test
@@ -70,10 +69,10 @@ public class ModuleTest {
       }
     }.configure(container);
 
-    assertThat(sizeOf(container)).isEqualTo(initialSize + 2);
+    assertThat(container.getAddedObjects()).hasSize(2);
   }
 
-  private static int sizeOf(ComponentContainer container) {
-    return container.getPicoContainer().getComponentAdapters().size();
+  private static int sizeOf(SpringComponentContainer container) {
+    return container.context.getBeanDefinitionCount();
   }
 }

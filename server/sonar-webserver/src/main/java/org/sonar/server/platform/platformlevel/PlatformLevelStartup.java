@@ -100,9 +100,9 @@ public class PlatformLevelStartup extends PlatformLevel {
   }
 
   private boolean anyPluginChanged() {
-    return getOptional(DetectPluginChange.class)
+    return parent.getOptional(DetectPluginChange.class)
       .map(DetectPluginChange::anyPluginChanged)
-      .orElseThrow(() -> new IllegalStateException("DetectPluginChange not available in Pico yet"));
+      .orElseThrow(() -> new IllegalStateException("DetectPluginChange not available in the container yet"));
   }
 
   public final class AddIfStartupLeaderAndPluginsChanged extends AddIf {
@@ -113,7 +113,7 @@ public class PlatformLevelStartup extends PlatformLevel {
 
   @Override
   public PlatformLevel start() {
-    DoPrivileged.execute(new DoPrivileged.Task(get(ThreadLocalUserSession.class)) {
+    DoPrivileged.execute(new DoPrivileged.Task(parent.get(ThreadLocalUserSession.class)) {
       @Override
       protected void doPrivileged() {
         PlatformLevelStartup.super.start();

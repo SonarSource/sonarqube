@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.duplication;
 
 import javax.annotation.CheckForNull;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;

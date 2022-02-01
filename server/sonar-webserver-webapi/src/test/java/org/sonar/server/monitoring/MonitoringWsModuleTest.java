@@ -20,17 +20,15 @@
 package org.sonar.server.monitoring;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MonitoringWsModuleTest {
-
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new MonitoringWsModule().configure(container);
-    assertThat(container.size()).isPositive();
+    assertThat(container.getAddedObjects()).hasSize(3);
   }
-
 }

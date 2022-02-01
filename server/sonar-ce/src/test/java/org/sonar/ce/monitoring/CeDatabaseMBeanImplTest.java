@@ -24,20 +24,29 @@ import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.ce.monitoring.CeDatabaseMBean.OBJECT_NAME;
 
 public class CeDatabaseMBeanImplTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private CeDatabaseMBeanImpl underTest = new CeDatabaseMBeanImpl(dbTester.getDbClient());
+  private final CeDatabaseMBeanImpl underTest = new CeDatabaseMBeanImpl(dbTester.getDbClient());
+
+  @BeforeClass
+  public static void beforeClass() {
+    // if any other class starts a container where CeDatabaseMBeanImpl is added, it will have been registered
+    Jmx.unregister(OBJECT_NAME);
+  }
 
   @Test
   public void register_and_unregister() throws Exception {
@@ -62,7 +71,7 @@ public class CeDatabaseMBeanImplTest {
   @CheckForNull
   private ObjectInstance getMBean() throws Exception {
     try {
-      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(CeDatabaseMBean.OBJECT_NAME));
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(OBJECT_NAME));
     } catch (InstanceNotFoundException e) {
       return null;
     }

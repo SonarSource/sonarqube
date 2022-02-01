@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.setting;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.ce.task.container.EagerStart;

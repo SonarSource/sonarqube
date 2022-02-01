@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import javax.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -60,6 +61,7 @@ public class ThreadLocalSettings extends Settings {
   private Map<String, String> getPropertiesDbFailureCache = Collections.emptyMap();
   private SettingLoader settingLoader;
 
+  @Inject
   public ThreadLocalSettings(PropertyDefinitions definitions, Properties props) {
     this(definitions, props, new NopSettingLoader());
   }

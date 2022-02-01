@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.SystemInfoSection;
 

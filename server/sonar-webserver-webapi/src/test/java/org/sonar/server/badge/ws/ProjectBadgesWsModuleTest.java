@@ -20,20 +20,17 @@
 package org.sonar.server.badge.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectBadgesWsModuleTest {
-
-  private final ComponentContainer container = new ComponentContainer();
   private final ProjectBadgesWsModule underTest = new ProjectBadgesWsModule();
 
   @Test
   public void verify_count_of_added_components() {
+    ListContainer container = new ListContainer();
     underTest.configure(container);
-
-    assertThat(container.size()).isPositive();
+    assertThat(container.getAddedObjects()).isNotEmpty();
   }
-
 }

@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.SpringComponentContainer;
 
-public final class SimpleMigrationContainer extends ComponentContainer implements MigrationContainer {
+public final class SimpleMigrationContainer extends SpringComponentContainer implements MigrationContainer {
 
   @Override
   public void cleanup() {

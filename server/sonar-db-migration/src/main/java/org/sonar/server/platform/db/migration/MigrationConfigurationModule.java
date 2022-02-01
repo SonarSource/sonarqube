@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration;
 import org.sonar.core.platform.Module;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryMeddler;
+import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
@@ -36,6 +37,7 @@ public class MigrationConfigurationModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      MigrationHistoryTableImpl.class,
       // DbVersion implementations
       DbVersion00.class,
       DbVersion90.class,

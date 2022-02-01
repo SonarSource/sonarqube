@@ -27,7 +27,7 @@ public enum UuidFactoryImpl implements UuidFactory {
 
   /**
    * Should be removed as long {@link Uuids} is not used anymore. {@code UuidFactoryImpl}
-   * should be built by picocontainer through a public constructor.
+   * should be injected by the ioc container through a public constructor.
    */
   INSTANCE;
 

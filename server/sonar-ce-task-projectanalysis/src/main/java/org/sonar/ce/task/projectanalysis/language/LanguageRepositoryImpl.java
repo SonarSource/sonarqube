@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.Iterables.filter;
@@ -38,10 +39,12 @@ public class LanguageRepositoryImpl implements LanguageRepository {
 
   private final Map<String, Language> languagesByKey;
 
+  @Autowired(required = false)
   public LanguageRepositoryImpl() {
     this.languagesByKey = Collections.emptyMap();
   }
 
+  @Autowired(required = false)
   public LanguageRepositoryImpl(Language... languages) {
     this.languagesByKey = uniqueIndex(filter(asList(languages), notNull()), LanguageToKey.INSTANCE);
   }

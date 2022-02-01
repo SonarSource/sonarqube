@@ -28,6 +28,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Execute {@link PostMeasuresComputationCheck} instances in no specific order.
@@ -43,6 +44,7 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PostMeasuresComputationCheck[] extensions;
 
+  @Autowired(required = false)
   public PostMeasuresComputationChecksStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
     AnalysisMetadataHolder analysisMetadataHolder, PostMeasuresComputationCheck[] extensions) {
     this.treeRootHolder = treeRootHolder;
@@ -55,6 +57,7 @@ public class PostMeasuresComputationChecksStep implements ComputationStep {
   /**
    * Used when zero {@link PostMeasuresComputationCheck} are registered into container.
    */
+  @Autowired(required = false)
   public PostMeasuresComputationChecksStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository,
     AnalysisMetadataHolder analysisMetadataHolder) {
     this(treeRootHolder, metricRepository, measureRepository, analysisMetadataHolder, new PostMeasuresComputationCheck[0]);

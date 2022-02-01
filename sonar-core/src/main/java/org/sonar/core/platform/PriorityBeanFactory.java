@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.core.platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 
 public class PriorityBeanFactory extends DefaultListableBeanFactory {
   /**
@@ -43,7 +45,7 @@ public class PriorityBeanFactory extends DefaultListableBeanFactory {
     List<Bean> candidateBeans = candidates.entrySet().stream()
       .filter(e -> e.getValue() != null)
       .map(e -> new Bean(e.getKey(), e.getValue()))
-      .collect(Collectors.toUnmodifiableList());
+      .collect(Collectors.toList());
 
     List<Bean> beansAfterPriority = highestPriority(candidateBeans, b -> getPriority(b.getInstance()));
     if (beansAfterPriority.isEmpty()) {
@@ -97,6 +99,19 @@ public class PriorityBeanFactory extends DefaultListableBeanFactory {
     return null;
   }
 
+  /**
+   * A common mistake when migrating from Pico Container to Spring is to forget to add @Inject or @Autowire annotations to classes that have multiple constructors.
+   * Spring will fail if there is no default no-arg constructor, but it will silently use the no-arg constructor if there is one, never calling the other constructors.
+   * We override this method to fail fast if a class has multiple constructors.
+   */
+  @Override
+  protected BeanWrapper instantiateBean(String beanName, RootBeanDefinition mbd) {
+    if (mbd.hasBeanClass() && mbd.getBeanClass().getConstructors().length > 1) {
+      throw new IllegalStateException("Constructor annotations missing in: " + mbd.getBeanClass());
+    }
+    return super.instantiateBean(beanName, mbd);
+  }
+
   private static class Bean {
     private final String name;
     private final Object instance;
@@ -117,7 +132,7 @@ public class PriorityBeanFactory extends DefaultListableBeanFactory {
 
   @FunctionalInterface
   private interface PriorityFunction {
-    @Nullable
+    @CheckForNull
     Integer classify(Bean candidate);
   }
 }

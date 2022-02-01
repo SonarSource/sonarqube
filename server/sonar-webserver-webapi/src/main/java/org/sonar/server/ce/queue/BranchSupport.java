@@ -41,13 +41,6 @@ public class BranchSupport {
   @CheckForNull
   private final BranchSupportDelegate delegate;
 
-  /**
-   * Constructor called by Pico when no implementation of {@link BranchSupportDelegate} is available.
-   */
-  public BranchSupport() {
-    this(null);
-  }
-
   public BranchSupport(@Nullable BranchSupportDelegate delegate) {
     this.delegate = delegate;
   }

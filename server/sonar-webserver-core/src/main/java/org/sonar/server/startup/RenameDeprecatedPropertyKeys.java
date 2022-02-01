@@ -20,7 +20,7 @@
 package org.sonar.server.startup;
 
 import com.google.common.base.Strings;
-import org.picocontainer.Startable;
+import org.sonar.api.Startable;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.Loggers;

@@ -19,19 +19,23 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.util.Optional;
 import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.System2;
-import org.sonar.core.platform.PluginRepository;
-import org.sonar.server.platform.Platform;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.WebServer;
 import org.sonar.server.platform.db.migration.charset.DatabaseCharsetChecker;
+import org.sonar.server.plugins.ServerPluginRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
@@ -53,38 +57,45 @@ public class PlatformLevel2Test {
 
   @Test
   public void add_all_components_by_default() {
-    PlatformLevel1 level1 = new PlatformLevel1(mock(Platform.class), props);
-    level1.configure();
+    var parentContainer = mock(SpringComponentContainer.class);
+    var container = mock(SpringComponentContainer.class);
+    var platform = mock(PlatformLevel.class);
+    var webserver = mock(WebServer.class);
 
-    PlatformLevel2 underTest = new PlatformLevel2(level1);
+    when(parentContainer.createChild()).thenReturn(container);
+    when(platform.getContainer()).thenReturn(parentContainer);
+    when(parentContainer.getOptionalComponentByType(any())).thenReturn(Optional.empty());
+    when(container.getOptionalComponentByType(WebServer.class)).thenReturn(Optional.of(webserver));
+    when(webserver.isStartupLeader()).thenReturn(true);
+
+    PlatformLevel2 underTest = new PlatformLevel2(platform);
     underTest.configure();
 
-    // some level1 components
-    assertThat(underTest.getOptional(WebServer.class)).isPresent();
-    assertThat(underTest.getOptional(System2.class)).isPresent();
-
-    // level2 component that does not depend on cluster state
-    assertThat(underTest.getOptional(PluginRepository.class)).isPresent();
-
-    // level2 component that is injected only on "startup leaders"
-    assertThat(underTest.getOptional(DatabaseCharsetChecker.class)).isPresent();
+    verify(container).add(ServerPluginRepository.class);
+    verify(container).add(DatabaseCharsetChecker.class);
+    verify(container, times(23)).add(any());
   }
 
   @Test
   public void do_not_add_all_components_when_startup_follower() {
-    props.setProperty("sonar.cluster.enabled", "true");
-    PlatformLevel1 level1 = new PlatformLevel1(mock(Platform.class), props);
-    level1.configure();
+    var parentContainer = mock(SpringComponentContainer.class);
+    var container = mock(SpringComponentContainer.class);
+    var platform = mock(PlatformLevel.class);
+    var webserver = mock(WebServer.class);
 
-    PlatformLevel2 underTest = new PlatformLevel2(level1);
+    when(parentContainer.createChild()).thenReturn(container);
+    when(platform.getContainer()).thenReturn(parentContainer);
+    when(parentContainer.getOptionalComponentByType(any())).thenReturn(Optional.empty());
+    when(container.getOptionalComponentByType(WebServer.class)).thenReturn(Optional.of(webserver));
+    when(webserver.isStartupLeader()).thenReturn(false);
+
+    PlatformLevel2 underTest = new PlatformLevel2(platform);
     underTest.configure();
 
-    assertThat(underTest.get(WebServer.class).isStartupLeader()).isFalse();
-
-    // level2 component that does not depend on cluster state
-    assertThat(underTest.getOptional(PluginRepository.class)).isPresent();
-
-    // level2 component that is injected only on "startup leaders"
-    assertThat(underTest.getOptional(DatabaseCharsetChecker.class)).isNotPresent();
+    verify(container).add(ServerPluginRepository.class);
+    verify(container, never()).add(DatabaseCharsetChecker.class);
+    verify(container, times(21)).add(any());
   }
+
+
 }

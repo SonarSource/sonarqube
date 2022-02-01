@@ -20,18 +20,15 @@
 package org.sonar.server.authentication;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ListContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class AuthenticationModuleTest {
-
   @Test
   public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+    ListContainer container = new ListContainer();
     new AuthenticationModule().configure(container);
-    assertThat(container.size()).isGreaterThan(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+    assertThat(container.getAddedObjects()).isNotEmpty();
   }
-
 }

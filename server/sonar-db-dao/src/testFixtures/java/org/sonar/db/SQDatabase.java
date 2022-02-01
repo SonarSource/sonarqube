@@ -35,7 +35,8 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.Container;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.dialect.Dialect;
@@ -43,15 +44,12 @@ import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.MigrationContainerImpl;
-import org.sonar.server.platform.db.migration.engine.MigrationContainerPopulator;
-import org.sonar.server.platform.db.migration.engine.MigrationContainerPopulatorImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
-import org.sonar.server.platform.db.migration.version.DbVersion;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -101,29 +99,23 @@ public class SQDatabase extends DefaultDatabase {
     }
   }
 
-  public static final class H2MigrationContainerPopulator extends MigrationContainerPopulatorImpl {
-    public H2MigrationContainerPopulator(DbVersion... dbVersions) {
-      super(H2StepExecutor.class, dbVersions);
-    }
-  }
-
   public static final class H2StepExecutor implements MigrationStepsExecutor {
     private static final String STEP_START_PATTERN = "{}...";
     private static final String STEP_STOP_PATTERN = "{}: {}";
 
-    private final ComponentContainer componentContainer;
+    private final Container container;
 
-    public H2StepExecutor(ComponentContainer componentContainer) {
-      this.componentContainer = componentContainer;
+    public H2StepExecutor(Container container) {
+      this.container = container;
     }
 
     @Override
     public void execute(List<RegisteredMigrationStep> steps) {
-      steps.forEach(step -> execute(step, componentContainer));
+      steps.forEach(step -> execute(step, container));
     }
 
-    private void execute(RegisteredMigrationStep step, ComponentContainer componentContainer) {
-      MigrationStep migrationStep = componentContainer.getComponentByType(step.getStepClass());
+    private void execute(RegisteredMigrationStep step, Container container) {
+      MigrationStep migrationStep = container.getComponentByType(step.getStepClass());
       checkState(migrationStep != null, "Can not find instance of " + step.getStepClass());
 
       execute(step, migrationStep);
@@ -149,24 +141,23 @@ public class SQDatabase extends DefaultDatabase {
   }
 
   private void executeDbMigrations(NoopDatabase noopDatabase) {
-    ComponentContainer parentContainer = new ComponentContainer();
-    parentContainer.add(noopDatabase);
-    parentContainer.add(H2MigrationContainerPopulator.class);
+    SpringComponentContainer container = new SpringComponentContainer();
+    container.add(noopDatabase);
     MigrationConfigurationModule migrationConfigurationModule = new MigrationConfigurationModule();
-    migrationConfigurationModule.configure(parentContainer);
+    migrationConfigurationModule.configure(container);
 
     // dependencies required by DB migrations
-    parentContainer.add(SonarRuntimeImpl.forSonarQube(Version.create(8, 0), SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
-    parentContainer.add(UuidFactoryFast.getInstance());
-    parentContainer.add(System2.INSTANCE);
-    parentContainer.add(MapSettings.class);
+    container.add(SonarRuntimeImpl.forSonarQube(Version.create(8, 0), SonarQubeSide.SERVER, SonarEdition.COMMUNITY));
+    container.add(UuidFactoryFast.getInstance());
+    container.add(System2.INSTANCE);
+    container.add(MapSettings.class);
 
-    parentContainer.startComponents();
-
-    MigrationContainer migrationContainer = new MigrationContainerImpl(parentContainer, parentContainer.getComponentByType(MigrationContainerPopulator.class));
+    container.startComponents();
+    MigrationContainer migrationContainer = new MigrationContainerImpl(container, H2StepExecutor.class);
     MigrationSteps migrationSteps = migrationContainer.getComponentByType(MigrationSteps.class);
-    migrationContainer.getComponentByType(MigrationStepsExecutor.class)
-      .execute(migrationSteps.readAll());
+    MigrationStepsExecutor executor = migrationContainer.getComponentByType(MigrationStepsExecutor.class);
+
+    executor.execute(migrationSteps.readAll());
   }
 
   private void createMigrationHistoryTable(NoopDatabase noopDatabase) {
