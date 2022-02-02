@@ -55,16 +55,20 @@ public class SpringComponentContainerTest {
     SpringComponentContainer container = new SimpleContainer(new ToString("a"), new ToString("b"));
     container.startComponents();
     assertThat(container.context.getBeanDefinitionNames())
-      .contains("org.sonar.scanner.bootstrap.SpringComponentContainerTest.ToString-a", "org.sonar.scanner.bootstrap.SpringComponentContainerTest.ToString-b");
+      .contains(
+        this.getClass().getClassLoader() + "-org.sonar.scanner.bootstrap.SpringComponentContainerTest.ToString-a",
+        this.getClass().getClassLoader() + "-org.sonar.scanner.bootstrap.SpringComponentContainerTest.ToString-b");
     assertThat(container.getComponentsByType(ToString.class)).hasSize(2);
   }
 
   @Test
-  public void register_class_with_fqcn() {
+  public void register_class_with_classloader_and_fqcn() {
     SpringComponentContainer container = new SimpleContainer(A.class, B.class);
     container.startComponents();
     assertThat(container.context.getBeanDefinitionNames())
-      .contains("org.sonar.scanner.bootstrap.SpringComponentContainerTest$A", "org.sonar.scanner.bootstrap.SpringComponentContainerTest$B");
+      .contains(
+        this.getClass().getClassLoader() + "-org.sonar.scanner.bootstrap.SpringComponentContainerTest.A",
+        this.getClass().getClassLoader() + "-org.sonar.scanner.bootstrap.SpringComponentContainerTest.B");
     assertThat(container.getComponentByType(A.class)).isNotNull();
     assertThat(container.getComponentByType(B.class)).isNotNull();
   }

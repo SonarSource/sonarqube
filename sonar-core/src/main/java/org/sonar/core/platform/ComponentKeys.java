@@ -46,6 +46,10 @@ public class ComponentKeys {
     return ofInstance(component, LOG);
   }
 
+  public String ofClass(Class<?> clazz) {
+    return clazz.getClassLoader() + "-" + clazz.getCanonicalName();
+  }
+
   String ofInstance(Object component, Logger log) {
     String key = component.toString();
     if (IDENTITY_HASH_PATTERN.matcher(key).matches()) {
@@ -54,6 +58,6 @@ public class ComponentKeys {
       }
       key += Uuids.create();
     }
-    return component.getClass().getCanonicalName() + "-" + key;
+    return ofClass(component.getClass()) + "-" + key;
   }
 }

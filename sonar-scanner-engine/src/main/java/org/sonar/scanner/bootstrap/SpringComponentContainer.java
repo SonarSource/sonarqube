@@ -20,7 +20,6 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -33,7 +32,6 @@ import org.sonar.core.platform.Container;
 import org.sonar.core.platform.ExtensionContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
@@ -62,8 +60,6 @@ public class SpringComponentContainer implements ExtensionContainer {
     this.parent = parent;
     this.propertyDefinitions = propertyDefinitions;
     this.context = new AnnotationConfigApplicationContext(new PriorityBeanFactory());
-    // it won't set the name of beans created with @Bean annotated methods
-    this.context.setBeanNameGenerator(new FullyQualifiedAnnotationBeanNameGenerator());
     if (parent != null) {
       context.setParent(parent.context);
     }
@@ -76,8 +72,8 @@ public class SpringComponentContainer implements ExtensionContainer {
   /**
    * Beans need to have a unique name, otherwise they'll override each other.
    * The strategy is:
-   * - For classes, use the fully qualified class name as the name of the bean
-   * - For instances, use the FQCN + toString()
+   * - For classes, use the classloader + fully qualified class name as the name of the bean
+   * - For instances, use the Classloader + FQCN + toString()
    * - If the object is a collection, iterate through the elements and apply the same strategy for each of them
    */
   @Override
@@ -85,7 +81,7 @@ public class SpringComponentContainer implements ExtensionContainer {
     for (Object o : objects) {
       if (o instanceof Class) {
         Class<?> clazz = (Class<?>) o;
-        context.registerBean(clazz);
+        context.registerBean(componentKeys.ofClass(clazz), clazz);
       } else if (o instanceof Iterable) {
         add(Iterables.toArray((Iterable<?>) o, Object.class));
       } else {
@@ -111,7 +107,7 @@ public class SpringComponentContainer implements ExtensionContainer {
     if (o instanceof Class) {
       Class<?> clazz = (Class<?>) o;
       ClassDerivedBeanDefinition bd = new ClassDerivedBeanDefinition(clazz);
-      context.registerBeanDefinition(clazz.getName(), bd);
+      context.registerBeanDefinition(componentKeys.ofClass(clazz), bd);
     } else if (o instanceof Iterable) {
       ((Iterable<?>) o).forEach(this::addExtension);
     } else {

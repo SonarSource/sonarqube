@@ -33,13 +33,18 @@ public class ComponentKeysTest {
   ComponentKeys keys = new ComponentKeys();
 
   @Test
-  public void generate_key_of_class() {
+  public void generate_key_of_object() {
     assertThat(keys.of(FakeComponent.class)).isEqualTo(FakeComponent.class);
   }
 
   @Test
-  public void generate_key_of_object() {
-    assertThat(keys.of(new FakeComponent())).isEqualTo("org.sonar.core.platform.ComponentKeysTest.FakeComponent-fake");
+  public void generate_key_of_instance() {
+    assertThat((String) keys.of(new FakeComponent())).endsWith("-org.sonar.core.platform.ComponentKeysTest.FakeComponent-fake");
+  }
+
+  @Test
+  public void generate_key_of_class() {
+    assertThat(keys.ofClass(FakeComponent.class)).endsWith("-org.sonar.core.platform.ComponentKeysTest.FakeComponent");
   }
 
   @Test
