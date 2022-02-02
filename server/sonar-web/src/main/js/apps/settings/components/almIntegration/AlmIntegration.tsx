@@ -25,7 +25,7 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../api/alm-settings';
-import { withAppState } from '../../../../components/hoc/withAppState';
+import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import { withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinitionBase,
@@ -39,7 +39,7 @@ import { AppState, Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
-  appState: Pick<AppState, 'branchesEnabled' | 'multipleAlmEnabled'>;
+  appState: AppState;
   definitions: ExtendedSettingDefinition[];
 }
 
@@ -246,4 +246,4 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppState(AlmIntegration));
+export default withRouter(withAppStateContext(AlmIntegration));

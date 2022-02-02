@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { click } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import {
@@ -35,19 +36,19 @@ it('should render correctly', () => {
   );
   expect(
     shallowRender(
-      { appState: { canAdmin: true } },
+      { appState: mockAppState({ canAdmin: true }) },
       { [AlmKeys.BitbucketServer]: 0, [AlmKeys.GitHub]: 2 }
     )
   ).toMatchSnapshot('invalid configs, admin');
   expect(
     shallowRender(
-      { appState: { canAdmin: true } },
+      { appState: mockAppState({ canAdmin: true }) },
       { [AlmKeys.BitbucketServer]: 0, [AlmKeys.BitbucketCloud]: 0, [AlmKeys.GitHub]: 2 }
     )
   ).toMatchSnapshot('invalid configs, admin');
   expect(
     shallowRender(
-      { appState: { canAdmin: true } },
+      { appState: mockAppState({ canAdmin: true }) },
       {
         [AlmKeys.Azure]: 0,
         [AlmKeys.BitbucketCloud]: 0,
@@ -118,7 +119,7 @@ it('should call the proper click handler', () => {
   onSelectMode.mockClear();
 
   wrapper = shallowRender(
-    { onSelectMode, onConfigMode, appState: { canAdmin: true } },
+    { onSelectMode, onConfigMode, appState: mockAppState({ canAdmin: true }) },
     { [AlmKeys.Azure]: 0 }
   );
 
@@ -144,7 +145,7 @@ function shallowRender(
   return shallow<CreateProjectModeSelectionProps>(
     <CreateProjectModeSelection
       almCounts={almCounts}
-      appState={{ canAdmin: false }}
+      appState={mockAppState({ canAdmin: false })}
       loadingBindings={false}
       onSelectMode={jest.fn()}
       onConfigMode={jest.fn()}

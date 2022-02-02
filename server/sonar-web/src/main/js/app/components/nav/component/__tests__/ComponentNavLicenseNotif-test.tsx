@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { isValidLicense } from '../../../../../api/marketplace';
 import { mockTask } from '../../../../../helpers/mocks/tasks';
+import { mockAppState } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { TaskStatuses } from '../../../../../types/tasks';
 import { ComponentNavLicenseNotif } from '../ComponentNavLicenseNotif';
@@ -50,7 +51,7 @@ it('renders background task license info correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 
   wrapper = getWrapper({
-    appState: { canAdmin: false },
+    appState: mockAppState({ canAdmin: false }),
     currentTask: mockTask({
       status: TaskStatuses.Failed,
       errorType: 'LICENSING',
@@ -90,7 +91,7 @@ it('renders correctly for LICENSING_LOC error', async () => {
 function getWrapper(props: Partial<ComponentNavLicenseNotif['props']> = {}) {
   return shallow(
     <ComponentNavLicenseNotif
-      appState={{ canAdmin: true }}
+      appState={mockAppState({ canAdmin: true })}
       currentTask={mockTask({ errorMessage: 'Foo', errorType: 'LICENSING' })}
       {...props}
     />

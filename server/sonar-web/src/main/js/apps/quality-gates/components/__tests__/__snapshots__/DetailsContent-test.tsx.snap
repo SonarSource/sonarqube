@@ -4,7 +4,7 @@ exports[`should render correctly: Admin 1`] = `
 <div
   className="layout-page-main-inner"
 >
-  <Connect(withAppState(withMetricsContext(Conditions)))
+  <withMetricsContext(withAppStateContext(Conditions))
     canEdit={false}
     conditions={Array []}
     onAddCondition={[MockFunction]}
@@ -80,7 +80,7 @@ exports[`should render correctly: is default 1`] = `
 <div
   className="layout-page-main-inner"
 >
-  <Connect(withAppState(withMetricsContext(Conditions)))
+  <withMetricsContext(withAppStateContext(Conditions))
     canEdit={false}
     conditions={
       Array [
@@ -150,7 +150,7 @@ exports[`should render correctly: is default, no conditions 1`] = `
   >
     quality_gates.is_default_no_conditions
   </Alert>
-  <Connect(withAppState(withMetricsContext(Conditions)))
+  <withMetricsContext(withAppStateContext(Conditions))
     canEdit={false}
     conditions={Array []}
     onAddCondition={[MockFunction]}
@@ -198,7 +198,7 @@ exports[`should render correctly: is not default 1`] = `
 <div
   className="layout-page-main-inner"
 >
-  <Connect(withAppState(withMetricsContext(Conditions)))
+  <withMetricsContext(withAppStateContext(Conditions))
     canEdit={false}
     conditions={
       Array [

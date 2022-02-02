@@ -31,7 +31,7 @@ if (isMainApp()) {
 
   Promise.all([loadL10nBundle(), loadUser(), loadAppState(), loadApp()]).then(
     ([l10nBundle, user, appState, startReactApp]) => {
-      startReactApp(l10nBundle.locale, user, appState);
+      startReactApp(l10nBundle.locale, appState, user);
     },
     error => {
       if (isResponse(error) && error.status === 401) {
@@ -44,19 +44,27 @@ if (isMainApp()) {
 } else {
   // login, maintenance or setup pages
 
-  const appStatePromise: Promise<AppState | undefined> = new Promise(resolve => {
+  const appStatePromise: Promise<AppState> = new Promise(resolve => {
     loadAppState()
       .then(data => {
         resolve(data);
       })
       .catch(() => {
-        resolve(undefined);
+        resolve({
+          authenticationError: false,
+          authorizationError: false,
+          edition: undefined,
+          productionDatabase: true,
+          qualifiers: [],
+          settings: {},
+          version: ''
+        });
       });
   });
 
   Promise.all([loadL10nBundle(), appStatePromise, loadApp()]).then(
     ([l10nBundle, appState, startReactApp]) => {
-      startReactApp(l10nBundle.locale, undefined, appState);
+      startReactApp(l10nBundle.locale, appState);
     },
     error => {
       logError(error);

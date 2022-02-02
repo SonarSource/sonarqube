@@ -22,8 +22,8 @@ import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import { getAlmSettings } from '../../../api/alm-settings';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
-import { withAppState } from '../../../components/hoc/withAppState';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
@@ -40,7 +40,7 @@ import './style.css';
 import { CreateProjectModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  appState: Pick<AppState, 'canAdmin' | 'branchesEnabled'>;
+  appState: AppState;
   currentUser: LoggedInUser;
 }
 
@@ -272,4 +272,4 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
   }
 }
 
-export default whenLoggedIn(withAppState(CreateProjectPage));
+export default whenLoggedIn(withAppStateContext(CreateProjectPage));

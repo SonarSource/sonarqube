@@ -25,7 +25,7 @@ import {
   getAlmDefinitions,
   validateAlmSettings
 } from '../../../../../api/alm-settings';
-import { mockLocation, mockRouter } from '../../../../../helpers/testMocks';
+import { mockAppState, mockLocation, mockRouter } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { AlmKeys, AlmSettingsBindingStatusType } from '../../../../../types/alm-settings';
 import { AlmIntegration } from '../AlmIntegration';
@@ -189,7 +189,7 @@ it('should detect the current ALM from the query', () => {
 function shallowRender(props: Partial<AlmIntegration['props']> = {}) {
   return shallow<AlmIntegration>(
     <AlmIntegration
-      appState={{ branchesEnabled: true }}
+      appState={mockAppState({ branchesEnabled: true })}
       definitions={[]}
       location={mockLocation()}
       router={mockRouter()}

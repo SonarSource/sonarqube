@@ -20,6 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Project } from '../../api/components';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { Button } from '../../components/controls/buttons';
 import Checkbox from '../../components/controls/Checkbox';
 import DateInput from '../../components/controls/DateInput';
@@ -28,7 +29,7 @@ import SearchBox from '../../components/controls/SearchBox';
 import SelectLegacy from '../../components/controls/SelectLegacy';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/types';
+import { AppState, Visibility } from '../../types/types';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 
@@ -48,7 +49,7 @@ export interface Props {
   query: string;
   ready: boolean;
   selection: any[];
-  topLevelQualifiers: string[];
+  appState: AppState;
   total: number;
   visibility?: Visibility;
 }
@@ -60,12 +61,12 @@ interface State {
 
 const QUALIFIERS_ORDER = ['TRK', 'VW', 'APP'];
 
-export default class Search extends React.PureComponent<Props, State> {
+export class Search extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { bulkApplyTemplateModal: false, deleteModal: false };
 
   getQualifierOptions = () => {
-    const options = this.props.topLevelQualifiers.map(q => ({
+    const options = this.props.appState.qualifiers.map(q => ({
       label: translate('qualifiers', q),
       value: q
     }));
@@ -281,3 +282,5 @@ export default class Search extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withAppStateContext(Search);

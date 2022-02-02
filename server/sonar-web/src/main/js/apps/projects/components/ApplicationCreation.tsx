@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { getComponentNavigation } from '../../../api/nav';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
 import { Button } from '../../../components/controls/buttons';
-import { withAppState } from '../../../components/hoc/withAppState';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
@@ -32,7 +32,7 @@ import { Permissions } from '../../../types/permissions';
 import { AppState, LoggedInUser } from '../../../types/types';
 
 export interface ApplicationCreationProps {
-  appState: Pick<AppState, 'qualifiers'>;
+  appState: AppState;
   className?: string;
   currentUser: LoggedInUser;
   router: Router;
@@ -84,4 +84,4 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
   );
 }
 
-export default withAppState(withCurrentUser(withRouter(ApplicationCreation)));
+export default withCurrentUser(withRouter(withAppStateContext(ApplicationCreation)));

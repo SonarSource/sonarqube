@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { AppState } from '../../../../types/types';
-import { withAppState } from '../../../hoc/withAppState';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface PublishStepsProps {
@@ -83,4 +83,4 @@ export function PublishSteps(props: PublishStepsProps) {
   );
 }
 
-export default withAppState(PublishSteps);
+export default withAppStateContext(PublishSteps);

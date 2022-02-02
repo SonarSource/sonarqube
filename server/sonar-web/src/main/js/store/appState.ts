@@ -17,26 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AppState, Extension } from '../types/types';
+import { AppState } from '../types/types';
 import { ActionType } from './utils/actions';
 
 export const enum Actions {
   SetAppState = 'SET_APP_STATE',
-  SetAdminPages = 'SET_ADMIN_PAGES',
   RequireAuthorization = 'REQUIRE_AUTHORIZATION'
 }
 
 export type Action =
   | ActionType<typeof setAppState, Actions.SetAppState>
-  | ActionType<typeof setAdminPages, Actions.SetAdminPages>
   | ActionType<typeof requireAuthorization, Actions.RequireAuthorization>;
 
 export function setAppState(appState: AppState) {
   return { type: Actions.SetAppState, appState };
-}
-
-export function setAdminPages(adminPages: Extension[]) {
-  return { type: Actions.SetAdminPages, adminPages };
 }
 
 export function requireAuthorization() {
@@ -56,9 +50,6 @@ const defaultValue: AppState = {
 export default function(state: AppState = defaultValue, action: Action): AppState {
   if (action.type === Actions.SetAppState) {
     return { ...state, ...action.appState };
-  }
-  if (action.type === Actions.SetAdminPages) {
-    return { ...state, adminPages: action.adminPages };
   }
   if (action.type === Actions.RequireAuthorization) {
     return { ...state, authorizationError: true };

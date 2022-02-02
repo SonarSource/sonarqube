@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockQualityGate } from '../../../../helpers/mocks/quality-gates';
-import { mockCondition, mockMetric } from '../../../../helpers/testMocks';
+import { mockAppState, mockCondition, mockMetric } from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import { Conditions } from '../Conditions';
 
@@ -57,7 +57,7 @@ it('should render the add conditions button and modal', () => {
 function shallowRender(props: Partial<Conditions['props']> = {}) {
   return shallow<Conditions>(
     <Conditions
-      appState={{ branchesEnabled: true }}
+      appState={mockAppState({ branchesEnabled: true })}
       canEdit={false}
       conditions={[mockCondition(), mockCondition({ id: 2, metric: MetricKey.duplicated_lines })]}
       metrics={{

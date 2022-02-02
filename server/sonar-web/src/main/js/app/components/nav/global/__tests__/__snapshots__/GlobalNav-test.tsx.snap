@@ -7,14 +7,7 @@ exports[`should render correctly: anonymous users 1`] = `
   id="global-navigation"
 >
   <Connect(GlobalNavBranding) />
-  <GlobalNavMenu
-    appState={
-      Object {
-        "canAdmin": false,
-        "globalPages": Array [],
-        "qualifiers": Array [],
-      }
-    }
+  <withAppStateContext(GlobalNavMenu)
     currentUser={
       Object {
         "isLoggedIn": false,
@@ -55,14 +48,7 @@ exports[`should render correctly: logged in users 1`] = `
   id="global-navigation"
 >
   <Connect(GlobalNavBranding) />
-  <GlobalNavMenu
-    appState={
-      Object {
-        "canAdmin": false,
-        "globalPages": Array [],
-        "qualifiers": Array [],
-      }
-    }
+  <withAppStateContext(GlobalNavMenu)
     currentUser={
       Object {
         "isLoggedIn": true,

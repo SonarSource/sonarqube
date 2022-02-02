@@ -78,7 +78,7 @@ exports[`should render correctly 1`] = `
     onOpen={[Function]}
     open={false}
   />
-  <Connect(withAppState(YmlFileStep))
+  <withAppStateContext(YmlFileStep)
     finished={false}
     onDone={[Function]}
     onOpen={[Function]}

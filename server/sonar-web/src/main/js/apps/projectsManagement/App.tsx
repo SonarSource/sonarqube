@@ -29,10 +29,10 @@ import ListFooter from '../../components/controls/ListFooter';
 import { toShortNotSoISOString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
-import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
+import { getCurrentUser, Store } from '../../store/rootReducer';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
-import { AppState, LoggedInUser, Visibility } from '../../types/types';
+import { LoggedInUser, Visibility } from '../../types/types';
 import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
@@ -40,7 +40,6 @@ import Search from './Search';
 
 export interface Props {
   currentUser: LoggedInUser;
-  appState: Pick<AppState, 'qualifiers'>;
 }
 
 interface State {
@@ -198,7 +197,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { appState, currentUser } = this.props;
+    const { currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
     return (
       <div className="page page-limited" id="projects-management-page">
@@ -228,7 +227,6 @@ export class App extends React.PureComponent<Props, State> {
           query={this.state.query}
           ready={this.state.ready}
           selection={this.state.selection}
-          topLevelQualifiers={appState.qualifiers}
           total={this.state.total}
           visibility={this.state.visibility}
         />
@@ -262,7 +260,6 @@ export class App extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: Store) => ({
-  appState: getAppState(state),
   currentUser: getCurrentUser(state) as LoggedInUser
 });
 

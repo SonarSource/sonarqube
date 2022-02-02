@@ -72,9 +72,8 @@ export class App extends React.PureComponent<Props> {
     parser.href = this.props.gravatarServerUrl;
     if (parser.hostname !== window.location.hostname) {
       return <link href={parser.origin} rel="preconnect" />;
-    } else {
-      return null;
     }
+    return null;
   };
 
   render() {

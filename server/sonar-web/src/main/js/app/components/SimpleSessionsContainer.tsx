@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
-import GlobalFooterContainer from './GlobalFooterContainer';
+import GlobalFooter from './GlobalFooter';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
@@ -36,7 +36,7 @@ export default function SimpleSessionsContainer({ children }: Props) {
         <div className="page-wrapper" id="container">
           {children}
         </div>
-        <GlobalFooterContainer hideLoggedInInfo={true} />
+        <GlobalFooter hideLoggedInInfo={true} />
       </div>
     </>
   );

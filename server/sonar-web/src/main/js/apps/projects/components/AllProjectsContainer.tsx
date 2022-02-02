@@ -19,12 +19,10 @@
  */
 import { connect } from 'react-redux';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
-import { getAppState, getCurrentUser, Store } from '../../../store/rootReducer';
-import { ComponentQualifier } from '../../../types/component';
+import { getCurrentUser, Store } from '../../../store/rootReducer';
 
 const stateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state),
-  qualifiers: getAppState(state).qualifiers as ComponentQualifier[]
+  currentUser: getCurrentUser(state)
 });
 
 export default connect(stateToProps)(lazyLoadComponent(() => import('./AllProjects')));

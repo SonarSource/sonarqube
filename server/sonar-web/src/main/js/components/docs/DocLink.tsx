@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import DetachIcon from '../../components/icons/DetachIcon';
 import { isSonarCloud } from '../../helpers/system';
 import { AppState } from '../../types/types';
-import { withAppState } from '../hoc/withAppState';
 
 interface OwnProps {
-  appState: Pick<AppState, 'canAdmin'>;
+  appState: AppState;
   customProps?: {
     [k: string]: any;
   };
@@ -66,14 +66,13 @@ export class DocLink extends React.PureComponent<Props> {
             {children}
           </SonarQubeAdminLink>
         );
-      } else {
-        const url = '/documentation' + href;
-        return (
-          <Link to={url} {...other}>
-            {children}
-          </Link>
-        );
       }
+      const url = '/documentation' + href;
+      return (
+        <Link to={url} {...other}>
+          {children}
+        </Link>
+      );
     }
 
     return (
@@ -90,7 +89,7 @@ export class DocLink extends React.PureComponent<Props> {
   }
 }
 
-export default withAppState(DocLink);
+export default withAppStateContext(DocLink);
 
 interface SonarCloudLinkProps {
   children: React.ReactNode;
@@ -100,10 +99,9 @@ interface SonarCloudLinkProps {
 function SonarCloudLink({ children, url }: SonarCloudLinkProps) {
   if (!isSonarCloud()) {
     return <>{children}</>;
-  } else {
-    const to = `/${url.substr(SONARCLOUD_LINK.length)}`;
-    return <Link to={to}>{children}</Link>;
   }
+  const to = `/${url.substr(SONARCLOUD_LINK.length)}`;
+  return <Link to={to}>{children}</Link>;
 }
 
 interface SonarQubeLinkProps {
@@ -114,14 +112,13 @@ interface SonarQubeLinkProps {
 function SonarQubeLink({ children, url }: SonarQubeLinkProps) {
   if (isSonarCloud()) {
     return <>{children}</>;
-  } else {
-    const to = `/${url.substr(SONARQUBE_LINK.length)}`;
-    return (
-      <Link target="_blank" to={to}>
-        {children}
-      </Link>
-    );
   }
+  const to = `/${url.substr(SONARQUBE_LINK.length)}`;
+  return (
+    <Link target="_blank" to={to}>
+      {children}
+    </Link>
+  );
 }
 
 interface SonarQubeAdminLinkProps {
@@ -133,12 +130,11 @@ interface SonarQubeAdminLinkProps {
 function SonarQubeAdminLink({ canAdmin, children, url }: SonarQubeAdminLinkProps) {
   if (isSonarCloud() || !canAdmin) {
     return <>{children}</>;
-  } else {
-    const to = `/${url.substr(SONARQUBE_ADMIN_LINK.length)}`;
-    return (
-      <Link target="_blank" to={to}>
-        {children}
-      </Link>
-    );
   }
+  const to = `/${url.substr(SONARQUBE_ADMIN_LINK.length)}`;
+  return (
+    <Link target="_blank" to={to}>
+      {children}
+    </Link>
+  );
 }

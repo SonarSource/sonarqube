@@ -26,9 +26,9 @@ import {
 } from '../../../../api/newCodePeriod';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockEvent } from '../../../../helpers/testMocks';
+import { mockAppState, mockEvent } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import App from '../App';
+import { App } from '../App';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
   getNewCodePeriod: jest.fn().mockResolvedValue({}),
@@ -41,7 +41,7 @@ it('should render correctly', async () => {
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper = shallowRender({ branchesEnabled: false });
+  wrapper = shallowRender({ appState: mockAppState({ branchesEnabled: false, canAdmin: true }) });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('without branch support');
 });
@@ -109,8 +109,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
     <App
       branchLike={mockBranch()}
       branchLikes={[mockMainBranch()]}
-      branchesEnabled={true}
-      canAdmin={true}
+      appState={mockAppState({ branchesEnabled: true, canAdmin: true })}
       component={mockComponent()}
       {...props}
     />

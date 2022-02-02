@@ -4,7 +4,7 @@ exports[`should render correctly 1`] = `
 <section
   className="big-spacer-top big-spacer-bottom"
 >
-  <Connect(StatPendingCount)
+  <withAppStateContext(StatPendingCount)
     onCancelAllPending={[MockFunction]}
     pendingCount={2}
   />
@@ -25,7 +25,7 @@ exports[`should render correctly for a component 1`] = `
 <section
   className="big-spacer-top big-spacer-bottom"
 >
-  <Connect(StatPendingCount)
+  <withAppStateContext(StatPendingCount)
     onCancelAllPending={[MockFunction]}
     pendingCount={2}
   />

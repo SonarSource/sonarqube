@@ -19,8 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../helpers/testMocks';
 import { click } from '../../../helpers/testUtils';
-import Search, { Props } from '../Search';
+import { Props, Search } from '../Search';
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -37,12 +38,17 @@ it('disables the delete and bulk apply buttons unless a project is selected', ()
 });
 
 it('render qualifiers filter', () => {
-  expect(shallowRender({ topLevelQualifiers: ['TRK', 'VW', 'APP'] })).toMatchSnapshot();
+  expect(
+    shallowRender({ appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] }) })
+  ).toMatchSnapshot();
 });
 
 it('updates qualifier', () => {
   const onQualifierChanged = jest.fn();
-  const wrapper = shallowRender({ onQualifierChanged, topLevelQualifiers: ['TRK', 'VW', 'APP'] });
+  const wrapper = shallowRender({
+    onQualifierChanged,
+    appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })
+  });
   wrapper.find('SelectLegacy[name="projects-qualifier"]').prop<Function>('onChange')({
     value: 'VW'
   });
@@ -129,7 +135,7 @@ function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
       query=""
       ready={true}
       selection={[]}
-      topLevelQualifiers={['TRK']}
+      appState={mockAppState({ qualifiers: ['TRK'] })}
       total={17}
       {...props}
     />

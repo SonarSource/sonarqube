@@ -24,6 +24,7 @@ import { showLicense } from '../../../api/marketplace';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { hasMessage } from '../../../helpers/l10n';
 import { get, save } from '../../../helpers/storage';
+import { mockAppState } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { EditionKey } from '../../../types/editions';
 import { LoggedInUser } from '../../../types/types';
@@ -67,12 +68,12 @@ beforeEach(() => {
 });
 
 it('should render only the children', async () => {
-  const wrapper = getWrapper({ currentEdition: EditionKey.community });
+  const wrapper = getWrapper({ appState: mockAppState({ edition: EditionKey.community }) });
   await shouldNotHaveModals(wrapper);
   expect(showLicense).toHaveBeenCalledTimes(0);
   expect(wrapper.find('div').exists()).toBe(true);
 
-  await shouldNotHaveModals(getWrapper({ canAdmin: false }));
+  await shouldNotHaveModals(getWrapper({ appState: mockAppState({ canAdmin: false }) }));
 
   (hasMessage as jest.Mock<any>).mockReturnValueOnce(false);
   await shouldNotHaveModals(getWrapper());
@@ -86,7 +87,7 @@ it('should render only the children', async () => {
 
   await shouldNotHaveModals(
     getWrapper({
-      canAdmin: false,
+      appState: mockAppState({ canAdmin: false }),
       currentUser: { ...LOGGED_IN_USER },
       location: { pathname: '/documentation/' }
     })
@@ -94,7 +95,7 @@ it('should render only the children', async () => {
 
   await shouldNotHaveModals(
     getWrapper({
-      canAdmin: false,
+      appState: mockAppState({ canAdmin: false }),
       currentUser: { ...LOGGED_IN_USER },
       location: { pathname: '/create-organization' }
     })
@@ -126,8 +127,7 @@ async function shouldDisplayLicense(wrapper: ShallowWrapper) {
 function getWrapper(props: Partial<StartupModal['props']> = {}) {
   return shallow<StartupModal>(
     <StartupModal
-      canAdmin={true}
-      currentEdition={EditionKey.enterprise}
+      appState={mockAppState({ edition: EditionKey.enterprise, canAdmin: true })}
       currentUser={LOGGED_IN_USER}
       location={{ pathname: 'foo/bar' }}
       router={{ push: jest.fn() }}

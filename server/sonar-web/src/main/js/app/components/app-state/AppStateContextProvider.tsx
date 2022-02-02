@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /*
  * SonarQube
  * Copyright (C) 2009-2022 SonarSource SA
@@ -17,13 +18,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../../store/rootReducer';
-import App from './App';
 
-const mapStateToProps = (state: Store) => ({
-  branchesEnabled: getAppState(state).branchesEnabled,
-  canAdmin: getAppState(state).canAdmin
-});
+import * as React from 'react';
+import { AppState } from '../../../types/types';
+import { AppStateContext } from './AppStateContext';
 
-export default connect(mapStateToProps)(App);
+export interface AppStateContextProviderProps {
+  appState: AppState;
+}
+
+export default function AppStateContextProvider({
+  appState,
+  children
+}: React.PropsWithChildren<AppStateContextProviderProps>) {
+  return <AppStateContext.Provider value={appState}>{children}</AppStateContext.Provider>;
+}

@@ -4,7 +4,14 @@ exports[`should render correctly and start polling if issue sync is needed 1`] =
 <IndexationContextProvider
   appState={
     Object {
+      "edition": "community",
       "needIssueSync": true,
+      "productionDatabase": true,
+      "qualifiers": Array [
+        "TRK",
+      ],
+      "settings": Object {},
+      "version": "1.0",
     }
   }
 >

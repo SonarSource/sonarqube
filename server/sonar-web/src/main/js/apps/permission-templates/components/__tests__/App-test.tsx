@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockLocation } from '../../../../helpers/testMocks';
+import { mockAppState, mockLocation } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { App } from '../App';
 
@@ -54,5 +54,7 @@ it('should render correctly', async () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow(<App location={mockLocation()} topQualifiers={['TRK']} {...props} />);
+  return shallow(
+    <App location={mockLocation()} appState={mockAppState({ qualifiers: ['TRK'] })} {...props} />
+  );
 }

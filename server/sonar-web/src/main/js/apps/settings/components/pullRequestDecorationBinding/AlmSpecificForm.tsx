@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import Toggle from '../../../../components/controls/Toggle';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
@@ -31,14 +32,15 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
-import { Dict } from '../../../../types/types';
+import { EditionKey } from '../../../../types/editions';
+import { AppState, Dict } from '../../../../types/types';
 
 export interface AlmSpecificFormProps {
   alm: AlmKeys;
   instances: AlmSettingsInstance[];
   formData: Omit<ProjectAlmBindingResponse, 'alm'>;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
-  monorepoEnabled: boolean;
+  appState: AppState;
 }
 
 interface LabelProps {
@@ -140,12 +142,12 @@ function renderField(
   );
 }
 
-export default function AlmSpecificForm(props: AlmSpecificFormProps) {
+export function AlmSpecificForm(props: AlmSpecificFormProps) {
   const {
     alm,
     instances,
     formData: { repository, slug, summaryCommentEnabled, monorepo },
-    monorepoEnabled
+    appState
   } = props;
 
   let formFields: JSX.Element;
@@ -275,6 +277,11 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
       break;
   }
 
+  // This feature trigger will be replaced when SONAR-14349 is implemented
+  const monorepoEnabled = [EditionKey.enterprise, EditionKey.datacenter].includes(
+    appState.edition as EditionKey
+  );
+
   return (
     <>
       {formFields}
@@ -301,3 +308,5 @@ export default function AlmSpecificForm(props: AlmSpecificFormProps) {
     </>
   );
 }
+
+export default withAppStateContext(AlmSpecificForm);

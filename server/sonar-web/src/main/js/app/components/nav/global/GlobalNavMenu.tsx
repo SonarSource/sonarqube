@@ -27,14 +27,15 @@ import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { AppState, CurrentUser, Extension } from '../../../../types/types';
+import withAppStateContext from '../../app-state/withAppStateContext';
 
 interface Props {
-  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
+  appState: AppState;
   currentUser: CurrentUser;
   location: { pathname: string };
 }
 
-export default class GlobalNavMenu extends React.PureComponent<Props> {
+export class GlobalNavMenu extends React.PureComponent<Props> {
   renderProjects() {
     const active =
       this.props.location.pathname.startsWith('/projects') &&
@@ -173,3 +174,5 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withAppStateContext(GlobalNavMenu);

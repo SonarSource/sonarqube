@@ -19,9 +19,13 @@
  */
 import { mount } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { IndexationStatus } from '../../../../types/indexation';
 import { IndexationContext } from '../IndexationContext';
-import { IndexationContextProvider } from '../IndexationContextProvider';
+import {
+  IndexationContextProvider,
+  IndexationContextProviderProps
+} from '../IndexationContextProvider';
 import IndexationNotificationHelper from '../IndexationNotificationHelper';
 
 beforeEach(() => jest.clearAllMocks());
@@ -36,7 +40,8 @@ it('should render correctly and start polling if issue sync is needed', () => {
 });
 
 it('should not start polling if no issue sync is needed', () => {
-  const wrapper = mountRender({ appState: { needIssueSync: false } });
+  const appState = mockAppState({ needIssueSync: false });
+  const wrapper = mountRender({ appState });
 
   expect(IndexationNotificationHelper.startPolling).not.toHaveBeenCalled();
 
@@ -72,9 +77,9 @@ it('should stop polling when component is destroyed', () => {
   expect(IndexationNotificationHelper.stopPolling).toHaveBeenCalled();
 });
 
-function mountRender(props?: IndexationContextProvider['props']) {
+function mountRender(props?: IndexationContextProviderProps) {
   return mount<IndexationContextProvider>(
-    <IndexationContextProvider appState={{ needIssueSync: true }} {...props}>
+    <IndexationContextProvider appState={mockAppState({ needIssueSync: true, ...props?.appState })}>
       <TestComponent />
     </IndexationContextProvider>
   );

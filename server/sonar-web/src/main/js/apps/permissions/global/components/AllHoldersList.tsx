@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import ListFooter from '../../../../components/controls/ListFooter';
-import { getAppState, Store } from '../../../../store/rootReducer';
 import { ComponentQualifier } from '../../../../types/component';
 import { AppState, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import HoldersList from '../../shared/components/HoldersList';
@@ -32,7 +31,7 @@ import {
 } from '../../utils';
 
 interface StateProps {
-  appState: Pick<AppState, 'qualifiers'>;
+  appState: AppState;
 }
 
 interface OwnProps {
@@ -60,9 +59,8 @@ export class AllHoldersList extends React.PureComponent<Props> {
     const hasPermission = user.permissions.includes(permission);
     if (hasPermission) {
       return this.props.revokePermissionFromUser(user.login, permission);
-    } else {
-      return this.props.grantPermissionToUser(user.login, permission);
     }
+    return this.props.grantPermissionToUser(user.login, permission);
   };
 
   handleToggleGroup = (group: PermissionGroup, permission: string) => {
@@ -70,13 +68,21 @@ export class AllHoldersList extends React.PureComponent<Props> {
 
     if (hasPermission) {
       return this.props.revokePermissionFromGroup(group.name, permission);
-    } else {
-      return this.props.grantPermissionToGroup(group.name, permission);
     }
+    return this.props.grantPermissionToGroup(group.name, permission);
   };
 
   render() {
-    const { appState, filter, groups, groupsPaging, users, usersPaging } = this.props;
+    const {
+      appState,
+      filter,
+      groups,
+      groupsPaging,
+      users,
+      usersPaging,
+      loading,
+      query
+    } = this.props;
     const l10nPrefix = 'global_permissions';
 
     const hasPortfoliosEnabled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
@@ -100,19 +106,19 @@ export class AllHoldersList extends React.PureComponent<Props> {
     return (
       <>
         <HoldersList
-          filter={this.props.filter}
-          groups={this.props.groups}
-          loading={this.props.loading}
+          filter={filter}
+          groups={groups}
+          loading={loading}
           onToggleGroup={this.handleToggleGroup}
           onToggleUser={this.handleToggleUser}
           permissions={permissions}
-          query={this.props.query}
-          users={this.props.users}>
+          query={query}
+          users={users}>
           <SearchForm
-            filter={this.props.filter}
+            filter={filter}
             onFilter={this.props.onFilter}
             onSearch={this.props.onSearch}
-            query={this.props.query}
+            query={query}
           />
         </HoldersList>
         <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} />
@@ -121,8 +127,4 @@ export class AllHoldersList extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  appState: getAppState(state)
-});
-
-export default connect(mapStateToProps)(AllHoldersList);
+export default withAppStateContext(AllHoldersList);

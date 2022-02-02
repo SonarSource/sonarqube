@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import {
   deleteProjectAlmBinding,
   getAlmSettings,
@@ -34,23 +33,17 @@ import throwGlobalError from '../../../../app/utils/throwGlobalError';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { HttpStatus } from '../../../../helpers/request';
 import { hasGlobalPermission } from '../../../../helpers/users';
-import { getAppState, Store } from '../../../../store/rootReducer';
 import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
-import { EditionKey } from '../../../../types/editions';
 import { Permissions } from '../../../../types/permissions';
 import { Component, CurrentUser } from '../../../../types/types';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 type FormData = Omit<ProjectAlmBindingResponse, 'alm'>;
-
-interface StateProps {
-  monorepoEnabled: boolean;
-}
 
 interface Props {
   component: Component;
@@ -81,7 +74,7 @@ const REQUIRED_FIELDS_BY_ALM: {
   [AlmKeys.GitLab]: ['repository']
 };
 
-export class PRDecorationBinding extends React.PureComponent<Props & StateProps, State> {
+export class PRDecorationBinding extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     formData: { key: '', monorepo: false },
@@ -343,7 +336,7 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
   };
 
   render() {
-    const { currentUser, monorepoEnabled } = this.props;
+    const { currentUser } = this.props;
 
     return (
       <PRDecorationBindingRenderer
@@ -351,7 +344,6 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
         onReset={this.handleReset}
         onSubmit={this.handleSubmit}
         onCheckConfiguration={this.handleCheckConfiguration}
-        monorepoEnabled={monorepoEnabled}
         isSysAdmin={hasGlobalPermission(currentUser, Permissions.Admin)}
         {...this.state}
       />
@@ -359,11 +351,4 @@ export class PRDecorationBinding extends React.PureComponent<Props & StateProps,
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  // This feature trigger will be replaced when SONAR-14349 is implemented
-  monorepoEnabled: [EditionKey.enterprise, EditionKey.datacenter].includes(
-    getAppState(state).edition as EditionKey
-  )
-});
-
-export default connect(mapStateToProps)(withCurrentUser(PRDecorationBinding));
+export default withCurrentUser(PRDecorationBinding);

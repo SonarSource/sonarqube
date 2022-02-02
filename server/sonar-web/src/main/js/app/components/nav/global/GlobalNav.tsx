@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import NavBar from '../../../../components/ui/NavBar';
-import { getAppState, getCurrentUser, Store } from '../../../../store/rootReducer';
-import { AppState, CurrentUser } from '../../../../types/types';
+import { getCurrentUser, Store } from '../../../../store/rootReducer';
+import { CurrentUser } from '../../../../types/types';
 import { rawSizes } from '../../../theme';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import Search from '../../search/Search';
@@ -31,18 +31,17 @@ import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUser from './GlobalNavUser';
 
 export interface GlobalNavProps {
-  appState: Pick<AppState, 'canAdmin' | 'globalPages' | 'qualifiers'>;
   currentUser: CurrentUser;
   location: { pathname: string };
 }
 
 export function GlobalNav(props: GlobalNavProps) {
-  const { appState, currentUser, location } = props;
+  const { currentUser, location } = props;
   return (
     <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} id="global-navigation">
       <GlobalNavBranding />
 
-      <GlobalNavMenu appState={appState} currentUser={currentUser} location={location} />
+      <GlobalNavMenu currentUser={currentUser} location={location} />
 
       <ul className="global-navbar-menu global-navbar-menu-right">
         <EmbedDocsPopupHelper />
@@ -55,8 +54,7 @@ export function GlobalNav(props: GlobalNavProps) {
 
 const mapStateToProps = (state: Store) => {
   return {
-    currentUser: getCurrentUser(state),
-    appState: getAppState(state)
+    currentUser: getCurrentUser(state)
   };
 };
 

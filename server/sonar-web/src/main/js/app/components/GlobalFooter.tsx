@@ -24,26 +24,21 @@ import { Alert } from '../../components/ui/Alert';
 import { getEdition } from '../../helpers/editions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
+import { AppState } from '../../types/types';
+import withAppStateContext from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
 
-interface Props {
+export interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;
-  productionDatabase: boolean;
-  sonarqubeEdition?: EditionKey;
-  sonarqubeVersion?: string;
+  appState?: AppState;
 }
 
-export default function GlobalFooter({
-  hideLoggedInInfo,
-  productionDatabase,
-  sonarqubeEdition,
-  sonarqubeVersion
-}: Props) {
-  const currentEdition = sonarqubeEdition && getEdition(sonarqubeEdition);
+export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) {
+  const currentEdition = appState?.edition && getEdition(appState.edition as EditionKey);
 
   return (
     <div className="page-footer page-container" id="footer">
-      {productionDatabase === false && (
+      {appState?.productionDatabase === false && (
         <Alert display="inline" id="evaluation_warning" variant="warning">
           <p className="big">{translate('footer.production_database_warning')}</p>
           <p>
@@ -58,9 +53,9 @@ export default function GlobalFooter({
         {!hideLoggedInInfo && currentEdition && (
           <li className="page-footer-menu-item">{currentEdition.name}</li>
         )}
-        {!hideLoggedInInfo && sonarqubeVersion && (
+        {!hideLoggedInInfo && appState?.version && (
           <li className="page-footer-menu-item">
-            {translateWithParameters('footer.version_x', sonarqubeVersion)}
+            {translateWithParameters('footer.version_x', appState.version)}
           </li>
         )}
         <li className="page-footer-menu-item">
@@ -99,3 +94,5 @@ export default function GlobalFooter({
     </div>
   );
 }
+
+export default withAppStateContext(GlobalFooter);

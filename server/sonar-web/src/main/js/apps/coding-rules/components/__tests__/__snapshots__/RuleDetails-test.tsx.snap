@@ -156,7 +156,7 @@ exports[`should render correctly: loaded 1`] = `
         }
       }
     />
-    <Connect(withAppState(RuleDetailsIssues))
+    <withAppStateContext(RuleDetailsIssues)
       ruleDetails={
         Object {
           "createdAt": "2014-12-16T17:26:54+0100",

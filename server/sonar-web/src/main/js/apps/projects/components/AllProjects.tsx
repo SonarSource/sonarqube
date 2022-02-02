@@ -21,6 +21,7 @@ import { omitBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -33,7 +34,7 @@ import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { get, save } from '../../../helpers/storage';
 import { isLoggedIn } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
-import { CurrentUser, RawQuery } from '../../../types/types';
+import { AppState, CurrentUser, RawQuery } from '../../../types/types';
 import { hasFilterParams, hasViewParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
@@ -46,7 +47,7 @@ interface Props {
   currentUser: CurrentUser;
   isFavorite: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
-  qualifiers: ComponentQualifier[];
+  appState: AppState;
   router: Pick<Router, 'push' | 'replace'>;
 }
 
@@ -226,7 +227,9 @@ export class AllProjects extends React.PureComponent<Props, State> {
               />
 
               <PageSidebar
-                applicationsEnabled={this.props.qualifiers.includes(ComponentQualifier.Application)}
+                applicationsEnabled={this.props.appState.qualifiers.includes(
+                  ComponentQualifier.Application
+                )}
                 facets={this.state.facets}
                 onClearAll={this.handleClearAll}
                 onQueryChange={this.updateLocationQuery}
@@ -313,4 +316,4 @@ export class AllProjects extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(AllProjects);
+export default withRouter(withAppStateContext(AllProjects));

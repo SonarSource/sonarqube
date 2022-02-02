@@ -84,7 +84,6 @@ export interface AnalysisEvent {
 }
 
 export interface AppState {
-  adminPages?: Extension[];
   authenticationError?: boolean;
   authorizationError?: boolean;
   branchesEnabled?: boolean;

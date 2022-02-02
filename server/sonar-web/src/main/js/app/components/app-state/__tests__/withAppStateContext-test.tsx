@@ -17,23 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import NavBar from '../../components/ui/NavBar';
-import { rawSizes } from '../theme';
-import GlobalFooter from './GlobalFooter';
+import { mockAppState } from '../../../../helpers/testMocks';
+import { AppState } from '../../../../types/types';
+import withAppStateContext from '../withAppStateContext';
 
-interface Props {
-  children?: React.ReactNode;
+const appState = mockAppState();
+
+jest.mock('../AppStateContext', () => {
+  return {
+    AppStateContext: {
+      Consumer: ({ children }: { children: (props: {}) => React.ReactNode }) => {
+        return children(appState);
+      }
+    }
+  };
+});
+
+class Wrapped extends React.Component<{ appState: AppState }> {
+  render() {
+    return <div />;
+  }
 }
 
-export default function SimpleContainer({ children }: Props) {
-  return (
-    <div className="global-container">
-      <div className="page-wrapper" id="container">
-        <NavBar className="navbar-global" height={rawSizes.globalNavHeightRaw} />
-        {children}
-      </div>
-      <GlobalFooter />
-    </div>
-  );
-}
+const UnderTest = withAppStateContext(Wrapped);
+
+it('should inject appState', () => {
+  const wrapper = shallow(<UnderTest />);
+  expect(wrapper.dive().type()).toBe(Wrapped);
+  expect(wrapper.dive<Wrapped>().props().appState).toEqual(appState);
+});

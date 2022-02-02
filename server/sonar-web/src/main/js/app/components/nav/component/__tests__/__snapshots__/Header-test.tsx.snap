@@ -49,7 +49,7 @@ exports[`should render correctly 1`] = `
       favorite={false}
       qualifier="TRK"
     />
-    <Connect(withAppState(Component))
+    <withAppStateContext(Component)
       branchLikes={
         Array [
           Object {

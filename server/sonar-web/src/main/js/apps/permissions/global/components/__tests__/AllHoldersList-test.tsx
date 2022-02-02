@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
+import { mockAppState } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { AllHoldersList } from '../AllHoldersList';
 
@@ -29,12 +30,16 @@ it('should render correctly', () => {
   expect(shallowRender({ filter: 'groups' })).toMatchSnapshot('filter groups');
   expect(
     shallowRender({
-      appState: { qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application] }
+      appState: mockAppState({
+        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application]
+      })
     })
   ).toMatchSnapshot('applications available');
   expect(
     shallowRender({
-      appState: { qualifiers: [ComponentQualifier.Project, ComponentQualifier.Portfolio] }
+      appState: mockAppState({
+        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Portfolio]
+      })
     })
   ).toMatchSnapshot('portfolios available');
 });
@@ -74,7 +79,7 @@ it('should correctly toggle group permissions', () => {
 function shallowRender(props: Partial<AllHoldersList['props']> = {}) {
   return shallow<AllHoldersList>(
     <AllHoldersList
-      appState={{ qualifiers: [ComponentQualifier.Project] }}
+      appState={mockAppState({ qualifiers: [ComponentQualifier.Project] })}
       filter=""
       grantPermissionToGroup={jest.fn()}
       grantPermissionToUser={jest.fn()}

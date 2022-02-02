@@ -22,10 +22,9 @@ import * as React from 'react';
 import { getComponents } from '../../../api/components';
 import { changeProjectDefaultVisibility } from '../../../api/permissions';
 import { getValues } from '../../../api/settings';
-import { mockAppState, mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { App, Props } from '../App';
-import Search from '../Search';
 
 jest.mock('lodash', () => {
   const lodash = jest.requireActual('lodash');
@@ -65,7 +64,7 @@ it('fetches all projects on mount', async () => {
 
 it('selects provisioned', () => {
   const wrapper = shallowRender();
-  wrapper.find('Search').prop<Function>('onProvisionedChanged')(true);
+  wrapper.find('withAppStateContext(Search)').prop<Function>('onProvisionedChanged')(true);
   expect(getComponents).lastCalledWith({
     ...defaultSearchParameters,
     onProvisionedOnly: true,
@@ -76,22 +75,21 @@ it('selects provisioned', () => {
 it('changes qualifier and resets provisioned', () => {
   const wrapper = shallowRender();
   wrapper.setState({ provisioned: true });
-  wrapper.find('Search').prop<Function>('onQualifierChanged')('VW');
+  wrapper.find('withAppStateContext(Search)').prop<Function>('onQualifierChanged')('VW');
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, qualifiers: 'VW' });
 });
 
 it('searches', () => {
   const wrapper = shallowRender();
-  wrapper.find('Search').prop<Function>('onSearch')('foo');
+  wrapper.find('withAppStateContext(Search)').prop<Function>('onSearch')('foo');
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, q: 'foo', qualifiers: 'TRK' });
 });
 
 it('should handle date filtering', () => {
   const wrapper = shallowRender();
-  wrapper
-    .find(Search)
-    .props()
-    .onDateChanged(new Date('2019-11-14T06:55:02.663Z'));
+  wrapper.find('withAppStateContext(Search)').prop<Function>('onDateChanged')(
+    '2019-11-14T06:55:02.663Z'
+  );
   expect(getComponents).toHaveBeenCalledWith({
     ...defaultSearchParameters,
     qualifiers: 'TRK',
@@ -138,10 +136,10 @@ it('selects and deselects projects', async () => {
   wrapper.find('Projects').prop<Function>('onProjectDeselected')('foo');
   expect(wrapper.state('selection')).toEqual(['bar']);
 
-  wrapper.find('Search').prop<Function>('onAllDeselected')();
+  wrapper.find('withAppStateContext(Search)').prop<Function>('onAllDeselected')();
   expect(wrapper.state('selection')).toEqual([]);
 
-  wrapper.find('Search').prop<Function>('onAllSelected')();
+  wrapper.find('withAppStateContext(Search)').prop<Function>('onAllSelected')();
   expect(wrapper.state('selection')).toEqual(['foo', 'bar']);
 });
 
@@ -165,7 +163,6 @@ it('creates project', () => {
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
   return shallow<App>(
     <App
-      appState={mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })}
       currentUser={mockLoggedInUser({ login: 'foo', permissions: { global: ['provisioning'] } })}
       {...props}
     />

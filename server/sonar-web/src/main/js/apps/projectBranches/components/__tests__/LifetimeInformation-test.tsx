@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getValues } from '../../../../api/settings';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { SettingsKey } from '../../../../types/settings';
 import { LifetimeInformation } from '../LifetimeInformation';
@@ -41,5 +42,7 @@ it('should render correctly', async () => {
 });
 
 function shallowRender(props: Partial<LifetimeInformation['props']> = {}) {
-  return shallow<LifetimeInformation>(<LifetimeInformation canAdmin={true} {...props} />);
+  return shallow<LifetimeInformation>(
+    <LifetimeInformation appState={mockAppState({ canAdmin: true })} {...props} />
+  );
 }

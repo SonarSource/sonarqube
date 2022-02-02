@@ -19,15 +19,16 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { translate } from '../../../helpers/l10n';
-import { getAppState, getCurrentUserSetting, Store } from '../../../store/rootReducer';
+import { getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
 import {
   AlmKeys,
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
-import { Component, CurrentUserSetting } from '../../../types/types';
+import { AppState, Component, CurrentUserSetting } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
@@ -39,7 +40,7 @@ import WebhookStep from './WebhookStep';
 export interface JenkinsTutorialProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
-  branchesEnabled: boolean;
+  appState: AppState;
   component: Component;
   projectBinding?: ProjectAlmBindingResponse;
   setCurrentUserSetting: (setting: CurrentUserSetting) => void;
@@ -62,7 +63,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   const {
     almBinding,
     baseUrl,
-    branchesEnabled,
+    appState,
     component,
     projectBinding,
     skipPreReqs,
@@ -101,7 +102,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
         <>
           <PreRequisitesStep
             alm={alm}
-            branchesEnabled={branchesEnabled}
+            branchesEnabled={!!appState.branchesEnabled}
             finished={step > Steps.PreRequisites}
             onDone={() => setStep(Steps.MultiBranchPipeline)}
             onOpen={() => setStep(Steps.PreRequisites)}
@@ -115,7 +116,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
             skipNextTime={skipPreReqs}
           />
 
-          {branchesEnabled ? (
+          {appState.branchesEnabled ? (
             <MultiBranchPipelineStep
               alm={alm}
               almBinding={almBinding}
@@ -138,7 +139,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
           <WebhookStep
             alm={alm}
             almBinding={almBinding}
-            branchesEnabled={branchesEnabled}
+            branchesEnabled={!!appState.branchesEnabled}
             finished={step > Steps.Webhook}
             onDone={() => setStep(Steps.Jenkinsfile)}
             onOpen={() => setStep(Steps.Webhook)}
@@ -167,15 +168,12 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   );
 }
 
-const mapStateToProps = (
-  state: Store
-): Pick<JenkinsTutorialProps, 'branchesEnabled' | 'skipPreReqs'> => {
+const mapStateToProps = (state: Store): Pick<JenkinsTutorialProps, 'skipPreReqs'> => {
   return {
-    branchesEnabled: Boolean(getAppState(state).branchesEnabled),
     skipPreReqs: getCurrentUserSetting(state, USER_SETTING_SKIP_BITBUCKET_PREREQS) === 'true'
   };
 };
 
 const mapDispatchToProps = { setCurrentUserSetting };
 
-export default connect(mapStateToProps, mapDispatchToProps)(JenkinsTutorial);
+export default connect(mapStateToProps, mapDispatchToProps)(withAppStateContext(JenkinsTutorial));

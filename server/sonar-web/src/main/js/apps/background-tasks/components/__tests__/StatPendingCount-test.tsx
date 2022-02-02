@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { Props, StatPendingCount } from '../StatPendingCount';
 
 it('should render correctly', () => {
@@ -36,7 +37,7 @@ it('should not show cancel pending button', () => {
       .exists()
   ).toBe(false);
   expect(
-    shallowRender({ isSystemAdmin: false })
+    shallowRender({ appState: mockAppState({ canAdmin: false }) })
       .find('ConfirmButton')
       .exists()
   ).toBe(false);
@@ -53,7 +54,7 @@ it('should trigger cancelling pending', () => {
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <StatPendingCount
-      isSystemAdmin={true}
+      appState={mockAppState({ canAdmin: true })}
       onCancelAllPending={jest.fn()}
       pendingCount={5}
       {...props}

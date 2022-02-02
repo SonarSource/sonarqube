@@ -19,24 +19,23 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockLocation } from '../../../helpers/testMocks';
-import { AdminContainer } from '../AdminContainer';
+import { mockAppState, mockLocation } from '../../../helpers/testMocks';
+import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<AdminContainer['props']> = {}) {
+function shallowRender(props: Partial<AdminContainerProps> = {}) {
   return shallow(
     <AdminContainer
-      appState={{
-        adminPages: [{ key: 'foo', name: 'Foo' }],
+      appState={mockAppState({
         canAdmin: true
-      }}
+      })}
       location={mockLocation()}
-      setAdminPages={jest.fn()}
-      {...props}
-    />
+      {...props}>
+      <div />
+    </AdminContainer>
   );
 }

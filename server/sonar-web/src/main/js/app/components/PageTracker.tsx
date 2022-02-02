@@ -25,12 +25,14 @@ import { gtm } from '../../helpers/analytics';
 import { installScript } from '../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensionsHandler';
 import { getInstance } from '../../helpers/system';
-import { getAppState, getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { AppState } from '../../types/types';
+import withAppStateContext from './app-state/withAppStateContext';
 
 interface Props {
   location: Location;
   trackingIdGTM?: string;
-  webAnalytics?: string;
+  appState: AppState;
 }
 
 interface State {
@@ -41,10 +43,10 @@ export class PageTracker extends React.Component<Props, State> {
   state: State = {};
 
   componentDidMount() {
-    const { trackingIdGTM, webAnalytics } = this.props;
+    const { trackingIdGTM, appState } = this.props;
 
-    if (webAnalytics && !getWebAnalyticsPageHandlerFromCache()) {
-      installScript(webAnalytics, 'head');
+    if (appState.webAnalyticsJsPath && !getWebAnalyticsPageHandlerFromCache()) {
+      installScript(appState.webAnalyticsJsPath, 'head');
     }
 
     if (trackingIdGTM) {
@@ -69,13 +71,15 @@ export class PageTracker extends React.Component<Props, State> {
   };
 
   render() {
-    const { trackingIdGTM, webAnalytics } = this.props;
+    const { trackingIdGTM, appState } = this.props;
 
     return (
       <Helmet
         defaultTitle={getInstance()}
         defer={false}
-        onChangeClientState={trackingIdGTM || webAnalytics ? this.trackPage : undefined}>
+        onChangeClientState={
+          trackingIdGTM || appState.webAnalyticsJsPath ? this.trackPage : undefined
+        }>
         {this.props.children}
       </Helmet>
     );
@@ -85,9 +89,8 @@ export class PageTracker extends React.Component<Props, State> {
 const mapStateToProps = (state: Store) => {
   const trackingIdGTM = getGlobalSettingValue(state, 'sonar.analytics.gtm.trackingId');
   return {
-    trackingIdGTM: trackingIdGTM && trackingIdGTM.value,
-    webAnalytics: getAppState(state).webAnalyticsJsPath
+    trackingIdGTM: trackingIdGTM && trackingIdGTM.value
   };
 };
 
-export default withRouter(connect(mapStateToProps)(PageTracker));
+export default withRouter(connect(mapStateToProps)(withAppStateContext(PageTracker)));

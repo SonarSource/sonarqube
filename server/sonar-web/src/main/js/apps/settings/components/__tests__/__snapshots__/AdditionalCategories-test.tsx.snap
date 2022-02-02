@@ -63,7 +63,7 @@ exports[`should render additional categories component correctly 3`] = `
 `;
 
 exports[`should render additional categories component correctly 4`] = `
-<withRouter(Connect(withAppState(AlmIntegration)))
+<withRouter(withAppStateContext(AlmIntegration))
   categories={Array []}
   component={
     Object {
@@ -93,7 +93,7 @@ exports[`should render additional categories component correctly 4`] = `
 `;
 
 exports[`should render additional categories component correctly 5`] = `
-<Connect(Connect(withCurrentUser(PRDecorationBinding)))
+<Connect(withCurrentUser(PRDecorationBinding))
   component={
     Object {
       "breadcrumbs": Array [],

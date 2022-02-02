@@ -19,13 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import GlobalNavMenu from '../GlobalNavMenu';
+import { mockAppState } from '../../../../../helpers/testMocks';
+import { GlobalNavMenu } from '../GlobalNavMenu';
 
 it('should work with extensions', () => {
-  const appState = {
+  const appState = mockAppState({
     globalPages: [{ key: 'foo', name: 'Foo' }],
     qualifiers: ['TRK']
-  };
+  });
   const currentUser = {
     isLoggedIn: false
   };
@@ -36,11 +37,11 @@ it('should work with extensions', () => {
 });
 
 it('should show administration menu if the user has the rights', () => {
-  const appState = {
+  const appState = mockAppState({
     canAdmin: true,
     globalPages: [],
     qualifiers: ['TRK']
-  };
+  });
   const currentUser = {
     isLoggedIn: false
   };

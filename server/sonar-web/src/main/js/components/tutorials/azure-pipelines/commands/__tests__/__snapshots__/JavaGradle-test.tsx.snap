@@ -42,7 +42,7 @@ exports[`should render correctly 1`] = `
         />
       </li>
     </ul>
-    <Connect(withAppState(PublishSteps)) />
+    <withAppStateContext(PublishSteps) />
   </ol>
 </Fragment>
 `;

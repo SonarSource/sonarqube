@@ -487,7 +487,7 @@ exports[`should render correctly: gitlab tutorial 1`] = `
 
 exports[`should render correctly: jenkins tutorial 1`] = `
 <Fragment>
-  <Connect(JenkinsTutorial)
+  <Connect(withAppStateContext(JenkinsTutorial))
     almBinding={
       Object {
         "alm": "github",

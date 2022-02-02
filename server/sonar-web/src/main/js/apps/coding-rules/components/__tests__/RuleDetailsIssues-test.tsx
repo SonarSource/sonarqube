@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getFacet } from '../../../../api/issues';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { RuleDetailsIssues } from '../RuleDetailsIssues';
 
@@ -59,7 +60,7 @@ it('should fetch issues and render', async () => {
 function shallowRender(props: Partial<RuleDetailsIssues['props']> = {}) {
   return shallow(
     <RuleDetailsIssues
-      appState={{ branchesEnabled: false }}
+      appState={mockAppState({ branchesEnabled: false })}
       ruleDetails={{ key: 'foo', type: 'BUG' }}
       {...props}
     />

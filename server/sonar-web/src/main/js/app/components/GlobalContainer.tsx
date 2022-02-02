@@ -22,7 +22,7 @@ import Workspace from '../../components/workspace/Workspace';
 import A11yProvider from './a11y/A11yProvider';
 import A11ySkipLinks from './a11y/A11ySkipLinks';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
-import GlobalFooterContainer from './GlobalFooterContainer';
+import GlobalFooter from './GlobalFooter';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
@@ -41,13 +41,12 @@ export interface Props {
 
 export default function GlobalContainer(props: Props) {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
-  const { footer = <GlobalFooterContainer /> } = props;
+  const { footer = <GlobalFooter /> } = props;
   return (
     <SuggestionsProvider>
       <A11yProvider>
         <StartupModal>
           <A11ySkipLinks />
-
           <div className="global-container">
             <div className="page-wrapper" id="container">
               <div className="page-container">

@@ -172,7 +172,7 @@ exports[`should render correctly: when there are configuration errors (admin use
         />
       </div>
     </div>
-    <AlmSpecificForm
+    <withAppStateContext(AlmSpecificForm)
       alm="github"
       formData={
         Object {
@@ -204,7 +204,6 @@ exports[`should render correctly: when there are configuration errors (admin use
           },
         ]
       }
-      monorepoEnabled={false}
       onFieldChange={[MockFunction]}
     />
     <div
@@ -743,7 +742,7 @@ exports[`should render correctly: with a valid and saved form 1`] = `
         />
       </div>
     </div>
-    <AlmSpecificForm
+    <withAppStateContext(AlmSpecificForm)
       alm="github"
       formData={
         Object {
@@ -775,7 +774,6 @@ exports[`should render correctly: with a valid and saved form 1`] = `
           },
         ]
       }
-      monorepoEnabled={false}
       onFieldChange={[MockFunction]}
     />
     <div

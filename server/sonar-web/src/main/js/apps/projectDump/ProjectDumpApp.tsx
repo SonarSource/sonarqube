@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import throwGlobalError from '../../app/utils/throwGlobalError';
-import { withAppState } from '../../components/hoc/withAppState';
 import { translate } from '../../helpers/l10n';
 import { DumpStatus, DumpTask } from '../../types/project-dump';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
@@ -33,7 +33,7 @@ import './styles.css';
 const POLL_INTERNAL = 5000;
 
 interface Props {
-  appState: Pick<AppState, 'projectImportFeatureEnabled'>;
+  appState: AppState;
   component: Component;
 }
 
@@ -198,4 +198,4 @@ export class ProjectDumpApp extends React.Component<Props, State> {
   }
 }
 
-export default withAppState(ProjectDumpApp);
+export default withAppStateContext(ProjectDumpApp);

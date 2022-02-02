@@ -154,7 +154,6 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
       onSubmit={jest.fn()}
       updating={false}
       successfullyUpdated={false}
-      monorepoEnabled={false}
       checkingConfiguration={false}
       onCheckConfiguration={jest.fn()}
       isSysAdmin={false}

@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { withAppState } from '../../../components/hoc/withAppState';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
@@ -31,7 +31,7 @@ export interface CreateProjectModeSelectionProps {
   almCounts: {
     [k in AlmKeys]: number;
   };
-  appState: Pick<AppState, 'canAdmin'>;
+  appState: AppState;
   loadingBindings: boolean;
   onSelectMode: (mode: CreateProjectModes) => void;
   onConfigMode: (mode: AlmKeys) => void;
@@ -166,4 +166,4 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
   );
 }
 
-export default withAppState(CreateProjectModeSelection);
+export default withAppStateContext(CreateProjectModeSelection);

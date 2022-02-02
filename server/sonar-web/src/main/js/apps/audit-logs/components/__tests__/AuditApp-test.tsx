@@ -21,6 +21,7 @@ import { subDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { AdminPageExtension } from '../../../../types/extension';
 import { HousekeepingPolicy, RangeOption } from '../../utils';
 import { AuditApp } from '../AuditApp';
 import AuditAppRenderer from '../AuditAppRenderer';
@@ -31,7 +32,7 @@ it('should render correctly', () => {
 
 it('should do nothing if governance is not available', async () => {
   const fetchValues = jest.fn();
-  const wrapper = shallowRender({ fetchValues, hasGovernanceExtension: false });
+  const wrapper = shallowRender({ fetchValues, adminPages: [] });
   await waitAndUpdate(wrapper);
 
   expect(wrapper.type()).toBeNull();
@@ -80,7 +81,7 @@ function shallowRender(props: Partial<AuditApp['props']> = {}) {
     <AuditApp
       auditHousekeepingPolicy={HousekeepingPolicy.Monthly}
       fetchValues={jest.fn()}
-      hasGovernanceExtension={true}
+      adminPages={[{ key: AdminPageExtension.GovernanceConsole, name: 'name' }]}
       {...props}
     />
   );

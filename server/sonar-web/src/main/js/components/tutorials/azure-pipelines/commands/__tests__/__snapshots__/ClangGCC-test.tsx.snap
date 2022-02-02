@@ -117,7 +117,7 @@ unzip build-wrapper.zip"
         translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.ccpp"
       />
     </li>
-    <Connect(withAppState(PublishSteps)) />
+    <withAppStateContext(PublishSteps) />
   </ol>
 </Fragment>
 `;
@@ -239,7 +239,7 @@ unzip build-wrapper.zip"
         translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.ccpp"
       />
     </li>
-    <Connect(withAppState(PublishSteps)) />
+    <withAppStateContext(PublishSteps) />
   </ol>
 </Fragment>
 `;
@@ -361,7 +361,7 @@ Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'"
         translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.ccpp"
       />
     </li>
-    <Connect(withAppState(PublishSteps)) />
+    <withAppStateContext(PublishSteps) />
   </ol>
 </Fragment>
 `;

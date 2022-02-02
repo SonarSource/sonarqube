@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -28,6 +29,7 @@ import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import {
+  AppState,
   Component,
   NewCodePeriod,
   NewCodePeriodSettingType,
@@ -42,9 +44,8 @@ import ProjectBaselineSelector from './ProjectBaselineSelector';
 interface Props {
   branchLike: Branch;
   branchLikes: BranchLike[];
-  branchesEnabled?: boolean;
-  canAdmin?: boolean;
   component: Component;
+  appState: AppState;
 }
 
 interface State {
@@ -68,7 +69,7 @@ const DEFAULT_GENERAL_SETTING: { type: NewCodePeriodSettingType } = {
   type: 'PREVIOUS_VERSION'
 };
 
-export default class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     branchList: [],
@@ -127,14 +128,14 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   fetchLeakPeriodSetting() {
-    const { branchLike, branchesEnabled, component } = this.props;
+    const { branchLike, appState, component } = this.props;
 
     this.setState({ loading: true });
 
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: branchesEnabled ? undefined : branchLike.name,
+        branch: appState.branchesEnabled ? undefined : branchLike.name,
         project: component.key
       })
     ]).then(
@@ -235,7 +236,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchesEnabled, canAdmin, component, branchLike } = this.props;
+    const { appState, component, branchLike } = this.props;
     const {
       analysis,
       branchList,
@@ -255,19 +256,19 @@ export default class App extends React.PureComponent<Props, State> {
       <>
         <Suggestions suggestions="project_baseline" />
         <div className="page page-limited">
-          <AppHeader canAdmin={!!canAdmin} />
+          <AppHeader canAdmin={!!appState.canAdmin} />
           {loading ? (
             <DeferredSpinner />
           ) : (
             <div className="panel-white project-baseline">
-              {branchesEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
+              {appState.branchesEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 
               {generalSetting && overrideGeneralSetting !== undefined && (
                 <ProjectBaselineSelector
                   analysis={analysis}
                   branch={branchLike}
                   branchList={branchList}
-                  branchesEnabled={branchesEnabled}
+                  branchesEnabled={appState.branchesEnabled}
                   component={component.key}
                   currentSetting={currentSetting}
                   currentSettingValue={currentSettingValue}
@@ -293,7 +294,7 @@ export default class App extends React.PureComponent<Props, State> {
                   {translate('settings.state.saved')}
                 </span>
               </div>
-              {generalSetting && branchesEnabled && (
+              {generalSetting && appState.branchesEnabled && (
                 <div className="huge-spacer-top branch-baseline-selector">
                   <hr />
                   <h2>{translate('project_baseline.configure_branches')}</h2>
@@ -318,3 +319,5 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 }
+
+export default withAppStateContext(App);

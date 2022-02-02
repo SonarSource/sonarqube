@@ -24,7 +24,6 @@ import * as React from 'react';
 import { Link, LinkProps } from 'react-router';
 import Dropdown from '../../../../components/controls/Dropdown';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { withAppState } from '../../../../components/hoc/withAppState';
 import BulletListIcon from '../../../../components/icons/BulletListIcon';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import NavBarTabs from '../../../../components/ui/NavBarTabs';
@@ -34,6 +33,7 @@ import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
 import { AppState, Component, Extension } from '../../../../types/types';
+import withAppStateContext from '../../app-state/withAppStateContext';
 import './Menu.css';
 
 const SETTINGS_URLS = [
@@ -53,7 +53,7 @@ const SETTINGS_URLS = [
 ];
 
 interface Props {
-  appState: Pick<AppState, 'branchesEnabled'>;
+  appState: AppState;
   branchLike: BranchLike | undefined;
   branchLikes: BranchLike[] | undefined;
   component: Component;
@@ -620,4 +620,4 @@ export class Menu extends React.PureComponent<Props> {
   }
 }
 
-export default withAppState(Menu);
+export default withAppStateContext(Menu);

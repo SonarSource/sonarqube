@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <SuggestionsProvider>
   <A11yProvider>
-    <Connect(withRouter(StartupModal))>
+    <Connect(withRouter(withAppStateContext(StartupModal)))>
       <A11ySkipLinks />
       <div
         className="global-container"
@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
             className="page-container"
           >
             <Workspace>
-              <Connect(withAppState(IndexationContextProvider))>
+              <withAppStateContext(IndexationContextProvider)>
                 <LanguageContextProvider>
                   <MetricContextProvider>
                     <Connect(GlobalNav)
@@ -34,20 +34,20 @@ exports[`should render correctly 1`] = `
                     />
                     <Connect(GlobalMessages) />
                     <Connect(withCurrentUser(withIndexationContext(IndexationNotification))) />
-                    <Connect(withCurrentUser(Connect(withAppState(UpdateNotification))))
+                    <Connect(withCurrentUser(withAppStateContext(UpdateNotification)))
                       dismissable={true}
                     />
                     <ChildComponent />
                   </MetricContextProvider>
                 </LanguageContextProvider>
-              </Connect(withAppState(IndexationContextProvider))>
+              </withAppStateContext(IndexationContextProvider)>
             </Workspace>
           </div>
           <Connect(Connect(withCurrentUser(PromotionNotification))) />
         </div>
-        <Connect(GlobalFooter) />
+        <withAppStateContext(GlobalFooter) />
       </div>
-    </Connect(withRouter(StartupModal))>
+    </Connect(withRouter(withAppStateContext(StartupModal)))>
   </A11yProvider>
 </SuggestionsProvider>
 `;

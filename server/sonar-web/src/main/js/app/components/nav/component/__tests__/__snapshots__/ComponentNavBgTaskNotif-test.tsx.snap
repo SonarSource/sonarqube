@@ -22,7 +22,7 @@ exports[`renders correctly: default 1`] = `
 `;
 
 exports[`renders correctly: license issue 1`] = `
-<Connect(withAppState(ComponentNavLicenseNotif))
+<withAppStateContext(ComponentNavLicenseNotif)
   currentTask={
     Object {
       "analysisId": "x123",

@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get, save } from '../../../../helpers/storage';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { Dict } from '../../../../types/types';
 import { AllProjects, LS_PROJECTS_SORT, LS_PROJECTS_VIEW } from '../AllProjects';
@@ -174,7 +175,9 @@ function shallowRender(
       currentUser={{ isLoggedIn: true }}
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
-      qualifiers={[ComponentQualifier.Project, ComponentQualifier.Application]}
+      appState={mockAppState({
+        qualifiers: [ComponentQualifier.Project, ComponentQualifier.Application]
+      })}
       router={{ push, replace }}
       {...props}
     />

@@ -19,8 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockAppState } from '../../../helpers/testMocks';
 import { EditionKey } from '../../../types/editions';
-import GlobalFooter from '../GlobalFooter';
+import { GlobalFooter, GlobalFooterProps } from '../GlobalFooter';
 
 jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
 
@@ -30,22 +31,34 @@ it('should render the only logged in information', () => {
 
 it('should not render the only logged in information', () => {
   expect(
-    getWrapper({ hideLoggedInInfo: true, sonarqubeVersion: '6.4-SNAPSHOT' })
+    getWrapper({
+      hideLoggedInInfo: true,
+      appState: mockAppState({ version: '6.4-SNAPSHOT' })
+    })
   ).toMatchSnapshot();
 });
 
 it('should show the db warning message', () => {
-  expect(getWrapper({ productionDatabase: false }).find('Alert')).toMatchSnapshot();
+  expect(
+    getWrapper({
+      appState: mockAppState({ productionDatabase: false, edition: EditionKey.community })
+    }).find('Alert')
+  ).toMatchSnapshot();
 });
 
 it('should display the sq version', () => {
   expect(
-    getWrapper({ sonarqubeEdition: EditionKey.enterprise, sonarqubeVersion: '6.4-SNAPSHOT' })
+    getWrapper({
+      appState: mockAppState({ edition: EditionKey.enterprise, version: '6.4-SNAPSHOT' })
+    })
   ).toMatchSnapshot();
 });
 
-function getWrapper(props = {}) {
+function getWrapper(props?: GlobalFooterProps) {
   return shallow(
-    <GlobalFooter productionDatabase={true} sonarqubeEdition={EditionKey.community} {...props} />
+    <GlobalFooter
+      appState={mockAppState({ productionDatabase: true, edition: EditionKey.community })}
+      {...props}
+    />
   );
 }

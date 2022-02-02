@@ -17,21 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../store/rootReducer';
-import { EditionKey } from '../../types/editions';
-import GlobalFooter from './GlobalFooter';
 
-interface StateProps {
-  productionDatabase: boolean;
-  sonarqubeEdition?: EditionKey;
-  sonarqubeVersion?: string;
+import * as React from 'react';
+import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import { AppState } from '../../../types/types';
+import { AppStateContext } from './AppStateContext';
+
+export interface WithAppStateContextProps {
+  appState: AppState;
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  productionDatabase: getAppState(state).productionDatabase,
-  sonarqubeEdition: getAppState(state).edition as EditionKey, // TODO: Fix once AppState is no longer ambiant.
-  sonarqubeVersion: getAppState(state).version
-});
+export default function withAppStateContext<P>(
+  WrappedComponent: React.ComponentType<P & WithAppStateContextProps>
+) {
+  return class WithAppStateContext extends React.PureComponent<
+    Omit<P, keyof WithAppStateContextProps>
+  > {
+    static displayName = getWrappedDisplayName(WrappedComponent, 'withAppStateContext');
 
-export default connect(mapStateToProps)(GlobalFooter);
+    render() {
+      return (
+        <AppStateContext.Consumer>
+          {appState => <WrappedComponent appState={appState} {...(this.props as P)} />}
+        </AppStateContext.Consumer>
+      );
+    }
+  };
+}

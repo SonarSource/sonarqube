@@ -20,12 +20,11 @@
 import { Location } from 'history';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { getPermissionTemplates } from '../../../api/permissions';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { getAppState, Store } from '../../../store/rootReducer';
-import { Permission, PermissionTemplate } from '../../../types/types';
+import { AppState, Permission, PermissionTemplate } from '../../../types/types';
 import '../../permissions/styles.css';
 import { mergeDefaultsToTemplates, mergePermissionsToTemplates, sortPermissions } from '../utils';
 import Home from './Home';
@@ -33,7 +32,7 @@ import Template from './Template';
 
 interface Props {
   location: Location;
-  topQualifiers: string[];
+  appState: AppState;
 }
 
 interface State {
@@ -90,7 +89,7 @@ export class App extends React.PureComponent<Props, State> {
       <Template
         refresh={this.requestPermissions}
         template={template}
-        topQualifiers={this.props.topQualifiers}
+        topQualifiers={this.props.appState.qualifiers}
       />
     );
   }
@@ -102,7 +101,7 @@ export class App extends React.PureComponent<Props, State> {
         permissions={this.state.permissions}
         ready={this.state.ready}
         refresh={this.requestPermissions}
-        topQualifiers={this.props.topQualifiers}
+        topQualifiers={this.props.appState.qualifiers}
       />
     );
   }
@@ -121,6 +120,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({ topQualifiers: getAppState(state).qualifiers });
-
-export default connect(mapStateToProps)(App);
+export default withAppStateContext(App);

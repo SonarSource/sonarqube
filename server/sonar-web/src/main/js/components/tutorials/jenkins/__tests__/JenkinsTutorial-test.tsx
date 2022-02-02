@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockProjectBitbucketBindingResponse } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import JenkinsfileStep from '../JenkinsfileStep';
 import { JenkinsTutorial, JenkinsTutorialProps } from '../JenkinsTutorial';
@@ -31,7 +32,9 @@ import WebhookStep from '../WebhookStep';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('branches not enabled');
+  expect(shallowRender({ appState: mockAppState({ branchesEnabled: false }) })).toMatchSnapshot(
+    'branches not enabled'
+  );
   expect(shallowRender({ projectBinding: undefined })).toMatchSnapshot('no project binding');
 });
 
@@ -133,7 +136,7 @@ function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {
   return shallow<JenkinsTutorialProps>(
     <JenkinsTutorial
       baseUrl=""
-      branchesEnabled={true}
+      appState={mockAppState({ branchesEnabled: true })}
       component={mockComponent()}
       projectBinding={mockProjectBitbucketBindingResponse()}
       setCurrentUserSetting={jest.fn()}

@@ -20,15 +20,15 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { isValidLicense } from '../../../../api/marketplace';
-import { withAppState } from '../../../../components/hoc/withAppState';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task } from '../../../../types/tasks';
 import { AppState } from '../../../../types/types';
+import withAppStateContext from '../../app-state/withAppStateContext';
 
 interface Props {
-  appState: Pick<AppState, 'canAdmin'>;
+  appState: AppState;
   currentTask?: Task;
 }
 
@@ -67,7 +67,7 @@ export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> 
   };
 
   render() {
-    const { currentTask } = this.props;
+    const { currentTask, appState } = this.props;
     const { isValidLicense, loading } = this.state;
 
     if (loading || !currentTask || !currentTask.errorType) {
@@ -88,7 +88,7 @@ export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> 
     return (
       <Alert display="banner" variant="error">
         <span className="little-spacer-right">{currentTask.errorMessage}</span>
-        {this.props.appState.canAdmin ? (
+        {appState.canAdmin ? (
           <Link to="/admin/extension/license/app">
             {translate('license.component_navigation.button', currentTask.errorType)}.
           </Link>
@@ -100,4 +100,4 @@ export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> 
   }
 }
 
-export default withAppState(ComponentNavLicenseNotif);
+export default withAppStateContext(ComponentNavLicenseNotif);

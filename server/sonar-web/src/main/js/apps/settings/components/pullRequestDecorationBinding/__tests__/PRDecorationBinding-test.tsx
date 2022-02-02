@@ -420,7 +420,6 @@ function shallowRender(props: Partial<PRDecorationBinding['props']> = {}) {
     <PRDecorationBinding
       currentUser={mockCurrentUser()}
       component={mockComponent({ key: PROJECT_KEY })}
-      monorepoEnabled={false}
       {...props}
     />
   );

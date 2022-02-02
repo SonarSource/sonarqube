@@ -20,16 +20,16 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import Toggler from '../../../../../components/controls/Toggler';
-import { withAppState } from '../../../../../components/hoc/withAppState';
 import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import { AppState, Component } from '../../../../../types/types';
+import withAppStateContext from '../../../app-state/withAppStateContext';
 import './BranchLikeNavigation.css';
 import CurrentBranchLike from './CurrentBranchLike';
 import Menu from './Menu';
 
 export interface BranchLikeNavigationProps {
-  appState: Pick<AppState, 'branchesEnabled'>;
+  appState: AppState;
   branchLikes: BranchLike[];
   component: Component;
   currentBranchLike: BranchLike;
@@ -94,4 +94,4 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   );
 }
 
-export default withAppState(React.memo(BranchLikeNavigation));
+export default withAppStateContext(React.memo(BranchLikeNavigation));

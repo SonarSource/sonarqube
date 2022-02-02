@@ -73,7 +73,7 @@ exports[`renders correctly: default 1`] = `
       warnings={Array []}
     />
   </div>
-  <Connect(withAppState(Menu))
+  <withAppStateContext(Menu)
     branchLikes={Array []}
     component={
       Object {
@@ -267,7 +267,7 @@ exports[`renders correctly: has failed notification 1`] = `
       warnings={Array []}
     />
   </div>
-  <Connect(withAppState(Menu))
+  <withAppStateContext(Menu)
     branchLikes={Array []}
     component={
       Object {
@@ -447,7 +447,7 @@ exports[`renders correctly: has failed project binding 1`] = `
       warnings={Array []}
     />
   </div>
-  <Connect(withAppState(Menu))
+  <withAppStateContext(Menu)
     branchLikes={Array []}
     component={
       Object {
@@ -629,7 +629,7 @@ exports[`renders correctly: has in progress notification 1`] = `
       warnings={Array []}
     />
   </div>
-  <Connect(withAppState(Menu))
+  <withAppStateContext(Menu)
     branchLikes={Array []}
     component={
       Object {
@@ -811,7 +811,7 @@ exports[`renders correctly: has pending notification 1`] = `
       warnings={Array []}
     />
   </div>
-  <Connect(withAppState(Menu))
+  <withAppStateContext(Menu)
     branchLikes={Array []}
     component={
       Object {
@@ -966,7 +966,7 @@ exports[`renders correctly: has warnings 1`] = `
       }
     />
   </div>
-  <Connect(withAppState(Menu))
+  <withAppStateContext(Menu)
     branchLikes={Array []}
     component={
       Object {

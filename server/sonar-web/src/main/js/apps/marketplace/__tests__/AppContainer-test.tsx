@@ -19,8 +19,7 @@
  */
 import { connect } from 'react-redux';
 import { mockStore } from '../../../helpers/testMocks';
-import { getAppState, getGlobalSettingValue } from '../../../store/rootReducer';
-import { EditionKey } from '../../../types/editions';
+import { getGlobalSettingValue } from '../../../store/rootReducer';
 import '../AppContainer';
 
 jest.mock('react-redux', () => ({
@@ -29,7 +28,6 @@ jest.mock('react-redux', () => ({
 
 jest.mock('../../../store/rootReducer', () => {
   return {
-    getAppState: jest.fn(),
     getGlobalSettingValue: jest.fn()
   };
 });
@@ -37,10 +35,7 @@ jest.mock('../../../store/rootReducer', () => {
 describe('redux', () => {
   it('should correctly map state and dispatch props', () => {
     const store = mockStore();
-    const edition = EditionKey.developer;
-    const standalone = true;
     const updateCenterActive = true;
-    (getAppState as jest.Mock).mockReturnValue({ edition, standalone });
     (getGlobalSettingValue as jest.Mock).mockReturnValueOnce({
       value: `${updateCenterActive}`
     });
@@ -49,8 +44,6 @@ describe('redux', () => {
 
     const props = mapStateToProps(store);
     expect(props).toEqual({
-      currentEdition: edition,
-      standaloneMode: standalone,
       updateCenterActive
     });
 

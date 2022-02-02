@@ -27,9 +27,10 @@ import { parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
 import { isLoggedIn } from '../../helpers/users';
-import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
+import { getCurrentUser, Store } from '../../store/rootReducer';
 import { EditionKey } from '../../types/editions';
-import { CurrentUser } from '../../types/types';
+import { AppState, CurrentUser } from '../../types/types';
+import withAppStateContext from './app-state/withAppStateContext';
 
 const LicensePromptModal = lazyLoadComponent(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
@@ -37,21 +38,15 @@ const LicensePromptModal = lazyLoadComponent(
 );
 
 interface StateProps {
-  canAdmin?: boolean;
-  currentEdition?: EditionKey;
   currentUser: CurrentUser;
 }
 
-interface OwnProps {
+type Props = {
   children?: React.ReactNode;
-}
-
-interface WithRouterProps {
   location: Pick<Location, 'pathname'>;
   router: Pick<Router, 'push'>;
-}
-
-type Props = StateProps & OwnProps & WithRouterProps;
+  appState: AppState;
+};
 
 interface State {
   open?: boolean;
@@ -59,7 +54,7 @@ interface State {
 
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
-export class StartupModal extends React.PureComponent<Props, State> {
+export class StartupModal extends React.PureComponent<Props & StateProps, State> {
   state: State = {};
 
   componentDidMount() {
@@ -71,11 +66,11 @@ export class StartupModal extends React.PureComponent<Props, State> {
   };
 
   tryAutoOpenLicense = () => {
-    const { canAdmin, currentEdition, currentUser } = this.props;
+    const { appState, currentUser } = this.props;
     const hasLicenseManager = hasMessage('license.prompt.title');
-    const hasLicensedEdition = currentEdition && currentEdition !== EditionKey.community;
+    const hasLicensedEdition = appState.edition && appState.edition !== EditionKey.community;
 
-    if (canAdmin && hasLicensedEdition && isLoggedIn(currentUser) && hasLicenseManager) {
+    if (appState.canAdmin && hasLicensedEdition && isLoggedIn(currentUser) && hasLicenseManager) {
       const lastPrompt = get(LICENSE_PROMPT, currentUser.login);
 
       if (!lastPrompt || differenceInDays(new Date(), parseDate(lastPrompt)) >= 1) {
@@ -103,9 +98,7 @@ export class StartupModal extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: Store): StateProps => ({
-  canAdmin: getAppState(state).canAdmin,
-  currentEdition: getAppState(state).edition as EditionKey, // TODO: Fix once AppState is no longer ambiant.
   currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(withRouter(StartupModal));
+export default connect(mapStateToProps)(withRouter(withAppStateContext(StartupModal)));

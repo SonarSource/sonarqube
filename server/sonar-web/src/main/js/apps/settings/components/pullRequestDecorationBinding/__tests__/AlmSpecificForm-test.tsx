@@ -20,8 +20,10 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAlmSettingsInstance } from '../../../../../helpers/mocks/alm-settings';
+import { mockAppState } from '../../../../../helpers/testMocks';
 import { AlmKeys, AlmSettingsInstance } from '../../../../../types/alm-settings';
-import AlmSpecificForm, { AlmSpecificFormProps } from '../AlmSpecificForm';
+import { EditionKey } from '../../../../../types/editions';
+import { AlmSpecificForm, AlmSpecificFormProps } from '../AlmSpecificForm';
 
 it.each([
   [AlmKeys.Azure],
@@ -48,7 +50,9 @@ it.each([
 );
 
 it('should render the monorepo field when the feature is supported', () => {
-  expect(shallowRender(AlmKeys.Azure, { monorepoEnabled: true })).toMatchSnapshot();
+  expect(
+    shallowRender(AlmKeys.Azure, { appState: mockAppState({ edition: EditionKey.enterprise }) })
+  ).toMatchSnapshot();
 });
 
 function shallowRender(alm: AlmKeys, props: Partial<AlmSpecificFormProps> = {}) {
@@ -63,7 +67,7 @@ function shallowRender(alm: AlmKeys, props: Partial<AlmSpecificFormProps> = {}) 
         monorepo: false
       }}
       onFieldChange={jest.fn()}
-      monorepoEnabled={false}
+      appState={mockAppState({ edition: EditionKey.developer })}
       {...props}
     />
   );

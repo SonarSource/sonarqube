@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { withAppState } from '../../../../components/hoc/withAppState';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -73,4 +73,4 @@ export function CreationTooltip(props: CreationTooltipProps) {
   );
 }
 
-export default withAppState(CreationTooltip);
+export default withAppStateContext(CreationTooltip);

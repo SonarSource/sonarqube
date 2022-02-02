@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/types';
-import { withAppState } from '../../hoc/withAppState';
 import SentenceWithHighlights from './SentenceWithHighlights';
 
 export interface AllSetProps {
@@ -96,4 +96,4 @@ export function AllSet(props: AllSetProps) {
   );
 }
 
-export default withAppState(AllSet);
+export default withAppStateContext(AllSet);

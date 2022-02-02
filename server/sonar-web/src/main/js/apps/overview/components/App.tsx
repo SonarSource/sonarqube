@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { withAppState } from '../../../components/hoc/withAppState';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { isPullRequest } from '../../../helpers/branch-like';
@@ -33,7 +33,7 @@ const EmptyOverview = lazyLoadComponent(() => import('./EmptyOverview'));
 const PullRequestOverview = lazyLoadComponent(() => import('../pullRequests/PullRequestOverview'));
 
 interface Props {
-  appState: Pick<AppState, 'branchesEnabled'>;
+  appState: AppState;
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component: Component;
@@ -93,4 +93,4 @@ export class App extends React.PureComponent<Props> {
   }
 }
 
-export default withRouter(withAppState(App));
+export default withRouter(withAppStateContext(App));

@@ -20,19 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
-import { mockLocation } from '../../../helpers/testMocks';
+import { mockAppState, mockLocation } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import { getAppState, Store } from '../../../store/rootReducer';
-import { ChangeAdminPasswordApp, mapStateToProps } from '../ChangeAdminPasswordApp';
+import { ChangeAdminPasswordApp } from '../ChangeAdminPasswordApp';
 import { DEFAULT_ADMIN_LOGIN, DEFAULT_ADMIN_PASSWORD } from '../constants';
 
 jest.mock('react-redux', () => ({
   connect: jest.fn(() => (a: any) => a)
-}));
-
-jest.mock('../../../store/rootReducer', () => ({
-  ...jest.requireActual('../../../store/rootReducer'),
-  getAppState: jest.fn()
 }));
 
 jest.mock('../../../api/users', () => ({
@@ -43,9 +37,9 @@ beforeEach(jest.clearAllMocks);
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ instanceUsesDefaultAdminCredentials: undefined })).toMatchSnapshot(
-    'admin is not using the default password'
-  );
+  expect(
+    shallowRender({ appState: mockAppState({ instanceUsesDefaultAdminCredentials: undefined }) })
+  ).toMatchSnapshot('admin is not using the default password');
 });
 
 it('should correctly handle input changes', () => {
@@ -99,29 +93,10 @@ it('should correctly update the password', async () => {
   expect(wrapper.state().success).toBe(false);
 });
 
-describe('redux', () => {
-  it('should correctly map state props', () => {
-    (getAppState as jest.Mock)
-      .mockReturnValueOnce({})
-      .mockReturnValueOnce({ canAdmin: false, instanceUsesDefaultAdminCredentials: true });
-
-    expect(mapStateToProps({} as Store)).toEqual({
-      canAdmin: undefined,
-      instanceUsesDefaultAdminCredentials: undefined
-    });
-
-    expect(mapStateToProps({} as Store)).toEqual({
-      canAdmin: false,
-      instanceUsesDefaultAdminCredentials: true
-    });
-  });
-});
-
 function shallowRender(props: Partial<ChangeAdminPasswordApp['props']> = {}) {
   return shallow<ChangeAdminPasswordApp>(
     <ChangeAdminPasswordApp
-      canAdmin={true}
-      instanceUsesDefaultAdminCredentials={true}
+      appState={mockAppState({ canAdmin: true, instanceUsesDefaultAdminCredentials: true })}
       location={mockLocation()}
       {...props}
     />

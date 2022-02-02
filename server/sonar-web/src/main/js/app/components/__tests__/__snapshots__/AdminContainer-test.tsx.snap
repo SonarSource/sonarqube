@@ -10,14 +10,7 @@ exports[`should render correctly 1`] = `
     titleTemplate="%s - layout.settings"
   />
   <SettingsNav
-    extensions={
-      Array [
-        Object {
-          "key": "foo",
-          "name": "Foo",
-        },
-      ]
-    }
+    extensions={Array []}
     fetchPendingPlugins={[Function]}
     fetchSystemStatus={[Function]}
     location={
@@ -53,6 +46,10 @@ exports[`should render correctly 1`] = `
         "systemStatus": "UP",
       }
     }
-  />
+  >
+    <div
+      adminPages={Array []}
+    />
+  </ContextProvider>
 </div>
 `;

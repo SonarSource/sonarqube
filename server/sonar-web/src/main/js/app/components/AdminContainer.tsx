@@ -19,35 +19,35 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { getSettingsNavigation } from '../../api/nav';
 import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { translate } from '../../helpers/l10n';
-import { setAdminPages } from '../../store/appState';
-import { getAppState, Store } from '../../store/rootReducer';
 import { PendingPluginResult } from '../../types/plugins';
 import { AppState, Extension, SysStatus } from '../../types/types';
 import AdminContext, { defaultPendingPlugins, defaultSystemStatus } from './AdminContext';
+import withAppStateContext from './app-state/withAppStateContext';
 import SettingsNav from './nav/settings/SettingsNav';
 
-interface Props {
-  appState: Pick<AppState, 'adminPages' | 'canAdmin'>;
+export interface AdminContainerProps {
+  appState: AppState;
   location: {};
-  setAdminPages: (adminPages: Extension[]) => void;
+  children: React.ReactElement;
 }
 
 interface State {
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
+  adminPages: Extension[];
 }
 
-export class AdminContainer extends React.PureComponent<Props, State> {
+export class AdminContainer extends React.PureComponent<AdminContainerProps, State> {
   mounted = false;
   state: State = {
     pendingPlugins: defaultPendingPlugins,
-    systemStatus: defaultSystemStatus
+    systemStatus: defaultSystemStatus,
+    adminPages: []
   };
 
   componentDidMount() {
@@ -67,7 +67,7 @@ export class AdminContainer extends React.PureComponent<Props, State> {
 
   fetchNavigationSettings = () => {
     getSettingsNavigation().then(
-      r => this.props.setAdminPages(r.extensions),
+      r => this.setState({ adminPages: r.extensions }),
       () => {}
     );
   };
@@ -110,7 +110,7 @@ export class AdminContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { adminPages } = this.props.appState;
+    const { adminPages } = this.state;
 
     // Check that the adminPages are loaded
     if (!adminPages) {
@@ -138,15 +138,13 @@ export class AdminContainer extends React.PureComponent<Props, State> {
             pendingPlugins,
             systemStatus
           }}>
-          {this.props.children}
+          {React.cloneElement(this.props.children, {
+            adminPages
+          })}
         </AdminContext.Provider>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state: Store) => ({ appState: getAppState(state) });
-
-const mapDispatchToProps = { setAdminPages };
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);
+export default withAppStateContext(AdminContainer);

@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../../store/rootReducer';
 import { Extension as TypeExtension } from '../../../types/types';
 import NotFound from '../NotFound';
 import Extension from './Extension';
@@ -29,14 +27,11 @@ interface Props {
   params: { extensionKey: string; pluginKey: string };
 }
 
-function GlobalAdminPageExtension(props: Props) {
-  const { extensionKey, pluginKey } = props.params;
-  const extension = (props.adminPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
+export default function GlobalAdminPageExtension(props: Props) {
+  const {
+    params: { extensionKey, pluginKey },
+    adminPages
+  } = props;
+  const extension = (adminPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
 }
-
-const mapStateToProps = (state: Store) => ({
-  adminPages: getAppState(state).adminPages
-});
-
-export default connect(mapStateToProps)(GlobalAdminPageExtension);

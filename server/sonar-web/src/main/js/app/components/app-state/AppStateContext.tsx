@@ -17,26 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../store/rootReducer';
-import { AppState } from '../../types/types';
-import { getWrappedDisplayName } from './utils';
+import { AppState } from '../../../types/types';
 
-export function withAppState<P>(
-  WrappedComponent: React.ComponentType<P & { appState: Partial<AppState> }>
-) {
-  class Wrapper extends React.Component<P & { appState: AppState }> {
-    static displayName = getWrappedDisplayName(WrappedComponent, 'withAppState');
-
-    render() {
-      return <WrappedComponent {...this.props} />;
-    }
-  }
-
-  function mapStateToProps(state: Store) {
-    return { appState: getAppState(state) };
-  }
-
-  return connect(mapStateToProps)(Wrapper);
-}
+const defaultAppState = {
+  authenticationError: false,
+  authorizationError: false,
+  edition: undefined,
+  productionDatabase: true,
+  qualifiers: [],
+  settings: {},
+  version: ''
+};
+export const AppStateContext = React.createContext<AppState>(defaultAppState);

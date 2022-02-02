@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getValues } from '../../../api/settings';
-import { getAppState, Store } from '../../../store/rootReducer';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { SettingsKey } from '../../../types/settings';
+import { AppState } from '../../../types/types';
 import LifetimeInformationRenderer from './LifetimeInformationRenderer';
 
 interface Props {
-  canAdmin?: boolean;
+  appState: AppState;
 }
 
 interface State {
@@ -65,7 +65,9 @@ export class LifetimeInformation extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { canAdmin } = this.props;
+    const {
+      appState: { canAdmin }
+    } = this.props;
     const { branchAndPullRequestLifeTimeInDays, loading } = this.state;
 
     return (
@@ -78,8 +80,4 @@ export class LifetimeInformation extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStoreToProps = (state: Store) => ({
-  canAdmin: getAppState(state).canAdmin
-});
-
-export default connect(mapStoreToProps)(LifetimeInformation);
+export default withAppStateContext(LifetimeInformation);

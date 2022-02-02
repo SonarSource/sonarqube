@@ -18,25 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { getAppState, Store } from '../../../store/rootReducer';
-import { Extension as TypeExtension } from '../../../types/types';
+import { AppState } from '../../../types/types';
+import withAppStateContext from '../app-state/withAppStateContext';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
 interface Props {
-  globalPages: TypeExtension[] | undefined;
+  appState: AppState;
   params: { extensionKey: string; pluginKey: string };
 }
 
 function GlobalPageExtension(props: Props) {
-  const { extensionKey, pluginKey } = props.params;
-  const extension = (props.globalPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
+  const {
+    params: { extensionKey, pluginKey },
+    appState: { globalPages }
+  } = props;
+  const extension = (globalPages || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
 }
 
-const mapStateToProps = (state: Store) => ({
-  globalPages: getAppState(state).globalPages
-});
-
-export default connect(mapStateToProps)(GlobalPageExtension);
+export default withAppStateContext(GlobalPageExtension);

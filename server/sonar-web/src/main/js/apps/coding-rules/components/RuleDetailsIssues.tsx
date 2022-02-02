@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { getFacet } from '../../../api/issues';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Tooltip from '../../../components/controls/Tooltip';
-import { withAppState } from '../../../components/hoc/withAppState';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -29,7 +29,7 @@ import { getIssuesUrl } from '../../../helpers/urls';
 import { AppState, RuleDetails } from '../../../types/types';
 
 interface Props {
-  appState: Pick<AppState, 'branchesEnabled'>;
+  appState: AppState;
   ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
 }
 
@@ -173,4 +173,4 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppState(RuleDetailsIssues);
+export default withAppStateContext(RuleDetailsIssues);

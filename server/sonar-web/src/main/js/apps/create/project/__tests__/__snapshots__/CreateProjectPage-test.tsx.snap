@@ -16,7 +16,7 @@ exports[`should render alm configuration creation correctly 1`] = `
     className="page page-limited huge-spacer-bottom position-relative"
     id="create-project"
   >
-    <Connect(withAppState(CreateProjectModeSelection))
+    <withAppStateContext(CreateProjectModeSelection)
       almCounts={
         Object {
           "azure": 0,
@@ -57,7 +57,7 @@ exports[`should render correctly 1`] = `
     className="page page-limited huge-spacer-bottom position-relative"
     id="create-project"
   >
-    <Connect(withAppState(CreateProjectModeSelection))
+    <withAppStateContext(CreateProjectModeSelection)
       almCounts={
         Object {
           "azure": 0,

@@ -15,7 +15,6 @@ exports[`should render correctly 1`] = `
   isSysAdmin={false}
   isValid={false}
   loading={true}
-  monorepoEnabled={false}
   onCheckConfiguration={[Function]}
   onFieldChange={[Function]}
   onReset={[Function]}

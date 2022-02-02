@@ -152,6 +152,11 @@ exports[`should render the only logged in information 1`] = `
     <li
       className="page-footer-menu-item"
     >
+      footer.version_x.1.0
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
       <a
         href="https://www.gnu.org/licenses/lgpl-3.0.txt"
         rel="noopener noreferrer"

@@ -19,18 +19,18 @@
  */
 /* eslint-disable react/no-unused-state */
 import * as React from 'react';
-import { withAppState } from '../../../components/hoc/withAppState';
 import { IndexationContextInterface, IndexationStatus } from '../../../types/indexation';
 import { AppState } from '../../../types/types';
+import withAppStateContext from '../app-state/withAppStateContext';
 import { IndexationContext } from './IndexationContext';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 
-interface Props {
-  appState: Pick<AppState, 'needIssueSync'>;
+export interface IndexationContextProviderProps {
+  appState: AppState;
 }
 
 export class IndexationContextProvider extends React.PureComponent<
-  React.PropsWithChildren<Props>,
+  React.PropsWithChildren<IndexationContextProviderProps>,
   IndexationContextInterface
 > {
   mounted = false;
@@ -66,4 +66,4 @@ export class IndexationContextProvider extends React.PureComponent<
   }
 }
 
-export default withAppState(IndexationContextProvider);
+export default withAppStateContext(IndexationContextProvider);

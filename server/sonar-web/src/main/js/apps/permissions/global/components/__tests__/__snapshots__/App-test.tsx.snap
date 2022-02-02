@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
   <PageHeader
     loading={true}
   />
-  <Connect(AllHoldersList)
+  <withAppStateContext(AllHoldersList)
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}
@@ -50,7 +50,7 @@ exports[`should render correctly 2`] = `
   <PageHeader
     loading={false}
   />
-  <Connect(AllHoldersList)
+  <withAppStateContext(AllHoldersList)
     filter="all"
     grantPermissionToGroup={[Function]}
     grantPermissionToUser={[Function]}

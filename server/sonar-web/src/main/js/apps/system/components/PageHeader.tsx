@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { ClipboardButton } from '../../../components/controls/clipboard';
 import { Alert } from '../../../components/ui/Alert';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { getAppState, Store } from '../../../store/rootReducer';
+import { AppState } from '../../../types/types';
 import PageActions from './PageActions';
 
 export interface Props {
@@ -31,22 +31,14 @@ export interface Props {
   loading: boolean;
   logLevel: string;
   onLogLevelChange: () => void;
-  productionDatabase: boolean;
+  appState: AppState;
   serverId?: string;
   showActions: boolean;
   version?: string;
 }
 
 export function PageHeader(props: Props) {
-  const {
-    isCluster,
-    loading,
-    logLevel,
-    serverId,
-    showActions,
-    version,
-    productionDatabase
-  } = props;
+  const { isCluster, loading, logLevel, serverId, showActions, version, appState } = props;
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('system_info.page')}</h1>
@@ -67,7 +59,7 @@ export function PageHeader(props: Props) {
       )}
       {serverId && version && (
         <div className="system-info-copy-paste-id-info boxed-group ">
-          {!productionDatabase && (
+          {!appState.productionDatabase && (
             <Alert className="width-100" variant="warning">
               {translate('system.not_production_database_warning')}
             </Alert>
@@ -109,8 +101,4 @@ Date: ${toShortNotSoISOString(Date.now())}
   );
 }
 
-const mapStateToProps = (store: Store) => ({
-  productionDatabase: getAppState(store).productionDatabase
-});
-
-export default connect(mapStateToProps)(PageHeader);
+export default withAppStateContext(PageHeader);

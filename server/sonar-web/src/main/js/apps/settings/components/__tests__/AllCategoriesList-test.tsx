@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockAppState } from '../../../../helpers/testMocks';
 import { AdditionalCategory } from '../AdditionalCategories';
 import { CategoriesList, CategoriesListProps } from '../AllCategoriesList';
 
@@ -65,13 +66,15 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('global mode');
   expect(shallowRender({ selectedCategory: 'CAT_2' })).toMatchSnapshot('selected category');
   expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('project mode');
-  expect(shallowRender({ branchesEnabled: false })).toMatchSnapshot('branches disabled');
+  expect(shallowRender({ appState: mockAppState({ branchesEnabled: false }) })).toMatchSnapshot(
+    'branches disabled'
+  );
 });
 
 function shallowRender(props?: Partial<CategoriesListProps>) {
   return shallow<CategoriesListProps>(
     <CategoriesList
-      branchesEnabled={true}
+      appState={mockAppState({ branchesEnabled: true })}
       categories={['general']}
       defaultCategory="general"
       selectedCategory=""

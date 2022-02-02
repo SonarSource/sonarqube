@@ -22,7 +22,7 @@ import * as React from 'react';
 import { gtm } from '../../../helpers/analytics';
 import { installScript } from '../../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensionsHandler';
-import { mockLocation } from '../../../helpers/testMocks';
+import { mockAppState, mockLocation } from '../../../helpers/testMocks';
 import { PageTracker } from '../PageTracker';
 
 jest.mock('../../../helpers/extensions', () => ({
@@ -51,12 +51,12 @@ it('should not trigger if no analytics system is given', () => {
 
 it('should work for WebAnalytics plugin', () => {
   const pageChange = jest.fn();
-  const webAnalytics = '/static/pluginKey/web_analytics.js';
-  const wrapper = shallowRender({ webAnalytics });
+  const webAnalyticsJsPath = '/static/pluginKey/web_analytics.js';
+  const wrapper = shallowRender({ appState: mockAppState({ webAnalyticsJsPath }) });
 
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Helmet').prop('onChangeClientState')).toBe(wrapper.instance().trackPage);
-  expect(installScript).toBeCalledWith(webAnalytics, 'head');
+  expect(installScript).toBeCalledWith(webAnalyticsJsPath, 'head');
   (getWebAnalyticsPageHandlerFromCache as jest.Mock).mockReturnValueOnce(pageChange);
 
   wrapper.instance().trackPage();
@@ -81,5 +81,7 @@ it('should work for Google Tag Manager', () => {
 });
 
 function shallowRender(props: Partial<PageTracker['props']> = {}) {
-  return shallow<PageTracker>(<PageTracker location={mockLocation()} {...props} />);
+  return shallow<PageTracker>(
+    <PageTracker appState={mockAppState()} location={mockLocation()} {...props} />
+  );
 }

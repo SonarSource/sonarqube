@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { isSonarCloud } from '../../../helpers/system';
+import { mockAppState } from '../../../helpers/testMocks';
 import { DocLink } from '../DocLink';
 
 jest.mock('../../../helpers/system', () => ({
@@ -29,7 +30,7 @@ jest.mock('../../../helpers/system', () => ({
 it('should render simple link', () => {
   expect(
     shallow(
-      <DocLink appState={{ canAdmin: false }} href="http://sample.com">
+      <DocLink appState={mockAppState({ canAdmin: false })} href="http://sample.com">
         link text
       </DocLink>
     )
@@ -39,7 +40,7 @@ it('should render simple link', () => {
 it('should render documentation link', () => {
   expect(
     shallow(
-      <DocLink appState={{ canAdmin: false }} href="/foo/bar">
+      <DocLink appState={mockAppState({ canAdmin: false })} href="/foo/bar">
         link text
       </DocLink>
     )
@@ -49,7 +50,7 @@ it('should render documentation link', () => {
 it('should render sonarcloud link on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: false }} href="/#sonarcloud#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarcloud#/foo/bar">
       link text
     </DocLink>
   );
@@ -60,7 +61,7 @@ it('should render sonarcloud link on sonarcloud', () => {
 it('should not render sonarcloud link on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementationOnce(() => false);
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: false }} href="/#sonarcloud#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarcloud#/foo/bar">
       link text
     </DocLink>
   );
@@ -69,7 +70,7 @@ it('should not render sonarcloud link on sonarcloud', () => {
 
 it('should render sonarqube link on sonarqube', () => {
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: false }} href="/#sonarqube#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarqube#/foo/bar">
       link text
     </DocLink>
   );
@@ -80,7 +81,7 @@ it('should render sonarqube link on sonarqube', () => {
 it('should not render sonarqube link on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: false }} href="/#sonarqube#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarqube#/foo/bar">
       link text
     </DocLink>
   );
@@ -89,7 +90,7 @@ it('should not render sonarqube link on sonarcloud', () => {
 
 it('should render sonarqube admin link on sonarqube for admin', () => {
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: true }} href="/#sonarqube-admin#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: true })} href="/#sonarqube-admin#/foo/bar">
       link text
     </DocLink>
   );
@@ -99,7 +100,7 @@ it('should render sonarqube admin link on sonarqube for admin', () => {
 
 it('should not render sonarqube admin link on sonarqube for non-admin', () => {
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: false }} href="/#sonarqube-admin#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: false })} href="/#sonarqube-admin#/foo/bar">
       link text
     </DocLink>
   );
@@ -109,7 +110,7 @@ it('should not render sonarqube admin link on sonarqube for non-admin', () => {
 it('should not render sonarqube admin link on sonarcloud', () => {
   (isSonarCloud as jest.Mock).mockImplementationOnce(() => true);
   const wrapper = shallow(
-    <DocLink appState={{ canAdmin: true }} href="/#sonarqube-admin#/foo/bar">
+    <DocLink appState={mockAppState({ canAdmin: true })} href="/#sonarqube-admin#/foo/bar">
       link text
     </DocLink>
   );
@@ -119,7 +120,7 @@ it('should not render sonarqube admin link on sonarcloud', () => {
 it('should render documentation anchor', () => {
   expect(
     shallow(
-      <DocLink appState={{ canAdmin: false }} href="#quality-profiles">
+      <DocLink appState={mockAppState({ canAdmin: false })} href="#quality-profiles">
         link text
       </DocLink>
     )

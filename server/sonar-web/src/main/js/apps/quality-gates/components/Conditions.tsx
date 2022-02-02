@@ -19,11 +19,11 @@
  */
 import { differenceWith, map, sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
-import { withAppState } from '../../../components/hoc/withAppState';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -39,7 +39,7 @@ import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 
 interface Props {
-  appState: Pick<AppState, 'branchesEnabled'>;
+  appState: AppState;
   canEdit: boolean;
   conditions: ConditionType[];
   metrics: Dict<Metric>;
@@ -228,4 +228,4 @@ export class Conditions extends React.PureComponent<Props> {
   }
 }
 
-export default withAppState(withMetricsContext(Conditions));
+export default withMetricsContext(withAppStateContext(Conditions));

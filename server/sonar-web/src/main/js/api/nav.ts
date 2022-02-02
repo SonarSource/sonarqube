@@ -20,7 +20,7 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
-import { Component } from '../types/types';
+import { Component, Extension } from '../types/types';
 
 type NavComponent = Omit<Component, 'alm' | 'qualifier' | 'leakPeriodDate' | 'path' | 'tags'>;
 
@@ -34,6 +34,9 @@ export function getMarketplaceNavigation(): Promise<{ serverId: string; ncloc: n
   return getJSON('/api/navigation/marketplace').catch(throwGlobalError);
 }
 
-export function getSettingsNavigation(): Promise<any> {
+export function getSettingsNavigation(): Promise<{
+  extensions: Extension[];
+  showUpdateCenter: boolean;
+}> {
   return getJSON('/api/navigation/settings').catch(throwGlobalError);
 }

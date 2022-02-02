@@ -20,7 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getAlmSettings } from '../../../../api/alm-settings';
-import { mockLocation, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockAppState,
+  mockLocation,
+  mockLoggedInUser,
+  mockRouter
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import AlmBindingDefinitionForm from '../../../settings/components/almIntegration/AlmBindingDefinitionForm';
@@ -124,7 +129,7 @@ it('should submit alm configuration creation properly for BBC', async () => {
 function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {
   return shallow<CreateProjectPage>(
     <CreateProjectPage
-      appState={{}}
+      appState={mockAppState()}
       currentUser={mockLoggedInUser()}
       location={mockLocation()}
       router={mockRouter()}

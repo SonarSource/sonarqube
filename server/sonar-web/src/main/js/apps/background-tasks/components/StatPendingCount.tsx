@@ -18,21 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { colors } from '../../../app/theme';
 import { ClearButton } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { getAppState, Store } from '../../../store/rootReducer';
+import { AppState } from '../../../types/types';
 
 export interface Props {
-  isSystemAdmin?: boolean;
+  appState: AppState;
   onCancelAllPending: () => void;
   pendingCount?: number;
 }
 
-export function StatPendingCount({ isSystemAdmin, onCancelAllPending, pendingCount }: Props) {
+export function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Props) {
   if (pendingCount === undefined) {
     return null;
   }
@@ -42,7 +42,7 @@ export function StatPendingCount({ isSystemAdmin, onCancelAllPending, pendingCou
       <span className="emphasised-measure">{pendingCount}</span>
       <span className="little-spacer-left display-inline-flex-center">
         {translate('background_tasks.pending')}
-        {isSystemAdmin && pendingCount > 0 && (
+        {appState.canAdmin && pendingCount > 0 && (
           <ConfirmButton
             cancelButtonText={translate('close')}
             confirmButtonText={translate('background_tasks.cancel_all_tasks.submit')}
@@ -62,8 +62,4 @@ export function StatPendingCount({ isSystemAdmin, onCancelAllPending, pendingCou
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  isSystemAdmin: getAppState(state).canAdmin
-});
-
-export default connect(mapStateToProps)(StatPendingCount);
+export default withAppStateContext(StatPendingCount);

@@ -19,19 +19,19 @@
  */
 import { filter, flatMap, isEmpty, negate } from 'lodash';
 import * as React from 'react';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
 import { AppState } from '../../types/types';
 import { ResetButtonLink } from '../controls/buttons';
 import Modal from '../controls/Modal';
-import { withAppState } from '../hoc/withAppState';
 import { Alert, AlertVariant } from '../ui/Alert';
 import SystemUpgradeItem from './SystemUpgradeItem';
 import { UpdateUseCase } from './utils';
 
 interface Props {
-  appState: Pick<AppState, 'edition' | 'version'>;
+  appState: AppState;
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
   latestLTS: string;
@@ -120,4 +120,4 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
   }
 }
 
-export default withAppState(SystemUpgradeForm);
+export default withAppStateContext(SystemUpgradeForm);

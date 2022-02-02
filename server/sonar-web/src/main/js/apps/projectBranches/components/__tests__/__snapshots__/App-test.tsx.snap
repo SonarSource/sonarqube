@@ -11,7 +11,7 @@ exports[`should render correctly 1`] = `
     <h1>
       project_branch_pull_request.page
     </h1>
-    <Connect(LifetimeInformation) />
+    <withAppStateContext(LifetimeInformation) />
   </header>
   <BranchLikeTabs
     branchLikes={
