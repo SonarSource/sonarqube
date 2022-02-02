@@ -6,7 +6,7 @@ module.exports = {
     onboarding: false,
     includeForks: false,
     branchPrefix: "renovate/",
-    gitAuthor: "sonarqubetech-sonarenterprise",
+    gitAuthor: "infra.sonarqube+github@sonarsource.com",
     baseBranches: ["master"],
     repositories: [
       "SonarSource/sonar-enterprise",
