@@ -38,12 +38,31 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
+it('should fetch users and groups on mount', async () => {
+  (searchUsers as jest.Mock).mockResolvedValue({ users: [mockUserBase()] });
+  (searchGroups as jest.Mock).mockResolvedValue({ groups: [{ name: 'group' }] });
+
+  const wrapper = shallowRender();
+
+  expect(wrapper.state().loading).toBe(true);
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().loading).toBe(false);
+  expect(searchUsers).toBeCalledWith({ gateName: 'qualitygate', q: '', selected: 'deselected' });
+  expect(searchGroups).toBeCalledWith({
+    gateName: 'qualitygate',
+    q: '',
+    selected: 'deselected'
+  });
+  expect(wrapper.state().searchResults).toHaveLength(2);
+});
+
 it('should fetch users and groups', async () => {
   (searchUsers as jest.Mock).mockResolvedValueOnce({ users: [mockUserBase()] });
   (searchGroups as jest.Mock).mockResolvedValueOnce({ groups: [{ name: 'group' }] });
 
   const wrapper = shallowRender();
-
   const query = 'query';
 
   wrapper.instance().handleSearch(query);
@@ -71,13 +90,19 @@ it('should handle input change', () => {
   wrapper.instance().handleInputChange('a');
 
   expect(wrapper.state().query).toBe('a');
-  expect(handleSearch).not.toBeCalled();
+  expect(handleSearch).toBeCalled();
 
   const query = 'query';
   wrapper.instance().handleInputChange(query);
 
   expect(wrapper.state().query).toBe(query);
   expect(handleSearch).toBeCalledWith(query);
+
+  jest.clearAllMocks();
+  wrapper.instance().handleInputChange(query); // input change with same parameter
+
+  expect(wrapper.state().query).toBe(query);
+  expect(handleSearch).not.toBeCalled();
 });
 
 it('should handleSelection', () => {

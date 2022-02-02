@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <QualityGatePermissionsAddModalRenderer
-  loading={false}
+  loading={true}
   onClose={[MockFunction]}
   onInputChange={[Function]}
   onSelection={[Function]}

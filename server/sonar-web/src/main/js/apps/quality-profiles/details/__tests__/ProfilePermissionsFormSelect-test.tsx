@@ -52,8 +52,13 @@ it('searches', () => {
   onSearch.mockClear();
 
   wrapper.prop<Function>('onInputChange')('f');
-  expect(onSearch).not.toBeCalled();
+  expect(onSearch).toBeCalled();
 
   wrapper.prop<Function>('onInputChange')('foo');
   expect(onSearch).toBeCalledWith('foo');
+
+  onSearch.mockClear();
+
+  wrapper.prop<Function>('onInputChange')('foo');
+  expect(onSearch).not.toBeCalled();
 });

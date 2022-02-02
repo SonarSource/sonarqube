@@ -23,7 +23,7 @@ import Modal from '../../../components/controls/Modal';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/types';
 
@@ -44,12 +44,11 @@ type Option = (UserBase | Group) & { value: string };
 export default function QualityGatePermissionsAddModalRenderer(
   props: QualityGatePermissionsAddModalRendererProps
 ) {
-  const { loading, query = '', searchResults, selection, submitting } = props;
+  const { loading, searchResults, selection, submitting } = props;
 
   const header = translate('quality_gates.permissions.grant');
 
-  const noResultsText =
-    query.length === 1 ? translateWithParameters('select2.tooShort', 2) : translate('no_results');
+  const noResultsText = translate('no_results');
 
   return (
     <Modal contentLabel={header} onRequestClose={props.onClose}>

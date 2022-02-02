@@ -22,7 +22,7 @@ import * as React from 'react';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 import { Group } from './ProfilePermissions';
 
@@ -75,18 +75,16 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     );
   };
 
-  handleInputChange = (query: string) => {
-    this.setState({ query });
-    if (query.length > 1) {
-      this.handleSearch(query);
+  handleInputChange = (newQuery: string) => {
+    const { query } = this.state;
+    if (query !== newQuery) {
+      this.setState({ query: newQuery });
+      this.handleSearch(newQuery);
     }
   };
 
   render() {
-    const noResultsText =
-      this.state.query.length === 1
-        ? translateWithParameters('select2.tooShort', 2)
-        : translate('no_results');
+    const noResultsText = translate('no_results');
 
     // create a uniq string both for users and groups
     const options = this.state.searchResults.map(r => ({ ...r, value: getStringValue(r) }));

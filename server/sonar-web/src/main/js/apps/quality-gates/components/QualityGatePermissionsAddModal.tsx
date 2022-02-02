@@ -33,7 +33,7 @@ interface Props {
 
 interface State {
   loading: boolean;
-  query?: string;
+  query: string;
   searchResults: Array<UserBase | Group>;
   selection?: UserBase | Group;
 }
@@ -44,6 +44,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
   mounted = false;
   state: State = {
     loading: false,
+    query: '',
     searchResults: []
   };
 
@@ -53,7 +54,9 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
   }
 
   componentDidMount() {
+    const { query } = this.state;
     this.mounted = true;
+    this.handleSearch(query);
   }
 
   componentWillUnmount() {
@@ -85,10 +88,11 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     }
   };
 
-  handleInputChange = (query: string) => {
-    this.setState({ query });
-    if (query.length > 1) {
-      this.handleSearch(query);
+  handleInputChange = (newQuery: string) => {
+    const { query } = this.state;
+    if (query !== newQuery) {
+      this.setState({ query: newQuery });
+      this.handleSearch(newQuery);
     }
   };
 
