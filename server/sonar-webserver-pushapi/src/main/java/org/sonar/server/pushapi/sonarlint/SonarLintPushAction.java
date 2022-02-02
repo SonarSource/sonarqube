@@ -20,24 +20,35 @@
 package org.sonar.server.pushapi.sonarlint;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Set;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.pushapi.ServerPushAction;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.ServletRequest;
 import org.sonar.server.ws.ServletResponse;
 
 public class SonarLintPushAction extends ServerPushAction {
 
-  private static final Logger LOGGER = Loggers.get(SonarLintPushAction.class);
-
   private static final String PROJECT_PARAM_KEY = "projectKeys";
   private static final String LANGUAGE_PARAM_KEY = "languages";
+  private final SonarLintClientsRegistry clientsRegistry;
+  private final UserSession userSession;
+  private final DbClient dbClient;
+
+  public SonarLintPushAction(SonarLintClientsRegistry sonarLintClientRegistry, UserSession userSession, DbClient dbClient) {
+    this.clientsRegistry = sonarLintClientRegistry;
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+  }
 
   @Override
   public void define(WebService.NewController controller) {
@@ -63,18 +74,13 @@ public class SonarLintPushAction extends ServerPushAction {
 
   @Override
   public void handle(Request request, Response response) throws IOException {
+    userSession.checkLoggedIn();
+
     ServletRequest servletRequest = (ServletRequest) request;
     ServletResponse servletResponse = (ServletResponse) response;
 
-    String projectKeys = request.getParam(PROJECT_PARAM_KEY).getValue();
-    String languages = request.getParam(LANGUAGE_PARAM_KEY).getValue();
-
-    // to remove later
-    LOGGER.debug(projectKeys != null ? projectKeys : "");
-    LOGGER.debug(languages != null ? languages : "");
-
-    AsyncContext asyncContext = servletRequest.startAsync();
-    asyncContext.setTimeout(0);
+    var params = new SonarLintPushActionParamsValidator(request);
+    params.validateProjectsPermissions();
 
     if (!isServerSideEventsRequest(servletRequest)) {
       servletResponse.stream().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
@@ -83,8 +89,57 @@ public class SonarLintPushAction extends ServerPushAction {
 
     setHeadersForResponse(servletResponse);
 
-    //test response to remove later
-    response.stream().output().write("Hello world".getBytes(StandardCharsets.UTF_8));
-    response.stream().output().flush();
+    AsyncContext asyncContext = servletRequest.startAsync();
+    asyncContext.setTimeout(0);
+
+    var sonarLintClient = new SonarLintClient(asyncContext, params.getProjectKeys(), params.getLanguages());
+
+    clientsRegistry.registerClient(sonarLintClient);
   }
+
+  class SonarLintPushActionParamsValidator {
+
+    private final Request request;
+    private final Set<String> projectKeys;
+    private final Set<String> languages;
+
+    private List<ProjectDto> projectDtos;
+
+    SonarLintPushActionParamsValidator(Request request) {
+      this.request = request;
+      this.projectKeys = parseParam(PROJECT_PARAM_KEY);
+      this.languages = parseParam(LANGUAGE_PARAM_KEY);
+    }
+
+    Set<String> getProjectKeys() {
+      return projectKeys;
+    }
+
+    Set<String> getLanguages() {
+      return languages;
+    }
+
+    private Set<String> parseParam(String paramKey) {
+      String paramProjectKeys = request.getParam(paramKey).getValue();
+      if (paramProjectKeys == null) {
+        throw new IllegalArgumentException("Param " + paramKey + " was not provided.");
+      }
+      return Set.of(paramProjectKeys.trim().split(","));
+    }
+
+    public void validateProjectsPermissions() {
+      if (projectDtos == null) {
+        try (DbSession dbSession = dbClient.openSession(false)) {
+          projectDtos = dbClient.projectDao().selectProjectsByKeys(dbSession, projectKeys);
+        }
+      }
+      if (projectDtos.size() < projectKeys.size() || projectDtos.isEmpty()) {
+        throw new IllegalArgumentException("Param " + PROJECT_PARAM_KEY + " is invalid.");
+      }
+      for (ProjectDto projectDto : projectDtos) {
+        userSession.checkProjectPermission(UserRole.USER, projectDto);
+      }
+    }
+  }
+
 }

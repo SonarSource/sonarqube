@@ -19,19 +19,50 @@
  */
 package org.sonar.server.pushapi.sonarlint;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.project.ProjectDao;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.pushapi.TestPushRequest;
 import org.sonar.server.pushapi.WsPushActionTester;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SonarLintPushActionTest {
 
-  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction());
+  private final SonarLintClientsRegistry registry = mock(SonarLintClientsRegistry.class);
+  private final UserSession userSession = mock(UserSession.class);
+  private final DbClient dbClient = mock(DbClient.class);
+  private final ProjectDao projectDao = mock(ProjectDao.class);
+
+  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction(registry, userSession, dbClient));
+
+  @Before
+  public void before() {
+    List<ProjectDto> projectDtos = generateProjectDtos(2);
+    when(projectDao.selectProjectsByKeys(any(), any())).thenReturn(projectDtos);
+    when(dbClient.projectDao()).thenReturn(projectDao);
+  }
+
+  public List<ProjectDto> generateProjectDtos(int howMany) {
+    return IntStream.rangeClosed(1, howMany).mapToObj(i -> {
+      ProjectDto dto = new ProjectDto();
+      dto.setKee("project" + i);
+      return dto;
+    }).collect(Collectors.toList());
+  }
 
   @Test
   public void defineTest() {
@@ -52,13 +83,12 @@ public class SonarLintPushActionTest {
       .setHeader("accept", "text/event-stream")
       .execute();
 
-    assertThat(response.getInput()).isEqualTo("Hello world");
+    assertThat(response.getInput()).isEmpty();
   }
 
   @Test
   public void handle_whenAcceptHeaderNotProvided_statusCode406() {
-    TestResponse testResponse = ws.newPushRequest().
-       setParam("projectKeys", "project1,project2")
+    TestResponse testResponse = ws.newPushRequest().setParam("projectKeys", "project1,project2")
       .setParam("languages", "java")
       .execute();
 
@@ -67,11 +97,24 @@ public class SonarLintPushActionTest {
 
   @Test
   public void handle_whenParamsNotProvided_throwException() {
-    TestPushRequest testRequest =  ws.newPushRequest()
+    TestPushRequest testRequest = ws.newPushRequest()
       .setHeader("accept", "text/event-stream");
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'projectKeys' parameter is missing");
+  }
+
+  @Test
+  public void handle_whenParamProjectKeyNotValid_throwException() {
+    TestPushRequest testRequest = ws.newPushRequest()
+      .setParam("projectKeys", "not-valid-key")
+      .setParam("languages", "java")
+      .setHeader("accept", "text/event-stream");
+    when(projectDao.selectProjectsByKeys(any(), any())).thenReturn(List.of());
+
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Param projectKeys is invalid.");
   }
 }

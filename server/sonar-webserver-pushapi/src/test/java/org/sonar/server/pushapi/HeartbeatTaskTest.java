@@ -19,18 +19,24 @@
  */
 package org.sonar.server.pushapi;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.pushapi.sonarlint.SonarLintClientsRegistry;
-import org.sonar.server.pushapi.sonarlint.SonarLintPushAction;
+import org.junit.Test;
 
-public class ServerPushWsModule extends Module {
+import static org.mockito.ArgumentMatchers.anyChar;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-  @Override
-  protected void configureModule() {
-    add(
-      ServerPushWs.class,
+public class HeartbeatTaskTest {
 
-      SonarLintClientsRegistry.class,
-      SonarLintPushAction.class);
+  private final ServerPushClient serverPushClient = mock(ServerPushClient.class);
+
+  private final HeartbeatTask underTest = new HeartbeatTask(serverPushClient);
+
+  @Test
+  public void run_reSchedulesHeartBeat() {
+    underTest.run();
+
+    verify(serverPushClient, times(2)).writeAndFlush(anyChar());
+    verify(serverPushClient).scheduleHeartbeat();
   }
 }

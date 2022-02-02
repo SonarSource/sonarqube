@@ -19,18 +19,20 @@
  */
 package org.sonar.server.pushapi;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.pushapi.sonarlint.SonarLintClientsRegistry;
-import org.sonar.server.pushapi.sonarlint.SonarLintPushAction;
+class HeartbeatTask implements Runnable {
 
-public class ServerPushWsModule extends Module {
+  private final ServerPushClient serverPushClient;
+
+  public HeartbeatTask(ServerPushClient serverPushClient) {
+    this.serverPushClient = serverPushClient;
+  }
 
   @Override
-  protected void configureModule() {
-    add(
-      ServerPushWs.class,
-
-      SonarLintClientsRegistry.class,
-      SonarLintPushAction.class);
+  public void run() {
+    synchronized (this) {
+      serverPushClient.writeAndFlush('\r');
+      serverPushClient.writeAndFlush('\n');
+    }
+    serverPushClient.scheduleHeartbeat();
   }
 }
