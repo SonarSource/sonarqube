@@ -9,6 +9,9 @@ The Portfolio overview and project breakdown have been redesigned to provide a h
 
 Along with this redesign, Portfolios and Applications no longer show users information on projects they don't have access to, and Application administration has been moved out of the Portfolio administration UI.
 
+**Microsoft SQL Server and Integrated Authentication**  
+If you are using Microsoft SQL Server with Integrated Authentication, you will need to replace the `mssql-jdbc_auth-9.2.0.x64.dll` file on your `PATH` with `mssql-jdbc_auth-9.4.1.x64.dll` from the [Microsoft SQL JDBC Driver 9.4.1 package](https://docs.microsoft.com/en-us/sql/connect/jdbc/release-notes-for-the-jdbc-driver?view=sql-server-ver15#94). See [Install the Server](/setup/install-server/) for more information.
+
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17060)
 
 ## Release 9.2 Upgrade Notes
