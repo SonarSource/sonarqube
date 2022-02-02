@@ -20,14 +20,16 @@
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
+import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import SettingsSearch from './SettingsSearch';
 
 export interface PageHeaderProps {
   component?: Component;
+  definitions: ExtendedSettingDefinition[];
 }
 
-export default function PageHeader({ component }: PageHeaderProps) {
+export default function PageHeader({ component, definitions }: PageHeaderProps) {
   const title = component ? translate('project_settings.page') : translate('settings.page');
 
   const description = component ? (
@@ -42,7 +44,11 @@ export default function PageHeader({ component }: PageHeaderProps) {
         <div className="top-bar-inner bordered-bottom big-padded-top padded-bottom">
           <h1 className="page-title">{title}</h1>
           <div className="page-description spacer-top">{description}</div>
-          <SettingsSearch className="big-spacer-top" component={component} />
+          <SettingsSearch
+            className="big-spacer-top"
+            component={component}
+            definitions={definitions}
+          />
         </div>
       </div>
     </header>

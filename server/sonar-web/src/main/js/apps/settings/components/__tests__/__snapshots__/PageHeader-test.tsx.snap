@@ -20,7 +20,7 @@ exports[`should render correctly: for project 1`] = `
       >
         project_settings.page.description
       </div>
-      <withRouter(Connect(SettingsSearch))
+      <withRouter(SettingsSearch)
         className="big-spacer-top"
         component={
           Object {
@@ -44,6 +44,7 @@ exports[`should render correctly: for project 1`] = `
             "tags": Array [],
           }
         }
+        definitions={Array []}
       />
     </div>
   </div>
@@ -72,8 +73,9 @@ exports[`should render correctly: global 1`] = `
           message="settings.page.description"
         />
       </div>
-      <withRouter(Connect(SettingsSearch))
+      <withRouter(SettingsSearch)
         className="big-spacer-top"
+        definitions={Array []}
       />
     </div>
   </div>

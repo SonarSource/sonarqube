@@ -28,5 +28,5 @@ it('should render correctly', () => {
 });
 
 function shallowRender(props: Partial<PageHeaderProps> = {}) {
-  return shallow<PageHeaderProps>(<PageHeader {...props} />);
+  return shallow<PageHeaderProps>(<PageHeader definitions={[]} {...props} />);
 }

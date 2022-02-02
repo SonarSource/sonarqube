@@ -83,6 +83,7 @@ exports[`should render correctly: azure 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    settingsDefinitions={Array []}
   />
 </Fragment>
 `;
@@ -170,6 +171,7 @@ exports[`should render correctly: bitbucket 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    settingsDefinitions={Array []}
   />
 </Fragment>
 `;
@@ -257,6 +259,7 @@ exports[`should render correctly: default 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    settingsDefinitions={Array []}
   />
 </Fragment>
 `;
@@ -344,6 +347,7 @@ exports[`should render correctly: delete modal 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    settingsDefinitions={Array []}
   />
   <DeleteModal
     id="keyToDelete"
@@ -436,6 +440,7 @@ exports[`should render correctly: gitlab 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    settingsDefinitions={Array []}
   />
 </Fragment>
 `;
@@ -523,6 +528,7 @@ exports[`should render correctly: loading 1`] = `
     onCheck={[MockFunction]}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    settingsDefinitions={Array []}
   />
 </Fragment>
 `;

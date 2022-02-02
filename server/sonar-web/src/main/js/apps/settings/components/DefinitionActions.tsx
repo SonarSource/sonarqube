@@ -25,7 +25,7 @@ import { Setting } from '../../../types/settings';
 import { getDefaultValue, isEmptyValue } from '../utils';
 
 type Props = {
-  changedValue: string;
+  changedValue?: string;
   hasError: boolean;
   hasValueChanged: boolean;
   isDefault: boolean;
@@ -76,7 +76,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   render() {
     const { setting, changedValue, isDefault, hasValueChanged } = this.props;
     const hasBeenChangedToEmptyValue =
-      changedValue != null && isEmptyValue(setting.definition, changedValue);
+      changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
     const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
 
     return (

@@ -20,12 +20,10 @@
 import { debounce, keyBy } from 'lodash';
 import lunr, { LunrIndex } from 'lunr';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { KeyboardCodes } from '../../../helpers/keycodes';
-import { getSettingsAppAllDefinitions, Store } from '../../../store/rootReducer';
-import { SettingCategoryDefinition } from '../../../types/settings';
+import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component, Dict } from '../../../types/types';
 import {
   ADDITIONAL_PROJECT_SETTING_DEFINITIONS,
@@ -37,12 +35,12 @@ import SettingsSearchRenderer from './SettingsSearchRenderer';
 interface Props {
   className?: string;
   component?: Component;
-  definitions: SettingCategoryDefinition[];
+  definitions: ExtendedSettingDefinition[];
   router: InjectedRouter;
 }
 
 interface State {
-  results?: SettingCategoryDefinition[];
+  results?: ExtendedSettingDefinition[];
   searchQuery: string;
   selectedResult?: string;
   showResults: boolean;
@@ -51,7 +49,7 @@ interface State {
 const DEBOUNCE_DELAY = 250;
 
 export class SettingsSearch extends React.Component<Props, State> {
-  definitionsByKey: Dict<SettingCategoryDefinition>;
+  definitionsByKey: Dict<ExtendedSettingDefinition>;
   index: LunrIndex;
   state: State = {
     searchQuery: '',
@@ -71,7 +69,7 @@ export class SettingsSearch extends React.Component<Props, State> {
     this.definitionsByKey = keyBy(definitions, 'key');
   }
 
-  buildSearchIndex(definitions: SettingCategoryDefinition[]) {
+  buildSearchIndex(definitions: ExtendedSettingDefinition[]) {
     return lunr(function() {
       this.ref('key');
       this.field('key');
@@ -196,8 +194,4 @@ export class SettingsSearch extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  definitions: getSettingsAppAllDefinitions(state)
-});
-
-export default withRouter(connect(mapStateToProps)(SettingsSearch));
+export default withRouter(SettingsSearch);

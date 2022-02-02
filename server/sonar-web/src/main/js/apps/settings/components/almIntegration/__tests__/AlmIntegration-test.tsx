@@ -190,6 +190,7 @@ function shallowRender(props: Partial<AlmIntegration['props']> = {}) {
   return shallow<AlmIntegration>(
     <AlmIntegration
       appState={{ branchesEnabled: true }}
+      definitions={[]}
       location={mockLocation()}
       router={mockRouter()}
       {...props}

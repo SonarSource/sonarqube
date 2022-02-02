@@ -49,8 +49,9 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -106,8 +107,9 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -163,8 +165,9 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -220,8 +223,9 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -277,8 +281,9 @@ exports[`should render correctly for single-ALM binding 1`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -334,8 +339,9 @@ exports[`should render correctly for single-ALM binding 2`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -391,8 +397,9 @@ exports[`should render correctly for single-ALM binding 3`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -438,8 +445,9 @@ exports[`should render correctly with validation: create a first 1`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -499,8 +507,9 @@ exports[`should render correctly with validation: create a second 1`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -560,8 +569,9 @@ exports[`should render correctly with validation: default 1`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -607,8 +617,9 @@ exports[`should render correctly with validation: empty 1`] = `
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="azure"
     />
   </div>
@@ -666,8 +677,9 @@ exports[`should render correctly with validation: pass the correct key for bitbu
   <div
     className="big-padded"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="almintegration"
+      definitions={Array []}
       subCategory="bitbucket"
     />
   </div>

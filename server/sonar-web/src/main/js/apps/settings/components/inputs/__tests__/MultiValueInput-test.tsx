@@ -20,7 +20,7 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../../helpers/testUtils';
-import { SettingCategoryDefinition, SettingType } from '../../../../../types/settings';
+import { ExtendedSettingDefinition, SettingType } from '../../../../../types/settings';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import MultiValueInput from '../MultiValueInput';
 import PrimitiveInput from '../PrimitiveInput';
@@ -30,7 +30,7 @@ const settingValue = {
   hasValue: true
 };
 
-const settingDefinition: SettingCategoryDefinition = {
+const settingDefinition: ExtendedSettingDefinition = {
   category: 'general',
   fields: [],
   key: 'example',

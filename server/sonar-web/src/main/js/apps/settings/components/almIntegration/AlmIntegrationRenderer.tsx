@@ -26,6 +26,7 @@ import {
   AlmSettingsBindingDefinitions,
   AlmSettingsBindingStatus
 } from '../../../../types/alm-settings';
+import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
 import { AlmTabs } from './AlmIntegration';
 import AlmTab from './AlmTab';
@@ -47,6 +48,7 @@ export interface AlmIntegrationRendererProps {
   onSelectAlmTab: (alm: AlmTabs) => void;
   onUpdateDefinitions: () => void;
   projectCount?: number;
+  settingsDefinitions: ExtendedSettingDefinition[];
 }
 
 const tabs = [
@@ -118,7 +120,8 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
     loadingProjectCount,
     branchesEnabled,
     multipleAlmEnabled,
-    projectCount
+    projectCount,
+    settingsDefinitions
   } = props;
 
   const bindingDefinitions = {
@@ -151,6 +154,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
         onCheck={props.onCheckConfiguration}
         onDelete={props.onDelete}
         onUpdateDefinitions={props.onUpdateDefinitions}
+        settingsDefinitions={settingsDefinitions}
       />
 
       {definitionKeyForDeletion && (

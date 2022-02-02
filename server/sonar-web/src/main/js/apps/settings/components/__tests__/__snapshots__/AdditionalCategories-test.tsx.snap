@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render additional categories component correctly 1`] = `
-<withRouter(Connect(Languages))
+<withRouter(Languages)
+  categories={Array []}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -24,6 +25,7 @@ exports[`should render additional categories component correctly 1`] = `
       "tags": Array [],
     }
   }
+  definitions={Array []}
   selectedCategory="TEST"
 />
 `;
@@ -32,6 +34,7 @@ exports[`should render additional categories component correctly 2`] = `<NewCode
 
 exports[`should render additional categories component correctly 3`] = `
 <AnalysisScope
+  categories={Array []}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -54,12 +57,14 @@ exports[`should render additional categories component correctly 3`] = `
       "tags": Array [],
     }
   }
+  definitions={Array []}
   selectedCategory="TEST"
 />
 `;
 
 exports[`should render additional categories component correctly 4`] = `
 <withRouter(Connect(withAppState(AlmIntegration)))
+  categories={Array []}
   component={
     Object {
       "breadcrumbs": Array [],
@@ -82,6 +87,7 @@ exports[`should render additional categories component correctly 4`] = `
       "tags": Array [],
     }
   }
+  definitions={Array []}
   selectedCategory="TEST"
 />
 `;

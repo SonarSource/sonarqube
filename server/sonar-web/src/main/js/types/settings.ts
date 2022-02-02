@@ -45,8 +45,13 @@ export const enum SettingsKey {
   PluginRiskConsent = 'sonar.plugins.risk.consent'
 }
 
+export type SettingDefinitionAndValue = {
+  definition: ExtendedSettingDefinition;
+  settingValue?: SettingValue;
+};
+
 export type Setting = SettingValue & { definition: SettingDefinition; hasValue: boolean };
-export type SettingWithCategory = Setting & { definition: SettingCategoryDefinition };
+export type SettingWithCategory = Setting & { definition: ExtendedSettingDefinition };
 
 export enum SettingType {
   STRING = 'STRING',
@@ -75,7 +80,7 @@ export interface SettingFieldDefinition extends SettingDefinition {
   name: string;
 }
 
-export interface SettingCategoryDefinition extends SettingDefinition {
+export interface ExtendedSettingDefinition extends SettingDefinition {
   category: string;
   defaultValue?: string;
   deprecatedKey?: string;

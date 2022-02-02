@@ -17,25 +17,85 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getSettingsAppSettingsForCategory, Store } from '../../../store/rootReducer';
+import { keyBy } from 'lodash';
+import * as React from 'react';
+import { getValues } from '../../../api/settings';
+import {
+  ExtendedSettingDefinition,
+  SettingDefinitionAndValue,
+  SettingValue
+} from '../../../types/settings';
 import { Component } from '../../../types/types';
-import { fetchValues } from '../store/actions';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 
 interface Props {
   category: string;
   component?: Component;
+  definitions: ExtendedSettingDefinition[];
+  subCategory?: string;
 }
 
-const mapStateToProps = (state: Store, ownProps: Props) => ({
-  settings: getSettingsAppSettingsForCategory(
-    state,
-    ownProps.category,
-    ownProps.component && ownProps.component.key
-  )
-});
+interface State {
+  settings: SettingDefinitionAndValue[];
+}
 
-const mapDispatchToProps = { fetchValues };
+export default class CategoryDefinitionsList extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { settings: [] };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SubCategoryDefinitionsList);
+  componentDidMount() {
+    this.mounted = true;
+
+    this.loadSettingValues();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.category !== this.props.category) {
+      this.loadSettingValues();
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  async loadSettingValues() {
+    const { category, component, definitions } = this.props;
+
+    const categoryDefinitions = definitions.filter(
+      definition => definition.category.toLowerCase() === category.toLowerCase()
+    );
+
+    const keys = categoryDefinitions.map(definition => definition.key).join(',');
+
+    const values: SettingValue[] = await getValues({
+      keys,
+      component: component?.key
+    }).catch(() => []);
+    const valuesByDefinitionKey = keyBy(values, 'key');
+
+    const settings: SettingDefinitionAndValue[] = categoryDefinitions.map(definition => {
+      const settingValue = valuesByDefinitionKey[definition.key];
+      return {
+        definition,
+        settingValue
+      };
+    });
+
+    this.setState({ settings });
+  }
+
+  render() {
+    const { category, component, subCategory } = this.props;
+    const { settings } = this.state;
+
+    return (
+      <SubCategoryDefinitionsList
+        category={category}
+        component={component}
+        settings={settings}
+        subCategory={subCategory}
+      />
+    );
+  }
+}

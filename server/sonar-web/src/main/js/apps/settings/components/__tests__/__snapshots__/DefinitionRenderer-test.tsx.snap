@@ -1,0 +1,471 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: changed value 1`] = `
+<div
+  className="settings-definition settings-definition-changed"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    />
+    <form
+      onSubmit={[Function]}
+    >
+      <Input
+        hasValueChanged={true}
+        onCancel={[MockFunction]}
+        onChange={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+        value="new value"
+      />
+      <DefinitionActions
+        changedValue="new value"
+        hasError={false}
+        hasValueChanged={true}
+        isDefault={false}
+        onCancel={[MockFunction]}
+        onReset={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: in error 1`] = `
+<div
+  className="settings-definition"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    >
+      <span
+        className="text-danger"
+      >
+        <AlertErrorIcon
+          className="spacer-right"
+        />
+        <span>
+          settings.state.validation_failed.validation message
+        </span>
+      </span>
+    </div>
+    <form
+      onSubmit={[Function]}
+    >
+      <Input
+        hasValueChanged={false}
+        onCancel={[MockFunction]}
+        onChange={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+      <DefinitionActions
+        hasError={true}
+        hasValueChanged={false}
+        isDefault={false}
+        onCancel={[MockFunction]}
+        onReset={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="settings-definition"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    >
+      <span
+        className="text-info"
+      >
+        <i
+          className="spinner spacer-right"
+        />
+        settings.state.saving
+      </span>
+    </div>
+    <form
+      onSubmit={[Function]}
+    >
+      <Input
+        hasValueChanged={false}
+        onCancel={[MockFunction]}
+        onChange={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+      <DefinitionActions
+        hasError={false}
+        hasValueChanged={false}
+        isDefault={false}
+        onCancel={[MockFunction]}
+        onReset={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: original value 1`] = `
+<div
+  className="settings-definition"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    />
+    <form
+      onSubmit={[Function]}
+    >
+      <Input
+        hasValueChanged={false}
+        onCancel={[MockFunction]}
+        onChange={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": true,
+            "key": "foo",
+            "value": "original value",
+          }
+        }
+        value="original value"
+      />
+      <DefinitionActions
+        hasError={false}
+        hasValueChanged={false}
+        isDefault={false}
+        onCancel={[MockFunction]}
+        onReset={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": true,
+            "key": "foo",
+            "value": "original value",
+          }
+        }
+      />
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: success 1`] = `
+<div
+  className="settings-definition"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    >
+      <span
+        className="text-success"
+      >
+        <AlertSuccessIcon
+          className="spacer-right"
+        />
+        settings.state.saved
+      </span>
+    </div>
+    <form
+      onSubmit={[Function]}
+    >
+      <Input
+        hasValueChanged={false}
+        onCancel={[MockFunction]}
+        onChange={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+      <DefinitionActions
+        hasError={false}
+        hasValueChanged={false}
+        isDefault={false}
+        onCancel={[MockFunction]}
+        onReset={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: with description 1`] = `
+<div
+  className="settings-definition"
+  data-key="foo"
+>
+  <div
+    className="settings-definition-left"
+  >
+    <h3
+      className="settings-definition-name"
+    />
+    <div
+      className="markdown small spacer-top"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "description",
+        }
+      }
+    />
+    <div
+      className="settings-definition-key note little-spacer-top"
+    >
+      settings.key_x.foo
+    </div>
+  </div>
+  <div
+    className="settings-definition-right"
+  >
+    <div
+      className="settings-definition-state"
+    />
+    <form
+      onSubmit={[Function]}
+    >
+      <Input
+        hasValueChanged={false}
+        onCancel={[MockFunction]}
+        onChange={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "description": "description",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+      <DefinitionActions
+        hasError={false}
+        hasValueChanged={false}
+        isDefault={false}
+        onCancel={[MockFunction]}
+        onReset={[MockFunction]}
+        onSave={[MockFunction]}
+        setting={
+          Object {
+            "definition": Object {
+              "category": "foo category",
+              "description": "description",
+              "fields": Array [],
+              "key": "foo",
+              "options": Array [],
+              "subCategory": "foo subCat",
+            },
+            "hasValue": false,
+            "key": "foo",
+          }
+        }
+      />
+    </form>
+  </div>
+</div>
+`;

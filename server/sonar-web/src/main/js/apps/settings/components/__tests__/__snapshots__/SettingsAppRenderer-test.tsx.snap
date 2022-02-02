@@ -1,0 +1,497 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render almintegration correctly 1`] = `
+<div
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="settings.page"
+  />
+  <PageHeader
+    definitions={
+      Array [
+        Object {
+          "category": "foo category",
+          "fields": Array [],
+          "key": "foo",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+        Object {
+          "category": "general",
+          "fields": Array [],
+          "key": "bar",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+      ]
+    }
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <withRouter(Connect(withAppState(AlmIntegration)))
+            categories={
+              Array [
+                "foo category",
+                "general",
+              ]
+            }
+            definitions={
+              Array [
+                Object {
+                  "category": "foo category",
+                  "fields": Array [],
+                  "key": "foo",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+                Object {
+                  "category": "general",
+                  "fields": Array [],
+                  "key": "bar",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+              ]
+            }
+            selectedCategory="almintegration"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render default view correctly 1`] = `
+<div
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="settings.page"
+  />
+  <PageHeader
+    definitions={
+      Array [
+        Object {
+          "category": "foo category",
+          "fields": Array [],
+          "key": "foo",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+        Object {
+          "category": "general",
+          "fields": Array [],
+          "key": "bar",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+      ]
+    }
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <CategoryDefinitionsList
+            category="general"
+            definitions={
+              Array [
+                Object {
+                  "category": "foo category",
+                  "fields": Array [],
+                  "key": "foo",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+                Object {
+                  "category": "general",
+                  "fields": Array [],
+                  "key": "bar",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+              ]
+            }
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render default view correctly: All Categories List 1`] = `
+<div
+  className="layout-page-side-outer"
+>
+  <div
+    className="layout-page-side"
+    style={
+      Object {
+        "top": 0,
+      }
+    }
+  >
+    <div
+      className="layout-page-side-inner"
+    >
+      <Connect(CategoriesList)
+        categories={
+          Array [
+            "foo category",
+            "general",
+          ]
+        }
+        defaultCategory="general"
+        selectedCategory="general"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render exclusions correctly 1`] = `
+<div
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="settings.page"
+  />
+  <PageHeader
+    definitions={
+      Array [
+        Object {
+          "category": "foo category",
+          "fields": Array [],
+          "key": "foo",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+        Object {
+          "category": "general",
+          "fields": Array [],
+          "key": "bar",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+      ]
+    }
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <AnalysisScope
+            categories={
+              Array [
+                "foo category",
+                "general",
+              ]
+            }
+            definitions={
+              Array [
+                Object {
+                  "category": "foo category",
+                  "fields": Array [],
+                  "key": "foo",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+                Object {
+                  "category": "general",
+                  "fields": Array [],
+                  "key": "bar",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+              ]
+            }
+            selectedCategory="exclusions"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render languages correctly 1`] = `
+<div
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="settings.page"
+  />
+  <PageHeader
+    definitions={
+      Array [
+        Object {
+          "category": "foo category",
+          "fields": Array [],
+          "key": "foo",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+        Object {
+          "category": "general",
+          "fields": Array [],
+          "key": "bar",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+      ]
+    }
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <withRouter(Languages)
+            categories={
+              Array [
+                "foo category",
+                "general",
+              ]
+            }
+            definitions={
+              Array [
+                Object {
+                  "category": "foo category",
+                  "fields": Array [],
+                  "key": "foo",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+                Object {
+                  "category": "general",
+                  "fields": Array [],
+                  "key": "bar",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+              ]
+            }
+            selectedCategory="languages"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render new_code_period correctly 1`] = `
+<div
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="settings.page"
+  />
+  <PageHeader
+    definitions={
+      Array [
+        Object {
+          "category": "foo category",
+          "fields": Array [],
+          "key": "foo",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+        Object {
+          "category": "general",
+          "fields": Array [],
+          "key": "bar",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+      ]
+    }
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <NewCodePeriod />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render pull_request_decoration_binding correctly 1`] = `
+<div
+  id="settings-page"
+>
+  <Suggestions
+    suggestions="settings"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
+    title="settings.page"
+  />
+  <PageHeader
+    definitions={
+      Array [
+        Object {
+          "category": "foo category",
+          "fields": Array [],
+          "key": "foo",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+        Object {
+          "category": "general",
+          "fields": Array [],
+          "key": "bar",
+          "options": Array [],
+          "subCategory": "foo subCat",
+        },
+      ]
+    }
+  />
+  <div
+    className="layout-page"
+  >
+    <ScreenPositionHelper
+      className="layout-page-side-outer"
+    >
+      <Component />
+    </ScreenPositionHelper>
+    <div
+      className="layout-page-main"
+    >
+      <div
+        className="layout-page-main-inner"
+      >
+        <div
+          className="big-padded"
+        >
+          <CategoryDefinitionsList
+            category="pull_request_decoration_binding"
+            definitions={
+              Array [
+                Object {
+                  "category": "foo category",
+                  "fields": Array [],
+                  "key": "foo",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+                Object {
+                  "category": "general",
+                  "fields": Array [],
+                  "key": "bar",
+                  "options": Array [],
+                  "subCategory": "foo subCat",
+                },
+              ]
+            }
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

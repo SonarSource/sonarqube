@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import SelectLegacy from '../../../../components/controls/SelectLegacy';
-import { SettingCategoryDefinition } from '../../../../types/settings';
+import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DefaultSpecializedInputProps } from '../../utils';
 
-type Props = DefaultSpecializedInputProps & Pick<SettingCategoryDefinition, 'options'>;
+type Props = DefaultSpecializedInputProps & Pick<ExtendedSettingDefinition, 'options'>;
 
 export default class InputForSingleSelectList extends React.PureComponent<Props> {
   handleInputChange = ({ value }: { value: string }) => {

@@ -20,8 +20,8 @@
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockDefinition } from '../../../helpers/mocks/settings';
 import {
+  ExtendedSettingDefinition,
   Setting,
-  SettingCategoryDefinition,
   SettingFieldDefinition,
   SettingType
 } from '../../../types/settings';
@@ -32,7 +32,7 @@ const fields = [
   { key: 'bar', type: 'SINGLE_SELECT_LIST' } as SettingFieldDefinition
 ];
 
-const settingDefinition: SettingCategoryDefinition = {
+const settingDefinition: ExtendedSettingDefinition = {
   category: 'test',
   fields: [],
   key: 'test',
@@ -42,7 +42,7 @@ const settingDefinition: SettingCategoryDefinition = {
 
 describe('#getEmptyValue()', () => {
   it('should work for property sets', () => {
-    const setting: SettingCategoryDefinition = {
+    const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.PROPERTY_SET,
       fields
@@ -51,7 +51,7 @@ describe('#getEmptyValue()', () => {
   });
 
   it('should work for multi values string', () => {
-    const setting: SettingCategoryDefinition = {
+    const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.STRING,
       multiValues: true
@@ -60,7 +60,7 @@ describe('#getEmptyValue()', () => {
   });
 
   it('should work for multi values boolean', () => {
-    const setting: SettingCategoryDefinition = {
+    const setting: ExtendedSettingDefinition = {
       ...settingDefinition,
       type: SettingType.BOOLEAN,
       multiValues: true

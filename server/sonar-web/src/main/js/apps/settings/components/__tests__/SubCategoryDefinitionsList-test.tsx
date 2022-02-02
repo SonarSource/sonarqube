@@ -61,7 +61,6 @@ function shallowRender(props: Partial<SubCategoryDefinitionsListProps> = {}) {
   return shallow<SubCategoryDefinitionsListProps>(
     <SubCategoryDefinitionsList
       category="general"
-      fetchValues={jest.fn().mockResolvedValue({})}
       location={mockLocation()}
       settings={[
         mockSettingWithCategory(),

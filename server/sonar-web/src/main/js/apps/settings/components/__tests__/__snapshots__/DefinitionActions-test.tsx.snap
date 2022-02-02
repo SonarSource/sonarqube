@@ -8,13 +8,13 @@ exports[`disables save button on error 1`] = `
     <Button
       className="spacer-right button-success"
       disabled={true}
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       save
     </Button>
     <ResetButtonLink
       className="spacer-right"
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       cancel
     </ResetButtonLink>
@@ -30,13 +30,13 @@ exports[`displays cancel button when value changed and has error 1`] = `
     <Button
       className="spacer-right button-success"
       disabled={true}
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       save
     </Button>
     <ResetButtonLink
       className="spacer-right"
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       cancel
     </ResetButtonLink>
@@ -52,13 +52,13 @@ exports[`displays cancel button when value changed and no error 1`] = `
     <Button
       className="spacer-right button-success"
       disabled={false}
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       save
     </Button>
     <ResetButtonLink
       className="spacer-right"
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       cancel
     </ResetButtonLink>
@@ -128,13 +128,13 @@ exports[`displays save button when it can be saved 1`] = `
     <Button
       className="spacer-right button-success"
       disabled={false}
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       save
     </Button>
     <ResetButtonLink
       className="spacer-right"
-      onClick={[Function]}
+      onClick={[MockFunction]}
     >
       cancel
     </ResetButtonLink>

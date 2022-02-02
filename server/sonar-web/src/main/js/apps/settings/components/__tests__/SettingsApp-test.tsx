@@ -19,29 +19,26 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
+import { getDefinitions } from '../../../../api/settings';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   addSideBarClass,
   addWhitePageClass,
   removeSideBarClass,
   removeWhitePageClass
 } from '../../../../helpers/pages';
-import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import {
-  ALM_INTEGRATION,
-  ANALYSIS_SCOPE_CATEGORY,
-  LANGUAGES_CATEGORY,
-  NEW_CODE_PERIOD_CATEGORY,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY
-} from '../AdditionalCategoryKeys';
-import { SettingsApp } from '../SettingsApp';
+import SettingsApp from '../SettingsApp';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
   addWhitePageClass: jest.fn(),
   removeSideBarClass: jest.fn(),
   removeWhitePageClass: jest.fn()
+}));
+
+jest.mock('../../../../api/settings', () => ({
+  getDefinitions: jest.fn().mockResolvedValue([])
 }));
 
 it('should render default view correctly', async () => {
@@ -52,7 +49,8 @@ it('should render default view correctly', async () => {
 
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot();
+
+  expect(getDefinitions).toBeCalledWith(undefined);
 
   wrapper.unmount();
 
@@ -60,61 +58,14 @@ it('should render default view correctly', async () => {
   expect(removeWhitePageClass).toBeCalled();
 });
 
-it('should render newCodePeriod correctly', async () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: NEW_CODE_PERIOD_CATEGORY } })
-  });
+it('should fetch definitions for component', async () => {
+  const key = 'component-key';
+  const wrapper = shallowRender({ component: mockComponent({ key }) });
 
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render languages correctly', async () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: LANGUAGES_CATEGORY } })
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render analysis scope correctly', async () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: ANALYSIS_SCOPE_CATEGORY } })
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render ALM integration correctly', async () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: ALM_INTEGRATION } })
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render pull request decoration binding correctly', async () => {
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: PULL_REQUEST_DECORATION_BINDING_CATEGORY } })
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(getDefinitions).toBeCalledWith(key);
 });
 
 function shallowRender(props: Partial<SettingsApp['props']> = {}) {
-  return shallow(
-    <SettingsApp
-      defaultCategory="general"
-      fetchSettings={jest.fn().mockResolvedValue({})}
-      location={mockLocation()}
-      params={{}}
-      router={mockRouter()}
-      routes={[]}
-      {...props}
-    />
-  );
+  return shallow(<SettingsApp {...props} />);
 }

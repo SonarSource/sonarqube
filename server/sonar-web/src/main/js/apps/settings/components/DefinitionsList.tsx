@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Setting } from '../../../types/settings';
+import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import Definition from './Definition';
 
 interface Props {
   component?: Component;
   scrollToDefinition: (element: HTMLLIElement) => void;
-  settings: Setting[];
+  settings: SettingDefinitionAndValue[];
 }
 
 export default function DefinitionsList(props: Props) {
@@ -37,7 +37,11 @@ export default function DefinitionsList(props: Props) {
           key={setting.definition.key}
           data-key={setting.definition.key}
           ref={props.scrollToDefinition}>
-          <Definition component={component} setting={setting} />
+          <Definition
+            component={component}
+            definition={setting.definition}
+            initialSettingValue={setting.settingValue}
+          />
         </li>
       ))}
     </ul>

@@ -48,7 +48,7 @@ exports[`should render correctly 1`] = `
   <div
     className="settings-sub-category"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="TEST"
       component={
         Object {
@@ -72,6 +72,7 @@ exports[`should render correctly 1`] = `
           "tags": Array [],
         }
       }
+      definitions={Array []}
     />
   </div>
 </Fragment>

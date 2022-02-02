@@ -23,13 +23,13 @@ import { isCategoryDefinition } from '../apps/settings/utils';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
-  SettingCategoryDefinition,
+  ExtendedSettingDefinition,
   SettingDefinition,
   SettingValue,
   SettingValueResponse
 } from '../types/settings';
 
-export function getDefinitions(component?: string): Promise<SettingCategoryDefinition[]> {
+export function getDefinitions(component?: string): Promise<ExtendedSettingDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
     r => r.definitions,
     throwGlobalError

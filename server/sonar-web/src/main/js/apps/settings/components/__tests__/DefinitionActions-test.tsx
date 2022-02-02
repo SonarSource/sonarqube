@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SettingCategoryDefinition, SettingType } from '../../../../types/settings';
+import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import DefinitionActions from '../DefinitionActions';
 
-const definition: SettingCategoryDefinition = {
+const definition: ExtendedSettingDefinition = {
   category: 'baz',
   description: 'lorem',
   fields: [],
@@ -77,9 +77,9 @@ function shallowRender(changedValue: string, hasError: boolean, isDefault: boole
       hasError={hasError}
       hasValueChanged={changedValue !== ''}
       isDefault={isDefault}
-      onCancel={() => {}}
-      onReset={() => {}}
-      onSave={() => {}}
+      onCancel={jest.fn()}
+      onReset={jest.fn()}
+      onSave={jest.fn()}
       setting={settings}
     />
   );

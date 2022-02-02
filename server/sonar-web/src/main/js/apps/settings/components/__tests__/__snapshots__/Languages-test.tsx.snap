@@ -39,8 +39,9 @@ exports[`should render correctly 1`] = `
   <div
     className="settings-sub-category"
   >
-    <Connect(withRouter(SubCategoryDefinitionsList))
+    <CategoryDefinitionsList
       category="java"
+      definitions={Array []}
     />
   </div>
 </Fragment>

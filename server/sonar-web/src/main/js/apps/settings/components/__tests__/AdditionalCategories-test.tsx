@@ -26,7 +26,9 @@ it('should render additional categories component correctly', () => {
   ADDITIONAL_CATEGORIES.forEach(cat => {
     expect(
       cat.renderComponent({
+        categories: [],
         component: mockComponent(),
+        definitions: [],
         selectedCategory: 'TEST'
       })
     ).toMatchSnapshot();
@@ -39,5 +41,12 @@ it('should not render pull request decoration binding component when the compone
     c => c.key === PULL_REQUEST_DECORATION_BINDING_CATEGORY
   );
 
-  expect(category!.renderComponent({ component: undefined, selectedCategory: '' })).toBeUndefined();
+  expect(
+    category!.renderComponent({
+      categories: [],
+      component: undefined,
+      definitions: [],
+      selectedCategory: ''
+    })
+  ).toBeUndefined();
 });

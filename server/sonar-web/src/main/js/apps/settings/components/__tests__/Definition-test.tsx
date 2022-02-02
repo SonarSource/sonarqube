@@ -19,13 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockSetting } from '../../../../helpers/mocks/settings';
+import { getValues, resetSettingValue, setSettingValue } from '../../../../api/settings';
+import { mockDefinition, mockSettingValue } from '../../../../helpers/mocks/settings';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { Definition } from '../Definition';
-import DefinitionActions from '../DefinitionActions';
-import Input from '../inputs/Input';
+import { SettingType } from '../../../../types/settings';
+import Definition from '../Definition';
 
-const setting = mockSetting();
+jest.mock('../../../../api/settings', () => ({
+  getValues: jest.fn().mockResolvedValue([]),
+  resetSettingValue: jest.fn().mockResolvedValue(undefined),
+  setSettingValue: jest.fn().mockResolvedValue(undefined)
+}));
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -35,67 +39,133 @@ afterAll(() => {
   jest.useRealTimers();
 });
 
-it('should render correctly', () => {
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('Handle change (and check)', () => {
+  it.each([
+    ['empty, no default', mockDefinition(), '', 'settings.state.value_cant_be_empty_no_default'],
+    [
+      'empty, default',
+      mockDefinition({ defaultValue: 'dflt' }),
+      '',
+      'settings.state.value_cant_be_empty'
+    ],
+    [
+      'invalid url',
+      mockDefinition({ key: 'sonar.core.serverBaseURL' }),
+      '%invalid',
+      'settings.state.url_not_valid.%invalid'
+    ],
+    [
+      'valid url',
+      mockDefinition({ key: 'sonar.core.serverBaseURL' }),
+      'http://www.sonarqube.org',
+      undefined
+    ],
+    [
+      'invalid JSON',
+      mockDefinition({ type: SettingType.JSON }),
+      '{{broken: "json}',
+      'Unexpected token { in JSON at position 1'
+    ],
+    ['valid JSON', mockDefinition({ type: SettingType.JSON }), '{"validJson": true}', undefined]
+  ])(
+    'should handle change (and check value): %s',
+    (_caseName, definition, changedValue, expectedValidationMessage) => {
+      const wrapper = shallowRender({ definition });
+
+      wrapper.instance().handleChange(changedValue);
+
+      expect(wrapper.state().changedValue).toBe(changedValue);
+      expect(wrapper.state().success).toBe(false);
+      expect(wrapper.state().validationMessage).toBe(expectedValidationMessage);
+    }
+  );
+});
+
+it('should handle cancel', () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  wrapper.setState({ changedValue: 'whatever', validationMessage: 'something wrong' });
+
+  wrapper.instance().handleCancel();
+
+  expect(wrapper.state().changedValue).toBeUndefined();
+  expect(wrapper.state().validationMessage).toBeUndefined();
 });
 
-it('should correctly handle change of value', () => {
-  const changeValue = jest.fn();
-  const checkValue = jest.fn();
-  const wrapper = shallowRender({ changeValue, checkValue });
-  wrapper.find(Input).prop<Function>('onChange')(5);
-  expect(changeValue).toHaveBeenCalledWith(setting.definition.key, 5);
-  expect(checkValue).toHaveBeenCalledWith(setting.definition.key);
+describe('handleSave', () => {
+  it('should ignore when value unchanged', () => {
+    const wrapper = shallowRender();
+
+    wrapper.instance().handleSave();
+
+    expect(wrapper.state().loading).toBe(false);
+    expect(setSettingValue).not.toBeCalled();
+  });
+
+  it('should handle an empty value', () => {
+    const wrapper = shallowRender();
+
+    wrapper.setState({ changedValue: '' });
+
+    wrapper.instance().handleSave();
+
+    expect(wrapper.state().loading).toBe(false);
+    expect(wrapper.state().validationMessage).toBe('settings.state.value_cant_be_empty');
+    expect(setSettingValue).not.toBeCalled();
+  });
+
+  it('should save and update setting value', async () => {
+    const settingValue = mockSettingValue();
+    (getValues as jest.Mock).mockResolvedValueOnce([settingValue]);
+    const definition = mockDefinition();
+    const wrapper = shallowRender({ definition });
+
+    wrapper.setState({ changedValue: 'new value' });
+
+    wrapper.instance().handleSave();
+
+    expect(wrapper.state().loading).toBe(true);
+
+    await waitAndUpdate(wrapper);
+
+    expect(setSettingValue).toBeCalledWith(definition, 'new value', undefined);
+    expect(getValues).toBeCalledWith({ keys: definition.key, component: undefined });
+    expect(wrapper.state().changedValue).toBeUndefined();
+    expect(wrapper.state().loading).toBe(false);
+    expect(wrapper.state().success).toBe(true);
+    expect(wrapper.state().settingValue).toBe(settingValue);
+
+    jest.runAllTimers();
+    expect(wrapper.state().success).toBe(false);
+  });
 });
 
-it('should correctly cancel value change', () => {
-  const cancelChange = jest.fn();
-  const passValidation = jest.fn();
-  const wrapper = shallowRender({ cancelChange, passValidation });
-  wrapper.find(Input).prop<Function>('onCancel')();
-  expect(cancelChange).toHaveBeenCalledWith(setting.definition.key);
-  expect(passValidation).toHaveBeenCalledWith(setting.definition.key);
-});
+it('should reset and update setting value', async () => {
+  const settingValue = mockSettingValue();
+  (getValues as jest.Mock).mockResolvedValueOnce([settingValue]);
+  const definition = mockDefinition();
+  const wrapper = shallowRender({ definition });
 
-it('should correctly save value change', async () => {
-  const saveValue = jest.fn().mockResolvedValue({});
-  const wrapper = shallowRender({ changedValue: 10, saveValue });
-  wrapper.find(DefinitionActions).prop('onSave')();
+  wrapper.instance().handleReset();
+
+  expect(wrapper.state().loading).toBe(true);
+
   await waitAndUpdate(wrapper);
-  expect(saveValue).toHaveBeenCalledWith(setting.definition.key, undefined);
-  expect(wrapper.find('AlertSuccessIcon').exists()).toBe(true);
-  expect(wrapper.state().success).toBe(true);
-  jest.runAllTimers();
-  expect(wrapper.state().success).toBe(false);
-});
 
-it('should correctly reset', async () => {
-  const cancelChange = jest.fn();
-  const resetValue = jest.fn().mockResolvedValue({});
-  const wrapper = shallowRender({ cancelChange, changedValue: 10, resetValue });
-  wrapper.find(DefinitionActions).prop('onReset')();
-  await waitAndUpdate(wrapper);
-  expect(resetValue).toHaveBeenCalledWith(setting.definition.key, undefined);
-  expect(cancelChange).toHaveBeenCalledWith(setting.definition.key);
+  expect(resetSettingValue).toBeCalledWith({ keys: definition.key, component: undefined });
+  expect(getValues).toBeCalledWith({ keys: definition.key, component: undefined });
+  expect(wrapper.state().changedValue).toBeUndefined();
+  expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().success).toBe(true);
+  expect(wrapper.state().settingValue).toBe(settingValue);
+
   jest.runAllTimers();
   expect(wrapper.state().success).toBe(false);
 });
 
 function shallowRender(props: Partial<Definition['props']> = {}) {
-  return shallow<Definition>(
-    <Definition
-      cancelChange={jest.fn()}
-      changeValue={jest.fn()}
-      changedValue={null}
-      checkValue={jest.fn()}
-      loading={false}
-      passValidation={jest.fn()}
-      resetValue={jest.fn().mockResolvedValue({})}
-      saveValue={jest.fn().mockResolvedValue({})}
-      setting={setting}
-      {...props}
-    />
-  );
+  return shallow<Definition>(<Definition definition={mockDefinition()} {...props} />);
 }

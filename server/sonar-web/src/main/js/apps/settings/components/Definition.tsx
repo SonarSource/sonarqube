@@ -17,58 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
-import { connect } from 'react-redux';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
+import { getValues, resetSettingValue, setSettingValue } from '../../../api/settings';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../../helpers/sanitize';
-import {
-  getSettingsAppChangedValue,
-  getSettingsAppValidationMessage,
-  isSettingsAppLoading,
-  Store
-} from '../../../store/rootReducer';
-import { Setting } from '../../../types/settings';
+import { parseError } from '../../../helpers/request';
+import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
-import { checkValue, resetValue, saveValue } from '../store/actions';
-import { cancelChange, changeValue, passValidation } from '../store/settingsPage';
-import {
-  getPropertyDescription,
-  getPropertyName,
-  getSettingValue,
-  isDefaultOrInherited
-} from '../utils';
-import DefinitionActions from './DefinitionActions';
-import Input from './inputs/Input';
+import { isEmptyValue, isURLKind } from '../utils';
+import DefinitionRenderer from './DefinitionRenderer';
 
 interface Props {
-  cancelChange: (key: string) => void;
-  changeValue: (key: string, value: any) => void;
-  changedValue: any;
-  checkValue: (key: string) => boolean;
   component?: Component;
-  loading: boolean;
-  passValidation: (key: string) => void;
-  resetValue: (key: string, component?: string) => Promise<void>;
-  saveValue: (key: string, component?: string) => Promise<void>;
-  setting: Setting;
-  validationMessage?: string;
+  definition: ExtendedSettingDefinition;
+  initialSettingValue?: SettingValue;
 }
 
 interface State {
+  changedValue?: string;
+  loading: boolean;
   success: boolean;
+  validationMessage?: string;
+  settingValue?: SettingValue;
 }
 
 const SAFE_SET_STATE_DELAY = 3000;
 
-const formNoop = (e: React.FormEvent<HTMLFormElement>) => e.preventDefault();
-
-export class Definition extends React.PureComponent<Props, State> {
+export default class Definition extends React.PureComponent<Props, State> {
   timeout?: number;
   mounted = false;
-  state = { success: false };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      loading: false,
+      success: false,
+      settingValue: props.initialSettingValue
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -76,161 +62,140 @@ export class Definition extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-  }
-
-  safeSetState(changes: State) {
-    if (this.mounted) {
-      this.setState(changes);
-    }
-  }
-
-  handleChange = (value: any) => {
     clearTimeout(this.timeout);
-    this.props.changeValue(this.props.setting.definition.key, value);
-    this.handleCheck();
+  }
+
+  handleChange = (changedValue: any) => {
+    clearTimeout(this.timeout);
+
+    this.setState({ changedValue, success: false }, this.handleCheck);
   };
 
-  handleReset = () => {
-    const { component, setting } = this.props;
-    const { definition } = setting;
-    const componentKey = component && component.key;
-    return this.props.resetValue(definition.key, componentKey).then(() => {
-      this.props.cancelChange(definition.key);
-      this.safeSetState({ success: true });
+  handleReset = async () => {
+    const { component, definition } = this.props;
+
+    this.setState({ loading: true, success: false });
+
+    try {
+      await resetSettingValue({ keys: definition.key, component: component?.key });
+      const result = await getValues({ keys: definition.key, component: component?.key });
+      const settingValue = result[0];
+
+      this.setState({
+        changedValue: undefined,
+        loading: false,
+        success: true,
+        validationMessage: undefined,
+        settingValue
+      });
+
       this.timeout = window.setTimeout(
-        () => this.safeSetState({ success: false }),
+        () => this.setState({ success: false }),
         SAFE_SET_STATE_DELAY
       );
-    });
+    } catch (e) {
+      const validationMessage = await parseError(e as Response);
+      this.setState({ loading: false, validationMessage });
+    }
   };
 
   handleCancel = () => {
-    const { setting } = this.props;
-    this.props.cancelChange(setting.definition.key);
-    this.props.passValidation(setting.definition.key);
+    this.setState({ changedValue: undefined, validationMessage: undefined });
   };
 
   handleCheck = () => {
-    const { setting } = this.props;
-    this.props.checkValue(setting.definition.key);
+    const { definition } = this.props;
+    const { changedValue } = this.state;
+
+    if (isEmptyValue(definition, changedValue)) {
+      if (definition.defaultValue === undefined) {
+        this.setState({
+          validationMessage: translate('settings.state.value_cant_be_empty_no_default')
+        });
+      } else {
+        this.setState({ validationMessage: translate('settings.state.value_cant_be_empty') });
+      }
+      return false;
+    }
+
+    if (isURLKind(definition)) {
+      try {
+        // eslint-disable-next-line no-new
+        new URL(changedValue ?? '');
+      } catch (e) {
+        this.setState({
+          validationMessage: translateWithParameters(
+            'settings.state.url_not_valid',
+            changedValue ?? ''
+          )
+        });
+        return false;
+      }
+    }
+
+    if (definition.type === SettingType.JSON) {
+      try {
+        JSON.parse(changedValue ?? '');
+      } catch (e) {
+        this.setState({ validationMessage: (e as Error).message });
+
+        return false;
+      }
+    }
+
+    this.setState({ validationMessage: undefined });
+    return true;
   };
 
-  handleSave = () => {
-    if (this.props.changedValue != null) {
-      this.safeSetState({ success: false });
-      const { component, setting } = this.props;
-      this.props.saveValue(setting.definition.key, component && component.key).then(
-        () => {
-          this.safeSetState({ success: true });
-          this.timeout = window.setTimeout(
-            () => this.safeSetState({ success: false }),
-            SAFE_SET_STATE_DELAY
-          );
-        },
-        () => {
-          /* Do nothing */
-        }
-      );
+  handleSave = async () => {
+    const { component, definition } = this.props;
+    const { changedValue } = this.state;
+
+    if (changedValue !== undefined) {
+      this.setState({ success: false });
+
+      if (isEmptyValue(definition, changedValue)) {
+        this.setState({ validationMessage: translate('settings.state.value_cant_be_empty') });
+
+        return;
+      }
+
+      this.setState({ loading: true });
+
+      try {
+        await setSettingValue(definition, changedValue, component?.key);
+        const result = await getValues({ keys: definition.key, component: component?.key });
+        const settingValue = result[0];
+
+        this.setState({
+          changedValue: undefined,
+          loading: false,
+          success: true,
+          settingValue
+        });
+
+        this.timeout = window.setTimeout(
+          () => this.setState({ success: false }),
+          SAFE_SET_STATE_DELAY
+        );
+      } catch (e) {
+        const validationMessage = await parseError(e as Response);
+        this.setState({ loading: false, validationMessage });
+      }
     }
   };
 
   render() {
-    const { changedValue, loading, setting, validationMessage } = this.props;
-    const { definition } = setting;
-    const propertyName = getPropertyName(definition);
-    const hasError = validationMessage != null;
-    const hasValueChanged = changedValue != null;
-    const effectiveValue = hasValueChanged ? changedValue : getSettingValue(setting);
-    const isDefault = isDefaultOrInherited(setting);
-    const description = getPropertyDescription(definition);
+    const { definition } = this.props;
     return (
-      <div
-        className={classNames('settings-definition', {
-          'settings-definition-changed': hasValueChanged
-        })}
-        data-key={definition.key}>
-        <div className="settings-definition-left">
-          <h3 className="settings-definition-name" title={propertyName}>
-            {propertyName}
-          </h3>
-
-          {description && (
-            <div
-              className="markdown small spacer-top"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: sanitizeStringRestricted(description) }}
-            />
-          )}
-
-          <div className="settings-definition-key note little-spacer-top">
-            {translateWithParameters('settings.key_x', definition.key)}
-          </div>
-        </div>
-
-        <div className="settings-definition-right">
-          <div className="settings-definition-state">
-            {loading && (
-              <span className="text-info">
-                <i className="spinner spacer-right" />
-                {translate('settings.state.saving')}
-              </span>
-            )}
-
-            {!loading && validationMessage && (
-              <span className="text-danger">
-                <AlertErrorIcon className="spacer-right" />
-                <span>
-                  {translateWithParameters('settings.state.validation_failed', validationMessage)}
-                </span>
-              </span>
-            )}
-
-            {!loading && !hasError && this.state.success && (
-              <span className="text-success">
-                <AlertSuccessIcon className="spacer-right" />
-                {translate('settings.state.saved')}
-              </span>
-            )}
-          </div>
-          <form onSubmit={formNoop}>
-            <Input
-              hasValueChanged={hasValueChanged}
-              onCancel={this.handleCancel}
-              onChange={this.handleChange}
-              onSave={this.handleSave}
-              setting={setting}
-              value={effectiveValue}
-            />
-            <DefinitionActions
-              changedValue={changedValue}
-              hasError={hasError}
-              hasValueChanged={hasValueChanged}
-              isDefault={isDefault}
-              onCancel={this.handleCancel}
-              onReset={this.handleReset}
-              onSave={this.handleSave}
-              setting={setting}
-            />
-          </form>
-        </div>
-      </div>
+      <DefinitionRenderer
+        definition={definition}
+        onCancel={this.handleCancel}
+        onChange={this.handleChange}
+        onReset={this.handleReset}
+        onSave={this.handleSave}
+        {...this.state}
+      />
     );
   }
 }
-
-const mapStateToProps = (state: Store, ownProps: Pick<Props, 'setting'>) => ({
-  changedValue: getSettingsAppChangedValue(state, ownProps.setting.definition.key),
-  loading: isSettingsAppLoading(state, ownProps.setting.definition.key),
-  validationMessage: getSettingsAppValidationMessage(state, ownProps.setting.definition.key)
-});
-
-const mapDispatchToProps = {
-  cancelChange: cancelChange as any,
-  changeValue: changeValue as any,
-  checkValue: checkValue as any,
-  passValidation: passValidation as any,
-  resetValue: resetValue as any,
-  saveValue: saveValue as any
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Definition);

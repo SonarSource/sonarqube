@@ -18,10 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { LocationDescriptor } from 'history';
+import { sortBy } from 'lodash';
 import { hasMessage, translate } from '../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
-import { Setting, SettingCategoryDefinition, SettingDefinition } from '../../types/settings';
+import {
+  ExtendedSettingDefinition,
+  Setting,
+  SettingDefinition,
+  SettingValue,
+  SettingWithCategory
+} from '../../types/settings';
 import { Component, Dict } from '../../types/types';
 
 export const DEFAULT_CATEGORY = 'general';
@@ -74,14 +81,35 @@ export function getUniqueName(definition: SettingDefinition, index?: string) {
   return `settings[${definition.key}]${indexSuffix}`;
 }
 
-export function getSettingValue({ definition, fieldValues, value, values }: Setting) {
+export function getSettingValue(definition: SettingDefinition, settingValue?: SettingValue) {
+  const { fieldValues, value, values } = settingValue || {};
   if (isCategoryDefinition(definition) && definition.multiValues) {
     return values;
   } else if (definition.type === 'PROPERTY_SET') {
     return fieldValues;
-  } else {
-    return value;
   }
+  return value;
+}
+
+export function combineDefinitionAndSettingValue(
+  definition: ExtendedSettingDefinition,
+  value?: SettingValue
+): SettingWithCategory {
+  const hasValue = value !== undefined && value.inherited !== true;
+  return {
+    key: definition.key,
+    hasValue,
+    ...value,
+    definition
+  };
+}
+
+export function getDefaultCategory(categories: string[]) {
+  if (categories.includes(DEFAULT_CATEGORY)) {
+    return DEFAULT_CATEGORY;
+  }
+  const sortedCategories = sortBy(categories, category => getCategoryName(category).toLowerCase());
+  return sortedCategories[0];
 }
 
 export function isEmptyValue(definition: SettingDefinition, value: any) {
@@ -89,20 +117,32 @@ export function isEmptyValue(definition: SettingDefinition, value: any) {
     return true;
   } else if (definition.type === 'BOOLEAN') {
     return false;
-  } else {
-    return value.length === 0;
   }
+
+  return value.length === 0;
+}
+
+export function isURLKind(definition: SettingDefinition) {
+  return [
+    'sonar.core.serverBaseURL',
+    'sonar.auth.github.apiUrl',
+    'sonar.auth.github.webUrl',
+    'sonar.auth.gitlab.url',
+    'sonar.lf.gravatarServerUrl',
+    'sonar.lf.logoUrl',
+    'sonar.auth.saml.loginUrl'
+  ].includes(definition.key);
 }
 
 export function isSecuredDefinition(item: SettingDefinition): boolean {
   return item.key.endsWith('.secured');
 }
 
-export function isCategoryDefinition(item: SettingDefinition): item is SettingCategoryDefinition {
+export function isCategoryDefinition(item: SettingDefinition): item is ExtendedSettingDefinition {
   return Boolean((item as any).fields);
 }
 
-export function getEmptyValue(item: SettingDefinition | SettingCategoryDefinition): any {
+export function getEmptyValue(item: SettingDefinition | ExtendedSettingDefinition): any {
   if (isCategoryDefinition(item)) {
     if (item.multiValues) {
       return [getEmptyValue({ ...item, multiValues: false })];
@@ -121,8 +161,8 @@ export function getEmptyValue(item: SettingDefinition | SettingCategoryDefinitio
   return '';
 }
 
-export function isDefaultOrInherited(setting: Setting) {
-  return Boolean(setting.inherited);
+export function isDefaultOrInherited(setting?: Pick<SettingValue, 'inherited'>) {
+  return Boolean(setting && setting.inherited);
 }
 
 export function getDefaultValue(setting: Setting) {
@@ -170,7 +210,7 @@ export function isRealSettingKey(key: string) {
 }
 
 export function buildSettingLink(
-  definition: SettingCategoryDefinition,
+  definition: ExtendedSettingDefinition,
   component?: Component
 ): LocationDescriptor {
   const { category, key } = definition;
@@ -198,7 +238,7 @@ export function buildSettingLink(
   };
 }
 
-export const ADDITIONAL_PROJECT_SETTING_DEFINITIONS: SettingCategoryDefinition[] = [
+export const ADDITIONAL_PROJECT_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
   {
     name: 'DevOps Platform Integration',
     description: `
@@ -213,7 +253,7 @@ export const ADDITIONAL_PROJECT_SETTING_DEFINITIONS: SettingCategoryDefinition[]
   }
 ];
 
-export const ADDITIONAL_SETTING_DEFINITIONS: SettingCategoryDefinition[] = [
+export const ADDITIONAL_SETTING_DEFINITIONS: ExtendedSettingDefinition[] = [
   {
     name: 'Default New Code behavior',
     description: `

@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
 import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import { LANGUAGES_CATEGORY } from './AdditionalCategoryKeys';
@@ -30,7 +28,6 @@ import CategoryDefinitionsList from './CategoryDefinitionsList';
 import CATEGORY_OVERRIDES from './CategoryOverrides';
 
 export interface LanguagesProps extends AdditionalCategoryComponentProps {
-  categories: string[];
   location: Location;
   router: Router;
 }
@@ -42,7 +39,7 @@ interface SelectOption {
 }
 
 export function Languages(props: LanguagesProps) {
-  const { categories, component, location, router, selectedCategory } = props;
+  const { categories, component, definitions, location, router, selectedCategory } = props;
   const { availableLanguages, selectedLanguage } = getLanguages(categories, selectedCategory);
 
   const handleOnChange = (newOption: SelectOption) => {
@@ -66,7 +63,11 @@ export function Languages(props: LanguagesProps) {
       </div>
       {selectedLanguage && (
         <div className="settings-sub-category">
-          <CategoryDefinitionsList category={selectedLanguage} component={component} />
+          <CategoryDefinitionsList
+            category={selectedLanguage}
+            component={component}
+            definitions={definitions}
+          />
         </div>
       )}
     </>
@@ -100,8 +101,4 @@ function getLanguages(categories: string[], selectedCategory: string) {
   };
 }
 
-export default withRouter(
-  connect((state: Store) => ({
-    categories: getSettingsAppAllCategories(state)
-  }))(Languages)
-);
+export default withRouter(Languages);

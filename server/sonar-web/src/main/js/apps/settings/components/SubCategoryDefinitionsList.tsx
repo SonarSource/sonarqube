@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { groupBy, isEqual, sortBy } from 'lodash';
+import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { SettingWithCategory } from '../../../types/settings';
+import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import { getSubCategoryDescription, getSubCategoryName } from '../utils';
 import DefinitionsList from './DefinitionsList';
@@ -31,9 +31,8 @@ import EmailForm from './EmailForm';
 export interface SubCategoryDefinitionsListProps {
   category: string;
   component?: Component;
-  fetchValues: Function;
   location: Location;
-  settings: Array<SettingWithCategory>;
+  settings: Array<SettingDefinitionAndValue>;
   subCategory?: string;
 }
 
@@ -43,17 +42,7 @@ const SCROLL_OFFSET_BOTTOM = 500;
 export class SubCategoryDefinitionsList extends React.PureComponent<
   SubCategoryDefinitionsListProps
 > {
-  componentDidMount() {
-    this.fetchValues();
-  }
-
   componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
-    const prevKeys = prevProps.settings.map(setting => setting.definition.key);
-    const keys = this.props.settings.map(setting => setting.definition.key);
-    if (prevProps.component !== this.props.component || !isEqual(prevKeys, keys)) {
-      this.fetchValues();
-    }
-
     const { hash } = this.props.location;
     if (hash && prevProps.location.hash !== hash) {
       const query = `[data-key=${hash.substr(1).replace(/[.#/]/g, '\\$&')}]`;
@@ -74,11 +63,6 @@ export class SubCategoryDefinitionsList extends React.PureComponent<
       }
     }
   };
-
-  fetchValues() {
-    const keys = this.props.settings.map(setting => setting.definition.key);
-    return this.props.fetchValues(keys, this.props.component && this.props.component.key);
-  }
 
   renderEmailForm = (subCategoryKey: string) => {
     const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';

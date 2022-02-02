@@ -23,5 +23,6 @@ exports[`should render correctly 1`] = `
   onDelete={[Function]}
   onSelectAlmTab={[Function]}
   onUpdateDefinitions={[Function]}
+  settingsDefinitions={Array []}
 />
 `;

@@ -51,6 +51,7 @@ function shallowRender(props: Partial<AlmIntegrationRendererProps> = {}) {
       onDelete={jest.fn()}
       onSelectAlmTab={jest.fn()}
       onUpdateDefinitions={jest.fn()}
+      settingsDefinitions={[]}
       {...props}
     />
   );

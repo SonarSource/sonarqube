@@ -28,6 +28,7 @@ import {
   AlmSettingsBindingStatus,
   isBitbucketCloudBindingDefinition
 } from '../../../../types/alm-settings';
+import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
 import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
@@ -52,6 +53,7 @@ export interface AlmTabRendererProps {
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
   afterSubmit: (config: AlmBindingDefinitionBase) => void;
+  settingsDefinitions: ExtendedSettingDefinition[];
 }
 
 export default function AlmTabRenderer(props: AlmTabRendererProps) {
@@ -64,7 +66,8 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
     editedDefinition,
     loadingAlmDefinitions,
     loadingProjectCount,
-    multipleAlmEnabled
+    multipleAlmEnabled,
+    settingsDefinitions
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
@@ -116,7 +119,11 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
       <div className="huge-spacer-top huge-spacer-bottom bordered-top" />
 
       <div className="big-padded">
-        <CategoryDefinitionsList category={ALM_INTEGRATION} subCategory={almTab} />
+        <CategoryDefinitionsList
+          category={ALM_INTEGRATION}
+          definitions={settingsDefinitions}
+          subCategory={almTab}
+        />
       </div>
     </div>
   );

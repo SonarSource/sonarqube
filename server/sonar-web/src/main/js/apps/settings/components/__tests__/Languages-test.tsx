@@ -58,6 +58,7 @@ function shallowRender(props: Partial<LanguagesProps> = {}) {
     <Languages
       categories={['Java', 'JavaScript', 'COBOL']}
       component={undefined}
+      definitions={[]}
       location={mockLocation()}
       router={mockRouter()}
       selectedCategory="java"

@@ -66,42 +66,6 @@ export function getGlobalSettingValue(state: Store, key: string) {
   return fromSettingsApp.getValue(state.settingsApp, key);
 }
 
-export function getSettingsAppAllDefinitions(state: Store) {
-  return fromSettingsApp.getAllDefinitions(state.settingsApp);
-}
-
-export function getSettingsAppDefinition(state: Store, key: string) {
-  return fromSettingsApp.getDefinition(state.settingsApp, key);
-}
-
-export function getSettingsAppAllCategories(state: Store) {
-  return fromSettingsApp.getAllCategories(state.settingsApp);
-}
-
-export function getSettingsAppDefaultCategory(state: Store) {
-  return fromSettingsApp.getDefaultCategory(state.settingsApp);
-}
-
-export function getSettingsAppSettingsForCategory(
-  state: Store,
-  category: string,
-  component?: string
-) {
-  return fromSettingsApp.getSettingsForCategory(state.settingsApp, category, component);
-}
-
-export function getSettingsAppChangedValue(state: Store, key: string) {
-  return fromSettingsApp.getChangedValue(state.settingsApp, key);
-}
-
-export function isSettingsAppLoading(state: Store, key: string) {
-  return fromSettingsApp.isLoading(state.settingsApp, key);
-}
-
-export function getSettingsAppValidationMessage(state: Store, key: string) {
-  return fromSettingsApp.getValidationMessage(state.settingsApp, key);
-}
-
 export function getBranchStatusByBranchLike(
   state: Store,
   component: string,

@@ -23,7 +23,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { IndexLink } from 'react-router';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../../helpers/urls';
-import { getAppState, getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
+import { getAppState, Store } from '../../../store/rootReducer';
 import { Component } from '../../../types/types';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
@@ -85,7 +85,6 @@ export function CategoriesList(props: CategoriesListProps) {
 }
 
 const mapStateToProps = (state: Store) => ({
-  categories: getSettingsAppAllCategories(state),
   branchesEnabled: getAppState(state).branchesEnabled
 });
 

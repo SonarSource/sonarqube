@@ -18,65 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import globalMessages, * as fromGlobalMessages from '../../../store/globalMessages';
-import definitions, * as fromDefinitions from './definitions';
-import settingsPage, * as fromSettingsPage from './settingsPage';
 import values, * as fromValues from './values';
 
 interface State {
-  definitions: fromDefinitions.State;
-  globalMessages: fromGlobalMessages.State;
-  settingsPage: fromSettingsPage.State;
   values: fromValues.State;
 }
 
-export default combineReducers({ definitions, values, settingsPage, globalMessages });
-
-export function getDefinition(state: State, key: string) {
-  return fromDefinitions.getDefinition(state.definitions, key);
-}
-
-export function getAllDefinitions(state: State) {
-  return fromDefinitions.getAllDefinitions(state.definitions);
-}
-
-export function getAllCategories(state: State) {
-  return fromDefinitions.getAllCategories(state.definitions);
-}
-
-export function getDefaultCategory(state: State) {
-  return fromDefinitions.getDefaultCategory(state.definitions);
-}
+export default combineReducers({ values });
 
 export function getValue(state: State, key: string, component?: string) {
   return fromValues.getValue(state.values, key, component);
-}
-
-export function getSettingsForCategory(state: State, category: string, component?: string) {
-  return fromDefinitions.getDefinitionsForCategory(state.definitions, category).map(definition => {
-    const value = getValue(state, definition.key, component);
-    const hasValue = value !== undefined && value.inherited !== true;
-    return {
-      key: definition.key,
-      hasValue,
-      ...value,
-      definition
-    };
-  });
-}
-
-export function getChangedValue(state: State, key: string) {
-  return fromSettingsPage.getChangedValue(state.settingsPage, key);
-}
-
-export function isLoading(state: State, key: string) {
-  return fromSettingsPage.isLoading(state.settingsPage, key);
-}
-
-export function getValidationMessage(state: State, key: string) {
-  return fromSettingsPage.getValidationMessage(state.settingsPage, key);
-}
-
-export function getGlobalMessages(state: State) {
-  return fromGlobalMessages.getGlobalMessages(state.globalMessages);
 }

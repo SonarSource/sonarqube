@@ -27,5 +27,12 @@ it('should render correctly', () => {
 });
 
 function shallowRender() {
-  return shallow(<AnalysisScope component={mockComponent()} selectedCategory="TEST" />);
+  return shallow(
+    <AnalysisScope
+      categories={[]}
+      component={mockComponent()}
+      definitions={[]}
+      selectedCategory="TEST"
+    />
+  );
 }

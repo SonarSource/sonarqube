@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import {
   ALM_INTEGRATION,
@@ -34,6 +35,8 @@ import NewCodePeriod from './NewCodePeriod';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
+  categories: string[];
+  definitions: ExtendedSettingDefinition[];
   component: Component | undefined;
   selectedCategory: string;
 }
