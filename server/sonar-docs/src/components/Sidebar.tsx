@@ -199,7 +199,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
           {this.state.loaded && !isOnCurrentVersion && !isOnLTSVersion && (
             <div className="alert alert-warning">
               This is an archived version of the doc for <b>SonarQube version {version}</b>.{' '}
-              <a href="/">See Documentation</a> for current functionnality.
+              <a href="/">See Documentation</a> for current functionality.
             </div>
           )}
         </div>

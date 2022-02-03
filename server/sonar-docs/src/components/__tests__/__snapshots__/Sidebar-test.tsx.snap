@@ -580,7 +580,7 @@ exports[`should render correctly: show warning 1`] = `
       >
         See Documentation
       </a>
-       for current functionnality.
+       for current functionality.
     </div>
   </div>
   <div
