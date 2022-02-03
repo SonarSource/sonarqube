@@ -46,6 +46,8 @@ public class ServerMonitoringMetrics {
 
   private final Gauge webUptimeMinutes;
 
+  private final Gauge numberOfConnectedSonarLintClients;
+
   public ServerMonitoringMetrics() {
     githubHealthIntegrationStatus = Gauge.build()
       .name("sonarqube_health_integration_github_status")
@@ -118,6 +120,11 @@ public class ServerMonitoringMetrics {
     webUptimeMinutes = Gauge.build()
       .name("sonarqube_web_uptime_minutes")
       .help("Number of minutes for how long the SonarQube instance is running")
+      .register();
+
+    numberOfConnectedSonarLintClients = Gauge.build()
+      .name("sonarqube_number_of_connected_sonarlint_clients")
+      .help("Number of connected SonarLint clients")
       .register();
 
   }
@@ -200,5 +207,9 @@ public class ServerMonitoringMetrics {
 
   public void setWebUptimeMinutes(long minutes) {
     webUptimeMinutes.set(minutes);
+  }
+
+  public void setNumberOfConnectedSonarLintClients(long noOfClients) {
+    numberOfConnectedSonarLintClients.set(noOfClients);
   }
 }

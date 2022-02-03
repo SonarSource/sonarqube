@@ -48,11 +48,11 @@ public class SonarLintClientsRegistryTest {
 
     underTest.registerClient(sonarLintClient);
 
-    assertThat(underTest.getAllClients()).hasSize(1);
+    assertThat(underTest.countConnectedClients()).isEqualTo(1);
 
     underTest.unregisterClient(sonarLintClient);
 
-    assertThat(underTest.getAllClients()).isEmpty();
+    assertThat(underTest.countConnectedClients()).isZero();
   }
 
   @Test
@@ -63,7 +63,7 @@ public class SonarLintClientsRegistryTest {
       underTest.registerClient(sonarLintClient);
     }
 
-    assertThat(underTest.getAllClients()).hasSize(10);
+    assertThat(underTest.countConnectedClients()).isEqualTo(10);
   }
 
 }

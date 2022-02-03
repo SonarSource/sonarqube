@@ -131,6 +131,7 @@ import org.sonar.server.monitoring.ElasticSearchMetricTask;
 import org.sonar.server.monitoring.MainCollector;
 import org.sonar.server.monitoring.MonitoringWsModule;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
+import org.sonar.server.monitoring.SonarLintConnectedClientsTask;
 import org.sonar.server.monitoring.WebUptimeTask;
 import org.sonar.server.monitoring.ce.NumberOfTasksInQueueTask;
 import org.sonar.server.monitoring.ce.RecentTasksDurationTask;
@@ -603,6 +604,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComputeEngineMetricStatusTask.class,
       ElasticSearchMetricTask.class,
       WebUptimeTask.class,
+      SonarLintConnectedClientsTask.class,
 
       MainCollector.class,
 

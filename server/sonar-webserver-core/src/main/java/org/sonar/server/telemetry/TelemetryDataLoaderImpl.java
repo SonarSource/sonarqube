@@ -76,13 +76,13 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final LicenseReader licenseReader;
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-                                 PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration, DockerSupport dockerSupport) {
+    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration, DockerSupport dockerSupport) {
     this(server, dbClient, pluginRepository, userIndex, projectMeasuresIndex, editionProvider, internalProperties, configuration, dockerSupport, null);
   }
 
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository, UserIndex userIndex, ProjectMeasuresIndex projectMeasuresIndex,
-                                 PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
-                                 DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
+    PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
+    DockerSupport dockerSupport, @Nullable LicenseReader licenseReader) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;

@@ -60,6 +60,7 @@ public class TelemetryDataJsonWriterTest {
     .setExternalAuthenticationProviders(asList("github", "gitlab"))
     .setProjectCountByScm(Collections.emptyMap())
     .setSonarlintWeeklyUsers(10)
+    .setNumberOfConnectedSonarLintClients(5)
     .setProjectCountByCi(Collections.emptyMap())
     .setDatabase(new TelemetryData.Database("H2", "11"))
     .setUsingBranches(true);

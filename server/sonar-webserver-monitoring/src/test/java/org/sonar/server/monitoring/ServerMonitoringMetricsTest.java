@@ -120,6 +120,16 @@ public class ServerMonitoringMetricsTest {
   }
 
   @Test
+  public void setters_setNumberOfConnectedSonarLintClients() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+
+    metrics.setNumberOfConnectedSonarLintClients(5);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_number_of_connected_sonarlint_clients"))
+      .isEqualTo(5);
+  }
+
+  @Test
   public void setters_setElasticsearchMetricsWithLabels() {
     ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
     String[] labelNames = {"node_name"};

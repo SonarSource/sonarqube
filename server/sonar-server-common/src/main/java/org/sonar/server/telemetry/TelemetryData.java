@@ -54,6 +54,7 @@ public class TelemetryData {
   private final Boolean hasUnanalyzedCpp;
   private final List<String> customSecurityConfigs;
   private final long sonarlintWeeklyUsers;
+  private final long numberOfConnectedSonarLintClients;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -79,6 +80,7 @@ public class TelemetryData {
     externalAuthenticationProviders = builder.externalAuthenticationProviders;
     projectCountByScm = builder.projectCountByScm;
     projectCountByCi = builder.projectCountByCi;
+    numberOfConnectedSonarLintClients = builder.numberOfConnectedSonarLintClients;
   }
 
   public String getServerId() {
@@ -99,6 +101,10 @@ public class TelemetryData {
 
   public long sonarlintWeeklyUsers() {
     return sonarlintWeeklyUsers;
+  }
+
+  public long sonarLintConnectedClients() {
+    return numberOfConnectedSonarLintClients;
   }
 
   public long getUserCount() {
@@ -199,6 +205,7 @@ public class TelemetryData {
     private List<String> externalAuthenticationProviders;
     private Map<String, Long> projectCountByScm;
     private Map<String, Long> projectCountByCi;
+    private long numberOfConnectedSonarLintClients;
 
     private Builder() {
       // enforce static factory method
@@ -306,6 +313,11 @@ public class TelemetryData {
 
     Builder setCustomSecurityConfigs(List<String> customSecurityConfigs) {
       this.customSecurityConfigs = customSecurityConfigs;
+      return this;
+    }
+
+    Builder setNumberOfConnectedSonarLintClients(long numberOfConnectedSonarLintClients) {
+      this.numberOfConnectedSonarLintClients = numberOfConnectedSonarLintClients;
       return this;
     }
 
