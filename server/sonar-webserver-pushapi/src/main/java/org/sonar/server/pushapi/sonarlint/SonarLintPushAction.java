@@ -84,7 +84,7 @@ public class SonarLintPushAction extends ServerPushAction {
 
     if (!isServerSideEventsRequest(servletRequest)) {
       servletResponse.stream().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-      return;
+      return; // TODO fixme this is not closing the connexion properly
     }
 
     setHeadersForResponse(servletResponse);
@@ -92,7 +92,7 @@ public class SonarLintPushAction extends ServerPushAction {
     AsyncContext asyncContext = servletRequest.startAsync();
     asyncContext.setTimeout(0);
 
-    var sonarLintClient = new SonarLintClient(asyncContext, params.getProjectKeys(), params.getLanguages());
+    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, params.getProjectKeys(), params.getLanguages());
 
     clientsRegistry.registerClient(sonarLintClient);
   }

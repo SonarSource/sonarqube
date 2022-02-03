@@ -43,6 +43,10 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class QProfileRulesImplTest {
 
@@ -55,9 +59,11 @@ public class QProfileRulesImplTest {
 
   private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), new TypeValidations(singletonList(new IntegerTypeValidation())), userSession);
+  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), new TypeValidations(singletonList(new IntegerTypeValidation())),
+    userSession);
+  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
 
-  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
+  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
 
   @Test
   public void activate_one_rule() {
@@ -70,6 +76,7 @@ public class QProfileRulesImplTest {
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), qProfile))
       .extracting(ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString)
       .containsExactlyInAnyOrder(tuple(rule.getKey(), Severity.CRITICAL));
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(qProfile.getLanguage()));
   }
 
   @Test
@@ -85,5 +92,6 @@ public class QProfileRulesImplTest {
     assertThat(db.getDbClient().qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfile.getKee())))
       .extracting(QProfileChangeDto::getUserUuid, QProfileChangeDto::getDataAsMap)
       .containsExactlyInAnyOrder(tuple(user.getUuid(), ImmutableMap.of("ruleUuid", rule.getUuid(), "severity", Severity.CRITICAL)));
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(qProfile.getLanguage()));
   }
 }

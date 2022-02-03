@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Optional;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,8 +31,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
@@ -44,13 +48,16 @@ public class AddProjectAction implements QProfileWsAction {
   private final Languages languages;
   private final ComponentFinder componentFinder;
   private final QProfileWsSupport wsSupport;
+  private final QualityProfileChangeEventService qualityProfileChangeEventService;
 
-  public AddProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder, QProfileWsSupport wsSupport) {
+  public AddProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder,
+    QProfileWsSupport wsSupport, QualityProfileChangeEventService qualityProfileChangeEventService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.languages = languages;
     this.componentFinder = componentFinder;
     this.wsSupport = wsSupport;
+    this.qualityProfileChangeEventService = qualityProfileChangeEventService;
   }
 
   @Override
@@ -80,23 +87,35 @@ public class AddProjectAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       checkPermissions(dbSession, profile, project);
-
       QProfileDto currentProfile = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage());
+
+      Optional<QProfileDto> deactivatedProfile = empty();
+
       if (currentProfile == null) {
+        QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, profile.getLanguage());
+        if (defaultProfile != null) {
+          deactivatedProfile = of(defaultProfile);
+        }
+
         // project uses the default profile
         dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
         dbSession.commit();
       } else if (!profile.getKee().equals(currentProfile.getKee())) {
+        deactivatedProfile = of(currentProfile);
         dbClient.qualityProfileDao().updateProjectProfileAssociation(dbSession, project, profile.getKee(), currentProfile.getKee());
         dbSession.commit();
       }
+      Optional<QProfileDto> activatedProfile = of(profile);
+      qualityProfileChangeEventService.publishRuleActivationToSonarLintClients(project, activatedProfile, deactivatedProfile);
     }
 
     response.noContent();
   }
+
 
   private ProjectDto loadProject(DbSession dbSession, Request request) {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);

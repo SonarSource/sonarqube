@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.servlet.AsyncContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,7 +40,7 @@ public class SonarLintClientsRegistryTest {
 
   @Before
   public void before() {
-    underTest = new SonarLintClientsRegistry();
+    underTest = new SonarLintClientsRegistry(mock(StandaloneRuleActivatorEventsDistributor.class));
   }
 
   @Test

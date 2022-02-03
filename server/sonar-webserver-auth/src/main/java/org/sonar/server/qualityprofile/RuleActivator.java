@@ -52,6 +52,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
@@ -72,9 +73,17 @@ public class RuleActivator {
     this.userSession = userSession;
   }
 
+
+  public List<ActiveRuleChange> activate(DbSession dbSession, Collection<RuleActivation> activations, RuleActivationContext context) {
+    return activations.stream().map(a -> activate(dbSession, a, context))
+      .flatMap(List::stream)
+      .collect(toList());
+  }
+
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
     context.reset(activation.getRuleUuid());
-    return doActivate(dbSession, activation, context);
+    List<ActiveRuleChange> activeRuleChanges = doActivate(dbSession, activation, context);
+    return activeRuleChanges;
   }
 
   private List<ActiveRuleChange> doActivate(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
@@ -357,7 +366,8 @@ public class RuleActivator {
 
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, String ruleUuid, boolean force) {
     context.reset(ruleUuid);
-    return doDeactivate(dbSession, context, force);
+    List<ActiveRuleChange> activeRuleChanges = doDeactivate(dbSession, context, force);
+    return activeRuleChanges;
   }
 
   private List<ActiveRuleChange> doDeactivate(DbSession dbSession, RuleActivationContext context, boolean force) {

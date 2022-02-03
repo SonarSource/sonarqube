@@ -90,12 +90,13 @@ public class RegisterQualityProfilesNotificationTest {
   private DbClient dbClient = db.getDbClient();
   private TypeValidations typeValidations = mock(TypeValidations.class);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient);
   private BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, ruleFinder, system2, UuidFactoryFast.getInstance(),
     typeValidations, activeRuleIndexer);
   private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, typeValidations, userSessionRule);
-  private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer);
-  private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer);
+  private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer, qualityProfileChangeEventService);
+  private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer, qualityProfileChangeEventService);
   private BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification = mock(BuiltInQualityProfilesUpdateListener.class);
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
     builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2);

@@ -43,6 +43,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -56,6 +57,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
@@ -81,8 +83,9 @@ public class QProfilesWsMediumTest {
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private final TypeValidations typeValidations = new TypeValidations(emptyList());
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule);
-  private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
   private final QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule);
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient);
 

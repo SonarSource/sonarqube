@@ -40,6 +40,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.core.util.RuleActivationListener;
+import org.sonar.core.util.RuleSetChangeEvent;
 import org.sonar.process.cluster.hz.DistributedAnswer;
 import org.sonar.process.cluster.hz.DistributedCall;
 import org.sonar.process.cluster.hz.DistributedCallback;
@@ -192,6 +194,16 @@ public class AppNodesClusterHostsConsistencyTest {
     @Override
     public <T> void callAsync(DistributedCall<T> callable, MemberSelector memberSelector, DistributedCallback<T> callback) {
       callback.onComplete((Map<Member, T>) hostsPerMember);
+    }
+
+    @Override
+    public void subscribeRuleActivationTopic(RuleActivationListener listener) {
+
+    }
+
+    @Override
+    public void publishEvent(RuleSetChangeEvent event) {
+
     }
 
     @Override

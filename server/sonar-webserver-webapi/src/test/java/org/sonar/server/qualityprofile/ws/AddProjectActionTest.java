@@ -36,14 +36,19 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class AddProjectActionTest {
@@ -59,7 +64,8 @@ public class AddProjectActionTest {
   private final DbClient dbClient = db.getDbClient();
   private final Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
-  private final AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, TestComponentFinder.from(db), wsSupport);
+  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
+  private final AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, TestComponentFinder.from(db), wsSupport, qualityProfileChangeEventService);
   private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -88,6 +94,7 @@ public class AddProjectActionTest {
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
     assertProjectIsAssociatedToProfile(project, profile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, of(profile), empty());
   }
 
   @Test
@@ -101,6 +108,7 @@ public class AddProjectActionTest {
     call(project, qualityProfile);
 
     assertProjectIsAssociatedToProfile(project, qualityProfile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, of(qualityProfile), empty());
   }
 
   @Test
@@ -117,6 +125,7 @@ public class AddProjectActionTest {
 
     assertProjectIsNotAssociatedToProfile(project, profile1);
     assertProjectIsAssociatedToProfile(project, profile2);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, of(profile2), of(profile1));
   }
 
   @Test
@@ -132,6 +141,7 @@ public class AddProjectActionTest {
 
     assertProjectIsAssociatedToProfile(project, profile3Language1);
     assertProjectIsAssociatedToProfile(project, profile2Language2);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, of(profile3Language1), of(profile1Language1));
   }
 
   @Test
@@ -143,6 +153,7 @@ public class AddProjectActionTest {
     call(project, profile);
 
     assertProjectIsAssociatedToProfile(project, profile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, of(profile), empty());
   }
 
   @Test

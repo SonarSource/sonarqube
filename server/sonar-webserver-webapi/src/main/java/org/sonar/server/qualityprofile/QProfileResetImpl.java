@@ -41,11 +41,13 @@ public class QProfileResetImpl implements QProfileReset {
   private final DbClient db;
   private final RuleActivator activator;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final QualityProfileChangeEventService qualityProfileChangeEventService;
 
-  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer) {
+  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QualityProfileChangeEventService qualityProfileChangeEventService) {
     this.db = db;
     this.activator = activator;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.qualityProfileChangeEventService = qualityProfileChangeEventService;
   }
 
   @Override
@@ -87,6 +89,7 @@ public class QProfileResetImpl implements QProfileReset {
         // ignore, probably a rule inherited from parent that can't be deactivated
       }
     }
+    qualityProfileChangeEventService.distributeRuleChangeEvent(List.of(profile), changes, profile.getLanguage());
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return result;
   }

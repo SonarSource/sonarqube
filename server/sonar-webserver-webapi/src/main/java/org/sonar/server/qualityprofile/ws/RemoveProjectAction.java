@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Optional;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,8 +31,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
@@ -44,13 +48,16 @@ public class RemoveProjectAction implements QProfileWsAction {
   private final Languages languages;
   private final ComponentFinder componentFinder;
   private final QProfileWsSupport wsSupport;
+  private final QualityProfileChangeEventService qualityProfileChangeEventService;
 
-  public RemoveProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder, QProfileWsSupport wsSupport) {
+  public RemoveProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder,
+    QProfileWsSupport wsSupport, QualityProfileChangeEventService qualityProfileChangeEventService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.languages = languages;
     this.componentFinder = componentFinder;
     this.wsSupport = wsSupport;
+    this.qualityProfileChangeEventService = qualityProfileChangeEventService;
   }
 
   @Override
@@ -85,6 +92,17 @@ public class RemoveProjectAction implements QProfileWsAction {
 
       dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
       dbSession.commit();
+
+      Optional<QProfileDto> deactivatedProfile = of(profile);
+      Optional<QProfileDto> activatedProfile = empty();
+
+      // publish change for rules in the default quality profile
+      QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, profile.getLanguage());
+      if (defaultProfile != null) {
+        activatedProfile = of(defaultProfile);
+      }
+
+      qualityProfileChangeEventService.publishRuleActivationToSonarLintClients(project, activatedProfile, deactivatedProfile);
 
       response.noContent();
     }

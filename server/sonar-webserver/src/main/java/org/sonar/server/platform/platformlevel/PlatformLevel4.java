@@ -189,6 +189,7 @@ import org.sonar.server.qualitygate.ws.QualityGateWsModule;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationHandler;
 import org.sonar.server.qualityprofile.BuiltInQPChangeNotificationTemplate;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
+import org.sonar.server.qualityprofile.DistributedRuleActivatorEventsDistributor;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
@@ -198,7 +199,9 @@ import org.sonar.server.qualityprofile.QProfileParser;
 import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.QProfileTreeImpl;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventServiceImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.root.ws.RootWsModule;
@@ -274,6 +277,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
     addIfCluster(NodeHealthModule.class);
 
+    addIfCluster(DistributedRuleActivatorEventsDistributor.class);
+    addIfStandalone(StandaloneRuleActivatorEventsDistributor.class);
+
     add(
       ClusterVerification.class,
       LogServerId.class,
@@ -304,6 +310,7 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileTreeImpl.class,
       QProfileRulesImpl.class,
       RuleActivator.class,
+      QualityProfileChangeEventServiceImpl.class,
       QProfileExporters.class,
       QProfileFactoryImpl.class,
       QProfileCopier.class,

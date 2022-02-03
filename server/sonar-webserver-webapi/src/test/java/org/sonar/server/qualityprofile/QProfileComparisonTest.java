@@ -49,6 +49,7 @@ import org.sonar.server.util.TypeValidations;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class QProfileComparisonTest {
 
@@ -74,8 +75,9 @@ public class QProfileComparisonTest {
     dbSession = db.openSession(false);
     RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
     ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db, es.client());
+    QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
     RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db, new TypeValidations(singletonList(new IntegerTypeValidation())), userSession);
-    qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer);
+    qProfileRules = new QProfileRulesImpl(db, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
     comparison = new QProfileComparison(db);
 
     xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").getDefinition();

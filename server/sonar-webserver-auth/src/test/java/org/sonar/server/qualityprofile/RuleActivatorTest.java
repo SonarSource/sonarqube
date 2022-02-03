@@ -50,6 +50,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
@@ -69,6 +70,7 @@ public class RuleActivatorTest {
   private final System2 system2 = new TestSystem2().setNow(NOW);
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
 
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
 
   @Test

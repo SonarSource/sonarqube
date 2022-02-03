@@ -69,6 +69,10 @@ public class ServletRequest extends ValidatingRequest {
         MediaTypes.DEFAULT));
   }
 
+  public HttpServletRequest getHttpRequest() {
+    return source;
+  }
+
   @Override
   public BufferedReader getReader() {
     try {

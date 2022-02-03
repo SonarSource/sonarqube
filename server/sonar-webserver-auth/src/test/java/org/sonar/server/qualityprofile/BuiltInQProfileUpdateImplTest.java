@@ -56,7 +56,12 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.rules.RulePriority.BLOCKER;
 import static org.sonar.api.rules.RulePriority.CRITICAL;
 import static org.sonar.api.rules.RulePriority.MAJOR;
@@ -78,9 +83,11 @@ public class BuiltInQProfileUpdateImplTest {
   private System2 system2 = new TestSystem2().setNow(NOW);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
+  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
 
-  private BuiltInQProfileUpdateImpl underTest = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivator, activeRuleIndexer);
+  private BuiltInQProfileUpdateImpl underTest = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivator, activeRuleIndexer,
+    qualityProfileChangeEventService);
 
   private RulesProfileDto persistedProfile;
 
@@ -105,13 +112,14 @@ public class BuiltInQProfileUpdateImplTest {
     newQp.done();
     BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile("xoo", "Sonar way"), rule1, rule2);
 
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(2);
     assertThatRuleIsNewlyActivated(activeRules, rule1, CRITICAL);
     assertThatRuleIsNewlyActivated(activeRules, rule2, MAJOR);
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -125,12 +133,13 @@ public class BuiltInQProfileUpdateImplTest {
 
     activateRuleInDb(persistedProfile, rule, BLOCKER);
 
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(1);
     assertThatRuleIsUpdated(activeRules, rule, CRITICAL);
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -150,6 +159,7 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(activeRules).hasSize(1);
     assertThatRuleIsUntouched(activeRules, rule, CRITICAL);
     assertThatProfileIsNotMarkedAsUpdated(persistedProfile);
+    verifyNoInteractions(qualityProfileChangeEventService);
   }
 
   @Test
@@ -166,12 +176,13 @@ public class BuiltInQProfileUpdateImplTest {
     // so rule1 must be deactivated
     activateRuleInDb(persistedProfile, rule1, CRITICAL);
 
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(1);
     assertThatRuleIsDeactivated(activeRules, rule1);
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -193,7 +204,7 @@ public class BuiltInQProfileUpdateImplTest {
     activateRuleInDb(persistedProfile, rule1, BLOCKER);
     activateRuleInDb(persistedProfile, rule3, BLOCKER);
 
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(2);
@@ -201,6 +212,7 @@ public class BuiltInQProfileUpdateImplTest {
     assertThatRuleIsNewlyActivated(activeRules, rule2, MAJOR);
     assertThatRuleIsDeactivated(activeRules, rule3);
     assertThatProfileIsMarkedAsUpdated(persistedProfile);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   // SONAR-10473
@@ -222,9 +234,10 @@ public class BuiltInQProfileUpdateImplTest {
     rule.setSeverity(Severity.MINOR);
     db.rules().update(rule);
 
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
     activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThatRuleIsNewlyActivated(activeRules, rule, MINOR);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -237,20 +250,22 @@ public class BuiltInQProfileUpdateImplTest {
     newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey());
     newQp.done();
     BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(newQp.language(), newQp.name()), rule);
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, persistedProfile);
 
     List<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(1);
     assertThatRuleHasParams(db, activeRules.get(0), tuple("min", "10"));
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
 
     // emulate an upgrade of analyzer that changes the default value of parameter min
     ruleParam.setDefaultValue("20");
     db.getDbClient().ruleDao().updateRuleParam(db.getSession(), rule, ruleParam);
 
-    underTest.update(db.getSession(), builtIn, persistedProfile);
+    changes = underTest.update(db.getSession(), builtIn, persistedProfile);
     activeRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), persistedProfile);
     assertThat(activeRules).hasSize(1);
     assertThatRuleHasParams(db, activeRules.get(0), tuple("min", "20"));
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -272,6 +287,7 @@ public class BuiltInQProfileUpdateImplTest {
     assertThatRuleIsActivated(profile, rule, changes, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
     assertThatRuleIsActivated(grandchildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   // SONAR-14559
@@ -299,6 +315,7 @@ public class BuiltInQProfileUpdateImplTest {
 
     List<ActiveRuleDto> childActiveRules = db.getDbClient().activeRuleDao().selectByRuleProfile(db.getSession(), RulesProfileDto.from(childProfile));
     assertThatRuleIsUpdated(childActiveRules, rule, RulePriority.BLOCKER, INHERITED);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -327,6 +344,7 @@ public class BuiltInQProfileUpdateImplTest {
 
     assertThatRuleHasParams(db, parentActiveRuleDto, tuple("min", "10"));
     assertThatRuleHasParams(db, childActiveRuleDto, tuple("min", "10"));
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
   }
 
   @Test
@@ -345,6 +363,7 @@ public class BuiltInQProfileUpdateImplTest {
     BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
     List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
     assertThat(changes).hasSize(2).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.ACTIVATED);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
 
     // second run, without any input changes
     RuleActivator ruleActivatorWithoutDescendants = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession) {
@@ -355,8 +374,10 @@ public class BuiltInQProfileUpdateImplTest {
         };
       }
     };
-    changes = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivatorWithoutDescendants, activeRuleIndexer).update(db.getSession(), builtIn, RulesProfileDto.from(profile));
+    changes = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivatorWithoutDescendants, activeRuleIndexer, qualityProfileChangeEventService)
+      .update(db.getSession(), builtIn, RulesProfileDto.from(profile));
     assertThat(changes).isEmpty();
+    verifyNoMoreInteractions(qualityProfileChangeEventService);
   }
 
   @Test
@@ -376,6 +397,7 @@ public class BuiltInQProfileUpdateImplTest {
     BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
     List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
     assertThat(changes).hasSize(3).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.ACTIVATED);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
 
     // second run to deactivate the rule
     context = new BuiltInQualityProfilesDefinition.Context();
@@ -384,6 +406,7 @@ public class BuiltInQProfileUpdateImplTest {
     builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
     changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
     assertThat(changes).hasSize(3).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.DEACTIVATED);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
 
     assertThatRuleIsDeactivated(profile, rule);
     assertThatRuleIsDeactivated(childProfile, rule);

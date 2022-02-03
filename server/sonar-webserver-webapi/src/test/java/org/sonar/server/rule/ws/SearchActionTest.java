@@ -48,6 +48,7 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -105,12 +106,14 @@ public class SearchActionTest {
   private final ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(db.getDbClient(), languages);
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient());
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
   private final SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper,
     new RuleWsSupport(db.getDbClient(), userSession));
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession);
-  private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer);
+  private final QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
+    qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before

@@ -40,11 +40,14 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
   private final DbClient dbClient;
   private final RuleActivator ruleActivator;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final QualityProfileChangeEventService qualityProfileChangeEventService;
 
-  public BuiltInQProfileUpdateImpl(DbClient dbClient, RuleActivator ruleActivator, ActiveRuleIndexer activeRuleIndexer) {
+  public BuiltInQProfileUpdateImpl(DbClient dbClient, RuleActivator ruleActivator, ActiveRuleIndexer activeRuleIndexer,
+    QualityProfileChangeEventService qualityProfileChangeEventService) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.qualityProfileChangeEventService = qualityProfileChangeEventService;
   }
 
   public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtInDefinition, RulesProfileDto initialRuleProfile) {
@@ -56,8 +59,8 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
     // all rules, including those which are removed from built-in profile
     Set<String> ruleUuids = Stream.concat(
-      deactivatedRuleUuids.stream(),
-      builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleUuid))
+        deactivatedRuleUuids.stream(),
+        builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleUuid))
       .collect(toSet());
 
     Collection<RuleActivation> activations = new ArrayList<>();
@@ -69,12 +72,15 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
     RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, initialRuleProfile, ruleUuids);
     List<ActiveRuleChange> changes = new ArrayList<>();
-    for (RuleActivation activation : activations) {
-      changes.addAll(ruleActivator.activate(dbSession, activation, context));
-    }
+
+    changes.addAll(ruleActivator.activate(dbSession, activations, context));
 
     // these rules are no longer part of the built-in profile
     deactivatedRuleUuids.forEach(ruleUuid -> changes.addAll(ruleActivator.deactivate(dbSession, context, ruleUuid, false)));
+
+    if (!changes.isEmpty()) {
+      qualityProfileChangeEventService.distributeRuleChangeEvent(context.getProfiles(), changes, initialRuleProfile.getLanguage());
+    }
 
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;

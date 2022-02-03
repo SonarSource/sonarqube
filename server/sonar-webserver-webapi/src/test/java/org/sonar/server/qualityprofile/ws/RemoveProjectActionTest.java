@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.net.HttpURLConnection;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
@@ -38,14 +39,18 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RemoveProjectActionTest {
@@ -61,8 +66,9 @@ public class RemoveProjectActionTest {
   private final Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
 
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = Mockito.mock(QualityProfileChangeEventService.class);
   private final RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
-    new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)), wsSupport);
+    new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)), wsSupport, qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -97,6 +103,7 @@ public class RemoveProjectActionTest {
 
     assertProjectIsNotAssociatedToProfile(project, profileLang1);
     assertProjectIsAssociatedToProfile(project, profileLang2);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, empty(), of(profileLang1));
   }
 
   @Test
@@ -110,6 +117,7 @@ public class RemoveProjectActionTest {
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
     assertProjectIsNotAssociatedToProfile(project, profile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, empty(), of(profile));
   }
 
   @Test
@@ -122,6 +130,7 @@ public class RemoveProjectActionTest {
     call(project, profile);
 
     assertProjectIsNotAssociatedToProfile(project, profile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, empty(), of(profile));
   }
 
   @Test
@@ -136,6 +145,7 @@ public class RemoveProjectActionTest {
     call(project, profile);
 
     assertProjectIsNotAssociatedToProfile(project, profile);
+    verify(qualityProfileChangeEventService).publishRuleActivationToSonarLintClients(project, empty(), of(profile));
   }
 
   @Test

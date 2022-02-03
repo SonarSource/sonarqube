@@ -41,7 +41,12 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
 public class QProfileResetImplTest {
@@ -55,11 +60,12 @@ public class QProfileResetImplTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
-  private QProfileTree qProfileTree = new QProfileTreeImpl(db.getDbClient(), ruleActivator, system2, activeRuleIndexer);
-  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, null, activeRuleIndexer);
-  private QProfileResetImpl underTest = new QProfileResetImpl(db.getDbClient(), ruleActivator, activeRuleIndexer);
+  private QProfileTree qProfileTree = new QProfileTreeImpl(db.getDbClient(), ruleActivator, system2, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
+  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, null, activeRuleIndexer, qualityProfileChangeEventService);
+  private QProfileResetImpl underTest = new QProfileResetImpl(db.getDbClient(), ruleActivator, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
 
   @Test
   public void reset() {
@@ -77,6 +83,7 @@ public class QProfileResetImplTest {
     assertThat(result.getChanges())
       .extracting(ActiveRuleChange::getKey, ActiveRuleChange::getType)
       .containsExactlyInAnyOrder(tuple(ActiveRuleKey.of(profile, newRule.getKey()), ACTIVATED));
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(profile.getLanguage()));
   }
 
   @Test
@@ -94,6 +101,7 @@ public class QProfileResetImplTest {
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), childProfile))
       .extracting(OrgActiveRuleDto::getRuleKey)
       .containsExactlyInAnyOrder(newRule.getKey(), existingRule.getKey());
+    verify(qualityProfileChangeEventService, times(2)).distributeRuleChangeEvent(any(), any(), eq(childProfile.getLanguage()));
   }
 
   @Test
@@ -106,6 +114,7 @@ public class QProfileResetImplTest {
     })
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(String.format("Operation forbidden for built-in Quality Profile '%s'", profile.getKee()));
+    verifyNoInteractions(qualityProfileChangeEventService);
   }
 
   @Test
@@ -118,5 +127,7 @@ public class QProfileResetImplTest {
     })
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Quality profile must be persisted");
+
+    verifyNoInteractions(qualityProfileChangeEventService);
   }
 }

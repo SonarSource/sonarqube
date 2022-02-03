@@ -27,6 +27,8 @@ import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.cp.IAtomicReference;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.topic.MessageListener;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -37,6 +39,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.util.RuleActivationListener;
+import org.sonar.core.util.RuleSetChangeEvent;
 
 class HazelcastMemberImpl implements HazelcastMember {
 
@@ -123,6 +127,18 @@ class HazelcastMemberImpl implements HazelcastMember {
         callback.onComplete((Map<Member, T>) values);
       }
     });
+  }
+
+  @Override
+  public void subscribeRuleActivationTopic(RuleActivationListener listener) {
+    ITopic<RuleSetChangeEvent> topic = hzInstance.getTopic("ruleActivated");
+    MessageListener<RuleSetChangeEvent> hzListener = message -> listener.listen(message.getMessageObject());
+    topic.addMessageListener(hzListener);
+  }
+
+  @Override
+  public void publishEvent(RuleSetChangeEvent event) {
+    hzInstance.getTopic("ruleActivated").publish(event);
   }
 
   @Override

@@ -39,6 +39,14 @@ public class SonarLintClient extends ServerPushClient {
     this.languages = languages;
   }
 
+  public Set<String> getLanguages() {
+    return languages;
+  }
+
+  public Set<String> getClientProjectKeys() {
+    return projectKeys;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

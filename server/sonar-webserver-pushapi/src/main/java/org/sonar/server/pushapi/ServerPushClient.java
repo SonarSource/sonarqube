@@ -20,6 +20,7 @@
 package org.sonar.server.pushapi;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,17 @@ public abstract class ServerPushClient {
 
   private static final Logger LOG = Loggers.get(ServerPushClient.class);
   private static final int DEFAULT_HEARTBEAT_PERIOD = 60;
+
+
+
+
+  private static final byte[] CRLF = new byte[] {'\r', '\n'};
+  private static final byte[] DATA_END = new byte[] {'\n', '\n'};
+  private static final byte[] DATA_FIELD = "data: ".getBytes(StandardCharsets.UTF_8);
+
+
+
+
 
   protected final AsyncContext asyncContext;
 
@@ -48,6 +60,11 @@ public abstract class ServerPushClient {
 
   public void scheduleHeartbeat() {
     startedHeartbeat = executorService.schedule(heartbeatTask, DEFAULT_HEARTBEAT_PERIOD, TimeUnit.SECONDS);
+  }
+
+  public void writeAndFlush(String payload) throws IOException {
+    output().write(payload.getBytes(StandardCharsets.UTF_8));
+    flush();
   }
 
   public void writeAndFlush(char character) {
