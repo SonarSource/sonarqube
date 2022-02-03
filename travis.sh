@@ -42,13 +42,13 @@ BUILD)
   # see https://stackoverflow.com/a/9824943/641955
   if [[ -n "${SONAR_TOKEN-}" ]]; then
     if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
-      ./gradlew jacocoTestReport sonarqube --info --no-daemon --console plain \
+      ./gradlew jacocoTestReport :server:sonar-web:yarn_lint-report-ci :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
         -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
         -Dsonar.organization=sonarsource \
         -Dsonar.host.url=https://sonarcloud.io \
         -Dsonar.login="$SONAR_TOKEN"
     else
-      ./gradlew jacocoTestReport sonarqube --info --no-daemon --console plain \
+      ./gradlew jacocoTestReport :server:sonar-web:yarn_lint-report-ci :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
         -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
         -Dsonar.organization=sonarsource \
         -Dsonar.host.url=https://sonarcloud.io \
