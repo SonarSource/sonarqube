@@ -5,7 +5,7 @@ configurations {
 }
 
 ext {
-    oneLoginVersion = '2.8.0'
+    oneLoginVersion = '2.9.0'
 }
 
 dependencies {

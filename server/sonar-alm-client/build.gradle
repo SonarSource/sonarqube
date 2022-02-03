@@ -9,7 +9,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp'
     compile 'commons-codec:commons-codec'
     compile 'com.auth0:java-jwt'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.69'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.70'
 
     testCompile project(':sonar-plugin-api-impl')
 
