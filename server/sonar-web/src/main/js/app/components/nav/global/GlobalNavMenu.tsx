@@ -75,7 +75,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
         <li>
           <Link
             className={classNames({ active })}
-            to={{ pathname: '/issues', query: { resolved: 'false' } }}>
+            to={{ pathname: '/issues', query: { resolved: 'false', myIssues: 'true' } }}>
             {translate('my_issues')}
           </Link>
         </li>
