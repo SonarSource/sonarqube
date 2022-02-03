@@ -36,6 +36,8 @@ public class EmailValidatorTest {
   public void various_examples_of_unusual_but_valid_emails() {
     assertThat(isValidIfPresent("info@sonarsource.com")).isTrue();
     assertThat(isValidIfPresent("guillaume.jambet+sonarsource-emailvalidatortest@gmail.com")).isTrue();
+    assertThat(isValidIfPresent("webmaster@kiné-beauté.fr")).isTrue();
+    assertThat(isValidIfPresent("Chuck Norris <coup-de-pied-retourné@chucknorris.com>")).isTrue();
     assertThat(isValidIfPresent("\"Fred Bloggs\"@example.com")).isTrue();
     assertThat(isValidIfPresent("pipo@127.0.0.1")).isTrue();
     assertThat(isValidIfPresent("admin@admin")).isTrue();
@@ -46,8 +48,6 @@ public class EmailValidatorTest {
     assertThat(isValidIfPresent("infosonarsource.com")).isFalse();
     assertThat(isValidIfPresent("info@.sonarsource.com")).isFalse();
     assertThat(isValidIfPresent("info\"@.sonarsource.com")).isFalse();
-    assertThat(isValidIfPresent("webmaster@kiné-beauté.fr")).isFalse();
-    assertThat(isValidIfPresent("Chuck Norris <coup-de-pied-retourné@chucknorris.com>")).isFalse();
   }
 
 }
