@@ -10,6 +10,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="hotspots.page"
   />
   <A11ySkipTarget
@@ -312,6 +313,7 @@ exports[`should render correctly with hotspots 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="hotspots.page"
   />
   <A11ySkipTarget
@@ -447,6 +449,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="hotspots.page"
   />
   <A11ySkipTarget
@@ -512,6 +515,7 @@ exports[`should render correctly: no hotspots with filters 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="hotspots.page"
   />
   <A11ySkipTarget

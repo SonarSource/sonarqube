@@ -8,6 +8,7 @@ exports[`should be in loading status 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="webhooks.page"
   />
   <div
@@ -34,6 +35,7 @@ exports[`should fetch webhooks and display them 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="webhooks.page"
   />
   <div

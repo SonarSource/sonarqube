@@ -11,6 +11,7 @@ exports[`should render correctly: loaded 1`] = `
     <Helmet
       defer={false}
       encodeSpecialCharacters={true}
+      prioritizeSeoTags={false}
       title="qualitygate"
     />
     <DetailsHeader

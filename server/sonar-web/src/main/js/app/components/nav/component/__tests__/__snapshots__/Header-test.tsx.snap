@@ -5,6 +5,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="MyProject"
   />
   <header

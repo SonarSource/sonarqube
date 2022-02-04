@@ -4,6 +4,7 @@ exports[`should not trigger if no analytics system is given 1`] = `
 <Helmet
   defer={false}
   encodeSpecialCharacters={true}
+  prioritizeSeoTags={false}
 />
 `;
 
@@ -12,5 +13,6 @@ exports[`should work for WebAnalytics plugin 1`] = `
   defer={false}
   encodeSpecialCharacters={true}
   onChangeClientState={[Function]}
+  prioritizeSeoTags={false}
 />
 `;

@@ -13,18 +13,14 @@ exports[`should render 1`] = `
   </h6>
   <DraggableCore
     allowAnyClick={false}
-    cancel={null}
     disabled={false}
     enableUserSelectHack={true}
-    grid={null}
-    handle={null}
     offsetParent={<body />}
     onDrag={[Function]}
     onMouseDown={[Function]}
     onStart={[Function]}
     onStop={[Function]}
     scale={1}
-    transform={null}
   >
     <div
       className="workspace-viewer-resize js-resize"

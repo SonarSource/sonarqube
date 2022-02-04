@@ -11,6 +11,7 @@ exports[`should render correctly: loaded 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="marketplace.page"
   />
   <Header
@@ -110,6 +111,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="marketplace.page"
   />
   <Header
@@ -188,6 +190,7 @@ exports[`should render correctly: not readonly 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="marketplace.page"
   />
   <Header

@@ -41,6 +41,7 @@ exports[`should render correctly: default 1`] = `
     defaultTitle="quality_gates.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     titleTemplate="%s - quality_gates.page"
   />
   <div
@@ -65,6 +66,7 @@ exports[`should render correctly: default gate 1`] = `
     defaultTitle="quality_gates.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     titleTemplate="%s - quality_gates.page"
   />
   <div
@@ -107,6 +109,7 @@ exports[`should render correctly: specific gate 1`] = `
     defaultTitle="quality_gates.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     titleTemplate="%s - quality_gates.page"
   />
   <div

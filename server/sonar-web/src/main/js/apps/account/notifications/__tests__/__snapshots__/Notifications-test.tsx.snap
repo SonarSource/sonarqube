@@ -7,6 +7,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="my_account.notifications"
   />
   <Alert
@@ -82,6 +83,7 @@ exports[`should render correctly 2`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="my_account.notifications"
   />
   <Alert
@@ -157,6 +159,7 @@ exports[`should render correctly 3`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="my_account.notifications"
   />
   <Alert

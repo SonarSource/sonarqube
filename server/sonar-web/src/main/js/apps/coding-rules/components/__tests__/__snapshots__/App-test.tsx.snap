@@ -184,6 +184,7 @@ exports[`should render correctly: loaded 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="coding_rules.page"
   >
     <meta
@@ -340,6 +341,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="coding_rules.page"
   >
     <meta
@@ -477,6 +479,7 @@ exports[`should render correctly: open rule 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="coding_rules.page"
   >
     <meta
@@ -565,6 +568,7 @@ exports[`should render correctly: using permalink 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="coding_rules.page"
   >
     <meta

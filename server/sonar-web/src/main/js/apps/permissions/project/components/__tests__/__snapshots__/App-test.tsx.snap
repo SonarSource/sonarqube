@@ -8,6 +8,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="permissions.page"
   />
   <PageHeader
@@ -89,6 +90,7 @@ exports[`should render correctly 2`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="permissions.page"
   />
   <PageHeader

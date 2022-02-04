@@ -10,6 +10,7 @@ exports[`should render correctly: full 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="quality_profiles.page"
   />
   <div
@@ -32,6 +33,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="quality_profiles.page"
   />
   <i

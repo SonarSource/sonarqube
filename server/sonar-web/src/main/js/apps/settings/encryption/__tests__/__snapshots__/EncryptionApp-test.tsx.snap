@@ -8,6 +8,7 @@ exports[`should render correctly: encryption form 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="property.category.security.encryption"
   />
   <header
@@ -36,6 +37,7 @@ exports[`should render correctly: generate form 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="property.category.security.encryption"
   />
   <header
@@ -64,6 +66,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="property.category.security.encryption"
   />
   <header

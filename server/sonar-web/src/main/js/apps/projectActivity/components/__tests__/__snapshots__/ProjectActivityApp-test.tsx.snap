@@ -11,6 +11,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_activity.page"
   />
   <A11ySkipTarget

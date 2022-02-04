@@ -10,6 +10,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="api_documentation.page"
   />
   <ScreenPositionHelper

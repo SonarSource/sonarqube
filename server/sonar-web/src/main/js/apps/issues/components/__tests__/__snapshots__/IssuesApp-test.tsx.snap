@@ -159,6 +159,7 @@ exports[`should switch to source view if an issue is selected 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="issues.page"
   />
   <h1
@@ -494,6 +495,7 @@ exports[`should switch to source view if an issue is selected 2`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="Reduce the number of conditional operators (4) used in the expression"
   />
   <h1

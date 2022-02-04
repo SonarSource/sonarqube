@@ -8,6 +8,7 @@ exports[`should render and change key 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="update_key.page"
   />
   <header

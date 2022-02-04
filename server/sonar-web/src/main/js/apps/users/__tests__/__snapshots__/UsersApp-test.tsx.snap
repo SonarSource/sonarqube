@@ -11,6 +11,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="users.page"
   />
   <Header
@@ -51,6 +52,7 @@ exports[`should render correctly 2`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="users.page"
   />
   <Header

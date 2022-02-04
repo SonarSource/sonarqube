@@ -11,6 +11,7 @@ exports[`should render correctly for Monthly housekeeping policy 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="audit_logs.page"
   />
   <header
@@ -136,6 +137,7 @@ exports[`should render correctly for Trimestrial housekeeping policy 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="audit_logs.page"
   />
   <header
@@ -273,6 +275,7 @@ exports[`should render correctly for Weekly housekeeping policy 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="audit_logs.page"
   />
   <header
@@ -386,6 +389,7 @@ exports[`should render correctly for Yearly housekeeping policy 1`] = `
   <Helmet
     defer={true}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="audit_logs.page"
   />
   <header

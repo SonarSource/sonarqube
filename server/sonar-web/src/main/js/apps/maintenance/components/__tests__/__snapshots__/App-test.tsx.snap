@@ -6,6 +6,7 @@ exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -71,6 +72,7 @@ exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -136,6 +138,7 @@ exports[`Maintenance Page should render DOWN status 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -177,6 +180,7 @@ exports[`Maintenance Page should render OFFLINE status 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -218,6 +222,7 @@ exports[`Maintenance Page should render STARTING status 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -252,6 +257,7 @@ exports[`Maintenance Page should render UP status 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -293,6 +299,7 @@ exports[`Setup Page should render MIGRATION_FAILED state 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -323,6 +330,7 @@ exports[`Setup Page should render MIGRATION_SUCCEEDED state 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -357,6 +365,7 @@ exports[`Setup Page should render NO_MIGRATION state 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -391,6 +400,7 @@ exports[`Setup Page should render NOT_SUPPORTED state 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -419,6 +429,7 @@ exports[`Setup Page should start migration 1`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"
@@ -469,6 +480,7 @@ exports[`Setup Page should start migration 2`] = `
     defaultTitle="maintenance.page"
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
   />
   <div
     className="page-wrapper-simple"

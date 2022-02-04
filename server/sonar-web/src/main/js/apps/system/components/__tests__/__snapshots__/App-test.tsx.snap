@@ -10,6 +10,7 @@ exports[`should render correctly: cluster sysinfo 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="system_info.page"
   />
   <div
@@ -202,6 +203,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="system_info.page"
   />
   <div
@@ -224,6 +226,7 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="system_info.page"
   />
   <div

@@ -194,6 +194,7 @@ exports[`should render a warning message when user does not have access to all p
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <div
@@ -225,6 +226,7 @@ exports[`should render correclty when no sub component for APP 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <div
@@ -256,6 +258,7 @@ exports[`should render correclty when no sub component for APP: no search 1`] = 
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <withRouter(Search)
@@ -312,6 +315,7 @@ exports[`should render correclty when no sub component for APP: with sub compone
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <withRouter(Search)
@@ -418,6 +422,7 @@ exports[`should render correclty when no sub component for SVW 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <div
@@ -449,6 +454,7 @@ exports[`should render correclty when no sub component for SVW: no search 1`] = 
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <withRouter(Search)
@@ -505,6 +511,7 @@ exports[`should render correclty when no sub component for SVW: with sub compone
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <withRouter(Search)
@@ -601,6 +608,7 @@ exports[`should render correclty when no sub component for TRK 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="code.page"
   />
   <div
@@ -632,6 +640,7 @@ exports[`should render correclty when no sub component for TRK: no search 1`] = 
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="code.page"
   />
   <withRouter(Search)
@@ -688,6 +697,7 @@ exports[`should render correclty when no sub component for TRK: with sub compone
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="code.page"
   />
   <withRouter(Search)
@@ -794,6 +804,7 @@ exports[`should render correclty when no sub component for VW 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <div
@@ -825,6 +836,7 @@ exports[`should render correclty when no sub component for VW: no search 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <withRouter(Search)
@@ -881,6 +893,7 @@ exports[`should render correclty when no sub component for VW: with sub componen
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="projects.page"
   />
   <withRouter(Search)

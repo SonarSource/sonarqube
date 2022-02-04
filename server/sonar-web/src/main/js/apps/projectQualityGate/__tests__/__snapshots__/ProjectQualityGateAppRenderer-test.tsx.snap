@@ -11,6 +11,7 @@ exports[`should render correctly: always use system default 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_gate.page"
   />
   <A11ySkipTarget
@@ -161,6 +162,7 @@ exports[`should render correctly: default 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_gate.page"
   />
   <A11ySkipTarget
@@ -317,6 +319,7 @@ exports[`should render correctly: show new code warning 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_gate.page"
   />
   <A11ySkipTarget
@@ -497,6 +500,7 @@ exports[`should render correctly: show warning 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_gate.page"
   />
   <A11ySkipTarget
@@ -653,6 +657,7 @@ exports[`should render correctly: show warning if not using default 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_gate.page"
   />
   <A11ySkipTarget
@@ -809,6 +814,7 @@ exports[`should render correctly: submitting 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_gate.page"
   />
   <A11ySkipTarget

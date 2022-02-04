@@ -10,6 +10,7 @@ exports[`should not render drilldown for estimated duplications 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="Coverage"
   />
   <div
@@ -47,6 +48,7 @@ exports[`should render a message when there are no measures 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="Coverage"
   />
   <MeasuresEmpty />
@@ -120,6 +122,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="Coverage"
   />
   <div

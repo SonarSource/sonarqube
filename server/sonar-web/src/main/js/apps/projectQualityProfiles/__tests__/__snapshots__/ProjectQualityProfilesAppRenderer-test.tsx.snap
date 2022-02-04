@@ -11,6 +11,7 @@ exports[`should render correctly: add language 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_profiles.page"
   />
   <A11ySkipTarget
@@ -325,6 +326,7 @@ exports[`should render correctly: default 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_profiles.page"
   />
   <A11ySkipTarget
@@ -576,6 +578,7 @@ exports[`should render correctly: loading 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_profiles.page"
   />
   <A11ySkipTarget
@@ -659,6 +662,7 @@ exports[`should render correctly: open profile 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_quality_profiles.page"
   />
   <A11ySkipTarget

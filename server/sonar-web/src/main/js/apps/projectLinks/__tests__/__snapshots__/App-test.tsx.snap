@@ -7,6 +7,7 @@ exports[`should create link 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_links.page"
   />
   <Header
@@ -50,6 +51,7 @@ exports[`should delete link 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_links.page"
   />
   <Header
@@ -87,6 +89,7 @@ exports[`should fetch links and render 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="project_links.page"
   />
   <Header

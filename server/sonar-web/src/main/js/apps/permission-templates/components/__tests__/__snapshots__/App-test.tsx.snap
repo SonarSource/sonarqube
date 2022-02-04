@@ -8,6 +8,7 @@ exports[`should render correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="permission_templates.page"
   />
   <Home
@@ -32,6 +33,7 @@ exports[`should render correctly 2`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="permission_templates.page"
   />
   <Home

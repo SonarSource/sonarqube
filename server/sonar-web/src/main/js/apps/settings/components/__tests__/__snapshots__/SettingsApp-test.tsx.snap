@@ -10,6 +10,7 @@ exports[`should render ALM integration correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="settings.page"
   />
   <PageHeader />
@@ -50,6 +51,7 @@ exports[`should render analysis scope correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="settings.page"
   />
   <PageHeader />
@@ -90,6 +92,7 @@ exports[`should render default view correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="settings.page"
   />
   <PageHeader />
@@ -154,6 +157,7 @@ exports[`should render languages correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="settings.page"
   />
   <PageHeader />
@@ -194,6 +198,7 @@ exports[`should render newCodePeriod correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="settings.page"
   />
   <PageHeader />
@@ -232,6 +237,7 @@ exports[`should render pull request decoration binding correctly 1`] = `
   <Helmet
     defer={false}
     encodeSpecialCharacters={true}
+    prioritizeSeoTags={false}
     title="settings.page"
   />
   <PageHeader />
