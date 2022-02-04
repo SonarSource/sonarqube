@@ -28,6 +28,7 @@ import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockTask } from '../../../helpers/mocks/tasks';
+import { HttpStatus } from '../../../helpers/request';
 import { mockAppState, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
@@ -318,14 +319,18 @@ it('only fully reloads a non-empty component if there was previously some task i
 });
 
 it('should show component not found if it does not exist', async () => {
-  (getComponentNavigation as jest.Mock).mockRejectedValueOnce({ status: 404 });
+  (getComponentNavigation as jest.Mock).mockRejectedValueOnce(
+    new Response(null, { status: HttpStatus.NotFound })
+  );
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should redirect if the user has no access', async () => {
-  (getComponentNavigation as jest.Mock).mockRejectedValueOnce({ status: 403 });
+  (getComponentNavigation as jest.Mock).mockRejectedValueOnce(
+    new Response(null, { status: HttpStatus.Forbidden })
+  );
   const requireAuthorization = jest.fn();
   const wrapper = shallowRender({ requireAuthorization });
   await waitAndUpdate(wrapper);

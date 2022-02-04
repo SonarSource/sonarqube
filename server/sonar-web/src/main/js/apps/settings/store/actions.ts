@@ -104,8 +104,9 @@ export function checkValue(key: string) {
       try {
         JSON.parse(value);
       } catch (e) {
-        dispatch(failValidation(key, e.message));
-
+        if (e instanceof Error) {
+          dispatch(failValidation(key, e.message));
+        }
         return false;
       }
     }

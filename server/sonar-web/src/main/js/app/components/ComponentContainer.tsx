@@ -111,7 +111,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       componentWithQualifier = this.addQualifier({ ...nav, ...component });
     } catch (e) {
       if (this.mounted) {
-        if (e && e.status === HttpStatus.Forbidden) {
+        if (e && e instanceof Response && e.status === HttpStatus.Forbidden) {
           this.props.requireAuthorization(this.props.router);
         } else {
           this.setState({ component: undefined, loading: false });
