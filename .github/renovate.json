@@ -9,6 +9,17 @@
   "separateMinorPatch": false,
   "separateMajorMinor": false,
   "ignoreDeps": [
+    "io.spring.dependency-management",
+    "org.owasp.dependencycheck",
+    "com.jfrog.artifactory",
+    "org.ajoberstar.grgit",
+    "com.github.ben-manes.versions",
+    "com.bmuschko.docker-remote-api",
+    "com.github.hierynomus.license",
+    "com.github.hierynomus.license-report",
+    "de.undercouch.download",
+    "com.github.johnrengelman.shadow",
+    "com.bmuschko.docker-remote-api",
     "com.sonarsource.abap:sonar-abap-plugin",
     "com.sonarsource.cobol:sonar-cobol-plugin",
     "com.sonarsource.cpp:sonar-cfamily-plugin",
@@ -42,7 +53,9 @@
     "org.sonarsource.xml:sonar-xml-plugin",
     "org.sonarsource.iac:sonar-iac-plugin"
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
       "matchManagers": "maven",
@@ -67,7 +80,7 @@
         "minor"
       ],
       "enabled": true,
-      "groupName": "Minor Backend Dependencies updates"
+      "groupName": "Minor Backend Dependencies"
     },
     {
       "matchManagers": "gradle",
@@ -75,7 +88,7 @@
         "major"
       ],
       "enabled": true,
-      "groupName": "Major Backend Dependencies updates"
+      "groupName": "Major Backend Dependencies"
     },
     {
       "matchManagers": "npm",
@@ -84,7 +97,7 @@
         "minor"
       ],
       "enabled": true,
-      "groupName": "Minor Frontend Dependencies updates"
+      "groupName": "Minor Frontend Dependencies"
     },
     {
       "matchManagers": "npm",
@@ -92,7 +105,7 @@
         "major"
       ],
       "enabled": true,
-      "groupName": "Major Frontend Dependencies updates"
+      "groupName": "Major Frontend Dependencies"
     },
     {
       "matchManagers": "terraform",
@@ -102,7 +115,7 @@
         "minor"
       ],
       "enabled": true,
-      "groupName": "Terraform Dependencies updates"
+      "groupName": "Terraform Dependencies"
     }
   ]
 }
