@@ -4,5 +4,8 @@
     "camelcase": "off",
     "promise/no-return-wrap": "warn",
     "react/jsx-curly-brace-presence": "warn"
+  },
+  "parserOptions": {
+    "warnOnUnsupportedTypeScriptVersion": false
   }
 }

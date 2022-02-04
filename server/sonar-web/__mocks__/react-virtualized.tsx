@@ -25,7 +25,7 @@ type AutoSizerProps = {
 type AutoSizerChildProps = { height?: number; width?: number };
 
 module.exports = {
-  ...require.requireActual('react-virtualized'),
+  ...jest.requireActual('react-virtualized'),
   AutoSizer: ({ children, disableHeight, disableWidth }: AutoSizerProps) => {
     const props: AutoSizerChildProps = {};
     if (!disableHeight) {

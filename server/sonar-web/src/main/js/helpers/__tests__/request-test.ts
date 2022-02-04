@@ -19,6 +19,7 @@
  */
 /* eslint-disable no-await-in-loop */
 
+import { setImmediate } from 'timers';
 import { Dict } from '../../types/types';
 import handleRequiredAuthentication from '../handleRequiredAuthentication';
 import {

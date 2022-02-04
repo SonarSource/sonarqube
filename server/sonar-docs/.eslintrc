@@ -4,5 +4,8 @@
   "rules": {
     // some dependencies are implictly provided by gatsby
     "import/no-extraneous-dependencies": "off"
+  },
+  "parserOptions": {
+    "warnOnUnsupportedTypeScriptVersion": false
   }
 }

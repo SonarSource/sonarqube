@@ -21,6 +21,7 @@ module.exports = {
     '<rootDir>/config/jest/SetupTestEnvironment.ts'
   ],
   snapshotSerializers: ['enzyme-to-json/serializer', 'jest-emotion'],
+  testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {

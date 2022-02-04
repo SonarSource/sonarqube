@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ReactWrapper, ShallowWrapper } from 'enzyme';
+import { setImmediate } from 'timers';
 import { KeyboardCodes, KeyboardKeys } from './keycodes';
 
 export function mockEvent(overrides = {}) {

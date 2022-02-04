@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = {
-  ...require.requireActual('lodash'),
+  ...jest.requireActual('lodash'),
   debounce: (fn: Function) => (...args: any[]) => fn(...args)
 };
