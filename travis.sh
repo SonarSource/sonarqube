@@ -32,44 +32,28 @@ keep_alive &
 # @TravisCI please provide the feature natively, like at AppVeyor or CircleCI ;-)
 cancel_branch_build_with_pr || if [[ $? -eq 1 ]]; then exit 0; fi
 
-case "$TARGET" in
+git fetch --unshallow
+./gradlew build --no-daemon --console plain
 
-BUILD)
-  git fetch --unshallow
-  ./gradlew build --no-daemon --console plain
-
-  # the '-' at the end is needed when using set -u (the 'nounset' flag)
-  # see https://stackoverflow.com/a/9824943/641955
-  if [[ -n "${SONAR_TOKEN-}" ]]; then
-    if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
-      ./gradlew jacocoTestReport sonarqube --info --no-daemon --console plain \
-        -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
-        -Dsonar.organization=sonarsource \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login="$SONAR_TOKEN"
-    else
-      ./gradlew jacocoTestReport sonarqube --info --no-daemon --console plain \
-        -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
-        -Dsonar.organization=sonarsource \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login="$SONAR_TOKEN" \
-        -Dsonar.branch.name="$TRAVIS_BRANCH"
-    fi
-    
-    # Wait for 5mins, hopefully the report will be processed.
-    sleep 5m
-    ./.travis/run_iris.sh
+# the '-' at the end is needed when using set -u (the 'nounset' flag)
+# see https://stackoverflow.com/a/9824943/641955
+if [[ -n "${SONAR_TOKEN-}" ]]; then
+  if [[ "${TRAVIS_BRANCH}" == "master" ]]; then 
+    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
+      -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+      -Dsonar.organization=sonarsource \
+      -Dsonar.host.url=https://sonarcloud.io \
+      -Dsonar.login="$SONAR_TOKEN"
+  else
+    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
+      -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+      -Dsonar.organization=sonarsource \
+      -Dsonar.host.url=https://sonarcloud.io \
+      -Dsonar.login="$SONAR_TOKEN" \
+      -Dsonar.branch.name="$TRAVIS_BRANCH"
   fi
-  ;;
-
-WEB_TESTS)
-  ./gradlew :server:sonar-web:yarn_validate-ci --no-daemon --console plain
-  ;;
   
-*)
-  echo "Unexpected TARGET value: $TARGET"
-  exit 1
-  ;;
-
-esac
-
+  # Wait for 5mins, hopefully the report will be processed.
+  sleep 5m
+  ./.travis/run_iris.sh
+fi

@@ -12,11 +12,7 @@ branches:
   except:
     - /^dogfood\/.*$/
     - public_master
-
-env:
-  - TARGET=BUILD
-  - TARGET=WEB_TESTS
-
+    
 matrix:
   fast_finish: true
 
