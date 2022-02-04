@@ -421,7 +421,6 @@ subprojects {
       }
       dependency 'org.subethamail:subethasmtp:3.1.7'
       dependency 'org.yaml:snakeyaml:1.30'
-      dependency 'xml-apis:xml-apis:1.4.01'
 
       // please keep this list alphabetically ordered
     }
