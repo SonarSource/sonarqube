@@ -12,12 +12,6 @@ Array [
       "view": "leak",
     },
   ],
-  Array [
-    Object {
-      "view": "visualizations",
-      "visualization": "coverage",
-    },
-  ],
 ]
 `;
 
@@ -44,125 +38,18 @@ exports[`should render correctly 1`] = `
       Array [
         Object {
           "label": "projects.view.overall",
-          "type": "view",
           "value": "overall",
         },
         Object {
           "label": "projects.view.new_code",
-          "type": "view",
           "value": "leak",
-        },
-        Object {
-          "label": "projects.visualization.risk",
-          "type": "visualization",
-          "value": "risk",
-        },
-        Object {
-          "label": "projects.visualization.reliability",
-          "type": "visualization",
-          "value": "reliability",
-        },
-        Object {
-          "label": "projects.visualization.security",
-          "type": "visualization",
-          "value": "security",
-        },
-        Object {
-          "label": "projects.visualization.maintainability",
-          "type": "visualization",
-          "value": "maintainability",
-        },
-        Object {
-          "label": "projects.visualization.coverage",
-          "type": "visualization",
-          "value": "coverage",
-        },
-        Object {
-          "label": "projects.visualization.duplications",
-          "type": "visualization",
-          "value": "duplications",
         },
       ]
     }
     value={
       Object {
         "label": "projects.view.overall",
-        "type": "view",
         "value": "overall",
-      }
-    }
-  />
-</div>
-`;
-
-exports[`should render with coverage selected 1`] = `
-<div>
-  <label
-    id="aria-projects-perspective"
-  >
-    projects.perspective
-    :
-  </label>
-  <Select
-    aria-labelledby="aria-projects-perspective"
-    className="little-spacer-left input-medium it__projects-perspective-select"
-    components={
-      Object {
-        "Option": [Function],
-      }
-    }
-    isClearable={false}
-    isSearchable={false}
-    onChange={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "projects.view.overall",
-          "type": "view",
-          "value": "overall",
-        },
-        Object {
-          "label": "projects.view.new_code",
-          "type": "view",
-          "value": "leak",
-        },
-        Object {
-          "label": "projects.visualization.risk",
-          "type": "visualization",
-          "value": "risk",
-        },
-        Object {
-          "label": "projects.visualization.reliability",
-          "type": "visualization",
-          "value": "reliability",
-        },
-        Object {
-          "label": "projects.visualization.security",
-          "type": "visualization",
-          "value": "security",
-        },
-        Object {
-          "label": "projects.visualization.maintainability",
-          "type": "visualization",
-          "value": "maintainability",
-        },
-        Object {
-          "label": "projects.visualization.coverage",
-          "type": "visualization",
-          "value": "coverage",
-        },
-        Object {
-          "label": "projects.visualization.duplications",
-          "type": "visualization",
-          "value": "duplications",
-        },
-      ]
-    }
-    value={
-      Object {
-        "label": "projects.visualization.coverage",
-        "type": "visualization",
-        "value": "coverage",
       }
     }
   />

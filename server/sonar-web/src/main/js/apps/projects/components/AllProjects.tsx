@@ -34,11 +34,10 @@ import { get, save } from '../../../helpers/storage';
 import { isLoggedIn } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
 import { CurrentUser, RawQuery } from '../../../types/types';
-import { hasFilterParams, hasVisualizationParams, parseUrlQuery, Query } from '../query';
+import { hasFilterParams, hasViewParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
-import Visualizations from '../visualizations/Visualizations';
 import PageHeader from './PageHeader';
 import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
@@ -62,7 +61,6 @@ interface State {
 
 export const LS_PROJECTS_SORT = 'sonarqube.projects.sort';
 export const LS_PROJECTS_VIEW = 'sonarqube.projects.view';
-export const LS_PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
 
 export class AllProjects extends React.PureComponent<Props, State> {
   mounted = false;
@@ -131,7 +129,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
     const options: {
       sort?: string;
       view?: string;
-      visualization?: string;
     } = {};
     if (get(LS_PROJECTS_SORT)) {
       options.sort = get(LS_PROJECTS_SORT) || undefined;
@@ -139,15 +136,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
     if (get(LS_PROJECTS_VIEW)) {
       options.view = get(LS_PROJECTS_VIEW) || undefined;
     }
-    if (get(LS_PROJECTS_VISUALIZATION)) {
-      options.visualization = get(LS_PROJECTS_VISUALIZATION) || undefined;
-    }
     return options;
   };
 
   getView = () => this.state.query.view || 'overall';
-
-  getVisualization = () => this.state.query.visualization || 'risk';
 
   handleClearAll = () => {
     this.props.router.push({ pathname: this.props.location.pathname });
@@ -165,14 +157,12 @@ export class AllProjects extends React.PureComponent<Props, State> {
     });
   };
 
-  handlePerspectiveChange = ({ view, visualization }: { view: string; visualization?: string }) => {
+  handlePerspectiveChange = ({ view }: { view: string }) => {
     const query: {
       view: string | undefined;
-      visualization: string | undefined;
       sort?: string | undefined;
     } = {
-      view: view === 'overall' ? undefined : view,
-      visualization
+      view: view === 'overall' ? undefined : view
     };
 
     if (this.state.query.view === 'leak' || view === 'leak') {
@@ -189,16 +179,14 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
     save(LS_PROJECTS_SORT, query.sort);
     save(LS_PROJECTS_VIEW, query.view);
-    save(LS_PROJECTS_VISUALIZATION, visualization);
   };
 
   handleQueryChange(initialMount: boolean) {
     const query = parseUrlQuery(this.props.location.query);
     const savedOptions = this.getStorageOptions();
-    const savedOptionsSet = savedOptions.sort || savedOptions.view || savedOptions.visualization;
+    const savedOptionsSet = savedOptions.sort || savedOptions.view;
 
-    // if there is no visualization parameters (sort, view, visualization), but there are saved preferences in the localStorage
-    if (initialMount && !hasVisualizationParams(query) && savedOptionsSet) {
+    if (initialMount && !hasViewParams(query) && savedOptionsSet) {
       this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
     } else {
       this.fetchProjects(query);
@@ -244,7 +232,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
                 onQueryChange={this.updateLocationQuery}
                 query={this.state.query}
                 view={this.getView()}
-                visualization={this.getVisualization()}
               />
             </div>
           </div>
@@ -263,12 +250,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
             onPerspectiveChange={this.handlePerspectiveChange}
             onQueryChange={this.updateLocationQuery}
             onSortChange={this.handleSortChange}
-            projects={this.state.projects}
             query={this.state.query}
             selectedSort={this.getSort()}
             total={this.state.total}
             view={this.getView()}
-            visualization={this.getVisualization()}
           />
         </div>
       </div>
@@ -280,18 +265,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       return <DeferredSpinner />;
     }
 
-    return this.getView() === 'visualizations' ? (
-      <div className="layout-page-main-inner">
-        {this.state.projects && (
-          <Visualizations
-            projects={this.state.projects}
-            sort={this.state.query.sort}
-            total={this.state.total}
-            visualization={this.getVisualization()}
-          />
-        )}
-      </div>
-    ) : (
+    return (
       <div className="layout-page-main-inner">
         {this.state.projects && (
           <ProjectsList

@@ -84,18 +84,6 @@ exports[`renders 1`] = `
               onPerspectiveChange={[Function]}
               onQueryChange={[Function]}
               onSortChange={[Function]}
-              projects={
-                Array [
-                  Object {
-                    "key": "foo",
-                    "measures": Object {},
-                    "name": "Foo",
-                    "qualifier": "TRK",
-                    "tags": Array [],
-                    "visibility": "public",
-                  },
-                ]
-              }
               query={
                 Object {
                   "coverage": undefined,
@@ -119,13 +107,11 @@ exports[`renders 1`] = `
                   "sort": undefined,
                   "tags": undefined,
                   "view": undefined,
-                  "visualization": undefined,
                 }
               }
               selectedSort="name"
               total={0}
               view="overall"
-              visualization="risk"
             />
           </div>
         </div>
@@ -178,7 +164,6 @@ exports[`renders 1`] = `
               "sort": undefined,
               "tags": undefined,
               "view": undefined,
-              "visualization": undefined,
             }
           }
         />
@@ -188,113 +173,6 @@ exports[`renders 1`] = `
           loading={false}
           ready={true}
           total={0}
-        />
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`renders 2`] = `
-<div
-  className="layout-page projects-page"
-  id="projects-page"
->
-  <Suggestions
-    suggestions="projects"
-  />
-  <Helmet
-    defer={false}
-    encodeSpecialCharacters={true}
-    prioritizeSeoTags={false}
-    title="projects.page"
-  />
-  <h1
-    className="a11y-hidden"
-  >
-    projects.page
-  </h1>
-  <ScreenPositionHelper
-    className="layout-page-side-outer"
-  >
-    <Component />
-  </ScreenPositionHelper>
-  <div
-    className="layout-page-main"
-  >
-    <A11ySkipTarget
-      anchor="projects_main"
-    />
-    <div
-      role="main"
-    >
-      <h2
-        className="a11y-hidden"
-      >
-        list_of_projects
-      </h2>
-      <div
-        className="layout-page-header-panel layout-page-main-header"
-      >
-        <div
-          className="layout-page-header-panel-inner layout-page-main-header-inner"
-        >
-          <div
-            className="layout-page-main-inner"
-          >
-            <PageHeader
-              currentUser={
-                Object {
-                  "isLoggedIn": true,
-                }
-              }
-              loading={false}
-              onPerspectiveChange={[Function]}
-              onQueryChange={[Function]}
-              onSortChange={[Function]}
-              projects={
-                Array [
-                  Object {
-                    "key": "foo",
-                    "measures": Object {},
-                    "name": "Foo",
-                    "qualifier": "TRK",
-                    "tags": Array [],
-                    "visibility": "public",
-                  },
-                ]
-              }
-              query={
-                Object {
-                  "view": "visualizations",
-                }
-              }
-              selectedSort="name"
-              total={0}
-              view="visualizations"
-              visualization="risk"
-            />
-          </div>
-        </div>
-      </div>
-      <div
-        className="layout-page-main-inner"
-      >
-        <Visualizations
-          projects={
-            Array [
-              Object {
-                "key": "foo",
-                "measures": Object {},
-                "name": "Foo",
-                "qualifier": "TRK",
-                "tags": Array [],
-                "visibility": "public",
-              },
-            ]
-          }
-          total={0}
-          visualization="risk"
         />
       </div>
     </div>

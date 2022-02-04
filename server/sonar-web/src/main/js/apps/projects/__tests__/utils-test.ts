@@ -85,13 +85,13 @@ describe('formatDuration', () => {
 
 describe('fetchProjects', () => {
   it('correctly converts the passed arguments to the desired query format', async () => {
-    await utils.fetchProjects({ view: 'visualizations' }, true);
+    await utils.fetchProjects({}, true);
     expect(searchProjects).toBeCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.FACETS.join(),
       filter: 'isFavorite',
       p: undefined,
-      ps: 99
+      ps: 50
     });
 
     await utils.fetchProjects({ view: 'leak' }, false, 3);
@@ -119,7 +119,7 @@ describe('fetchProjects', () => {
       ],
       paging: { total: 2 }
     });
-    await utils.fetchProjects({ view: 'visualizations' }, true).then(r => {
+    await utils.fetchProjects({}, true).then(r => {
       expect(r).toEqual({
         facets: {
           new_coverage: { NO_DATA: 0 },

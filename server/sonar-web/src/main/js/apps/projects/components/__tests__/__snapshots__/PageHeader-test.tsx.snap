@@ -60,19 +60,17 @@ exports[`should render correctly 1`] = `
         onChange={[MockFunction]}
         view="overall"
       />
-      <Tooltip>
-        <div
-          className="projects-topbar-item"
-        >
-          <ProjectsSortingSelect
-            className="js-projects-sorting-select"
-            defaultOption="analysis_date"
-            onChange={[MockFunction]}
-            selectedSort="size"
-            view="overall"
-          />
-        </div>
-      </Tooltip>
+      <div
+        className="projects-topbar-item"
+      >
+        <ProjectsSortingSelect
+          className="js-projects-sorting-select"
+          defaultOption="analysis_date"
+          onChange={[MockFunction]}
+          selectedSort="size"
+          view="overall"
+        />
+      </div>
     </div>
   </div>
 </div>
@@ -138,88 +136,17 @@ exports[`should render correctly while loading 1`] = `
         onChange={[MockFunction]}
         view="overall"
       />
-      <Tooltip>
-        <div
-          className="projects-topbar-item"
-        >
-          <ProjectsSortingSelect
-            className="js-projects-sorting-select"
-            defaultOption="analysis_date"
-            onChange={[MockFunction]}
-            selectedSort="size"
-            view="overall"
-          />
-        </div>
-      </Tooltip>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`should render disabled sorting options for visualizations 1`] = `
-<div
-  className="page-header"
->
-  <div
-    className="display-flex-space-between spacer-top"
-  >
-    <SearchFilterContainer
-      onQueryChange={[MockFunction]}
-      query={
-        Object {
-          "search": "test",
-        }
-      }
-    />
-    <div
-      className="display-flex-center"
-    >
-      <Connect(withCurrentUser(ProjectCreationMenu))
-        className="little-spacer-right"
-      />
-      <Connect(withAppState(Connect(withCurrentUser(withRouter(ApplicationCreation)))))
-        className="little-spacer-right"
-      />
-      <Connect(HomePageSelect)
-        className="spacer-left little-spacer-right"
-        currentPage={
-          Object {
-            "type": "PROJECTS",
-          }
-        }
-      />
-    </div>
-  </div>
-  <div
-    className="big-spacer-top display-flex-space-between"
-  >
-    <div
-      className="display-flex-center"
-    />
-    <div
-      className="display-flex-center"
-    >
-      <PerspectiveSelect
-        className="projects-topbar-item js-projects-perspective-select"
-        onChange={[MockFunction]}
-        view="visualizations"
-        visualization="coverage"
-      />
-      <Tooltip
-        overlay="projects.sort.disabled"
+      <div
+        className="projects-topbar-item"
       >
-        <div
-          className="projects-topbar-item disabled"
-        >
-          <ProjectsSortingSelect
-            className="js-projects-sorting-select"
-            defaultOption="analysis_date"
-            onChange={[MockFunction]}
-            selectedSort="size"
-            view="visualizations"
-          />
-        </div>
-      </Tooltip>
+        <ProjectsSortingSelect
+          className="js-projects-sorting-select"
+          defaultOption="analysis_date"
+          onChange={[MockFunction]}
+          selectedSort="size"
+          view="overall"
+        />
+      </div>
     </div>
   </div>
 </div>

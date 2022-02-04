@@ -19,7 +19,6 @@
  */
 import { ComponentQualifier } from '../../types/component';
 import { Dict, RawQuery } from '../../types/types';
-import { VISUALIZATIONS } from './utils';
 
 type Level = 'ERROR' | 'WARN' | 'OK';
 
@@ -45,7 +44,6 @@ export interface Query {
   search?: string;
   sort?: string;
   view?: string;
-  visualization?: string;
   [x: string]: string | number | string[] | undefined;
 }
 
@@ -71,8 +69,7 @@ export function parseUrlQuery(urlQuery: RawQuery): Query {
     qualifier: getAsQualifier(urlQuery['qualifier']),
     search: getAsString(urlQuery['search']),
     sort: getAsString(urlQuery['sort']),
-    view: getView(urlQuery['view']),
-    visualization: getVisualization(urlQuery['visualization'])
+    view: getView(urlQuery['view'])
   };
 }
 
@@ -121,17 +118,17 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
   return conditions.join(' and ');
 }
 
-const visualizationParams = ['sort', 'view', 'visualization'];
+const viewParems = ['sort', 'view'];
 
 export function hasFilterParams(query: Query) {
   return Object.keys(query)
-    .filter(key => !visualizationParams.includes(key))
+    .filter(key => !viewParems.includes(key))
     .some(key => query[key] !== undefined);
 }
 
-export function hasVisualizationParams(query: Query) {
+export function hasViewParams(query: Query) {
   return Object.keys(query)
-    .filter(key => visualizationParams.includes(key))
+    .filter(key => viewParems.includes(key))
     .some(key => query[key] !== undefined);
 }
 
@@ -170,10 +167,6 @@ function getAsQualifier(value: string | undefined): ComponentQualifier | undefin
 
 function getView(value: any): string | undefined {
   return typeof value !== 'string' || value === 'overall' ? undefined : value;
-}
-
-function getVisualization(value: string): string | undefined {
-  return VISUALIZATIONS.includes(value) ? value : undefined;
 }
 
 function convertIssuesRating(metric: string, rating: number): string {

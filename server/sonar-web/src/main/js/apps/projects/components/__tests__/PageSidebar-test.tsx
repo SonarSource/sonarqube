@@ -24,8 +24,7 @@ import PageSidebar, { PageSidebarProps } from '../PageSidebar';
 it('should render correctly', () => {
   const sidebar = shallowRender({
     query: { size: '3' },
-    view: 'overall',
-    visualization: 'risk'
+    view: 'overall'
   });
 
   expect(sidebar).toMatchSnapshot();
@@ -35,8 +34,7 @@ it('should render correctly with no applications', () => {
   const sidebar = shallowRender({
     applicationsEnabled: false,
     query: { size: '3' },
-    view: 'overall',
-    visualization: 'risk'
+    view: 'overall'
   });
 
   expect(sidebar).toMatchSnapshot();
@@ -45,8 +43,7 @@ it('should render correctly with no applications', () => {
 it('should render `leak` view correctly', () => {
   const sidebar = shallowRender({
     query: { view: 'leak' },
-    view: 'leak',
-    visualization: 'risk'
+    view: 'leak'
   });
   expect(sidebar).toMatchSnapshot();
 });
@@ -55,22 +52,9 @@ it('should render `leak` view correctly with no applications', () => {
   const sidebar = shallowRender({
     applicationsEnabled: false,
     query: { view: 'leak' },
-    view: 'leak',
-    visualization: 'risk'
+    view: 'leak'
   });
   expect(sidebar).toMatchSnapshot();
-});
-
-it('reset function should work correctly with view and visualizations', () => {
-  const sidebar = shallowRender({
-    query: { view: 'visualizations', visualization: 'bugs' },
-    view: 'visualizations',
-    visualization: 'bugs'
-  });
-
-  expect(sidebar.find('ClearAll').exists()).toBe(false);
-  sidebar.setProps({ query: { size: '3' } });
-  expect(sidebar.find('ClearAll').exists()).toBe(true);
 });
 
 function shallowRender(overrides: Partial<PageSidebarProps> = {}) {
@@ -79,9 +63,8 @@ function shallowRender(overrides: Partial<PageSidebarProps> = {}) {
       applicationsEnabled={true}
       onClearAll={jest.fn()}
       onQueryChange={jest.fn()}
-      query={{ view: 'visualizations', visualization: 'bugs' }}
+      query={{ view: 'overall' }}
       view="overall"
-      visualization="bugs"
       {...overrides}
     />
   );

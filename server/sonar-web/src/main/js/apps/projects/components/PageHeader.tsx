@@ -20,12 +20,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
-import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { isLoggedIn } from '../../../helpers/users';
 import { CurrentUser, RawQuery } from '../../../types/types';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
-import { Project } from '../types';
 import ApplicationCreation from './ApplicationCreation';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectCreationMenu from './ProjectCreationMenu';
@@ -34,23 +32,18 @@ import ProjectsSortingSelect from './ProjectsSortingSelect';
 interface Props {
   currentUser: CurrentUser;
   loading: boolean;
-  onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
+  onPerspectiveChange: (x: { view: string }) => void;
   onQueryChange: (change: RawQuery) => void;
   onSortChange: (sort: string, desc: boolean) => void;
-  projects?: Project[];
   query: RawQuery;
   selectedSort: string;
   total?: number;
   view: string;
-  visualization?: string;
 }
 
 export default function PageHeader(props: Props) {
-  const { loading, total, projects, currentUser, view } = props;
-  const limitReached = projects != null && total != null && projects.length < total;
+  const { loading, total, currentUser, view } = props;
   const defaultOption = isLoggedIn(currentUser) ? 'name' : 'analysis_date';
-
-  const sortingDisabled = view === 'visualizations' && !limitReached;
 
   return (
     <div className="page-header">
@@ -81,21 +74,18 @@ export default function PageHeader(props: Props) {
           <PerspectiveSelect
             className="projects-topbar-item js-projects-perspective-select"
             onChange={props.onPerspectiveChange}
-            view={props.view}
-            visualization={props.visualization}
+            view={view}
           />
 
-          <Tooltip overlay={sortingDisabled ? translate('projects.sort.disabled') : undefined}>
-            <div className={classNames('projects-topbar-item', { disabled: sortingDisabled })}>
-              <ProjectsSortingSelect
-                className="js-projects-sorting-select"
-                defaultOption={defaultOption}
-                onChange={props.onSortChange}
-                selectedSort={props.selectedSort}
-                view={props.view}
-              />
-            </div>
-          </Tooltip>
+          <div className={classNames('projects-topbar-item')}>
+            <ProjectsSortingSelect
+              className="js-projects-sorting-select"
+              defaultOption={defaultOption}
+              onChange={props.onSortChange}
+              selectedSort={props.selectedSort}
+              view={view}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -36,15 +36,6 @@
   padding-left: 32px;
 }
 
-.projects-topbar-item.disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-.projects-topbar-item.disabled * {
-  pointer-events: none !important;
-}
-
 .projects-topbar-item-search {
   position: relative;
   flex: 1;
@@ -97,65 +88,6 @@
   ~ .search-navigator-facet
   .projects-facet-bar-inner {
   background-color: var(--blue);
-}
-
-.projects-visualization {
-  position: relative;
-  height: 600px;
-}
-
-.projects-visualization .measure-details-bubble-chart-axis.y {
-  width: 300px;
-  left: 15px;
-  margin-top: 150px;
-  transform-origin: 0 0;
-  text-align: center;
-}
-
-.projects-visualizations-footer {
-  margin-top: 8px;
-  padding: 15px 60px;
-  border-top: 1px solid var(--barBorderColor);
-  font-size: var(--smallFontSize);
-  line-height: 1.4;
-  text-align: center;
-}
-
-.projects-visualizations-footer .note {
-  font-style: italic;
-}
-
-.measure-details-bubble-chart-title {
-  position: absolute;
-  left: 20px;
-}
-
-.measure-details-bubble-chart-axis {
-  position: absolute;
-  color: var(--secondFontColor);
-  font-size: var(--smallFontSize);
-}
-
-.measure-details-bubble-chart-axis.x {
-  left: 50%;
-  bottom: 16px;
-  width: 500px;
-  margin-left: -250px;
-  text-align: center;
-}
-
-.measure-details-bubble-chart-axis.y {
-  top: 50%;
-  left: -20px;
-  transform: rotate(-90deg);
-}
-
-.measure-details-bubble-chart-axis.size {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  top: 16px;
-  width: 100%;
 }
 
 .projects-empty-list {

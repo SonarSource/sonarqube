@@ -22,12 +22,7 @@ import * as React from 'react';
 import { get, save } from '../../../../helpers/storage';
 import { ComponentQualifier } from '../../../../types/component';
 import { Dict } from '../../../../types/types';
-import {
-  AllProjects,
-  LS_PROJECTS_SORT,
-  LS_PROJECTS_VIEW,
-  LS_PROJECTS_VISUALIZATION
-} from '../AllProjects';
+import { AllProjects, LS_PROJECTS_SORT, LS_PROJECTS_VIEW } from '../AllProjects';
 
 jest.mock(
   '../ProjectsList',
@@ -78,8 +73,6 @@ beforeEach(() => {
 it('renders', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({ query: { view: 'visualizations' } });
-  expect(wrapper).toMatchSnapshot();
 });
 
 it('fetches projects', () => {
@@ -103,8 +96,7 @@ it('fetches projects', () => {
       size: undefined,
       sort: undefined,
       tags: undefined,
-      view: undefined,
-      visualization: undefined
+      view: undefined
     },
     false
   );
@@ -113,8 +105,7 @@ it('fetches projects', () => {
 it('redirects to the saved search', () => {
   const localeStorageMock: Dict<string> = {
     [LS_PROJECTS_VIEW]: 'leak',
-    [LS_PROJECTS_SORT]: 'coverage',
-    [LS_PROJECTS_VISUALIZATION]: 'security'
+    [LS_PROJECTS_SORT]: 'coverage'
   };
 
   (get as jest.Mock).mockImplementation((key: string) => localeStorageMock[key]);
@@ -125,8 +116,7 @@ it('redirects to the saved search', () => {
     pathname: '/projects',
     query: {
       view: localeStorageMock[LS_PROJECTS_VIEW],
-      sort: localeStorageMock[LS_PROJECTS_SORT],
-      visualization: localeStorageMock[LS_PROJECTS_VISUALIZATION]
+      sort: localeStorageMock[LS_PROJECTS_SORT]
     }
   });
 });
@@ -145,11 +135,10 @@ it('changes perspective to leak', () => {
   wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({ view: 'leak' });
   expect(push).lastCalledWith({
     pathname: '/projects',
-    query: { view: 'leak', visualization: undefined }
+    query: { view: 'leak' }
   });
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VISUALIZATION, undefined);
 });
 
 it('updates sorting when changing perspective from leak', () => {
@@ -161,27 +150,10 @@ it('updates sorting when changing perspective from leak', () => {
   });
   expect(push).lastCalledWith({
     pathname: '/projects',
-    query: { sort: 'coverage', view: undefined, visualization: undefined }
+    query: { sort: 'coverage', view: undefined }
   });
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, 'coverage');
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, undefined);
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VISUALIZATION, undefined);
-});
-
-it('changes perspective to risk visualization', () => {
-  const push = jest.fn();
-  const wrapper = shallowRender({}, push);
-  wrapper.find('PageHeader').prop<Function>('onPerspectiveChange')({
-    view: 'visualizations',
-    visualization: 'risk'
-  });
-  expect(push).lastCalledWith({
-    pathname: '/projects',
-    query: { view: 'visualizations', visualization: 'risk' }
-  });
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'visualizations');
-  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VISUALIZATION, 'risk');
 });
 
 it('handles favorite projects', () => {

@@ -21,31 +21,24 @@ import { omit } from 'lodash';
 import * as React from 'react';
 import { components, OptionProps } from 'react-select';
 import Select from '../../../components/controls/Select';
-import BubblesIcon from '../../../components/icons/BubblesIcon';
 import ListIcon from '../../../components/icons/ListIcon';
 import { translate } from '../../../helpers/l10n';
-import { VIEWS, VISUALIZATIONS } from '../utils';
+import { VIEWS } from '../utils';
 
 interface Props {
   className?: string;
-  onChange: (x: { view: string; visualization?: string }) => void;
+  onChange: (x: { view: string }) => void;
   view: string;
-  visualization?: string;
 }
 
 export interface PerspectiveOption {
-  type: string;
   value: string;
   label: string;
 }
 
 export default class PerspectiveSelect extends React.PureComponent<Props> {
   handleChange = (option: PerspectiveOption) => {
-    if (option && option.type === 'view') {
-      this.props.onChange({ view: option.value });
-    } else if (option && option.type === 'visualization') {
-      this.props.onChange({ view: 'visualizations', visualization: option.value });
-    }
+    this.props.onChange({ view: option.value });
   };
 
   perspectiveOptionRender = (props: OptionProps<PerspectiveOption, false>) => {
@@ -54,26 +47,18 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
       <components.Option
         {...omit(props, ['children', 'className'])}
         className={`it__projects-perspective-option-${data.value} ${className}`}>
-        {data.type === 'view' && <ListIcon className="little-spacer-right" />}
-        {data.type === 'visualization' && <BubblesIcon className="little-spacer-right" />}
+        <ListIcon className="little-spacer-right" />
         {props.children}
       </components.Option>
     );
   };
 
   render() {
-    const { view, visualization } = this.props;
-    const perspective = view === 'visualizations' ? visualization : view;
+    const { view } = this.props;
     const options: PerspectiveOption[] = [
       ...VIEWS.map(opt => ({
-        type: 'view',
         value: opt.value,
         label: translate('projects.view', opt.label)
-      })),
-      ...VISUALIZATIONS.map(opt => ({
-        type: 'visualization',
-        value: opt,
-        label: translate('projects.visualization', opt)
       }))
     ];
     return (
@@ -89,7 +74,7 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
           }}
           options={options}
           isSearchable={false}
-          value={options.find(option => option.value === perspective)}
+          value={options.find(option => option.value === view)}
         />
       </div>
     );
