@@ -292,7 +292,7 @@ Click the heading below to expand the docker-compose.yml file example.
 |    volumes:
 |      - search-data-1:/opt/sonarqube/data
 |  search-2:
-|    image: sonarqube:8.6-datacenter-search
+|    image: sonarqube:datacenter-search
 |    hostname: "search-2"
 |    depends_on:
 |      - db
@@ -307,7 +307,7 @@ Click the heading below to expand the docker-compose.yml file example.
 |    volumes:
 |      - search-data-2:/opt/sonarqube/data
 |  search-3:
-|    image: sonarqube:8.6-datacenter-search
+|    image: sonarqube:datacenter-search
 |    hostname: "search-3"
 |    depends_on:
 |      - db
