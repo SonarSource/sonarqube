@@ -44,7 +44,7 @@ public class SpringProjectScanContainerTest {
 
   @ScannerSide
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  static class MyBatchExtension  {
+  static class MyBatchExtension {
 
   }
 
@@ -55,7 +55,7 @@ public class SpringProjectScanContainerTest {
   }
 
   @ServerSide
-  static class MyServerExtension  {
+  static class MyServerExtension {
 
   }
 }

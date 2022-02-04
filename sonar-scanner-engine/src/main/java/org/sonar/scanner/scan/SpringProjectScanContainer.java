@@ -127,6 +127,7 @@ import org.sonar.scanner.sensor.ProjectSensorsExecutor;
 import org.sonar.scm.git.GitScmSupport;
 import org.sonar.scm.svn.SvnScmSupport;
 
+import static org.sonar.api.utils.Preconditions.checkNotNull;
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
@@ -298,6 +299,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
   }
 
   private void addScannerExtensions() {
+    checkNotNull(getParent());
     getParent().getComponentByType(CoreExtensionsInstaller.class)
       .install(this, noExtensionFilter(), extension -> getScannerProjectExtensionsFilter().accept(extension));
     getParent().getComponentByType(ExtensionInstaller.class)
