@@ -203,7 +203,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   private void addGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToAdd, Map<String, GroupDto> groupsByName) {
     groupsToAdd.stream().map(groupsByName::get).filter(Objects::nonNull).forEach(
       groupDto -> {
-        LOGGER.debug("Adding group '{}' to user '{}'", groupDto.getName(), userDto.getLogin());
+        LOGGER.debug("Adding user '{}' to group '{}'", userDto.getLogin(), groupDto.getName());
         dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(groupDto.getUuid()).setUserUuid(userDto.getUuid()),
           groupDto.getName(), userDto.getLogin());
       });
@@ -250,7 +250,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static UserDto[] toArray(Optional<UserDto> userDto) {
-    return userDto.map(u -> new UserDto[] {u}).orElse(new UserDto[] {});
+    return userDto.map(u -> new UserDto[]{u}).orElse(new UserDto[]{});
   }
 
   private static AuthenticationException generateExistingEmailError(UserRegistration authenticatorParameters, String email) {
