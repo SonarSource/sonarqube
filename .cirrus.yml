@@ -478,3 +478,30 @@ upgd_oracle12_task:
     - ./private/cirrus/cirrus-qa.sh oracle12
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+
+ws_scan_task:
+  only_if: >-
+    $CIRRUS_CRON == "nightly" ||
+    $CIRRUS_CRON == "weekly-latest" ||
+    $CIRRUS_CRON == "weekly-lts" ||
+    changesInclude('private/cirrus/cirrus-whitesource-scan.sh')
+  depends_on: build
+  timeout_in: 30m
+  gke_container:
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 2
+    memory: 4Gb
+  env:
+    WS_APIKEY: ENCRYPTED[308f809a4051b3225bed52131b32fb52895bc5a12c23e901f35b1d1e9d80bcaf75a1023c0dd171994bdbe790b4055e66]
+    WS_WSS_URL: "https://saas-eu.whitesourcesoftware.com/agent"
+    WS_USERKEY: ENCRYPTED[747f9c9006cf9859fd5f02bad85a044c5c0f32d12190deb624d480ad6d86b2f114da136e068645281e9e83e2f0727ab2]
+    SLACK_WEBHOOK_SQ: ENCRYPTED[dec8e4350cbea3b94d63098558bcb3ae9e79b71c2b6286fcfb9eb80c0953b6448b10f7271b07b5e75e52f362c25d7a8f]
+  whitesource_script:
+    - ./private/cirrus/cirrus-whitesource-scan.sh
+  allow_failures: "true"
+  on_failure:
+    slack_notification_script:
+      - ./private/cirrus/cirrus-whitesource-notifications.sh
+  always:
+    ws_artifacts:
+      path: "whitesource/**/*"
