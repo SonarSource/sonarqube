@@ -19,14 +19,12 @@
  */
 package org.sonar.server.util;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.exceptions.BadRequestException;
 
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static java.lang.String.format;
 
 @ServerSide
 public class TypeValidations {
@@ -50,21 +48,7 @@ public class TypeValidations {
   }
 
   private TypeValidation findByKey(String key) {
-    TypeValidation typeValidation = Iterables.find(typeValidationList, new TypeValidationMatchKey(key), null);
-    checkRequest(typeValidation != null, "Type '%s' is not valid.", key);
-    return typeValidation;
-  }
-
-  private static class TypeValidationMatchKey implements Predicate<TypeValidation> {
-    private final String key;
-
-    public TypeValidationMatchKey(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nonnull TypeValidation input) {
-      return input.key().equals(key);
-    }
+    return typeValidationList.stream().filter(input -> input.key().equals(key)).findFirst()
+      .orElseThrow(() -> BadRequestException.create(format("Type '%s' is not valid.", key)));
   }
 }
