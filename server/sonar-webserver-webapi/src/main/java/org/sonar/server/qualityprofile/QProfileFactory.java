@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 
 /**
  * Create, delete and set as default profile.

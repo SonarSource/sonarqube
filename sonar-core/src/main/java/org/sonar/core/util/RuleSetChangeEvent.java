@@ -23,9 +23,10 @@ import java.io.Serializable;
 
 public class RuleSetChangeEvent implements Serializable {
 
-  private final String event = "RuleSetChange";
+  private static final String EVENT = "RuleSetChange";
 
   private String[] projects;
+  private String language;
   private RuleChange[] activatedRules;
   private RuleChange[] deactivatedRules;
 
@@ -33,6 +34,10 @@ public class RuleSetChangeEvent implements Serializable {
     this.projects = projects;
     this.activatedRules = activatedRules;
     this.deactivatedRules = deactivatedRules;
+    if (activatedRules.length == 0 && deactivatedRules.length == 0) {
+      throw new IllegalArgumentException("Can't create RuleSetChangeEvent without any rules that have changed");
+    }
+    this.language = activatedRules.length > 0 ? activatedRules[0].getLanguage() : deactivatedRules[0].getLanguage();
   }
 
   public void setProjects(String[] projects) {
@@ -48,11 +53,15 @@ public class RuleSetChangeEvent implements Serializable {
   }
 
   public String getEvent() {
-    return event;
+    return EVENT;
   }
 
   public String[] getProjects() {
     return projects;
+  }
+
+  public String getLanguage() {
+    return language;
   }
 
   public RuleChange[] getActivatedRules() {

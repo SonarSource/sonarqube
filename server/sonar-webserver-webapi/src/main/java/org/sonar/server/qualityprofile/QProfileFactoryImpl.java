@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static com.google.common.base.Preconditions.checkArgument;

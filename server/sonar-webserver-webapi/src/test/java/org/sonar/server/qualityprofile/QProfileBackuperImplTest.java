@@ -43,6 +43,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.rule.RuleCreator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

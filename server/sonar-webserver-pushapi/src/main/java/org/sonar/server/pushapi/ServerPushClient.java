@@ -35,17 +35,6 @@ public abstract class ServerPushClient {
   private static final Logger LOG = Loggers.get(ServerPushClient.class);
   private static final int DEFAULT_HEARTBEAT_PERIOD = 60;
 
-
-
-
-  private static final byte[] CRLF = new byte[] {'\r', '\n'};
-  private static final byte[] DATA_END = new byte[] {'\n', '\n'};
-  private static final byte[] DATA_FIELD = "data: ".getBytes(StandardCharsets.UTF_8);
-
-
-
-
-
   protected final AsyncContext asyncContext;
 
   private final ScheduledExecutorService executorService;

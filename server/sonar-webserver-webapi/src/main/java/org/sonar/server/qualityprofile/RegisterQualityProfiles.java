@@ -39,6 +39,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
+import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
+import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepository;
+import org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdate;
+import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListener;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;

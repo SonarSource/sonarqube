@@ -35,7 +35,7 @@ import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleActivationListener;
 import org.sonar.core.util.RuleChange;
 import org.sonar.core.util.RuleSetChangeEvent;
-import org.sonar.server.qualityprofile.RuleActivatorEventsDistributor;
+import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
 
 import static java.util.Arrays.asList;
 
@@ -74,22 +74,25 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
   @Override
   public void listen(RuleSetChangeEvent ruleChangeEvent) {
     LOG.info("Generating a RuleSetChangeEvent");
-    // TODO filter on languages here as well
-    broadcastMessage(ruleChangeEvent, f -> f.getClientProjectKeys().isEmpty() || !Collections.disjoint(f.getClientProjectKeys(), asList(ruleChangeEvent.getProjects())));
+    broadcastMessage(ruleChangeEvent, getFilterForEvent(ruleChangeEvent));
+  }
+
+  private static Predicate<SonarLintClient> getFilterForEvent(RuleSetChangeEvent ruleChangeEvent) {
+    List<String> affectedProjects = asList(ruleChangeEvent.getProjects());
+    return f -> !Collections.disjoint(f.getClientProjectKeys(), affectedProjects) && f.getLanguages().contains(ruleChangeEvent.getLanguage());
   }
 
 
-  public void broadcastMessage(RuleSetChangeEvent message, Predicate<SonarLintClient> filter) {
-    String jsonString = getJSONString(message);
-    clients.stream().filter(filter).forEach(c -> {
+  public void broadcastMessage(RuleSetChangeEvent event, Predicate<SonarLintClient> projectsFilter) {
+    clients.stream().filter(projectsFilter).forEach(c -> {
       try {
+        String jsonString = getJSONString(event);
         c.writeAndFlush(jsonString);
       } catch (IOException e) {
         LOG.error("Unable to send message to a client: " + e.getMessage());
       }
     });
   }
-
 
   public String getJSONString(RuleSetChangeEvent ruleSetChangeEvent) {
     JSONObject result = new JSONObject();
@@ -129,7 +132,7 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
     return ruleJson;
   }
 
-  private JSONObject toJson(ParamChange paramChange) {
+  private static JSONObject toJson(ParamChange paramChange) {
     JSONObject param = new JSONObject();
     param.put("key", paramChange.getKey());
     param.put("value", paramChange.getValue());

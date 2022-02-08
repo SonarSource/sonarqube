@@ -46,6 +46,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Arrays.asList;

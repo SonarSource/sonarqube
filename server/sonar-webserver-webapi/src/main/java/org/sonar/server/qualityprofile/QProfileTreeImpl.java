@@ -31,6 +31,9 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
+import org.sonar.server.qualityprofile.builtin.RuleActivationContext;
+import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -43,7 +46,8 @@ public class QProfileTreeImpl implements QProfileTree {
   private final ActiveRuleIndexer activeRuleIndexer;
   private final QualityProfileChangeEventService qualityProfileChangeEventService;
 
-  public QProfileTreeImpl(DbClient db, RuleActivator ruleActivator, System2 system2, ActiveRuleIndexer activeRuleIndexer, QualityProfileChangeEventService qualityProfileChangeEventService) {
+  public QProfileTreeImpl(DbClient db, RuleActivator ruleActivator, System2 system2, ActiveRuleIndexer activeRuleIndexer,
+    QualityProfileChangeEventService qualityProfileChangeEventService) {
     this.db = db;
     this.ruleActivator = ruleActivator;
     this.system2 = system2;

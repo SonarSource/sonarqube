@@ -19,14 +19,23 @@
  */
 package org.sonar.server.pushapi.sonarlint;
 
+import java.io.IOException;
 import java.util.Set;
 import javax.servlet.AsyncContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.qualityprofile.StandaloneRuleActivatorEventsDistributor;
+import org.mockito.ArgumentCaptor;
+import org.sonar.core.util.RuleChange;
+import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class SonarLintClientsRegistryTest {
 
@@ -65,6 +74,58 @@ public class SonarLintClientsRegistryTest {
     }
 
     assertThat(underTest.countConnectedClients()).isEqualTo(10);
+  }
+
+  @Test
+  public void listen_givenOneClientInterestedInJavaEvents_sendOneJavaEvent() throws IOException {
+    Set<String> javaLanguageKey = Set.of("java");
+    ServletResponse response = mock(ServletResponse.class);
+    when(defaultAsyncContext.getResponse()).thenReturn(response);
+    ServletOutputStream outputStream = mock(ServletOutputStream.class);
+    when(response.getOutputStream()).thenReturn(outputStream);
+    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleKeys, javaLanguageKey);
+
+    underTest.registerClient(sonarLintClient);
+
+    RuleChange javaRule = createRuleChange("java");
+
+    RuleChange[] activatedRules = {};
+    RuleChange[] deactivatedRules = {javaRule};
+    RuleSetChangeEvent ruleChangeEvent = new RuleSetChangeEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    underTest.listen(ruleChangeEvent);
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(outputStream).write(captor.capture());
+    String message = new String(captor.getValue());
+    assertThat(message).contains("java");
+  }
+
+  @Test
+  public void listen_givenOneClientInterestedInJsEventsAndJavaEventGenerated_sendZeroEvents() throws IOException {
+    Set<String> jsLanguageKey = Set.of("js");
+    ServletResponse response = mock(ServletResponse.class);
+    when(defaultAsyncContext.getResponse()).thenReturn(response);
+    ServletOutputStream outputStream = mock(ServletOutputStream.class);
+    when(response.getOutputStream()).thenReturn(outputStream);
+    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleKeys, jsLanguageKey);
+
+    underTest.registerClient(sonarLintClient);
+
+    RuleChange javaRuleChange = createRuleChange("java");
+
+    RuleChange[] activatedRules = {};
+    RuleChange[] deactivatedRules = {javaRuleChange};
+    RuleSetChangeEvent ruleChangeEvent = new RuleSetChangeEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    underTest.listen(ruleChangeEvent);
+
+    verifyNoInteractions(outputStream);
+  }
+
+  private RuleChange createRuleChange(String language) {
+    RuleChange javaRule = new RuleChange();
+    javaRule.setLanguage(language);
+
+    return javaRule;
   }
 
 }

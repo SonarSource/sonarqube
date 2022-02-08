@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.Optional;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,11 +30,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.qualityprofile.QualityProfileChangeEventService;
+import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.user.UserSession;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
@@ -93,24 +90,23 @@ public class AddProjectAction implements QProfileWsAction {
       checkPermissions(dbSession, profile, project);
       QProfileDto currentProfile = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage());
 
-      Optional<QProfileDto> deactivatedProfile = empty();
+      QProfileDto deactivatedProfile = null;
 
       if (currentProfile == null) {
         QProfileDto defaultProfile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, profile.getLanguage());
         if (defaultProfile != null) {
-          deactivatedProfile = of(defaultProfile);
+          deactivatedProfile = defaultProfile;
         }
 
         // project uses the default profile
         dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
         dbSession.commit();
       } else if (!profile.getKee().equals(currentProfile.getKee())) {
-        deactivatedProfile = of(currentProfile);
+        deactivatedProfile = currentProfile;
         dbClient.qualityProfileDao().updateProjectProfileAssociation(dbSession, project, profile.getKee(), currentProfile.getKee());
         dbSession.commit();
       }
-      Optional<QProfileDto> activatedProfile = of(profile);
-      qualityProfileChangeEventService.publishRuleActivationToSonarLintClients(project, activatedProfile, deactivatedProfile);
+      qualityProfileChangeEventService.publishRuleActivationToSonarLintClients(project, profile, deactivatedProfile);
     }
 
     response.noContent();

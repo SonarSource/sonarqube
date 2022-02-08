@@ -84,7 +84,7 @@ public class SonarLintPushAction extends ServerPushAction {
 
     if (!isServerSideEventsRequest(servletRequest)) {
       servletResponse.stream().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-      return; // TODO fixme this is not closing the connexion properly
+      return;
     }
 
     setHeadersForResponse(servletResponse);

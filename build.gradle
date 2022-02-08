@@ -337,6 +337,7 @@ subprojects {
         entry 'okhttp'
         entry 'mockwebserver'
       }
+      dependency 'org.json:json:20211205'
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'
       dependency 'info.picocli:picocli:3.6.1'
       dependencySet(group: 'io.jsonwebtoken', version: '0.11.2') {

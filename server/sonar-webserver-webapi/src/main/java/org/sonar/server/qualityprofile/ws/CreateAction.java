@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileName;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;

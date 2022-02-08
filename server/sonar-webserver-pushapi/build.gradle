@@ -6,9 +6,10 @@ sonarqube {
 dependencies {
 
     compile 'javax.servlet:javax.servlet-api'
-    compile project(':server:sonar-webserver-auth')
+    compile 'org.json:json'
+
     compile project(':server:sonar-webserver-ws')
-    compile project(':server:sonar-webserver-webapi')
+    compile project(':server:sonar-webserver-auth')
 
     testCompile 'junit:junit'
     testCompile 'org.assertj:assertj-core'

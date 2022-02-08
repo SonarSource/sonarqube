@@ -29,6 +29,8 @@ import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
+import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.IntegerTypeValidation;

@@ -19,7 +19,11 @@
  */
 package org.sonar.core.util;
 
-public class RuleChange {
+import java.io.Serializable;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+public class RuleChange implements Serializable {
   String key;
   String language;
   String templateKey;
@@ -34,11 +38,12 @@ public class RuleChange {
     this.key = key;
   }
 
+  @CheckForNull
   public String getLanguage() {
     return language;
   }
 
-  public void setLanguage(String language) {
+  public void setLanguage(@Nullable String language) {
     this.language = language;
   }
 
@@ -50,11 +55,12 @@ public class RuleChange {
     this.templateKey = templateKey;
   }
 
+  @CheckForNull
   public String getSeverity() {
     return severity;
   }
 
-  public void setSeverity(String severity) {
+  public void setSeverity(@Nullable String severity) {
     this.severity = severity;
   }
 

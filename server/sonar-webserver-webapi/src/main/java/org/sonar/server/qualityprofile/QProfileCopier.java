@@ -23,6 +23,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 
 @ServerSide
 public class QProfileCopier {

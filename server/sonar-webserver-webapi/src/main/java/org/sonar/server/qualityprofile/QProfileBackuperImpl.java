@@ -43,6 +43,7 @@ import org.sonar.db.qualityprofile.ExportRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.RuleCreator;
 
