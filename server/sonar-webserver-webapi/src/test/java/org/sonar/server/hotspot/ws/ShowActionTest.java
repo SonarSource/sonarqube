@@ -73,6 +73,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Changelog.Diff;
+import org.sonarqube.ws.Common.Location;
 import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Hotspots;
 
@@ -183,6 +184,60 @@ public class ShowActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void succeeds_on_hotspot_with_flow() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    ComponentDto anotherFile = dbTester.components().insertComponent(newFileDto(project));
+    DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder().addFlow(DbIssues.Flow.newBuilder().addAllLocation(Arrays.asList(
+      DbIssues.Location.newBuilder()
+        .setComponentId(file.uuid())
+        .setMsg("FLOW MESSAGE")
+        .setTextRange(DbCommons.TextRange.newBuilder()
+          .setStartLine(1)
+          .setEndLine(1)
+          .setStartOffset(0)
+          .setEndOffset(12)
+          .build())
+        .build(),
+      DbIssues.Location.newBuilder()
+        .setComponentId(anotherFile.uuid())
+        .setMsg("ANOTHER FLOW MESSAGE")
+        .setTextRange(DbCommons.TextRange.newBuilder()
+          .setStartLine(1)
+          .setEndLine(1)
+          .setStartOffset(0)
+          .setEndOffset(12)
+          .build())
+        .build(),
+      DbIssues.Location.newBuilder()
+        .setMsg("FLOW MESSAGE WITHOUT FILE UUID")
+        .setTextRange(DbCommons.TextRange.newBuilder()
+          .setStartLine(1)
+          .setEndLine(1)
+          .setStartOffset(0)
+          .setEndOffset(12)
+          .build())
+        .build())));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    var hotspot = dbTester.issues().insertHotspot(rule, project, file, i -> i.setLocations(locations.build()));
+    mockChangelogAndCommentsFormattingContext();
+
+    userSessionRule.registerComponents(project);
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getKey()).isEqualTo(hotspot.getKey());
+    assertThat(response.getFlowsCount()).isEqualTo(1);
+    assertThat(response.getFlows(0).getLocationsList())
+      .extracting(Location::getMsg, Location::getComponent)
+      .containsExactlyInAnyOrder(
+        tuple("FLOW MESSAGE", file.getKey()),
+        tuple("ANOTHER FLOW MESSAGE", anotherFile.getKey()),
+        tuple("FLOW MESSAGE WITHOUT FILE UUID", file.getKey()));
   }
 
   @Test

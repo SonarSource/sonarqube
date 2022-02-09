@@ -69,6 +69,7 @@ message ShowWsResponse {
   repeated sonarqube.ws.commons.Comment comment = 15;
   repeated sonarqube.ws.commons.User users = 16;
   optional bool canChangeStatus = 17;
+  repeated sonarqube.ws.commons.Flow flows = 19;
 }
 
 message Component {

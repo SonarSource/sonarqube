@@ -20,9 +20,13 @@
 package org.sonar.server.hotspot.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,6 +40,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.protobuf.DbIssues.Locations;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -53,6 +59,8 @@ import org.sonarqube.ws.Hotspots.ShowWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
+import static com.google.common.collect.ImmutableSet.copyOf;
+import static com.google.common.collect.Sets.difference;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
@@ -112,6 +120,7 @@ public class ShowAction implements HotspotsWsAction {
       formatComponents(components, responseBuilder);
       formatRule(responseBuilder, rule);
       formatTextRange(responseBuilder, hotspot);
+      formatFlows(dbSession, responseBuilder, hotspot);
       FormattingContext formattingContext = formatChangeLogAndComments(dbSession, hotspot, users, components, responseBuilder);
       formatUsers(responseBuilder, users, formattingContext);
 
@@ -172,8 +181,54 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setRule(ruleBuilder.build());
   }
 
-  private void formatTextRange(ShowWsResponse.Builder responseBuilder, IssueDto hotspot) {
-    textRangeFormatter.formatTextRange(hotspot, responseBuilder::setTextRange);
+  private void formatTextRange(ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
+    textRangeFormatter.formatTextRange(hotspot, hotspotBuilder::setTextRange);
+  }
+
+  private void formatFlows(DbSession dbSession, ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
+    DbIssues.Locations locations = hotspot.parseLocations();
+
+    if (locations == null) {
+      return;
+    }
+
+    Set<String> componentUuids = readComponentUuidsFromLocations(hotspot, locations);
+    Map<String, ComponentDto> componentsByUuids = loadComponents(dbSession, componentUuids);
+
+    for (DbIssues.Flow flow : locations.getFlowList()) {
+      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
+      for (DbIssues.Location flowLocation : flow.getLocationList()) {
+        targetFlow.addLocations(textRangeFormatter.formatLocation(flowLocation, hotspotBuilder.getComponent().getKey(), componentsByUuids));
+      }
+      hotspotBuilder.addFlows(targetFlow.build());
+    }
+  }
+
+  private static Set<String> readComponentUuidsFromLocations(IssueDto hotspot, Locations locations) {
+    Set<String> componentUuids = new HashSet<>();
+    componentUuids.add(hotspot.getComponentUuid());
+    for (DbIssues.Flow flow : locations.getFlowList()) {
+      for (DbIssues.Location location : flow.getLocationList()) {
+        if (location.hasComponentId()) {
+          componentUuids.add(location.getComponentId());
+        }
+      }
+    }
+    return componentUuids;
+  }
+
+  private Map<String, ComponentDto> loadComponents(DbSession dbSession, Set<String> componentUuids) {
+    Map<String, ComponentDto> componentsByUuids = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession,
+      componentUuids)
+      .stream()
+      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity(), (componentDto, componentDto2) -> componentDto2));
+
+    Set<String> componentUuidsToLoad = copyOf(difference(componentUuids, componentsByUuids.keySet()));
+    if (!componentUuidsToLoad.isEmpty()) {
+      dbClient.componentDao().selectByUuids(dbSession, componentUuidsToLoad)
+        .forEach(c -> componentsByUuids.put(c.uuid(), c));
+    }
+    return componentsByUuids;
   }
 
   private FormattingContext formatChangeLogAndComments(DbSession dbSession, IssueDto hotspot, Users users, Components components, ShowWsResponse.Builder responseBuilder) {
@@ -220,7 +275,7 @@ public class ShowAction implements HotspotsWsAction {
     boolean hotspotOnProject = Objects.equals(project.uuid(), componentUuid);
     ComponentDto component = hotspotOnProject ? project
       : dbClient.componentDao().selectByUuid(dbSession, componentUuid)
-      .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
+        .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
 
     return new Components(project, component);
   }
