@@ -20,7 +20,9 @@
 package org.sonar.scanner.bootstrap;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileLock;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -30,6 +32,7 @@ import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +73,24 @@ public class ScannerPluginJarExploderTest {
     assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
     assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/MANIFEST.MF")).doesNotExist();
     assertThat(new File(jar.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
+  }
+
+  @Test
+  public void retry_on_locked_file() throws IOException {
+    File jar = loadFile("sonar-checkstyle-plugin-2.8.jar");
+    File lockFile = new File(jar.getParentFile(), jar.getName() + "_unzip.lock");
+    try (FileOutputStream out = new FileOutputStream(lockFile)) {
+      FileLock lock = out.getChannel().lock();
+      try {
+        PluginInfo pluginInfo = PluginInfo.create(jar);
+        assertThatExceptionOfType(IllegalStateException.class)
+          .isThrownBy(() -> underTest.explode(pluginInfo))
+          .withMessage("Fail to open plugin [checkstyle]: " + jar)
+          .withCauseExactlyInstanceOf(IOException.class);
+      } finally {
+        lock.release();
+      }
+    }
   }
 
   private File loadFile(String filename) throws IOException {
