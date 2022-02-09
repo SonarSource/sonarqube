@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
+import static org.sonar.application.process.StreamGobbler.LOGGER_STARTUP;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
@@ -115,10 +116,10 @@ public class AppLoggingTest {
     verifySonarLogFileAppender(rootLogger.getAppender("file_sonar"));
     assertThat(rootLogger.iteratorForAppenders()).toIterable().hasSize(2);
 
-    // verify no other logger writes to sonar.log
+    // verify no other logger except startup logger writes to sonar.log
     ctx.getLoggerList()
       .stream()
-      .filter(logger -> !ROOT_LOGGER_NAME.equals(logger.getName()))
+      .filter(logger -> !ROOT_LOGGER_NAME.equals(logger.getName()) && !LOGGER_STARTUP.equals(logger.getName()))
       .forEach(AppLoggingTest::verifyNoFileAppender);
   }
 
@@ -146,7 +147,7 @@ public class AppLoggingTest {
 
     ctx.getLoggerList()
       .stream()
-      .filter(logger -> !ROOT_LOGGER_NAME.equals(logger.getName()))
+      .filter(logger -> !ROOT_LOGGER_NAME.equals(logger.getName()) && !LOGGER_STARTUP.equals(logger.getName()))
       .forEach(AppLoggingTest::verifyNoFileAppender);
   }
 

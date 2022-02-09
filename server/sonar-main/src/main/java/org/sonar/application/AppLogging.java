@@ -38,6 +38,7 @@ import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.application.process.StreamGobbler.LOGGER_GOBBLER;
+import static org.sonar.application.process.StreamGobbler.LOGGER_STARTUP;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
@@ -181,20 +182,22 @@ public class AppLogging {
    * printing to sonar.log must be done at logback level.
    */
   private void configureWithLogbackWritingToFile(LoggerContext ctx) {
-    // configure all logs (ie. root logger) to be written to sonar.log and also to the console with formatting
-    // in practice, this will be only APP's own logs as logs from sub processes LOGGER_GOBBLER and LOGGER_GOBBLER
-    // is configured below to be detached from root
-    // so, this will make all APP's log to be both written to sonar.log and visible in the console
-    configureRootWithLogbackWritingToFile(ctx);
+    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
+    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), rootLoggerConfig, ctx);
+    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), rootLoggerConfig, encoder);
+    rootLogger.addAppender(fileAppender);
+    rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
 
-    // if option -Dsonar.log.console=true has been set, sub processes will write their logs to their own files but also
-    // copy them to their System.out.
-    // otherwise, the only logs to be expected in LOGGER_GOBBLER are those before logback is setup in subprocesses or
-    // when their JVM crashes
-    // they must be printed to App's System.out as is (as they are already formatted)
-    // logger is configured to be non additive as we don't want these logs to be written to sonar.log and duplicated in
-    // the console (with an incorrect formatting)
     configureGobbler(ctx);
+
+    configureStartupLogger(ctx, fileAppender, encoder);
+  }
+
+  private void configureStartupLogger(LoggerContext ctx, FileAppender<ILoggingEvent> fileAppender, Encoder<ILoggingEvent> encoder) {
+    Logger startupLogger = ctx.getLogger(LOGGER_STARTUP);
+    startupLogger.setAdditive(false);
+    startupLogger.addAppender(fileAppender);
+    startupLogger.addAppender(helper.newConsoleAppender(ctx, GOBBLER_PLAIN_CONSOLE, encoder));
   }
 
   /**
@@ -218,14 +221,6 @@ public class AppLogging {
     // logger is configured to be non additive as we don't want these logs written to sonar.log and duplicated in the
     // console with an incorrect formatting
     configureGobbler(ctx);
-  }
-
-  private void configureRootWithLogbackWritingToFile(LoggerContext ctx) {
-    Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
-    Encoder<ILoggingEvent> encoder = helper.createEncoder(appSettings.getProps(), rootLoggerConfig, ctx);
-    FileAppender<ILoggingEvent> fileAppender = helper.newFileAppender(ctx, appSettings.getProps(), rootLoggerConfig, encoder);
-    rootLogger.addAppender(fileAppender);
-    rootLogger.addAppender(createAppConsoleAppender(ctx, encoder));
   }
 
   /**

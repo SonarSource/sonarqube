@@ -104,6 +104,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         .setWatcherDelayMs(processWatcherDelayMs)
         .setStopTimeout(stopTimeoutFor(processId, settings))
         .setHardStopTimeout(HARD_STOP_TIMEOUT)
+        .setAppSettings(settings)
         .build();
       processesById.put(process.getProcessId(), process);
     }

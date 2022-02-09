@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.application.config.AppSettings;
 import org.sonar.process.ProcessId;
 
 import static java.lang.String.format;
@@ -43,6 +44,7 @@ public class ManagedProcessHandler {
   private final Timeout stopTimeout;
   private final Timeout hardStopTimeout;
   private final long watcherDelayMs;
+  private final AppSettings appSettings;
 
   private ManagedProcess process;
   private StreamGobbler stdOutGobbler;
@@ -62,6 +64,7 @@ public class ManagedProcessHandler {
     this.watcherDelayMs = builder.watcherDelayMs;
     this.stopWatcher = new StopWatcher();
     this.eventWatcher = new EventWatcher();
+    this.appSettings = builder.settings;
   }
 
   public boolean start(Supplier<ManagedProcess> commandLauncher) {
@@ -77,9 +80,9 @@ public class ManagedProcessHandler {
       finalizeStop();
       throw e;
     }
-    this.stdOutGobbler = new StreamGobbler(process.getInputStream(), processId.getKey());
+    this.stdOutGobbler = new StreamGobbler(process.getInputStream(), appSettings, processId.getKey());
     this.stdOutGobbler.start();
-    this.stdErrGobbler = new StreamGobbler(process.getErrorStream(), processId.getKey());
+    this.stdErrGobbler = new StreamGobbler(process.getErrorStream(), appSettings, processId.getKey());
     this.stdErrGobbler.start();
     this.stopWatcher.start();
     this.eventWatcher.start();
@@ -302,6 +305,7 @@ public class ManagedProcessHandler {
     private long watcherDelayMs = DEFAULT_WATCHER_DELAY_MS;
     private Timeout stopTimeout;
     private Timeout hardStopTimeout;
+    private AppSettings settings;
 
     private Builder(ProcessId processId) {
       this.processId = processId;
@@ -347,6 +351,11 @@ public class ManagedProcessHandler {
       ensureStopTimeoutNonNull(this.stopTimeout);
       ensureHardStopTimeoutNonNull(this.hardStopTimeout);
       return new ManagedProcessHandler(this);
+    }
+
+    public Builder setAppSettings(AppSettings settings) {
+      this.settings = settings;
+      return this;
     }
   }
 
