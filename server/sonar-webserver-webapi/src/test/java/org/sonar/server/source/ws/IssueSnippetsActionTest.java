@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -47,6 +48,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -62,15 +64,14 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class IssueSnippetsActionTest {
-  private static final String SCM_AUTHOR_JSON_FIELD = "scmAuthor";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private FileSourceTester fileSourceTester = new FileSourceTester(db);
+  private final DbClient dbClient = db.getDbClient();
+  private final FileSourceTester fileSourceTester = new FileSourceTester(db);
   private ComponentDto project;
   private WsActionTester actionTester;
 
@@ -85,6 +86,16 @@ public class IssueSnippetsActionTest {
     ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(dbClient);
     SourceService sourceService = new SourceService(dbClient, htmlSourceDecorator);
     actionTester = new WsActionTester(new IssueSnippetsAction(dbClient, userSession, sourceService, linesJsonWriter, componentViewerJsonWriter));
+  }
+
+  @Test
+  public void verify_definition() {
+    var def = actionTester.getDef();
+    assertThat(def.isInternal()).isTrue();
+    assertThat(def.since()).isEqualTo("7.8");
+
+    assertThat(def.param("issueKey")).extracting(Param::isRequired, Param::description)
+      .containsExactly(true, "Issue or hotspot key");
   }
 
   @Test
@@ -159,8 +170,8 @@ public class IssueSnippetsActionTest {
     userSession.logIn().addProjectPermission(USER, project, file);
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
-
-    assertThatThrownBy(() -> actionTester.newRequest().setParam("issueKey", issueKey).execute())
+    var request = actionTester.newRequest().setParam("issueKey", issueKey);
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -170,7 +181,8 @@ public class IssueSnippetsActionTest {
     insertIssue(file, newLocation(file.uuid(), 5, 5));
     userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
-    assertThatThrownBy(() -> actionTester.newRequest().setParam("issueKey", "invalid").execute())
+    var request = actionTester.newRequest().setParam("issueKey", "invalid");
+    assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("Issue with key 'invalid' does not exist");
   }
@@ -180,7 +192,8 @@ public class IssueSnippetsActionTest {
     ComponentDto file = insertFile(project, "file");
     userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
-    assertThatThrownBy(() -> actionTester.newRequest().execute())
+    var request = actionTester.newRequest();
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("The 'issueKey' parameter is missing");
   }

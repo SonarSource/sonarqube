@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.io.Resources;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +45,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.io.Resources.getResource;
 import static java.lang.String.format;
 
 public class IssueSnippetsAction implements SourcesWsAction {
@@ -67,16 +67,16 @@ public class IssueSnippetsAction implements SourcesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("issue_snippets")
-      .setDescription("Get code snipets involved in an issue. Requires 'See Source Code permission' permission on the project<br/>")
+      .setDescription("Get code snippets involved in an issue or hotspot. Requires 'See Source Code permission' permission on the project<br/>")
       .setSince("7.8")
       .setInternal(true)
-      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
+      .setResponseExample(getResource(getClass(), "example-show.json"))
       .setHandler(this);
 
     action
       .createParam("issueKey")
       .setRequired(true)
-      .setDescription("Issue key")
+      .setDescription("Issue or hotspot key")
       .setExampleValue("AU-Tpxb--iU5OvuD2FLy");
   }
 
@@ -116,7 +116,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
 
   private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines) {
     Optional<Iterable<DbFileSources.Line>> lineSourcesOpt = sourceService.getLines(dbSession, fileDto.uuid(), lines);
-    if (!lineSourcesOpt.isPresent()) {
+    if (lineSourcesOpt.isEmpty()) {
       return;
     }
 
@@ -165,7 +165,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     TreeSet<Integer> lines = linesPerComponent.computeIfAbsent(componentUuid, c -> new TreeSet<>());
     IntStream.rangeClosed(start, end).forEach(lines::add);
 
-    // If two snippets in the same component are 10 lines apart of each other, include those 10 lines.
+    // If two snippets in the same component are 10 lines apart from each other, include those 10 lines.
     Integer closestToStart = lines.lower(start);
     if (closestToStart != null && closestToStart >= start - 11) {
       IntStream.range(closestToStart + 1, start).forEach(lines::add);
