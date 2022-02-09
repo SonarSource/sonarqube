@@ -18,9 +18,11 @@ else
   echo "Downloaded $VERSION"
 fi
 
-java -Diris.projectKey=org.sonarsource.sonarqube:sonarqube \
+java \
+  -Diris.source.projectKey=org.sonarsource.sonarqube:sonarqube-private \
   -Diris.source.url=https://next.sonarqube.com/sonarqube \
   -Diris.source.token=$NEXT_TOKEN \
+  -Diris.destination.projectKey=org.sonarsource.sonarqube:sonarqube \
   -Diris.destination.url=$SONAR_HOST_URL \
   -Diris.destination.token=$SONAR_TOKEN \
   -Diris.maxcountposts=50 \
