@@ -12,7 +12,7 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
-  compile 'org.apache.commons:commons-dbcp2'
+  compile 'com.zaxxer:HikariCP'
   compile 'org.mybatis:mybatis'
   compile 'org.slf4j:slf4j-api'
   compile 'org.sonarsource.api.plugin:sonar-plugin-api'
@@ -27,7 +27,9 @@ dependencies {
   testCompile 'com.oracle.database.jdbc:ojdbc8'
   testCompile 'com.tngtech.java:junit-dataprovider'
   testCompile 'org.mockito:mockito-core'
+  testCompile 'org.mockito:mockito-inline'
   testCompile 'org.postgresql:postgresql'
+
   testCompile project(':sonar-testing-harness')
 
   testRuntime 'com.h2database:h2'

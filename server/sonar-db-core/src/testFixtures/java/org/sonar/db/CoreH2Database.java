@@ -19,11 +19,11 @@
  */
 package org.sonar.db;
 
+import com.zaxxer.hikari.HikariDataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.output.NullWriter;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -38,7 +38,7 @@ import static java.lang.String.format;
 public class CoreH2Database implements Database {
   private static final String IGNORED_KEYWORDS_OPTION = ";NON_KEYWORDS=VALUE";
   private final String name;
-  private BasicDataSource datasource;
+  private HikariDataSource datasource;
 
   /**
    * IMPORTANT: change DB name in order to not conflict with {@link DefaultDatabaseTest}
@@ -54,11 +54,11 @@ public class CoreH2Database implements Database {
 
   private void startDatabase() {
     try {
-      datasource = new BasicDataSource();
+      datasource = new HikariDataSource();
       datasource.setDriverClassName("org.h2.Driver");
       datasource.setUsername("sonar");
       datasource.setPassword("sonar");
-      datasource.setUrl("jdbc:h2:mem:" + name);
+      datasource.setJdbcUrl("jdbc:h2:mem:" + name);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start H2", e);
     }
@@ -93,11 +93,7 @@ public class CoreH2Database implements Database {
 
   @Override
   public void stop() {
-    try {
-      datasource.close();
-    } catch (SQLException e) {
-      // Ignore error
-    }
+    datasource.close();
   }
 
   public DataSource getDataSource() {

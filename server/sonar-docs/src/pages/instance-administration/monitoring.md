@@ -72,14 +72,11 @@ All these MBeans are read-only. It's not possible to modify or reset their value
 | Attribute Name | Description
 | ---|---
 | MigrationStatus | Possible values are: UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL (only available for WebServer).
-| PoolActiveConnections	| Number of active database connections
+| PoolActiveConnections | Number of active database connections
 | PoolIdleConnections | Number of database connections waiting to be used
-| PoolInitialSize | Initial size of the database connections pool.
-| PoolMaxActiveConnections | Maximum number of active database connections
-| PoolMaxIdleConnections | Maximum number of database connections waiting to be used
-| PoolMaxWaitMillis | In milliseconds
-| PoolRemoveAbandoned | Possible values : true, false
-| PoolRemoveAbandonedTimeoutSeconds | In Seconds
+| PoolMaxConnections | Maximum number of active database connections
+| PoolTotalConnections | Total number of connections currently in the pool
+| PoolMaxWaitMillis | Maximum number of milliseconds that a client will wait for a connection from the pool
 
 [[collapse]]
 | ## SonarQube MBean

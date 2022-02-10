@@ -21,12 +21,12 @@ package org.sonar.db.profiling;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.apache.commons.dbcp2.BasicDataSource;
+import javax.sql.DataSource;
 
 public interface ConnectionInterceptor {
 
-  Connection getConnection(BasicDataSource dataSource) throws SQLException;
+  Connection getConnection(DataSource dataSource) throws SQLException;
 
-  Connection getConnection(BasicDataSource dataSource, String login, String password) throws SQLException;
+  Connection getConnection(DataSource dataSource, String login, String password) throws SQLException;
 
 }

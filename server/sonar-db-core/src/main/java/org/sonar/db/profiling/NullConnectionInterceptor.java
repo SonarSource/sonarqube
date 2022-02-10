@@ -21,18 +21,18 @@ package org.sonar.db.profiling;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.apache.commons.dbcp2.BasicDataSource;
+import javax.sql.DataSource;
 
 public enum NullConnectionInterceptor implements ConnectionInterceptor {
   INSTANCE;
 
   @Override
-  public Connection getConnection(BasicDataSource dataSource) throws SQLException {
+  public Connection getConnection(DataSource dataSource) throws SQLException {
     return dataSource.getConnection();
   }
 
   @Override
-  public Connection getConnection(BasicDataSource dataSource, String user, String password) throws SQLException {
+  public Connection getConnection(DataSource dataSource, String user, String password) throws SQLException {
     return dataSource.getConnection(user, password);
   }
 }

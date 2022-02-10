@@ -19,95 +19,34 @@
  */
 package org.sonar.ce.monitoring;
 
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.sonar.api.Startable;
+import org.sonar.db.DatabaseMBean;
 import org.sonar.db.DbClient;
-import org.sonar.process.Jmx;
-import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemInfoSection {
-  private final DbClient dbClient;
+public class CeDatabaseMBeanImpl extends DatabaseMBean implements CeDatabaseMBean {
+
+  private static final String OBJECT_NAME = "ComputeEngineDatabaseConnection";
 
   public CeDatabaseMBeanImpl(DbClient dbClient) {
-    this.dbClient = dbClient;
+    super(dbClient);
   }
 
   @Override
-  public void start() {
-    Jmx.register(OBJECT_NAME, this);
-  }
-
-  /**
-   * Unregister, if needed
-   */
-  @Override
-  public void stop() {
-    Jmx.unregister(OBJECT_NAME);
-  }
-
-  @Override
-  public int getPoolActiveConnections() {
-    return commonsDbcp().getNumActive();
-  }
-
-  @Override
-  public int getPoolMaxActiveConnections() {
-    return commonsDbcp().getMaxTotal();
-  }
-
-  @Override
-  public int getPoolIdleConnections() {
-    return commonsDbcp().getNumIdle();
-  }
-
-  @Override
-  public int getPoolMaxIdleConnections() {
-    return commonsDbcp().getMaxIdle();
-  }
-
-  @Override
-  public int getPoolMinIdleConnections() {
-    return commonsDbcp().getMinIdle();
-  }
-
-  @Override
-  public int getPoolInitialSize() {
-    return commonsDbcp().getInitialSize();
-  }
-
-  @Override
-  public long getPoolMaxWaitMillis() {
-    return commonsDbcp().getMaxWaitMillis();
-  }
-
-  @Override
-  public boolean getPoolRemoveAbandoned() {
-    return commonsDbcp().getRemoveAbandonedOnBorrow();
-  }
-
-  @Override
-  public int getPoolRemoveAbandonedTimeoutSeconds() {
-    return commonsDbcp().getRemoveAbandonedTimeout();
-  }
-
-  private BasicDataSource commonsDbcp() {
-    return (BasicDataSource) dbClient.getDatabase().getDataSource();
+  protected String name() {
+    return OBJECT_NAME;
   }
 
   @Override
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
     builder.setName("Compute Engine Database Connection");
-    builder.addAttributesBuilder().setKey("Pool Initial Size").setLongValue(getPoolInitialSize()).build();
+    builder.addAttributesBuilder().setKey("Pool Total Connections").setLongValue(getPoolTotalConnections()).build();
     builder.addAttributesBuilder().setKey("Pool Active Connections").setLongValue(getPoolActiveConnections()).build();
     builder.addAttributesBuilder().setKey("Pool Idle Connections").setLongValue(getPoolIdleConnections()).build();
-    builder.addAttributesBuilder().setKey("Pool Max Active Connections").setLongValue(getPoolMaxActiveConnections()).build();
-    builder.addAttributesBuilder().setKey("Pool Max Idle Connections").setLongValue(getPoolMaxIdleConnections()).build();
+    builder.addAttributesBuilder().setKey("Pool Max Connections").setLongValue(getPoolMaxConnections()).build();
     builder.addAttributesBuilder().setKey("Pool Min Idle Connections").setLongValue(getPoolMinIdleConnections()).build();
     builder.addAttributesBuilder().setKey("Pool Max Wait (ms)").setLongValue(getPoolMaxWaitMillis()).build();
-    builder.addAttributesBuilder().setKey("Pool Remove Abandoned").setBooleanValue(getPoolRemoveAbandoned()).build();
-    builder.addAttributesBuilder().setKey("Pool Remove Abandoned Timeout (sec)").setLongValue(getPoolRemoveAbandonedTimeoutSeconds()).build();
+    builder.addAttributesBuilder().setKey("Pool Max Lifetime (ms)").setLongValue(getPoolMaxLifeTimeMillis()).build();
     return builder.build();
   }
 }

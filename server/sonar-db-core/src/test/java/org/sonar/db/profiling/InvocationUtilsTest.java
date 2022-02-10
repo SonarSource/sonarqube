@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
@@ -49,16 +50,6 @@ public class InvocationUtilsTest {
     Method prepareStatement = Connection.class.getMethod("prepareStatement", String.class);
 
     Assert.assertThrows(SQLException.class, () -> InvocationUtils.invokeQuietly(target, prepareStatement, new Object[] {failSql}));
-  }
-
-  @Test
-  public void should_wrap_undeclared_exception() throws Throwable {
-    Connection target = mock(Connection.class);
-    String failSql = "any sql";
-    when(target.prepareStatement(failSql)).thenThrow(new SQLException("Expected"));
-    Method wait = Object.class.getMethod("wait");
-
-    Assert.assertThrows(IllegalStateException.class, () -> InvocationUtils.invokeQuietly(target, wait, new Object[0]));
   }
 
   @Test

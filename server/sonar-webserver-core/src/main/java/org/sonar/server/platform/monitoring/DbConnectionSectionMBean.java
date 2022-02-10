@@ -27,21 +27,24 @@ public interface DbConnectionSectionMBean {
   String getMigrationStatus();
 
   /**
-   *
+   * Get the number of currently active connections in the pool.
    */
   int getPoolActiveConnections();
 
   /**
-   * The maximum number of active connections that can be allocated from this pool at the same time, or negative for no limit.
+   * The maximum number of connections that can be allocated from this pool at the same time, or negative for no limit.
    */
-  int getPoolMaxActiveConnections();
-
-  int getPoolIdleConnections();
+  int getPoolMaxConnections();
 
   /**
-   * The maximum number of connections that can remain idle in the pool, without extra ones being released, or negative for no limit.
+   * Total number of connections currently in the pool 
    */
-  int getPoolMaxIdleConnections();
+  int getPoolTotalConnections();
+
+  /**
+   * Get the number of currently idle connections in the pool.
+   */
+  int getPoolIdleConnections();
 
   /**
    * The minimum number of connections that can remain idle in the pool, without extra ones being created, or zero to create none.
@@ -49,9 +52,9 @@ public interface DbConnectionSectionMBean {
   int getPoolMinIdleConnections();
 
   /**
-   * The initial number of connections that are created when the pool is started.
+   * Maximum lifetime of a connection in the pool.
    */
-  int getPoolInitialSize();
+  long getPoolMaxLifeTimeMillis();
 
   /**
    * The maximum number of milliseconds that the pool will wait
@@ -59,13 +62,4 @@ public interface DbConnectionSectionMBean {
    */
   long getPoolMaxWaitMillis();
 
-  /**
-   * Flag to remove abandoned connections if they exceed the {@link #getPoolRemoveAbandonedTimeoutSeconds()}.
-   */
-  boolean getPoolRemoveAbandoned();
-
-  /**
-   * Timeout in seconds before an abandoned connection can be removed.
-   */
-  int getPoolRemoveAbandonedTimeoutSeconds();
 }

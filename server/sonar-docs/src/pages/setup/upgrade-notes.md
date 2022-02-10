@@ -3,6 +3,11 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.7 Upgrade notes
+
+**Database Connection Pool Changed**  
+Database connection pool has been changed, following properties will no longer have effect: sonar.jdbc.maxIdle, sonar.jdbc.minEvictableIdleTimeMillis, sonar.jdbc.timeBetweenEvictionRunsMillis. See documentation for changes in [monitoring database connection pool](/instance-administration/monitoring/). 
+
 ## Release 9.6 Upgrade notes
 **Microsoft SQL Server changes in configuration and Integrated Authentication**  
 * If your Microsoft SQL Server doesn't support encryption, you will need to add `encrypt=false` to the JDBC URL connection string. ([SONAR-16249](https://jira.sonarsource.com/browse/SONAR-16249)).

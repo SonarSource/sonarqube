@@ -55,11 +55,8 @@ public class ProcessProperties {
     JDBC_PASSWORD("sonar.jdbc.password", ""),
     JDBC_DRIVER_PATH("sonar.jdbc.driverPath"),
     JDBC_MAX_ACTIVE("sonar.jdbc.maxActive", "60"),
-    JDBC_MAX_IDLE("sonar.jdbc.maxIdle", "5"),
-    JDBC_MIN_IDLE("sonar.jdbc.minIdle", "2"),
-    JDBC_MAX_WAIT("sonar.jdbc.maxWait", "5000"),
-    JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS("sonar.jdbc.minEvictableIdleTimeMillis", "600000"),
-    JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS("sonar.jdbc.timeBetweenEvictionRunsMillis", "30000"),
+    JDBC_MIN_IDLE("sonar.jdbc.minIdle", "10"),
+    JDBC_MAX_WAIT("sonar.jdbc.maxWait", "8000"),
     JDBC_EMBEDDED_PORT("sonar.embeddedDatabase.port"),
 
     PATH_DATA("sonar.path.data", "data"),

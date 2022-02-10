@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import org.sonar.process.systeminfo.BaseSectionMBean;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 public class FakeSection extends BaseSectionMBean implements FakeSectionMBean {

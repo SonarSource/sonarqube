@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.db.DatabaseMBean;
 import org.sonar.db.DbClient;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
@@ -31,15 +31,14 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 /**
  * Information about database connection pool
  */
-public class DbConnectionSection extends BaseSectionMBean implements DbConnectionSectionMBean {
+public class DbConnectionSection extends DatabaseMBean implements DbConnectionSectionMBean {
 
   private final DatabaseVersion dbVersion;
-  private final DbClient dbClient;
   private final SonarRuntime runtime;
 
   public DbConnectionSection(DatabaseVersion dbVersion, DbClient dbClient, SonarRuntime runtime) {
+    super(dbClient);
     this.dbVersion = dbVersion;
-    this.dbClient = dbClient;
     this.runtime = runtime;
   }
 
@@ -54,51 +53,6 @@ public class DbConnectionSection extends BaseSectionMBean implements DbConnectio
   }
 
   @Override
-  public int getPoolActiveConnections() {
-    return commonsDbcp().getNumActive();
-  }
-
-  @Override
-  public int getPoolMaxActiveConnections() {
-    return commonsDbcp().getMaxTotal();
-  }
-
-  @Override
-  public int getPoolIdleConnections() {
-    return commonsDbcp().getNumIdle();
-  }
-
-  @Override
-  public int getPoolMaxIdleConnections() {
-    return commonsDbcp().getMaxIdle();
-  }
-
-  @Override
-  public int getPoolMinIdleConnections() {
-    return commonsDbcp().getMinIdle();
-  }
-
-  @Override
-  public int getPoolInitialSize() {
-    return commonsDbcp().getInitialSize();
-  }
-
-  @Override
-  public long getPoolMaxWaitMillis() {
-    return commonsDbcp().getMaxWaitMillis();
-  }
-
-  @Override
-  public boolean getPoolRemoveAbandoned() {
-    return commonsDbcp().getRemoveAbandonedOnBorrow();
-  }
-
-  @Override
-  public int getPoolRemoveAbandonedTimeoutSeconds() {
-    return commonsDbcp().getRemoveAbandonedTimeout();
-  }
-
-  @Override
   public Section toProtobuf() {
     Section.Builder protobuf = Section.newBuilder();
     String side = runtime.getSonarQubeSide() == SonarQubeSide.COMPUTE_ENGINE ? "Compute Engine" : "Web";
@@ -108,18 +62,13 @@ public class DbConnectionSection extends BaseSectionMBean implements DbConnectio
   }
 
   private void completePoolAttributes(Section.Builder protobuf) {
+    setAttribute(protobuf, "Pool Total Connections", getPoolTotalConnections());
     setAttribute(protobuf, "Pool Active Connections", getPoolActiveConnections());
-    setAttribute(protobuf, "Pool Max Connections", getPoolMaxActiveConnections());
-    setAttribute(protobuf, "Pool Initial Size", getPoolInitialSize());
     setAttribute(protobuf, "Pool Idle Connections", getPoolIdleConnections());
+    setAttribute(protobuf, "Pool Max Connections", getPoolMaxConnections());
     setAttribute(protobuf, "Pool Min Idle Connections", getPoolMinIdleConnections());
-    setAttribute(protobuf, "Pool Max Idle Connections", getPoolMaxIdleConnections());
     setAttribute(protobuf, "Pool Max Wait (ms)", getPoolMaxWaitMillis());
-    setAttribute(protobuf, "Pool Remove Abandoned", getPoolRemoveAbandoned());
-    setAttribute(protobuf, "Pool Remove Abandoned Timeout (seconds)", getPoolRemoveAbandonedTimeoutSeconds());
+    setAttribute(protobuf, "Pool Max Lifetime (ms)", getPoolMaxLifeTimeMillis());
   }
 
-  private BasicDataSource commonsDbcp() {
-    return (BasicDataSource) dbClient.getDatabase().getDataSource();
-  }
 }

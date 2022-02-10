@@ -13,7 +13,7 @@ dependencies {
   compile 'com.hazelcast:hazelcast'
   compile 'com.hazelcast:hazelcast-kubernetes'
   compile 'commons-io:commons-io'
-  compile 'org.apache.commons:commons-dbcp2'
+  compile 'com.zaxxer:HikariCP'
   compile 'org.sonarsource.api.plugin:sonar-plugin-api'
   compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')

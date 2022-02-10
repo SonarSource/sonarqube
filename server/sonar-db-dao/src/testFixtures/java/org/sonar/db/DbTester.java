@@ -19,6 +19,7 @@
  */
 package org.sonar.db;
 
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -308,7 +308,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   public String getUrl() {
-    return ((BasicDataSource) db.getDatabase().getDataSource()).getUrl();
+    return ((HikariDataSource) db.getDatabase().getDataSource()).getJdbcUrl();
   }
 
   private static class DbSessionConnectionSupplier implements ConnectionSupplier {

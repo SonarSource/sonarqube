@@ -22,11 +22,13 @@ package org.sonar.db;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import com.zaxxer.hikari.HikariDataSource;
 import java.util.Properties;
-import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
@@ -38,9 +40,11 @@ import static org.mockito.Mockito.mock;
 @RunWith(DataProviderRunner.class)
 public class DefaultDatabaseTest {
 
-  private LogbackHelper logbackHelper = mock(LogbackHelper.class);
+  private final LogbackHelper logbackHelper = mock(LogbackHelper.class);
   private static final String SONAR_JDBC = "sonar.jdbc.";
 
+  @Rule
+  public final LogTester logTester = new LogTester();
 
   @Test
   public void shouldLoadDefaultValues() {
@@ -54,19 +58,36 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  public void shouldExtractCommonsDbcpProperties() {
+  public void shouldExtractHikariProperties() {
     Properties props = new Properties();
     props.setProperty("sonar.jdbc.driverClassName", "my.Driver");
     props.setProperty("sonar.jdbc.username", "me");
-    props.setProperty("sonar.jdbc.maxActive", "5");
-    props.setProperty("sonar.jdbc.maxWait", "5000");
+    props.setProperty("sonar.jdbc.maximumPoolSize", "5");
+    props.setProperty("sonar.jdbc.connectionTimeout", "5000");
 
-    Properties commonsDbcpProps = DefaultDatabase.extractCommonsDbcpProperties(props);
+    Properties hikariProps = DefaultDatabase.extractCommonsHikariProperties(props);
 
-    assertThat(commonsDbcpProps.getProperty("username")).isEqualTo("me");
-    assertThat(commonsDbcpProps.getProperty("driverClassName")).isEqualTo("my.Driver");
-    assertThat(commonsDbcpProps.getProperty("maxTotal")).isEqualTo("5");
-    assertThat(commonsDbcpProps.getProperty("maxWaitMillis")).isEqualTo("5000");
+    assertThat(hikariProps.getProperty("dataSource.user")).isEqualTo("me");
+    assertThat(hikariProps.getProperty("driverClassName")).isEqualTo("my.Driver");
+    assertThat(hikariProps.getProperty("maximumPoolSize")).isEqualTo("5");
+    assertThat(hikariProps.getProperty("connectionTimeout")).isEqualTo("5000");
+  }
+
+  @Test
+  public void logWarningIfDeprecatedPropertyUsed() {
+    Properties props = new Properties();
+
+    props.setProperty("sonar.jdbc.maxIdle", "5");
+    props.setProperty("sonar.jdbc.minEvictableIdleTimeMillis", "300000");
+    props.setProperty("sonar.jdbc.timeBetweenEvictionRunsMillis", "1000");
+    props.setProperty("sonar.jdbc.connectionTimeout", "8000");
+
+    DefaultDatabase.extractCommonsHikariProperties(props);
+
+    assertThat(logTester.logs())
+      .contains("Property [sonar.jdbc.maxIdle] has no effect as pool connection implementation changed, check 9.7 upgrade notes.")
+      .contains("Property [sonar.jdbc.minEvictableIdleTimeMillis] has no effect as pool connection implementation changed, check 9.7 upgrade notes.")
+      .contains("Property [sonar.jdbc.timeBetweenEvictionRunsMillis] has no effect as pool connection implementation changed, check 9.7 upgrade notes.");
   }
 
   @Test
@@ -76,21 +97,21 @@ public class DefaultDatabaseTest {
     props.setProperty(jdbcProperty, "100");
     props.setProperty(dbcpProperty, "100");
 
-    Properties commonsDbcpProps = DefaultDatabase.extractCommonsDbcpProperties(props);
+    Properties commonsDbcpProps = DefaultDatabase.extractCommonsHikariProperties(props);
 
     assertThat(commonsDbcpProps.getProperty(removeStart(dbcpProperty, SONAR_JDBC))).isEqualTo("100");
   }
 
   @Test
   @UseDataProvider("sonarJdbcAndDbcpProperties")
-  public void shouldThrowISEIfDuplicatedResolvedPropertiesWithDifferentValue(String jdbcProperty, String dbcpProperty) {
+  public void shouldThrowISEIfDuplicatedResolvedPropertiesWithDifferentValue(String jdbcProperty, String hikariProperty) {
     Properties props = new Properties();
     props.setProperty(jdbcProperty, "100");
-    props.setProperty(dbcpProperty, "200");
+    props.setProperty(hikariProperty, "200");
 
-    assertThatThrownBy(() -> DefaultDatabase.extractCommonsDbcpProperties(props))
+    assertThatThrownBy(() -> DefaultDatabase.extractCommonsHikariProperties(props))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining(String.format("Duplicate property declaration for resolved jdbc key '%s': conflicting values are", removeStart(dbcpProperty, SONAR_JDBC)));
+      .hasMessageContaining(String.format("Duplicate property declaration for resolved jdbc key '%s': conflicting values are", removeStart(hikariProperty, SONAR_JDBC)));
   }
 
   @Test
@@ -117,14 +138,14 @@ public class DefaultDatabaseTest {
     settings.setProperty("sonar.jdbc.driverClassName", "org.h2.Driver");
     settings.setProperty("sonar.jdbc.username", "sonar");
     settings.setProperty("sonar.jdbc.password", "sonar");
-    settings.setProperty("sonar.jdbc.maxActive", "1");
+    settings.setProperty("sonar.jdbc.maximumPoolSize", "1");
 
     DefaultDatabase db = new DefaultDatabase(logbackHelper, settings);
     db.start();
     db.stop();
 
     assertThat(db.getDialect().getId()).isEqualTo("h2");
-    assertThat(((BasicDataSource) db.getDataSource()).getMaxTotal()).isOne();
+    assertThat(((HikariDataSource) db.getDataSource()).getMaximumPoolSize()).isOne();
   }
 
   @Test
@@ -152,8 +173,8 @@ public class DefaultDatabaseTest {
   @DataProvider
   public static Object[][] sonarJdbcAndDbcpProperties() {
     return new Object[][] {
-      {"sonar.jdbc.maxActive", "sonar.jdbc.maxTotal"},
-      {"sonar.jdbc.maxWait", "sonar.jdbc.maxWaitMillis"}
+      {"sonar.jdbc.maxWait", "sonar.jdbc.connectionTimeout"},
+      {"sonar.jdbc.maxActive", "sonar.jdbc.maximumPoolSize"}
     };
   }
 }

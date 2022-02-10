@@ -38,9 +38,9 @@ public class DbConnectionSectionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
-  private SonarRuntime runtime = mock(SonarRuntime.class);
-  private DbConnectionSection underTest = new DbConnectionSection(databaseVersion, dbTester.getDbClient(), runtime);
+  private final DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
+  private final SonarRuntime runtime = mock(SonarRuntime.class);
+  private final DbConnectionSection underTest = new DbConnectionSection(databaseVersion, dbTester.getDbClient(), runtime);
 
   @Test
   public void jmx_name_is_not_empty() {
@@ -50,13 +50,12 @@ public class DbConnectionSectionTest {
   @Test
   public void pool_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
-    assertThat(attribute(section, "Pool Max Connections").getLongValue()).isGreaterThan(0L);
-    assertThat(attribute(section, "Pool Idle Connections").getLongValue()).isGreaterThanOrEqualTo(0L);
-    assertThat(attribute(section, "Pool Min Idle Connections").getLongValue()).isGreaterThanOrEqualTo(0L);
-    assertThat(attribute(section, "Pool Max Idle Connections").getLongValue()).isGreaterThanOrEqualTo(0L);
-    assertThat(attribute(section, "Pool Max Wait (ms)")).isNotNull();
-    assertThat(attribute(section, "Pool Remove Abandoned")).isNotNull();
-    assertThat(attribute(section, "Pool Remove Abandoned Timeout (seconds)").getLongValue()).isGreaterThanOrEqualTo(0L);
+    assertThat(attribute(section, "Pool Total Connections").getLongValue()).isNotNegative();
+    assertThat(attribute(section, "Pool Active Connections").getLongValue()).isNotNegative();
+    assertThat(attribute(section, "Pool Idle Connections").getLongValue()).isNotNegative();
+    assertThat(attribute(section, "Pool Max Connections").getLongValue()).isNotNegative();
+    assertThat(attribute(section, "Pool Min Idle Connections")).isNotNull();
+    assertThat(attribute(section, "Pool Max Lifetime (ms)")).isNotNull();
   }
 
   @Test
@@ -64,7 +63,7 @@ public class DbConnectionSectionTest {
     when(runtime.getSonarQubeSide()).thenReturn(SonarQubeSide.COMPUTE_ENGINE);
     assertThat(underTest.toProtobuf().getName()).isEqualTo("Compute Engine Database Connection");
 
-    when(runtime.getSonarQubeSide()).thenReturn(SonarQubeSide.SERVER );
+    when(runtime.getSonarQubeSide()).thenReturn(SonarQubeSide.SERVER);
     assertThat(underTest.toProtobuf().getName()).isEqualTo("Web Database Connection");
   }
 }

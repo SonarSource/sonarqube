@@ -21,23 +21,18 @@ package org.sonar.ce.monitoring;
 
 public interface CeDatabaseMBean {
 
-  String OBJECT_NAME = "SonarQube:name=ComputeEngineDatabaseConnection";
-
   int getPoolActiveConnections();
 
-  int getPoolMaxActiveConnections();
+  int getPoolMaxConnections();
+
+  int getPoolTotalConnections();
 
   int getPoolIdleConnections();
 
-  int getPoolMaxIdleConnections();
-
   int getPoolMinIdleConnections();
 
-  int getPoolInitialSize();
+  long getPoolMaxLifeTimeMillis();
 
   long getPoolMaxWaitMillis();
 
-  boolean getPoolRemoveAbandoned();
-
-  int getPoolRemoveAbandonedTimeoutSeconds();
 }

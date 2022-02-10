@@ -33,7 +33,6 @@ import org.sonar.process.Jmx;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.ce.monitoring.CeDatabaseMBean.OBJECT_NAME;
 
 public class CeDatabaseMBeanImplTest {
 
@@ -45,7 +44,7 @@ public class CeDatabaseMBeanImplTest {
   @BeforeClass
   public static void beforeClass() {
     // if any other class starts a container where CeDatabaseMBeanImpl is added, it will have been registered
-    Jmx.unregister(OBJECT_NAME);
+    Jmx.unregister("SonarQube:name=ComputeEngineDatabaseConnection");
   }
 
   @Test
@@ -63,15 +62,15 @@ public class CeDatabaseMBeanImplTest {
   public void export_system_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Database Connection");
-    assertThat(section.getAttributesCount()).isEqualTo(9);
-    assertThat(section.getAttributes(0).getKey()).isEqualTo("Pool Initial Size");
-    assertThat(section.getAttributes(0).getLongValue()).isGreaterThanOrEqualTo(0);
+    assertThat(section.getAttributesCount()).isEqualTo(7);
+    assertThat(section.getAttributes(0).getKey()).isEqualTo("Pool Total Connections");
+    assertThat(section.getAttributes(0).getLongValue()).isPositive();
   }
 
   @CheckForNull
   private ObjectInstance getMBean() throws Exception {
     try {
-      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(OBJECT_NAME));
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName("SonarQube:name=ComputeEngineDatabaseConnection"));
     } catch (InstanceNotFoundException e) {
       return null;
     }

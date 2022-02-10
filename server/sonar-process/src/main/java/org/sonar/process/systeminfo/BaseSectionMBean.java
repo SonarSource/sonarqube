@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.systeminfo;
 
 import org.sonar.api.Startable;
 import org.sonar.process.Jmx;
-import org.sonar.process.systeminfo.SystemInfoSection;
 
 /**
  * Base implementation of a {@link SystemInfoSection}
@@ -45,12 +44,12 @@ public abstract class BaseSectionMBean implements SystemInfoSection, Startable {
     Jmx.unregister(objectName());
   }
 
-  String objectName() {
+  public String objectName() {
     return "SonarQube:name=" + name();
   }
 
   /**
    * Name of section in System Info page
    */
-  abstract String name();
+  protected abstract String name();
 }

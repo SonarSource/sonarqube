@@ -21,15 +21,15 @@ package org.sonar.db;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import javax.sql.DataSource;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.dbcp2.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.log.Logger;
@@ -43,7 +43,12 @@ import org.sonar.process.logging.LogbackHelper;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.JDBC_DRIVER_PATH;
+import static org.sonar.process.ProcessProperties.Property.JDBC_EMBEDDED_PORT;
+import static org.sonar.process.ProcessProperties.Property.JDBC_MIN_IDLE;
+import static org.sonar.process.ProcessProperties.Property.JDBC_PASSWORD;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
+import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
 
 /**
  * @since 2.12
@@ -57,12 +62,25 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_DRIVER = "sonar.jdbc.driverClassName";
   private static final String SONAR_JDBC_MAX_ACTIVE = "sonar.jdbc.maxActive";
-  private static final String DBCP_JDBC_MAX_ACTIVE = "maxTotal";
   private static final String SONAR_JDBC_MAX_WAIT = "sonar.jdbc.maxWait";
-  private static final String DBCP_JDBC_MAX_WAIT = "maxWaitMillis";
-  private static final Map<String, String> SONAR_JDBC_TO_DBCP_PROPERTY_MAPPINGS = ImmutableMap.of(
-    SONAR_JDBC_MAX_ACTIVE, DBCP_JDBC_MAX_ACTIVE,
-    SONAR_JDBC_MAX_WAIT, DBCP_JDBC_MAX_WAIT);
+  private static final Set<String> DEPRECATED_SONAR_PROPERTIES = Set.of(
+    "sonar.jdbc.maxIdle",
+    "sonar.jdbc.minEvictableIdleTimeMillis",
+    "sonar.jdbc.timeBetweenEvictionRunsMillis");
+
+  private static final Set<String> IGNORED_SONAR_PROPERTIES = Set.of(SONAR_JDBC_DIALECT, JDBC_DRIVER_PATH.getKey(),
+    "sonar.jdbc.maxIdle",
+    "sonar.jdbc.minEvictableIdleTimeMillis",
+    "sonar.jdbc.timeBetweenEvictionRunsMillis");
+
+  private static final Map<String, String> SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS = Map.of(
+    JDBC_USERNAME.getKey(), "dataSource.user",
+    JDBC_PASSWORD.getKey(), "dataSource.password",
+    JDBC_EMBEDDED_PORT.getKey(), "dataSource.portNumber",
+    JDBC_URL.getKey(), "jdbcUrl",
+    SONAR_JDBC_MAX_WAIT, "connectionTimeout",
+    SONAR_JDBC_MAX_ACTIVE, "maximumPoolSize",
+    JDBC_MIN_IDLE.getKey(), "minimumIdle");
 
   private final LogbackHelper logbackHelper;
   private final Settings settings;
@@ -99,14 +117,20 @@ public class DefaultDatabase implements Database {
     properties.setProperty(SONAR_JDBC_DRIVER, dialect.getDefaultDriverClassName());
   }
 
-  private void initDataSource() throws Exception {
-    // but it's correctly caught by start()
-    LOG.info("Create JDBC data source for {}", properties.getProperty(JDBC_URL.getKey()), DEFAULT_URL);
-    BasicDataSource basicDataSource = BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
-    datasource = new ProfiledDataSource(basicDataSource, NullConnectionInterceptor.INSTANCE);
-    datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
-    datasource.setValidationQuery(dialect.getValidationQuery());
+  private void initDataSource() {
+    LOG.info("Create JDBC data source for {}", properties.getProperty(JDBC_URL.getKey(), DEFAULT_URL));
+    HikariDataSource ds = createHikariDataSource();
+    datasource = new ProfiledDataSource(ds, NullConnectionInterceptor.INSTANCE);
     enableSqlLogging(datasource, logbackHelper.getLoggerLevel("sql") == Level.TRACE);
+  }
+
+  private HikariDataSource createHikariDataSource() {
+    HikariConfig config = new HikariConfig(extractCommonsHikariProperties(properties));
+    if (!dialect.getConnectionInitStatements().isEmpty()) {
+      config.setConnectionInitSql(dialect.getConnectionInitStatements().get(0));
+    }
+    config.setConnectionTestQuery(dialect.getValidationQuery());
+    return new HikariDataSource(config);
   }
 
   private void checkConnection() {
@@ -124,11 +148,7 @@ public class DefaultDatabase implements Database {
   @Override
   public void stop() {
     if (datasource != null) {
-      try {
-        datasource.close();
-      } catch (SQLException e) {
-        throw new IllegalStateException("Fail to stop JDBC connection pool", e);
-      }
+      datasource.close();
     }
   }
 
@@ -171,17 +191,22 @@ public class DefaultDatabase implements Database {
   }
 
   @VisibleForTesting
-  static Properties extractCommonsDbcpProperties(Properties properties) {
+  static Properties extractCommonsHikariProperties(Properties properties) {
     Properties result = new Properties();
-    result.setProperty("accessToUnderlyingConnectionAllowed", "true");
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String key = (String) entry.getKey();
+      if (IGNORED_SONAR_PROPERTIES.contains(key)) {
+        if (DEPRECATED_SONAR_PROPERTIES.contains(key)) {
+          LOG.warn("Property [{}] has no effect as pool connection implementation changed, check 9.7 upgrade notes.", key);
+        }
+        continue;
+      }
       if (StringUtils.startsWith(key, SONAR_JDBC)) {
-        String resolvedKey = toDbcpPropertyKey(key);
+        String resolvedKey = toHikariPropertyKey(key);
         String existingValue = (String) result.setProperty(resolvedKey, (String) entry.getValue());
         checkState(existingValue == null || existingValue.equals(entry.getValue()),
           "Duplicate property declaration for resolved jdbc key '%s': conflicting values are '%s' and '%s'", resolvedKey, existingValue, entry.getValue());
-        result.setProperty(toDbcpPropertyKey(key), (String) entry.getValue());
+        result.setProperty(resolvedKey, (String) entry.getValue());
       }
     }
     return result;
@@ -193,9 +218,9 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  private static String toDbcpPropertyKey(String key) {
-    if (SONAR_JDBC_TO_DBCP_PROPERTY_MAPPINGS.containsKey(key)) {
-      return SONAR_JDBC_TO_DBCP_PROPERTY_MAPPINGS.get(key);
+  private static String toHikariPropertyKey(String key) {
+    if (SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS.containsKey(key)) {
+      return SONAR_JDBC_TO_HIKARI_PROPERTY_MAPPINGS.get(key);
     }
 
     return StringUtils.removeStart(key, SONAR_JDBC);

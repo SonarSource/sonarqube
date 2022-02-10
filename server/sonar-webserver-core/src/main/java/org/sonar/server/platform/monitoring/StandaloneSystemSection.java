@@ -29,6 +29,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.process.systeminfo.BaseSectionMBean;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.log.ServerLogging;

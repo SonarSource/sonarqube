@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.systeminfo;
 
 import java.lang.management.ManagementFactory;
 import javax.annotation.CheckForNull;
@@ -25,37 +25,55 @@ import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import org.junit.Test;
+import org.sonar.process.jmx.FakeMBean;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BaseSectionMBeanTest {
 
-  private final FakeSection underTest = new FakeSection();
+  private static final String EXPECTED_NAME = "SonarQube:name=FakeName";
+
+  private final FakeBaseSectionMBean underTest = new FakeBaseSectionMBean();
 
   @Test
-  public void test_registration() throws Exception {
-    assertThat(getMBean()).isNull();
+  public void verify_mbean() throws Exception {
+    assertThat(lookupMBean()).isNull();
 
     underTest.start();
-    assertThat(getMBean()).isNotNull();
+    assertThat(lookupMBean()).isNotNull();
 
     underTest.stop();
-    assertThat(getMBean()).isNull();
-  }
+    assertThat(lookupMBean()).isNull();
 
-  @Test
-  public void do_not_fail_when_stopping_unstarted() throws Exception {
-    underTest.stop();
-    assertThat(getMBean()).isNull();
+    assertThat(underTest.name()).isEqualTo("FakeName");
+    assertThat(underTest.toProtobuf()).isNotNull();
   }
 
   @CheckForNull
-  private ObjectInstance getMBean() throws Exception {
+  private ObjectInstance lookupMBean() throws Exception {
     try {
-      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(underTest.objectName()));
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(EXPECTED_NAME));
     } catch (InstanceNotFoundException e) {
       return null;
     }
   }
 
+  private static class FakeBaseSectionMBean extends BaseSectionMBean implements FakeMBean {
+
+    @Override
+    protected String name() {
+      return "FakeName";
+    }
+
+    @Override
+    public Section toProtobuf() {
+      return Section.newBuilder().build();
+    }
+
+    @Override
+    public void foo() {
+      // nothing to do
+    }
+  }
 }

@@ -22,18 +22,18 @@ package org.sonar.db.profiling;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.apache.commons.dbcp2.BasicDataSource;
+import javax.sql.DataSource;
 
 public enum ProfiledConnectionInterceptor implements ConnectionInterceptor {
   INSTANCE;
 
   @Override
-  public Connection getConnection(BasicDataSource dataSource) throws SQLException {
+  public Connection getConnection(DataSource dataSource) throws SQLException {
     return buildConnectionProxy(new ProfilingConnectionHandler(dataSource.getConnection()));
   }
 
   @Override
-  public Connection getConnection(BasicDataSource dataSource, String login, String password) throws SQLException {
+  public Connection getConnection(DataSource dataSource, String login, String password) throws SQLException {
     return buildConnectionProxy(new ProfilingConnectionHandler(dataSource.getConnection(login, password)));
   }
 
