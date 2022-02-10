@@ -127,6 +127,17 @@ public class ServerUserSessionTest {
   }
 
   @Test
+  public void isActive_redirectsValueFromUserDto() {
+    UserDto active = db.users().insertUser();
+    active.setActive(true);
+    assertThat(newUserSession(active).isActive()).isTrue();
+
+    UserDto notActive = db.users().insertUser();
+    notActive.setActive(false);
+    assertThat(newUserSession(notActive).isActive()).isFalse();
+  }
+
+  @Test
   public void isRoot_is_false_is_flag_root_is_false_on_UserDto() {
     UserDto root = db.users().insertUser();
     root = db.users().makeRoot(root);

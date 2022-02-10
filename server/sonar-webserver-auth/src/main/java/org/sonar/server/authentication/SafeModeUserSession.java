@@ -108,4 +108,9 @@ public class SafeModeUserSession extends AbstractUserSession {
   public boolean isSystemAdministrator() {
     return false;
   }
+
+  @Override
+  public boolean isActive() {
+    return false;
+  }
 }

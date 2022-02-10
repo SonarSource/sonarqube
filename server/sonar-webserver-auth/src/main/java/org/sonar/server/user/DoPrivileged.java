@@ -142,6 +142,11 @@ public final class DoPrivileged {
         return true;
       }
 
+      @Override
+      public boolean isActive() {
+        return true;
+      }
+
     }
 
     private void start() {

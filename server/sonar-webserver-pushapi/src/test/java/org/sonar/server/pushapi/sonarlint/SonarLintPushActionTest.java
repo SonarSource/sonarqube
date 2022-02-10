@@ -46,8 +46,9 @@ public class SonarLintPushActionTest {
   private final UserSession userSession = mock(UserSession.class);
   private final DbClient dbClient = mock(DbClient.class);
   private final ProjectDao projectDao = mock(ProjectDao.class);
+  private final SonarLintClientPermissionsValidator permissionsValidator = mock(SonarLintClientPermissionsValidator.class);
 
-  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction(registry, userSession, dbClient));
+  private final WsPushActionTester ws = new WsPushActionTester(new SonarLintPushAction(registry, userSession, dbClient, permissionsValidator));
 
   @Before
   public void before() {

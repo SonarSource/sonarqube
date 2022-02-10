@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -41,13 +40,16 @@ public class SonarLintPushAction extends ServerPushAction {
   private static final String PROJECT_PARAM_KEY = "projectKeys";
   private static final String LANGUAGE_PARAM_KEY = "languages";
   private final SonarLintClientsRegistry clientsRegistry;
+  private final SonarLintClientPermissionsValidator permissionsValidator;
   private final UserSession userSession;
   private final DbClient dbClient;
 
-  public SonarLintPushAction(SonarLintClientsRegistry sonarLintClientRegistry, UserSession userSession, DbClient dbClient) {
+  public SonarLintPushAction(SonarLintClientsRegistry sonarLintClientRegistry, UserSession userSession, DbClient dbClient,
+    SonarLintClientPermissionsValidator permissionsValidator) {
     this.clientsRegistry = sonarLintClientRegistry;
     this.userSession = userSession;
     this.dbClient = dbClient;
+    this.permissionsValidator = permissionsValidator;
   }
 
   @Override
@@ -80,7 +82,9 @@ public class SonarLintPushAction extends ServerPushAction {
     ServletResponse servletResponse = (ServletResponse) response;
 
     var params = new SonarLintPushActionParamsValidator(request);
-    params.validateProjectsPermissions();
+    params.validateParams();
+
+    permissionsValidator.validateUserCanReceivePushEventForProjects(userSession, params.projectKeys);
 
     if (!isServerSideEventsRequest(servletRequest)) {
       servletResponse.stream().setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
@@ -92,7 +96,7 @@ public class SonarLintPushAction extends ServerPushAction {
     AsyncContext asyncContext = servletRequest.startAsync();
     asyncContext.setTimeout(0);
 
-    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, params.getProjectKeys(), params.getLanguages());
+    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, params.getProjectKeys(), params.getLanguages(), userSession.getUuid());
 
     clientsRegistry.registerClient(sonarLintClient);
   }
@@ -102,8 +106,6 @@ public class SonarLintPushAction extends ServerPushAction {
     private final Request request;
     private final Set<String> projectKeys;
     private final Set<String> languages;
-
-    private List<ProjectDto> projectDtos;
 
     SonarLintPushActionParamsValidator(Request request) {
       this.request = request;
@@ -127,19 +129,16 @@ public class SonarLintPushAction extends ServerPushAction {
       return Set.of(paramProjectKeys.trim().split(","));
     }
 
-    public void validateProjectsPermissions() {
-      if (projectDtos == null) {
-        try (DbSession dbSession = dbClient.openSession(false)) {
-          projectDtos = dbClient.projectDao().selectProjectsByKeys(dbSession, projectKeys);
-        }
+    private void validateParams() {
+      List<ProjectDto> projectDtos;
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        projectDtos = dbClient.projectDao().selectProjectsByKeys(dbSession, projectKeys);
       }
       if (projectDtos.size() < projectKeys.size() || projectDtos.isEmpty()) {
         throw new IllegalArgumentException("Param " + PROJECT_PARAM_KEY + " is invalid.");
       }
-      for (ProjectDto projectDto : projectDtos) {
-        userSession.checkProjectPermission(UserRole.USER, projectDto);
-      }
     }
+
   }
 
 }

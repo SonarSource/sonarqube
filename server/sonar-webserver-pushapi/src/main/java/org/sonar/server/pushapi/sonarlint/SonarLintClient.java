@@ -33,10 +33,13 @@ public class SonarLintClient extends ServerPushClient {
   private final Set<String> languages;
   private final Set<String> projectKeys;
 
-  public SonarLintClient(AsyncContext asyncContext, Set<String> projectKeys, Set<String> languages) {
+  private final String userUuid;
+
+  public SonarLintClient(AsyncContext asyncContext, Set<String> projectKeys, Set<String> languages, String userUuid) {
     super(scheduledExecutorService, asyncContext);
     this.projectKeys = projectKeys;
     this.languages = languages;
+    this.userUuid = userUuid;
   }
 
   public Set<String> getLanguages() {
@@ -64,5 +67,9 @@ public class SonarLintClient extends ServerPushClient {
   @Override
   public int hashCode() {
     return Objects.hash(languages, projectKeys);
+  }
+
+  public String getUserUuid() {
+    return userUuid;
   }
 }

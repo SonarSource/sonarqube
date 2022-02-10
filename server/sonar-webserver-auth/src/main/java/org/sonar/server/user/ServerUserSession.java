@@ -342,6 +342,11 @@ public class ServerUserSession extends AbstractUserSession {
     return isSystemAdministrator;
   }
 
+  @Override
+  public boolean isActive() {
+    return userDto.isActive();
+  }
+
   private boolean loadIsSystemAdministrator() {
     if (isRoot()) {
       return true;

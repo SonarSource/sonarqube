@@ -83,9 +83,13 @@ public abstract class ServerPushClient {
     close();
   }
 
-  private synchronized void close() {
+  public synchronized void close() {
     startedHeartbeat.cancel(false);
-    asyncContext.complete();
+    try {
+      asyncContext.complete();
+    } catch (IllegalStateException ex) {
+      LOG.trace("Push connection was already closed");
+    }
   }
 
   private ServletOutputStream output() throws IOException {

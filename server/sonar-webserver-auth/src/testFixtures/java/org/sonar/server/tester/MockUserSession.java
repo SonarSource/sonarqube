@@ -86,6 +86,11 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     return root;
   }
 
+  @Override
+  public boolean isActive() {
+    return true;
+  }
+
   public void setRoot(boolean root) {
     this.root = root;
   }

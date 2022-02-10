@@ -20,6 +20,7 @@
 package org.sonar.server.pushapi;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.pushapi.sonarlint.SonarLintClientPermissionsValidator;
 import org.sonar.server.pushapi.sonarlint.SonarLintClientsRegistry;
 import org.sonar.server.pushapi.sonarlint.SonarLintPushAction;
 
@@ -29,7 +30,7 @@ public class ServerPushWsModule extends Module {
   protected void configureModule() {
     add(
       ServerPushWs.class,
-
+      SonarLintClientPermissionsValidator.class,
       SonarLintClientsRegistry.class,
       SonarLintPushAction.class);
   }

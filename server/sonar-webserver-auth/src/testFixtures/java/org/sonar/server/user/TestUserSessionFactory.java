@@ -134,6 +134,11 @@ public class TestUserSessionFactory implements UserSessionFactory {
       throw notImplemented();
     }
 
+    @Override
+    public boolean isActive() {
+      throw notImplemented();
+    }
+
     private static RuntimeException notImplemented() {
       return new UnsupportedOperationException("not implemented");
     }

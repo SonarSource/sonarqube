@@ -36,6 +36,11 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   }
 
   @Override
+  public boolean isActive() {
+    return false;
+  }
+
+  @Override
   public String getLogin() {
     return null;
   }

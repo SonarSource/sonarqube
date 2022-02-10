@@ -69,6 +69,7 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
     assertThat(threadLocalUserSession.getUuid()).isEqualTo("karadoc-uuid");
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
+    assertThat(threadLocalUserSession.isActive()).isTrue();
     assertThat(threadLocalUserSession.shouldResetPassword()).isTrue();
     assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getUuid).containsOnly(group.getUuid());
     assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ComponentDto())).isFalse();

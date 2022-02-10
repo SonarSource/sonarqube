@@ -412,4 +412,9 @@ public class UserSessionRule implements TestRule, UserSession {
     currentUserSession.checkIsSystemAdministrator();
     return this;
   }
+
+  @Override
+  public boolean isActive() {
+    return currentUserSession.isActive();
+  }
 }

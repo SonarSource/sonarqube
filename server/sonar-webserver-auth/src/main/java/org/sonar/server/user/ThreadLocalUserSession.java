@@ -174,6 +174,11 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean isActive() {
+    return get().isActive();
+  }
+
+  @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
     return get().hasComponentPermission(permission, component);
   }

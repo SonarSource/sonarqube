@@ -274,4 +274,6 @@ public interface UserSession {
    * otherwise throws {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkIsSystemAdministrator();
+
+  boolean isActive();
 }

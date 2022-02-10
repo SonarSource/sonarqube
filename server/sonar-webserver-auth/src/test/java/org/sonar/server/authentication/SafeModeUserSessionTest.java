@@ -37,6 +37,7 @@ public class SafeModeUserSessionTest {
     assertThat(underTest.shouldResetPassword()).isFalse();
     assertThat(underTest.getName()).isNull();
     assertThat(underTest.getGroups()).isEmpty();
+    assertThat(underTest.isActive()).isFalse();
   }
 
   @Test

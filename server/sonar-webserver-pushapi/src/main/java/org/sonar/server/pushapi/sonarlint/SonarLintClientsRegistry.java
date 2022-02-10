@@ -21,7 +21,9 @@ package org.sonar.server.pushapi.sonarlint;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import javax.servlet.AsyncEvent;
@@ -36,6 +38,7 @@ import org.sonar.core.util.RuleActivationListener;
 import org.sonar.core.util.RuleChange;
 import org.sonar.core.util.RuleSetChangeEvent;
 import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
+import org.sonar.server.exceptions.ForbiddenException;
 
 import static java.util.Arrays.asList;
 
@@ -45,11 +48,12 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
   private static final Logger LOG = Loggers.get(SonarLintClientsRegistry.class);
 
   private final RuleActivatorEventsDistributor ruleActivatorEventsDistributor;
+  private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
 
-  public SonarLintClientsRegistry(RuleActivatorEventsDistributor ruleActivatorEventsDistributor) {
+  public SonarLintClientsRegistry(RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
     this.ruleActivatorEventsDistributor = ruleActivatorEventsDistributor;
+    this.sonarLintClientPermissionsValidator = permissionsValidator;
   }
-
 
   private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
 
@@ -63,6 +67,7 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
   }
 
   public void unregisterClient(SonarLintClient client) {
+    client.close();
     clients.remove(client);
     LOG.debug("Removing SonarLint client");
   }
@@ -79,15 +84,25 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
   private static Predicate<SonarLintClient> getFilterForEvent(RuleSetChangeEvent ruleChangeEvent) {
     List<String> affectedProjects = asList(ruleChangeEvent.getProjects());
-    return f -> !Collections.disjoint(f.getClientProjectKeys(), affectedProjects) && f.getLanguages().contains(ruleChangeEvent.getLanguage());
+    return client -> {
+      Set<String> clientProjectKeys = client.getClientProjectKeys();
+      Set<String> languages = client.getLanguages();
+      return !Collections.disjoint(clientProjectKeys, affectedProjects) && languages.contains(ruleChangeEvent.getLanguage());
+    };
   }
 
-
-  public void broadcastMessage(RuleSetChangeEvent event, Predicate<SonarLintClient> projectsFilter) {
-    clients.stream().filter(projectsFilter).forEach(c -> {
+  public void broadcastMessage(RuleSetChangeEvent message, Predicate<SonarLintClient> filter) {
+    clients.stream().filter(filter).forEach(c -> {
+      Set<String> projectKeysInterestingForClient = new HashSet<>(c.getClientProjectKeys());
+      projectKeysInterestingForClient.retainAll(Set.of(message.getProjects()));
       try {
-        String jsonString = getJSONString(event);
+        sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
+        RuleSetChangeEvent personalizedEvent = new RuleSetChangeEvent(projectKeysInterestingForClient.toArray(String[]::new), message.getActivatedRules(),
+          message.getDeactivatedRules());
+        String jsonString = getJSONString(personalizedEvent);
         c.writeAndFlush(jsonString);
+      } catch (ForbiddenException forbiddenException) {
+        unregisterClient(c);
       } catch (IOException e) {
         LOG.error("Unable to send message to a client: " + e.getMessage());
       }
@@ -158,7 +173,7 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
     @Override
     public void onStartAsync(AsyncEvent event) {
-      //nothing to do on start
+      // nothing to do on start
     }
 
     @Override
