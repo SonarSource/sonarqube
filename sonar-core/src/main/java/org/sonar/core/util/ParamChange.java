@@ -19,7 +19,9 @@
  */
 package org.sonar.core.util;
 
-public class ParamChange {
+import java.io.Serializable;
+
+public class ParamChange implements Serializable {
   String key;
   String value;
 

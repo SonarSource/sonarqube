@@ -15,6 +15,7 @@ dependencies {
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'
     testCompile testFixtures(project(':server:sonar-webserver-ws'))
+    testCompile testFixtures(project(':server:sonar-db-dao'))
 
     testFixturesApi project(':sonar-testing-harness')
     testFixturesCompileOnly testFixtures(project(':server:sonar-webserver-ws'))

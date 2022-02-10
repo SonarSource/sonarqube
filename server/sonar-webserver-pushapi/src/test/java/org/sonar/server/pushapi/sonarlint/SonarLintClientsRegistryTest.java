@@ -27,13 +27,14 @@ import javax.servlet.ServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.rule.Severity;
+import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleChange;
 import org.sonar.core.util.RuleSetChangeEvent;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SonarLintClientsRegistryTest {
 
@@ -94,17 +96,19 @@ public class SonarLintClientsRegistryTest {
 
     underTest.registerClient(sonarLintClient);
 
-    RuleChange javaRule = createRuleChange("java");
+    RuleChange javaRule = createRuleChange();
 
-    RuleChange[] activatedRules = {};
+    RuleChange[] activatedRules = {javaRule};
     RuleChange[] deactivatedRules = {javaRule};
     RuleSetChangeEvent ruleChangeEvent = new RuleSetChangeEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
     underTest.listen(ruleChangeEvent);
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
     verify(outputStream).write(captor.capture());
-    String message = new String(captor.getValue());
-    assertThat(message).contains("java");
+    String json = new String(captor.getValue());
+    assertJson(json)
+      .withStrictArrayOrder()
+      .isSimilarTo(getClass().getResource("rule-change-event.json"));
   }
 
   @Test
@@ -116,7 +120,7 @@ public class SonarLintClientsRegistryTest {
 
     underTest.registerClient(sonarLintClient);
 
-    RuleChange javaRuleChange = createRuleChange("java");
+    RuleChange javaRuleChange = createRuleChange();
 
     RuleChange[] activatedRules = {};
     RuleChange[] deactivatedRules = {javaRuleChange};
@@ -136,7 +140,7 @@ public class SonarLintClientsRegistryTest {
 
     underTest.registerClient(sonarLintClient);
 
-    RuleChange javaRuleChange = createRuleChange("java");
+    RuleChange javaRuleChange = createRuleChange();
 
     RuleChange[] activatedRules = {};
     RuleChange[] deactivatedRules = {javaRuleChange};
@@ -150,7 +154,7 @@ public class SonarLintClientsRegistryTest {
 
   @Test
   public void listen_givenUserNotPermittedToReceiveEvent_closeConnection() {
-    RuleChange javaRuleChange = createRuleChange("java");
+    RuleChange javaRuleChange = createRuleChange();
     RuleChange[] activatedRules = {};
     RuleChange[] deactivatedRules = {javaRuleChange};
     RuleSetChangeEvent ruleChangeEvent = new RuleSetChangeEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
@@ -172,10 +176,13 @@ public class SonarLintClientsRegistryTest {
     return mock;
   }
 
-  private RuleChange createRuleChange(String language) {
+  private RuleChange createRuleChange() {
     RuleChange javaRule = new RuleChange();
-    javaRule.setLanguage(language);
-
+    javaRule.setLanguage("java");
+    javaRule.setParams(new ParamChange[]{new ParamChange("param-key", "param-value")});
+    javaRule.setTemplateKey("template-key");
+    javaRule.setSeverity(Severity.CRITICAL);
+    javaRule.setKey("rule-key");
     return javaRule;
   }
 

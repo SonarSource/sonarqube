@@ -1,0 +1,38 @@
+{
+  "data": {
+    "projects": [
+      "project2",
+      "project1",
+      "project3"
+    ],
+    "activatedRules": [
+      {
+        "key": "rule-key",
+        "templateKey": "template-key",
+        "severity": "CRITICAL",
+        "language": "java",
+        "params": [
+          {
+            "value": "param-value",
+            "key": "param-key"
+          }
+        ]
+      }
+    ],
+    "deactivatedRules": [
+      {
+        "key": "rule-key",
+        "templateKey": "template-key",
+        "severity": "CRITICAL",
+        "language": "java",
+        "params": [
+          {
+            "value": "param-value",
+            "key": "param-key"
+          }
+        ]
+      }
+    ]
+  },
+  "event": "RuleSetChange"
+}

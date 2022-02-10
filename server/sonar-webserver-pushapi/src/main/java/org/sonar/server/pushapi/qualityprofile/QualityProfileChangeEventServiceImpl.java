@@ -22,13 +22,13 @@ package org.sonar.server.pushapi.qualityprofile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.ParamChange;
@@ -37,24 +37,22 @@ import org.sonar.core.util.RuleSetChangeEvent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleQuery;
 
 @ServerSide
 public class QualityProfileChangeEventServiceImpl implements QualityProfileChangeEventService {
 
   private final DbClient dbClient;
-  private final RuleIndex ruleIndex;
   private final RuleActivatorEventsDistributor eventsDistributor;
 
-  public QualityProfileChangeEventServiceImpl(DbClient dbClient, RuleIndex ruleIndex, RuleActivatorEventsDistributor eventsDistributor) {
+  public QualityProfileChangeEventServiceImpl(DbClient dbClient, RuleActivatorEventsDistributor eventsDistributor) {
     this.dbClient = dbClient;
-    this.ruleIndex = ruleIndex;
     this.eventsDistributor = eventsDistributor;
   }
 
@@ -63,64 +61,55 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     List<RuleChange> activatedRules = new ArrayList<>();
     List<RuleChange> deactivatedRules = new ArrayList<>();
 
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    if (activatedProfile != null) {
+      activatedRules.addAll(createRuleChanges(activatedProfile));
+    }
 
-      if (activatedProfile != null) {
-        RuleQuery query = new RuleQuery().setQProfile(activatedProfile).setActivation(true).setIncludeExternal(true);
-        Iterator<String> searchIdResult = ruleIndex.searchAll(query);
-        List<String> uuids = new ArrayList<>();
-        while (searchIdResult.hasNext()) {
-          uuids.add(searchIdResult.next());
-        }
-
-        List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, uuids);
-        Map<String, List<ActiveRuleParamDto>> paramsByRuleUuid = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, uuids)
-          .stream().collect(Collectors.groupingBy(ActiveRuleParamDto::getActiveRuleUuid));
-
-        for (RuleDto ruleDto : ruleDtos) {
-          RuleChange ruleChange = toRuleChange(ruleDto, paramsByRuleUuid);
-          activatedRules.add(ruleChange);
-        }
-      }
-
-      if (deactivatedProfile != null) {
-        RuleQuery query = new RuleQuery().setQProfile(deactivatedProfile).setActivation(true).setIncludeExternal(true);
-        // .setLanguages() ?
-        Iterator<String> searchIdResult = ruleIndex.searchAll(query);
-        List<String> uuids = new ArrayList<>();
-        while (searchIdResult.hasNext()) {
-          uuids.add(searchIdResult.next());
-        }
-
-        List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, uuids);
-        Map<String, List<ActiveRuleParamDto>> paramsByRuleUuid = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, uuids)
-          .stream().collect(Collectors.groupingBy(ActiveRuleParamDto::getActiveRuleUuid));
-
-        for (RuleDto ruleDto : ruleDtos) {
-          RuleChange ruleChange = toRuleChange(ruleDto, paramsByRuleUuid);
-          deactivatedRules.add(ruleChange);
-        }
-      }
-
+    if (deactivatedProfile != null) {
+      deactivatedRules.addAll(createRuleChanges(deactivatedProfile));
     }
 
     if (activatedRules.isEmpty() && deactivatedRules.isEmpty()) {
       return;
     }
 
-    RuleSetChangeEvent event = new RuleSetChangeEvent(new String[]{project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
+    RuleSetChangeEvent event = new RuleSetChangeEvent(new String[] {project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
     eventsDistributor.pushEvent(event);
   }
 
+  private List<RuleChange> createRuleChanges(@NotNull QProfileDto profileDto) {
+    List<RuleChange> ruleChanges = new ArrayList<>();
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfile(dbSession, profileDto);
+      List<String> activeRuleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
+
+      Map<String, List<ActiveRuleParamDto>> paramsByActiveRuleUuid = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids)
+        .stream().collect(Collectors.groupingBy(ActiveRuleParamDto::getActiveRuleUuid));
+
+      Map<String, String> activeRuleUuidByRuleUuid = activeRuleDtos.stream().collect(Collectors.toMap(ActiveRuleDto::getRuleUuid, ActiveRuleDto::getUuid));
+
+      List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
+      List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, ruleUuids);
+
+      for (RuleDto ruleDto : ruleDtos) {
+        String activeRuleUuid = activeRuleUuidByRuleUuid.get(ruleDto.getUuid());
+        List<ActiveRuleParamDto> params = paramsByActiveRuleUuid.getOrDefault(activeRuleUuid, new ArrayList<>());
+        RuleChange ruleChange = toRuleChange(ruleDto, params);
+        ruleChanges.add(ruleChange);
+      }
+    }
+    return ruleChanges;
+  }
+
   @NotNull
-  private RuleChange toRuleChange(RuleDto ruleDto, Map<String, List<ActiveRuleParamDto>> paramsByRuleUuid) {
+  private RuleChange toRuleChange(RuleDto ruleDto, List<ActiveRuleParamDto> activeRuleParamDtos) {
     RuleChange ruleChange = new RuleChange();
     ruleChange.setKey(ruleDto.getRuleKey());
     ruleChange.setLanguage(ruleDto.getLanguage());
     ruleChange.setSeverity(ruleDto.getSeverityString());
 
     List<ParamChange> paramChanges = new ArrayList<>();
-    List<ActiveRuleParamDto> activeRuleParamDtos = paramsByRuleUuid.getOrDefault(ruleDto.getUuid(), new ArrayList<>());
     for (ActiveRuleParamDto activeRuleParam : activeRuleParamDtos) {
       paramChanges.add(new ParamChange(activeRuleParam.getKey(), activeRuleParam.getValue()));
     }
@@ -130,7 +119,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     if (templateUuid != null && !"".equals(templateUuid)) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         RuleDto templateRule = dbClient.ruleDao().selectByUuid(templateUuid, dbSession)
-          .orElseThrow(() -> new IllegalStateException(String.format("unknow Template Rule '%s'", templateUuid)));
+          .orElseThrow(() -> new IllegalStateException(String.format("Unknown Template Rule '%s'", templateUuid)));
         ruleChange.setTemplateKey(templateRule.getRuleKey());
       }
     }
@@ -192,9 +181,10 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       String ruleUuid = arc.getRuleUuid();
       RuleDto rule = dbClient.ruleDao().selectByUuid(ruleUuid, dbSession).orElseThrow(() -> new IllegalStateException("unknow rule"));
       String templateUuid = rule.getTemplateUuid();
-      if (templateUuid != null && !"".equals(templateUuid)) {
+
+      if (StringUtils.isNotEmpty(templateUuid)) {
         RuleDto templateRule = dbClient.ruleDao().selectByUuid(templateUuid, dbSession)
-          .orElseThrow(() -> new IllegalStateException(String.format("unknow Template Rule '%s'", templateUuid)));
+          .orElseThrow(() -> new IllegalStateException(String.format("Unknown Template Rule '%s'", templateUuid)));
         return Optional.of(templateRule.getRuleKey());
       }
     }

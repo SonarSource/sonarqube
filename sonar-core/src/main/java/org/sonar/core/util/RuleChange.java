@@ -34,8 +34,9 @@ public class RuleChange implements Serializable {
     return key;
   }
 
-  public void setKey(String key) {
+  public RuleChange setKey(String key) {
     this.key = key;
+    return this;
   }
 
   @CheckForNull
@@ -43,16 +44,18 @@ public class RuleChange implements Serializable {
     return language;
   }
 
-  public void setLanguage(@Nullable String language) {
+  public RuleChange setLanguage(@Nullable String language) {
     this.language = language;
+    return this;
   }
 
   public String getTemplateKey() {
     return templateKey;
   }
 
-  public void setTemplateKey(String templateKey) {
+  public RuleChange setTemplateKey(String templateKey) {
     this.templateKey = templateKey;
+    return this;
   }
 
   @CheckForNull
@@ -60,15 +63,17 @@ public class RuleChange implements Serializable {
     return severity;
   }
 
-  public void setSeverity(@Nullable String severity) {
+  public RuleChange setSeverity(@Nullable String severity) {
     this.severity = severity;
+    return this;
   }
 
   public ParamChange[] getParams() {
     return params;
   }
 
-  public void setParams(ParamChange[] params) {
+  public RuleChange setParams(ParamChange[] params) {
     this.params = params;
+    return this;
   }
 }

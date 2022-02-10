@@ -132,7 +132,7 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
     return result.toString();
   }
 
-  private JSONObject toJson(RuleChange rule) {
+  private static JSONObject toJson(RuleChange rule) {
     JSONObject ruleJson = new JSONObject();
     ruleJson.put("key", rule.getKey());
     ruleJson.put("language", rule.getLanguage());
