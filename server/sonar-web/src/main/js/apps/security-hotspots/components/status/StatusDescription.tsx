@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
@@ -30,12 +31,16 @@ export default function StatusDescription(props: StatusDescriptionProps) {
   const { statusOption, showTitle } = props;
 
   return (
-    <div>
+    <Container>
       <h3>
         {showTitle && `${translate('status')}: `}
-        {translate('hotspots.status_option', statusOption)}
+        <div className="badge">{translate('hotspots.status_option', statusOption)}</div>
       </h3>
       <span>{translate('hotspots.status_option', statusOption, 'description')}</span>
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  width: 350px;
+`;

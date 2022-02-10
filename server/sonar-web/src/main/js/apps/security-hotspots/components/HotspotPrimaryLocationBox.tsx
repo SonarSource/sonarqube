@@ -20,17 +20,21 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { ButtonLink } from '../../../components/controls/buttons';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
+import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
+import { CurrentUser } from '../../../types/types';
 import './HotspotPrimaryLocationBox.css';
 
 export interface HotspotPrimaryLocationBoxProps {
   hotspot: Hotspot;
   onCommentClick: () => void;
+  currentUser: CurrentUser;
 }
 
-export default function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
-  const { hotspot } = props;
+export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
+  const { hotspot, currentUser } = props;
   return (
     <div
       className={classNames(
@@ -39,9 +43,15 @@ export default function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationB
         `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
       )}>
       <div className="text-bold">{hotspot.message}</div>
-      <ButtonLink className="nowrap big-spacer-left" onClick={props.onCommentClick}>
-        {translate('hotspots.comment.open')}
-      </ButtonLink>
+      {isLoggedIn(currentUser) && (
+        <ButtonLink
+          className="nowrap big-spacer-left it__hs-add-comment"
+          onClick={props.onCommentClick}>
+          {translate('hotspots.comment.open')}
+        </ButtonLink>
+      )}
     </div>
   );
 }
+
+export default withCurrentUser(HotspotPrimaryLocationBox);

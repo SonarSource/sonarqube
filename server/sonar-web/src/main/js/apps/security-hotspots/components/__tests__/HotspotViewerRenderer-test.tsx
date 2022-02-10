@@ -19,13 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../helpers/testMocks';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import { HotspotViewerRenderer, HotspotViewerRendererProps } from '../HotspotViewerRenderer';
-import Status from '../status/Status';
 
 jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));
 
@@ -51,22 +49,9 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('anonymous user');
 });
 
-it('correctly propagates the status change', () => {
-  const onUpdateHotspot = jest.fn();
-  const wrapper = shallowRender({ onUpdateHotspot });
-
-  wrapper
-    .find(Status)
-    .props()
-    .onStatusChange(HotspotStatusOption.FIXED);
-
-  expect(onUpdateHotspot).toHaveBeenCalledWith(true, HotspotStatusOption.FIXED);
-});
-
 function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
   return shallow(
     <HotspotViewerRenderer
-      branchLike={mockBranch()}
       component={mockComponent()}
       commentTextRef={React.createRef()}
       currentUser={mockCurrentUser()}
@@ -78,7 +63,6 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
       onSwitchFilterToStatusOfUpdatedHotspot={jest.fn()}
       onShowCommentForm={jest.fn()}
       onUpdateHotspot={jest.fn()}
-      securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
       showStatusUpdateSuccessModal={false}
       {...props}
     />

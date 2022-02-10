@@ -21,13 +21,16 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RiskExposure } from '../../../../types/security-hotspots';
-import HotspotPrimaryLocationBox, {
+import {
+  HotspotPrimaryLocationBox,
   HotspotPrimaryLocationBoxProps
 } from '../HotspotPrimaryLocationBox';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('User logged in');
+  expect(shallowRender({ currentUser: mockCurrentUser() })).toMatchSnapshot('User not logged in ');
 });
 
 it.each([[RiskExposure.HIGH], [RiskExposure.MEDIUM], [RiskExposure.LOW]])(
@@ -52,6 +55,11 @@ it('should handle click', () => {
 
 function shallowRender(props: Partial<HotspotPrimaryLocationBoxProps> = {}) {
   return shallow(
-    <HotspotPrimaryLocationBox hotspot={mockHotspot()} onCommentClick={jest.fn()} {...props} />
+    <HotspotPrimaryLocationBox
+      currentUser={mockLoggedInUser()}
+      hotspot={mockHotspot()}
+      onCommentClick={jest.fn()}
+      {...props}
+    />
   );
 }

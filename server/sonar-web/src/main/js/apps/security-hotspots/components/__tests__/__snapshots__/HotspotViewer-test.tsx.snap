@@ -34,13 +34,6 @@ exports[`should render correctly 1`] = `
   onShowCommentForm={[Function]}
   onSwitchFilterToStatusOfUpdatedHotspot={[Function]}
   onUpdateHotspot={[Function]}
-  securityCategories={
-    Object {
-      "cat1": Object {
-        "title": "cat1",
-      },
-    }
-  }
   showStatusUpdateSuccessModal={false}
 />
 `;
@@ -84,13 +77,6 @@ exports[`should render correctly 2`] = `
   onShowCommentForm={[Function]}
   onSwitchFilterToStatusOfUpdatedHotspot={[Function]}
   onUpdateHotspot={[Function]}
-  securityCategories={
-    Object {
-      "cat1": Object {
-        "title": "cat1",
-      },
-    }
-  }
   showStatusUpdateSuccessModal={false}
 />
 `;

@@ -7,40 +7,127 @@ exports[`should render correctly 1`] = `
   >
     hotspots.no_associated_lines
   </p>
+  <Connect(withCurrentUser(HotspotSnippetHeader))
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    hotspot={
+      Object {
+        "assignee": "assignee",
+        "assigneeUser": Object {
+          "active": true,
+          "local": true,
+          "login": "assignee",
+          "name": "John Doe",
+        },
+        "author": "author",
+        "authorUser": Object {
+          "active": true,
+          "local": true,
+          "login": "author",
+          "name": "John Doe",
+        },
+        "canChangeStatus": true,
+        "changelog": Array [],
+        "comment": Array [],
+        "component": Object {
+          "key": "hotspot-component",
+          "longName": "Hotspot component long name",
+          "name": "Hotspot Component",
+          "path": "path/to/component",
+          "qualifier": "FIL",
+        },
+        "creationDate": "2013-05-13T17:55:41+0200",
+        "flows": Array [
+          Object {
+            "locations": Array [
+              Object {
+                "component": "main.js",
+                "textRange": Object {
+                  "endLine": 2,
+                  "endOffset": 2,
+                  "startLine": 1,
+                  "startOffset": 1,
+                },
+              },
+            ],
+          },
+        ],
+        "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+        "line": 142,
+        "message": "'3' is a magic number.",
+        "project": Object {
+          "key": "hotspot-component",
+          "longName": "Hotspot component long name",
+          "name": "Hotspot Component",
+          "path": "path/to/component",
+          "qualifier": "TRK",
+        },
+        "resolution": "FIXED",
+        "rule": Object {
+          "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "key": "squid:S2077",
+          "name": "That rule",
+          "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "securityCategory": "sql-injection",
+          "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "vulnerabilityProbability": "HIGH",
+        },
+        "status": "REVIEWED",
+        "textRange": Object {
+          "endLine": 142,
+          "endOffset": 83,
+          "startLine": 142,
+          "startOffset": 26,
+        },
+        "updateDate": "2013-05-13T17:55:42+0200",
+        "users": Array [
+          Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+        ],
+      }
+    }
+  />
   <div
     className="bordered big-spacer-bottom"
   >
-    <SourceViewerHeaderSlim
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": true,
-          "name": "master",
-        }
-      }
-      displayProjectName={true}
-      expandable={false}
-      linkToProject={false}
-      loading={false}
-      onExpand={[Function]}
-      sourceViewerFile={
-        Object {
-          "key": "foo",
-          "measures": Object {
-            "coverage": "85.2",
-            "duplicationDensity": "1.0",
-            "issues": "12",
-            "lines": "56",
-          },
-          "path": "foo/bar.ts",
-          "project": "my-project",
-          "projectName": "MyProject",
-          "q": "FIL",
-          "uuid": "foo-bar",
-        }
-      }
-    />
     <DeferredSpinner
       className="big-spacer"
       loading={false}
@@ -51,40 +138,127 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly: with sourcelines 1`] = `
 <Fragment>
+  <Connect(withCurrentUser(HotspotSnippetHeader))
+    branchLike={
+      Object {
+        "analysisDate": "2018-01-01",
+        "excludedFromPurge": true,
+        "isMain": true,
+        "name": "master",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    hotspot={
+      Object {
+        "assignee": "assignee",
+        "assigneeUser": Object {
+          "active": true,
+          "local": true,
+          "login": "assignee",
+          "name": "John Doe",
+        },
+        "author": "author",
+        "authorUser": Object {
+          "active": true,
+          "local": true,
+          "login": "author",
+          "name": "John Doe",
+        },
+        "canChangeStatus": true,
+        "changelog": Array [],
+        "comment": Array [],
+        "component": Object {
+          "key": "hotspot-component",
+          "longName": "Hotspot component long name",
+          "name": "Hotspot Component",
+          "path": "path/to/component",
+          "qualifier": "FIL",
+        },
+        "creationDate": "2013-05-13T17:55:41+0200",
+        "flows": Array [
+          Object {
+            "locations": Array [
+              Object {
+                "component": "main.js",
+                "textRange": Object {
+                  "endLine": 2,
+                  "endOffset": 2,
+                  "startLine": 1,
+                  "startOffset": 1,
+                },
+              },
+            ],
+          },
+        ],
+        "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+        "line": 142,
+        "message": "'3' is a magic number.",
+        "project": Object {
+          "key": "hotspot-component",
+          "longName": "Hotspot component long name",
+          "name": "Hotspot Component",
+          "path": "path/to/component",
+          "qualifier": "TRK",
+        },
+        "resolution": "FIXED",
+        "rule": Object {
+          "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "key": "squid:S2077",
+          "name": "That rule",
+          "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "securityCategory": "sql-injection",
+          "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "vulnerabilityProbability": "HIGH",
+        },
+        "status": "REVIEWED",
+        "textRange": Object {
+          "endLine": 142,
+          "endOffset": 83,
+          "startLine": 142,
+          "startOffset": 26,
+        },
+        "updateDate": "2013-05-13T17:55:42+0200",
+        "users": Array [
+          Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+        ],
+      }
+    }
+  />
   <div
     className="bordered big-spacer-bottom"
   >
-    <SourceViewerHeaderSlim
-      branchLike={
-        Object {
-          "analysisDate": "2018-01-01",
-          "excludedFromPurge": true,
-          "isMain": true,
-          "name": "master",
-        }
-      }
-      displayProjectName={true}
-      expandable={false}
-      linkToProject={false}
-      loading={false}
-      onExpand={[Function]}
-      sourceViewerFile={
-        Object {
-          "key": "foo",
-          "measures": Object {
-            "coverage": "85.2",
-            "duplicationDensity": "1.0",
-            "issues": "12",
-            "lines": "56",
-          },
-          "path": "foo/bar.ts",
-          "project": "my-project",
-          "projectName": "MyProject",
-          "q": "FIL",
-          "uuid": "foo-bar",
-        }
-      }
-    />
     <DeferredSpinner
       className="big-spacer"
       loading={false}

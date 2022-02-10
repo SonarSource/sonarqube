@@ -10,7 +10,28 @@ exports[`should render correctly 1`] = `
       "name": "branch-6.7",
     }
   }
-  displayProjectName={false}
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
   highlightedSymbols={Array []}
   hotspot={
     Object {

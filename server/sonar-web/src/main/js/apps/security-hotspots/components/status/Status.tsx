@@ -49,13 +49,13 @@ export function Status(props: StatusProps) {
   const readonly = !hotspot.canChangeStatus || !isLoggedIn(currentUser);
 
   return (
-    <div>
+    <div className="display-flex-row display-flex-end">
       <StatusDescription showTitle={true} statusOption={statusOption} />
       <div className="spacer-top">
         <Tooltip
           overlay={readonly ? translate('hotspots.status.cannot_change_status') : null}
           placement="bottom">
-          <div className="dropdown display-inline-block">
+          <div className="dropdown">
             <Toggler
               closeOnClickOutside={true}
               closeOnEscape={true}

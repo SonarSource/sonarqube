@@ -1,0 +1,236 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="big-spacer-bottom"
+>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <div
+      className="big text-bold"
+    >
+      '3' is a magic number.
+    </div>
+    <div>
+      <span
+        className="note padded-right"
+      >
+        That rule
+      </span>
+      <Link
+        className="small"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/coding_rules",
+            "query": Object {
+              "open": "squid:S2077",
+              "rule_key": "squid:S2077",
+            },
+          }
+        }
+      >
+        squid:S2077
+      </Link>
+    </div>
+  </div>
+  <div
+    className="display-flex-space-between"
+  >
+    <Connect(withCurrentUser(Status))
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "FIL",
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "key": "hotspot-component",
+            "longName": "Hotspot component long name",
+            "name": "Hotspot Component",
+            "path": "path/to/component",
+            "qualifier": "TRK",
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onStatusChange={[Function]}
+    />
+    <div
+      className="display-flex-end"
+    >
+      <div
+        className="display-inline-flex-center it__hs-assignee"
+      >
+        <div
+          className="text-bold big-spacer-right"
+        >
+          assignee: 
+        </div>
+        <Connect(withCurrentUser(Assignee))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              "author": "author",
+              "authorUser": Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
+                "qualifier": "FIL",
+              },
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "key": "hotspot-component",
+                "longName": "Hotspot component long name",
+                "name": "Hotspot Component",
+                "path": "path/to/component",
+                "qualifier": "TRK",
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
+              ],
+            }
+          }
+          onAssigneeChange={[MockFunction]}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

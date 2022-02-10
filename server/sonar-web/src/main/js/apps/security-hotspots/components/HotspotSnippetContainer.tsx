@@ -22,7 +22,6 @@ import { getSources } from '../../../api/components';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { Hotspot } from '../../../types/security-hotspots';
 import { Component, ExpandDirection, FlowLocation, SourceLine } from '../../../types/types';
 import { constructSourceViewerFile, getLocations } from '../utils';
@@ -207,7 +206,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     return (
       <HotspotSnippetContainerRenderer
         branchLike={branchLike}
-        displayProjectName={component.qualifier === ComponentQualifier.Application}
+        component={component}
         highlightedSymbols={highlightedSymbols}
         hotspot={hotspot}
         loading={loading}

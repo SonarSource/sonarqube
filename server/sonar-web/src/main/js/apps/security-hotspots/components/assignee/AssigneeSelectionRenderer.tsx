@@ -42,7 +42,7 @@ export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRe
   const { highlighted, loading, query, suggestedUsers } = props;
 
   return (
-    <>
+    <div className="dropdown">
       <div className="display-flex-center">
         <SearchBox
           autoFocus={true}
@@ -55,32 +55,30 @@ export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRe
       </div>
 
       {!loading && (
-        <div className="position-relative">
-          <DropdownOverlay noPadding={true} placement={PopupPlacement.BottomLeft}>
-            <ul className="hotspot-assignee-search-results">
-              {suggestedUsers &&
-                suggestedUsers.map(suggestion => (
-                  <li
-                    className={classNames('padded', {
-                      active: highlighted && highlighted.login === suggestion.login
-                    })}
-                    key={suggestion.login}
-                    onClick={() => props.onSelect(suggestion)}>
-                    {suggestion.login && (
-                      <Avatar
-                        className="spacer-right"
-                        hash={suggestion.avatar}
-                        name={suggestion.name}
-                        size={16}
-                      />
-                    )}
-                    {suggestion.name}
-                  </li>
-                ))}
-            </ul>
-          </DropdownOverlay>
-        </div>
+        <DropdownOverlay noPadding={true} placement={PopupPlacement.BottomLeft}>
+          <ul className="hotspot-assignee-search-results">
+            {suggestedUsers &&
+              suggestedUsers.map(suggestion => (
+                <li
+                  className={classNames('padded', {
+                    active: highlighted && highlighted.login === suggestion.login
+                  })}
+                  key={suggestion.login}
+                  onClick={() => props.onSelect(suggestion)}>
+                  {suggestion.login && (
+                    <Avatar
+                      className="spacer-right"
+                      hash={suggestion.avatar}
+                      name={suggestion.name}
+                      size={16}
+                    />
+                  )}
+                  {suggestion.name}
+                </li>
+              ))}
+          </ul>
+        </DropdownOverlay>
       )}
-    </>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: User logged in 1`] = `
 <div
   className="hotspot-primary-location display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right hotspot-risk-exposure-HIGH"
 >
@@ -10,10 +10,22 @@ exports[`should render correctly 1`] = `
     '3' is a magic number.
   </div>
   <ButtonLink
-    className="nowrap big-spacer-left"
+    className="nowrap big-spacer-left it__hs-add-comment"
     onClick={[MockFunction]}
   >
     hotspots.comment.open
   </ButtonLink>
+</div>
+`;
+
+exports[`should render correctly: User not logged in  1`] = `
+<div
+  className="hotspot-primary-location display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right hotspot-risk-exposure-HIGH"
+>
+  <div
+    className="text-bold"
+  >
+    '3' is a magic number.
+  </div>
 </div>
 `;

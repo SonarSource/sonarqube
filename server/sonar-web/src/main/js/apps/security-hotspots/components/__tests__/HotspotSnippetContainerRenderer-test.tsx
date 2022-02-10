@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
 import SnippetViewer from '../../../issues/crossComponentSourceViewer/SnippetViewer';
@@ -48,7 +49,6 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
   return shallow(
     <HotspotSnippetContainerRenderer
       branchLike={mockMainBranch()}
-      displayProjectName={true}
       highlightedSymbols={[]}
       hotspot={mockHotspot()}
       loading={false}
@@ -59,6 +59,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
       secondaryLocations={[]}
       sourceLines={[]}
       sourceViewerFile={mockSourceViewerFile()}
+      component={mockComponent()}
       {...props}
     />
   );

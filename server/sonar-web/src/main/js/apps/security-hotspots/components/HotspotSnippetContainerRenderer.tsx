@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
+  Component,
   ExpandDirection,
   FlowLocation,
   LinearIssueLocation,
@@ -32,10 +32,10 @@ import {
 } from '../../../types/types';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotPrimaryLocationBox from './HotspotPrimaryLocationBox';
+import HotspotSnippetHeader from './HotspotSnippetHeader';
 
 export interface HotspotSnippetContainerRendererProps {
   branchLike?: BranchLike;
-  displayProjectName?: boolean;
   highlightedSymbols: string[];
   hotspot: Hotspot;
   loading: boolean;
@@ -46,6 +46,7 @@ export interface HotspotSnippetContainerRendererProps {
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
   secondaryLocations: FlowLocation[];
+  component: Component;
 }
 
 const noop = () => undefined;
@@ -55,14 +56,14 @@ export default function HotspotSnippetContainerRenderer(
 ) {
   const {
     branchLike,
-    displayProjectName,
     highlightedSymbols,
     hotspot,
     loading,
     locations: primaryLocations,
     sourceLines,
     sourceViewerFile,
-    secondaryLocations
+    secondaryLocations,
+    component
   } = props;
 
   const renderHotspotBoxInLine = (lineNumber: number) =>
@@ -77,16 +78,8 @@ export default function HotspotSnippetContainerRenderer(
       {!loading && sourceLines.length === 0 && (
         <p className="spacer-bottom">{translate('hotspots.no_associated_lines')}</p>
       )}
+      <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
       <div className="bordered big-spacer-bottom">
-        <SourceViewerHeaderSlim
-          branchLike={branchLike}
-          expandable={false}
-          displayProjectName={displayProjectName}
-          linkToProject={false}
-          loading={loading}
-          onExpand={noop}
-          sourceViewerFile={sourceViewerFile}
-        />
         <DeferredSpinner className="big-spacer" loading={loading}>
           {sourceLines.length > 0 && (
             <SnippetViewer

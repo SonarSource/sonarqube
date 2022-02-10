@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: closed 1`] = `
-<div>
+<div
+  className="display-flex-row display-flex-end"
+>
   <StatusDescription
     showTitle={true}
     statusOption="FIXED"
@@ -14,7 +16,7 @@ exports[`should render correctly: closed 1`] = `
       placement="bottom"
     >
       <div
-        className="dropdown display-inline-block"
+        className="dropdown"
       >
         <Toggler
           closeOnClickOutside={true}
@@ -139,7 +141,9 @@ exports[`should render correctly: closed 1`] = `
 `;
 
 exports[`should render correctly: open 1`] = `
-<div>
+<div
+  className="display-flex-row display-flex-end"
+>
   <StatusDescription
     showTitle={true}
     statusOption="FIXED"
@@ -152,7 +156,7 @@ exports[`should render correctly: open 1`] = `
       placement="bottom"
     >
       <div
-        className="dropdown display-inline-block"
+        className="dropdown"
       >
         <Toggler
           closeOnClickOutside={true}
@@ -277,7 +281,9 @@ exports[`should render correctly: open 1`] = `
 `;
 
 exports[`should render correctly: readonly 1`] = `
-<div>
+<div
+  className="display-flex-row display-flex-end"
+>
   <StatusDescription
     showTitle={true}
     statusOption="FIXED"
@@ -290,7 +296,7 @@ exports[`should render correctly: readonly 1`] = `
       placement="bottom"
     >
       <div
-        className="dropdown display-inline-block"
+        className="dropdown"
       >
         <Toggler
           closeOnClickOutside={true}

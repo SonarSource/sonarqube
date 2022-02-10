@@ -143,7 +143,6 @@ function shallowRender(props?: Partial<HotspotViewer['props']>) {
       hotspotKey={hotspotKey}
       onSwitchStatusFilter={jest.fn()}
       onUpdateHotspot={jest.fn()}
-      securityCategories={{ cat1: { title: 'cat1' } }}
       {...props}
     />
   );

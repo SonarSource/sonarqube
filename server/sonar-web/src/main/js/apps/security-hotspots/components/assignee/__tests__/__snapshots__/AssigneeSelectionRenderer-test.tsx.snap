@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<Fragment>
+<div
+  className="dropdown"
+>
   <div
     className="display-flex-center"
   >
@@ -12,23 +14,21 @@ exports[`should render correctly 1`] = `
       placeholder="hotspots.assignee.select_user"
     />
   </div>
-  <div
-    className="position-relative"
+  <DropdownOverlay
+    noPadding={true}
+    placement="bottom-left"
   >
-    <DropdownOverlay
-      noPadding={true}
-      placement="bottom-left"
-    >
-      <ul
-        className="hotspot-assignee-search-results"
-      />
-    </DropdownOverlay>
-  </div>
-</Fragment>
+    <ul
+      className="hotspot-assignee-search-results"
+    />
+  </DropdownOverlay>
+</div>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<Fragment>
+<div
+  className="dropdown"
+>
   <div
     className="display-flex-center"
   >
@@ -42,11 +42,13 @@ exports[`should render correctly: loading 1`] = `
       className="spacer-left"
     />
   </div>
-</Fragment>
+</div>
 `;
 
 exports[`should render correctly: open with results 1`] = `
-<Fragment>
+<div
+  className="dropdown"
+>
   <div
     className="display-flex-center"
   >
@@ -57,42 +59,38 @@ exports[`should render correctly: open with results 1`] = `
       placeholder="hotspots.assignee.select_user"
     />
   </div>
-  <div
-    className="position-relative"
+  <DropdownOverlay
+    noPadding={true}
+    placement="bottom-left"
   >
-    <DropdownOverlay
-      noPadding={true}
-      placement="bottom-left"
+    <ul
+      className="hotspot-assignee-search-results"
     >
-      <ul
-        className="hotspot-assignee-search-results"
+      <li
+        className="padded"
+        key="john.doe"
+        onClick={[Function]}
       >
-        <li
-          className="padded"
-          key="john.doe"
-          onClick={[Function]}
-        >
-          <Connect(Avatar)
-            className="spacer-right"
-            name="John Doe"
-            size={16}
-          />
-          John Doe
-        </li>
-        <li
-          className="padded active"
-          key="highlighted"
-          onClick={[Function]}
-        >
-          <Connect(Avatar)
-            className="spacer-right"
-            name="John Doe"
-            size={16}
-          />
-          John Doe
-        </li>
-      </ul>
-    </DropdownOverlay>
-  </div>
-</Fragment>
+        <Connect(Avatar)
+          className="spacer-right"
+          name="John Doe"
+          size={16}
+        />
+        John Doe
+      </li>
+      <li
+        className="padded active"
+        key="highlighted"
+        onClick={[Function]}
+      >
+        <Connect(Avatar)
+          className="spacer-right"
+          name="John Doe"
+          size={16}
+        />
+        John Doe
+      </li>
+    </ul>
+  </DropdownOverlay>
+</div>
 `;

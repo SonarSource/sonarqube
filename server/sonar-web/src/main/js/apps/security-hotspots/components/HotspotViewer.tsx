@@ -20,24 +20,21 @@
 import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { BranchLike } from '../../../types/branch-like';
 import {
   Hotspot,
   HotspotStatusFilter,
   HotspotStatusOption
 } from '../../../types/security-hotspots';
-import { Component, StandardSecurityCategories } from '../../../types/types';
+import { Component } from '../../../types/types';
 import { getStatusFilterFromStatusOption } from '../utils';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
-  branchLike?: BranchLike;
   component: Component;
   hotspotKey: string;
   hotspotsReviewedMeasure?: string;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
-  securityCategories: StandardSecurityCategories;
 }
 
 interface State {
@@ -119,12 +116,11 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, component, hotspotsReviewedMeasure, securityCategories } = this.props;
+    const { component, hotspotsReviewedMeasure } = this.props;
     const { hotspot, lastStatusChangedTo, loading, showStatusUpdateSuccessModal } = this.state;
 
     return (
       <HotspotViewerRenderer
-        branchLike={branchLike}
         component={component}
         commentTextRef={this.commentTextRef}
         hotspot={hotspot}
@@ -136,7 +132,6 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
         onShowCommentForm={this.handleScrollToCommentForm}
         onUpdateHotspot={this.handleHotspotUpdate}
         showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
-        securityCategories={securityCategories}
       />
     );
   }

@@ -172,13 +172,11 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
             <div className="layout-page-main">
               <HotspotViewer
-                branchLike={branchLike}
                 component={component}
                 hotspotKey={selectedHotspot.key}
                 hotspotsReviewedMeasure={hotspotsReviewedMeasure}
                 onSwitchStatusFilter={props.onSwitchStatusFilter}
                 onUpdateHotspot={props.onUpdateHotspot}
-                securityCategories={securityCategories}
               />
             </div>
           </div>
