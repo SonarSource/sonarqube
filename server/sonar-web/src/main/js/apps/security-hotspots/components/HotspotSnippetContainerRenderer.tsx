@@ -31,6 +31,7 @@ import {
   SourceViewerFile
 } from '../../../types/types';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
+import HotspotPrimaryLocationBox from './HotspotPrimaryLocationBox';
 
 export interface HotspotSnippetContainerRendererProps {
   branchLike?: BranchLike;
@@ -39,6 +40,7 @@ export interface HotspotSnippetContainerRendererProps {
   hotspot: Hotspot;
   loading: boolean;
   locations: { [line: number]: LinearIssueLocation[] };
+  onCommentButtonClick: () => void;
   onExpandBlock: (direction: ExpandDirection) => Promise<void>;
   onSymbolClick: (symbols: string[]) => void;
   sourceLines: SourceLine[];
@@ -60,6 +62,13 @@ export default function HotspotSnippetContainerRenderer(
     sourceLines,
     sourceViewerFile
   } = props;
+
+  const renderHotspotBoxInLine = (lineNumber: number) =>
+    lineNumber === hotspot.line ? (
+      <HotspotPrimaryLocationBox hotspot={hotspot} onCommentClick={props.onCommentButtonClick} />
+    ) : (
+      undefined
+    );
 
   return (
     <>
@@ -101,6 +110,7 @@ export default function HotspotSnippetContainerRenderer(
                 onIssuePopupToggle={noop}
                 onLocationSelect={noop}
                 openIssuesByLine={{}}
+                renderAdditionalChildInLine={renderHotspotBoxInLine}
                 renderDuplicationPopup={noop}
                 snippet={sourceLines}
               />

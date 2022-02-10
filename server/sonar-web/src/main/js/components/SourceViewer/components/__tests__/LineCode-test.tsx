@@ -25,6 +25,9 @@ import LineCode from '../LineCode';
 
 it('render code', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ additionalChild: <div>additional child</div> })).toMatchSnapshot(
+    'with additional child'
+  );
 });
 
 function shallowRender(props: Partial<LineCode['props']> = {}) {

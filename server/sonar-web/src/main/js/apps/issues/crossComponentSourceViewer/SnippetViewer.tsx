@@ -70,6 +70,7 @@ interface Props {
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   onLocationSelect: (index: number) => void;
   openIssuesByLine: Dict<boolean>;
+  renderAdditionalChildInLine?: (lineNumber: number) => React.ReactNode | undefined;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scroll?: (element: HTMLElement, offset?: number) => void;
   snippet: SourceLine[];
@@ -153,6 +154,10 @@ export default class SnippetViewer extends React.PureComponent<Props> {
 
     return (
       <Line
+        additionalChild={
+          this.props.renderAdditionalChildInLine &&
+          this.props.renderAdditionalChildInLine(line.line)
+        }
         branchLike={this.props.branchLike}
         displayAllIssues={false}
         displayCoverage={true}

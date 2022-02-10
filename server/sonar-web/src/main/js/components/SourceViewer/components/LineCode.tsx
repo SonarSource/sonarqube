@@ -32,6 +32,7 @@ import {
 import LineIssuesList from './LineIssuesList';
 
 interface Props {
+  additionalChild?: React.ReactNode;
   branchLike: BranchLike | undefined;
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
@@ -154,6 +155,7 @@ export default class LineCode extends React.PureComponent<Props, State> {
 
   render() {
     const {
+      additionalChild,
       highlightedLocationMessage,
       highlightedSymbols,
       issues,
@@ -253,6 +255,7 @@ export default class LineCode extends React.PureComponent<Props, State> {
             selectedIssue={selectedIssue}
           />
         )}
+        {additionalChild}
       </td>
     );
   }

@@ -95,6 +95,7 @@ exports[`should render correctly 1`] = `
       ],
     }
   }
+  onCommentButtonClick={[MockFunction]}
   onExpandBlock={[Function]}
   onSymbolClick={[Function]}
   sourceLines={Array []}

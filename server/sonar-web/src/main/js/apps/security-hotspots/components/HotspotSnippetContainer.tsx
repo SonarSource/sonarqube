@@ -32,6 +32,7 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   hotspot: Hotspot;
+  onCommentButtonClick: () => void;
 }
 
 interface State {
@@ -175,6 +176,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
         hotspot={hotspot}
         loading={loading}
         locations={locations}
+        onCommentButtonClick={this.props.onCommentButtonClick}
         onExpandBlock={this.handleExpansion}
         onSymbolClick={this.handleSymbolClick}
         sourceLines={sourceLines}

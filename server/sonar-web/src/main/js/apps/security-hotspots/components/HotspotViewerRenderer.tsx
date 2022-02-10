@@ -169,6 +169,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             branchLike={fillBranchLike(hotspot.project.branch, hotspot.project.pullRequest)}
             component={component}
             hotspot={hotspot}
+            onCommentButtonClick={props.onShowCommentForm}
           />
           <HotspotViewerTabs hotspot={hotspot} />
           <HotspotReviewHistoryAndComments

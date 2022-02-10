@@ -219,6 +219,7 @@ exports[`should render correctly: with sourcelines 1`] = `
           onIssuePopupToggle={[Function]}
           onLocationSelect={[Function]}
           openIssuesByLine={Object {}}
+          renderAdditionalChildInLine={[Function]}
           renderDuplicationPopup={[Function]}
           snippet={
             Array [

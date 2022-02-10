@@ -371,6 +371,7 @@ exports[`should render correctly: anonymous user 1`] = `
           ],
         }
       }
+      onCommentButtonClick={[MockFunction]}
     />
     <HotspotViewerTabs
       hotspot={
@@ -904,6 +905,7 @@ exports[`should render correctly: assignee without name 1`] = `
           ],
         }
       }
+      onCommentButtonClick={[MockFunction]}
     />
     <HotspotViewerTabs
       hotspot={
@@ -1437,6 +1439,7 @@ exports[`should render correctly: default 1`] = `
           ],
         }
       }
+      onCommentButtonClick={[MockFunction]}
     />
     <HotspotViewerTabs
       hotspot={
@@ -1970,6 +1973,7 @@ exports[`should render correctly: deleted assignee 1`] = `
           ],
         }
       }
+      onCommentButtonClick={[MockFunction]}
     />
     <HotspotViewerTabs
       hotspot={
@@ -2516,6 +2520,7 @@ exports[`should render correctly: show success modal 1`] = `
           ],
         }
       }
+      onCommentButtonClick={[MockFunction]}
     />
     <HotspotViewerTabs
       hotspot={
@@ -3049,6 +3054,7 @@ exports[`should render correctly: unassigned 1`] = `
           ],
         }
       }
+      onCommentButtonClick={[MockFunction]}
     />
     <HotspotViewerTabs
       hotspot={

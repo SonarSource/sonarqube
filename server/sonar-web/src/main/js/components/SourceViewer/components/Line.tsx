@@ -31,6 +31,7 @@ import LineNumber from './LineNumber';
 import LineSCM from './LineSCM';
 
 interface Props {
+  additionalChild?: React.ReactNode;
   branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
@@ -90,6 +91,7 @@ export default class Line extends React.PureComponent<Props> {
 
   render() {
     const {
+      additionalChild,
       branchLike,
       displayAllIssues,
       displayCoverage,
@@ -182,6 +184,7 @@ export default class Line extends React.PureComponent<Props> {
         )}
 
         <LineCode
+          additionalChild={additionalChild}
           branchLike={branchLike}
           displayIssueLocationsCount={displayIssueLocationsCount}
           displayIssueLocationsLink={displayIssueLocationsLink}

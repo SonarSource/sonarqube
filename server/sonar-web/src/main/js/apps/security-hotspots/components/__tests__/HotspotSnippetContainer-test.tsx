@@ -205,6 +205,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainer['props']>) {
       branchLike={branch}
       component={mockComponent()}
       hotspot={mockHotspot()}
+      onCommentButtonClick={jest.fn()}
       {...props}
     />
   );

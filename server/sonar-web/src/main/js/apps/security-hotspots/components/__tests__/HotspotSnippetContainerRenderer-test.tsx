@@ -22,6 +22,7 @@ import * as React from 'react';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/testMocks';
+import SnippetViewer from '../../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotSnippetContainerRenderer, {
   HotspotSnippetContainerRendererProps
 } from '../HotspotSnippetContainerRenderer';
@@ -29,6 +30,18 @@ import HotspotSnippetContainerRenderer, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ sourceLines: [mockSourceLine()] })).toMatchSnapshot('with sourcelines');
+});
+
+it('should render a HotspotPrimaryLocationBox', () => {
+  const wrapper = shallowRender({
+    hotspot: mockHotspot({ line: 42 }),
+    sourceLines: [mockSourceLine()]
+  });
+
+  const { renderAdditionalChildInLine } = wrapper.find(SnippetViewer).props();
+
+  expect(renderAdditionalChildInLine!(10)).toBeUndefined();
+  expect(renderAdditionalChildInLine!(42)).not.toBeUndefined();
 });
 
 function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
@@ -40,6 +53,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
       hotspot={mockHotspot()}
       loading={false}
       locations={{}}
+      onCommentButtonClick={jest.fn()}
       onExpandBlock={jest.fn()}
       onSymbolClick={jest.fn()}
       sourceLines={[]}
