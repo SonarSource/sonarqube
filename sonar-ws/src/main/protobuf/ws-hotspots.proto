@@ -46,6 +46,8 @@ message SearchWsResponse {
     optional string author = 11;
     optional string creationDate = 12;
     optional string updateDate = 13;
+    optional sonarqube.ws.commons.TextRange textRange = 14;
+    repeated sonarqube.ws.commons.Flow flows = 15;
   }
 }
 

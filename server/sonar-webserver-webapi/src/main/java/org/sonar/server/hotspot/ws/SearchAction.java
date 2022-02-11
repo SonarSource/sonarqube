@@ -53,9 +53,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
@@ -119,16 +121,18 @@ public class SearchAction implements HotspotsWsAction {
   private final IssueIndex issueIndex;
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final HotspotWsResponseFormatter responseFormatter;
+  private final TextRangeResponseFormatter textRangeFormatter;
   private final System2 system2;
 
   public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex,
     IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    HotspotWsResponseFormatter responseFormatter, System2 system2) {
+    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.responseFormatter = responseFormatter;
+    this.textRangeFormatter = textRangeFormatter;
     this.system2 = system2;
   }
 
@@ -257,10 +261,10 @@ public class SearchAction implements HotspotsWsAction {
       "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT_KEY, PARAM_HOTSPOTS);
 
     checkArgument(
-      !branch.isPresent() || projectKey.isPresent(),
+      branch.isEmpty() || projectKey.isPresent(),
       "Parameter '%s' must be used with parameter '%s'", PARAM_BRANCH, PARAM_PROJECT_KEY);
     checkArgument(
-      !pullRequest.isPresent() || projectKey.isPresent(),
+      pullRequest.isEmpty() || projectKey.isPresent(),
       "Parameter '%s' must be used with parameter '%s'", PARAM_PULL_REQUEST, PARAM_PROJECT_KEY);
     checkArgument(
       !(branch.isPresent() && pullRequest.isPresent()),
@@ -268,9 +272,9 @@ public class SearchAction implements HotspotsWsAction {
 
     Optional<String> status = wsRequest.getStatus();
     Optional<String> resolution = wsRequest.getResolution();
-    checkArgument(!status.isPresent() || hotspotKeys.isEmpty(),
+    checkArgument(status.isEmpty() || hotspotKeys.isEmpty(),
       "Parameter '%s' can't be used with parameter '%s'", PARAM_STATUS, PARAM_HOTSPOTS);
-    checkArgument(!resolution.isPresent() || hotspotKeys.isEmpty(),
+    checkArgument(resolution.isEmpty() || hotspotKeys.isEmpty(),
       "Parameter '%s' can't be used with parameter '%s'", PARAM_RESOLUTION, PARAM_HOTSPOTS);
 
     resolution.ifPresent(
@@ -456,12 +460,44 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private void loadComponents(DbSession dbSession, SearchResponseData searchResponseData) {
-    Set<String> componentKeys = searchResponseData.getOrderedHotspots().stream()
-      .flatMap(hotspot -> Stream.of(hotspot.getComponentKey(), hotspot.getProjectKey()))
+    Set<String> componentUuids = searchResponseData.getOrderedHotspots().stream()
+      .flatMap(hotspot -> Stream.of(hotspot.getComponentUuid(), hotspot.getProjectUuid()))
       .collect(Collectors.toSet());
-    if (!componentKeys.isEmpty()) {
-      searchResponseData.addComponents(dbClient.componentDao().selectByDbKeys(dbSession, componentKeys));
+
+    Set<String> locationComponentUuids = searchResponseData.getOrderedHotspots()
+      .stream()
+      .flatMap(hotspot -> getHotspotLocationComponentUuids(hotspot).stream())
+      .collect(Collectors.toSet());
+
+    Set<String> aggregatedComponentUuids = Stream.of(componentUuids, locationComponentUuids)
+      .flatMap(Collection::stream)
+      .collect(Collectors.toSet());
+
+    if (!aggregatedComponentUuids.isEmpty()) {
+      searchResponseData.addComponents(dbClient.componentDao().selectByUuids(dbSession, aggregatedComponentUuids));
     }
+  }
+
+  private static Set<String> getHotspotLocationComponentUuids(IssueDto hotspot) {
+    Set<String> locationComponentUuids = new HashSet<>();
+    DbIssues.Locations locations = hotspot.parseLocations();
+
+    if (locations == null) {
+      return locationComponentUuids;
+    }
+
+    List<DbIssues.Flow> flows = locations.getFlowList();
+
+    for (DbIssues.Flow flow : flows) {
+      List<DbIssues.Location> flowLocations = flow.getLocationList();
+      for (DbIssues.Location location : flowLocations) {
+        if (location.hasComponentId()) {
+          locationComponentUuids.add(location.getComponentId());
+        }
+      }
+    }
+
+    return locationComponentUuids;
   }
 
   private void loadRules(DbSession dbSession, SearchResponseData searchResponseData) {
@@ -494,7 +530,7 @@ public class SearchAction implements HotspotsWsAction {
     responseBuilder.setPaging(pagingBuilder.build());
   }
 
-  private static void formatHotspots(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
+  private void formatHotspots(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
     List<IssueDto> orderedHotspots = searchResponseData.getOrderedHotspots();
     if (orderedHotspots.isEmpty()) {
       return;
@@ -522,13 +558,31 @@ public class SearchAction implements HotspotsWsAction {
       builder.setAuthor(nullToEmpty(hotspot.getAuthorLogin()));
       builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
       builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
-
+      completeHotspotLocations(hotspot, builder, searchResponseData);
       responseBuilder.addHotspots(builder.build());
     }
   }
 
+  private void completeHotspotLocations(IssueDto hotspot, SearchWsResponse.Hotspot.Builder hotspotBuilder, SearchResponseData data) {
+    DbIssues.Locations locations = hotspot.parseLocations();
+
+    if (locations == null) {
+      return;
+    }
+
+    textRangeFormatter.formatTextRange(locations, hotspotBuilder::setTextRange);
+
+    for (DbIssues.Flow flow : locations.getFlowList()) {
+      Common.Flow.Builder targetFlow = Common.Flow.newBuilder();
+      for (DbIssues.Location flowLocation : flow.getLocationList()) {
+        targetFlow.addLocations(textRangeFormatter.formatLocation(flowLocation, hotspotBuilder.getComponent(), data.getComponentsByUuid()));
+      }
+      hotspotBuilder.addFlows(targetFlow.build());
+    }
+  }
+
   private void formatComponents(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
-    Set<ComponentDto> components = searchResponseData.getComponents();
+    Collection<ComponentDto> components = searchResponseData.getComponents();
     if (components.isEmpty()) {
       return;
     }
@@ -643,7 +697,7 @@ public class SearchAction implements HotspotsWsAction {
   private static final class SearchResponseData {
     private final Paging paging;
     private final List<IssueDto> orderedHotspots;
-    private final Set<ComponentDto> components = new HashSet<>();
+    private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
     private final Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
 
     private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
@@ -664,11 +718,17 @@ public class SearchAction implements HotspotsWsAction {
     }
 
     void addComponents(Collection<ComponentDto> components) {
-      this.components.addAll(components);
+      for (ComponentDto component : components) {
+        componentsByUuid.put(component.uuid(), component);
+      }
     }
 
-    Set<ComponentDto> getComponents() {
-      return components;
+    Collection<ComponentDto> getComponents() {
+      return componentsByUuid.values();
+    }
+
+    public Map<String, ComponentDto> getComponentsByUuid() {
+      return componentsByUuid;
     }
 
     void addRules(Collection<RuleDefinitionDto> rules) {

@@ -52,11 +52,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.index.AsyncIssueIndexing;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
@@ -70,6 +73,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.Component;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
@@ -82,6 +86,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -124,7 +129,7 @@ public class SearchActionTest {
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex,
-    issueIndexSyncProgressChecker, responseFormatter, system2);
+    issueIndexSyncProgressChecker, responseFormatter, new TextRangeResponseFormatter(), system2);
   private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -1187,6 +1192,51 @@ public class SearchActionTest {
   }
 
   @Test
+  public void returns_hotspot_with_secondary_locations() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    ComponentDto anotherFile = dbTester.components().insertComponent(newFileDto(project));
+
+    List<DbIssues.Location> hotspotLocations = Stream.of(
+        newHotspotLocation(file.uuid(), "security hotspot flow message 0", 1, 1, 0, 12),
+        newHotspotLocation(file.uuid(), "security hotspot flow message 1", 3, 3, 0, 10),
+        newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 2", 5, 5, 0, 15),
+        newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 3", 7, 7, 0, 18),
+        newHotspotLocation(null,"security hotspot flow message 4", 12, 12, 2, 8))
+      .collect(toList());
+
+    DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder().addFlow(DbIssues.Flow.newBuilder().addAllLocation(hotspotLocations));
+
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    dbTester.issues().insertHotspot(rule, project, file, h -> h.setLocations(locations.build()));
+
+    indexIssues();
+
+    SearchWsResponse response = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getHotspotsCount()).isOne();
+    assertThat(response.getHotspotsList().stream().findFirst().get().getFlowsCount()).isEqualTo(1);
+    assertThat(response.getHotspotsList().stream().findFirst().get().getFlowsList().stream().findFirst().get().getLocationsCount()).isEqualTo(5);
+    assertThat(response.getHotspotsList().stream().findFirst().get().getFlowsList().stream().findFirst().get().getLocationsList())
+      .extracting(
+        Common.Location::getComponent,
+        Common.Location::getMsg,
+        l -> l.getTextRange().getStartLine(),
+        l -> l.getTextRange().getEndLine(),
+        l -> l.getTextRange().getStartOffset(),
+        l -> l.getTextRange().getEndOffset())
+      .containsExactlyInAnyOrder(
+        tuple(file.getKey(), "security hotspot flow message 0", 1, 1, 0, 12),
+        tuple(file.getKey(), "security hotspot flow message 1", 3, 3, 0, 10),
+        tuple(anotherFile.getKey(), "security hotspot flow message 2", 5, 5, 0, 15),
+        tuple(anotherFile.getKey(), "security hotspot flow message 3", 7, 7, 0, 18),
+        tuple(file.getKey(),"security hotspot flow message 4", 12, 12, 2, 8));
+  }
+
+  @Test
   public void returns_first_page_with_100_results_by_default() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
@@ -1754,6 +1804,25 @@ public class SearchActionTest {
       .setStatus(STATUS_TO_REVIEW);
     consumer.accept(res);
     return res.setType(SECURITY_HOTSPOT);
+  }
+
+  private static DbIssues.Location newHotspotLocation(@Nullable String componentUuid, String message, int startLine, int endLine, int startOffset, int endOffset) {
+    DbIssues.Location.Builder builder = DbIssues.Location.newBuilder();
+
+    if (componentUuid != null) {
+      builder.setComponentId(componentUuid);
+    }
+
+    builder
+      .setMsg(message)
+      .setTextRange(DbCommons.TextRange.newBuilder()
+        .setStartLine(startLine)
+        .setEndLine(endLine)
+        .setStartOffset(startOffset)
+        .setEndOffset(endOffset)
+        .build());
+
+    return builder.build();
   }
 
   private TestRequest newRequest(ComponentDto project) {
