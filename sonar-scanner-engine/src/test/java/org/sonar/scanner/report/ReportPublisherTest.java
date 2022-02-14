@@ -23,9 +23,7 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -235,7 +233,7 @@ public class ReportPublisherTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .contains("Report metadata written to " + properties.metadataFilePath());
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
+      .contains("ANALYSIS SUCCESSFUL, you can find the results at: https://publicserver/sonarqube/dashboard?id=org.sonarsource.sonarqube%3Asonarqube")
       .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
   }
 
