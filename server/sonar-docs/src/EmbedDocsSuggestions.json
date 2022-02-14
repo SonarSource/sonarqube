@@ -3,14 +3,14 @@
   "api_documentation": [],
   "background_tasks": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360028098052-Background-Tasks",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/background-tasks",
       "text": "About Background Tasks"
     }
   ],
   "code": [],
   "coding_rules": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360023045412-Customising-Quality-Profiles",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles",
       "text": "Quality Profiles"
     }
   ],
@@ -20,7 +20,7 @@
       "text": "Clean as You Code"
     },
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360028388991-Metric-Definitions-",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/how-are-metric-definitions-defined",
       "text": "Metric Definitions"
     }
   ],
@@ -35,7 +35,7 @@
   ],
   "global_permissions": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360020407332-How-to-add-members-to-your-CodeScan-Cloud-organisation",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-members-to-a-codescan-cloud-organisation",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
@@ -44,21 +44,21 @@
   "marketplace": [],
   "organization_members": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360020407332-How-to-add-members-to-your-CodeScan-Cloud-organisation",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-members-to-a-codescan-cloud-organisation",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
   ],
   "organization_projects": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360020407332-How-to-add-members-to-your-CodeScan-Cloud-organisation",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-members-to-a-codescan-cloud-organisation",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
   ],
   "organization_space": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360028097992-Organizations",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/organizations",
       "text": "Organizations",
       "scope": "sonarcloud"
     }
@@ -69,7 +69,7 @@
       "text": "Clean as You Code"
     },
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360011898452-Understanding-branches-in-CodeScan-Cloud",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/understanding-branches-in-codescan-cloud",
       "text": "Branches Analysis"
     },
     {
@@ -80,7 +80,7 @@
   "permission_templates": [],
   "profiles": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360023045412-Customising-Quality-Profiles",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles",
       "text": "Quality Profiles"
     }
   ],
@@ -99,7 +99,7 @@
   ],
   "project_quality_profiles": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360023045412-Customising-Quality-Profiles",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles",
       "text": "Quality Profiles"
     }
   ],
@@ -129,13 +129,13 @@
   ],
   "quality_profiles": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360023045412-Customising-Quality-Profiles",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles",
       "text": "Quality Profiles"
     }
   ],
   "security_reports": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360028388051-Security-Reports",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/security-reports",
       "text": "About Security Reports"
     }
   ],
@@ -143,7 +143,7 @@
   "system_info": [],
   "user_groups": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360020407332-How-to-add-members-to-your-CodeScan-Cloud-organisation",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/add-members-to-a-codescan-cloud-organisation",
       "text": "Manage a Team",
       "scope": "sonarcloud"
     }
@@ -151,7 +151,7 @@
   "users": [],
   "webhooks": [
     {
-      "link": "https://docs.codescan.io/hc/en-us/articles/360028388831-Webhooks",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/webhooks-1",
       "text": "About Webhooks"
     }
   ]

@@ -61,7 +61,7 @@ export default function MembersPageHeader(props: Props) {
           id="organization.members.page.description"
           values={{
             link: (
-              <Link target="_blank" to="https://docs.codescan.io/hc/en-us/articles/360020407332-How-to-add-members-to-your-CodeScan-Cloud-organisation">
+              <Link target="_blank" to="https://knowledgebase.autorabit.com/codescan/docs/add-members-to-a-codescan-cloud-organisation">
                 {translate('organization.members.manage_a_team')}
               </Link>
             )

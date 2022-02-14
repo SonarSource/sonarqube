@@ -113,7 +113,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
             className="spacer-left"
             target="_blank"
             to={{
-              pathname: 'https://docs.codescan.io/hc/en-us/articles/360023045412-Customising-Quality-Profiles'
+              pathname: 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-profiles'
             }}>
             {translate('learn_more')}
           </Link>

@@ -41,7 +41,7 @@ export default function PageHeader({ children, loading }: Props) {
           id="webhooks.description"
           values={{
             url: (
-              <Link target="_blank" to="https://docs.codescan.io/hc/en-us/articles/360028388831-Webhooks">
+              <Link target="_blank" to="https://knowledgebase.autorabit.com/codescan/docs/webhooks-1">
                 {translate('webhooks.documentation_link')}
               </Link>
             )
