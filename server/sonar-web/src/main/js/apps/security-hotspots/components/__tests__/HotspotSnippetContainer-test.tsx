@@ -24,7 +24,7 @@ import { getSources } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockHotspot, mockHotspotComponent } from '../../../../helpers/mocks/security-hotspots';
-import { mockSourceLine } from '../../../../helpers/testMocks';
+import { mockFlowLocation, mockSourceLine } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import HotspotSnippetContainer from '../HotspotSnippetContainer';
@@ -44,12 +44,24 @@ it('should render correctly', () => {
 
 it('should load sources on mount', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(
-    range(5, 18).map(line => mockSourceLine({ line }))
+    range(1, 20).map(line => mockSourceLine({ line }))
   );
 
   const hotspot = mockHotspot({
     project: mockHotspotComponent({ branch: branch.name, qualifier: ComponentQualifier.Project }),
-    textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
+    textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 },
+    flows: [
+      {
+        locations: [
+          mockFlowLocation({
+            textRange: { startLine: 8, endLine: 8, startOffset: 0, endOffset: 1 }
+          }),
+          mockFlowLocation({
+            textRange: { startLine: 13, endLine: 13, startOffset: 0, endOffset: 1 }
+          })
+        ]
+      }
+    ]
   });
 
   const wrapper = shallowRender({ hotspot });
@@ -58,11 +70,14 @@ it('should load sources on mount', async () => {
 
   expect(getSources).toBeCalledWith(
     expect.objectContaining({
-      branch: branch.name
+      key: hotspot.component.key,
+      branch: branch.name,
+      from: 3,
+      to: 19
     })
   );
   expect(wrapper.state().lastLine).toBeUndefined();
-  expect(wrapper.state().sourceLines).toHaveLength(12);
+  expect(wrapper.state().sourceLines).toHaveLength(18);
 });
 
 it('should handle load sources failure', async () => {

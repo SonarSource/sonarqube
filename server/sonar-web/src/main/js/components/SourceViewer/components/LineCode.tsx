@@ -22,7 +22,7 @@ import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue, LinearIssueLocation, SourceLine } from '../../../types/types';
 import LocationIndex from '../../common/LocationIndex';
-import LocationMessage from '../../common/LocationMessage';
+import Tooltip from '../../controls/Tooltip';
 import {
   highlightIssueLocations,
   highlightSymbol,
@@ -141,15 +141,18 @@ export default class LineCode extends React.PureComponent<Props, State> {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
     const ref = selected ? (node: HTMLElement | null) => (this.activeMarkerNode = node) : undefined;
+
     return (
-      <LocationIndex
-        key={`marker-${index}`}
-        leading={leading}
-        onClick={onClick}
-        selected={selected}>
-        <span ref={ref}>{index + 1}</span>
-        {message && <LocationMessage selected={true}>{message}</LocationMessage>}
-      </LocationIndex>
+      <Tooltip overlay={message} placement="top">
+        <LocationIndex
+          key={`marker-${index}`}
+          leading={leading}
+          onClick={onClick}
+          selected={selected}
+          aria-label={message ? `${index + 1}-${message}` : index + 1}>
+          <span ref={ref}>{index + 1}</span>
+        </LocationIndex>
+      </Tooltip>
     );
   }
 

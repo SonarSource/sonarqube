@@ -149,6 +149,21 @@ exports[`should render correctly: anonymous user 1`] = `
                     "qualifier": "FIL",
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
+                  "flows": Array [
+                    Object {
+                      "locations": Array [
+                        Object {
+                          "component": "main.js",
+                          "textRange": Object {
+                            "endLine": 2,
+                            "endOffset": 2,
+                            "startLine": 1,
+                            "startOffset": 1,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
@@ -229,6 +244,21 @@ exports[`should render correctly: anonymous user 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
@@ -327,6 +357,21 @@ exports[`should render correctly: anonymous user 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -401,6 +446,21 @@ exports[`should render correctly: anonymous user 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -484,6 +544,21 @@ exports[`should render correctly: anonymous user 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -683,6 +758,21 @@ exports[`should render correctly: assignee without name 1`] = `
                     "qualifier": "FIL",
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
+                  "flows": Array [
+                    Object {
+                      "locations": Array [
+                        Object {
+                          "component": "main.js",
+                          "textRange": Object {
+                            "endLine": 2,
+                            "endOffset": 2,
+                            "startLine": 1,
+                            "startOffset": 1,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
@@ -763,6 +853,21 @@ exports[`should render correctly: assignee without name 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
@@ -861,6 +966,21 @@ exports[`should render correctly: assignee without name 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -935,6 +1055,21 @@ exports[`should render correctly: assignee without name 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -1018,6 +1153,21 @@ exports[`should render correctly: assignee without name 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -1217,6 +1367,21 @@ exports[`should render correctly: default 1`] = `
                     "qualifier": "FIL",
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
+                  "flows": Array [
+                    Object {
+                      "locations": Array [
+                        Object {
+                          "component": "main.js",
+                          "textRange": Object {
+                            "endLine": 2,
+                            "endOffset": 2,
+                            "startLine": 1,
+                            "startOffset": 1,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
@@ -1297,6 +1462,21 @@ exports[`should render correctly: default 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
@@ -1395,6 +1575,21 @@ exports[`should render correctly: default 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -1469,6 +1664,21 @@ exports[`should render correctly: default 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -1552,6 +1762,21 @@ exports[`should render correctly: default 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -1751,6 +1976,21 @@ exports[`should render correctly: deleted assignee 1`] = `
                     "qualifier": "FIL",
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
+                  "flows": Array [
+                    Object {
+                      "locations": Array [
+                        Object {
+                          "component": "main.js",
+                          "textRange": Object {
+                            "endLine": 2,
+                            "endOffset": 2,
+                            "startLine": 1,
+                            "startOffset": 1,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
@@ -1831,6 +2071,21 @@ exports[`should render correctly: deleted assignee 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
@@ -1929,6 +2184,21 @@ exports[`should render correctly: deleted assignee 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -2003,6 +2273,21 @@ exports[`should render correctly: deleted assignee 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -2086,6 +2371,21 @@ exports[`should render correctly: deleted assignee 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -2298,6 +2598,21 @@ exports[`should render correctly: show success modal 1`] = `
                     "qualifier": "FIL",
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
+                  "flows": Array [
+                    Object {
+                      "locations": Array [
+                        Object {
+                          "component": "main.js",
+                          "textRange": Object {
+                            "endLine": 2,
+                            "endOffset": 2,
+                            "startLine": 1,
+                            "startOffset": 1,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
@@ -2378,6 +2693,21 @@ exports[`should render correctly: show success modal 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
@@ -2476,6 +2806,21 @@ exports[`should render correctly: show success modal 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -2550,6 +2895,21 @@ exports[`should render correctly: show success modal 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -2633,6 +2993,21 @@ exports[`should render correctly: show success modal 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -2832,6 +3207,21 @@ exports[`should render correctly: unassigned 1`] = `
                     "qualifier": "FIL",
                   },
                   "creationDate": "2013-05-13T17:55:41+0200",
+                  "flows": Array [
+                    Object {
+                      "locations": Array [
+                        Object {
+                          "component": "main.js",
+                          "textRange": Object {
+                            "endLine": 2,
+                            "endOffset": 2,
+                            "startLine": 1,
+                            "startOffset": 1,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                   "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
                   "line": 142,
                   "message": "'3' is a magic number.",
@@ -2912,6 +3302,21 @@ exports[`should render correctly: unassigned 1`] = `
                 "qualifier": "FIL",
               },
               "creationDate": "2013-05-13T17:55:41+0200",
+              "flows": Array [
+                Object {
+                  "locations": Array [
+                    Object {
+                      "component": "main.js",
+                      "textRange": Object {
+                        "endLine": 2,
+                        "endOffset": 2,
+                        "startLine": 1,
+                        "startOffset": 1,
+                      },
+                    },
+                  ],
+                },
+              ],
               "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
               "line": 142,
               "message": "'3' is a magic number.",
@@ -3010,6 +3415,21 @@ exports[`should render correctly: unassigned 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -3084,6 +3504,21 @@ exports[`should render correctly: unassigned 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",
@@ -3167,6 +3602,21 @@ exports[`should render correctly: unassigned 1`] = `
             "qualifier": "FIL",
           },
           "creationDate": "2013-05-13T17:55:41+0200",
+          "flows": Array [
+            Object {
+              "locations": Array [
+                Object {
+                  "component": "main.js",
+                  "textRange": Object {
+                    "endLine": 2,
+                    "endOffset": 2,
+                    "startLine": 1,
+                    "startOffset": 1,
+                  },
+                },
+              ],
+            },
+          ],
           "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
           "line": 142,
           "message": "'3' is a magic number.",

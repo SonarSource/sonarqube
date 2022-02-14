@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
@@ -26,6 +25,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
   ExpandDirection,
+  FlowLocation,
   LinearIssueLocation,
   SourceLine,
   SourceViewerFile
@@ -45,6 +45,7 @@ export interface HotspotSnippetContainerRendererProps {
   onSymbolClick: (symbols: string[]) => void;
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
+  secondaryLocations: FlowLocation[];
 }
 
 const noop = () => undefined;
@@ -58,9 +59,10 @@ export default function HotspotSnippetContainerRenderer(
     highlightedSymbols,
     hotspot,
     loading,
-    locations,
+    locations: primaryLocations,
     sourceLines,
-    sourceViewerFile
+    sourceViewerFile,
+    secondaryLocations
   } = props;
 
   const renderHotspotBoxInLine = (lineNumber: number) =>
@@ -87,34 +89,31 @@ export default function HotspotSnippetContainerRenderer(
         />
         <DeferredSpinner className="big-spacer" loading={loading}>
           {sourceLines.length > 0 && (
-            <SourceViewerContext.Provider /* Used by LineOptionsPopup */
-              value={{ branchLike, file: sourceViewerFile }}>
-              <SnippetViewer
-                branchLike={undefined}
-                component={sourceViewerFile}
-                displayLineNumberOptions={false}
-                displaySCM={false}
-                expandBlock={(_i, direction) => props.onExpandBlock(direction)}
-                handleCloseIssues={noop}
-                handleOpenIssues={noop}
-                handleSymbolClick={props.onSymbolClick}
-                highlightedLocationMessage={undefined}
-                highlightedSymbols={highlightedSymbols}
-                index={0}
-                issue={hotspot}
-                issuesByLine={{}}
-                lastSnippetOfLastGroup={false}
-                locations={[]}
-                locationsByLine={locations}
-                onIssueChange={noop}
-                onIssuePopupToggle={noop}
-                onLocationSelect={noop}
-                openIssuesByLine={{}}
-                renderAdditionalChildInLine={renderHotspotBoxInLine}
-                renderDuplicationPopup={noop}
-                snippet={sourceLines}
-              />
-            </SourceViewerContext.Provider>
+            <SnippetViewer
+              branchLike={undefined}
+              component={sourceViewerFile}
+              displayLineNumberOptions={false}
+              displaySCM={false}
+              expandBlock={(_i, direction) => props.onExpandBlock(direction)}
+              handleCloseIssues={noop}
+              handleOpenIssues={noop}
+              handleSymbolClick={props.onSymbolClick}
+              highlightedLocationMessage={undefined}
+              highlightedSymbols={highlightedSymbols}
+              index={0}
+              issue={hotspot}
+              issuesByLine={{}}
+              lastSnippetOfLastGroup={false}
+              locations={secondaryLocations}
+              locationsByLine={primaryLocations}
+              onIssueChange={noop}
+              onIssuePopupToggle={noop}
+              onLocationSelect={noop}
+              openIssuesByLine={{}}
+              renderAdditionalChildInLine={renderHotspotBoxInLine}
+              renderDuplicationPopup={noop}
+              snippet={sourceLines}
+            />
           )}
         </DeferredSpinner>
       </div>

@@ -56,6 +56,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
       onCommentButtonClick={jest.fn()}
       onExpandBlock={jest.fn()}
       onSymbolClick={jest.fn()}
+      secondaryLocations={[]}
       sourceLines={[]}
       sourceViewerFile={mockSourceViewerFile()}
       {...props}

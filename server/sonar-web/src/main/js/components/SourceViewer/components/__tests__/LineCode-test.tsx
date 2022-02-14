@@ -28,6 +28,13 @@ it('render code', () => {
   expect(shallowRender({ additionalChild: <div>additional child</div> })).toMatchSnapshot(
     'with additional child'
   );
+  expect(
+    shallowRender({
+      secondaryIssueLocations: [
+        { index: 1, from: 5, to: 6, line: 16, startLine: 16, text: 'secondary-location-msg' }
+      ]
+    })
+  ).toMatchSnapshot('with secondary location');
 });
 
 function shallowRender(props: Partial<LineCode['props']> = {}) {

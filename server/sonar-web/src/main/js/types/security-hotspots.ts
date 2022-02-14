@@ -18,7 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from './component';
-import { IssueChangelog, IssueChangelogDiff, Paging, TextRange, UserBase } from './types';
+import {
+  FlowLocation,
+  IssueChangelog,
+  IssueChangelogDiff,
+  Paging,
+  TextRange,
+  UserBase
+} from './types';
 
 export enum RiskExposure {
   LOW = 'LOW',
@@ -85,6 +92,7 @@ export interface Hotspot {
   comment: HotspotComment[];
   component: HotspotComponent;
   creationDate: string;
+  flows: { locations: FlowLocation[] }[];
   key: string;
   line?: number;
   message: string;
