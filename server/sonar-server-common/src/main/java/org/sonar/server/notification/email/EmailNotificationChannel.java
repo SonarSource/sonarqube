@@ -91,6 +91,7 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   private static final String SUBJECT_DEFAULT = "Notification";
   private static final String SMTP_HOST_NOT_CONFIGURED_DEBUG_MSG = "SMTP host was not configured - email will not be sent";
+  private static final String MAIL_SENT_FROM = "%sMail sent from: %s";
 
   private final EmailSettings configuration;
   private final EmailTemplate[] templates;
@@ -333,12 +334,16 @@ public class EmailNotificationChannel extends NotificationChannel {
       EmailMessage emailMessage = new EmailMessage();
       emailMessage.setTo(toAddress);
       emailMessage.setSubject(subject);
-      emailMessage.setPlainTextMessage(message);
+      emailMessage.setPlainTextMessage(message + getServerBaseUrlFooter());
       send(emailMessage);
     } catch (EmailException e) {
       LOG.debug("Fail to send test email to {}: {}", toAddress, e);
       throw e;
     }
+  }
+
+  private String getServerBaseUrlFooter() {
+    return String.format(MAIL_SENT_FROM, "\n\n", configuration.getServerBaseURL());
   }
 
 }

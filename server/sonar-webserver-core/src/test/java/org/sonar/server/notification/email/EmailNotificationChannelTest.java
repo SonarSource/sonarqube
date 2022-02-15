@@ -114,7 +114,7 @@ public class EmailNotificationChannelTest {
     assertThat(email.getHeader("From", ",")).isEqualTo("SonarQube from NoWhere <server@nowhere>");
     assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
     assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Test Message from SonarQube");
-    assertThat((String) email.getContent()).startsWith("This is a test message from SonarQube.");
+    assertThat((String) email.getContent()).startsWith("This is a test message from SonarQube.\r\n\r\nMail sent from: http://nemo.sonarsource.org");
   }
 
   @Test
