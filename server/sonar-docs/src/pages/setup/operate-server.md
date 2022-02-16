@@ -73,7 +73,7 @@ WantedBy=multi-user.target
 ```
 **Note**
 * Because the sonar-application jar name ends with the version of SonarQube, you will need to adjust the `ExecStart` command accordingly on install and at each upgrade.
-* The SonarQube data directory, `/opt/sonarqube/data`, and the extensions directory, `/opt/sonarqube/extensions` should be owned by the `sonarqube` user. As a good practice, the rest should be owned by `root`
+* All SonarQube directories should be owned by the `sonarqube` user.
 
 Once your `sonarqube.service` file is created and properly configured, run:
 ```
