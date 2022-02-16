@@ -23,7 +23,7 @@ java \
   -Diris.source.url=https://next.sonarqube.com/sonarqube \
   -Diris.source.token=$NEXT_TOKEN \
   -Diris.destination.projectKey=org.sonarsource.sonarqube:sonarqube \
-  -Diris.destination.url=$SONAR_HOST_URL \
-  -Diris.destination.token=$SONAR_TOKEN \
+  -Diris.destination.url=https://next.sonarqube.com/sonarqube \
+  -Diris.destination.token=$NEXT_TOKEN \
   -Diris.maxcountposts=50 \
   -jar iris-\[RELEASE\]-jar-with-dependencies.jar
