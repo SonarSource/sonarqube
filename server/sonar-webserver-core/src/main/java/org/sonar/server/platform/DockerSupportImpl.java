@@ -33,8 +33,11 @@ public class DockerSupportImpl implements DockerSupport {
 
   @Override
   public boolean isRunningInDocker() {
+    if (paths2.exists("/run/.containerenv")) {
+      return true;
+    }
     try (Stream<String> stream = Files.lines(paths2.get("/proc/1/cgroup"))) {
-      return stream.anyMatch(line -> line.contains("/docker"));
+      return stream.anyMatch(line -> line.contains("/docker") || line.contains("/kubepods") || line.contains("containerd.service") );
     } catch (IOException e) {
       return false;
     }

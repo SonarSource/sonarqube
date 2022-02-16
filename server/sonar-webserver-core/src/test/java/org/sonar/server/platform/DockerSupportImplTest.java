@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 
 public class DockerSupportImplTest {
   private static final String CGROUP_DIR = "/proc/1/cgroup";
+  private static final String PODMAN_FILE_PATH = "/run/.containerenv";
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -96,6 +97,62 @@ public class DockerSupportImplTest {
     when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
 
     assertThat(underTest.isRunningInDocker()).isTrue();
+  }
+
+  @Test
+  public void isInDocker_returns_true_if_cgroup_dir_contains_file_with_kubepods_string() throws IOException {
+    Path cgroupFile = temporaryFolder.newFile().toPath();
+    String content = "11:blkio:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "10:cpuset:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "9:net_cls,net_prio:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "8:pids:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "7:perf_event:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "6:freezer:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "5:hugetlb:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "4:memory:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "3:devices:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "2:cpu,cpuacct:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366" + lineSeparator() +
+      "1:name=systemd:/kubepods/burstable/pod8e9a7fc0-4e11-4497-a424-19b9713eff0e/8953402928cc7fc95c7dc7bdb75b194139fe29e8fa196d7f90924deb29164366";
+    FileUtils.write(cgroupFile.toFile(), content, StandardCharsets.UTF_8);
+    when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
+
+    assertThat(underTest.isRunningInDocker()).isTrue();
+  }
+
+  @Test
+  public void isInDocker_returns_true_if_cgroup_dir_contains_file_with_containerd_string() throws IOException {
+    Path cgroupFile = temporaryFolder.newFile().toPath();
+    String content = "12:blkio:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "11:perf_event:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "10:hugetlb:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "9:pids:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "8:rdma:/" + lineSeparator() +
+      "7:memory:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "6:cpuset:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "5:net_cls,net_prio:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "4:freezer:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "3:cpu,cpuacct:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "2:devices:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "1:name=systemd:/default/846fe494c3021f068c9156ca6eb8a91038389b7e2a2b1ae9b050b33c3a5c9298" + lineSeparator() +
+      "0::/system.slice/containerd.service";
+    FileUtils.write(cgroupFile.toFile(), content, StandardCharsets.UTF_8);
+    when(paths2.get(CGROUP_DIR)).thenReturn(cgroupFile);
+
+    assertThat(underTest.isRunningInDocker()).isTrue();
+  }
+
+  @Test
+  public void isInDocker_returns_true_if_podman_file_exists() throws IOException {
+    when(paths2.exists(PODMAN_FILE_PATH)).thenReturn(true);
+    assertThat(underTest.isRunningInDocker()).isTrue();
+  }
+
+  @Test
+  public void isInDocker_returns_false_if_podman_file_exists() throws IOException {
+    when(paths2.exists(PODMAN_FILE_PATH)).thenReturn(false);
+    Path emptyFile = temporaryFolder.newFile().toPath();
+    when(paths2.get(CGROUP_DIR)).thenReturn(emptyFile);
+    assertThat(underTest.isRunningInDocker()).isFalse();
   }
 
 }

@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static java.nio.file.Path.of;
 
 @RunWith(DataProviderRunner.class)
 public class Paths2ImplTest {
@@ -68,5 +69,12 @@ public class Paths2ImplTest {
       {URI.create("file:///a")},
       {URI.create("file:///b/c")}
     };
+  }
+
+  @Test
+  @UseDataProvider("getStringParameters")
+  public void exists_returns_result_of_Paths_exists(String first, String... others) {
+    assertThat(Paths2Impl.getInstance().exists(first, others))
+      .isEqualTo(of(first, others).toFile().exists());
   }
 }

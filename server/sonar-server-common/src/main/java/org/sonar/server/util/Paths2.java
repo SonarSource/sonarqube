@@ -42,4 +42,6 @@ public interface Paths2 {
    * @see java.nio.file.Paths#get(URI) 
    */
   Path get(URI uri);
+
+  boolean exists(String first, String... more);
 }
