@@ -74,7 +74,8 @@ interface State {
   loading: boolean;
   loadingMeasure: boolean;
   loadingMore: boolean;
-  selectedHotspot: RawHotspot | undefined;
+  selectedHotspot?: RawHotspot;
+  selectedHotspotLocation?: number;
   standards: Standards;
 }
 

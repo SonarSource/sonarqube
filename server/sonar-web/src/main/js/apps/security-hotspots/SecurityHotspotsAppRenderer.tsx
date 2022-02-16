@@ -60,7 +60,8 @@ export interface SecurityHotspotsAppRendererProps {
   onShowAllHotspots: () => void;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
-  selectedHotspot: RawHotspot | undefined;
+  selectedHotspot?: RawHotspot;
+  selectedHotspotLocation?: number;
   securityCategories: StandardSecurityCategories;
   standards: Standards;
 }

@@ -19,16 +19,16 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ConciseIssueLocationsNavigatorLocation from '../ConciseIssueLocationsNavigatorLocation';
+import SingleFileLocationNavigator from '../SingleFileLocationNavigator';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('index 1');
   expect(shallowRender({ index: 1 })).toMatchSnapshot('index 2');
 });
 
-function shallowRender(props: Partial<ConciseIssueLocationsNavigatorLocation['props']> = {}) {
+function shallowRender(props: Partial<SingleFileLocationNavigator['props']> = {}) {
   return shallow(
-    <ConciseIssueLocationsNavigatorLocation
+    <SingleFileLocationNavigator
       index={0}
       message=""
       onClick={jest.fn()}

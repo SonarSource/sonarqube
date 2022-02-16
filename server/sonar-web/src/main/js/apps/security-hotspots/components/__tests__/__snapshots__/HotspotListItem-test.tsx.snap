@@ -7,15 +7,26 @@ exports[`should render correctly 1`] = `
   onClick={[Function]}
 >
   <div
-    className="little-spacer-left"
+    className="little-spacer-left text-bold"
   >
     '3' is a magic number.
   </div>
   <div
-    className="badge spacer-top"
+    className="display-flex-center"
   >
-    hotspots.status_option.TO_REVIEW
+    <QualifierIcon
+      qualifier="FIL"
+    />
+    <div
+      className="little-spacer-left hotspot-box-filename text-ellipsis big-spacer-top big-spacer-bottom"
+      title="com.github.kevinsawicki.http.HttpRequest"
+    >
+      com.github.kevinsawicki.http.HttpRequest
+    </div>
   </div>
+  <div
+    className="spacer-top"
+  />
 </a>
 `;
 
@@ -26,14 +37,33 @@ exports[`should render correctly 2`] = `
   onClick={[Function]}
 >
   <div
-    className="little-spacer-left"
+    className="little-spacer-left text-bold"
   >
     '3' is a magic number.
   </div>
   <div
-    className="badge spacer-top"
+    className="display-flex-center"
   >
-    hotspots.status_option.TO_REVIEW
+    <QualifierIcon
+      qualifier="FIL"
+    />
+    <div
+      className="little-spacer-left hotspot-box-filename text-ellipsis big-spacer-top big-spacer-bottom"
+      title="com.github.kevinsawicki.http.HttpRequest"
+    >
+      com.github.kevinsawicki.http.HttpRequest
+    </div>
+  </div>
+  <div
+    className="spacer-top"
+  >
+    <LocationsList
+      isCrossFile={false}
+      locations={Array []}
+      onLocationSelect={[Function]}
+      scroll={[Function]}
+      uniqueKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+    />
   </div>
 </a>
 `;

@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { uniq } from 'lodash';
 import * as React from 'react';
+import LocationsList from '../../../components/locations/LocationsList';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { Issue } from '../../../types/types';
+import { getLocations } from '../utils';
 import ConciseIssueLocations from './ConciseIssueLocations';
-import ConciseIssueLocationsNavigator from './ConciseIssueLocationsNavigator';
 
 interface Props {
   issue: Issue;
@@ -75,7 +77,7 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
   };
 
   render() {
-    const { issue, selected } = this.props;
+    const { issue, selected, selectedFlowIndex, selectedLocationIndex } = this.props;
 
     const clickAttributesMain = selected
       ? {}
@@ -84,6 +86,11 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
     const clickAttributesTitle = selected
       ? { onClick: this.handleClick, role: 'listitem', tabIndex: 0 }
       : {};
+
+    const locations = getLocations(issue, selectedFlowIndex);
+
+    const locationComponents = [issue.component, ...locations.map(location => location.component)];
+    const isCrossFile = uniq(locationComponents).length > 1;
 
     return (
       <div
@@ -101,16 +108,18 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
           <ConciseIssueLocations
             issue={issue}
             onFlowSelect={this.props.onFlowSelect}
-            selectedFlowIndex={this.props.selectedFlowIndex}
+            selectedFlowIndex={selectedFlowIndex}
           />
         </div>
         {selected && (
-          <ConciseIssueLocationsNavigator
-            issue={issue}
+          <LocationsList
+            locations={locations}
+            uniqueKey={issue.key}
+            isCrossFile={isCrossFile}
             onLocationSelect={this.props.onLocationSelect}
             scroll={this.props.scroll}
-            selectedFlowIndex={this.props.selectedFlowIndex}
-            selectedLocationIndex={this.props.selectedLocationIndex}
+            selectedFlowIndex={selectedFlowIndex}
+            selectedLocationIndex={selectedLocationIndex}
           />
         )}
       </div>

@@ -24,12 +24,14 @@ import {
   HotspotStatus,
   HotspotStatusFilter,
   HotspotStatusOption,
+  RawHotspot,
   ReviewHistoryType,
   RiskExposure
 } from '../../../types/security-hotspots';
-import { IssueChangelog } from '../../../types/types';
+import { FlowLocation, IssueChangelog } from '../../../types/types';
 import {
   getHotspotReviewHistory,
+  getLocations,
   getStatusAndResolutionFromStatusOption,
   getStatusFilterFromStatusOption,
   getStatusOptionFromStatusAndResolution,
@@ -275,5 +277,45 @@ describe('getStatusFilterFromStatusOption', () => {
     expect(getStatusFilterFromStatusOption(HotspotStatusOption.FIXED)).toEqual(
       HotspotStatusFilter.FIXED
     );
+  });
+});
+
+describe('getLocations', () => {
+  it('should return the correct value', () => {
+    const location1: FlowLocation = {
+      component: 'foo',
+      msg: 'Do not use foo',
+      textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 }
+    };
+
+    const location2: FlowLocation = {
+      component: 'foo2',
+      msg: 'Do not use foo2',
+      textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 8 }
+    };
+
+    let rawFlows: RawHotspot['flows'] = [
+      {
+        locations: [location1]
+      }
+    ];
+    expect(getLocations(rawFlows, undefined)).toEqual([location1]);
+
+    rawFlows = [
+      {
+        locations: [location1, location2]
+      }
+    ];
+    expect(getLocations(rawFlows, undefined)).toEqual([location2, location1]);
+
+    rawFlows = [
+      {
+        locations: [location1, location2]
+      },
+      {
+        locations: []
+      }
+    ];
+    expect(getLocations(rawFlows, 0)).toEqual([location2, location1]);
   });
 });

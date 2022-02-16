@@ -5,7 +5,7 @@ exports[`should render correctly: index 1 1`] = `
   className="little-spacer-top"
 >
   <a
-    className="concise-issue-locations-navigator-location"
+    className="locations-navigator"
     href="#"
     onClick={[Function]}
   >
@@ -26,7 +26,7 @@ exports[`should render correctly: index 2 1`] = `
   className="little-spacer-top"
 >
   <a
-    className="concise-issue-locations-navigator-location"
+    className="locations-navigator"
     href="#"
     onClick={[Function]}
   >

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { groupBy, sortBy } from 'lodash';
+import { flatten, groupBy, sortBy } from 'lodash';
 import {
   renderCWECategory,
   renderOwaspTop10Category,
@@ -36,7 +36,12 @@ import {
   ReviewHistoryType,
   RiskExposure
 } from '../../types/security-hotspots';
-import { Dict, SourceViewerFile, StandardSecurityCategories } from '../../types/types';
+import {
+  Dict,
+  FlowLocation,
+  SourceViewerFile,
+  StandardSecurityCategories
+} from '../../types/types';
 
 export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
 export const SECURITY_STANDARDS = [
@@ -189,4 +194,47 @@ const STATUS_OPTION_TO_STATUS_FILTER = {
 
 export function getStatusFilterFromStatusOption(statusOption: HotspotStatusOption) {
   return STATUS_OPTION_TO_STATUS_FILTER[statusOption];
+}
+
+function getSecondaryLocations(flows: RawHotspot['flows']) {
+  const parsedFlows: FlowLocation[][] = (flows || [])
+    .filter(flow => flow.locations !== undefined)
+    .map(flow => flow.locations!.filter(location => location.textRange != null))
+    .map(flow =>
+      flow.map(location => {
+        return { ...location };
+      })
+    );
+
+  const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
+
+  return onlySecondaryLocations
+    ? { secondaryLocations: orderLocations(flatten(parsedFlows)), flows: [] }
+    : { secondaryLocations: [], flows: parsedFlows.map(reverseLocations) };
+}
+
+export function getLocations(rawFlows: RawHotspot['flows'], selectedFlowIndex: number | undefined) {
+  const { flows, secondaryLocations } = getSecondaryLocations(rawFlows);
+  if (selectedFlowIndex !== undefined) {
+    return flows[selectedFlowIndex] || [];
+  }
+  return flows.length > 0 ? flows[0] : secondaryLocations;
+}
+
+function orderLocations(locations: FlowLocation[]) {
+  return sortBy(
+    locations,
+    location => location.textRange && location.textRange.startLine,
+    location => location.textRange && location.textRange.startOffset
+  );
+}
+
+function reverseLocations(locations: FlowLocation[]): FlowLocation[] {
+  const x = [...locations];
+  x.reverse();
+  return x;
+}
+
+export function getFilePath(component: string, project: string) {
+  return component.replace(project, '').replace(':', '');
 }

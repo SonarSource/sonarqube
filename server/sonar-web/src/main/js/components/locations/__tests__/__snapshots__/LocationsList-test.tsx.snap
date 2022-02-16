@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render flow locations in different file 1`] = `
+<CrossFileLocationNavigator
+  locations={
+    Array [
+      Object {
+        "component": "foo",
+        "componentName": "src/foo.js",
+        "msg": "Do not use foo",
+        "textRange": Object {
+          "endLine": 7,
+          "endOffset": 8,
+          "startLine": 7,
+          "startOffset": 5,
+        },
+      },
+      Object {
+        "component": "bar",
+        "componentName": "src/bar.js",
+        "msg": "Do not use bar",
+        "textRange": Object {
+          "endLine": 16,
+          "endOffset": 6,
+          "startLine": 15,
+          "startOffset": 4,
+        },
+      },
+    ]
+  }
+  onLocationSelect={[MockFunction]}
+  scroll={[MockFunction]}
+  uniqueKey=""
+/>
+`;
+
+exports[`should render locations in the same file 1`] = `
+<div
+  className="spacer-top"
+>
+  <SingleFileLocationNavigator
+    index={0}
+    key="0"
+    message="Do not use foo"
+    onClick={[MockFunction]}
+    scroll={[MockFunction]}
+    selected={false}
+  />
+  <SingleFileLocationNavigator
+    index={1}
+    key="1"
+    message="Do not use foo"
+    onClick={[MockFunction]}
+    scroll={[MockFunction]}
+    selected={false}
+  />
+</div>
+`;

@@ -96,3 +96,7 @@
 .hotspot-risk-badge.LOW {
   background-color: var(--yellow);
 }
+
+.hotspot-box-filename {
+  direction: rtl;
+}

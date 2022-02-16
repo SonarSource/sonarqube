@@ -70,6 +70,9 @@ export interface RawHotspot {
   subProject?: string;
   updateDate: string;
   vulnerabilityProbability: RiskExposure;
+  flows?: Array<{
+    locations?: Array<Omit<FlowLocation, 'componentName'>>;
+  }>;
 }
 
 export interface Hotspot {

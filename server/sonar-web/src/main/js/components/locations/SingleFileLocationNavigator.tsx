@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import LocationIndex from '../../../components/common/LocationIndex';
-import LocationMessage from '../../../components/common/LocationMessage';
+import LocationIndex from '../common/LocationIndex';
+import LocationMessage from '../common/LocationMessage';
+import './SingleFileLocationNavigator.css';
 
 interface Props {
   index: number;
@@ -29,7 +30,7 @@ interface Props {
   selected: boolean;
 }
 
-export default class ConciseIssueLocationsNavigatorLocation extends React.PureComponent<Props> {
+export default class SingleFileLocationNavigator extends React.PureComponent<Props> {
   node?: HTMLElement | null;
 
   componentDidMount() {
@@ -54,10 +55,7 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
 
     return (
       <div className="little-spacer-top" ref={node => (this.node = node)}>
-        <a
-          className="concise-issue-locations-navigator-location"
-          href="#"
-          onClick={this.handleClick}>
+        <a className="locations-navigator" href="#" onClick={this.handleClick}>
           <LocationIndex selected={selected}>{index + 1}</LocationIndex>
           <LocationMessage selected={selected}>{message}</LocationMessage>
         </a>

@@ -39,6 +39,7 @@ interface Props {
   onLoadMore: () => void;
   securityCategories: StandardSecurityCategories;
   selectedHotspot: RawHotspot;
+  selectedHotspotLocation?: number;
   statusFilter: HotspotStatusFilter;
 }
 

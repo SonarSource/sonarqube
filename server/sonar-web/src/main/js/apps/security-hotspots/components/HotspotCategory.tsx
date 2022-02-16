@@ -31,6 +31,7 @@ export interface HotspotCategoryProps {
   onHotspotClick: (hotspot: RawHotspot) => void;
   onToggleExpand?: (categoryKey: string, value: boolean) => void;
   selectedHotspot: RawHotspot;
+  selectedHotspotLocation?: number;
   title: string;
   isLastAndIncomplete: boolean;
 }

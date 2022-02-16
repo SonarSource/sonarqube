@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { collapsePath } from '../../../helpers/path';
-import { FlowLocation, Issue } from '../../../types/types';
-import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
+import { translateWithParameters } from '../../helpers/l10n';
+import { collapsePath } from '../../helpers/path';
+import SingleFileLocationNavigator from './SingleFileLocationNavigator';
+import './CrossFileLocationNavigator.css';
+import { FlowLocation } from '../../types/types';
 
 interface Props {
-  issue: Pick<Issue, 'key' | 'type'>;
+  uniqueKey: string;
   locations: FlowLocation[];
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
@@ -44,11 +45,11 @@ interface LocationGroup {
 
 const MAX_PATH_LENGTH = 15;
 
-export default class CrossFileLocationsNavigator extends React.PureComponent<Props, State> {
+export default class CrossFileLocationNavigator extends React.PureComponent<Props, State> {
   state: State = { collapsed: true };
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.issue.key !== this.props.issue.key) {
+    if (nextProps.uniqueKey !== this.props.uniqueKey) {
       this.setState({ collapsed: true });
     }
 
@@ -112,7 +113,7 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
 
   renderLocation = (index: number, message: string | undefined) => {
     return (
-      <ConciseIssueLocationsNavigatorLocation
+      <SingleFileLocationNavigator
         index={index}
         key={index}
         message={message}
@@ -131,13 +132,13 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
     const { firstLocationIndex } = group;
     const lastLocationIndex = group.locations.length - 1;
     return (
-      <div className="concise-issue-locations-navigator-file" key={groupIndex}>
-        <div className="concise-issue-location-file">
-          <i className="concise-issue-location-file-circle little-spacer-right" />
+      <div className="locations-navigator-file" key={groupIndex}>
+        <div className="location-file">
+          <i className="location-file-circle little-spacer-right" />
           {collapsePath(group.componentName || '', MAX_PATH_LENGTH)}
         </div>
         {group.locations.length > 0 && (
-          <div className="concise-issue-location-file-locations">
+          <div className="location-file-locations">
             {onlyFirst && this.renderLocation(firstLocationIndex, group.locations[0].msg)}
 
             {onlyLast &&
@@ -160,33 +161,33 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
   render() {
     const { locations } = this.props;
     const groups = this.groupByFile(locations);
+    const MIN_LOCATION_LENGTH = 2;
 
-    if (locations.length > 2 && groups.length > 1 && this.state.collapsed) {
+    if (locations.length > MIN_LOCATION_LENGTH && groups.length > 1 && this.state.collapsed) {
       const firstGroup = groups[0];
       const lastGroup = groups[groups.length - 1];
       return (
-        <div className="concise-issue-locations-navigator spacer-top">
+        <div className="spacer-top">
           {this.renderGroup(firstGroup, 0, { onlyFirst: true })}
-          <div className="concise-issue-locations-navigator-file">
-            <div className="concise-issue-location-file">
-              <i className="concise-issue-location-file-circle-multiple little-spacer-right" />
-              <a
-                className="concise-issue-location-file-more"
-                href="#"
-                onClick={this.handleMoreLocationsClick}>
-                {translateWithParameters('issues.x_more_locations', locations.length - 2)}
+          <div className="locations-navigator-file">
+            <div className="location-file">
+              <i className="location-file-circle-multiple little-spacer-right" />
+              <a className="location-file-more" href="#" onClick={this.handleMoreLocationsClick}>
+                {translateWithParameters(
+                  'issues.x_more_locations',
+                  locations.length - MIN_LOCATION_LENGTH
+                )}
               </a>
             </div>
           </div>
           {this.renderGroup(lastGroup, groups.length - 1, { onlyLast: true })}
         </div>
       );
-    } else {
-      return (
-        <div className="concise-issue-locations-navigator spacer-top">
-          {groups.map((group, groupIndex) => this.renderGroup(group, groupIndex))}
-        </div>
-      );
     }
+    return (
+      <div className="spacer-top">
+        {groups.map((group, groupIndex) => this.renderGroup(group, groupIndex))}
+      </div>
+    );
   }
 }
