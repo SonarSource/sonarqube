@@ -20,6 +20,7 @@
 package org.sonar.server.pushapi;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
@@ -67,6 +67,22 @@ public class ServerPushClientTest {
 
     verify(executorService, Mockito.times(1))
       .schedule(any(HeartbeatTask.class), anyLong(), any());
+  }
+
+  @Test
+  public void writeAndFlush_payloadAlwaysEndsWithSlashNSlashN() throws IOException {
+    underTest.writeAndFlush("payload");
+
+    verify(outputStream, Mockito.times(1)).flush();
+    verify(outputStream, Mockito.times(1)).write("payload\n\n".getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void writeAndFlush_payloadAlwaysEndsWithASingleSlashNSlashN_whenMessageAlreadyContainsIt() throws IOException {
+    underTest.writeAndFlush("payload\n\n");
+
+    verify(outputStream, Mockito.times(1)).flush();
+    verify(outputStream, Mockito.times(1)).write("payload\n\n".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test

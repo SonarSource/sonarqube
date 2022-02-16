@@ -52,8 +52,13 @@ public abstract class ServerPushClient {
   }
 
   public void writeAndFlush(String payload) throws IOException {
+    payload = ensureCorrectMessageEnding(payload);
     output().write(payload.getBytes(StandardCharsets.UTF_8));
     flush();
+  }
+
+  private static String ensureCorrectMessageEnding(String payload) {
+    return payload.endsWith("\n\n") ? payload : (payload + "\n\n");
   }
 
   public void writeAndFlush(char character) {

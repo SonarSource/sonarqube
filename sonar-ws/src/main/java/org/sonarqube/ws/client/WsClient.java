@@ -55,6 +55,7 @@ import org.sonarqube.ws.client.projectpullrequests.ProjectPullRequestsService;
 import org.sonarqube.ws.client.projects.ProjectsService;
 import org.sonarqube.ws.client.projecttags.ProjectTagsService;
 import org.sonarqube.ws.client.properties.PropertiesService;
+import org.sonarqube.ws.client.push.SonarLintServerPushService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
 import org.sonarqube.ws.client.roots.RootsService;
@@ -205,4 +206,6 @@ public interface WsClient {
   SecurityReportsService securityReports();
 
   MonitoringService monitoring();
+
+  SonarLintServerPushService sonarLintPush();
 }

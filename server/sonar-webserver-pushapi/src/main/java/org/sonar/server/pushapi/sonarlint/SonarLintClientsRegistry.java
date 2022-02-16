@@ -49,13 +49,12 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
   private final RuleActivatorEventsDistributor ruleActivatorEventsDistributor;
   private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
+  private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
 
   public SonarLintClientsRegistry(RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
     this.ruleActivatorEventsDistributor = ruleActivatorEventsDistributor;
     this.sonarLintClientPermissionsValidator = permissionsValidator;
   }
-
-  private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
 
   public void registerClient(SonarLintClient sonarLintClient) {
     clients.add(sonarLintClient);
