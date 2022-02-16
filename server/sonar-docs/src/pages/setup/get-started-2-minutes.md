@@ -12,11 +12,13 @@ You can evaluate SonarQube using a traditional installation with the [zip file](
 [[collapse]]
 | ## From the zip file
 |
-| 1. [Download](https://www.sonarqube.org/downloads/) the SonarQube Community Edition zip file.
+| 1. [Download](https://adoptium.net/releases.html?variant=openjdk11&jvmVariant=hotspot) and install Java 11 on your system.
 |
-| 2. As a **non-`root` user**, unzip it, let's say in _C:\sonarqube_ or _/opt/sonarqube_.
+| 2. [Download](https://www.sonarqube.org/downloads/) the SonarQube Community Edition zip file.
 |
-| 3. As a **non-`root` user**, start the SonarQube Server:
+| 3. As a **non-`root` user**, unzip it, let's say in _C:\sonarqube_ or _/opt/sonarqube_.
+|
+| 4. As a **non-`root` user**, start the SonarQube Server:
 |
 |    ```
 |    # On Windows, execute:
