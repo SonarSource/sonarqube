@@ -39,6 +39,7 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -64,8 +65,8 @@ public class SonarLintClientsRegistryTest {
   }
 
   @Test
-  public void registerClientAndUnregister_changesNumberOfClients() {
-    SonarLintClient sonarLintClient = new SonarLintClient(defaultAsyncContext, exampleKeys, languageKeys, USER_UUID);
+  public void registerClientAndUnregister_changesNumberOfClients_andClosesClient() {
+    SonarLintClient sonarLintClient = mock(SonarLintClient.class);
 
     underTest.registerClient(sonarLintClient);
 
@@ -74,6 +75,7 @@ public class SonarLintClientsRegistryTest {
     underTest.unregisterClient(sonarLintClient);
 
     assertThat(underTest.countConnectedClients()).isZero();
+    verify(sonarLintClient).close();
   }
 
   @Test
@@ -168,6 +170,27 @@ public class SonarLintClientsRegistryTest {
     verify(sonarLintClient).close();
   }
 
+  @Test
+  public void listen_givenUnregisteredClient_closeConnection() throws IOException {
+    RuleChange javaRuleChange = createRuleChange();
+    RuleChange[] activatedRules = {};
+    RuleChange[] deactivatedRules = {javaRuleChange};
+    RuleSetChangeEvent ruleChangeEvent = new RuleSetChangeEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+
+    SonarLintClient sonarLintClient = createSampleSLClient();
+    underTest.registerClient(sonarLintClient);
+    doThrow(new IOException("Broken pipe")).when(sonarLintClient).writeAndFlush(anyString());
+
+    underTest.listen(ruleChangeEvent);
+
+    underTest.registerClient(sonarLintClient);
+    doThrow(new IllegalStateException("Things went wrong")).when(sonarLintClient).writeAndFlush(anyString());
+
+    underTest.listen(ruleChangeEvent);
+
+    verify(sonarLintClient, times(2)).close();
+  }
+
   private SonarLintClient createSampleSLClient() {
     SonarLintClient mock = mock(SonarLintClient.class);
     when(mock.getLanguages()).thenReturn(Set.of("java"));
@@ -185,5 +208,4 @@ public class SonarLintClientsRegistryTest {
     javaRule.setKey("rule-key");
     return javaRule;
   }
-
 }

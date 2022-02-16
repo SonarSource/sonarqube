@@ -85,7 +85,7 @@ public abstract class ServerPushClient {
   private void handleIOException(IOException e) {
     String remoteAddr = asyncContext.getRequest().getRemoteAddr();
     LOG.info(String.format("The server push client %s gone without notice, closing the connection (%s)", remoteAddr, e.getMessage()));
-    close();
+    throw new IllegalStateException(e.getMessage());
   }
 
   public synchronized void close() {

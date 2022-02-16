@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
@@ -123,20 +124,18 @@ public class ServerPushClientTest {
     when(executorService.schedule(any(HeartbeatTask.class), anyLong(), any(TimeUnit.class))).thenReturn(task);
     underTest.scheduleHeartbeat();
 
-    underTest.write('a');
-
-    verify(asyncContext).complete();
+    assertThatThrownBy(() -> underTest.write('a'))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void flush_exceptionCausesConnectionToClose() throws IOException {
+  public void flush_exceptionIsPropagated() throws IOException {
     when(servletResponse.getOutputStream()).thenThrow(new IOException("mock exception"));
     when(executorService.schedule(any(HeartbeatTask.class), anyLong(), any(TimeUnit.class))).thenReturn(task);
     underTest.scheduleHeartbeat();
 
-    underTest.flush();
-
-    verify(asyncContext).complete();
+    assertThatThrownBy(underTest::flush)
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

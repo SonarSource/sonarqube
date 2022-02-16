@@ -37,8 +37,8 @@ import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleActivationListener;
 import org.sonar.core.util.RuleChange;
 import org.sonar.core.util.RuleSetChangeEvent;
-import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
 
 import static java.util.Arrays.asList;
 
@@ -47,21 +47,19 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
   private static final Logger LOG = Loggers.get(SonarLintClientsRegistry.class);
 
-  private final RuleActivatorEventsDistributor ruleActivatorEventsDistributor;
   private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
   private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
 
   public SonarLintClientsRegistry(RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
-    this.ruleActivatorEventsDistributor = ruleActivatorEventsDistributor;
     this.sonarLintClientPermissionsValidator = permissionsValidator;
+
+    ruleActivatorEventsDistributor.subscribe(this);
   }
 
   public void registerClient(SonarLintClient sonarLintClient) {
     clients.add(sonarLintClient);
     sonarLintClient.scheduleHeartbeat();
     sonarLintClient.addListener(new SonarLintClientEventsListener(sonarLintClient));
-    ruleActivatorEventsDistributor.subscribe(this);
-
     LOG.debug("Registering new SonarLint client");
   }
 
@@ -77,7 +75,6 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
   @Override
   public void listen(RuleSetChangeEvent ruleChangeEvent) {
-    LOG.info("Generating a RuleSetChangeEvent");
     broadcastMessage(ruleChangeEvent, getFilterForEvent(ruleChangeEvent));
   }
 
@@ -101,9 +98,11 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
         String jsonString = getJSONString(personalizedEvent);
         c.writeAndFlush(jsonString);
       } catch (ForbiddenException forbiddenException) {
+        LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
         unregisterClient(c);
-      } catch (IOException e) {
+      } catch (IllegalStateException | IOException e) {
         LOG.error("Unable to send message to a client: " + e.getMessage());
+        unregisterClient(c);
       }
     });
   }
