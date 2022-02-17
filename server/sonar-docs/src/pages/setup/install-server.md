@@ -297,3 +297,35 @@ echo "networkaddress.cache.ttl=5" >> "${JAVA_HOME}/conf/security/java.security"
 ```
 
 Please be aware that low values increases the risk of DNS spoofing attacks.
+
+### Self Signed Certificates of DevOps platforms
+
+When running in an environment where the DevOps platform or other related tooling is secured by self signed certificates, the CA needs to be added to the java truststore of SonarQube.
+
+On a zip installation the systems truststore can be found in `$JAVA_HOME/lib/security/cacerts`. In order to add a new certificate to the truststore you can use the following command as an example:
+
+```bash
+keytool -importcert -file $PATH_TO_CERTIFICATE -alias $CERTIFICATE_NAME -keystore /$JAVA_HOME/lib/security/cacerts -storepass changeit -trustcacerts -noprompt
+```
+
+In our official Docker images you can find the systems truststore in `$JAVA_HOME/lib/security/cacerts`. In order to add new certificates here as well you can:
+
+* bind mount an existing truststore containing your certificates to `$JAVA_HOME/lib/security/cacerts`
+
+[[collapse]]
+| example: 
+| 
+| ```bash
+| docker run -d --name sonarqube -v /path/to/your/cacerts.truststore:/usr/lib/jvm/java-11-openjdk/lib/security/cacerts:ro -p 9000:9000 sonarqube 
+| ```
+
+* import your CA certificate the same way as in the zip installation but inside the container.
+
+If you deploy SonarQube on Kubernetes using the official Helm Chart, you can create a new secret containing your required certificates and reference this via:
+
+```yaml
+caCerts:
+  enabled: true
+  image: adoptopenjdk/openjdk11:alpine
+  secret: your-secret
+```
