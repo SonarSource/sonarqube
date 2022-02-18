@@ -40,12 +40,12 @@ git fetch --unshallow
 if [[ -n "${NEXT_TOKEN-}" ]]; then
   if [[ "${TRAVIS_BRANCH}" == "master" ]]; then 
     ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
-      -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+      -Dsonar.projectKey=sonarqube \
       -Dsonar.host.url=https://next.sonarqube.com/sonarqube \
       -Dsonar.login="$NEXT_TOKEN"
   else
     ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
-      -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
+      -Dsonar.projectKey=sonarqube \
       -Dsonar.host.url=https://next.sonarqube.com/sonarqube \
       -Dsonar.login="$NEXT_TOKEN" \
       -Dsonar.branch.name="$TRAVIS_BRANCH"

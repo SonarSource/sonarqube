@@ -22,7 +22,7 @@ java \
   -Diris.source.projectKey=org.sonarsource.sonarqube:sonarqube-private \
   -Diris.source.url=https://next.sonarqube.com/sonarqube \
   -Diris.source.token=$NEXT_TOKEN \
-  -Diris.destination.projectKey=org.sonarsource.sonarqube:sonarqube \
+  -Diris.destination.projectKey=sonarqube \
   -Diris.destination.url=https://next.sonarqube.com/sonarqube \
   -Diris.destination.token=$NEXT_TOKEN \
   -Diris.maxcountposts=50 \
