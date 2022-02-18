@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BoxedTabs from '../../../../components/controls/BoxedTabs';
+import BoxedTabs, { BoxedTabsProps } from '../../../../components/controls/BoxedTabs';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../../helpers/testMocks';
 import HotspotViewerTabs, { TabKeys } from '../HotspotViewerTabs';
@@ -28,7 +28,7 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('risk');
 
-  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
+  const onSelect: (tab: TabKeys) => void = wrapper.find(BoxedTabs).prop('onSelect');
 
   onSelect(TabKeys.VulnerabilityDescription);
   expect(wrapper).toMatchSnapshot('vulnerability');
@@ -46,8 +46,10 @@ it('should render correctly', () => {
           vulnerabilityDescription: undefined
         })
       })
-    }).type()
-  ).toBeNull();
+    })
+      .find<BoxedTabsProps<string>>(BoxedTabs)
+      .props().tabs
+  ).toHaveLength(1);
 
   expect(
     shallowRender({
@@ -86,14 +88,20 @@ it('should filter empty tab', () => {
 
 it('should select first tab on hotspot update', () => {
   const wrapper = shallowRender();
-  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
+  const onSelect: (tab: TabKeys) => void = wrapper.find(BoxedTabs).prop('onSelect');
 
   onSelect(TabKeys.VulnerabilityDescription);
   expect(wrapper.state().currentTab.key).toBe(TabKeys.VulnerabilityDescription);
   wrapper.setProps({ hotspot: mockHotspot({ key: 'new_key' }) });
-  expect(wrapper.state().currentTab.key).toBe(TabKeys.RiskDescription);
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.Code);
 });
 
 function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {
-  return shallow<HotspotViewerTabs>(<HotspotViewerTabs hotspot={mockHotspot()} {...props} />);
+  return shallow<HotspotViewerTabs>(
+    <HotspotViewerTabs
+      codeTabContent={<div>CodeTabContent</div>}
+      hotspot={mockHotspot()}
+      {...props}
+    />
+  );
 }

@@ -126,7 +126,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <div
-    className="bordered big-spacer-bottom"
+    className="bordered"
   >
     <DeferredSpinner
       className="big-spacer"
@@ -257,7 +257,7 @@ exports[`should render correctly: with sourcelines 1`] = `
     }
   />
   <div
-    className="bordered big-spacer-bottom"
+    className="bordered"
   >
     <DeferredSpinner
       className="big-spacer"

@@ -79,7 +79,7 @@ export default function HotspotSnippetContainerRenderer(
         <p className="spacer-bottom">{translate('hotspots.no_associated_lines')}</p>
       )}
       <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-      <div className="bordered big-spacer-bottom">
+      <div className="bordered">
         <DeferredSpinner className="big-spacer" loading={loading}>
           {sourceLines.length > 0 && (
             <SnippetViewer

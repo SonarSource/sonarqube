@@ -71,13 +71,17 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
       {hotspot && (
         <div className="big-padded hotspot-content">
           <HotspotHeader hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
-          <HotspotSnippetContainer
-            branchLike={fillBranchLike(hotspot.project.branch, hotspot.project.pullRequest)}
-            component={component}
+          <HotspotViewerTabs
+            codeTabContent={
+              <HotspotSnippetContainer
+                branchLike={fillBranchLike(hotspot.project.branch, hotspot.project.pullRequest)}
+                component={component}
+                hotspot={hotspot}
+                onCommentButtonClick={props.onShowCommentForm}
+              />
+            }
             hotspot={hotspot}
-            onCommentButtonClick={props.onShowCommentForm}
           />
-          <HotspotViewerTabs hotspot={hotspot} />
           <HotspotReviewHistoryAndComments
             commentTextRef={commentTextRef}
             currentUser={currentUser}

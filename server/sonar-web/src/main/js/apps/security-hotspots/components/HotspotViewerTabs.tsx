@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
-import Tab from '../../../components/controls/Tabs';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { Hotspot } from '../../../types/security-hotspots';
 
 interface Props {
+  codeTabContent: React.ReactNode;
   hotspot: Hotspot;
 }
 
@@ -40,6 +40,7 @@ interface Tab {
 }
 
 export enum TabKeys {
+  Code = 'code',
   RiskDescription = 'risk',
   VulnerabilityDescription = 'vulnerability',
   FixRecommendation = 'fix'
@@ -73,7 +74,8 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
   computeTabs() {
     const { hotspot } = this.props;
-    return [
+
+    const descriptionTabs = [
       {
         key: TabKeys.RiskDescription,
         label: translate('hotspots.tabs.risk_description'),
@@ -89,24 +91,35 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         label: translate('hotspots.tabs.fix_recommendations'),
         content: hotspot.rule.fixRecommendations || ''
       }
-    ].filter(tab => Boolean(tab.content));
+    ].filter(tab => tab.content.length > 0);
+
+    return [
+      {
+        key: TabKeys.Code,
+        label: translate('hotspots.tabs.code'),
+        content: ''
+      },
+      ...descriptionTabs
+    ];
   }
 
   render() {
+    const { codeTabContent } = this.props;
     const { tabs, currentTab } = this.state;
-    if (tabs.length === 0) {
-      return null;
-    }
 
     return (
       <>
         <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
         <div className="bordered huge-spacer-bottom">
-          <div
-            className="markdown big-padded"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(currentTab.content) }}
-          />
+          {currentTab.key === TabKeys.Code ? (
+            <div className="padded">{codeTabContent}</div>
+          ) : (
+            <div
+              className="markdown big-padded"
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: sanitizeString(currentTab.content) }}
+            />
+          )}
         </div>
       </>
     );

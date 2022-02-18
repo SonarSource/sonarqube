@@ -8,6 +8,11 @@ exports[`should render correctly: fix 1`] = `
     tabs={
       Array [
         Object {
+          "content": "",
+          "key": "code",
+          "label": "hotspots.tabs.code",
+        },
+        Object {
           "content": "<p>This a <strong>strong</strong> message about risk !</p>",
           "key": "risk",
           "label": "hotspots.tabs.risk_description",
@@ -44,9 +49,14 @@ exports[`should render correctly: risk 1`] = `
 <Fragment>
   <BoxedTabs
     onSelect={[Function]}
-    selected="risk"
+    selected="code"
     tabs={
       Array [
+        Object {
+          "content": "",
+          "key": "code",
+          "label": "hotspots.tabs.code",
+        },
         Object {
           "content": "<p>This a <strong>strong</strong> message about risk !</p>",
           "key": "risk",
@@ -69,13 +79,12 @@ exports[`should render correctly: risk 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <div
-      className="markdown big-padded"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
-        }
-      }
-    />
+      className="padded"
+    >
+      <div>
+        CodeTabContent
+      </div>
+    </div>
   </div>
 </Fragment>
 `;
@@ -87,6 +96,11 @@ exports[`should render correctly: vulnerability 1`] = `
     selected="vulnerability"
     tabs={
       Array [
+        Object {
+          "content": "",
+          "key": "code",
+          "label": "hotspots.tabs.code",
+        },
         Object {
           "content": "<p>This a <strong>strong</strong> message about risk !</p>",
           "key": "risk",
@@ -124,9 +138,14 @@ exports[`should render correctly: with comments or changelog element 1`] = `
 <Fragment>
   <BoxedTabs
     onSelect={[Function]}
-    selected="risk"
+    selected="code"
     tabs={
       Array [
+        Object {
+          "content": "",
+          "key": "code",
+          "label": "hotspots.tabs.code",
+        },
         Object {
           "content": "<p>This a <strong>strong</strong> message about risk !</p>",
           "key": "risk",
@@ -149,13 +168,12 @@ exports[`should render correctly: with comments or changelog element 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <div
-      className="markdown big-padded"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
-        }
-      }
-    />
+      className="padded"
+    >
+      <div>
+        CodeTabContent
+      </div>
+    </div>
   </div>
 </Fragment>
 `;
