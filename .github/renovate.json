@@ -10,7 +10,6 @@
   "separateMajorMinor": false,
   "ignoreDeps": [
     "io.spring.dependency-management",
-    "org.owasp.dependencycheck",
     "com.jfrog.artifactory",
     "org.ajoberstar.grgit",
     "com.github.ben-manes.versions",
