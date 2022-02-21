@@ -22,6 +22,10 @@ import * as React from 'react';
 import { EditionKey } from '../../../types/editions';
 import EditionBoxes from '../EditionBoxes';
 
+jest.mock('../../../api/nav', () => ({
+  getMarketplaceNavigation: jest.fn().mockResolvedValue({})
+}));
+
 it('should display the available edition boxes correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });

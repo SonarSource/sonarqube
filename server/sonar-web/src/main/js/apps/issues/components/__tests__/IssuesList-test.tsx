@@ -23,9 +23,16 @@ import { mockIssue } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import IssuesList from '../IssuesList';
 
-it('should render correctly', async () => {
+beforeAll(() => {
   jest.useFakeTimers();
+});
 
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
+
+it('should render correctly', async () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   jest.runAllTimers();

@@ -144,6 +144,8 @@ it('should correctly scroll to a specific heading if passed as a prop', () => {
   jest.runAllTimers();
 
   expect(scrollToElement).toBeCalledWith(element, { bottomOffset: 720 });
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 function shallowRender(props: Partial<DocMarkdownBlock['props']> = {}) {

@@ -36,7 +36,13 @@ jest.mock('../../../api/project-dump', () => ({
 }));
 
 beforeEach(() => {
+  jest.useFakeTimers();
   jest.clearAllMocks();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 it('should render correctly', async () => {
@@ -58,8 +64,6 @@ it('should render correctly', async () => {
 });
 
 it('should poll for task status update', async () => {
-  jest.useFakeTimers();
-
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 

@@ -21,7 +21,14 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import WorkspaceRuleViewer, { Props } from '../WorkspaceRuleViewer';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();

@@ -19,7 +19,14 @@
  */
 import { scrollHorizontally, scrollToElement } from '../scrolling';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 describe('scrollToElement', () => {
   it('should scroll parent up to element', () => {

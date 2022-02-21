@@ -203,7 +203,14 @@ describe('post', () => {
 });
 
 describe('requestTryAndRepeatUntil', () => {
-  jest.useFakeTimers();
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
 
   beforeEach(() => {
     jest.clearAllTimers();

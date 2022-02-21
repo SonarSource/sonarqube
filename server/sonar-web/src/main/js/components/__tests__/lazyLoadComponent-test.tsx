@@ -26,6 +26,12 @@ const factory = jest.fn().mockImplementation(() => import('../../components/cont
 
 beforeEach(() => {
   factory.mockClear();
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 it('should lazy load and display the component', async () => {
@@ -33,7 +39,9 @@ it('should lazy load and display the component', async () => {
   const wrapper = mount(<LazyComponent />);
   expect(wrapper).toMatchSnapshot();
   expect(factory).toBeCalledTimes(1);
+  jest.runOnlyPendingTimers();
   await waitAndUpdate(wrapper);
+  jest.runOnlyPendingTimers();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(factory).toBeCalledTimes(1);

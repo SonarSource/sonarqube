@@ -88,7 +88,13 @@ jest.mock('../../utils/handleRequiredAuthorization', () => ({
 const Inner = () => <div />;
 
 beforeEach(() => {
+  jest.useFakeTimers();
   jest.clearAllMocks();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 it('changes component', () => {
@@ -128,7 +134,7 @@ it('loads the project binding, if any', async () => {
 
 it("doesn't load branches portfolio", async () => {
   const wrapper = shallowRender({ location: mockLocation({ query: { id: 'portfolioKey' } }) });
-  await new Promise(setImmediate);
+  await waitAndUpdate(wrapper);
   expect(getBranches).not.toBeCalled();
   expect(getPullRequests).not.toBeCalled();
   expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
@@ -162,8 +168,8 @@ it('fetches status', async () => {
     component: {}
   });
 
-  shallowRender();
-  await new Promise(setImmediate);
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
   expect(getTasksForComponent).toBeCalledWith('portfolioKey');
 });
 
@@ -200,7 +206,6 @@ it('filters correctly the pending tasks for a main branch', () => {
 });
 
 it('reload component after task progress finished', async () => {
-  jest.useFakeTimers();
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({
       queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }]
@@ -240,7 +245,6 @@ it('reload component after task progress finished', async () => {
 });
 
 it('reloads component after task progress finished, and moves straight to current', async () => {
-  jest.useFakeTimers();
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
     component: { key: 'bar' }
   });
@@ -290,7 +294,6 @@ it('only fully loads a non-empty component once', async () => {
 });
 
 it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
-  jest.useFakeTimers();
   (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
     component: { key: 'bar', analysisDate: '2019-01-01' }
   });

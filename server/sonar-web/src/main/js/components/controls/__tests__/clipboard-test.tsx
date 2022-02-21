@@ -38,7 +38,14 @@ jest.mock(
     }
 );
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 describe('ClipboardBase', () => {
   it('should display correctly', () => {

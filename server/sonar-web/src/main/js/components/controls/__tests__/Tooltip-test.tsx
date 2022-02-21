@@ -21,7 +21,15 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Tooltip, { TooltipInner, TooltipProps } from '../Tooltip';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
+
 jest.mock('react-dom', () => {
   const actual = jest.requireActual('react-dom');
   return Object.assign({}, actual, {

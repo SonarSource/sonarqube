@@ -21,7 +21,14 @@ import { mount } from 'enzyme';
 import * as React from 'react';
 import DeferredSpinner from '../DeferredSpinner';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 it('renders spinner after timeout', () => {
   const spinner = mount(<DeferredSpinner />);

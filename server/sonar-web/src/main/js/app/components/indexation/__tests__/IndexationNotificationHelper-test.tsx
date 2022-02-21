@@ -28,6 +28,11 @@ beforeEach(() => {
   jest.useFakeTimers();
 });
 
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
+
 jest.mock('../../../../api/ce', () => ({
   getIndexationStatus: jest.fn().mockResolvedValue({})
 }));

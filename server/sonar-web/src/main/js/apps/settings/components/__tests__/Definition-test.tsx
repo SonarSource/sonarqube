@@ -36,6 +36,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
+  jest.runOnlyPendingTimers();
   jest.useRealTimers();
 });
 

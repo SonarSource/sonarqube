@@ -345,7 +345,14 @@ describe('getNodes', () => {
 });
 
 describe('getHeight', () => {
-  jest.useFakeTimers();
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
 
   const snippetGroup: SnippetGroup = {
     component: mockSourceViewerFile(),

@@ -21,7 +21,14 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import SearchResult from '../SearchResult';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 it('renders selected', () => {
   const wrapper = shallowRender();

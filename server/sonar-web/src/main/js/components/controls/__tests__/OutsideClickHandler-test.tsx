@@ -21,7 +21,14 @@ import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import OutsideClickHandler from '../OutsideClickHandler';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

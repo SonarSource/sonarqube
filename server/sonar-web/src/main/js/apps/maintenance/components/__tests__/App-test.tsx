@@ -28,7 +28,14 @@ jest.mock('../../../../api/system', () => ({
   migrateDatabase: jest.fn()
 }));
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 const getMigrationStatus = require('../../../../api/system').getMigrationStatus as jest.Mock;
 const getSystemStatus = require('../../../../api/system').getSystemStatus as jest.Mock;

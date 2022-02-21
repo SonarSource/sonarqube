@@ -22,6 +22,15 @@ import * as React from 'react';
 import { mockAppState, mockLocation } from '../../../helpers/testMocks';
 import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 
+jest.mock('../../../api/plugins', () => ({
+  getSettingsNavigation: jest.fn().mockResolvedValue({}),
+  getPendingPlugins: jest.fn().mockResolvedValue({})
+}));
+
+jest.mock('../../../api/system', () => ({
+  getSystemStatus: jest.fn().mockResolvedValue({})
+}));
+
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();

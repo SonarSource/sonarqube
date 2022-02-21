@@ -34,8 +34,14 @@ jest.mock('../../../helpers/extensionsHandler', () => ({
 }));
 
 jest.mock('../../../helpers/analytics', () => ({ gtm: jest.fn() }));
+beforeAll(() => {
+  jest.useFakeTimers();
+});
 
-jest.useFakeTimers();
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 beforeEach(() => {
   jest.clearAllTimers();

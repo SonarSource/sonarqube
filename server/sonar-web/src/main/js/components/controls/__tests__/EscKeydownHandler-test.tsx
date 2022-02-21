@@ -23,7 +23,14 @@ import { KeyboardCodes } from '../../../helpers/keycodes';
 import { keydown } from '../../../helpers/testUtils';
 import EscKeydownHandler from '../EscKeydownHandler';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

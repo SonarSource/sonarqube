@@ -20,7 +20,14 @@
 import getStore from '../getStore';
 import throwGlobalError from '../throwGlobalError';
 
-jest.useFakeTimers();
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterAll(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
 
 it('should put the error message in the store', async () => {
   const response = new Response();
