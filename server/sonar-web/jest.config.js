@@ -20,6 +20,7 @@ module.exports = {
     '<rootDir>/config/jest/SetupEnzyme.js',
     '<rootDir>/config/jest/SetupTestEnvironment.ts'
   ],
+  setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.js'],
   snapshotSerializers: ['enzyme-to-json/serializer', 'jest-emotion'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/config', '<rootDir>/node_modules', '<rootDir>/scripts'],

@@ -86,7 +86,7 @@ function handleUpdate(this: { state: { location: Location } }) {
 }
 
 // this is not an official api
-const RouteWithChildRoutes = Route as React.ComponentClass<
+export const RouteWithChildRoutes = Route as React.ComponentClass<
   RouteProps & { childRoutes: RouteConfig }
 >;
 
