@@ -65,19 +65,16 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
   }
 
   handleFormSubmit = () => {
-    if (this.state.metric) {
-      const { condition, qualityGate } = this.props;
-      const newCondition: Omit<Condition, 'id'> = {
-        metric: this.state.metric.key,
-        op: this.getSinglePossibleOperator(this.state.metric) || this.state.op,
-        error: this.state.error
-      };
-      const submitPromise = condition
-        ? updateCondition({ id: condition.id, ...newCondition })
-        : createCondition({ gateId: qualityGate.id, ...newCondition });
-      return submitPromise.then(this.props.onAddCondition);
-    }
-    return Promise.reject();
+    const { condition, qualityGate } = this.props;
+    const newCondition: Omit<Condition, 'id'> = {
+      metric: this.state.metric!.key,
+      op: this.getSinglePossibleOperator(this.state.metric!) || this.state.op,
+      error: this.state.error
+    };
+    const submitPromise = condition
+      ? updateCondition({ id: condition.id, ...newCondition })
+      : createCondition({ gateId: qualityGate.id, ...newCondition });
+    return submitPromise.then(this.props.onAddCondition);
   };
 
   handleScopeChange = (scope: 'new' | 'overall') => {
@@ -160,7 +157,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
         {metric && (
           <>
             <div className="modal-field display-inline-block">
-              <label htmlFor="condition-operator">
+              <label id="condition-operator-label">
                 {translate('quality_gates.conditions.operator')}
               </label>
               <ConditionOperator
@@ -170,7 +167,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
               />
             </div>
             <div className="modal-field display-inline-block spacer-left">
-              <label htmlFor="condition-threshold">
+              <label id="condition-threshold-label">
                 {translate('quality_gates.conditions.value')}
               </label>
               <ThresholdInput

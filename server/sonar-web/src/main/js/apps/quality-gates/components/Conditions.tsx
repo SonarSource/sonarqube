@@ -47,7 +47,7 @@ interface Props {
   onRemoveCondition: (Condition: ConditionType) => void;
   onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
   qualityGate: QualityGate;
-  updatedConditionId?: number;
+  updatedConditionId?: string;
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
@@ -61,6 +61,7 @@ const FORBIDDEN_METRICS: string[] = [
 export class Conditions extends React.PureComponent<Props> {
   renderConditionsTable = (conditions: ConditionType[], scope: 'new' | 'overall') => {
     const {
+      appState,
       qualityGate,
       metrics,
       canEdit,
@@ -68,8 +69,22 @@ export class Conditions extends React.PureComponent<Props> {
       onSaveCondition,
       updatedConditionId
     } = this.props;
+
+    const captionTranslationId =
+      scope === 'new'
+        ? 'quality_gates.conditions.new_code'
+        : 'quality_gates.conditions.overall_code';
     return (
       <table className="data zebra" data-test={`quality-gates__conditions-${scope}`}>
+        <caption>
+          <h4>{translate(captionTranslationId, 'long')}</h4>
+
+          {appState.branchesEnabled && (
+            <p className="spacer-top spacer-bottom">
+              {translate(captionTranslationId, 'description')}
+            </p>
+          )}
+        </caption>
         <thead>
           <tr>
             <th className="nowrap" style={{ width: 300 }}>
@@ -104,7 +119,7 @@ export class Conditions extends React.PureComponent<Props> {
   };
 
   render() {
-    const { appState, conditions, metrics, canEdit } = this.props;
+    const { conditions, metrics, canEdit } = this.props;
 
     const existingConditions = conditions.filter(condition => metrics[condition.metric]);
     const sortedConditions = sortBy(
@@ -194,28 +209,12 @@ export class Conditions extends React.PureComponent<Props> {
 
         {sortedConditionsOnNewMetrics.length > 0 && (
           <div className="big-spacer-top">
-            <h4>{translate('quality_gates.conditions.new_code.long')}</h4>
-
-            {appState.branchesEnabled && (
-              <p className="spacer-top spacer-bottom">
-                {translate('quality_gates.conditions.new_code.description')}
-              </p>
-            )}
-
             {this.renderConditionsTable(sortedConditionsOnNewMetrics, 'new')}
           </div>
         )}
 
         {sortedConditionsOnOverallMetrics.length > 0 && (
           <div className="big-spacer-top">
-            <h4>{translate('quality_gates.conditions.overall_code.long')}</h4>
-
-            {appState.branchesEnabled && (
-              <p className="spacer-top spacer-bottom">
-                {translate('quality_gates.conditions.overall_code.description')}
-              </p>
-            )}
-
             {this.renderConditionsTable(sortedConditionsOnOverallMetrics, 'overall')}
           </div>
         )}

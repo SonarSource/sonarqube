@@ -76,6 +76,7 @@ export class Button extends React.PureComponent<ButtonProps> {
       <button
         {...props}
         aria-disabled={disabled}
+        disabled={disabled}
         className={classNames('button', className, { disabled })}
         id={this.props.id}
         onClick={this.handleClick}

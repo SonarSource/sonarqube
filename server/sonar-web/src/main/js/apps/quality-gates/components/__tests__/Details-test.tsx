@@ -78,7 +78,7 @@ it('should correctly add/replace/remove conditions', async () => {
 
   await waitAndUpdate(wrapper);
 
-  const newCondition = mockCondition({ metric: 'bugs', id: 2 });
+  const newCondition = mockCondition({ metric: 'bugs', id: '2' });
   instance.handleAddCondition(newCondition);
   expect(addCondition).toBeCalledWith(qualityGate, newCondition);
 

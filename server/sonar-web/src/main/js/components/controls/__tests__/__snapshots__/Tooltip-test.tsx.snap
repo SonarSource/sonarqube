@@ -16,8 +16,8 @@ exports[`should render 1`] = `
 <Fragment>
   <div
     id="tooltip"
-    onMouseEnter={[Function]}
-    onMouseLeave={[Function]}
+    onPointerEnter={[Function]}
+    onPointerLeave={[Function]}
   />
 </Fragment>
 `;
@@ -26,8 +26,8 @@ exports[`should render 2`] = `
 <Fragment>
   <div
     id="tooltip"
-    onMouseEnter={[Function]}
-    onMouseLeave={[Function]}
+    onPointerEnter={[Function]}
+    onPointerLeave={[Function]}
   />
   <TooltipPortal>
     <ScreenPositionFixer

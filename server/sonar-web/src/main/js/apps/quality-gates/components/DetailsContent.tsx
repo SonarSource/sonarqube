@@ -32,7 +32,7 @@ export interface DetailsContentProps {
   onRemoveCondition: (Condition: Condition) => void;
   onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
   qualityGate: QualityGate;
-  updatedConditionId?: number;
+  updatedConditionId?: string;
 }
 
 export function DetailsContent(props: DetailsContentProps) {

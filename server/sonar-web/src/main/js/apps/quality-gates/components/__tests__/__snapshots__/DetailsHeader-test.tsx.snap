@@ -55,7 +55,7 @@ exports[`should render correctly: admin actions 1`] = `
               "conditions": Array [
                 Object {
                   "error": "10",
-                  "id": 1,
+                  "id": "1",
                   "metric": "coverage",
                   "op": "LT",
                 },

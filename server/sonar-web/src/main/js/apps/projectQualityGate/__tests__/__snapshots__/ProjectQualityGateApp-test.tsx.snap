@@ -8,13 +8,13 @@ exports[`renders correctly 1`] = `
         "conditions": Array [
           Object {
             "error": "10",
-            "id": 1,
+            "id": "1",
             "metric": "coverage",
             "op": "LT",
           },
           Object {
             "error": "10",
-            "id": 1,
+            "id": "1",
             "metric": "new_bugs",
             "op": "LT",
           },
@@ -26,13 +26,13 @@ exports[`renders correctly 1`] = `
         "conditions": Array [
           Object {
             "error": "10",
-            "id": 1,
+            "id": "1",
             "metric": "coverage",
             "op": "LT",
           },
           Object {
             "error": "10",
-            "id": 1,
+            "id": "1",
             "metric": "new_bugs",
             "op": "LT",
           },
@@ -45,13 +45,13 @@ exports[`renders correctly 1`] = `
         "conditions": Array [
           Object {
             "error": "10",
-            "id": 1,
+            "id": "1",
             "metric": "coverage",
             "op": "LT",
           },
           Object {
             "error": "10",
-            "id": 1,
+            "id": "1",
             "metric": "new_bugs",
             "op": "LT",
           },

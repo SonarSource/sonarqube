@@ -346,8 +346,8 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     return (
       <div
         className={`${classNameSpace} ${currentPlacement}`}
-        onMouseEnter={this.handleOverlayMouseEnter}
-        onMouseLeave={this.handleOverlayMouseLeave}
+        onPointerEnter={this.handleOverlayMouseEnter}
+        onPointerLeave={this.handleOverlayMouseLeave}
         ref={this.tooltipNodeRef}
         style={style}>
         <div className={`${classNameSpace}-inner`}>{this.props.overlay}</div>
@@ -367,8 +367,8 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     return (
       <>
         {React.cloneElement(this.props.children, {
-          onMouseEnter: this.handleMouseEnter,
-          onMouseLeave: this.handleMouseLeave
+          onPointerEnter: this.handleMouseEnter,
+          onPointerLeave: this.handleMouseLeave
         })}
         {this.isVisible() && (
           <TooltipPortal>

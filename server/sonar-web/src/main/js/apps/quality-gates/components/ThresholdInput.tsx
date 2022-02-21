@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { Metric } from '../../../types/types';
 
 interface Props {
@@ -33,12 +33,8 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     this.props.onChange(e.currentTarget.value);
   };
 
-  handleSelectChange = (option: { value: string } | null) => {
-    if (option) {
-      this.props.onChange(option.value);
-    } else {
-      this.props.onChange('');
-    }
+  handleSelectChange = (option: { value: string }) => {
+    this.props.onChange(option.value);
   };
 
   renderRatingInput() {
@@ -52,16 +48,17 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     ];
 
     return (
-      <SelectLegacy
+      <Select
         className="input-tiny text-middle"
-        clearable={true}
+        aria-labelledby="condition-threshold-label"
+        isClearable={false}
         id="condition-threshold"
         name={name}
         onChange={this.handleSelectChange}
         options={options}
         placeholder=""
-        searchable={false}
-        value={value}
+        isSearchable={false}
+        value={options.find(o => o.value === value)}
       />
     );
   }
@@ -76,6 +73,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     return (
       <input
         className="input-tiny text-middle"
+        aria-labelledby="condition-threshold-label"
         data-type={metric.type}
         id="condition-threshold"
         name={name}

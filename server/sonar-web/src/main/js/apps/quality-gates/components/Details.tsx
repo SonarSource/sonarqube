@@ -38,7 +38,7 @@ interface Props {
 interface State {
   loading: boolean;
   qualityGate?: QualityGate;
-  updatedConditionId?: number;
+  updatedConditionId?: string;
 }
 
 export default class Details extends React.PureComponent<Props, State> {

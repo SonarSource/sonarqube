@@ -192,7 +192,7 @@ export interface ComponentMeasureEnhanced extends ComponentMeasureIntern {
 
 export interface Condition {
   error: string;
-  id: number;
+  id: string;
   metric: string;
   op?: string;
 }

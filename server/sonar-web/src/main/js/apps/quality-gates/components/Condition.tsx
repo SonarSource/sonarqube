@@ -108,12 +108,14 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
           <>
             <td className="text-center thin">
               <EditButton
+                aria-label={translateWithParameters('quality_gates.condition.edit', metric.name)}
                 data-test="quality-gates__condition-update"
                 onClick={this.handleOpenUpdate}
               />
             </td>
             <td className="text-center thin">
               <DeleteButton
+                aria-label={translateWithParameters('quality_gates.condition.delete', metric.name)}
                 data-test="quality-gates__condition-delete"
                 onClick={this.handleDeleteClick}
               />

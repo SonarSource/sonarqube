@@ -292,7 +292,7 @@ export function mockClusterSysInfo(overrides: Partial<any> = {}): SysInfoCluster
 export function mockCondition(overrides: Partial<Condition> = {}): Condition {
   return {
     error: '10',
-    id: 1,
+    id: '1',
     metric: 'coverage',
     op: 'LT',
     ...overrides

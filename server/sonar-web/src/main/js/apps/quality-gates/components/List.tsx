@@ -30,11 +30,12 @@ interface Props {
 
 export default function List({ qualityGates }: Props) {
   return (
-    <div className="list-group">
+    <div className="list-group" role="menu">
       {qualityGates.map(qualityGate => (
         <Link
           activeClassName="active"
           className="list-group-item display-flex-center"
+          role="menuitem"
           data-id={qualityGate.id}
           key={qualityGate.id}
           to={getQualityGateUrl(String(qualityGate.id))}>

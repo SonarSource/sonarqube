@@ -73,7 +73,7 @@ export function updateCondition(data: Condition): Promise<Condition> {
   return postJSON('/api/qualitygates/update_condition', data).catch(throwGlobalError);
 }
 
-export function deleteCondition(data: { id: number }): Promise<void> {
+export function deleteCondition(data: { id: string }): Promise<void> {
   return post('/api/qualitygates/delete_condition', data);
 }
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { Metric } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
@@ -50,16 +50,17 @@ export default class ConditionOperator extends React.PureComponent<Props> {
       });
 
       return (
-        <SelectLegacy
+        <Select
           autoFocus={true}
+          aria-labelledby="condition-operator-label"
           className="input-medium"
-          clearable={false}
+          isClearable={false}
           id="condition-operator"
           name="operator"
           onChange={this.handleChange}
           options={operatorOptions}
-          searchable={false}
-          value={this.props.op}
+          isSearchable={false}
+          value={operatorOptions.filter(o => o.value === this.props.op)}
         />
       );
     } else {

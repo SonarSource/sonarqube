@@ -123,8 +123,8 @@ exports[`ActionsDropdownItem should render correctly copy item 1`] = `
       >
         <li
           data-clipboard-text="my content to copy to clipboard"
-          onMouseEnter={[Function]}
-          onMouseLeave={[Function]}
+          onPointerEnter={[Function]}
+          onPointerLeave={[Function]}
         >
           <a
             className="foo"

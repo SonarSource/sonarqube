@@ -56,26 +56,26 @@ it('should open & close', () => {
   const onHide = jest.fn();
   const wrapper = shallowRenderTooltipInner({ onHide, onShow });
 
-  wrapper.find('#tooltip').simulate('mouseenter');
+  wrapper.find('#tooltip').simulate('pointerenter');
   jest.runOnlyPendingTimers();
   wrapper.update();
   expect(wrapper.find('TooltipPortal').exists()).toBe(true);
   expect(onShow).toBeCalled();
 
-  wrapper.find('#tooltip').simulate('mouseleave');
+  wrapper.find('#tooltip').simulate('pointerleave');
   jest.runOnlyPendingTimers();
   wrapper.update();
   expect(wrapper.find('TooltipPortal').exists()).toBe(false);
   expect(onHide).toBeCalled();
 });
 
-it('should not open when mouse goes away quickly', () => {
+it('should not open when pointer goes away quickly', () => {
   const onShow = jest.fn();
   const onHide = jest.fn();
   const wrapper = shallowRenderTooltipInner({ onHide, onShow });
 
-  wrapper.find('#tooltip').simulate('mouseenter');
-  wrapper.find('#tooltip').simulate('mouseleave');
+  wrapper.find('#tooltip').simulate('pointerenter');
+  wrapper.find('#tooltip').simulate('pointerleave');
   jest.runOnlyPendingTimers();
   wrapper.update();
 
