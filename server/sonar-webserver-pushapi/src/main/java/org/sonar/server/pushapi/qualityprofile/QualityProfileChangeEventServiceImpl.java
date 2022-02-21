@@ -136,12 +136,13 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     Set<RuleChange> deactivatedRules = new HashSet<>();
 
     for (ActiveRuleChange arc : activeRuleChanges) {
-      if (arc.getActiveRule() == null) {
+      ActiveRuleDto activeRule = arc.getActiveRule();
+      if (activeRule == null) {
         continue;
       }
 
       RuleChange ruleChange = new RuleChange();
-      ruleChange.setKey(arc.getActiveRule().getRuleKey().rule());
+      ruleChange.setKey(activeRule.getRuleKey().rule());
       ruleChange.setSeverity(arc.getSeverity());
       ruleChange.setLanguage(language);
 
