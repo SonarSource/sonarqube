@@ -161,7 +161,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   protected void before() {
     db.start();
     db.truncateTables();
-    initDbClient();
   }
 
   public UserDbTester users() {

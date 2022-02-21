@@ -83,6 +83,7 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
+import org.sonar.db.StartMyBatis;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
@@ -283,6 +284,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       LogbackHelper.class,
       DefaultDatabase.class,
       MyBatis.class,
+      StartMyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
       new TempFolderProvider(),

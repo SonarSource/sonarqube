@@ -159,7 +159,7 @@ import org.sonar.db.webhook.WebhookDeliveryMapper;
 import org.sonar.db.webhook.WebhookMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MyBatis implements Startable {
+public class MyBatis {
   private final List<MyBatisConfExtension> confExtensions;
   private final Database database;
   private SqlSessionFactory sessionFactory;
@@ -175,7 +175,6 @@ public class MyBatis implements Startable {
     this.database = database;
   }
 
-  @Override
   public void start() {
     LogFactory.useSlf4jLogging();
 
@@ -318,11 +317,6 @@ public class MyBatis implements Startable {
       .forEach(confBuilder::loadMapper);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(confBuilder.build());
-  }
-
-  @Override
-  public void stop() {
-    // nothing to do
   }
 
   @VisibleForTesting
