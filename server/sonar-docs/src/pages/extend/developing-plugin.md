@@ -430,7 +430,7 @@ The rules are:
 
 ### Release 9.0
 ![](/images/exclamation.svg) Deprecated
-* `org.sonar.api.server.rule.RulesDefinition` is deprecated. Use the `sonar-check-api` to annotate rule classes instead of loading the metadata from XML files
+* `org.sonar.api.server.rule.RulesDefinitionXmlLoader` is deprecated. Use the `sonar-check-api` to annotate rule classes instead of loading the metadata from XML files
 
 ![](/images/cross.svg) Removed
 * `org.sonar.api.ExtensionProvider` Use `org.sonar.api.Plugin.Context#addExtensions()` to add objects to the container.
