@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import key from 'keymaster';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
 import { translate } from '../../../helpers/l10n';
@@ -47,6 +48,8 @@ export enum TabKeys {
   FixRecommendation = 'fix'
 }
 
+const HOTSPOT_KEYMASTER_SCOPE = 'hotspots-list';
+
 export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -55,6 +58,10 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       currentTab: tabs[0],
       tabs
     };
+  }
+
+  componentDidMount() {
+    this.registerKeyboardEvents();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -73,6 +80,26 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         currentTab: tabs[0]
       });
     }
+  }
+
+  componentWillUnmount() {
+    this.unregisterKeyboardEvents();
+  }
+
+  registerKeyboardEvents() {
+    key.setScope(HOTSPOT_KEYMASTER_SCOPE);
+    key('left', HOTSPOT_KEYMASTER_SCOPE, () => {
+      this.selectNeighboringTab(-1);
+      return false;
+    });
+    key('right', HOTSPOT_KEYMASTER_SCOPE, () => {
+      this.selectNeighboringTab(+1);
+      return false;
+    });
+  }
+
+  unregisterKeyboardEvents() {
+    key.deleteScope(HOTSPOT_KEYMASTER_SCOPE);
   }
 
   handleSelectTabs = (tabKey: TabKeys) => {
@@ -110,6 +137,21 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       },
       ...descriptionTabs
     ];
+  }
+
+  selectNeighboringTab(shift: number) {
+    this.setState(({ tabs, currentTab }) => {
+      const index = currentTab && tabs.findIndex(tab => tab.key === currentTab.key);
+
+      if (index !== undefined && index > -1) {
+        const newIndex = Math.max(0, Math.min(tabs.length - 1, index + shift));
+        return {
+          currentTab: tabs[newIndex]
+        };
+      }
+
+      return { currentTab };
+    });
   }
 
   render() {
