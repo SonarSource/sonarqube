@@ -64,6 +64,7 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
       onShowCommentForm={jest.fn()}
       onUpdateHotspot={jest.fn()}
       showStatusUpdateSuccessModal={false}
+      onLocationClick={jest.fn()}
       {...props}
     />
   );

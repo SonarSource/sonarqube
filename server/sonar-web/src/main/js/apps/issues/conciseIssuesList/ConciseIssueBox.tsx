@@ -118,7 +118,6 @@ export default class ConciseIssueBox extends React.PureComponent<Props> {
             isCrossFile={isCrossFile}
             onLocationSelect={this.props.onLocationSelect}
             scroll={this.props.scroll}
-            selectedFlowIndex={selectedFlowIndex}
             selectedLocationIndex={selectedLocationIndex}
           />
         )}

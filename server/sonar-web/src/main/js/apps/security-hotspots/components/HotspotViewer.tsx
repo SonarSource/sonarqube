@@ -35,6 +35,8 @@ interface Props {
   hotspotsReviewedMeasure?: string;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
+  onLocationClick: (index: number) => void;
+  selectedHotspotLocation?: number;
 }
 
 interface State {
@@ -116,7 +118,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, hotspotsReviewedMeasure } = this.props;
+    const { component, hotspotsReviewedMeasure, selectedHotspotLocation } = this.props;
     const { hotspot, lastStatusChangedTo, loading, showStatusUpdateSuccessModal } = this.state;
 
     return (
@@ -131,7 +133,9 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
         onSwitchFilterToStatusOfUpdatedHotspot={this.handleSwitchFilterToStatusOfUpdatedHotspot}
         onShowCommentForm={this.handleScrollToCommentForm}
         onUpdateHotspot={this.handleHotspotUpdate}
+        onLocationClick={this.props.onLocationClick}
         showStatusUpdateSuccessModal={showStatusUpdateSuccessModal}
+        selectedHotspotLocation={selectedHotspotLocation}
       />
     );
   }

@@ -20,6 +20,8 @@
 import { shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
+import { mockHtmlElement } from '../../../../helpers/mocks/dom';
+import { scrollToElement } from '../../../../helpers/scrolling';
 import { getSources } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -32,6 +34,10 @@ import HotspotSnippetContainerRenderer from '../HotspotSnippetContainerRenderer'
 
 jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
+}));
+
+jest.mock('../../../../helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
 }));
 
 beforeEach(() => jest.clearAllMocks());
@@ -214,6 +220,18 @@ it('should handle symbol click', () => {
   expect(wrapper.state().highlightedSymbols).toBe(symbols);
 });
 
+it('should handle scroll properly', async () => {
+  const wrapper = shallowRender();
+  const element = mockHtmlElement();
+  wrapper.instance().handleScroll(element, 200);
+  await waitAndUpdate(wrapper);
+  expect(scrollToElement).toBeCalledWith(element, {
+    bottomOffset: 200,
+    smooth: true,
+    topOffset: 100
+  });
+});
+
 function shallowRender(props?: Partial<HotspotSnippetContainer['props']>) {
   return shallow<HotspotSnippetContainer>(
     <HotspotSnippetContainer
@@ -221,6 +239,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainer['props']>) {
       component={mockComponent()}
       hotspot={mockHotspot()}
       onCommentButtonClick={jest.fn()}
+      onLocationSelect={jest.fn()}
       {...props}
     />
   );

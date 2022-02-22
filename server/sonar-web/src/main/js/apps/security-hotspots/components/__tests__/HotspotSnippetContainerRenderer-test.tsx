@@ -45,6 +45,13 @@ it('should render a HotspotPrimaryLocationBox', () => {
   expect(renderAdditionalChildInLine!(42)).not.toBeUndefined();
 });
 
+it('should render correctly when secondary location is selected', () => {
+  const wrapper = shallowRender({
+    selectedHotspotLocation: 1
+  });
+  expect(wrapper).toMatchSnapshot('with selected hotspot location');
+});
+
 function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
   return shallow(
     <HotspotSnippetContainerRenderer
@@ -60,6 +67,8 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
       sourceLines={[]}
       sourceViewerFile={mockSourceViewerFile()}
       component={mockComponent()}
+      onLocationSelect={jest.fn()}
+      onScroll={jest.fn()}
       {...props}
     />
   );

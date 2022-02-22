@@ -96,6 +96,23 @@ it('should select first tab on hotspot update', () => {
   expect(wrapper.state().currentTab.key).toBe(TabKeys.Code);
 });
 
+it('should select first tab when hotspot location is selected and is not undefined', () => {
+  const wrapper = shallowRender();
+  const onSelect: (tab: TabKeys) => void = wrapper.find(BoxedTabs).prop('onSelect');
+
+  onSelect(TabKeys.VulnerabilityDescription);
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.VulnerabilityDescription);
+
+  wrapper.setProps({ selectedHotspotLocation: 1 });
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.Code);
+
+  onSelect(TabKeys.VulnerabilityDescription);
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.VulnerabilityDescription);
+
+  wrapper.setProps({ selectedHotspotLocation: undefined });
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.VulnerabilityDescription);
+});
+
 function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {
   return shallow<HotspotViewerTabs>(
     <HotspotViewerTabs

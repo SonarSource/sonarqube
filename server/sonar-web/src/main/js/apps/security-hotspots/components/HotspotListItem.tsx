@@ -22,17 +22,20 @@ import * as React from 'react';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { ComponentQualifier } from '../../../types/component';
 import { getFilePath, getLocations } from '../utils';
-import LocationsList from '../../../components/locations/LocationsList';
 import { RawHotspot } from '../../../types/security-hotspots';
+import LocationsList from '../../../components/locations/LocationsList';
 
 export interface HotspotListItemProps {
   hotspot: RawHotspot;
   onClick: (hotspot: RawHotspot) => void;
+  onLocationClick: (index: number) => void;
+  onScroll: (element: Element) => void;
   selected: boolean;
+  selectedHotspotLocation?: number;
 }
 
 export default function HotspotListItem(props: HotspotListItemProps) {
-  const { hotspot, selected } = props;
+  const { hotspot, selected, selectedHotspotLocation } = props;
   const locations = getLocations(hotspot.flows, undefined);
   const path = getFilePath(hotspot.component, hotspot.project);
 
@@ -56,12 +59,9 @@ export default function HotspotListItem(props: HotspotListItemProps) {
             locations={locations}
             isCrossFile={false} // Currently we are not supporting cross file for security hotspot
             uniqueKey={hotspot.key}
-            onLocationSelect={() => {
-              /* noop */
-            }}
-            scroll={() => {
-              /* noop */
-            }}
+            onLocationSelect={props.onLocationClick}
+            selectedLocationIndex={selectedHotspotLocation}
+            scroll={props.onScroll}
           />
         )}
       </div>

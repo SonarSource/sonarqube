@@ -49,6 +49,8 @@ exports[`should render correctly with hotspots 1`] = `
           }
         }
         onClick={[MockFunction]}
+        onLocationClick={[MockFunction]}
+        onScroll={[MockFunction]}
         selected={false}
       />
     </li>
@@ -75,6 +77,8 @@ exports[`should render correctly with hotspots 1`] = `
           }
         }
         onClick={[MockFunction]}
+        onLocationClick={[MockFunction]}
+        onScroll={[MockFunction]}
         selected={false}
       />
     </li>
@@ -159,6 +163,8 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
           }
         }
         onClick={[MockFunction]}
+        onLocationClick={[MockFunction]}
+        onScroll={[MockFunction]}
         selected={true}
       />
     </li>
@@ -185,6 +191,8 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
           }
         }
         onClick={[MockFunction]}
+        onLocationClick={[MockFunction]}
+        onScroll={[MockFunction]}
         selected={false}
       />
     </li>
@@ -242,6 +250,8 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
           }
         }
         onClick={[MockFunction]}
+        onLocationClick={[MockFunction]}
+        onScroll={[MockFunction]}
         selected={false}
       />
     </li>
@@ -268,6 +278,8 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
           }
         }
         onClick={[MockFunction]}
+        onLocationClick={[MockFunction]}
+        onScroll={[MockFunction]}
         selected={false}
       />
     </li>

@@ -40,9 +40,12 @@ export interface HotspotSnippetContainerRendererProps {
   hotspot: Hotspot;
   loading: boolean;
   locations: { [line: number]: LinearIssueLocation[] };
+  selectedHotspotLocation?: number;
   onCommentButtonClick: () => void;
   onExpandBlock: (direction: ExpandDirection) => Promise<void>;
   onSymbolClick: (symbols: string[]) => void;
+  onLocationSelect: (index: number) => void;
+  onScroll: (element: Element) => void;
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
   secondaryLocations: FlowLocation[];
@@ -63,7 +66,8 @@ export default function HotspotSnippetContainerRenderer(
     sourceLines,
     sourceViewerFile,
     secondaryLocations,
-    component
+    component,
+    selectedHotspotLocation
   } = props;
 
   const renderHotspotBoxInLine = (lineNumber: number) =>
@@ -72,6 +76,11 @@ export default function HotspotSnippetContainerRenderer(
     ) : (
       undefined
     );
+
+  const highlightedLocation =
+    selectedHotspotLocation !== undefined
+      ? { index: selectedHotspotLocation, text: hotspot.message }
+      : undefined;
 
   return (
     <>
@@ -91,7 +100,7 @@ export default function HotspotSnippetContainerRenderer(
               handleCloseIssues={noop}
               handleOpenIssues={noop}
               handleSymbolClick={props.onSymbolClick}
-              highlightedLocationMessage={undefined}
+              highlightedLocationMessage={highlightedLocation}
               highlightedSymbols={highlightedSymbols}
               index={0}
               issue={hotspot}
@@ -101,11 +110,12 @@ export default function HotspotSnippetContainerRenderer(
               locationsByLine={primaryLocations}
               onIssueChange={noop}
               onIssuePopupToggle={noop}
-              onLocationSelect={noop}
+              onLocationSelect={props.onLocationSelect}
               openIssuesByLine={{}}
               renderAdditionalChildInLine={renderHotspotBoxInLine}
               renderDuplicationPopup={noop}
               snippet={sourceLines}
+              scroll={props.onScroll}
             />
           )}
         </DeferredSpinner>

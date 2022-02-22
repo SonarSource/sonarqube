@@ -133,6 +133,8 @@ exports[`should render correctly 1`] = `
   }
   onCommentButtonClick={[MockFunction]}
   onExpandBlock={[Function]}
+  onLocationSelect={[MockFunction]}
+  onScroll={[Function]}
   onSymbolClick={[Function]}
   secondaryLocations={
     Array [

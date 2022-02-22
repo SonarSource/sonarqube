@@ -67,7 +67,6 @@ function shallowRender(overrides: Partial<LocationsList['props']> = {}) {
       isCrossFile={true}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
-      selectedFlowIndex={undefined}
       selectedLocationIndex={undefined}
       {...overrides}
     />

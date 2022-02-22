@@ -75,6 +75,8 @@ function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
       selectedHotspot={mockRawHotspot()}
       title="Class Injection"
       isLastAndIncomplete={false}
+      onLocationClick={jest.fn()}
+      onScroll={jest.fn()}
       {...props}
     />
   );

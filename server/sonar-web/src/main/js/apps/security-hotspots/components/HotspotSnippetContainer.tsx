@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { getSources } from '../../../api/components';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -32,6 +33,8 @@ interface Props {
   component: Component;
   hotspot: Hotspot;
   onCommentButtonClick: () => void;
+  onLocationSelect: (index: number) => void;
+  selectedHotspotLocation?: number;
 }
 
 interface State {
@@ -195,8 +198,12 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     this.setState({ highlightedSymbols });
   };
 
+  handleScroll = (element: Element, offset = window.innerHeight / 2, smooth = true) => {
+    scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth });
+  };
+
   render() {
-    const { branchLike, component, hotspot } = this.props;
+    const { branchLike, component, hotspot, selectedHotspotLocation } = this.props;
     const { highlightedSymbols, lastLine, loading, sourceLines, secondaryLocations } = this.state;
 
     const locations = locationsByLine([hotspot]);
@@ -214,9 +221,12 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
         onCommentButtonClick={this.props.onCommentButtonClick}
         onExpandBlock={this.handleExpansion}
         onSymbolClick={this.handleSymbolClick}
+        onLocationSelect={this.props.onLocationSelect}
+        onScroll={this.handleScroll}
         sourceLines={sourceLines}
         sourceViewerFile={sourceViewerFile}
         secondaryLocations={secondaryLocations}
+        selectedHotspotLocation={selectedHotspotLocation}
       />
     );
   }

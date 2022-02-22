@@ -42,7 +42,9 @@ export interface HotspotViewerRendererProps {
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   onShowCommentForm: () => void;
   onSwitchFilterToStatusOfUpdatedHotspot: () => void;
+  onLocationClick: (index: number) => void;
   showStatusUpdateSuccessModal: boolean;
+  selectedHotspotLocation?: number;
 }
 
 export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
@@ -54,7 +56,8 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     loading,
     lastStatusChangedTo,
     showStatusUpdateSuccessModal,
-    commentTextRef
+    commentTextRef,
+    selectedHotspotLocation
   } = props;
 
   return (
@@ -78,9 +81,12 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
                 component={component}
                 hotspot={hotspot}
                 onCommentButtonClick={props.onShowCommentForm}
+                onLocationSelect={props.onLocationClick}
+                selectedHotspotLocation={selectedHotspotLocation}
               />
             }
             hotspot={hotspot}
+            selectedHotspotLocation={selectedHotspotLocation}
           />
           <HotspotReviewHistoryAndComments
             commentTextRef={commentTextRef}

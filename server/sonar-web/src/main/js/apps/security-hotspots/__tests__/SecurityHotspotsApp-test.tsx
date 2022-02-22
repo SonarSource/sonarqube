@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockHtmlElement } from '../../../helpers/mocks/dom';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
@@ -40,6 +41,7 @@ import {
 } from '../../../types/security-hotspots';
 import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
+import { scrollToElement } from '../../../helpers/scrolling';
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -54,6 +56,10 @@ jest.mock('../../../api/security-hotspots', () => ({
 
 jest.mock('../../../helpers/security-standard', () => ({
   getStandards: jest.fn().mockResolvedValue({ sonarsourceSecurity: { cat1: { title: 'cat 1' } } })
+}));
+
+jest.mock('../../../helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
 }));
 
 const branch = mockBranch();
@@ -377,6 +383,41 @@ it('should handle leakPeriod filter change', async () => {
 
   expect(getMeasures).toBeCalledTimes(2);
   expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ sinceLeakPeriod: true }));
+});
+
+it('should handle hotspot click', () => {
+  const wrapper = shallowRender();
+  const selectedHotspot = mockRawHotspot();
+  wrapper.instance().handleHotspotClick(selectedHotspot);
+
+  expect(wrapper.instance().state.selectedHotspotLocationIndex).toBeUndefined();
+  expect(wrapper.instance().state.selectedHotspot).toEqual(selectedHotspot);
+});
+
+it('should handle secondary location click', () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleLocationClick(0);
+  expect(wrapper.instance().state.selectedHotspotLocationIndex).toEqual(0);
+
+  wrapper.instance().handleLocationClick(1);
+  expect(wrapper.instance().state.selectedHotspotLocationIndex).toEqual(1);
+
+  wrapper.instance().handleLocationClick(1);
+  expect(wrapper.instance().state.selectedHotspotLocationIndex).toBeUndefined();
+});
+
+it('should handle scroll properly', async () => {
+  const fakeElement = document.createElement('div');
+  jest.spyOn(document, 'querySelector').mockImplementationOnce(() => fakeElement);
+  const wrapper = shallowRender();
+  const element = mockHtmlElement();
+  wrapper.instance().handleScroll(element);
+  await waitAndUpdate(wrapper);
+  expect(scrollToElement).toBeCalledWith(element, {
+    bottomOffset: 100,
+    parent: fakeElement,
+    topOffset: 150
+  });
 });
 
 describe('keyboard navigation', () => {

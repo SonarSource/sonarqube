@@ -37,6 +37,8 @@ interface Props {
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
+  onLocationClick: (index: number) => void;
+  onScroll: (element: Element) => void;
   securityCategories: StandardSecurityCategories;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
@@ -84,6 +86,13 @@ export default class HotspotList extends React.Component<Props, State> {
       );
       this.setState({ groupedHotspots });
     }
+
+    if (this.props.selectedHotspotLocation !== prevProps.selectedHotspotLocation) {
+      const { selectedHotspot } = this.props;
+      this.setState({
+        expandedCategories: { [selectedHotspot.securityCategory]: true }
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -112,6 +121,7 @@ export default class HotspotList extends React.Component<Props, State> {
       isStaticListOfHotspots,
       loadingMore,
       selectedHotspot,
+      selectedHotspotLocation,
       statusFilter
     } = this.props;
 
@@ -150,7 +160,10 @@ export default class HotspotList extends React.Component<Props, State> {
                           hotspots={cat.hotspots}
                           onHotspotClick={this.props.onHotspotClick}
                           onToggleExpand={this.handleToggleCategory}
+                          onLocationClick={this.props.onLocationClick}
+                          onScroll={this.props.onScroll}
                           selectedHotspot={selectedHotspot}
+                          selectedHotspotLocation={selectedHotspotLocation}
                           title={cat.title}
                           isLastAndIncomplete={
                             isLastRiskGroup && isLastCategory && hotspots.length < hotspotsTotal

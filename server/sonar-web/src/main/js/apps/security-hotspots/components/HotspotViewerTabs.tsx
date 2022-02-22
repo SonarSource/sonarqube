@@ -26,6 +26,7 @@ import { Hotspot } from '../../../types/security-hotspots';
 interface Props {
   codeTabContent: React.ReactNode;
   hotspot: Hotspot;
+  selectedHotspotLocation?: number;
 }
 
 interface State {
@@ -62,6 +63,14 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       this.setState({
         currentTab: tabs[0],
         tabs
+      });
+    } else if (
+      this.props.selectedHotspotLocation !== undefined &&
+      this.props.selectedHotspotLocation !== prevProps.selectedHotspotLocation
+    ) {
+      const { tabs } = this.state;
+      this.setState({
+        currentTab: tabs[0]
       });
     }
   }

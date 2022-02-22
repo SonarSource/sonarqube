@@ -39,6 +39,13 @@ it('should handle click', () => {
 
 function shallowRender(props: Partial<HotspotListItemProps> = {}) {
   return shallow(
-    <HotspotListItem hotspot={mockRawHotspot()} onClick={jest.fn()} selected={false} {...props} />
+    <HotspotListItem
+      hotspot={mockRawHotspot()}
+      onClick={jest.fn()}
+      onScroll={jest.fn()}
+      onLocationClick={jest.fn}
+      selected={false}
+      {...props}
+    />
   );
 }

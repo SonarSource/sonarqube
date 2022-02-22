@@ -28,7 +28,6 @@ interface Props {
   locations: FlowLocation[];
   onLocationSelect: (index: number) => void;
   scroll: (element: Element) => void;
-  selectedFlowIndex?: number;
   selectedLocationIndex?: number;
 }
 
