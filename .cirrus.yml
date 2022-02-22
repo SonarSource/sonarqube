@@ -187,6 +187,7 @@ yarn_lint-report-ci_task:
     memory: 6Gb
   script:
     - ./private/cirrus/cirrus-yarn-lint-report.sh
+  allow_failures: "true"
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
   always:
