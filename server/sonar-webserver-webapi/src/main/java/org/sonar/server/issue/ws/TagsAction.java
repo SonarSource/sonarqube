@@ -80,9 +80,10 @@ public class TagsAction implements IssuesWsAction {
       .setSince("5.1")
       .setDescription("List tags matching a given query")
       .setResponseExample(Resources.getResource(getClass(), "tags-example.json"))
-      .setChangelog(new Change("7.4", "Result doesn't include rules tags anymore"));
+      .setChangelog(new Change("7.4", "Result doesn't include rules tags anymore"),
+        new Change("9.4", "Max page size increased to 500"));
     action.createSearchQuery("misra", "tags");
-    action.createPageSize(10, 100);
+    action.createPageSize(10, 500);
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
       .setRequired(false)

@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.io.Resources;
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -44,10 +45,11 @@ public class TagsAction implements RulesWsAction {
       .setDescription("List rule tags")
       .setSince("4.4")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(getClass(), "tags-example.json"));
+      .setResponseExample(Resources.getResource(getClass(), "tags-example.json"))
+        .setChangelog(new Change("9.4", "Max page size increased to 500"));
 
     action.createSearchQuery("misra", "tags");
-    action.createPageSize(10, 100);
+    action.createPageSize(10, 500);
   }
 
   @Override
