@@ -33,6 +33,9 @@ it('should render correctly', () => {
   expect(shallowRender({ hasSourcesAfter: true, hasSourcesBefore: true })).toMatchSnapshot(
     'has more sources'
   );
+  expect(
+    shallowRender({ sources: [], issues: [mockIssue(false, { textRange: undefined })] })
+  ).toMatchSnapshot('only file issues');
 });
 
 it('should correctly flag a line for scrolling', () => {

@@ -327,3 +327,44 @@ exports[`should render correctly: no project name 1`] = `
   </DeferredSpinner>
 </div>
 `;
+
+exports[`should render correctly: project root 1`] = `
+<div
+  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+>
+  <div
+    className="display-flex-center flex-1"
+  >
+    <div
+      className="spacer-right"
+    >
+      <a
+        className="link-with-icon"
+        href="/dashboard?id=my-project"
+      >
+        <QualifierIcon
+          qualifier="TRK"
+        />
+         
+        <span>
+          MyProject
+        </span>
+      </a>
+    </div>
+  </div>
+  <DeferredSpinner
+    className="little-spacer-right"
+  >
+    <div
+      className="flex-0 big-spacer-left"
+    >
+      <ButtonIcon
+        className="js-actions"
+        onClick={[MockFunction]}
+      >
+        <ExpandSnippetIcon />
+      </ButtonIcon>
+    </div>
+  </DeferredSpinner>
+</div>
+`;

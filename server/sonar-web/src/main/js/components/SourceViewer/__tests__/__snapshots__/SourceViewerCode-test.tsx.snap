@@ -20,6 +20,7 @@ exports[`should render correctly: default 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -67,6 +68,7 @@ exports[`should render correctly: default 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -127,6 +129,7 @@ exports[`should render correctly: default 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -200,6 +203,7 @@ exports[`should render correctly: has file level issues 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -242,6 +246,7 @@ exports[`should render correctly: has file level issues 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -289,6 +294,7 @@ exports[`should render correctly: has file level issues 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -349,6 +355,7 @@ exports[`should render correctly: has file level issues 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -432,6 +439,7 @@ exports[`should render correctly: has more sources 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -479,6 +487,7 @@ exports[`should render correctly: has more sources 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -539,6 +548,7 @@ exports[`should render correctly: has more sources 1`] = `
         displayCoverage={true}
         displayDuplications={false}
         displayIssues={true}
+        displaySCM={true}
         duplications={Array []}
         duplicationsCount={0}
         firstLineNumber={16}
@@ -599,5 +609,61 @@ exports[`should render correctly: has more sources 1`] = `
       source_viewer.load_more_code
     </Button>
   </div>
+</div>
+`;
+
+exports[`should render correctly: only file issues 1`] = `
+<div
+  className="source-viewer-code"
+>
+  <table
+    className="source-table"
+  >
+    <tbody>
+      <Line
+        branchLike={
+          Object {
+            "analysisDate": "2018-01-01",
+            "excludedFromPurge": true,
+            "isMain": false,
+            "name": "branch-6.7",
+          }
+        }
+        displayCoverage={false}
+        displayDuplications={false}
+        displayIssues={true}
+        displaySCM={false}
+        duplications={Array []}
+        duplicationsCount={0}
+        firstLineNumber={0}
+        highlighted={false}
+        issueLocations={Array []}
+        issues={Array []}
+        key="0"
+        last={true}
+        line={
+          Object {
+            "code": "",
+            "duplicated": false,
+            "isNew": false,
+            "line": 0,
+          }
+        }
+        loadDuplications={[MockFunction]}
+        onIssueChange={[MockFunction]}
+        onIssuePopupToggle={[MockFunction]}
+        onIssueSelect={[MockFunction]}
+        onIssueUnselect={[MockFunction]}
+        onIssuesClose={[MockFunction]}
+        onIssuesOpen={[MockFunction]}
+        onLocationSelect={[MockFunction]}
+        onSymbolClick={[MockFunction]}
+        openIssues={false}
+        renderDuplicationPopup={[MockFunction]}
+        scrollToUncoveredLine={false}
+        secondaryIssueLocations={Array []}
+      />
+    </tbody>
+  </table>
 </div>
 `;

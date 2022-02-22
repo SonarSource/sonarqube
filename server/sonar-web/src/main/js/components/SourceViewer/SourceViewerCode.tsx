@@ -161,6 +161,7 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         displayIssues={displayIssues}
         displayLocationMarkers={this.props.displayLocationMarkers}
+        displaySCM={sources.length > 0}
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
         firstLineNumber={firstLineNumber}
