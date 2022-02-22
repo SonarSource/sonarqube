@@ -141,34 +141,16 @@ The following sections offer advanced configuration options when running the Son
 
 [[collapse]]
 | ## Using self-signed certificates
-| If you need to configure a self-signed certificate for the scanner to communicate with your SonarQube instance, we recommend using the OpenJDK provided with the `sonarsource/sonar-scanner-cli` image. To do this, follow these steps: 
+| If you need to configure a self-signed certificate for the scanner to communicate with your SonarQube instance, you can use a volume under `/tmp/cacerts` to add it to the containers java trust store: 
 |
-| 1. Extract the `cacerts` file from OpenJDK from the `sonarsource/sonar-scanner-cli` image:
-|
-| ```
+| ```bash
 | docker pull sonarsource/sonar-scanner-cli
 | docker run \
 |     --rm \
-|     --entrypoint cat sonarsource/sonar-scanner-cli /opt/java/openjdk/lib/security/cacerts > cacerts
-| ```
-|
-| 2. Add your certificate to the exported `cacerts` file. Assuming your certificate file is named `mycert.cer` and it's in your current local directory:
-|
-| ```
-| docker run \
-|     --rm \
-|     -v `pwd`:/tmp/certs \
-|     sonarsource/sonar-scanner-cli \
-|     bash -c 'cd /tmp/certs && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias mycert -file mycert.cer'
-| ```
-|
-| 3. Mount the `cacerts` file that you've prepared in your target container:
-| 
-| ```
-| docker run \
-|     --rm \
+|     -v ${YOUR_CERTS_DIR}/cacerts:/tmp/cacerts \
+|     -v ${YOUR_CACHE_DIR}:/opt/sonar-scanner/.sonar/cache \
+|     -v ${YOUR_REPO}:/usr/src \
 |     -e SONAR_HOST_URL="http://${SONARQUBE_URL}" \
-|     -v `pwd`/cacerts:/opt/java/openjdk/lib/security/cacerts \
 |     sonarsource/sonar-scanner-cli
 | ```
 |
@@ -176,7 +158,7 @@ The following sections offer advanced configuration options when running the Son
 |
 | ```
 | FROM sonarsource/sonar-scanner-cli
-| COPY cacerts /opt/java/openjdk/lib/security/cacerts
+| COPY cacerts /usr/lib/jvm/default-jvm/jre/lib/security/cacerts
 | ```
 |
 | Then, assuming both the `cacerts` and `Dockerfile` are in the current directory, create the new image with a command such as:
