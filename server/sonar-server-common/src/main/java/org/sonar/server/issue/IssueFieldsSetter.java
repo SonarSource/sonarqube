@@ -302,18 +302,6 @@ public class IssueFieldsSetter {
     return setEffort(issue, currentEffort, context);
   }
 
-  public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
-    String oldValue = issue.attribute(key);
-    if (!Objects.equals(oldValue, value)) {
-      issue.setFieldChange(context, key, oldValue, value);
-      issue.setAttribute(key, value);
-      issue.setUpdateDate(context.date());
-      issue.setChanged(true);
-      return true;
-    }
-    return false;
-  }
-
   public boolean setTags(DefaultIssue issue, Collection<String> tags, IssueChangeContext context) {
     Set<String> newTags = RuleTagFormat.validate(tags);
 

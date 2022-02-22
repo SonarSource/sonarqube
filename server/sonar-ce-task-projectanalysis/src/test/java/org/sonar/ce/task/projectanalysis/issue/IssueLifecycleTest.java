@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -414,23 +413,5 @@ public class IssueLifecycleTest {
     underTest.mergeExistingOpenIssue(raw, base);
 
     assertThat(raw.isChanged()).isTrue();
-  }
-
-  @Test
-  public void mergeExistingOpenIssue_with_attributes() {
-    DefaultIssue raw = new DefaultIssue()
-      .setNew(true)
-      .setKey("RAW_KEY")
-      .setRuleKey(XOO_X1);
-    DefaultIssue base = new DefaultIssue()
-      .setKey("BASE_KEY")
-      .setResolution(RESOLUTION_FIXED)
-      .setStatus(STATUS_CLOSED)
-      .setSeverity(BLOCKER)
-      .setAttributes(ImmutableMap.of("JIRA", "SONAR-01"));
-
-    underTest.mergeExistingOpenIssue(raw, base);
-
-    assertThat(raw.attributes()).containsEntry("JIRA", "SONAR-01");
   }
 }

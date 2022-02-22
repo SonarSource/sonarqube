@@ -22,7 +22,6 @@ package org.sonar.core.issue;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -75,7 +74,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String resolution;
   private String assigneeUuid;
   private String checksum;
-  private Map<String, String> attributes = null;
   private String authorLogin = null;
   private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
@@ -475,37 +473,23 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  /**
+   * @deprecated since 9.4, attribute was already not returning any element since 5.2
+   */
+  @Deprecated
   @Override
   @CheckForNull
   public String attribute(String key) {
-    return attributes == null ? null : attributes.get(key);
+    return null;
   }
 
-  public DefaultIssue setAttribute(String key, @Nullable String value) {
-    if (attributes == null) {
-      attributes = new HashMap<>();
-    }
-    if (value == null) {
-      attributes.remove(key);
-    } else {
-      attributes.put(key, value);
-    }
-    return this;
-  }
-
+  /**
+   * @deprecated since 9.4, attribute was already not returning any element since 5.2
+   */
+  @Deprecated
   @Override
   public Map<String, String> attributes() {
-    return attributes == null ? Collections.emptyMap() : ImmutableMap.copyOf(attributes);
-  }
-
-  public DefaultIssue setAttributes(@Nullable Map<String, String> map) {
-    if (map != null) {
-      if (attributes == null) {
-        attributes = new HashMap<>();
-      }
-      attributes.putAll(map);
-    }
-    return this;
+    return new HashMap<>();
   }
 
   @Override

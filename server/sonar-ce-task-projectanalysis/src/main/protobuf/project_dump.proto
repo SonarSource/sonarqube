@@ -114,7 +114,7 @@ message Issue {
   string author = 16;
 
   string tags = 17;
-  string attributes = 18;
+
   // issue dates
   int64 issue_created_at = 19;
   int64 issue_updated_at = 20;

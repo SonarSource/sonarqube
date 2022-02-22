@@ -49,7 +49,6 @@ message Issue {
   optional string resolution = 18;
   optional string assigneeUuid = 19;
   optional string checksum = 20;
-  map<string, string> attributes = 21;
   optional string authorLogin = 22;
   optional string tags = 23;
   optional sonarqube.db.issues.Locations locations = 24;

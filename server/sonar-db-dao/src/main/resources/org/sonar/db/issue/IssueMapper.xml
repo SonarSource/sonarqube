@@ -20,7 +20,6 @@
     i.assignee as assigneeUuid,
     i.author_login as authorLogin,
     i.tags as tagsString,
-    i.issue_attributes as issueAttributes,
     i.issue_creation_date as issueCreationTime,
     i.issue_update_date as issueUpdateTime,
     i.issue_close_date as issueCloseTime,
@@ -59,7 +58,6 @@
     i.assignee,
     i.author_login,
     i.tags,
-    i.issue_attributes,
     i.issue_creation_date,
     i.issue_update_date,
     i.issue_close_date,
@@ -109,7 +107,7 @@
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false">
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
     message, line, locations, gap, effort, status, tags,
-    resolution, checksum, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
+    resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available)
     VALUES (
     #{kee,jdbcType=VARCHAR},
@@ -122,7 +120,6 @@
     #{checksum,jdbcType=VARCHAR},
     #{assigneeUuid,jdbcType=VARCHAR},
     #{authorLogin,jdbcType=VARCHAR},
-    #{issueAttributes,jdbcType=VARCHAR},
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
     #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
@@ -161,7 +158,6 @@
     author_login=#{authorLogin,jdbcType=VARCHAR},
     tags=#{tagsString,jdbcType=VARCHAR},
     project_uuid=#{projectUuid,jdbcType=VARCHAR},
-    issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
@@ -190,7 +186,6 @@
     tags=#{tagsString,jdbcType=VARCHAR},
     component_uuid=#{componentUuid,jdbcType=VARCHAR},
     project_uuid=#{projectUuid,jdbcType=VARCHAR},
-    issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},

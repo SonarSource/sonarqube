@@ -93,7 +93,6 @@ public class IssueDaoTest {
     assertThat(issue.getChecksum()).isEqualTo("123456789");
     assertThat(issue.getAuthorLogin()).isEqualTo("morgan");
     assertThat(issue.getAssigneeUuid()).isEqualTo("karadoc");
-    assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getIssueCreationDate()).isNotNull();
     assertThat(issue.getIssueUpdateDate()).isNotNull();
     assertThat(issue.getIssueCloseDate()).isNotNull();
@@ -488,7 +487,6 @@ public class IssueDaoTest {
     dto.setSeverity("BLOCKER");
     dto.setAuthorLogin("morgan");
     dto.setAssigneeUuid("karadoc");
-    dto.setIssueAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
     dto.setCreatedAt(1_440_000_000_000L);

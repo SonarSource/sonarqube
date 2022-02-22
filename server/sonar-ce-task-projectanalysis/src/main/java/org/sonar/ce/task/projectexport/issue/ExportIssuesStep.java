@@ -55,7 +55,7 @@ public class ExportIssuesStep implements ComputationStep {
     " i.kee, r.uuid, r.plugin_rule_key, r.plugin_name, i.issue_type," +
     " i.component_uuid, i.message, i.line, i.checksum, i.status," +
     " i.resolution, i.severity, i.manual_severity, i.gap, effort," +
-    " i.assignee, i.author_login, i.tags, i.issue_attributes, i.issue_creation_date," +
+    " i.assignee, i.author_login, i.tags, i.issue_creation_date," +
     " i.issue_update_date, i.issue_close_date, i.locations, i.project_uuid" +
     " from issues i" +
     " join rules r on r.uuid = i.rule_uuid and r.status <> ?" +
@@ -140,11 +140,10 @@ public class ExportIssuesStep implements ComputationStep {
       .setAssignee(emptyIfNull(rs, 16))
       .setAuthor(emptyIfNull(rs, 17))
       .setTags(emptyIfNull(rs, 18))
-      .setAttributes(emptyIfNull(rs, 19))
-      .setIssueCreatedAt(rs.getLong(20))
-      .setIssueUpdatedAt(rs.getLong(21))
-      .setIssueClosedAt(rs.getLong(22))
-      .setProjectUuid(rs.getString(24));
+      .setIssueCreatedAt(rs.getLong(19))
+      .setIssueUpdatedAt(rs.getLong(20))
+      .setIssueClosedAt(rs.getLong(21))
+      .setProjectUuid(rs.getString(23));
     setLocations(builder, rs, issueUuid);
     return builder.build();
   }
@@ -158,7 +157,7 @@ public class ExportIssuesStep implements ComputationStep {
 
   private static void setLocations(ProjectDump.Issue.Builder builder, ResultSet rs, String issueUuid) throws SQLException {
     try {
-      byte[] bytes = rs.getBytes(23);
+      byte[] bytes = rs.getBytes(22);
       if (bytes != null) {
         // fail fast, ensure we can read data from DB
         DbIssues.Locations.parseFrom(bytes);

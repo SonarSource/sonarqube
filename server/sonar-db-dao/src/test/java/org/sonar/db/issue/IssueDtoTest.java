@@ -39,20 +39,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IssueDtoTest {
 
-
-  @Test
-  public void set_data_check_maximal_length() {
-    assertThatThrownBy(() -> {
-      StringBuilder s = new StringBuilder(4500);
-      for (int i = 0; i < 4500; i++) {
-        s.append('a');
-      }
-      new IssueDto().setIssueAttributes(s.toString());
-    })
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Value is too long for issue attributes:");
-  }
-
   @Test
   public void set_issue_fields() {
     Date createdAt = DateUtils.addDays(new Date(), -5);
@@ -80,7 +66,6 @@ public class IssueDtoTest {
       .setMessage("message")
       .setManualSeverity(true)
       .setAssigneeUuid("perceval")
-      .setIssueAttributes("key=value")
       .setAuthorLogin("pierre")
       .setIssueCreationDate(createdAt)
       .setIssueUpdateDate(updatedAt)
@@ -106,7 +91,6 @@ public class IssueDtoTest {
     assertThat(issue.message()).isEqualTo("message");
     assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.assignee()).isEqualTo("perceval");
-    assertThat(issue.attribute("key")).isEqualTo("value");
     assertThat(issue.authorLogin()).isEqualTo("pierre");
     assertThat(issue.creationDate()).isEqualTo(DateUtils.truncate(createdAt, Calendar.SECOND));
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
@@ -177,10 +161,10 @@ public class IssueDtoTest {
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getModuleUuid,
-      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getIssueAttributes,
+      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey,
       IssueDto::getRuleUuid)
       .containsExactly(true, "123", "123", true, "123", "componentKey", "moduleUuid",
-        "path/to/module/uuid", "123", "projectKey", "key=value", "ruleUuid");
+        "path/to/module/uuid", "123", "projectKey", "ruleUuid");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
@@ -210,9 +194,9 @@ public class IssueDtoTest {
 
     assertThat(issueDto).extracting(IssueDto::isManualSeverity, IssueDto::getChecksum, IssueDto::getAssigneeUuid,
       IssueDto::isExternal, IssueDto::getComponentUuid, IssueDto::getComponentKey, IssueDto::getModuleUuid,
-      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey, IssueDto::getIssueAttributes)
+      IssueDto::getModuleUuidPath, IssueDto::getProjectUuid, IssueDto::getProjectKey)
       .containsExactly(true, "123", "123", true, "123", "componentKey", "moduleUuid",
-        "path/to/module/uuid", "123", "projectKey", "key=value");
+        "path/to/module/uuid", "123", "projectKey");
 
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
@@ -241,7 +225,6 @@ public class IssueDtoTest {
       .setModuleUuidPath("path/to/module/uuid")
       .setProjectUuid("123")
       .setProjectKey("projectKey")
-      .setAttribute("key", "value")
       .setAuthorLogin("admin")
       .setCreationDate(dateNow)
       .setCloseDate(dateNow)

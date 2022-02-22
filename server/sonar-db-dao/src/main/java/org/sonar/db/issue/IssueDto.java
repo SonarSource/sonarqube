@@ -20,7 +20,6 @@
 package org.sonar.db.issue;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +36,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -71,7 +69,6 @@ public final class IssueDto implements Serializable {
   private String assigneeUuid;
   private String assigneeLogin;
   private String authorLogin;
-  private String issueAttributes;
   private String securityStandards;
   private byte[] locations;
   private long createdAt;
@@ -135,7 +132,6 @@ public final class IssueDto implements Serializable {
       .setModuleUuidPath(issue.moduleUuidPath())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
-      .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
@@ -175,7 +171,6 @@ public final class IssueDto implements Serializable {
       .setChecksum(issue.checksum())
       .setManualSeverity(issue.manualSeverity())
       .setAssigneeUuid(issue.assignee())
-      .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
@@ -362,17 +357,6 @@ public final class IssueDto implements Serializable {
   public IssueDto setAuthorLogin(@Nullable String s) {
     checkArgument(s == null || s.length() <= AUTHOR_MAX_SIZE, "Value is too long for issue author login: %s", s);
     this.authorLogin = s;
-    return this;
-  }
-
-  @CheckForNull
-  public String getIssueAttributes() {
-    return issueAttributes;
-  }
-
-  public IssueDto setIssueAttributes(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Value is too long for issue attributes: %s", s);
-    this.issueAttributes = s;
     return this;
   }
 
@@ -751,7 +735,6 @@ public final class IssueDto implements Serializable {
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setAssigneeUuid(assigneeUuid);
-    issue.setAttributes(KeyValueFormat.parse(MoreObjects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
     issue.setComponentUuid(componentUuid);
     issue.setModuleUuid(moduleUuid);

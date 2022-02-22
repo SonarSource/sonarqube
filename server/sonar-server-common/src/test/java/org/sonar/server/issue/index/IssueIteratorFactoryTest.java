@@ -63,7 +63,6 @@ public class IssueIteratorFactoryTest {
         .setMessage(null)
         .setLine(444)
         .setRuleUuid(rule.getUuid())
-        .setIssueAttributes("JIRA=http://jira.com")
         .setTags(List.of("tag1", "tag2", "tag3"))
         .setCreatedAt(1400000000000L)
         .setUpdatedAt(1400000000000L)
@@ -108,15 +107,12 @@ public class IssueIteratorFactoryTest {
       t -> t
         .setAssigneeUuid("uuid-of-guy1")
         .setAuthorLogin("guy2")
-        .setRuleUuid(rule.getUuid())
-        .setIssueAttributes("JIRA=http://jira.com")
         .setEffort(10L)
         .setType(1));
     IssueDto moduleIssue = dbTester.issues().insert(rule, project, module, t -> t
       .setAssigneeUuid("uuid-of-guy2")
       .setAuthorLogin("guy2")
-      .setRuleUuid(rule.getUuid())
-      .setIssueAttributes("JIRA=http://jira.com"));
+      .setRuleUuid(rule.getUuid()));
     IssueDto dirIssue = dbTester.issues().insert(rule, project, directory);
     IssueDto projectIssue = dbTester.issues().insert(rule, project, project);
 

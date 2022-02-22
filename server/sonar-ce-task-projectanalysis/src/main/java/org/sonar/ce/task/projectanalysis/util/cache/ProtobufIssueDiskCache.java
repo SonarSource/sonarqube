@@ -112,7 +112,6 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setResolution(next.hasResolution() ? next.getResolution() : null);
     defaultIssue.setAssigneeUuid(next.hasAssigneeUuid() ? next.getAssigneeUuid() : null);
     defaultIssue.setChecksum(next.hasChecksum() ? next.getChecksum() : null);
-    defaultIssue.setAttributes(next.getAttributesMap());
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
     defaultIssue.setTags(ImmutableSet.copyOf(TAGS_SPLITTER.split(next.getTags())));
@@ -163,7 +162,6 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.resolution()).ifPresent(builder::setResolution);
     ofNullable(defaultIssue.assignee()).ifPresent(builder::setAssigneeUuid);
     ofNullable(defaultIssue.checksum()).ifPresent(builder::setChecksum);
-    ofNullable(defaultIssue.attributes()).ifPresent(builder::putAllAttributes);
     ofNullable(defaultIssue.authorLogin()).ifPresent(builder::setAuthorLogin);
     defaultIssue.defaultIssueComments().forEach(c -> builder.addComments(toProtoComment(c)));
     ofNullable(defaultIssue.tags()).ifPresent(t -> builder.setTags(String.join(TAGS_SEPARATOR, t)));

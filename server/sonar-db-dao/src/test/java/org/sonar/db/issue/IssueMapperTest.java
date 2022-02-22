@@ -102,7 +102,6 @@ public class IssueMapperTest {
     assertThat(result.getSeverity()).isEqualTo("BLOCKER");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
     assertThat(result.getAssigneeUuid()).isEqualTo("karadoc");
-    assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(result.getChecksum()).isEqualTo("123456789");
     assertThat(result.getMessage()).isEqualTo("the message");
     assertThat(result.getIssueCreationTime()).isEqualTo(1_401_000_000_000L);
@@ -132,7 +131,6 @@ public class IssueMapperTest {
     update.setSeverity("BLOCKER");
     update.setAuthorLogin("morgan");
     update.setAssigneeUuid("karadoc");
-    update.setIssueAttributes("JIRA=FOO-1234");
     update.setChecksum("123456789");
     update.setMessage("the message");
 
@@ -161,7 +159,6 @@ public class IssueMapperTest {
     assertThat(result.getSeverity()).isEqualTo("BLOCKER");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
     assertThat(result.getAssigneeUuid()).isEqualTo("karadoc");
-    assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(result.getChecksum()).isEqualTo("123456789");
     assertThat(result.getMessage()).isEqualTo("the message");
     assertThat(result.getIssueCreationTime()).isEqualTo(1_550_000_000_000L);
@@ -538,7 +535,6 @@ public class IssueMapperTest {
       .setSeverity("BLOCKER")
       .setAuthorLogin("morgan")
       .setAssigneeUuid("karadoc")
-      .setIssueAttributes("JIRA=FOO-1234")
       .setChecksum("123456789")
       .setMessage("the message")
       .setIssueCreationTime(1_401_000_000_000L)

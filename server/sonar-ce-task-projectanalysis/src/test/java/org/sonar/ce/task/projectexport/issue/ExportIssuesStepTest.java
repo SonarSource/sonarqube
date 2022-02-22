@@ -219,7 +219,6 @@ public class ExportIssuesStepTest {
       .setAssigneeUuid("assignee-uuid")
       .setAuthorLogin("author")
       .setTagsString("tags")
-      .setIssueAttributes("attributes")
       .setIssueCreationTime(963L)
       .setIssueUpdateTime(852L)
       .setIssueCloseTime(741L);
@@ -252,7 +251,6 @@ public class ExportIssuesStepTest {
     assertThat(issue.getAssignee()).isEqualTo(issueDto.getAssigneeUuid());
     assertThat(issue.getAuthor()).isEqualTo(issueDto.getAuthorLogin());
     assertThat(issue.getTags()).isEqualTo(issueDto.getTagsString());
-    assertThat(issue.getAttributes()).isEqualTo(issueDto.getIssueAttributes());
     assertThat(issue.getIssueCreatedAt()).isEqualTo(issueDto.getIssueCreationTime());
     assertThat(issue.getIssueUpdatedAt()).isEqualTo(issueDto.getIssueUpdateTime());
     assertThat(issue.getIssueClosedAt()).isEqualTo(issueDto.getIssueCloseTime());

@@ -214,7 +214,6 @@ public class IssueLifecycle {
     toIssue.setAssigneeUuid(fromIssue.assignee());
     toIssue.setAuthorLogin(fromIssue.authorLogin());
     toIssue.setTags(fromIssue.tags());
-    toIssue.setAttributes(fromIssue.attributes());
     toIssue.setEffort(debtCalculator.calculate(toIssue));
     toIssue.setOnDisabledRule(fromIssue.isOnDisabledRule());
     toIssue.setSelectedAt(fromIssue.selectedAt());

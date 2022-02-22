@@ -343,37 +343,6 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void set_new_attribute_value() {
-    boolean updated = underTest.setAttribute(issue, "JIRA", "FOO-123", context);
-    assertThat(updated).isTrue();
-    assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
-    assertThat(issue.currentChange().diffs()).hasSize(1);
-    assertThat(issue.currentChange().get("JIRA").oldValue()).isNull();
-    assertThat(issue.currentChange().get("JIRA").newValue()).isEqualTo("FOO-123");
-    assertThat(issue.mustSendNotifications()).isFalse();
-  }
-
-  @Test
-  public void unset_attribute() {
-    issue.setAttribute("JIRA", "FOO-123");
-    boolean updated = underTest.setAttribute(issue, "JIRA", null, context);
-    assertThat(updated).isTrue();
-    assertThat(issue.attribute("JIRA")).isNull();
-    assertThat(issue.currentChange().diffs()).hasSize(1);
-    assertThat(issue.currentChange().get("JIRA").oldValue()).isEqualTo("FOO-123");
-    assertThat(issue.currentChange().get("JIRA").newValue()).isNull();
-    assertThat(issue.mustSendNotifications()).isFalse();
-  }
-
-  @Test
-  public void not_update_attribute() {
-    issue.setAttribute("JIRA", "FOO-123");
-    boolean updated = underTest.setAttribute(issue, "JIRA", "FOO-123", context);
-    assertThat(updated).isFalse();
-    assertThat(issue.mustSendNotifications()).isFalse();
-  }
-
-  @Test
   public void set_gap_to_fix() {
     boolean updated = underTest.setGap(issue, 3.14, context);
     assertThat(updated).isTrue();
