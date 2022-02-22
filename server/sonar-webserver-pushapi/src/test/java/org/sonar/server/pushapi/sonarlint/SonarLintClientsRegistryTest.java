@@ -35,8 +35,10 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -56,12 +58,13 @@ public class SonarLintClientsRegistryTest {
   private final ServletOutputStream outputStream = mock(ServletOutputStream.class);
 
   private final SonarLintClientPermissionsValidator permissionsValidator = mock(SonarLintClientPermissionsValidator.class);
+  private final StandaloneRuleActivatorEventsDistributor eventsDistributor = mock(StandaloneRuleActivatorEventsDistributor.class);
 
   private SonarLintClientsRegistry underTest;
 
   @Before
   public void before() {
-    underTest = new SonarLintClientsRegistry(mock(StandaloneRuleActivatorEventsDistributor.class), permissionsValidator);
+    underTest = new SonarLintClientsRegistry(eventsDistributor, permissionsValidator);
   }
 
   @Test
@@ -189,6 +192,32 @@ public class SonarLintClientsRegistryTest {
     underTest.listen(ruleChangeEvent);
 
     verify(sonarLintClient, times(2)).close();
+  }
+
+  @Test
+  public void registerClient_whenCalledFirstTime_registerAlsoToListenToEvents() {
+    underTest.registerClient(createSampleSLClient());
+
+    verify(eventsDistributor).subscribe(underTest);
+  }
+
+  @Test
+  public void registerClient_whenCalledSecondTime_doNotRegisterToEvents() {
+    underTest.registerClient(createSampleSLClient());
+    clearInvocations(eventsDistributor);
+
+    underTest.registerClient(createSampleSLClient());
+    verifyNoInteractions(eventsDistributor);
+  }
+
+  @Test
+  public void registerClient_whenExceptionAndCalledSecondTime_registerToEvents() {
+    doThrow(new RuntimeException()).when(eventsDistributor).subscribe(any());
+    underTest.registerClient(createSampleSLClient());
+    clearInvocations(eventsDistributor);
+
+    underTest.registerClient(createSampleSLClient());
+    verify(eventsDistributor).subscribe(underTest);
   }
 
   private SonarLintClient createSampleSLClient() {

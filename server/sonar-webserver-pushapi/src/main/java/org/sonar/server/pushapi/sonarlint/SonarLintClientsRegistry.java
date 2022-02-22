@@ -49,18 +49,33 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
 
   private final SonarLintClientPermissionsValidator sonarLintClientPermissionsValidator;
   private final List<SonarLintClient> clients = new CopyOnWriteArrayList<>();
+  private final RuleActivatorEventsDistributor eventsDistributor;
+
+  private boolean registeredToEvents = false;
 
   public SonarLintClientsRegistry(RuleActivatorEventsDistributor ruleActivatorEventsDistributor, SonarLintClientPermissionsValidator permissionsValidator) {
     this.sonarLintClientPermissionsValidator = permissionsValidator;
-
-    ruleActivatorEventsDistributor.subscribe(this);
+    this.eventsDistributor = ruleActivatorEventsDistributor;
   }
 
   public void registerClient(SonarLintClient sonarLintClient) {
+    ensureListeningToEvents();
     clients.add(sonarLintClient);
     sonarLintClient.scheduleHeartbeat();
     sonarLintClient.addListener(new SonarLintClientEventsListener(sonarLintClient));
     LOG.debug("Registering new SonarLint client");
+  }
+
+  private synchronized void ensureListeningToEvents() {
+    if (registeredToEvents) {
+      return;
+    }
+    try {
+      eventsDistributor.subscribe(this);
+      registeredToEvents = true;
+    } catch (RuntimeException e) {
+      LOG.warn("Can not listen to rule activation events for server push. Web Server might not have started fully yet.", e);
+    }
   }
 
   public void unregisterClient(SonarLintClient client) {
