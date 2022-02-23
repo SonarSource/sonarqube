@@ -39,9 +39,9 @@ message TaskResponse {
 
 // GET api/ce/activity
 message ActivityResponse {
-  // paging has been deprecated in 5.5
-  optional sonarqube.ws.commons.Paging unusedPaging = 1;
+  reserved 1; //drop unusedPaging deprecated since 5.5
   repeated Task tasks = 2;
+  optional sonarqube.ws.commons.Paging paging = 3;
 }
 
 // GET api/ce/activity_status

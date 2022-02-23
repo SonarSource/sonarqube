@@ -36,6 +36,8 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectNewerThan(@Param("afterDate") long afterDate);
 
+  int countByQuery(@Param("query") CeTaskQuery query);
+
   int countLastByStatusAndMainComponentUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("mainComponentUuid") String mainComponentUuid);
 
   void insert(CeActivityDto dto);

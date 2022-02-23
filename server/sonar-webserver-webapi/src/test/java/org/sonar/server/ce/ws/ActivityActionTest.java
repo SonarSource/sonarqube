@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -59,6 +58,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -90,7 +90,7 @@ public class ActivityActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
-  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[]{mock(CeTaskProcessor.class)});
+  private final ActivityAction underTest = new ActivityAction(userSession, db.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
   private final WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -205,10 +205,36 @@ public class ActivityActionTest {
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
+    insertQueue("T4", project2, IN_PROGRESS);
+    insertQueue("T5", project1, IN_PROGRESS);
 
-    assertPage(1, asList("T3"));
-    assertPage(2, asList("T3", "T2"));
-    assertPage(10, asList("T3", "T2", "T1"));
+    assertPage(1, 1, singletonList("T5"));
+    assertPage(1, 2, asList("T5", "T4"));
+    assertPage(1, 10, asList("T5", "T4", "T3", "T2", "T1"));
+
+    assertPage(4, 1, singletonList("T2"));
+    assertPage(3, 1, singletonList("T3"));
+    assertPage(1, 2, asList("T5", "T4"));
+    assertPage(2, 2, asList("T3", "T2"));
+    assertPage(3, 2, singletonList("T1"));
+  }
+
+  @Test
+  public void remove_queued_already_completed() {
+    logInAsSystemAdministrator();
+    ComponentDto project1 = db.components().insertPrivateProject();
+
+    insertActivity("T1", project1, SUCCESS);
+    insertQueue("T1", project1, IN_PROGRESS);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(Param.PAGE_SIZE, Integer.toString(10))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Ce.Task::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple("T1", Ce.TaskStatus.SUCCESS));
   }
 
   @Test
@@ -526,12 +552,45 @@ public class ActivityActionTest {
   public void throws_IAE_if_pageSize_is_0() {
     logInAsSystemAdministrator();
     TestRequest request = ws.newRequest()
+      .setParam(Param.PAGE, Integer.toString(1))
       .setParam(Param.PAGE_SIZE, Integer.toString(0))
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING");
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("page size must be >= 1");
 
+  }
+
+  @Test
+  public void throws_IAE_if_page_is_0() {
+    logInAsSystemAdministrator();
+    TestRequest request = ws.newRequest()
+      .setParam(Param.PAGE, Integer.toString(0))
+      .setParam(Param.PAGE_SIZE, Integer.toString(1))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING");
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("page index must be >= 1");
+  }
+
+  @Test
+  public void throws_IAE_if_page_is_higher_than_available() {
+    logInAsSystemAdministrator();
+    ComponentDto project1 = db.components().insertPrivateProject();
+
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project1, SUCCESS);
+    insertActivity("T3", project1, SUCCESS);
+
+    TestRequest request = ws.newRequest()
+      .setParam(Param.PAGE, Integer.toString(2))
+      .setParam(Param.PAGE_SIZE, Integer.toString(3))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING");
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Can return only the first 3 results. 4th result asked.");
   }
 
   @Test
@@ -544,11 +603,14 @@ public class ActivityActionTest {
       .hasMessage("Component 'unknown' does not exist");
   }
 
-  private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {
+  private void assertPage(int page, int pageSize, List<String> expectedOrderedTaskIds) {
     ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(Param.PAGE, Integer.toString(page))
       .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
+    assertThat(activityResponse.getPaging().getPageIndex()).isEqualTo(page);
+    assertThat(activityResponse.getPaging().getPageSize()).isEqualTo(pageSize);
     assertThat(activityResponse.getTasksCount()).isEqualTo(expectedOrderedTaskIds.size());
     for (int i = 0; i < expectedOrderedTaskIds.size(); i++) {
       String expectedTaskId = expectedOrderedTaskIds.get(i);
@@ -633,7 +695,7 @@ public class ActivityActionTest {
       .setTaskUuid(taskUuid)
       .setKey(key)
       .setValue(value);
-    db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), Collections.singletonList(dto));
+    db.getDbClient().ceTaskCharacteristicsDao().insert(db.getSession(), singletonList(dto));
     db.commit();
     return dto;
   }

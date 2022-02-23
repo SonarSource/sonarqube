@@ -30,11 +30,13 @@ import java.util.Set;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.Uuids;
@@ -49,8 +51,11 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ActivityResponse;
+import org.sonarqube.ws.Common;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.Integer.max;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -155,6 +160,8 @@ public class ActivityAction implements CeWsAction {
       .setDescription("Maximum date of end of task processing (inclusive)")
       .setExampleValue("2017-10-19T13:00:00+0200");
     action.createPageSize(100, MAX_PAGE_SIZE);
+    action.createPageParam()
+      .setSince("9.4");
   }
 
   @Override
@@ -174,17 +181,58 @@ public class ActivityAction implements CeWsAction {
         return buildResponse(
           singletonList(taskSearchedById.get()),
           Collections.emptyList(),
-          parseInt(request.getPs()));
+          Paging.forPageIndex(1).withPageSize(1).andTotal(1), 0);
       }
 
       CeTaskQuery query = buildQuery(dbSession, request, component);
-      List<Ce.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
-      List<Ce.Task> pastTasks = loadPastTasks(dbSession, request, query);
-      return buildResponse(
-        queuedTasks,
-        pastTasks,
-        parseInt(request.getPs()));
+
+      return buildPaginatedResponse(dbSession, query, parseInt(request.getP()), parseInt(request.getPs()));
     }
+  }
+
+  @NotNull
+  private ActivityResponse buildPaginatedResponse(DbSession dbSession, CeTaskQuery query, int page, int pageSize) {
+
+    int totalQueuedTasks = countQueuedTasks(dbSession, query);
+    int totalPastTasks = countPastTasks(dbSession, query);
+    int totalTasks = totalQueuedTasks + totalPastTasks;
+    int pastTasksEffectivePage = calculateEffectivePage(page, pageSize, totalQueuedTasks);
+
+    validatePagingParameters(page, pageSize, totalTasks);
+
+    List<Ce.Task> queuedTasks = loadQueuedTasks(dbSession, query, page, pageSize);
+    List<Ce.Task> pastTasks = loadPastTasks(dbSession, query, pastTasksEffectivePage, pageSize);
+
+    return buildResponse(
+      queuedTasks,
+      pastTasks,
+      Paging.forPageIndex(page).withPageSize(pageSize).andTotal(totalTasks),
+      getItemsInLastPage(pageSize, totalQueuedTasks));
+  }
+
+  private static void validatePagingParameters(int page, int pageSize, int totalResults) {
+    if (page > 1) {
+      int firstResultIndex = (page - 1) * pageSize + 1;
+      checkArgument(firstResultIndex <= totalResults, "Can return only the first %s results. %sth result asked.", totalResults, firstResultIndex);
+    }
+  }
+
+  private static int calculateEffectivePage(int page, int pageSize, int otherDatasetSize) {
+    if (pageSize > 0 && page > 0) {
+      int effectivePage = page - (otherDatasetSize / pageSize);
+      if (getItemsInLastPage(pageSize, otherDatasetSize) > 0) {
+        effectivePage--;
+      }
+      return max(1, effectivePage);
+    }
+    return page;
+  }
+
+  private static int getItemsInLastPage(int pageSize, int totalItems) {
+    if (totalItems > pageSize) {
+      return totalItems % pageSize;
+    }
+    return 0;
   }
 
   @CheckForNull
@@ -264,17 +312,25 @@ public class ActivityAction implements CeWsAction {
     return dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
   }
 
-  private List<Ce.Task> loadQueuedTasks(DbSession dbSession, Request request, CeTaskQuery query) {
-    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, parseInt(request.getPs()));
+  private Integer countQueuedTasks(DbSession dbSession, CeTaskQuery query) {
+    return dbClient.ceQueueDao().countByQuery(dbSession, query);
+  }
+
+  private List<Ce.Task> loadQueuedTasks(DbSession dbSession, CeTaskQuery query, int page, int pageSize) {
+    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, page, pageSize);
     return formatter.formatQueue(dbSession, dtos);
   }
 
-  private List<Ce.Task> loadPastTasks(DbSession dbSession, Request request, CeTaskQuery query) {
-    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, forPage(1).andSize(parseInt(request.getPs())));
+  private Integer countPastTasks(DbSession dbSession, CeTaskQuery query) {
+    return dbClient.ceActivityDao().countByQuery(dbSession, query);
+  }
+
+  private List<Ce.Task> loadPastTasks(DbSession dbSession, CeTaskQuery query, int page, int pageSize) {
+    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, forPage(page).andSize(pageSize));
     return formatter.formatActivity(dbSession, dtos);
   }
 
-  private static ActivityResponse buildResponse(Iterable<Ce.Task> queuedTasks, Iterable<Ce.Task> pastTasks, int pageSize) {
+  private static ActivityResponse buildResponse(Iterable<Ce.Task> queuedTasks, Iterable<Ce.Task> pastTasks, Paging paging, int offset) {
     Ce.ActivityResponse.Builder wsResponseBuilder = Ce.ActivityResponse.newBuilder();
 
     Set<String> pastIds = StreamSupport
@@ -284,18 +340,26 @@ public class ActivityAction implements CeWsAction {
 
     int nbInsertedTasks = 0;
     for (Ce.Task queuedTask : queuedTasks) {
-      if (nbInsertedTasks < pageSize && !pastIds.contains(queuedTask.getId())) {
+      if (nbInsertedTasks < paging.pageSize() && !pastIds.contains(queuedTask.getId())) {
         wsResponseBuilder.addTasks(queuedTask);
         nbInsertedTasks++;
       }
     }
 
+    int pastTasksIndex = nbInsertedTasks;
     for (Ce.Task pastTask : pastTasks) {
-      if (nbInsertedTasks < pageSize) {
+      if (nbInsertedTasks < paging.pageSize() && pastTasksIndex >= offset) {
         wsResponseBuilder.addTasks(pastTask);
         nbInsertedTasks++;
       }
+      pastTasksIndex++;
     }
+
+    wsResponseBuilder.setPaging(Common.Paging.newBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total()));
+
     return wsResponseBuilder.build();
   }
 
@@ -309,7 +373,8 @@ public class ActivityAction implements CeWsAction {
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
       .setMaxExecutedAt(request.param(PARAM_MAX_EXECUTED_AT))
       .setOnlyCurrents(String.valueOf(request.paramAsBoolean(PARAM_ONLY_CURRENTS)))
-      .setPs(String.valueOf(request.mandatoryParamAsInt(Param.PAGE_SIZE)));
+      .setPs(String.valueOf(request.mandatoryParamAsInt(Param.PAGE_SIZE)))
+      .setP(String.valueOf(request.mandatoryParamAsInt(Param.PAGE)));
 
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, INVALID_QUERY_PARAM_ERROR_MESSAGE,
       PARAM_COMPONENT_ID, TEXT_QUERY);
@@ -330,6 +395,7 @@ public class ActivityAction implements CeWsAction {
     private String maxExecutedAt;
     private String minSubmittedAt;
     private String onlyCurrents;
+    private String p;
     private String ps;
     private String q;
     private List<String> status;
@@ -419,6 +485,18 @@ public class ActivityAction implements CeWsAction {
 
     private String getPs() {
       return ps;
+    }
+
+    /**
+     * Example value: "1"
+     */
+    private Request setP(String p) {
+      this.p = p;
+      return this;
+    }
+
+    private String getP() {
+      return p;
     }
 
     /**

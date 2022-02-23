@@ -84,6 +84,10 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
+  public int countByQuery(DbSession dbSession, CeTaskQuery query) {
+    return mapper(dbSession).countByQuery(query);
+  }
+
   public int countLastByStatusAndMainComponentUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String mainComponentUuid) {
     return mapper(dbSession).countLastByStatusAndMainComponentUuid(status, mainComponentUuid);
   }

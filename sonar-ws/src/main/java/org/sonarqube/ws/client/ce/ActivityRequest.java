@@ -36,6 +36,7 @@ public class ActivityRequest {
   private String maxExecutedAt;
   private String minSubmittedAt;
   private String onlyCurrents;
+  private String p;
   private String ps;
   private String q;
   private List<String> status;
@@ -105,6 +106,18 @@ public class ActivityRequest {
 
   public String getOnlyCurrents() {
     return onlyCurrents;
+  }
+
+  /**
+   * Example value: "1"
+   */
+  public ActivityRequest setP(String p) {
+    this.p = p;
+    return this;
+  }
+
+  public String getP() {
+    return p;
   }
 
   /**

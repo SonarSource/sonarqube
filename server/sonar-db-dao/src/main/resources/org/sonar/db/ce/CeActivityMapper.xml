@@ -152,7 +152,13 @@
     where
       ca.created_at &gt; #{afterDate,jdbcType=BIGINT}
   </select>
-  
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    select
+      count(1)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
   <select id="countLastByStatusAndMainComponentUuid" resultType="int">
     select
       count(1)
