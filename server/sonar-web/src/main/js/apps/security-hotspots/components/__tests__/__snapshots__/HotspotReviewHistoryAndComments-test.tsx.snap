@@ -4,9 +4,7 @@ exports[`should render correctly 1`] = `
 <div
   className="padded it__hs-review-history"
 >
-  <div
-    className="big-spacer-top"
-  >
+  <div>
     <div
       className="little-spacer-bottom"
     >

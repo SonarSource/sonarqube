@@ -59,6 +59,7 @@ function shallowRender(props: Partial<HotspotPrimaryLocationBoxProps> = {}) {
       currentUser={mockLoggedInUser()}
       hotspot={mockHotspot()}
       onCommentClick={jest.fn()}
+      scroll={jest.fn()}
       {...props}
     />
   );

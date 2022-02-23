@@ -31,6 +31,7 @@ export interface HotspotPrimaryLocationBoxProps {
   hotspot: Hotspot;
   onCommentClick: () => void;
   currentUser: CurrentUser;
+  scroll: (element: HTMLElement, offset?: number) => void;
 }
 
 export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
@@ -41,7 +42,8 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
         'hotspot-primary-location',
         'display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right',
         `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
-      )}>
+      )}
+      ref={element => element && props.scroll(element)}>
       <div className="text-bold">{hotspot.message}</div>
       {isLoggedIn(currentUser) && (
         <ButtonLink

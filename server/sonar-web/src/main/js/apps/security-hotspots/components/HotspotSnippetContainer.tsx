@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { scrollToElement } from '../../../helpers/scrolling';
 import { getSources } from '../../../api/components';
 import { locationsByLine } from '../../../components/SourceViewer/helpers/indexing';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -45,7 +44,7 @@ interface State {
   secondaryLocations: FlowLocation[];
 }
 
-const BUFFER_LINES = 5;
+const BUFFER_LINES = 10;
 const EXPAND_BY_LINES = 50;
 
 export default class HotspotSnippetContainer extends React.Component<Props, State> {
@@ -198,10 +197,6 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     this.setState({ highlightedSymbols });
   };
 
-  handleScroll = (element: Element, offset = window.innerHeight / 2, smooth = true) => {
-    scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth });
-  };
-
   render() {
     const { branchLike, component, hotspot, selectedHotspotLocation } = this.props;
     const { highlightedSymbols, lastLine, loading, sourceLines, secondaryLocations } = this.state;
@@ -222,7 +217,6 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
         onExpandBlock={this.handleExpansion}
         onSymbolClick={this.handleSymbolClick}
         onLocationSelect={this.props.onLocationSelect}
-        onScroll={this.handleScroll}
         sourceLines={sourceLines}
         sourceViewerFile={sourceViewerFile}
         secondaryLocations={secondaryLocations}

@@ -20,8 +20,6 @@
 import { shallow } from 'enzyme';
 import { range } from 'lodash';
 import * as React from 'react';
-import { mockHtmlElement } from '../../../../helpers/mocks/dom';
-import { scrollToElement } from '../../../../helpers/scrolling';
 import { getSources } from '../../../../api/components';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -50,7 +48,7 @@ it('should render correctly', () => {
 
 it('should load sources on mount', async () => {
   (getSources as jest.Mock).mockResolvedValueOnce(
-    range(1, 20).map(line => mockSourceLine({ line }))
+    range(1, 25).map(line => mockSourceLine({ line }))
   );
 
   const hotspot = mockHotspot({
@@ -78,12 +76,12 @@ it('should load sources on mount', async () => {
     expect.objectContaining({
       key: hotspot.component.key,
       branch: branch.name,
-      from: 3,
-      to: 19
+      from: 1,
+      to: 24
     })
   );
   expect(wrapper.state().lastLine).toBeUndefined();
-  expect(wrapper.state().sourceLines).toHaveLength(18);
+  expect(wrapper.state().sourceLines).toHaveLength(23);
 });
 
 it('should handle load sources failure', async () => {
@@ -135,18 +133,18 @@ it('should handle end-of-file on mount', async () => {
 describe('Expansion', () => {
   beforeEach(() => {
     (getSources as jest.Mock).mockResolvedValueOnce(
-      range(5, 18).map(line => mockSourceLine({ line }))
+      range(10, 32).map(line => mockSourceLine({ line }))
     );
   });
 
   const hotspot = mockHotspot({
     project: mockHotspotComponent({ branch: branch.name, qualifier: ComponentQualifier.Project }),
-    textRange: { startLine: 10, endLine: 11, startOffset: 0, endOffset: 12 }
+    textRange: { startLine: 20, endLine: 21, startOffset: 0, endOffset: 12 }
   });
 
   it('up should work', async () => {
     (getSources as jest.Mock).mockResolvedValueOnce(
-      range(1, 5).map(line => mockSourceLine({ line }))
+      range(1, 10).map(line => mockSourceLine({ line }))
     );
 
     const wrapper = shallowRender({ hotspot });
@@ -164,14 +162,14 @@ describe('Expansion', () => {
         branch: branch.name
       })
     );
-    expect(wrapper.state().sourceLines).toHaveLength(16);
+    expect(wrapper.state().sourceLines).toHaveLength(31);
   });
 
   it('down should work', async () => {
     (getSources as jest.Mock).mockResolvedValueOnce(
       // lastLine + expand + extra for EOF check + range end is excluded
-      // 16 + 50 + 1 + 1
-      range(17, 68).map(line => mockSourceLine({ line }))
+      // 31 + 50 + 1 + 1
+      range(32, 83).map(line => mockSourceLine({ line }))
     );
 
     const wrapper = shallowRender({ hotspot });
@@ -185,14 +183,14 @@ describe('Expansion', () => {
     await waitAndUpdate(wrapper);
 
     expect(wrapper.state().lastLine).toBeUndefined();
-    expect(wrapper.state().sourceLines).toHaveLength(62);
+    expect(wrapper.state().sourceLines).toHaveLength(72);
   });
 
   it('down should work and handle EOF', async () => {
     (getSources as jest.Mock).mockResolvedValueOnce(
       // lastLine + expand + extra for EOF check + range end is excluded - 1 to trigger end-of-file
-      // 16 + 50 + 1 + 1 - 1
-      range(17, 67).map(line => mockSourceLine({ line }))
+      // 26 + 50 + 1 + 1 - 1
+      range(27, 77).map(line => mockSourceLine({ line }))
     );
 
     const wrapper = shallowRender({ hotspot });
@@ -205,8 +203,8 @@ describe('Expansion', () => {
 
     await waitAndUpdate(wrapper);
 
-    expect(wrapper.state().lastLine).toBe(66);
-    expect(wrapper.state().sourceLines).toHaveLength(62);
+    expect(wrapper.state().lastLine).toBe(76);
+    expect(wrapper.state().sourceLines).toHaveLength(72);
   });
 });
 
@@ -218,18 +216,6 @@ it('should handle symbol click', () => {
     .props()
     .onSymbolClick(symbols);
   expect(wrapper.state().highlightedSymbols).toBe(symbols);
-});
-
-it('should handle scroll properly', async () => {
-  const wrapper = shallowRender();
-  const element = mockHtmlElement();
-  wrapper.instance().handleScroll(element, 200);
-  await waitAndUpdate(wrapper);
-  expect(scrollToElement).toBeCalledWith(element, {
-    bottomOffset: 200,
-    smooth: true,
-    topOffset: 100
-  });
 });
 
 function shallowRender(props?: Partial<HotspotSnippetContainer['props']>) {

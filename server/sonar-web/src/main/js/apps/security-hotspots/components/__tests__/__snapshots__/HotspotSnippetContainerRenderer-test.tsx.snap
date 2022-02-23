@@ -126,7 +126,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <div
-    className="bordered"
+    className="hotspot-snippet-container bordered"
   >
     <DeferredSpinner
       className="big-spacer"
@@ -262,7 +262,7 @@ exports[`should render correctly when secondary location is selected: with selec
     }
   />
   <div
-    className="bordered"
+    className="hotspot-snippet-container bordered"
   >
     <DeferredSpinner
       className="big-spacer"
@@ -393,7 +393,7 @@ exports[`should render correctly: with sourcelines 1`] = `
     }
   />
   <div
-    className="bordered"
+    className="hotspot-snippet-container bordered"
   >
     <DeferredSpinner
       className="big-spacer"
@@ -520,7 +520,7 @@ exports[`should render correctly: with sourcelines 1`] = `
         openIssuesByLine={Object {}}
         renderAdditionalChildInLine={[Function]}
         renderDuplicationPopup={[Function]}
-        scroll={[MockFunction]}
+        scroll={[Function]}
         snippet={
           Array [
             Object {

@@ -259,12 +259,12 @@ exports[`render code: with secondary location 1`] = `
         impor
       </span>
       <Tooltip
+        key="marker-1"
         overlay="secondary-location-msg"
         placement="top"
       >
         <LocationIndex
           aria-label="2-secondary-location-msg"
-          key="marker-1"
           leading={false}
           onClick={[Function]}
           selected={false}

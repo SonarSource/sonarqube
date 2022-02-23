@@ -34,12 +34,38 @@ exports[`should render correctly: fix 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <div
+      className="padded hidden"
+    >
+      <div>
+        CodeTabContent
+      </div>
+    </div>
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
+        }
+      }
+      key="risk"
+    />
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
+        }
+      }
+      key="vulnerability"
+    />
+    <div
       className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
           "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
         }
       }
+      key="fix"
     />
   </div>
 </Fragment>
@@ -85,6 +111,33 @@ exports[`should render correctly: risk 1`] = `
         CodeTabContent
       </div>
     </div>
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "",
+        }
+      }
+      key="risk"
+    />
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "",
+        }
+      }
+      key="vulnerability"
+    />
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "",
+        }
+      }
+      key="fix"
+    />
   </div>
 </Fragment>
 `;
@@ -123,12 +176,38 @@ exports[`should render correctly: vulnerability 1`] = `
     className="bordered huge-spacer-bottom"
   >
     <div
+      className="padded hidden"
+    >
+      <div>
+        CodeTabContent
+      </div>
+    </div>
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+        }
+      }
+      key="risk"
+    />
+    <div
       className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
           "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
         }
       }
+      key="vulnerability"
+    />
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+        }
+      }
+      key="fix"
     />
   </div>
 </Fragment>
@@ -174,6 +253,33 @@ exports[`should render correctly: with comments or changelog element 1`] = `
         CodeTabContent
       </div>
     </div>
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "",
+        }
+      }
+      key="risk"
+    />
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "",
+        }
+      }
+      key="vulnerability"
+    />
+    <div
+      className="markdown big-padded hidden"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "",
+        }
+      }
+      key="fix"
+    />
   </div>
 </Fragment>
 `;

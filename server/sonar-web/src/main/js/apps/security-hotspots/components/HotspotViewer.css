@@ -24,3 +24,8 @@
 .hotspot-information > div > span {
   flex-basis: 100px;
 }
+
+.hotspot-snippet-container {
+  max-height: calc(100vh - 500px);
+  overflow: auto;
+}

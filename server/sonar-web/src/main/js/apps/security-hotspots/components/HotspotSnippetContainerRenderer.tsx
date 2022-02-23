@@ -20,6 +20,7 @@
 import * as React from 'react';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
@@ -45,7 +46,6 @@ export interface HotspotSnippetContainerRendererProps {
   onExpandBlock: (direction: ExpandDirection) => Promise<void>;
   onSymbolClick: (symbols: string[]) => void;
   onLocationSelect: (index: number) => void;
-  onScroll: (element: Element) => void;
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
   secondaryLocations: FlowLocation[];
@@ -53,6 +53,27 @@ export interface HotspotSnippetContainerRendererProps {
 }
 
 const noop = () => undefined;
+const SCROLL_DELAY = 100;
+const TOP_OFFSET = 100; // 5 lines above
+const BOTTOM_OFFSET = 28; // 1 line below + margin
+
+/* Exported for testing */
+export function getScrollHandler(scrollableRef: React.RefObject<HTMLDivElement>) {
+  return (element: Element, offset?: number, smooth = true) => {
+    /* We need this delay to let the parent resize itself before scrolling */
+    setTimeout(() => {
+      const parent = scrollableRef.current;
+      if (parent) {
+        scrollToElement(element, {
+          parent,
+          topOffset: offset ?? TOP_OFFSET,
+          bottomOffset: offset ?? BOTTOM_OFFSET,
+          smooth
+        });
+      }
+    }, SCROLL_DELAY);
+  };
+}
 
 export default function HotspotSnippetContainerRenderer(
   props: HotspotSnippetContainerRendererProps
@@ -70,12 +91,22 @@ export default function HotspotSnippetContainerRenderer(
     selectedHotspotLocation
   } = props;
 
+  const scrollableRef = React.useRef<HTMLDivElement>(null);
+
+  /* Use memo is important to not rerender and trigger additional scrolls */
+  const hotspotPrimaryLocationBox = React.useMemo(
+    () => (
+      <HotspotPrimaryLocationBox
+        hotspot={hotspot}
+        onCommentClick={props.onCommentButtonClick}
+        scroll={getScrollHandler(scrollableRef)}
+      />
+    ),
+    [hotspot, props.onCommentButtonClick]
+  );
+
   const renderHotspotBoxInLine = (lineNumber: number) =>
-    lineNumber === hotspot.line ? (
-      <HotspotPrimaryLocationBox hotspot={hotspot} onCommentClick={props.onCommentButtonClick} />
-    ) : (
-      undefined
-    );
+    lineNumber === hotspot.line ? hotspotPrimaryLocationBox : undefined;
 
   const highlightedLocation =
     selectedHotspotLocation !== undefined
@@ -88,7 +119,7 @@ export default function HotspotSnippetContainerRenderer(
         <p className="spacer-bottom">{translate('hotspots.no_associated_lines')}</p>
       )}
       <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-      <div className="bordered">
+      <div className="hotspot-snippet-container bordered" ref={scrollableRef}>
         <DeferredSpinner className="big-spacer" loading={loading}>
           {sourceLines.length > 0 && (
             <SnippetViewer
@@ -115,7 +146,7 @@ export default function HotspotSnippetContainerRenderer(
               renderAdditionalChildInLine={renderHotspotBoxInLine}
               renderDuplicationPopup={noop}
               snippet={sourceLines}
-              scroll={props.onScroll}
+              scroll={getScrollHandler(scrollableRef)}
             />
           )}
         </DeferredSpinner>

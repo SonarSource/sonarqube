@@ -143,9 +143,8 @@ export default class LineCode extends React.PureComponent<Props, State> {
     const ref = selected ? (node: HTMLElement | null) => (this.activeMarkerNode = node) : undefined;
 
     return (
-      <Tooltip overlay={message} placement="top">
+      <Tooltip key={`marker-${index}`} overlay={message} placement="top">
         <LocationIndex
-          key={`marker-${index}`}
           leading={leading}
           onClick={onClick}
           selected={selected}

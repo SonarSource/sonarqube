@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import key from 'keymaster';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
@@ -162,15 +163,22 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       <>
         <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
         <div className="bordered huge-spacer-bottom">
-          {currentTab.key === TabKeys.Code ? (
-            <div className="padded">{codeTabContent}</div>
-          ) : (
+          <div
+            className={classNames('padded', {
+              hidden: currentTab.key !== TabKeys.Code
+            })}>
+            {codeTabContent}
+          </div>
+          {tabs.slice(1).map(tab => (
             <div
-              className="markdown big-padded"
+              key={tab.key}
+              className={classNames('markdown big-padded', {
+                hidden: currentTab.key !== tab.key
+              })}
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{ __html: sanitizeString(currentTab.content) }}
             />
-          )}
+          ))}
         </div>
       </>
     );
