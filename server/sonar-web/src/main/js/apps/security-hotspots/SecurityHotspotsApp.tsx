@@ -28,6 +28,7 @@ import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Router } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
+import { KeyboardCodes, KeyboardKeys } from '../../helpers/keycodes';
 import { scrollToElement } from '../../helpers/scrolling';
 import { getStandards } from '../../helpers/security-standard';
 import { isLoggedIn } from '../../helpers/users';
@@ -44,7 +45,7 @@ import {
 import { Component, CurrentUser, Dict } from '../../types/types';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
-import { SECURITY_STANDARDS } from './utils';
+import { getLocations, SECURITY_STANDARDS } from './utils';
 
 const HOTSPOT_KEYMASTER_SCOPE = 'hotspots-list';
 const PAGE_SIZE = 500;
@@ -151,9 +152,57 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       this.selectNeighboringHotspot(+1);
       return false;
     });
+    window.addEventListener('keydown', this.handleKeyDown);
   }
 
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === KeyboardKeys.Alt) {
+      event.preventDefault();
+    } else if (event.code === KeyboardCodes.DownArrow && event.altKey) {
+      event.preventDefault();
+      this.selectNextLocation();
+    } else if (event.code === KeyboardCodes.UpArrow && event.altKey) {
+      event.preventDefault();
+      this.selectPreviousLocation();
+    }
+  };
+
+  selectNextLocation = () => {
+    const { selectedHotspotLocationIndex, selectedHotspot } = this.state;
+    if (selectedHotspot === undefined) {
+      return;
+    }
+    const locations = getLocations(selectedHotspot.flows, undefined);
+    if (locations.length === 0) {
+      return;
+    }
+    const lastIndex = locations.length - 1;
+
+    let newIndex;
+    if (selectedHotspotLocationIndex === undefined) {
+      newIndex = 0;
+    } else if (selectedHotspotLocationIndex === lastIndex) {
+      newIndex = undefined;
+    } else {
+      newIndex = selectedHotspotLocationIndex + 1;
+    }
+    this.setState({ selectedHotspotLocationIndex: newIndex });
+  };
+
+  selectPreviousLocation = () => {
+    const { selectedHotspotLocationIndex } = this.state;
+
+    let newIndex;
+    if (selectedHotspotLocationIndex === 0) {
+      newIndex = undefined;
+    } else if (selectedHotspotLocationIndex !== undefined) {
+      newIndex = selectedHotspotLocationIndex - 1;
+    }
+    this.setState({ selectedHotspotLocationIndex: newIndex });
+  };
+
   selectNeighboringHotspot = (shift: number) => {
+    this.setState({ selectedHotspotLocationIndex: undefined });
     this.setState(({ hotspots, selectedHotspot }) => {
       const index = selectedHotspot && hotspots.findIndex(h => h.key === selectedHotspot.key);
 
@@ -170,6 +219,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   unregisterKeyboardEvents() {
     key.deleteScope(HOTSPOT_KEYMASTER_SCOPE);
+    window.removeEventListener('keydown', this.handleKeyDown);
   }
 
   constructFiltersFromProps(
