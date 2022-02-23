@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
@@ -35,12 +36,8 @@ public class ChangeLogLevelClusterService implements ChangeLogLevelService {
 
   private final HazelcastMember member;
 
-  public ChangeLogLevelClusterService(HazelcastMember member) {
+  public ChangeLogLevelClusterService(@Nullable HazelcastMember member) {
     this.member = member;
-  }
-
-  public ChangeLogLevelClusterService() {
-    this(null);
   }
 
   public void changeLogLevel(LoggerLevel level) throws InterruptedException {

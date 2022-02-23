@@ -36,15 +36,15 @@ import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatA
 
 public class CeQueueGlobalSectionTest {
 
-  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private WorkerCountProvider workerCountProvider = mock(WorkerCountProvider.class);
+  private final DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private final WorkerCountProvider workerCountProvider = mock(WorkerCountProvider.class);
 
   @Test
   public void test_queue_state_with_default_settings() {
     when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.PENDING))).thenReturn(10);
     when(dbClient.ceQueueDao().countByStatus(any(), eq(CeQueueDto.Status.IN_PROGRESS))).thenReturn(1);
 
-    CeQueueGlobalSection underTest = new CeQueueGlobalSection(dbClient);
+    CeQueueGlobalSection underTest = new CeQueueGlobalSection(dbClient, null);
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     assertThatAttributeIs(section, "Total Pending", 10);

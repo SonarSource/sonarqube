@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.DistributedAnswer;
@@ -44,12 +45,8 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
 
   private final HazelcastMember hzMember;
 
-  public AppNodesInfoLoaderImpl(HazelcastMember hzMember) {
+  public AppNodesInfoLoaderImpl(@Nullable HazelcastMember hzMember) {
     this.hzMember = hzMember;
-  }
-
-  public AppNodesInfoLoaderImpl() {
-    this(null);
   }
 
   public Collection<NodeInfo> load() throws InterruptedException {

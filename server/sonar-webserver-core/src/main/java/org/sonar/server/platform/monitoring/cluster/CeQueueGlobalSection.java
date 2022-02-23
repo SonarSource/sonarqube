@@ -46,10 +46,6 @@ public class CeQueueGlobalSection implements SystemInfoSection, Global {
     this.workerCountProvider = workerCountProvider;
   }
 
-  public CeQueueGlobalSection(DbClient dbClient) {
-    this(dbClient, null);
-  }
-
   @Override
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
