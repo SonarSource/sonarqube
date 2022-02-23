@@ -43,6 +43,8 @@ import org.sonar.api.batch.fs.internal.predicates.OptimizedFilePredicateAdapter;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 
+import static java.util.Collections.emptySet;
+
 /**
  * @since 4.2
  */
@@ -193,7 +195,7 @@ public class DefaultFileSystem implements FileSystem {
     private final Map<String, InputFile> fileMap = new HashMap<>();
     private final Map<String, Set<InputFile>> filesByNameCache = new HashMap<>();
     private final Map<String, Set<InputFile>> filesByExtensionCache = new HashMap<>();
-    private SortedSet<String> languages = new TreeSet<>();
+    private final SortedSet<String> languages = new TreeSet<>();
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -207,12 +209,12 @@ public class DefaultFileSystem implements FileSystem {
 
     @Override
     public Iterable<InputFile> getFilesByName(String filename) {
-      return filesByNameCache.get(filename);
+      return filesByNameCache.getOrDefault(filename, emptySet());
     }
 
     @Override
     public Iterable<InputFile> getFilesByExtension(String extension) {
-      return filesByExtensionCache.get(extension);
+      return filesByExtensionCache.getOrDefault(extension, emptySet());
     }
 
     @Override
