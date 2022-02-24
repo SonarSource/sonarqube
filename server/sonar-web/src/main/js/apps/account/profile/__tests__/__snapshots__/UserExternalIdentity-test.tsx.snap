@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
     alt="GitHub"
     className="little-spacer-right"
     height="14"
-    src="/images/github.svg"
+    src="/images/alm/github-white.svg"
     width="14"
   />
    

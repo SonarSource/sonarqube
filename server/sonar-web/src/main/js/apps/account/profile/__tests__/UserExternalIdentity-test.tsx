@@ -28,7 +28,7 @@ jest.mock('../../../../api/users', () => ({
     identityProviders: [
       {
         backgroundColor: '#444444',
-        iconPath: '/images/github.svg',
+        iconPath: '/images/alm/github-white.svg',
         key: 'github',
         name: 'GitHub'
       }

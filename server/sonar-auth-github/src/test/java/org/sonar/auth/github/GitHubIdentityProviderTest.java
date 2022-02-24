@@ -43,7 +43,7 @@ public class GitHubIdentityProviderTest {
   public void check_fields() {
     assertThat(underTest.getKey()).isEqualTo("github");
     assertThat(underTest.getName()).isEqualTo("GitHub");
-    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/images/github.svg");
+    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/images/alm/github-white.svg");
     assertThat(underTest.getDisplay().getBackgroundColor()).isEqualTo("#444444");
   }
 

@@ -62,7 +62,7 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public Display getDisplay() {
     return Display.builder()
-      .setIconPath("/images/github.svg")
+      .setIconPath("/images/alm/github-white.svg")
       .setBackgroundColor("#444444")
       .build();
   }
