@@ -67,15 +67,6 @@ task "yarn_check-ci"(type: Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'check-ci'])
 }
 
-// Check for known vulnerabilities
-task dependency_audit(type: Exec) {
-  inputs.file('package.json')
-  outputs.cacheIf { false }
-  ignoreExitValue = true
-  
-  commandLine osAdaptiveCommand(['npm', 'run', 'audit-ci'])
-}
-
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "__mocks__")
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {

@@ -2,7 +2,6 @@ import groovy.json.JsonOutput
 
 plugins {
   // Ordered alphabeticly
-  id 'com.github.ben-manes.versions' version '0.39.0'
   id 'com.github.hierynomus.license' version '0.15.0'
   id "com.github.hierynomus.license-report" version "0.15.0" apply false
   id 'com.github.johnrengelman.shadow' version '5.2.0' apply false
@@ -615,27 +614,6 @@ subprojects {
              (branch in ['master', 'dogfood-on-next'] || branch ==~ 'branch-[\\d.]+') &&
              gradle.taskGraph.hasTask(":artifactoryPublish")
     }
-  }
-}
-
-// https://github.com/ben-manes/gradle-versions-plugin
-apply plugin: 'com.github.ben-manes.versions'
-dependencyUpdates {
-  rejectVersionIf {
-    // Exclude dev versions from the list of dependency upgrades, for
-    // example to replace:
-    //   org.slf4j:log4j-over-slf4j [1.7.25 -> 1.8.0-beta4]
-    // by
-    //   org.slf4j:log4j-over-slf4j [1.7.25 -> 1.7.26]
-    boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'jre12'].any { qualifier ->
-      it.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-    }
-
-    // Exclude upgrades on new major versions :
-    //   com.hazelcast:hazelcast [3.12.3 -> 4.0.0]
-    rejected |= !it.candidate.version.substring(0, 2).equals(it.currentVersion.substring(0, 2))
-
-    rejected
   }
 }
 

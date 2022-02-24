@@ -72,8 +72,7 @@
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn install --immutable && yarn test --ci",
-    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
-    "audit-ci": "yarn npm audit --environment production --severity high"
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check"
   },
   "prettier": {
     "jsxBracketSameLine": true,

@@ -12,7 +12,6 @@
     "io.spring.dependency-management",
     "com.jfrog.artifactory",
     "org.ajoberstar.grgit",
-    "com.github.ben-manes.versions",
     "com.bmuschko.docker-remote-api",
     "com.github.hierynomus.license",
     "com.github.hierynomus.license-report",

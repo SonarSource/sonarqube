@@ -139,8 +139,7 @@
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn install --immutable && yarn test --coverage --ci",
     "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
-    "precommit": "yarn ts-check && lint-staged",
-    "audit-ci": "yarn npm audit --environment production --severity high"
+    "precommit": "yarn ts-check && lint-staged"
   },
   "engines": {
     "node": ">=8"

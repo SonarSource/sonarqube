@@ -100,15 +100,6 @@ task "yarn_validate-ci"(type: Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'validate-ci'])
 }
 
-// Check for known vulnerabilities
-task dependency_audit(type: Exec) {
-  inputs.file('package.json')
-  outputs.cacheIf { false }
-  ignoreExitValue = true
-
-  commandLine osAdaptiveCommand(['npm', 'run', 'audit-ci'])
-}
-
 task zip(type: Zip) {
   def archiveDir = "$version"
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
