@@ -20,11 +20,11 @@
 package org.sonar.server.pushapi.qualityprofile;
 
 import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 
 public interface RuleActivatorEventsDistributor {
 
   void subscribe(RuleActivationListener listener);
 
-  void pushEvent(RuleSetChangeEvent event);
+  void pushEvent(RuleSetChangedEvent event);
 }

@@ -21,5 +21,5 @@ package org.sonar.core.util;
 
 public interface RuleActivationListener {
 
-  void listen(RuleSetChangeEvent event);
+  void listen(RuleSetChangedEvent event);
 }

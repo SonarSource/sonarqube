@@ -21,35 +21,23 @@ package org.sonar.core.util;
 
 import java.io.Serializable;
 
-public class RuleSetChangeEvent implements Serializable {
+public class RuleSetChangedEvent implements Serializable {
 
-  private static final String EVENT = "RuleSetChange";
+  private static final String EVENT = "RuleSetChanged";
 
-  private String[] projects;
-  private String language;
-  private RuleChange[] activatedRules;
-  private RuleChange[] deactivatedRules;
+  private final String[] projects;
+  private final String language;
+  private final RuleChange[] activatedRules;
+  private final RuleChange[] deactivatedRules;
 
-  public RuleSetChangeEvent(String[] projects, RuleChange[] activatedRules, RuleChange[] deactivatedRules) {
+  public RuleSetChangedEvent(String[] projects, RuleChange[] activatedRules, RuleChange[] deactivatedRules) {
     this.projects = projects;
     this.activatedRules = activatedRules;
     this.deactivatedRules = deactivatedRules;
     if (activatedRules.length == 0 && deactivatedRules.length == 0) {
-      throw new IllegalArgumentException("Can't create RuleSetChangeEvent without any rules that have changed");
+      throw new IllegalArgumentException("Can't create RuleSetChangedEvent without any rules that have changed");
     }
     this.language = activatedRules.length > 0 ? activatedRules[0].getLanguage() : deactivatedRules[0].getLanguage();
-  }
-
-  public void setProjects(String[] projects) {
-    this.projects = projects;
-  }
-
-  public void setActivatedRules(RuleChange[] activatedRules) {
-    this.activatedRules = activatedRules;
-  }
-
-  public void setDeactivatedRules(RuleChange[] deactivatedRules) {
-    this.deactivatedRules = deactivatedRules;
   }
 
   public String getEvent() {

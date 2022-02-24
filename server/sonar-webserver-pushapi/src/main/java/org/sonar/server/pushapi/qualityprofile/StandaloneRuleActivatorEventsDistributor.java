@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 
 @ServerSide
 public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEventsDistributor {
@@ -36,7 +36,7 @@ public class StandaloneRuleActivatorEventsDistributor implements RuleActivatorEv
   }
 
   @Override
-  public void pushEvent(RuleSetChangeEvent event) {
+  public void pushEvent(RuleSetChangedEvent event) {
     listeners.forEach(l -> l.listen(event));
   }
 }

@@ -21,7 +21,7 @@ package org.sonar.server.pushapi.qualityprofile;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 @ServerSide
@@ -39,7 +39,7 @@ public class DistributedRuleActivatorEventsDistributor implements RuleActivatorE
   }
 
   @Override
-  public void pushEvent(RuleSetChangeEvent event) {
+  public void pushEvent(RuleSetChangedEvent event) {
     hazelcastMember.publishEvent(event);
   }
 }

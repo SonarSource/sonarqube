@@ -24,14 +24,14 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class RuleSetChangeEventTest {
+public class RuleSetChangedEventTest {
 
   @Test
   public void getLanguage_givenNoDeactivatedRules_languageIsCorrectlyIdentified() {
     String[] projects = {"sonarqube"};
     RuleChange[] activatedRules = {createRuleChange("java")};
     RuleChange[] deactivatedRules = {};
-    RuleSetChangeEvent event = new RuleSetChangeEvent(projects, activatedRules, deactivatedRules);
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules);
 
     String language = event.getLanguage();
 
@@ -43,7 +43,7 @@ public class RuleSetChangeEventTest {
     String[] projects = {"sonarqube"};
     RuleChange[] activatedRules = {};
     RuleChange[] deactivatedRules = {createRuleChange("java")};
-    RuleSetChangeEvent event = new RuleSetChangeEvent(projects, activatedRules, deactivatedRules);
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules);
 
     String language = event.getLanguage();
 
@@ -56,7 +56,7 @@ public class RuleSetChangeEventTest {
     RuleChange[] activatedRules = {};
     RuleChange[] deactivatedRules = {};
 
-    assertThatThrownBy(() -> new RuleSetChangeEvent(projects, activatedRules, deactivatedRules))
+    assertThatThrownBy(() -> new RuleSetChangedEvent(projects, activatedRules, deactivatedRules))
       .isInstanceOf(IllegalArgumentException.class);
   }
 

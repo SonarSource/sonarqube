@@ -36,7 +36,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleActivationListener;
 import org.sonar.core.util.RuleChange;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.pushapi.qualityprofile.RuleActivatorEventsDistributor;
 
@@ -89,29 +89,29 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
   }
 
   @Override
-  public void listen(RuleSetChangeEvent ruleChangeEvent) {
-    broadcastMessage(ruleChangeEvent, getFilterForEvent(ruleChangeEvent));
+  public void listen(RuleSetChangedEvent ruleSetChangedEvent) {
+    broadcastMessage(ruleSetChangedEvent, getFilterForEvent(ruleSetChangedEvent));
   }
 
-  private static Predicate<SonarLintClient> getFilterForEvent(RuleSetChangeEvent ruleChangeEvent) {
-    List<String> affectedProjects = asList(ruleChangeEvent.getProjects());
+  private static Predicate<SonarLintClient> getFilterForEvent(RuleSetChangedEvent ruleSetChangedEvent) {
+    List<String> affectedProjects = asList(ruleSetChangedEvent.getProjects());
     return client -> {
       Set<String> clientProjectKeys = client.getClientProjectKeys();
       Set<String> languages = client.getLanguages();
-      return !Collections.disjoint(clientProjectKeys, affectedProjects) && languages.contains(ruleChangeEvent.getLanguage());
+      return !Collections.disjoint(clientProjectKeys, affectedProjects) && languages.contains(ruleSetChangedEvent.getLanguage());
     };
   }
 
-  public void broadcastMessage(RuleSetChangeEvent message, Predicate<SonarLintClient> filter) {
+  public void broadcastMessage(RuleSetChangedEvent event, Predicate<SonarLintClient> filter) {
     clients.stream().filter(filter).forEach(c -> {
       Set<String> projectKeysInterestingForClient = new HashSet<>(c.getClientProjectKeys());
-      projectKeysInterestingForClient.retainAll(Set.of(message.getProjects()));
+      projectKeysInterestingForClient.retainAll(Set.of(event.getProjects()));
       try {
         sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
-        RuleSetChangeEvent personalizedEvent = new RuleSetChangeEvent(projectKeysInterestingForClient.toArray(String[]::new), message.getActivatedRules(),
-          message.getDeactivatedRules());
-        String jsonString = getJSONString(personalizedEvent);
-        c.writeAndFlush(jsonString);
+        RuleSetChangedEvent personalizedEvent = new RuleSetChangedEvent(projectKeysInterestingForClient.toArray(String[]::new), event.getActivatedRules(),
+          event.getDeactivatedRules());
+        String message = getMessage(personalizedEvent);
+        c.writeAndFlush(message);
       } catch (ForbiddenException forbiddenException) {
         LOG.debug("Client is no longer authenticated: " + forbiddenException.getMessage());
         unregisterClient(c);
@@ -121,28 +121,28 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
       }
     });
   }
+  private static String getMessage(RuleSetChangedEvent ruleSetChangedEvent) {
+    return "event: " + ruleSetChangedEvent.getEvent() + "\n"
+      + "data: " + toJson(ruleSetChangedEvent);
+  }
 
-  public String getJSONString(RuleSetChangeEvent ruleSetChangeEvent) {
-    JSONObject result = new JSONObject();
-    result.put("event", ruleSetChangeEvent.getEvent());
-
+  private static String toJson(RuleSetChangedEvent ruleSetChangedEvent) {
     JSONObject data = new JSONObject();
-    data.put("projects", ruleSetChangeEvent.getProjects());
+    data.put("projects", ruleSetChangedEvent.getProjects());
 
     JSONArray activatedRulesJson = new JSONArray();
-    for (RuleChange rule : ruleSetChangeEvent.getActivatedRules()) {
+    for (RuleChange rule : ruleSetChangedEvent.getActivatedRules()) {
       activatedRulesJson.put(toJson(rule));
     }
     data.put("activatedRules", activatedRulesJson);
 
     JSONArray deactivatedRulesJson = new JSONArray();
-    for (RuleChange rule : ruleSetChangeEvent.getDeactivatedRules()) {
+    for (RuleChange rule : ruleSetChangedEvent.getDeactivatedRules()) {
       deactivatedRulesJson.put(toJson(rule));
     }
     data.put("deactivatedRules", deactivatedRulesJson);
 
-    result.put("data", data);
-    return result.toString();
+    return data.toString();
   }
 
   private static JSONObject toJson(RuleChange rule) {

@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleChange;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -73,7 +73,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       return;
     }
 
-    RuleSetChangeEvent event = new RuleSetChangeEvent(new String[] {project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
+    RuleSetChangedEvent event = new RuleSetChangedEvent(new String[] {project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
     eventsDistributor.pushEvent(event);
   }
 
@@ -173,7 +173,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       return;
     }
 
-    RuleSetChangeEvent event = new RuleSetChangeEvent(projectKeys.toArray(new String[0]), activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projectKeys.toArray(new String[0]), activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
     eventsDistributor.pushEvent(event);
   }
 

@@ -40,7 +40,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 
 class HazelcastMemberImpl implements HazelcastMember {
 
@@ -131,13 +131,13 @@ class HazelcastMemberImpl implements HazelcastMember {
 
   @Override
   public void subscribeRuleActivationTopic(RuleActivationListener listener) {
-    ITopic<RuleSetChangeEvent> topic = hzInstance.getTopic("ruleActivated");
-    MessageListener<RuleSetChangeEvent> hzListener = message -> listener.listen(message.getMessageObject());
+    ITopic<RuleSetChangedEvent> topic = hzInstance.getTopic("ruleActivated");
+    MessageListener<RuleSetChangedEvent> hzListener = message -> listener.listen(message.getMessageObject());
     topic.addMessageListener(hzListener);
   }
 
   @Override
-  public void publishEvent(RuleSetChangeEvent event) {
+  public void publishEvent(RuleSetChangedEvent event) {
     hzInstance.getTopic("ruleActivated").publish(event);
   }
 

@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import org.sonar.core.util.RuleActivationListener;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 import org.sonar.process.ProcessId;
 
 public interface HazelcastMember extends AutoCloseable {
@@ -110,7 +110,7 @@ public interface HazelcastMember extends AutoCloseable {
 
   void subscribeRuleActivationTopic(RuleActivationListener listener);
 
-  void publishEvent(RuleSetChangeEvent event);
+  void publishEvent(RuleSetChangedEvent event);
 
   @Override
   void close();

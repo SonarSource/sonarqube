@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleChange;
-import org.sonar.core.util.RuleSetChangeEvent;
+import org.sonar.core.util.RuleSetChangedEvent;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -87,27 +87,27 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.distributeRuleChangeEvent(profiles, of(activeRuleChange), "xoo");
 
-    ArgumentCaptor<RuleSetChangeEvent> eventCaptor = ArgumentCaptor.forClass(RuleSetChangeEvent.class);
+    ArgumentCaptor<RuleSetChangedEvent> eventCaptor = ArgumentCaptor.forClass(RuleSetChangedEvent.class);
     verify(eventsDistributor).pushEvent(eventCaptor.capture());
 
-    RuleSetChangeEvent ruleSetChangeEvent = eventCaptor.getValue();
-    assertThat(ruleSetChangeEvent).isNotNull();
-    assertThat(ruleSetChangeEvent).extracting(RuleSetChangeEvent::getEvent,
-        RuleSetChangeEvent::getLanguage, RuleSetChangeEvent::getProjects)
-      .containsExactly("RuleSetChange", "xoo", new String[]{project.getKey()});
+    RuleSetChangedEvent ruleSetChangedEvent = eventCaptor.getValue();
+    assertThat(ruleSetChangedEvent).isNotNull();
+    assertThat(ruleSetChangedEvent).extracting(RuleSetChangedEvent::getEvent,
+        RuleSetChangedEvent::getLanguage, RuleSetChangedEvent::getProjects)
+      .containsExactly("RuleSetChanged", "xoo", new String[]{project.getKey()});
 
-    assertThat(ruleSetChangeEvent.getActivatedRules())
+    assertThat(ruleSetChangedEvent.getActivatedRules())
       .extracting(RuleChange::getKey, RuleChange::getLanguage,
         RuleChange::getSeverity, RuleChange::getTemplateKey)
       .containsExactly(tuple(rule1.getRuleKey(), "xoo", null, "template-key"));
 
-    assertThat(ruleSetChangeEvent.getActivatedRules()[0].getParams()).hasSize(1);
-    ParamChange actualParamChange = ruleSetChangeEvent.getActivatedRules()[0].getParams()[0];
+    assertThat(ruleSetChangedEvent.getActivatedRules()[0].getParams()).hasSize(1);
+    ParamChange actualParamChange = ruleSetChangedEvent.getActivatedRules()[0].getParams()[0];
     assertThat(actualParamChange)
       .extracting(ParamChange::getKey, ParamChange::getValue)
       .containsExactly("paramChangeKey", "paramChangeValue");
 
-    assertThat(ruleSetChangeEvent.getDeactivatedRules()).isEmpty();
+    assertThat(ruleSetChangedEvent.getDeactivatedRules()).isEmpty();
 
   }
 
@@ -136,35 +136,35 @@ public class QualityProfileChangeEventServiceImplTest {
 
     underTest.publishRuleActivationToSonarLintClients(projectDao, activatedQualityProfile, deactivatedQualityProfile);
 
-    ArgumentCaptor<RuleSetChangeEvent> eventCaptor = ArgumentCaptor.forClass(RuleSetChangeEvent.class);
+    ArgumentCaptor<RuleSetChangedEvent> eventCaptor = ArgumentCaptor.forClass(RuleSetChangedEvent.class);
     verify(eventsDistributor).pushEvent(eventCaptor.capture());
 
-    RuleSetChangeEvent ruleSetChangeEvent = eventCaptor.getValue();
-    assertThat(ruleSetChangeEvent).isNotNull();
-    assertThat(ruleSetChangeEvent).extracting(RuleSetChangeEvent::getEvent,
-        RuleSetChangeEvent::getLanguage, RuleSetChangeEvent::getProjects)
-      .containsExactly("RuleSetChange", "xoo", new String[]{null});
+    RuleSetChangedEvent ruleSetChangedEvent = eventCaptor.getValue();
+    assertThat(ruleSetChangedEvent).isNotNull();
+    assertThat(ruleSetChangedEvent).extracting(RuleSetChangedEvent::getEvent,
+        RuleSetChangedEvent::getLanguage, RuleSetChangedEvent::getProjects)
+      .containsExactly("RuleSetChanged", "xoo", new String[]{null});
 
     // activated rule
-    assertThat(ruleSetChangeEvent.getActivatedRules())
+    assertThat(ruleSetChangedEvent.getActivatedRules())
       .extracting(RuleChange::getKey, RuleChange::getLanguage,
         RuleChange::getSeverity, RuleChange::getTemplateKey)
       .containsExactly(tuple(rule1.getRuleKey(), "xoo", rule1.getSeverityString(), null));
 
-    assertThat(ruleSetChangeEvent.getActivatedRules()[0].getParams()).hasSize(1);
-    ParamChange actualParamChange = ruleSetChangeEvent.getActivatedRules()[0].getParams()[0];
+    assertThat(ruleSetChangedEvent.getActivatedRules()[0].getParams()).hasSize(1);
+    ParamChange actualParamChange = ruleSetChangedEvent.getActivatedRules()[0].getParams()[0];
     assertThat(actualParamChange)
       .extracting(ParamChange::getKey, ParamChange::getValue)
       .containsExactly(activeRuleParam1.getKey(), activeRuleParam1.getValue());
 
     // deactivated rule
-    assertThat(ruleSetChangeEvent.getDeactivatedRules())
+    assertThat(ruleSetChangedEvent.getDeactivatedRules())
       .extracting(RuleChange::getKey, RuleChange::getLanguage,
         RuleChange::getSeverity, RuleChange::getTemplateKey)
       .containsExactly(tuple(rule2.getRuleKey(), "xoo", rule2.getSeverityString(), null));
 
-    assertThat(ruleSetChangeEvent.getDeactivatedRules()[0].getParams()).hasSize(1);
-    ParamChange actualParamChangeDeactivated = ruleSetChangeEvent.getDeactivatedRules()[0].getParams()[0];
+    assertThat(ruleSetChangedEvent.getDeactivatedRules()[0].getParams()).hasSize(1);
+    ParamChange actualParamChangeDeactivated = ruleSetChangedEvent.getDeactivatedRules()[0].getParams()[0];
     assertThat(actualParamChangeDeactivated)
       .extracting(ParamChange::getKey, ParamChange::getValue)
       .containsExactly(activeRuleParam2.getKey(), activeRuleParam2.getValue());
