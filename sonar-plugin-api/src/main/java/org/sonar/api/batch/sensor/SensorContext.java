@@ -57,11 +57,20 @@ public interface SensorContext {
    */
   @Deprecated
   Settings settings();
+
   /**
    * Get settings of the project.
    * @since 6.5
    */
   Configuration config();
+
+  /**
+   * In some situations, there is no need to analyze unchanged files, as reported by {@link InputFile#status()} as {@link InputFile.Status#SAME},
+   * and analyzers can skip reporting any data for those files.
+   * Plugins should be prepared for the flag to be always false in the future.
+   * @since 9.4
+   */
+  boolean canSkipUnchangedFiles();
 
   /**
    * Get filesystem of the project.
@@ -182,9 +191,9 @@ public interface SensorContext {
   /**
    * Builder to declare which parts of the code is significant code. 
    * Ranges that are not reported as significant code will be ignored and won't be considered when calculating which lines were modified.
-   * 
+   *
    * If the significant code is not reported for a file, it is assumed that the entire file is significant code.
-   * 
+   *
    * @since 7.2
    */
   NewSignificantCode newSignificantCode();

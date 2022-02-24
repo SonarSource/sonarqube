@@ -37,6 +37,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,6 +54,7 @@ public class ModuleSensorContextTest {
   private MapSettings settings;
   private SensorStorage sensorStorage;
   private SonarRuntime runtime;
+  private BranchConfiguration branchConfiguration;
 
   @Before
   public void prepare() throws Exception {
@@ -63,16 +65,18 @@ public class ModuleSensorContextTest {
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new MapSettings();
     sensorStorage = mock(SensorStorage.class);
+    branchConfiguration = mock(BranchConfiguration.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime);
   }
 
   @Test
   public void shouldProvideComponents() {
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime, branchConfiguration);
     assertThat(adaptor.activeRules()).isEqualTo(activeRules);
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
     assertThat(adaptor.runtime()).isEqualTo(runtime);
+    assertThat(adaptor.canSkipUnchangedFiles()).isFalse();
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newExternalIssue()).isNotNull();
@@ -81,6 +85,13 @@ public class ModuleSensorContextTest {
     assertThat(adaptor.newAnalysisError()).isEqualTo(ModuleSensorContext.NO_OP_NEW_ANALYSIS_ERROR);
     assertThat(adaptor.isCancelled()).isFalse();
     assertThat(adaptor.newSignificantCode()).isNotNull();
+  }
+
+  @Test
+  public void pull_request_can_skip_unchanged_files() {
+    when(branchConfiguration.isPullRequest()).thenReturn(true);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime, branchConfiguration);
+    assertThat(adaptor.canSkipUnchangedFiles()).isTrue();
   }
 
 }

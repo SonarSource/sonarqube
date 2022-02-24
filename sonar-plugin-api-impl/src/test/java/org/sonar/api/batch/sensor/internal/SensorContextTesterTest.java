@@ -75,6 +75,13 @@ public class SensorContextTesterTest {
   }
 
   @Test
+  public void test_canSkipUnchangedFiles() {
+    assertThat(tester.canSkipUnchangedFiles()).isFalse();
+    tester.setCanSkipUnchangedFiles(true);
+    assertThat(tester.canSkipUnchangedFiles()).isTrue();
+  }
+
+  @Test
   public void testActiveRules() {
     NewActiveRule activeRule = new NewActiveRule.Builder()
       .setRuleKey(RuleKey.of("foo", "bar"))

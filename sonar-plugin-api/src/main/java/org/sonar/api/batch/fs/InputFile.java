@@ -48,9 +48,7 @@ public interface InputFile extends IndexedFile {
 
   /** 
    * Status regarding previous analysis
-   * @deprecated since 7.7 preview mode was dropped
    */
-  @Deprecated
   enum Status {
     SAME, CHANGED, ADDED
   }
@@ -134,10 +132,6 @@ public interface InputFile extends IndexedFile {
    */
   String contents() throws IOException;
 
-  /**
-   * @deprecated since 7.7 preview/issue mode was removed
-   */
-  @Deprecated
   Status status();
 
   /**

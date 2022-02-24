@@ -110,6 +110,7 @@ public class SensorContextTester implements SensorContext {
   private DefaultInputProject project;
   private DefaultInputModule module;
   private SonarRuntime runtime;
+  private boolean canSkipUnchangedFiles;
   private boolean cancelled;
 
   private SensorContextTester(Path moduleBaseDir) {
@@ -195,6 +196,16 @@ public class SensorContextTester implements SensorContext {
 
   public void setCancelled(boolean cancelled) {
     this.cancelled = cancelled;
+  }
+
+  @Override
+  public boolean canSkipUnchangedFiles() {
+    return canSkipUnchangedFiles;
+  }
+
+  public SensorContextTester setCanSkipUnchangedFiles(boolean canSkipUnchangedFiles) {
+    this.canSkipUnchangedFiles = canSkipUnchangedFiles;
+    return this;
   }
 
   @Override

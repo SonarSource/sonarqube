@@ -53,6 +53,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 
 @ThreadSafe
@@ -67,9 +68,10 @@ public class ProjectSensorContext implements SensorContext {
   private final DefaultInputProject project;
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
+  private final boolean skipUnchangedFiles;
 
   public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration) {
     this.project = project;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -77,6 +79,7 @@ public class ProjectSensorContext implements SensorContext {
     this.activeRules = activeRules;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
+    this.skipUnchangedFiles = branchConfiguration.isPullRequest();
   }
 
   @Override
@@ -183,5 +186,10 @@ public class ProjectSensorContext implements SensorContext {
   @Override
   public NewSignificantCode newSignificantCode() {
     return new DefaultSignificantCode(sensorStorage);
+  }
+
+  @Override
+  public boolean canSkipUnchangedFiles() {
+    return this.skipUnchangedFiles;
   }
 }
