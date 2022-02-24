@@ -3,4 +3,6 @@ title: PLI
 url: /analysis/languages/pli/
 ---
 
-This is a placeholder file. It is required for Gatsby, but its content will be dynamically replaced.
+PLI analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).
+
+You can read more about PLI analysis [here](https://docs.sonarqube.org/latest/analysis/languages/pli/).

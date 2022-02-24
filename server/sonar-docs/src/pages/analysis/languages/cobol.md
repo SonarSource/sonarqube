@@ -3,4 +3,6 @@ title: COBOL
 url: /analysis/languages/cobol/
 ---
 
-This is a placeholder file. It is required for Gatsby, but its content will be dynamically replaced.
+COBOL analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).
+
+You can read more about COBOL analysis [here](https://docs.sonarqube.org/latest/analysis/languages/cobol/).
