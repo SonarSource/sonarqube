@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <div
-  className="big-spacer-bottom"
+  className="huge-spacer-bottom"
 >
   <div
     className="display-flex-column big-spacer-bottom"

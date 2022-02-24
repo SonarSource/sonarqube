@@ -35,7 +35,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
   const { hotspot } = props;
   const { message, rule } = hotspot;
   return (
-    <div className="big-spacer-bottom">
+    <div className="huge-spacer-bottom">
       <div className="display-flex-column big-spacer-bottom">
         <div className="big text-bold">{message}</div>
         <div>

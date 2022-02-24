@@ -63,6 +63,10 @@
   transition: padding 0s, border 0s;
 }
 
+a.hotspot-item:focus {
+  color: var(--baseFontColor);
+}
+
 .hotspot-item:hover {
   background-color: var(--veryLightBlue);
   border: 1px dashed var(--blue);

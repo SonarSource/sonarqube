@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
 import { Button } from '../../../../components/controls/buttons';
 import { DropdownOverlay } from '../../../../components/controls/Dropdown';
@@ -73,7 +72,7 @@ export function Status(props: StatusProps) {
                 </DropdownOverlay>
               }>
               <Button
-                className={classNames('dropdown-toggle')}
+                className="dropdown-toggle big-spacer-left"
                 id="status-trigger"
                 onClick={() => setIsOpen(true)}
                 disabled={readonly}>

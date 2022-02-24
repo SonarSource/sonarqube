@@ -20,10 +20,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { ComponentQualifier } from '../../../types/component';
-import { getFilePath, getLocations } from '../utils';
-import { RawHotspot } from '../../../types/security-hotspots';
 import LocationsList from '../../../components/locations/LocationsList';
+import { ComponentQualifier } from '../../../types/component';
+import { RawHotspot } from '../../../types/security-hotspots';
+import { getFilePath, getLocations } from '../utils';
 
 export interface HotspotListItemProps {
   hotspot: RawHotspot;
