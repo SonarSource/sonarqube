@@ -45,6 +45,7 @@ function shallowRender(props?: Partial<BranchLikeRowProps>) {
       component={mockComponent()}
       onDelete={jest.fn()}
       onRename={jest.fn()}
+      onUpdatePurgeSetting={jest.fn()}
       {...props}
     />
   );

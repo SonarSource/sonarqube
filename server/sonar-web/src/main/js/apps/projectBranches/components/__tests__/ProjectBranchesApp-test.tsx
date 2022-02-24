@@ -21,8 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockSetOfBranchAndPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { App, AppProps } from '../App';
 import BranchLikeTabs from '../BranchLikeTabs';
+import { ProjectBranchesApp, ProjectBranchesAppProps } from '../ProjectBranchesApp';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -41,9 +41,9 @@ it('should properly notify that a branch or a pr has been changed/deleted', () =
   expect(onBranchesChange).toHaveBeenCalled();
 });
 
-function shallowRender(props?: Partial<AppProps>) {
+function shallowRender(props?: Partial<ProjectBranchesAppProps>) {
   return shallow(
-    <App
+    <ProjectBranchesApp
       branchLikes={mockSetOfBranchAndPullRequest()}
       component={mockComponent()}
       onBranchesChange={jest.fn()}

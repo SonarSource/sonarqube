@@ -30,6 +30,7 @@ import { Component } from '../../../types/types';
 interface Props {
   branch: Branch;
   component: Component;
+  onUpdatePurgeSetting: () => void;
 }
 
 interface State {
@@ -68,6 +69,7 @@ export default class BranchPurgeSetting extends React.PureComponent<Props, State
             excludedFromPurge: newValue,
             loading: false
           });
+          this.props.onUpdatePurgeSetting();
         }
       })
       .catch(() => {

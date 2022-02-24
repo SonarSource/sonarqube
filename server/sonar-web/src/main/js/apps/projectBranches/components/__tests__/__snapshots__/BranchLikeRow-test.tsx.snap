@@ -79,6 +79,7 @@ exports[`should render correctly for branch 1`] = `
           "tags": Array [],
         }
       }
+      onUpdatePurgeSetting={[MockFunction]}
     />
   </td>
   <td
@@ -182,6 +183,7 @@ exports[`should render correctly for main branch 1`] = `
           "tags": Array [],
         }
       }
+      onUpdatePurgeSetting={[MockFunction]}
     />
   </td>
   <td

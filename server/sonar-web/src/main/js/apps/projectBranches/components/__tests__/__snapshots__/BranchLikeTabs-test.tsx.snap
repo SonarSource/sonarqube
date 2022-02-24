@@ -99,6 +99,7 @@ exports[`should render all tabs correctly 1`] = `
     displayPurgeSetting={true}
     onDelete={[Function]}
     onRename={[Function]}
+    onUpdatePurgeSetting={[Function]}
     title="project_branch_pull_request.table.branch"
   />
 </Fragment>
@@ -192,6 +193,7 @@ exports[`should render all tabs correctly 2`] = `
     displayPurgeSetting={false}
     onDelete={[Function]}
     onRename={[Function]}
+    onUpdatePurgeSetting={[Function]}
     title="project_branch_pull_request.table.pull_request"
   />
 </Fragment>

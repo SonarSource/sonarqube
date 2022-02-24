@@ -39,10 +39,11 @@ export interface BranchLikeRowProps {
   displayPurgeSetting?: boolean;
   onDelete: () => void;
   onRename: () => void;
+  onUpdatePurgeSetting: () => void;
 }
 
 export function BranchLikeRow(props: BranchLikeRowProps) {
-  const { branchLike, component, displayPurgeSetting, onDelete, onRename } = props;
+  const { branchLike, component, displayPurgeSetting } = props;
   const branchLikeDisplayName = getBranchLikeDisplayName(branchLike);
 
   return (
@@ -62,17 +63,21 @@ export function BranchLikeRow(props: BranchLikeRowProps) {
       <td className="nowrap">{<DateFromNow date={branchLike.analysisDate} />}</td>
       {displayPurgeSetting && isBranch(branchLike) && (
         <td className="nowrap js-test-purge-toggle-container">
-          <BranchPurgeSetting branch={branchLike} component={component} />
+          <BranchPurgeSetting
+            branch={branchLike}
+            component={component}
+            onUpdatePurgeSetting={props.onUpdatePurgeSetting}
+          />
         </td>
       )}
       <td className="nowrap">
         <ActionsDropdown>
           {isMainBranch(branchLike) ? (
-            <ActionsDropdownItem className="js-rename" onClick={onRename}>
+            <ActionsDropdownItem className="js-rename" onClick={props.onRename}>
               {translate('project_branch_pull_request.branch.rename')}
             </ActionsDropdownItem>
           ) : (
-            <ActionsDropdownItem className="js-delete" destructive={true} onClick={onDelete}>
+            <ActionsDropdownItem className="js-delete" destructive={true} onClick={props.onDelete}>
               {translate(
                 isPullRequest(branchLike)
                   ? 'project_branch_pull_request.pull_request.delete'

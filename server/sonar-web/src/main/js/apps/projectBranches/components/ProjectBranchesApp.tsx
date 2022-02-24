@@ -24,14 +24,14 @@ import { Component } from '../../../types/types';
 import BranchLikeTabs from './BranchLikeTabs';
 import LifetimeInformation from './LifetimeInformation';
 
-export interface AppProps {
+export interface ProjectBranchesAppProps {
   branchLikes: BranchLike[];
   component: Component;
   onBranchesChange: () => void;
 }
 
-export function App(props: AppProps) {
-  const { branchLikes, component, onBranchesChange } = props;
+export function ProjectBranchesApp(props: ProjectBranchesAppProps) {
+  const { branchLikes, component } = props;
 
   return (
     <div className="page page-limited" id="project-branch-like">
@@ -43,10 +43,10 @@ export function App(props: AppProps) {
       <BranchLikeTabs
         branchLikes={branchLikes}
         component={component}
-        onBranchesChange={onBranchesChange}
+        onBranchesChange={props.onBranchesChange}
       />
     </div>
   );
 }
 
-export default React.memo(App);
+export default React.memo(ProjectBranchesApp);

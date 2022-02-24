@@ -31,11 +31,12 @@ export interface BranchLikeTableProps {
   displayPurgeSetting?: boolean;
   onDelete: (branchLike: BranchLike) => void;
   onRename: (branchLike: BranchLike) => void;
+  onUpdatePurgeSetting: () => void;
   title: string;
 }
 
 export function BranchLikeTable(props: BranchLikeTableProps) {
-  const { branchLikes, component, displayPurgeSetting, onDelete, onRename, title } = props;
+  const { branchLikes, component, displayPurgeSetting, title } = props;
 
   return (
     <div className="boxed-group boxed-group-inner">
@@ -78,8 +79,9 @@ export function BranchLikeTable(props: BranchLikeTableProps) {
               component={component}
               displayPurgeSetting={displayPurgeSetting}
               key={getBranchLikeKey(branchLike)}
-              onDelete={() => onDelete(branchLike)}
-              onRename={() => onRename(branchLike)}
+              onDelete={() => props.onDelete(branchLike)}
+              onRename={() => props.onRename(branchLike)}
+              onUpdatePurgeSetting={props.onUpdatePurgeSetting}
             />
           ))}
         </tbody>

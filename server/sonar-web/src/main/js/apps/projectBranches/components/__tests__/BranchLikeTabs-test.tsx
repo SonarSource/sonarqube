@@ -117,6 +117,18 @@ it('should NOT render renaming modal for non-main branch', () => {
   expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
 });
 
+it('should correctly propagate an update of purge settings', () => {
+  const onBranchesChange = jest.fn();
+  const wrapper = shallowRender({ onBranchesChange });
+
+  wrapper
+    .find(BranchLikeTable)
+    .props()
+    .onUpdatePurgeSetting();
+
+  expect(onBranchesChange).toBeCalled();
+});
+
 function shallowRender(props: Partial<BranchLikeTabs['props']> = {}) {
   return shallow<BranchLikeTabs>(
     <BranchLikeTabs

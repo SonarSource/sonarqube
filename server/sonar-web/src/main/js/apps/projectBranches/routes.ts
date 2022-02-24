@@ -21,7 +21,7 @@ import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 
 const routes = [
   {
-    indexRoute: { component: lazyLoadComponent(() => import('./components/App')) }
+    indexRoute: { component: lazyLoadComponent(() => import('./components/ProjectBranchesApp')) }
   }
 ];
 

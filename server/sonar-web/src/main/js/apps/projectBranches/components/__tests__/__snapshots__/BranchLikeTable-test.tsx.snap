@@ -81,6 +81,7 @@ exports[`should render correctly 1`] = `
         key="branch-branch-11"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -116,6 +117,7 @@ exports[`should render correctly 1`] = `
         key="branch-branch-1"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -151,6 +153,7 @@ exports[`should render correctly 1`] = `
         key="branch-master"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -188,6 +191,7 @@ exports[`should render correctly 1`] = `
         key="pull-request-1"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -223,6 +227,7 @@ exports[`should render correctly 1`] = `
         key="branch-branch-12"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -260,6 +265,7 @@ exports[`should render correctly 1`] = `
         key="pull-request-2"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -295,6 +301,7 @@ exports[`should render correctly 1`] = `
         key="branch-branch-3"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -330,6 +337,7 @@ exports[`should render correctly 1`] = `
         key="branch-branch-2"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -368,6 +376,7 @@ exports[`should render correctly 1`] = `
         key="pull-request-2"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
     </tbody>
   </table>
@@ -476,6 +485,7 @@ exports[`should render purge setting correctly 1`] = `
         key="branch-branch-11"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -512,6 +522,7 @@ exports[`should render purge setting correctly 1`] = `
         key="branch-branch-1"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -548,6 +559,7 @@ exports[`should render purge setting correctly 1`] = `
         key="branch-master"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -586,6 +598,7 @@ exports[`should render purge setting correctly 1`] = `
         key="pull-request-1"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -622,6 +635,7 @@ exports[`should render purge setting correctly 1`] = `
         key="branch-branch-12"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -660,6 +674,7 @@ exports[`should render purge setting correctly 1`] = `
         key="pull-request-2"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -696,6 +711,7 @@ exports[`should render purge setting correctly 1`] = `
         key="branch-branch-3"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -732,6 +748,7 @@ exports[`should render purge setting correctly 1`] = `
         key="branch-branch-2"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
       <Memo(BranchLikeRow)
         branchLike={
@@ -771,6 +788,7 @@ exports[`should render purge setting correctly 1`] = `
         key="pull-request-2"
         onDelete={[Function]}
         onRename={[Function]}
+        onUpdatePurgeSetting={[MockFunction]}
       />
     </tbody>
   </table>

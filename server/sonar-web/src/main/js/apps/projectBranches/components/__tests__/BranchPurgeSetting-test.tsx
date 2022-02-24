@@ -23,6 +23,7 @@ import { excludeBranchFromPurge } from '../../../../api/branches';
 import Toggle from '../../../../components/controls/Toggle';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import BranchPurgeSetting from '../BranchPurgeSetting';
 
 jest.mock('../../../../api/branches', () => ({
@@ -43,8 +44,9 @@ it('should render correctly for a main branch', () => {
   expect(wrapper.state().excludedFromPurge).toBe(true);
 });
 
-it('should correctly call the webservice if the user changes the value', () => {
-  const wrapper = shallowRender();
+it('should correctly call the webservice if the user changes the value', async () => {
+  const onUpdatePurgeSetting = jest.fn();
+  const wrapper = shallowRender({ onUpdatePurgeSetting });
   expect(wrapper.state().excludedFromPurge).toBe(true);
 
   const { onChange } = wrapper.find(Toggle).props();
@@ -52,6 +54,8 @@ it('should correctly call the webservice if the user changes the value', () => {
   onChange!(false);
   expect(excludeBranchFromPurge).toHaveBeenCalled();
   expect(wrapper.state().excludedFromPurge).toBe(true);
+  await waitAndUpdate(wrapper);
+  expect(onUpdatePurgeSetting).toBeCalled();
 });
 
 function shallowRender(props?: Partial<BranchPurgeSetting['props']>) {
@@ -59,6 +63,7 @@ function shallowRender(props?: Partial<BranchPurgeSetting['props']>) {
     <BranchPurgeSetting
       branch={mockBranch({ excludedFromPurge: true })}
       component={mockComponent()}
+      onUpdatePurgeSetting={jest.fn()}
       {...props}
     />
   );

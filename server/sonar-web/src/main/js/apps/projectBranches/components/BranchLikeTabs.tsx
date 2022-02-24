@@ -80,18 +80,28 @@ const TABS = [
 export default class BranchLikeTabs extends React.PureComponent<Props, State> {
   state: State = { currentTab: Tabs.Branch };
 
-  onTabSelect = (currentTab: Tabs) => {
+  handleTabSelect = (currentTab: Tabs) => {
     this.setState({ currentTab });
   };
 
-  onDeleteBranchLike = (branchLike: BranchLike) => this.setState({ deleting: branchLike });
+  handleDeleteBranchLike = (branchLike: BranchLike) => {
+    this.setState({ deleting: branchLike });
+  };
 
-  onRenameBranchLike = (branchLike: BranchLike) => this.setState({ renaming: branchLike });
+  handleRenameBranchLike = (branchLike: BranchLike) => {
+    this.setState({ renaming: branchLike });
+  };
 
-  onClose = () => this.setState({ deleting: undefined, renaming: undefined });
+  handleUpdatePurgeSetting = () => {
+    this.props.onBranchesChange();
+  };
 
-  onModalActionFulfilled = () => {
-    this.onClose();
+  handleClose = () => {
+    this.setState({ deleting: undefined, renaming: undefined });
+  };
+
+  handleModalActionFulfilled = () => {
+    this.handleClose();
     this.props.onBranchesChange();
   };
 
@@ -113,7 +123,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
       <>
         <BoxedTabs
           className="branch-like-tabs"
-          onSelect={this.onTabSelect}
+          onSelect={this.handleTabSelect}
           selected={currentTab}
           tabs={TABS}
         />
@@ -122,8 +132,9 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           branchLikes={branchLikesToDisplay}
           component={component}
           displayPurgeSetting={isBranchMode}
-          onDelete={this.onDeleteBranchLike}
-          onRename={this.onRenameBranchLike}
+          onDelete={this.handleDeleteBranchLike}
+          onRename={this.handleRenameBranchLike}
+          onUpdatePurgeSetting={this.handleUpdatePurgeSetting}
           title={title}
         />
 
@@ -131,8 +142,8 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           <DeleteBranchModal
             branchLike={deleting}
             component={component}
-            onClose={this.onClose}
-            onDelete={this.onModalActionFulfilled}
+            onClose={this.handleClose}
+            onDelete={this.handleModalActionFulfilled}
           />
         )}
 
@@ -140,8 +151,8 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           <RenameBranchModal
             branch={renaming}
             component={component}
-            onClose={this.onClose}
-            onRename={this.onModalActionFulfilled}
+            onClose={this.handleClose}
+            onRename={this.handleModalActionFulfilled}
           />
         )}
       </>
