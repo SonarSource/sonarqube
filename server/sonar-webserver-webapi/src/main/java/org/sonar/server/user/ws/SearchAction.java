@@ -104,7 +104,18 @@ public class SearchAction implements UsersWsAction {
 
     action.createParam(TEXT_QUERY)
       .setMinimumLength(2)
-      .setDescription("Filter on login, name and email");
+      .setDescription("Filter on login, name and email.<br />" +
+        "This parameter can either be case sensitive and perform an exact match, or case insensitive and perform a partial match (contains), depending on the scenario:<br />" +
+        "<ul>" +
+        "  <li>" +
+        "    If the search query is <em>less or equal to 15 characters</em>, then the query is <em>case insensitive</em>, and will match any login, name, or email, that " +
+        "    <em>contains</em> the search query." +
+        "  </li>" +
+        "  <li>" +
+        "    If the search query is <em>greater than 15 characters</em>, then the query becomes <em>case sensitive</em>, and will match any login, name, or email, that " +
+        "    <em>exactly matches</em> the search query." +
+        "  </li>" +
+        "</ul>");
   }
 
   @Override
