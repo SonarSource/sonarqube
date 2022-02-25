@@ -619,28 +619,4 @@ upgd_oracle12_task:
     - ./private/cirrus/cirrus-qa.sh oracle12
   on_failure:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
-
-# Software Composition Analysis (SCA): check potential vulnerabilities in dependencies.
-# Note that license compliance of dependencies is not checked for now.
-owasp_check_task:
-  only_if: >-
-    $CIRRUS_CRON == "nightly" ||
-    $CIRRUS_CRON == "weekly-latest" ||
-    $CIRRUS_CRON == "weekly-lts" ||
-    changesInclude('private/owasp/*.xml')
-  <<: *YARN_CACHE_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  timeout_in: 30m
-  gke_container:
-    <<: *GKE_CONTAINER_TEMPLATE
-    cpu: 1.7
-    memory: 4Gb
-    SLACK_WEBHOOK_SQ: ENCRYPTED[dec8e4350cbea3b94d63098558bcb3ae9e79b71c2b6286fcfb9eb80c0953b6448b10f7271b07b5e75e52f362c25d7a8f]
-  script:
-    - gradle dependencyCheckAggregate
-  on_failure:
-    slack_notification_script:
-      - ./private/cirrus/cirrus-owasp-notification.sh
-  always:
-    reports_artifacts:
-      path: "build/reports/*"
+    

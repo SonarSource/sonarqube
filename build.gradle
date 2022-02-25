@@ -9,45 +9,12 @@ plugins {
   id 'com.google.protobuf' version '0.8.18' apply false
   id 'com.jfrog.artifactory' version '4.24.23'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.owasp.dependencycheck' version '6.3.2'
   id 'org.sonarqube' version '3.3'
   id "de.undercouch.download" version "4.1.2" apply false
 }
 
 if (!JavaVersion.current().java11Compatible) {
   throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
-}
-
-apply plugin: 'org.owasp.dependencycheck'
-dependencyCheck {
-  analyzers {
-    assemblyEnabled = false
-    autoconfEnabled = false
-    bundleAuditEnabled = false
-    cmakeEnabled = false
-    cocoapodsEnabled = false
-    composerEnabled = false
-    cocoapodsEnabled = false
-    golangDepEnabled = false
-    golangModEnabled = false
-    nodeAudit {
-      skipDevDependencies = true
-    }
-    nuspecEnabled = false
-    nugetconfEnabled = false
-    rubygemsEnabled = false
-    swiftEnabled = false
-  }
-  format = 'ALL'
-  junitFailOnCVSS = 0
-  failBuildOnCVSS = 0
-  suppressionFiles = ["${project.rootDir}/private/owasp/suppressions.xml", "${project.rootDir}/private/owasp/vulnerabilities.xml"]
-  skipProjects = project.subprojects
-      .findAll {it.name.contains('testing') ||
-          it.name.startsWith('it-') ||
-          it.name.contains('-test') ||
-          it.name == 'sonar-ws-generator'}
-      .collect { it.path }
 }
 
 allprojects {
@@ -671,11 +638,6 @@ dependencyUpdates {
 }
 
 gradle.projectsEvaluated { gradle ->
-  // Execute dependencyCheckAggregate prerequisites before the actual check
-  allprojects
-    .findResults { it -> it.tasks.findByName('dependencyCheckAggregate_prerequisites') }
-    .each { t -> dependencyCheckAggregate.dependsOn(t) }
-
   // yarn_run tasks can't all run in parallel without random issues
   // this script ensure all yarn_run tasks run sequentially
   def yarnRunTasks = allprojects.findResults { it -> it.tasks.findByName('yarn_run') }
