@@ -61,6 +61,17 @@ export class AuditApp extends React.PureComponent<Props, State> {
     }
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.adminPages !== this.props.adminPages) {
+      const hasGovernanceExtension = Boolean(
+        this.props.adminPages?.find(e => e.key === AdminPageExtension.GovernanceConsole)
+      );
+      this.setState({
+        hasGovernanceExtension
+      });
+    }
+  }
+
   handleDateSelection = (dateRange: { from?: Date; to?: Date }) =>
     this.setState({ dateRange, downloadStarted: false, selection: RangeOption.Custom });
 

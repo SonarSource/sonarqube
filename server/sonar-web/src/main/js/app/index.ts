@@ -51,8 +51,6 @@ if (isMainApp()) {
       })
       .catch(() => {
         resolve({
-          authenticationError: false,
-          authorizationError: false,
           edition: undefined,
           productionDatabase: true,
           qualifiers: [],

@@ -24,6 +24,7 @@ import withAppStateContext from '../../app/components/app-state/withAppStateCont
 import { getGlobalSettingValue, Store } from '../../store/rootReducer';
 import { EditionKey } from '../../types/editions';
 import { AppState, RawQuery } from '../../types/types';
+import { fetchValues } from '../settings/store/actions';
 import App from './App';
 
 interface OwnProps {
@@ -32,17 +33,15 @@ interface OwnProps {
 }
 
 interface StateToProps {
+  fetchValues: typeof fetchValues;
   updateCenterActive: boolean;
 }
 
-const mapStateToProps = (state: Store) => {
-  const updateCenterActive = getGlobalSettingValue(state, 'sonar.updatecenter.activate');
-  return {
-    updateCenterActive: Boolean(updateCenterActive && updateCenterActive.value === 'true')
-  };
-};
-
 function WithAdminContext(props: StateToProps & OwnProps) {
+  React.useEffect(() => {
+    props.fetchValues(['sonar.updatecenter.activate']);
+  });
+
   const propsToPass = {
     location: props.location,
     updateCenterActive: props.updateCenterActive,
@@ -63,4 +62,13 @@ function WithAdminContext(props: StateToProps & OwnProps) {
   );
 }
 
-export default connect(mapStateToProps)(withAppStateContext(WithAdminContext));
+const mapDispatchToProps = { fetchValues };
+
+const mapStateToProps = (state: Store) => {
+  const updateCenterActive = getGlobalSettingValue(state, 'sonar.updatecenter.activate');
+  return {
+    updateCenterActive: Boolean(updateCenterActive && updateCenterActive.value === 'true')
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withAppStateContext(WithAdminContext));

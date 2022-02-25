@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockLocation } from '../../../../helpers/testMocks';
 import { Login, LoginProps } from '../Login';
 
 it('should render correctly', () => {
@@ -26,7 +27,9 @@ it('should render correctly', () => {
   expect(shallowRender({ identityProviders: [] })).toMatchSnapshot(
     'without any identity providers'
   );
-  expect(shallowRender({ authorizationError: true })).toMatchSnapshot('with authorization error');
+  expect(
+    shallowRender({ location: mockLocation({ query: { authorizationError: true } }) })
+  ).toMatchSnapshot('with authorization error');
 });
 
 function shallowRender(props: Partial<LoginProps> = {}) {
@@ -40,6 +43,7 @@ function shallowRender(props: Partial<LoginProps> = {}) {
           name: 'foo'
         }
       ]}
+      location={mockLocation()}
       onSubmit={jest.fn()}
       returnTo=""
       {...props}

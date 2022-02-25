@@ -19,7 +19,6 @@
  */
 import { keyBy, omit } from 'lodash';
 import { combineReducers } from 'redux';
-import { Action as AppStateAction, Actions as AppStateActions } from '../../../store/appState';
 import { ActionType } from '../../../store/utils/actions';
 import { SettingValue } from '../../../types/settings';
 import { Dict } from '../../../types/types';
@@ -57,7 +56,7 @@ function components(state: State['components'] = {}, action: Action) {
   return state;
 }
 
-function global(state: State['components'] = {}, action: Action | AppStateAction) {
+function global(state: State['components'] = {}, action: Action) {
   if (action.type === Actions.receiveValues) {
     if (action.component) {
       return state;
@@ -66,13 +65,6 @@ function global(state: State['components'] = {}, action: Action | AppStateAction
     return { ...omit(state, action.updateKeys), ...settingsByKey };
   }
 
-  if (action.type === AppStateActions.SetAppState) {
-    const settingsByKey: SettingsState = {};
-    Object.keys(action.appState.settings).forEach(
-      key => (settingsByKey[key] = { key, value: action.appState.settings[key] })
-    );
-    return { ...state, ...settingsByKey };
-  }
   return state;
 }
 

@@ -20,14 +20,12 @@
 import { combineReducers } from 'redux';
 import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 import { BranchLike } from '../types/branch-like';
-import { AppState, CurrentUserSettingNames } from '../types/types';
-import appState from './appState';
+import { CurrentUserSettingNames } from '../types/types';
 import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
 import users, * as fromUsers from './users';
 
 export type Store = {
-  appState: AppState;
   branches: fromBranches.State;
   globalMessages: fromGlobalMessages.State;
   users: fromUsers.State;
@@ -37,7 +35,6 @@ export type Store = {
 };
 
 export default combineReducers<Store>({
-  appState,
   branches,
   globalMessages,
   users,
@@ -45,10 +42,6 @@ export default combineReducers<Store>({
   // apps
   settingsApp
 });
-
-export function getAppState(state: Store) {
-  return state.appState;
-}
 
 export function getGlobalMessages(state: Store) {
   return fromGlobalMessages.getGlobalMessages(state.globalMessages);

@@ -2,6 +2,17 @@
 
 exports[`should render React extensions correctly 1`] = `
 <Extension
+  appState={
+    Object {
+      "edition": "community",
+      "productionDatabase": true,
+      "qualifiers": Array [
+        "TRK",
+      ],
+      "settings": Object {},
+      "version": "1.0",
+    }
+  }
   currentUser={
     Object {
       "isLoggedIn": false,
@@ -51,6 +62,17 @@ exports[`should render React extensions correctly 1`] = `
 
 exports[`should render React extensions correctly 2`] = `
 <Extension
+  appState={
+    Object {
+      "edition": "community",
+      "productionDatabase": true,
+      "qualifiers": Array [
+        "TRK",
+      ],
+      "settings": Object {},
+      "version": "1.0",
+    }
+  }
   currentUser={
     Object {
       "isLoggedIn": false,

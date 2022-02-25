@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dispatch } from 'redux';
-import { getValues } from '../../../api/settings';
-import { closeAllGlobalMessages } from '../../../store/globalMessages';
-import { receiveValues } from './values';
 
-export function fetchValues(keys: string[], component?: string) {
-  return (dispatch: Dispatch) =>
-    getValues({ keys: keys.join(), component }).then(settings => {
-      dispatch(receiveValues(keys, settings, component));
-      dispatch(closeAllGlobalMessages());
-    });
-}
+import getHistory from '../../../helpers/getHistory';
+import handleRequiredAuthorization from '../handleRequiredAuthorization';
 
-export function setValues(
-  keys: string[],
-  settings: Array<{ key: string; value?: string }>,
-  component?: string
-) {
-  return (dispatch: Dispatch) => dispatch(receiveValues(keys, settings, component));
-}
+jest.mock('../../../helpers/getHistory', () => jest.fn());
+
+it('should not render for anonymous user', () => {
+  const replace = jest.fn();
+  (getHistory as jest.Mock<any>).mockReturnValue({ replace });
+  handleRequiredAuthorization();
+  expect(replace).toBeCalledWith(expect.objectContaining({ pathname: '/sessions/new' }));
+});

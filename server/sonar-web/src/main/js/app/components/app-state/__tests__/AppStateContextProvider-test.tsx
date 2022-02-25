@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /*
  * SonarQube
  * Copyright (C) 2009-2022 SonarSource SA
@@ -18,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import { mount } from 'enzyme';
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { setValues } from '../../../apps/settings/store/actions';
-import { AppState } from '../../../types/types';
-import { AppStateContext } from './AppStateContext';
+import { mockAppState } from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { AppStateContextProvider, AppStateContextProviderProps } from '../AppStateContextProvider';
 
-export interface AppStateContextProviderProps {
-  setValues: typeof setValues;
-  appState: AppState;
-}
-
-export function AppStateContextProvider({
-  setValues,
-  appState,
-  children
-}: React.PropsWithChildren<AppStateContextProviderProps>) {
-  React.useEffect(() => {
-    setValues(
-      Object.keys(appState.settings),
-      Object.entries(appState.settings).map(([key, value]) => ({ key, value }))
-    );
+it('should set value correctly', async () => {
+  const setValues = jest.fn();
+  const wrapper = render({
+    appState: mockAppState({ settings: { foo: 'bar' } }),
+    setValues
   });
+  await waitAndUpdate(wrapper);
+  expect(setValues).toHaveBeenCalledWith(['foo'], [{ key: 'foo', value: 'bar' }]);
+});
 
-  return <AppStateContext.Provider value={appState}>{children}</AppStateContext.Provider>;
+function render(override?: Partial<AppStateContextProviderProps>) {
+  return mount(
+    <AppStateContextProvider appState={mockAppState()} setValues={jest.fn()} {...override} />
+  );
 }
-const mapDispatchToProps = { setValues };
-export default connect(null, mapDispatchToProps)(AppStateContextProvider);

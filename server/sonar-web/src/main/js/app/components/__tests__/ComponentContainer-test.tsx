@@ -35,6 +35,7 @@ import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
+import handleRequiredAuthorization from '../../utils/handleRequiredAuthorization';
 import { ComponentContainer } from '../ComponentContainer';
 import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
@@ -78,6 +79,11 @@ jest.mock('../../../api/alm-settings', () => ({
 
 // mock this, because some of its children are using redux store
 jest.mock('../nav/component/ComponentNav', () => () => null);
+
+jest.mock('../../utils/handleRequiredAuthorization', () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
 
 const Inner = () => <div />;
 
@@ -331,10 +337,9 @@ it('should redirect if the user has no access', async () => {
   (getComponentNavigation as jest.Mock).mockRejectedValueOnce(
     new Response(null, { status: HttpStatus.Forbidden })
   );
-  const requireAuthorization = jest.fn();
-  const wrapper = shallowRender({ requireAuthorization });
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(requireAuthorization).toBeCalled();
+  expect(handleRequiredAuthorization).toBeCalled();
 });
 
 it('should redirect if the component is a portfolio', async () => {
@@ -434,7 +439,6 @@ function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
       appState={mockAppState()}
       location={mockLocation({ query: { id: 'foo' } })}
       registerBranchStatus={jest.fn()}
-      requireAuthorization={jest.fn()}
       router={mockRouter()}
       {...props}>
       <Inner />

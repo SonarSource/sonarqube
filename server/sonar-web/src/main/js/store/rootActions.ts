@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InjectedRouter } from 'react-router';
 import { Dispatch } from 'redux';
 import * as auth from '../api/auth';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
@@ -25,7 +24,6 @@ import { getBranchLikeQuery } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
 import { BranchLike } from '../types/branch-like';
 import { Status } from '../types/types';
-import { requireAuthorization as requireAuthorizationAction } from './appState';
 import { registerBranchStatusAction } from './branches';
 import { addGlobalErrorMessage } from './globalMessages';
 
@@ -70,12 +68,6 @@ export function doLogout() {
         return Promise.reject();
       }
     );
-}
-
-export function requireAuthorization(router: Pick<InjectedRouter, 'replace'>) {
-  const returnTo = window.location.pathname + window.location.search + window.location.hash;
-  router.replace({ pathname: '/sessions/new', query: { return_to: returnTo } });
-  return requireAuthorizationAction();
 }
 
 export function registerBranchStatus(branchLike: BranchLike, component: string, status: Status) {

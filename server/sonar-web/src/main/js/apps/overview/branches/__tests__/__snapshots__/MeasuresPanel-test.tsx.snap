@@ -13,7 +13,7 @@ exports[`should render correctly for applications 1`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -735,7 +735,7 @@ exports[`should render correctly for applications 2`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -1667,7 +1667,7 @@ exports[`should render correctly for projects 1`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -2389,7 +2389,7 @@ exports[`should render correctly for projects 2`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -3321,7 +3321,7 @@ exports[`should render correctly if branch is misconfigured: hide settings 1`] =
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -3462,7 +3462,7 @@ exports[`should render correctly if branch is misconfigured: show settings 1`] =
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -3609,7 +3609,7 @@ exports[`should render correctly if the data is still loading 1`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -3665,7 +3665,7 @@ exports[`should render correctly if there is no coverage 1`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",
@@ -4119,7 +4119,7 @@ exports[`should render correctly if there is no new code measures 1`] = `
     >
       overview.measures
     </h2>
-    <Connect(withCurrentUser(Connect(ComponentReportActions)))
+    <Connect(withCurrentUser(withAppStateContext(ComponentReportActions)))
       branch={
         Object {
           "analysisDate": "2018-01-01",

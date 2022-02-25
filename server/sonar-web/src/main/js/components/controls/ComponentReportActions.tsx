@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import {
   getReportStatus,
   subscribeToEmailReport,
   unsubscribeFromEmailReport
 } from '../../api/component-report';
+import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isLoggedIn } from '../../helpers/users';
-import { Store } from '../../store/rootReducer';
 import { Branch } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { ComponentReportStatus } from '../../types/component-report';
@@ -36,7 +35,7 @@ import { withCurrentUser } from '../hoc/withCurrentUser';
 import ComponentReportActionsRenderer from './ComponentReportActionsRenderer';
 
 interface Props {
-  appState: Pick<AppState, 'qualifiers'>;
+  appState: AppState;
   component: Component;
   branch?: Branch;
   currentUser: CurrentUser;
@@ -134,8 +133,4 @@ export class ComponentReportActions extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  appState: state.appState
-});
-
-export default withCurrentUser(connect(mapStateToProps)(ComponentReportActions));
+export default withCurrentUser(withAppStateContext(ComponentReportActions));

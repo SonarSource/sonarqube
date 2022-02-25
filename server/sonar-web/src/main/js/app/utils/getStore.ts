@@ -18,24 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Store } from 'redux';
-import { setAppState } from '../../store/appState';
 import rootReducer, { Store as State } from '../../store/rootReducer';
 import { receiveCurrentUser } from '../../store/users';
 import configureStore from '../../store/utils/configureStore';
-import { AppState, CurrentUser } from '../../types/types';
+import { CurrentUser } from '../../types/types';
 
 let store: Store<State, any>;
 
-const createStore = (currentUser?: CurrentUser, appState?: AppState) => {
+const createStore = (currentUser?: CurrentUser) => {
   store = configureStore(rootReducer);
   if (currentUser) {
     store.dispatch(receiveCurrentUser(currentUser));
   }
-  if (appState) {
-    store.dispatch(setAppState(appState));
-  }
   return store;
 };
 
-export default (currentUser?: CurrentUser, appState?: AppState) =>
-  store ? store : createStore(currentUser, appState);
+export default (currentUser?: CurrentUser) => (store ? store : createStore(currentUser));

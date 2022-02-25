@@ -20,7 +20,12 @@
 import { mount } from 'enzyme';
 import * as React from 'react';
 import { getExtensionStart } from '../../../../helpers/extensions';
-import { mockCurrentUser, mockLocation, mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockAppState,
+  mockCurrentUser,
+  mockLocation,
+  mockRouter
+} from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Extension } from '../Extension';
 
@@ -85,6 +90,7 @@ function shallowRender(props: Partial<Extension['props']> = {}) {
   // We need to mount, as we rely on refs.
   return mount<Extension>(
     <Extension
+      appState={mockAppState()}
       currentUser={mockCurrentUser()}
       extension={{ key: 'foo', name: 'Foo' }}
       intl={{} as any}

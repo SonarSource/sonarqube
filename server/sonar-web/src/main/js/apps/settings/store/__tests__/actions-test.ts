@@ -17,13 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { fetchValues } from '../actions';
+import { fetchValues, setValues } from '../actions';
 
 jest.mock('../../../../api/settings', () => {
   const { mockSettingValue } = jest.requireActual('../../../../helpers/mocks/settings');
   return {
     getValues: jest.fn().mockResolvedValue([mockSettingValue()])
   };
+});
+
+it('should setValues correctly', () => {
+  const dispatch = jest.fn();
+  setValues(['test'], [{ key: 'test', value: 'foo' }])(dispatch);
+  expect(dispatch).toHaveBeenCalledWith({
+    component: undefined,
+    settings: [
+      {
+        key: 'test',
+        value: 'foo'
+      }
+    ],
+    type: 'RECEIVE_VALUES',
+    updateKeys: ['test']
+  });
 });
 
 it('should fetchValue correclty', async () => {

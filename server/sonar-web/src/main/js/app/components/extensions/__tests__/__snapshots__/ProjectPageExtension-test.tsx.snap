@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<injectIntl(withRouter(Connect(Extension)))
+<injectIntl(withRouter(withAppStateContext(Connect(Extension))))
   extension={
     Object {
       "key": "plugin-key/extension-key",

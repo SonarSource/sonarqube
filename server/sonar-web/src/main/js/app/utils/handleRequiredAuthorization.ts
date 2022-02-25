@@ -18,15 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getHistory from '../../helpers/getHistory';
-import { requireAuthorization } from '../../store/appState';
-import getStore from './getStore';
 
 export default function handleRequiredAuthorization() {
-  const store = getStore();
   const history = getHistory();
-
   const returnTo = window.location.pathname + window.location.search + window.location.hash;
-
-  store.dispatch(requireAuthorization());
-  history.replace({ pathname: '/sessions/new', query: { return_to: returnTo } });
+  history.replace({
+    pathname: '/sessions/new',
+    query: { return_to: returnTo, authorizationError: true }
+  });
 }

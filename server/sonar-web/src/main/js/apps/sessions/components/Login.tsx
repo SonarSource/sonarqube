@@ -18,27 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
+import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
-import { Store } from '../../../store/rootReducer';
 import { IdentityProvider } from '../../../types/types';
 import './Login.css';
 import LoginForm from './LoginForm';
 import OAuthProviders from './OAuthProviders';
 
 export interface LoginProps {
-  authorizationError?: boolean;
-  authenticationError?: boolean;
   identityProviders: IdentityProvider[];
   onSubmit: (login: string, password: string) => Promise<void>;
   returnTo: string;
+  location: Location;
 }
 
 export function Login(props: LoginProps) {
-  const { authorizationError, authenticationError, identityProviders, returnTo } = props;
-  const displayError = authorizationError || authenticationError;
+  const { identityProviders, returnTo, location } = props;
+  const displayError = location.query.authorizationError;
 
   return (
     <div className="login-page" id="login_form">
@@ -67,9 +65,4 @@ export function Login(props: LoginProps) {
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  authorizationError: state.appState.authorizationError,
-  authenticationError: state.appState.authenticationError
-});
-
-export default connect(mapStateToProps)(Login);
+export default withRouter(Login);

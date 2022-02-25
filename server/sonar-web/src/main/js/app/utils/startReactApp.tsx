@@ -285,7 +285,7 @@ export default function startReactApp(lang: string, appState: AppState, currentU
   const el = document.getElementById('content');
 
   const history = getHistory();
-  const store = getStore(currentUser, appState);
+  const store = getStore(currentUser);
 
   render(
     <HelmetProvider>

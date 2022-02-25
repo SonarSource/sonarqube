@@ -22,7 +22,7 @@ import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
 import { L10nBundle } from './l10n';
-import { CurrentUser, Dict } from './types';
+import { AppState, CurrentUser, Dict } from './types';
 
 export enum AdminPageExtension {
   GovernanceConsole = 'governance/views_console'
@@ -38,6 +38,7 @@ export interface ExtensionStartMethod {
 }
 
 export interface ExtensionStartMethodParameter {
+  appState: AppState;
   store: ReduxStore<Store, any>;
   el: HTMLElement | undefined | null;
   currentUser: CurrentUser;

@@ -34,7 +34,7 @@ import {
 } from '../../helpers/branch-like';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl } from '../../helpers/urls';
-import { registerBranchStatus, requireAuthorization } from '../../store/rootActions';
+import { registerBranchStatus } from '../../store/rootActions';
 import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
@@ -43,6 +43,7 @@ import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 import { AppState, Component, Status } from '../../types/types';
+import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withAppStateContext from './app-state/withAppStateContext';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
@@ -54,7 +55,6 @@ interface Props {
   children: React.ReactElement;
   location: Pick<Location, 'query' | 'pathname'>;
   registerBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
-  requireAuthorization: (router: Pick<Router, 'replace'>) => void;
   router: Pick<Router, 'replace'>;
 }
 
@@ -112,7 +112,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     } catch (e) {
       if (this.mounted) {
         if (e && e instanceof Response && e.status === HttpStatus.Forbidden) {
-          this.props.requireAuthorization(this.props.router);
+          handleRequiredAuthorization();
         } else {
           this.setState({ component: undefined, loading: false });
         }
@@ -466,7 +466,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { registerBranchStatus, requireAuthorization };
+const mapDispatchToProps = { registerBranchStatus };
 
 export default withRouter(
   connect(null, mapDispatchToProps)(withAppStateContext(ComponentContainer))
