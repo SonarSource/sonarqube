@@ -37,9 +37,7 @@ public class RuleTagsCopier extends IssueVisitor {
     if (issue.isNew()) {
       // analyzer can provide some tags. They must be merged with rule tags
       Rule rule = ruleRepository.getByKey(issue.ruleKey());
-      if (!rule.isExternal()) {
-        issue.setTags(union(issue.tags(), rule.getTags()));
-      }
+      issue.setTags(union(issue.tags(), rule.getTags()));
     }
   }
 }

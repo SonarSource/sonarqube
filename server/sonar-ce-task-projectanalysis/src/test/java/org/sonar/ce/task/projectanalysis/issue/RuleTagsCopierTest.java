@@ -29,15 +29,18 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
+import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
 public class RuleTagsCopierTest {
 
   DumbRule rule = new DumbRule(XOO_X1);
+  DumbRule externalRule = new DumbRule(XOO_X2).setIsExternal(true);
 
   @org.junit.Rule
-  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule);
+  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule).add(externalRule);
 
   DefaultIssue issue = new DefaultIssue().setRuleKey(rule.getKey());
+  DefaultIssue externalIssue = new DefaultIssue().setRuleKey(externalRule.getKey());
   RuleTagsCopier underTest = new RuleTagsCopier(ruleRepository);
 
   @Test
@@ -48,6 +51,16 @@ public class RuleTagsCopierTest {
     underTest.onIssue(mock(Component.class), issue);
 
     assertThat(issue.tags()).containsExactly("bug", "performance");
+  }
+
+  @Test
+  public void copy_tags_if_new_external_issue() {
+    externalRule.setTags(Sets.newHashSet("es_lint", "java"));
+    externalIssue.setNew(true);
+
+    underTest.onIssue(mock(Component.class), externalIssue);
+
+    assertThat(externalIssue.tags()).containsExactly("es_lint", "java");
   }
 
   @Test

@@ -225,7 +225,8 @@ public class XooRulesDefinition implements RulesDefinition {
       .setType(OnePredefinedRuleExternalIssuePerLineSensor.TYPE)
       .setScope(RuleScope.ALL)
       .setHtmlDescription("Generates one external issue in each line")
-      .setName("One external issue per line");
+      .setName("One external issue per line")
+      .setTags("riri", "fifi", "loulou");
 
     repo.done();
   }
