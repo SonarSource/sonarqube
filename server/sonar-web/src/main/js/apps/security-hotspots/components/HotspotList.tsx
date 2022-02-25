@@ -87,11 +87,12 @@ export default class HotspotList extends React.Component<Props, State> {
       this.setState({ groupedHotspots });
     }
 
-    if (this.props.selectedHotspotLocation !== prevProps.selectedHotspotLocation) {
+    if (
+      this.props.selectedHotspotLocation !== undefined &&
+      this.props.selectedHotspotLocation !== prevProps.selectedHotspotLocation
+    ) {
       const { selectedHotspot } = this.props;
-      this.setState({
-        expandedCategories: { [selectedHotspot.securityCategory]: true }
-      });
+      this.handleToggleCategory(selectedHotspot.securityCategory, true);
     }
   }
 

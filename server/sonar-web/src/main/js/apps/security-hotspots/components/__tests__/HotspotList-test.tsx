@@ -101,14 +101,11 @@ it('should update grouped hotspots when the list changes', () => {
 it('should expand the categories for which the location is selected', () => {
   const wrapper = shallowRender({ hotspots, selectedHotspot: hotspots[0] });
 
-  expect(wrapper.state().expandedCategories).toEqual({ cat2: true });
-
-  wrapper.instance().handleToggleCategory('cat2', false);
-  expect(wrapper.state().expandedCategories).toEqual({ cat2: false });
+  wrapper.setState({ expandedCategories: { cat1: true, cat2: false } });
 
   wrapper.setProps({ selectedHotspotLocation: 1 });
 
-  expect(wrapper.state().expandedCategories).toEqual({ cat2: true });
+  expect(wrapper.state().expandedCategories).toEqual({ cat1: true, cat2: true });
 });
 
 function shallowRender(props: Partial<HotspotList['props']> = {}) {
