@@ -38,7 +38,7 @@ public class BranchesWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController(CONTROLLER)
       .setSince("6.6")
-      .setDescription("Manage branch (only available when the Branch plugin is installed)");
+      .setDescription("Manage branch");
     Arrays.stream(actions).forEach(action -> action.define(controller));
     controller.done();
   }

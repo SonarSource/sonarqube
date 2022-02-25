@@ -4606,7 +4606,7 @@
     {
       "path": "api/project_branches",
       "since": "6.6",
-      "description": "Manage branch (only available when the Branch plugin is installed)",
+      "description": "Manage branch",
       "actions": [
         {
           "key": "delete",
