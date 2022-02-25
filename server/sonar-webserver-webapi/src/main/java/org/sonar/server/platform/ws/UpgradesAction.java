@@ -22,12 +22,14 @@ package org.sonar.server.platform.ws;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ui.VersionFormatter;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.SonarUpdate;
@@ -70,9 +72,11 @@ public class UpgradesAction implements SystemWsAction {
   private static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
+  private final UserSession userSession;
 
-  public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory) {
+  public UpgradesAction(UpdateCenterMatrixFactory updateCenterFactory, UserSession userSession) {
     this.updateCenterFactory = updateCenterFactory;
+    this.userSession = userSession;
   }
 
   private static void writeMetadata(JsonWriter jsonWriter, Release release) {
@@ -95,12 +99,14 @@ public class UpgradesAction implements SystemWsAction {
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed " +
         "is provided in the response.")
       .setSince("5.2")
+      .setChangelog(new Change("9.4", "required authentication"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-upgrades_plugins.json"));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
     try (JsonWriter jsonWriter = response.newJsonWriter()) {
       jsonWriter.setSerializeEmptys(false);
       writeResponse(jsonWriter);

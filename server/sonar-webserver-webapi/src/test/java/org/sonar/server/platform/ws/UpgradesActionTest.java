@@ -20,11 +20,16 @@
 package org.sonar.server.platform.ws;
 
 import java.util.Optional;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
@@ -42,6 +47,9 @@ import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpgradesActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   private static final String JSON_EMPTY_UPGRADE_LIST = "{" +
     "  \"upgrades\":" + "[]" +
     "}";
@@ -49,7 +57,7 @@ public class UpgradesActionTest {
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
   private Sonar sonar = mock(Sonar.class);
-  private UpgradesAction underTest = new UpgradesAction(updateCenterFactory);
+  private UpgradesAction underTest = new UpgradesAction(updateCenterFactory, userSessionRule);
 
   private WsActionTester tester = new WsActionTester(underTest);
 
@@ -103,12 +111,21 @@ public class UpgradesActionTest {
     assertThat(def.isPost()).isFalse();
     assertThat(def.description()).isNotEmpty();
     assertThat(def.responseExample()).isNotNull();
-
+    assertThat(def.changelog()).isNotEmpty();
     assertThat(def.params()).isEmpty();
   }
 
   @Test
+  public void require_authentication() {
+    TestRequest testRequest = tester.newRequest();
+    Assertions.assertThatThrownBy(testRequest::execute)
+      .hasMessage("Authentication is required")
+      .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
   public void empty_array_is_returned_when_there_is_no_upgrade_available() {
+    userSessionRule.logIn();
     TestResponse response = tester.newRequest().execute();
 
     assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
@@ -116,6 +133,7 @@ public class UpgradesActionTest {
 
   @Test
   public void empty_array_is_returned_when_update_center_is_unavailable() {
+    userSessionRule.logIn();
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     TestResponse response = tester.newRequest().execute();
@@ -125,6 +143,7 @@ public class UpgradesActionTest {
 
   @Test
   public void verify_JSON_response_against_example() {
+    userSessionRule.logIn();
     SonarUpdate sonarUpdate = createSonar_51_update();
     when(sonar.getLtsRelease()).thenReturn(new Release(sonar, Version.create("8.9.2")));
     when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
