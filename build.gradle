@@ -9,7 +9,6 @@ plugins {
   id 'com.github.node-gradle.node' version '2.2.4' apply false
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id "com.asarkar.gradle.build-time-tracker" version "2.0.4" apply false
-  id 'org.owasp.dependencycheck' version '6.1.6'
   id 'org.sonarqube' version '3.0'
   id "de.undercouch.download" version "4.1.1" apply false
 }
@@ -27,38 +26,6 @@ if (project.hasProperty('time-tracker')) {
 
 if (!JavaVersion.current().java11Compatible) {
   throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
-}
-
-apply plugin: 'org.owasp.dependencycheck'
-dependencyCheck {
-  analyzers {
-    assemblyEnabled = false
-    autoconfEnabled = false
-    bundleAuditEnabled = false
-    cmakeEnabled = false
-    cocoapodsEnabled = false
-    composerEnabled = false
-    cocoapodsEnabled = false
-    golangDepEnabled = false
-    golangModEnabled = false
-    nodeAudit {
-      skipDevDependencies = true
-    }
-    nuspecEnabled = false
-    nugetconfEnabled = false
-    rubygemsEnabled = false
-    swiftEnabled = false
-  }
-  format = 'ALL'
-  junitFailOnCVSS = 0
-  failBuildOnCVSS = 0
-  suppressionFiles = ["${project.rootDir}/private/owasp/suppressions.xml", "${project.rootDir}/private/owasp/vulnerabilities.xml"]
-  skipProjects = project.subprojects
-      .findAll {it.name.contains('testing') ||
-          it.name.startsWith('it-') ||
-          it.name.contains('-test') ||
-          it.name == 'sonar-ws-generator'}
-      .collect { it.path }
 }
 
 allprojects {
@@ -501,11 +468,6 @@ subprojects {
       yarnVersion = '1.22.0'
       download = true
     }
-
-    // the OWASP tool does not support yarn, and its yarn.lock files, so node modules
-    // should be explicitly installed (yarn task) before running the audit
-    // See https://github.com/jeremylong/DependencyCheck/issues/2393
-    dependencyCheckAggregate.dependsOn(yarn)
   }
 
   if (official) {
