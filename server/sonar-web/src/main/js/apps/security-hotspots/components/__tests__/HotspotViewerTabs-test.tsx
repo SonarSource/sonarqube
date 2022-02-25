@@ -22,29 +22,28 @@ import * as React from 'react';
 import BoxedTabs, { BoxedTabsProps } from '../../../../components/controls/BoxedTabs';
 import { KeyboardCodes } from '../../../../helpers/keycodes';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
-import { mockUser } from '../../../../helpers/testMocks';
-import { KEYCODE_MAP, keydown } from '../../../../helpers/testUtils';
+import { mockEvent, mockUser } from '../../../../helpers/testMocks';
 import HotspotViewerTabs, { TabKeys } from '../HotspotViewerTabs';
 
-jest.mock('keymaster', () => {
-  const key: any = (bindKey: string, _: string, callback: Function) => {
-    document.addEventListener('keydown', (event: KeyboardEvent) => {
-      const keymasterCode = event.code && KEYCODE_MAP[event.code as KeyboardCodes];
-      if (keymasterCode && bindKey.split(',').includes(keymasterCode)) {
-        return callback();
-      }
-      return true;
-    });
-  };
-  let scope = 'hotspots-list';
+const originalAddEventListener = window.addEventListener;
+const originalRemoveEventListener = window.removeEventListener;
 
-  key.getScope = () => scope;
-  key.setScope = (newScope: string) => {
-    scope = newScope;
-  };
-  key.deleteScope = jest.fn();
+beforeEach(() => {
+  Object.defineProperty(window, 'addEventListener', {
+    value: jest.fn()
+  });
+  Object.defineProperty(window, 'removeEventListener', {
+    value: jest.fn()
+  });
+});
 
-  return key;
+afterEach(() => {
+  Object.defineProperty(window, 'addEventListener', {
+    value: originalAddEventListener
+  });
+  Object.defineProperty(window, 'removeEventListener', {
+    value: originalRemoveEventListener
+  });
 });
 
 it('should render correctly', () => {
@@ -146,13 +145,13 @@ describe('keyboard navigation', () => {
   const wrapper = shallowRender();
 
   it.each([
-    ['selecting next', 0, 1, 1],
-    ['selecting previous', 1, -1, 0],
-    ['selecting previous, non-existent', 0, -1, 0],
-    ['selecting next, non-existent', 3, 1, 3]
-  ])('should work when %s', (_, start, shift, expected) => {
+    ['selecting next', 0, KeyboardCodes.RightArrow, 1],
+    ['selecting previous', 1, KeyboardCodes.LeftArrow, 0],
+    ['selecting previous, non-existent', 0, KeyboardCodes.LeftArrow, 0],
+    ['selecting next, non-existent', 3, KeyboardCodes.RightArrow, 3]
+  ])('should work when %s', (_, start, code, expected) => {
     wrapper.setState({ currentTab: wrapper.state().tabs[start] });
-    wrapper.instance().selectNeighboringTab(shift);
+    wrapper.instance().handleKeyboardNavigation(mockEvent({ code }));
 
     expect(wrapper.state().currentTab.key).toBe(tabList[expected]);
   });
@@ -163,13 +162,11 @@ it('should navigate when up and down key are pressed', () => {
     <HotspotViewerTabs codeTabContent={<div>CodeTabContent</div>} hotspot={mockHotspot()} />
   );
 
-  const selectNeighboringTab = jest.spyOn(wrapper.instance(), 'selectNeighboringTab');
+  expect(window.addEventListener).toBeCalled();
 
-  keydown({ code: KeyboardCodes.LeftArrow });
-  expect(selectNeighboringTab).toBeCalledWith(-1);
+  wrapper.unmount();
 
-  keydown({ code: KeyboardCodes.RightArrow });
-  expect(selectNeighboringTab).toBeCalledWith(1);
+  expect(window.removeEventListener).toBeCalled();
 });
 
 function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {

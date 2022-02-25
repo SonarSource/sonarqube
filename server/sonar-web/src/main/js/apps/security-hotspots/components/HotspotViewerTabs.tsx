@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import key from 'keymaster';
 import * as React from 'react';
 import BoxedTabs from '../../../components/controls/BoxedTabs';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { Hotspot } from '../../../types/security-hotspots';
@@ -48,8 +48,6 @@ export enum TabKeys {
   VulnerabilityDescription = 'vulnerability',
   FixRecommendation = 'fix'
 }
-
-const HOTSPOT_KEYMASTER_SCOPE = 'hotspots-list';
 
 export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
   constructor(props: Props) {
@@ -87,20 +85,22 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
     this.unregisterKeyboardEvents();
   }
 
-  registerKeyboardEvents() {
-    key.setScope(HOTSPOT_KEYMASTER_SCOPE);
-    key('left', HOTSPOT_KEYMASTER_SCOPE, () => {
+  handleKeyboardNavigation = (event: KeyboardEvent) => {
+    if (event.code === KeyboardCodes.LeftArrow) {
+      event.preventDefault();
       this.selectNeighboringTab(-1);
-      return false;
-    });
-    key('right', HOTSPOT_KEYMASTER_SCOPE, () => {
+    } else if (event.code === KeyboardCodes.RightArrow) {
+      event.preventDefault();
       this.selectNeighboringTab(+1);
-      return false;
-    });
+    }
+  };
+
+  registerKeyboardEvents() {
+    window.addEventListener('keydown', this.handleKeyboardNavigation);
   }
 
   unregisterKeyboardEvents() {
-    key.deleteScope(HOTSPOT_KEYMASTER_SCOPE);
+    window.removeEventListener('keydown', this.handleKeyboardNavigation);
   }
 
   handleSelectTabs = (tabKey: TabKeys) => {
