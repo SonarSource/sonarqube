@@ -40,19 +40,17 @@ BUILD)
 
   # the '-' at the end is needed when using set -u (the 'nounset' flag)
   # see https://stackoverflow.com/a/9824943/641955
-  if [[ -n "${SONAR_TOKEN-}" ]]; then
+  if [[ -n "${NEXT_TOKEN-}" ]]; then
     if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
       ./gradlew jacocoTestReport sonarqube --info --no-daemon --console plain \
-        -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
-        -Dsonar.organization=sonarsource \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login="$SONAR_TOKEN"
+        -Dsonar.projectKey=sonarqube \
+        -Dsonar.host.url=https://next.sonarqube.com/sonarqube \
+        -Dsonar.login="$NEXT_TOKEN"
     else
       ./gradlew jacocoTestReport sonarqube --info --no-daemon --console plain \
-        -Dsonar.projectKey=org.sonarsource.sonarqube:sonarqube \
-        -Dsonar.organization=sonarsource \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.login="$SONAR_TOKEN" \
+        -Dsonar.projectKey=sonarqube \
+        -Dsonar.host.url=https://next.sonarqube.com/sonarqube \
+        -Dsonar.login="$NEXT_TOKEN" \
         -Dsonar.branch.name="$TRAVIS_BRANCH"
     fi
     
