@@ -107,6 +107,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
@@ -188,6 +189,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.4", format("Parameter '%s' is deprecated, please use '%s' instead", PARAM_SINCE_LEAK_PERIOD, PARAM_IN_NEW_CODE_PERIOD)),
         new Change("9.2", "Response field 'quickFixAvailable' added"),
         new Change("9.1", "Deprecated parameters 'authors', 'facetMode' and 'moduleUuids' were dropped"),
         new Change("8.6", "Parameter 'timeZone' added"),
@@ -308,8 +310,12 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_SINCE_LEAK_PERIOD)
       .setDescription("To retrieve issues created since the leak period.<br>" +
         "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
+      .setBooleanPossibleValues();
+    action.createParam(PARAM_IN_NEW_CODE_PERIOD)
+      .setDescription("To retrieve issues created in the new code period.<br>" +
+        "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
       .setBooleanPossibleValues()
-      .setDefaultValue("false");
+      .setSince("9.4");
     action.createParam(PARAM_TIMEZONE)
       .setDescription(
         "To resolve dates passed to '" + PARAM_CREATED_AFTER + "' or '" + PARAM_CREATED_BEFORE + "' (does not apply to datetime) and to compute creation date histogram")
@@ -509,6 +515,7 @@ public class SearchAction implements IssuesWsAction {
       .setDirectories(request.paramAsStrings(PARAM_DIRECTORIES))
       .setFacets(request.paramAsStrings(FACETS))
       .setFiles(request.paramAsStrings(PARAM_FILES))
+      .setInNewCodePeriod(request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD))
       .setIssues(request.paramAsStrings(PARAM_ISSUES))
       .setScopes(request.paramAsStrings(PARAM_SCOPES))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
@@ -521,7 +528,7 @@ public class SearchAction implements IssuesWsAction {
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
       .setRules(request.paramAsStrings(PARAM_RULES))
-      .setSinceLeakPeriod(request.mandatoryParamAsBoolean(PARAM_SINCE_LEAK_PERIOD))
+      .setSinceLeakPeriod(request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD))
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))

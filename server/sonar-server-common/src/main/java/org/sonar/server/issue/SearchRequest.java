@@ -43,6 +43,7 @@ public class SearchRequest {
   private List<String> facets;
   private List<String> files;
   private List<String> issues;
+  private Boolean inNewCodePeriod;
   private Set<String> scopes;
   private List<String> languages;
   private Boolean onComponentOnly;
@@ -298,11 +299,19 @@ public class SearchRequest {
     return this;
   }
 
+  /**
+   * @deprecated since 9.4 - replaced by getInNewCodePeriod()
+   */
+  @Deprecated(since = "9.4")
   @CheckForNull
   public Boolean getSinceLeakPeriod() {
     return sinceLeakPeriod;
   }
 
+  /**
+   * @deprecated since 9.4 - replaced by setInNewCodePeriod()
+   */
+  @Deprecated(since = "9.4")
   public SearchRequest setSinceLeakPeriod(@Nullable Boolean sinceLeakPeriod) {
     this.sinceLeakPeriod = sinceLeakPeriod;
     return this;
@@ -445,6 +454,16 @@ public class SearchRequest {
 
   public SearchRequest setTimeZone(@Nullable String timeZone) {
     this.timeZone = timeZone;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean getInNewCodePeriod() {
+    return inNewCodePeriod;
+  }
+
+  public SearchRequest setInNewCodePeriod(@Nullable Boolean inNewCodePeriod) {
+    this.inNewCodePeriod = inNewCodePeriod;
     return this;
   }
 }

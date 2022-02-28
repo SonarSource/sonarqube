@@ -110,6 +110,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
@@ -558,7 +559,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void filter_by_leak_period() {
+  public void filter_by_new_code_period() {
     UserDto john = db.users().insertUser(u -> u.setLogin("john").setName("John").setEmail("john@email.com"));
     UserDto alice = db.users().insertUser(u -> u.setLogin("alice").setName("Alice").setEmail("alice@email.com"));
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto("PROJECT_ID").setDbKey("PROJECT_KEY"));
@@ -594,6 +595,38 @@ public class SearchActionTest {
       .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
       .execute()
       .assertJson(this.getClass(), "filter_by_leak_period.json");
+
+    ws.newRequest()
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
+      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .execute()
+      .assertJson(this.getClass(), "filter_by_leak_period.json");
+
+    ws.newRequest()
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .execute()
+      .assertJson(this.getClass(), "filter_by_leak_period.json");
+  }
+
+  @Test
+  public void explicit_false_value_for_new_code_period_parameters_has_no_effect() {
+    ws.newRequest()
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "false")
+      .execute()
+      .assertJson(this.getClass(), "default_page_size_is_100.json");
+
+    ws.newRequest()
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "false")
+      .execute()
+      .assertJson(this.getClass(), "default_page_size_is_100.json");
+
+    ws.newRequest()
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "false")
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "false")
+      .execute()
+      .assertJson(this.getClass(), "default_page_size_is_100.json");
   }
 
   @Test
@@ -630,6 +663,19 @@ public class SearchActionTest {
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .execute()
+      .assertJson(this.getClass(), "empty_result.json");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
+      .execute()
+      .assertJson(this.getClass(), "empty_result.json");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "empty_result.json");
   }
@@ -670,6 +716,21 @@ public class SearchActionTest {
       .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
       .setParam(PARAM_PULL_REQUEST, "pr")
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .execute()
+      .assertJson(this.getClass(), "filter_by_leak_period_has_no_effect_on_prs.json");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_PULL_REQUEST, "pr")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
+      .execute()
+      .assertJson(this.getClass(), "filter_by_leak_period_has_no_effect_on_prs.json");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_PULL_REQUEST, "pr")
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "filter_by_leak_period_has_no_effect_on_prs.json");
   }
@@ -1257,12 +1318,12 @@ public class SearchActionTest {
 
   @Test
   public void paging_with_page_size_to_minus_one() {
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam(WebService.Param.PAGE, "1")
-        .setParam(WebService.Param.PAGE_SIZE, "-1")
-        .execute();
-    })
+
+    TestRequest requestWithNegativePageSize = ws.newRequest()
+      .setParam(WebService.Param.PAGE, "1")
+      .setParam(WebService.Param.PAGE_SIZE, "-1");
+
+    assertThatThrownBy(requestWithNegativePageSize::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Page size must be between 1 and 500 (got -1)");
   }
@@ -1299,11 +1360,10 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_invalid_format() {
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam(PARAM_CREATED_AFTER, "wrong-date-input")
-        .execute();
-    })
+    TestRequest invalidFormatRequest = ws.newRequest()
+      .setParam(PARAM_CREATED_AFTER, "wrong-date-input");
+
+    assertThatThrownBy(invalidFormatRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Date 'wrong-date-input' cannot be parsed as either a date or date+time");
   }
@@ -1321,7 +1381,7 @@ public class SearchActionTest {
       "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod", "statuses", "tags", "types", "owaspTop10", "sansTop25",
-      "cwe", "sonarsourceSecurity", "timeZone");
+      "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();
@@ -1331,6 +1391,26 @@ public class SearchActionTest {
     WebService.Param projectUuids = def.param("projects");
     assertThat(projectUuids.description()).isEqualTo("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
       "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. If this parameter is set, projectUuids must not be set.");
+  }
+
+  @Test
+  public void fail_when_mismatching_sinceLeakPeriod_and_inNewCodePeriod() {
+
+    TestRequest requestLeakTrueNewCodeFalse = ws.newRequest()
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "false");
+
+    assertThatThrownBy(requestLeakTrueNewCodeFalse::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("If both provided, the following parameters sinceLeakPeriod and inNewCodePeriod must match.");
+
+    TestRequest requestLeakFalseNewCodeTrue = ws.newRequest()
+      .setParam(PARAM_SINCE_LEAK_PERIOD, "false")
+      .setParam(PARAM_IN_NEW_CODE_PERIOD, "true");
+
+    assertThatThrownBy(requestLeakFalseNewCodeTrue::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("If both provided, the following parameters sinceLeakPeriod and inNewCodePeriod must match.");
   }
 
   private RuleDto newIssueRule() {

@@ -77,6 +77,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_K
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 
 /**
@@ -181,15 +182,16 @@ public class IssueQueryFactory {
     Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter(), timeZone);
     String createdInLast = request.getCreatedInLast();
 
-    if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
+    if (notInNewCodePeriod(request)) {
       checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
       setCreatedAfterFromDates(builder, createdAfter, createdInLast, true);
     } else {
       // If the filter is on leak period
-      checkArgument(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_SINCE_LEAK_PERIOD);
-      checkArgument(createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_IN_LAST, PARAM_SINCE_LEAK_PERIOD));
+      checkArgument(createdAfter == null, "Parameters '%s' and '%s' or '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_IN_NEW_CODE_PERIOD, PARAM_SINCE_LEAK_PERIOD);
+      checkArgument(createdInLast == null,
+        format("Parameters '%s' and '%s' or '%s' cannot be set simultaneously", PARAM_CREATED_IN_LAST, PARAM_IN_NEW_CODE_PERIOD, PARAM_SINCE_LEAK_PERIOD));
 
-      checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
+      checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching in new code period");
       ComponentDto component = componentUuids.iterator().next();
 
       if (!QUALIFIERS_WITHOUT_LEAK_PERIOD.contains(component.qualifier()) && request.getPullRequest() == null) {
@@ -204,6 +206,23 @@ public class IssueQueryFactory {
         }
       }
     }
+  }
+
+  private static boolean notInNewCodePeriod(SearchRequest request) {
+    Boolean sinceLeakPeriod = request.getSinceLeakPeriod();
+    Boolean inNewCodePeriod = request.getInNewCodePeriod();
+
+    checkArgument(validPeriodParameterValues(sinceLeakPeriod, inNewCodePeriod),
+      "If both provided, the following parameters %s and %s must match.", PARAM_SINCE_LEAK_PERIOD, PARAM_IN_NEW_CODE_PERIOD);
+
+    sinceLeakPeriod = Boolean.TRUE.equals(sinceLeakPeriod);
+    inNewCodePeriod = Boolean.TRUE.equals(inNewCodePeriod);
+
+    return !sinceLeakPeriod && !inNewCodePeriod;
+  }
+
+  private static boolean validPeriodParameterValues(@Nullable Boolean sinceLeakPeriod, @Nullable Boolean inNewCodePeriod) {
+    return atMostOneNonNullElement(sinceLeakPeriod, inNewCodePeriod) || !Boolean.logicalXor(sinceLeakPeriod, inNewCodePeriod);
   }
 
   private Date findCreatedAfterFromComponentUuid(Optional<SnapshotDto> snapshot) {
@@ -344,7 +363,7 @@ public class IssueQueryFactory {
   }
 
   private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchRequest request, Set<String> applicationUuids) {
-    if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod() || request.getPullRequest() != null) {
+    if (notInNewCodePeriod(request) || request.getPullRequest() != null) {
       return;
     }
 
