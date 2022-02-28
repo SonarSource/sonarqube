@@ -33,6 +33,7 @@ public final class SnapshotDto {
    */
   public static final String STATUS_UNPROCESSED = "U";
   public static final String STATUS_PROCESSED = "P";
+  public static final String STATUS_LIVE_MEASURE_COMPUTED = "L";
   public static final int MAX_VERSION_LENGTH = 100;
   public static final int MAX_BUILD_STRING_LENGTH = 100;
 

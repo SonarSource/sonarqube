@@ -88,8 +88,8 @@ public class SnapshotDao implements Dao {
     return mapper(session).selectSnapshotsByQuery(query);
   }
 
-  public Optional<SnapshotDto> selectOldestSnapshot(DbSession session, String componentUuid) {
-    return mapper(session).selectOldestSnapshots(componentUuid, new RowBounds(0, 1))
+  public Optional<SnapshotDto> selectOldestAnalysis(DbSession session, String componentUuid) {
+    return mapper(session).selectOldestSnapshots(componentUuid, SnapshotDto.STATUS_PROCESSED, new RowBounds(0, 1))
       .stream()
       .findFirst();
   }

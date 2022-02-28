@@ -91,7 +91,10 @@
     </if>
     <where>
       <if test="query.status != null">
-        AND s.status=#{query.status,jdbcType=VARCHAR}
+        AND s.status IN
+        <foreach collection="query.status" open="(" close=")" item="singleStatus" separator=" , ">
+          #{singleStatus, jdbcType=VARCHAR}
+        </foreach>
       </if>
       <if test="query.projectVersion != null">
         AND s.version=#{query.projectVersion,jdbcType=VARCHAR}
@@ -140,7 +143,8 @@
     <include refid="snapshotColumns" />
     FROM snapshots s
     <where>
-      s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      and s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      and s.status = #{status,jdbcType=VARCHAR}
     </where>
     ORDER BY s.created_at ASC
   </select>

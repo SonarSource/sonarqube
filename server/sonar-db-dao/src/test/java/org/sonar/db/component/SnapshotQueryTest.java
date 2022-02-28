@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.List;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +41,15 @@ public class SnapshotQueryTest {
 
     assertThat(query.getComponentUuid()).isEqualTo("abcd");
     assertThat(query.getIsLast()).isTrue();
-    assertThat(query.getStatus()).isEqualTo("P");
+    assertThat(query.getStatus()).isEqualTo(List.of("P"));
     assertThat(query.getProjectVersion()).isEqualTo("1.0");
     assertThat(query.getCreatedAfter()).isEqualTo(10L);
     assertThat(query.getCreatedBefore()).isEqualTo(20L);
     assertThat(query.getSortField()).isEqualTo("created_at");
     assertThat(query.getSortOrder()).isEqualTo("asc");
+
+    query.setStatuses(List.of("P", "L"));
+
+    assertThat(query.getStatus()).isEqualTo(List.of("P", "L"));
   }
 }

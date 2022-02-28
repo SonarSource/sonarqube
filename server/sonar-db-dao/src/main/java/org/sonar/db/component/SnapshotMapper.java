@@ -42,7 +42,7 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
-  List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
+  List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, @Param("status") String status, RowBounds rowBounds);
 
   List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
 

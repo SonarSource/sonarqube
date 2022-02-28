@@ -22,9 +22,16 @@ import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import { Analysis, Paging } from '../types/types';
 
+export enum ProjectActivityStatuses {
+  STATUS_PROCESSED = 'P',
+  STATUS_UNPROCESSED = 'U',
+  STATUS_LIVE_MEASURE_COMPUTE = 'L'
+}
+
 export function getProjectActivity(
   data: {
     project: string;
+    statuses?: string;
     category?: string;
     from?: string;
     p?: number;

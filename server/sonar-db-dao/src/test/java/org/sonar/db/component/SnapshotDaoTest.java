@@ -319,11 +319,11 @@ public class SnapshotDaoTest {
       newAnalysis(project).setCreatedAt(1L));
     dbSession.commit();
 
-    Optional<SnapshotDto> dto = underTest.selectOldestSnapshot(dbSession, project.uuid());
+    Optional<SnapshotDto> dto = underTest.selectOldestAnalysis(dbSession, project.uuid());
     assertThat(dto).isNotEmpty();
     assertThat(dto.get().getCreatedAt()).isOne();
 
-    assertThat(underTest.selectOldestSnapshot(dbSession, "blabla")).isEmpty();
+    assertThat(underTest.selectOldestAnalysis(dbSession, "blabla")).isEmpty();
   }
 
   @Test

@@ -21,7 +21,14 @@ import { Location } from 'history';
 import * as React from 'react';
 import { InjectedRouter } from 'react-router';
 import { getAllMetrics } from '../../../api/metrics';
-import * as api from '../../../api/projectActivity';
+import {
+  changeEvent,
+  createEvent,
+  deleteAnalysis,
+  deleteEvent,
+  getProjectActivity,
+  ProjectActivityStatuses
+} from '../../../api/projectActivity';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import {
   DEFAULT_GRAPH,
@@ -31,6 +38,7 @@ import {
 } from '../../../components/activity-graph/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseDate } from '../../../helpers/dates';
+import { serializeStringArray } from '../../../helpers/query';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
@@ -122,7 +130,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   }
 
   addCustomEvent = (analysis: string, name: string, category?: string) => {
-    return api.createEvent(analysis, name, category).then(({ analysis, ...event }) => {
+    return createEvent(analysis, name, category).then(({ analysis, ...event }) => {
       if (this.mounted) {
         this.setState(actions.addCustomEvent(analysis, event));
       }
@@ -134,7 +142,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   };
 
   changeEvent = (event: string, name: string) => {
-    return api.changeEvent(event, name).then(({ analysis, ...event }) => {
+    return changeEvent(event, name).then(({ analysis, ...event }) => {
       if (this.mounted) {
         this.setState(actions.changeEvent(analysis, event));
       }
@@ -142,7 +150,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   };
 
   deleteAnalysis = (analysis: string) => {
-    return api.deleteAnalysis(analysis).then(() => {
+    return deleteAnalysis(analysis).then(() => {
       if (this.mounted) {
         this.updateGraphData(
           this.state.query.graph || DEFAULT_GRAPH,
@@ -154,24 +162,34 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   };
 
   deleteEvent = (analysis: string, event: string) => {
-    return api.deleteEvent(event).then(() => {
+    return deleteEvent(event).then(() => {
       if (this.mounted) {
         this.setState(actions.deleteEvent(analysis, event));
       }
     });
   };
 
-  fetchActivity = (project: string, p: number, ps: number, additional?: RawQuery) => {
-    const parameters = { project, p, ps, ...getBranchLikeQuery(this.props.branchLike) };
-    return api
-      .getProjectActivity({ ...additional, ...parameters })
-      .then(({ analyses, paging }) => ({
-        analyses: analyses.map(analysis => ({
-          ...analysis,
-          date: parseDate(analysis.date)
-        })) as ParsedAnalysis[],
-        paging
-      }));
+  fetchActivity = (
+    project: string,
+    statuses: ProjectActivityStatuses[],
+    p: number,
+    ps: number,
+    additional?: RawQuery
+  ) => {
+    const parameters = {
+      project,
+      statuses: serializeStringArray(statuses),
+      p,
+      ps,
+      ...getBranchLikeQuery(this.props.branchLike)
+    };
+    return getProjectActivity({ ...additional, ...parameters }).then(({ analyses, paging }) => ({
+      analyses: analyses.map(analysis => ({
+        ...analysis,
+        date: parseDate(analysis.date)
+      })) as ParsedAnalysis[],
+      paging
+    }));
   };
 
   fetchMeasuresHistory = (metrics: string[]): Promise<MeasureHistory[]> => {
@@ -223,7 +241,15 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
       return Promise.resolve(prevResult);
     }
     const nextPage = prevResult ? prevResult.paging.pageIndex + 1 : 1;
-    return this.fetchActivity(project, nextPage, 500).then(result => {
+    return this.fetchActivity(
+      project,
+      [
+        ProjectActivityStatuses.STATUS_PROCESSED,
+        ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
+      ],
+      nextPage,
+      500
+    ).then(result => {
       if (!prevResult) {
         return this.loadAllActivities(project, result);
       }
@@ -255,7 +281,16 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
     const topLevelComponent = this.getTopLevelComponent(component);
     Promise.all([
-      this.fetchActivity(topLevelComponent, 1, 100, serializeQuery(query)),
+      this.fetchActivity(
+        topLevelComponent,
+        [
+          ProjectActivityStatuses.STATUS_PROCESSED,
+          ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
+        ],
+        1,
+        100,
+        serializeQuery(query)
+      ),
       getAllMetrics(),
       this.fetchMeasuresHistory(graphMetrics)
     ]).then(

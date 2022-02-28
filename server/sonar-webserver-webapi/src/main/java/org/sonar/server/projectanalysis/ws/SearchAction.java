@@ -47,6 +47,9 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.db.component.SnapshotDto.STATUS_LIVE_MEASURE_COMPUTED;
+import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
+import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
@@ -54,6 +57,7 @@ import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PA
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_FROM;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_STATUS;
 import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_TO;
 import static org.sonar.server.projectanalysis.ws.SearchRequest.DEFAULT_PAGE_SIZE;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -114,6 +118,14 @@ public class SearchAction implements ProjectAnalysesWsAction {
         "Either a date (server timezone) or datetime can be provided")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200")
       .setSince("6.5");
+
+    action.createParam(PARAM_STATUS)
+      .setDescription("List of statuses of desired analysis.")
+      .setDefaultValue(STATUS_PROCESSED)
+      .setInternal(true)
+      .setPossibleValues(STATUS_PROCESSED, STATUS_UNPROCESSED, STATUS_LIVE_MEASURE_COMPUTED)
+      .setExampleValue(String.join(",", STATUS_PROCESSED, STATUS_UNPROCESSED, STATUS_LIVE_MEASURE_COMPUTED))
+      .setSince("9.4");
   }
 
   @Override
@@ -125,6 +137,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
 
   private static SearchRequest toWsRequest(Request request) {
     String category = request.param(PARAM_CATEGORY);
+    List<String> statuses = request.paramAsStrings(PARAM_STATUS);
     return SearchRequest.builder()
       .setProject(request.mandatoryParam(PARAM_PROJECT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -133,6 +146,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setFrom(request.param(PARAM_FROM))
       .setTo(request.param(PARAM_TO))
+      .setStatuses(statuses == null ? List.of(STATUS_PROCESSED) : statuses)
       .build();
   }
 
@@ -158,11 +172,12 @@ public class SearchAction implements ProjectAnalysesWsAction {
   private void addAnalyses(SearchData.Builder data) {
     SnapshotQuery dbQuery = new SnapshotQuery()
       .setComponentUuid(data.getProject().uuid())
-      .setStatus(SnapshotDto.STATUS_PROCESSED)
+      .setStatuses(data.getRequest().getStatuses())
       .setSort(BY_DATE, DESC);
     ofNullable(data.getRequest().getFrom()).ifPresent(from -> dbQuery.setCreatedAfter(parseStartingDateOrDateTime(from).getTime()));
     ofNullable(data.getRequest().getTo()).ifPresent(to -> dbQuery.setCreatedBefore(parseEndingDateOrDateTime(to).getTime() + 1_000L));
     List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectAnalysesByQuery(data.getDbSession(), dbQuery);
+
     var detectedCIs = dbClient.analysisPropertiesDao().selectByKeyAndAnalysisUuids(data.getDbSession(),
       CorePropertyDefinitions.SONAR_ANALYSIS_DETECTEDCI,
       snapshotDtos.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()));

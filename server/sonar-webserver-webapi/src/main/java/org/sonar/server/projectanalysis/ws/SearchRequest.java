@@ -19,6 +19,7 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -37,6 +38,7 @@ class SearchRequest {
   private final int pageSize;
   private final String from;
   private final String to;
+  private final List<String> statuses;
 
   private SearchRequest(Builder builder) {
     this.project = builder.project;
@@ -47,6 +49,7 @@ class SearchRequest {
     this.pageSize = builder.pageSize;
     this.from = builder.from;
     this.to = builder.to;
+    this.statuses = builder.statuses;
   }
 
   public String getProject() {
@@ -86,6 +89,10 @@ class SearchRequest {
     return to;
   }
 
+  public List<String> getStatuses() {
+    return statuses;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -99,6 +106,7 @@ class SearchRequest {
     private int pageSize = DEFAULT_PAGE_SIZE;
     private String from;
     private String to;
+    private List<String> statuses;
 
     private Builder() {
       // enforce static factory method
@@ -141,6 +149,11 @@ class SearchRequest {
 
     public Builder setTo(@Nullable String to) {
       this.to = to;
+      return this;
+    }
+
+    public Builder setStatuses(@Nullable List<String> statuses) {
+      this.statuses = statuses;
       return this;
     }
 
