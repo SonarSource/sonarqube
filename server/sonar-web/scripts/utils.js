@@ -32,6 +32,9 @@ const extensionsL10nFilepaths = [
   '../../../private/core-extension-securityreport/src/main/resources/org/sonar/l10n/securityreport.properties'
 ];
 
+const STATUS_OK = 200;
+const STATUS_ERROR = 500;
+
 function getFileMessage(filename) {
   return readFileAsync(path.resolve(__dirname, filename), 'utf-8').then(
     content => {
@@ -55,4 +58,17 @@ function getMessages() {
   ).then(filesMessages => filesMessages.reduce((acc, messages) => ({ ...acc, ...messages }), {}));
 }
 
-module.exports = { getMessages };
+function handleL10n(res) {
+  getMessages()
+    .then(messages => {
+      res.writeHead(STATUS_OK, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
+    })
+    .catch(e => {
+      console.error(e);
+      res.writeHead(STATUS_ERROR);
+      res.end(e);
+    });
+}
+
+module.exports = { handleL10n };

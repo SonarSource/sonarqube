@@ -26,7 +26,7 @@ const esbuild = require('esbuild');
 const http = require('http');
 const httpProxy = require('http-proxy');
 const getConfig = require('../config/esbuild-config');
-const { getMessages } = require('./utils');
+const { handleL10n } = require('./utils');
 const paths = require('../config/paths');
 
 const STATUS_OK = 200;
@@ -38,19 +38,6 @@ const host = process.env.HOST || 'localhost';
 const proxyTarget = process.env.PROXY || 'http://localhost:9000';
 
 const config = getConfig(false);
-
-function handleL10n(res) {
-  getMessages()
-    .then(messages => {
-      res.writeHead(STATUS_OK, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ effectiveLocale: 'en', messages }));
-    })
-    .catch(e => {
-      console.error(e);
-      res.writeHead(STATUS_ERROR);
-      res.end(e);
-    });
-}
 
 function handleStaticFileRequest(req, res) {
   fs.readFile(paths.appBuild + req.url, (err, data) => {
