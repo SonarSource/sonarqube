@@ -109,7 +109,7 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
       try {
         sonarLintClientPermissionsValidator.validateUserCanReceivePushEventForProjects(c.getUserUuid(), projectKeysInterestingForClient);
         RuleSetChangedEvent personalizedEvent = new RuleSetChangedEvent(projectKeysInterestingForClient.toArray(String[]::new), event.getActivatedRules(),
-          event.getDeactivatedRules());
+          event.getDeactivatedRules(), event.getLanguage());
         String message = getMessage(personalizedEvent);
         c.writeAndFlush(message);
       } catch (ForbiddenException forbiddenException) {
@@ -137,8 +137,8 @@ public class SonarLintClientsRegistry implements RuleActivationListener {
     data.put("activatedRules", activatedRulesJson);
 
     JSONArray deactivatedRulesJson = new JSONArray();
-    for (RuleChange rule : ruleSetChangedEvent.getDeactivatedRules()) {
-      deactivatedRulesJson.put(toJson(rule));
+    for (String ruleKey : ruleSetChangedEvent.getDeactivatedRules()) {
+      deactivatedRulesJson.put(ruleKey);
     }
     data.put("deactivatedRules", deactivatedRulesJson);
 

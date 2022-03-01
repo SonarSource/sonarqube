@@ -30,8 +30,8 @@ public class RuleSetChangedEventTest {
   public void getLanguage_givenNoDeactivatedRules_languageIsCorrectlyIdentified() {
     String[] projects = {"sonarqube"};
     RuleChange[] activatedRules = {createRuleChange("java")};
-    RuleChange[] deactivatedRules = {};
-    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules);
+    String[] deactivatedRules = {};
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules, "java");
 
     String language = event.getLanguage();
 
@@ -42,8 +42,8 @@ public class RuleSetChangedEventTest {
   public void getLanguage_givenNoActivatedRules_languageIsCorrectlyIdentified() {
     String[] projects = {"sonarqube"};
     RuleChange[] activatedRules = {};
-    RuleChange[] deactivatedRules = {createRuleChange("java")};
-    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules);
+    String[] deactivatedRules = {"ruleKey"};
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projects, activatedRules, deactivatedRules, "java");
 
     String language = event.getLanguage();
 
@@ -54,9 +54,9 @@ public class RuleSetChangedEventTest {
   public void getLanguage_givenBothArraysEmpty_throwException() {
     String[] projects = {"sonarqube"};
     RuleChange[] activatedRules = {};
-    RuleChange[] deactivatedRules = {};
+    String[] deactivatedRules = {};
 
-    assertThatThrownBy(() -> new RuleSetChangedEvent(projects, activatedRules, deactivatedRules))
+    assertThatThrownBy(() -> new RuleSetChangedEvent(projects, activatedRules, deactivatedRules, "java"))
       .isInstanceOf(IllegalArgumentException.class);
   }
 

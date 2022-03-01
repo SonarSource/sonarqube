@@ -104,8 +104,8 @@ public class SonarLintClientsRegistryTest {
     RuleChange javaRule = createRuleChange();
 
     RuleChange[] activatedRules = {javaRule};
-    RuleChange[] deactivatedRules = {javaRule};
-    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    String[] deactivatedRules = {"rule-key"};
+    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
     underTest.listen(ruleSetChangedEvent);
 
     ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
@@ -125,11 +125,9 @@ public class SonarLintClientsRegistryTest {
 
     underTest.registerClient(sonarLintClient);
 
-    RuleChange javaRuleChange = createRuleChange();
-
     RuleChange[] activatedRules = {};
-    RuleChange[] deactivatedRules = {javaRuleChange};
-    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    String[] deactivatedRules = {"rule-key"};
+    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
     underTest.listen(ruleSetChangedEvent);
 
     verifyNoInteractions(outputStream);
@@ -145,11 +143,9 @@ public class SonarLintClientsRegistryTest {
 
     underTest.registerClient(sonarLintClient);
 
-    RuleChange javaRuleChange = createRuleChange();
-
     RuleChange[] activatedRules = {};
-    RuleChange[] deactivatedRules = {javaRuleChange};
-    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(eventProjectKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    String[] deactivatedRules = {"rule-key"};
+    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(eventProjectKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
     underTest.listen(ruleSetChangedEvent);
 
     ArgumentCaptor<Set<String>> argument = ArgumentCaptor.forClass(Set.class);
@@ -159,10 +155,9 @@ public class SonarLintClientsRegistryTest {
 
   @Test
   public void listen_givenUserNotPermittedToReceiveEvent_closeConnection() {
-    RuleChange javaRuleChange = createRuleChange();
     RuleChange[] activatedRules = {};
-    RuleChange[] deactivatedRules = {javaRuleChange};
-    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    String[] deactivatedRules = {"rule-key"};
+    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
 
     SonarLintClient sonarLintClient = createSampleSLClient();
     underTest.registerClient(sonarLintClient);
@@ -175,10 +170,9 @@ public class SonarLintClientsRegistryTest {
 
   @Test
   public void listen_givenUnregisteredClient_closeConnection() throws IOException {
-    RuleChange javaRuleChange = createRuleChange();
     RuleChange[] activatedRules = {};
-    RuleChange[] deactivatedRules = {javaRuleChange};
-    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules);
+    String[] deactivatedRules = {"rule-key"};
+    RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
 
     SonarLintClient sonarLintClient = createSampleSLClient();
     underTest.registerClient(sonarLintClient);

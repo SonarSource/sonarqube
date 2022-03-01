@@ -19,17 +19,6 @@
     }
   ],
   "deactivatedRules": [
-    {
-      "key": "rule-key",
-      "templateKey": "template-key",
-      "severity": "CRITICAL",
-      "language": "java",
-      "params": [
-        {
-          "value": "param-value",
-          "key": "param-key"
-        }
-      ]
-    }
+    "rule-key"
   ]
 }

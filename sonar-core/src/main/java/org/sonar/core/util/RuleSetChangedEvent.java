@@ -28,16 +28,16 @@ public class RuleSetChangedEvent implements Serializable {
   private final String[] projects;
   private final String language;
   private final RuleChange[] activatedRules;
-  private final RuleChange[] deactivatedRules;
+  private final String[] deactivatedRules;
 
-  public RuleSetChangedEvent(String[] projects, RuleChange[] activatedRules, RuleChange[] deactivatedRules) {
+  public RuleSetChangedEvent(String[] projects, RuleChange[] activatedRules, String[] deactivatedRules, String language) {
     this.projects = projects;
     this.activatedRules = activatedRules;
     this.deactivatedRules = deactivatedRules;
     if (activatedRules.length == 0 && deactivatedRules.length == 0) {
       throw new IllegalArgumentException("Can't create RuleSetChangedEvent without any rules that have changed");
     }
-    this.language = activatedRules.length > 0 ? activatedRules[0].getLanguage() : deactivatedRules[0].getLanguage();
+    this.language = language;
   }
 
   public String getEvent() {
@@ -56,7 +56,7 @@ public class RuleSetChangedEvent implements Serializable {
     return activatedRules;
   }
 
-  public RuleChange[] getDeactivatedRules() {
+  public String[] getDeactivatedRules() {
     return deactivatedRules;
   }
 }

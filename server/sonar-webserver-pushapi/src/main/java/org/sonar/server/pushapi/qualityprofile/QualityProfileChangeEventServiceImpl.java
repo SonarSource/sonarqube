@@ -24,12 +24,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.util.ParamChange;
 import org.sonar.core.util.RuleChange;
@@ -45,6 +47,11 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
+import static java.util.function.Predicate.not;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
+
 @ServerSide
 public class QualityProfileChangeEventServiceImpl implements QualityProfileChangeEventService {
 
@@ -59,21 +66,23 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   @Override
   public void publishRuleActivationToSonarLintClients(ProjectDto project, @Nullable QProfileDto activatedProfile, @Nullable QProfileDto deactivatedProfile) {
     List<RuleChange> activatedRules = new ArrayList<>();
-    List<RuleChange> deactivatedRules = new ArrayList<>();
+    Set<String> deactivatedRules = new HashSet<>();
 
     if (activatedProfile != null) {
       activatedRules.addAll(createRuleChanges(activatedProfile));
     }
 
     if (deactivatedProfile != null) {
-      deactivatedRules.addAll(createRuleChanges(deactivatedProfile));
+      deactivatedRules.addAll(getRuleKeys(deactivatedProfile));
     }
 
     if (activatedRules.isEmpty() && deactivatedRules.isEmpty()) {
       return;
     }
 
-    RuleSetChangedEvent event = new RuleSetChangedEvent(new String[] {project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
+    String language = activatedProfile != null ? activatedProfile.getLanguage() : deactivatedProfile.getLanguage();
+    RuleSetChangedEvent event = new RuleSetChangedEvent(new String[] {project.getKey()}, activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new String[0]),
+      language);
     eventsDistributor.pushEvent(event);
   }
 
@@ -100,6 +109,22 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       }
     }
     return ruleChanges;
+  }
+
+  private Set<String> getRuleKeys(@NotNull QProfileDto profileDto) {
+    Set<String> ruleKeys = new HashSet<>();
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfile(dbSession, profileDto);
+
+      List<String> ruleUuids = activeRuleDtos.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
+      List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, ruleUuids);
+
+      for (RuleDto ruleDto : ruleDtos) {
+        ruleKeys.add(ruleDto.getRuleKey());
+      }
+    }
+    return ruleKeys;
   }
 
   @NotNull
@@ -133,7 +158,6 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
     }
 
     Set<RuleChange> activatedRules = new HashSet<>();
-    Set<RuleChange> deactivatedRules = new HashSet<>();
 
     for (ActiveRuleChange arc : activeRuleChanges) {
       ActiveRuleDto activeRule = arc.getActiveRule();
@@ -156,16 +180,18 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       }
       ruleChange.setParams(paramChanges.toArray(new ParamChange[0]));
 
-      switch (arc.getType()) {
-        case ACTIVATED:
-        case UPDATED:
-          activatedRules.add(ruleChange);
-          break;
-        case DEACTIVATED:
-          deactivatedRules.add(ruleChange);
-          break;
+      if (ACTIVATED.equals(arc.getType()) || UPDATED.equals(arc.getType())) {
+        activatedRules.add(ruleChange);
       }
     }
+
+    Set<String> deactivatedRules = activeRuleChanges.stream()
+      .filter(r -> DEACTIVATED.equals(r.getType()))
+      .map(ActiveRuleChange::getActiveRule)
+      .filter(not(Objects::isNull))
+      .map(ActiveRuleDto::getRuleKey)
+      .map(RuleKey::rule)
+      .collect(Collectors.toSet());
 
     Set<String> projectKeys = getProjectKeys(profiles);
 
@@ -173,7 +199,8 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       return;
     }
 
-    RuleSetChangedEvent event = new RuleSetChangedEvent(projectKeys.toArray(new String[0]), activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new RuleChange[0]));
+    RuleSetChangedEvent event = new RuleSetChangedEvent(projectKeys.toArray(new String[0]), activatedRules.toArray(new RuleChange[0]), deactivatedRules.toArray(new String[0]),
+      language);
     eventsDistributor.pushEvent(event);
   }
 

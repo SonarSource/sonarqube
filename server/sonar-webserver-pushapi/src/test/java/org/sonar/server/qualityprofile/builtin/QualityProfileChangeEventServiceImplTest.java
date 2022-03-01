@@ -115,6 +115,7 @@ public class QualityProfileChangeEventServiceImplTest {
   public void publishRuleActivationToSonarLintClients() {
     ProjectDto projectDao = new ProjectDto();
     QProfileDto activatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
+    activatedQualityProfile.setLanguage("xoo");
     db.qualityProfiles().insert(activatedQualityProfile);
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleParamDto rule1Param = db.rules().insertRuleParam(rule1);
@@ -159,15 +160,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     // deactivated rule
     assertThat(ruleSetChangedEvent.getDeactivatedRules())
-      .extracting(RuleChange::getKey, RuleChange::getLanguage,
-        RuleChange::getSeverity, RuleChange::getTemplateKey)
-      .containsExactly(tuple(rule2.getRuleKey(), "xoo", rule2.getSeverityString(), null));
-
-    assertThat(ruleSetChangedEvent.getDeactivatedRules()[0].getParams()).hasSize(1);
-    ParamChange actualParamChangeDeactivated = ruleSetChangedEvent.getDeactivatedRules()[0].getParams()[0];
-    assertThat(actualParamChangeDeactivated)
-      .extracting(ParamChange::getKey, ParamChange::getValue)
-      .containsExactly(activeRuleParam2.getKey(), activeRuleParam2.getValue());
+      .containsExactly(rule2.getRuleKey());
   }
 
 }
