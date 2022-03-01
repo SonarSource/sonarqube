@@ -288,7 +288,7 @@ subprojects {
       }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       dependency 'com.h2database:h2:2.1.210'
-      dependencySet(group: 'com.hazelcast', version: '4.2.2') {
+      dependencySet(group: 'com.hazelcast', version: '4.2.4') {
         entry 'hazelcast'
       }
       dependency 'com.hazelcast:hazelcast-kubernetes:2.2.3'
