@@ -121,7 +121,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       List<RuleDto> ruleDtos = dbClient.ruleDao().selectByUuids(dbSession, ruleUuids);
 
       for (RuleDto ruleDto : ruleDtos) {
-        ruleKeys.add(ruleDto.getRuleKey());
+        ruleKeys.add(ruleDto.getKey().toString());
       }
     }
     return ruleKeys;
@@ -130,7 +130,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   @NotNull
   private RuleChange toRuleChange(RuleDto ruleDto, List<ActiveRuleParamDto> activeRuleParamDtos) {
     RuleChange ruleChange = new RuleChange();
-    ruleChange.setKey(ruleDto.getRuleKey());
+    ruleChange.setKey(ruleDto.getKey().toString());
     ruleChange.setLanguage(ruleDto.getLanguage());
     ruleChange.setSeverity(ruleDto.getSeverityString());
 
@@ -145,7 +145,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       try (DbSession dbSession = dbClient.openSession(false)) {
         RuleDto templateRule = dbClient.ruleDao().selectByUuid(templateUuid, dbSession)
           .orElseThrow(() -> new IllegalStateException(String.format("Unknown Template Rule '%s'", templateUuid)));
-        ruleChange.setTemplateKey(templateRule.getRuleKey());
+        ruleChange.setTemplateKey(templateRule.getKey().toString());
       }
     }
 
@@ -166,7 +166,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       }
 
       RuleChange ruleChange = new RuleChange();
-      ruleChange.setKey(activeRule.getRuleKey().rule());
+      ruleChange.setKey(activeRule.getRuleKey().toString());
       ruleChange.setSeverity(arc.getSeverity());
       ruleChange.setLanguage(language);
 
@@ -190,7 +190,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       .map(ActiveRuleChange::getActiveRule)
       .filter(not(Objects::isNull))
       .map(ActiveRuleDto::getRuleKey)
-      .map(RuleKey::rule)
+      .map(RuleKey::toString)
       .collect(Collectors.toSet());
 
     Set<String> projectKeys = getProjectKeys(profiles);
@@ -213,7 +213,7 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
       if (StringUtils.isNotEmpty(templateUuid)) {
         RuleDto templateRule = dbClient.ruleDao().selectByUuid(templateUuid, dbSession)
           .orElseThrow(() -> new IllegalStateException(String.format("Unknown Template Rule '%s'", templateUuid)));
-        return Optional.of(templateRule.getRuleKey());
+        return Optional.of(templateRule.getKey().toString());
       }
     }
     return Optional.empty();

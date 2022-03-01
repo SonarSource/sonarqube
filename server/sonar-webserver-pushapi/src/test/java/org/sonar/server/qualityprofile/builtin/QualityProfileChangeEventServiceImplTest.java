@@ -71,6 +71,8 @@ public class QualityProfileChangeEventServiceImplTest {
     // Custom rule
     RuleDefinitionDto rule1 = newCustomRule(templateRule.getDefinition())
       .setLanguage("xoo")
+      .setRepositoryKey("repo")
+      .setRuleKey("ruleKey")
       .setDescription("<div>line1\nline2</div>")
       .setDescriptionFormat(MARKDOWN);
     db.rules().insert(rule1);
@@ -99,7 +101,7 @@ public class QualityProfileChangeEventServiceImplTest {
     assertThat(ruleSetChangedEvent.getActivatedRules())
       .extracting(RuleChange::getKey, RuleChange::getLanguage,
         RuleChange::getSeverity, RuleChange::getTemplateKey)
-      .containsExactly(tuple(rule1.getRuleKey(), "xoo", null, "template-key"));
+      .containsExactly(tuple("repo:ruleKey", "xoo", null, "xoo:template-key"));
 
     assertThat(ruleSetChangedEvent.getActivatedRules()[0].getParams()).hasSize(1);
     ParamChange actualParamChange = ruleSetChangedEvent.getActivatedRules()[0].getParams()[0];
@@ -117,7 +119,7 @@ public class QualityProfileChangeEventServiceImplTest {
     QProfileDto activatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
     activatedQualityProfile.setLanguage("xoo");
     db.qualityProfiles().insert(activatedQualityProfile);
-    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo").setRuleKey("ruleKey"));
     RuleParamDto rule1Param = db.rules().insertRuleParam(rule1);
 
     ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(activatedQualityProfile, rule1);
@@ -127,7 +129,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     QProfileDto deactivatedQualityProfile = QualityProfileTesting.newQualityProfileDto();
     db.qualityProfiles().insert(deactivatedQualityProfile);
-    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("repo2").setRuleKey("ruleKey2"));
     RuleParamDto rule2Param = db.rules().insertRuleParam(rule2);
 
     ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(deactivatedQualityProfile, rule2);
@@ -150,7 +152,7 @@ public class QualityProfileChangeEventServiceImplTest {
     assertThat(ruleSetChangedEvent.getActivatedRules())
       .extracting(RuleChange::getKey, RuleChange::getLanguage,
         RuleChange::getSeverity, RuleChange::getTemplateKey)
-      .containsExactly(tuple(rule1.getRuleKey(), "xoo", rule1.getSeverityString(), null));
+      .containsExactly(tuple("repo:ruleKey", "xoo", rule1.getSeverityString(), null));
 
     assertThat(ruleSetChangedEvent.getActivatedRules()[0].getParams()).hasSize(1);
     ParamChange actualParamChange = ruleSetChangedEvent.getActivatedRules()[0].getParams()[0];
@@ -160,7 +162,7 @@ public class QualityProfileChangeEventServiceImplTest {
 
     // deactivated rule
     assertThat(ruleSetChangedEvent.getDeactivatedRules())
-      .containsExactly(rule2.getRuleKey());
+      .containsExactly("repo2:ruleKey2");
   }
 
 }

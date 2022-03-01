@@ -6,8 +6,8 @@
   ],
   "activatedRules": [
     {
-      "key": "rule-key",
-      "templateKey": "template-key",
+      "key": "repo:rule-key",
+      "templateKey": "repo:template-key",
       "severity": "CRITICAL",
       "language": "java",
       "params": [
@@ -19,6 +19,6 @@
     }
   ],
   "deactivatedRules": [
-    "rule-key"
+    "repo2:rule-key2"
   ]
 }

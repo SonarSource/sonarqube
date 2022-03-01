@@ -104,7 +104,7 @@ public class SonarLintClientsRegistryTest {
     RuleChange javaRule = createRuleChange();
 
     RuleChange[] activatedRules = {javaRule};
-    String[] deactivatedRules = {"rule-key"};
+    String[] deactivatedRules = {"repo2:rule-key2"};
     RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
     underTest.listen(ruleSetChangedEvent);
 
@@ -126,7 +126,7 @@ public class SonarLintClientsRegistryTest {
     underTest.registerClient(sonarLintClient);
 
     RuleChange[] activatedRules = {};
-    String[] deactivatedRules = {"rule-key"};
+    String[] deactivatedRules = {"repo:rule-key"};
     RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
     underTest.listen(ruleSetChangedEvent);
 
@@ -144,7 +144,7 @@ public class SonarLintClientsRegistryTest {
     underTest.registerClient(sonarLintClient);
 
     RuleChange[] activatedRules = {};
-    String[] deactivatedRules = {"rule-key"};
+    String[] deactivatedRules = {"repo:rule-key"};
     RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(eventProjectKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
     underTest.listen(ruleSetChangedEvent);
 
@@ -156,7 +156,7 @@ public class SonarLintClientsRegistryTest {
   @Test
   public void listen_givenUserNotPermittedToReceiveEvent_closeConnection() {
     RuleChange[] activatedRules = {};
-    String[] deactivatedRules = {"rule-key"};
+    String[] deactivatedRules = {"repo:rule-key"};
     RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
 
     SonarLintClient sonarLintClient = createSampleSLClient();
@@ -171,7 +171,7 @@ public class SonarLintClientsRegistryTest {
   @Test
   public void listen_givenUnregisteredClient_closeConnection() throws IOException {
     RuleChange[] activatedRules = {};
-    String[] deactivatedRules = {"rule-key"};
+    String[] deactivatedRules = {"repo:rule-key"};
     RuleSetChangedEvent ruleSetChangedEvent = new RuleSetChangedEvent(exampleKeys.toArray(String[]::new), activatedRules, deactivatedRules, "java");
 
     SonarLintClient sonarLintClient = createSampleSLClient();
@@ -226,9 +226,9 @@ public class SonarLintClientsRegistryTest {
     RuleChange javaRule = new RuleChange();
     javaRule.setLanguage("java");
     javaRule.setParams(new ParamChange[]{new ParamChange("param-key", "param-value")});
-    javaRule.setTemplateKey("template-key");
+    javaRule.setTemplateKey("repo:template-key");
     javaRule.setSeverity(Severity.CRITICAL);
-    javaRule.setKey("rule-key");
+    javaRule.setKey("repo:rule-key");
     return javaRule;
   }
 }
