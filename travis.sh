@@ -44,7 +44,7 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
       -Dsonar.host.url=https://next.sonarqube.com/sonarqube \
       -Dsonar.login="$NEXT_TOKEN"
   else
-    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --no-daemon --console plain \
+    ./gradlew jacocoTestReport :server:sonar-web:yarn_validate-ci sonarqube --info --stacktrace --no-daemon --console plain \
       -Dsonar.projectKey=sonarqube \
       -Dsonar.host.url=https://next.sonarqube.com/sonarqube \
       -Dsonar.login="$NEXT_TOKEN" \
