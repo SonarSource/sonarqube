@@ -115,7 +115,6 @@
     "jest": "27.4.7",
     "jest-emotion": "10.0.32",
     "jest-junit": "13.0.0",
-    "lint-staged": "7.3.0",
     "path-browserify": "1.0.1",
     "postcss-calc": "7.0.2",
     "postcss-custom-properties": "9.1.1",
@@ -138,8 +137,7 @@
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn install --immutable && yarn test --coverage --ci",
-    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
-    "precommit": "yarn ts-check && lint-staged"
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check"
   },
   "engines": {
     "node": ">=8"
@@ -158,20 +156,6 @@
     "jsxBracketSameLine": true,
     "printWidth": 100,
     "singleQuote": true
-  },
-  "lint-staged": {
-    "linters": {
-      "*.{css,json}": [
-        "prettier --write",
-        "git add"
-      ],
-      "*.{js,ts,tsx}": [
-        "eslint",
-        "jest --bail --passWithNoTests --findRelatedTests",
-        "prettier --write",
-        "git add"
-      ]
-    }
   },
   "packageManager": "yarn@3.1.1"
 }
