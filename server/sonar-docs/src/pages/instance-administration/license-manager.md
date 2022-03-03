@@ -23,6 +23,15 @@ By clicking the **Set new license** button, you can set a new license to enable 
 ### Lines of Code consumption
 Under **Lines of Code**, the gauge shows how many lines of code (LOC) you are currently scanning and how close you are to your limit. If you're near your limit, you may need to purchase additional LOCs.
 
+For a given project, the lines of code that count towards License Usage are those of the largest branch. Lines of test code do not count towards your License Usage.
+
+For example:
+- If a project has 100 lines of code on its main branch and 200 on a secondary branch, then the number of LOCs counted for the project is 200
+- If a project has 0 lines of code on its main branch (provisioned but never analyzed) and 200 on a secondary branch, then the number of LOCs counted is 200
+- If a project has 200 lines of code on its main branch and 100 on a secondary branch, then the number of LOCs counted is 200
+
+It is possible to download a detailed report which shows which is the largest branch for each project, how many lines of code it has, and the last time it was analyzed.
+
 ### Global Administrator notifications
 The License Manager has two built-in notification mechanisms (notifications are sent to Global Administrators). Global administrators will get notifications when:
 
