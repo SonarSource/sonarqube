@@ -287,13 +287,10 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
 
   getDefaultShowBestMeasures() {
     const { asc, view } = this.props;
-    if (asc !== undefined && view === 'list') {
+    if ((asc !== undefined && view === 'list') || view === 'tree') {
       return true;
-    } else if (view === 'tree') {
-      return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   renderMeasure() {

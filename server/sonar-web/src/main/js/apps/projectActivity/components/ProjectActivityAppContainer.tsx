@@ -72,6 +72,9 @@ export interface State {
 
 export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
+const ACTIVITY_PAGE_SIZE_FIRST_BATCH = 100;
+const ACTIVITY_PAGE_SIZE = 500;
+
 export default class ProjectActivityAppContainer extends React.PureComponent<Props, State> {
   mounted = false;
 
@@ -129,8 +132,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     this.mounted = false;
   }
 
-  addCustomEvent = (analysis: string, name: string, category?: string) => {
-    return createEvent(analysis, name, category).then(({ analysis, ...event }) => {
+  addCustomEvent = (analysisKey: string, name: string, category?: string) => {
+    return createEvent(analysisKey, name, category).then(({ analysis, ...event }) => {
       if (this.mounted) {
         this.setState(actions.addCustomEvent(analysis, event));
       }
@@ -141,8 +144,8 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
     return this.addCustomEvent(analysis, version, 'VERSION');
   };
 
-  changeEvent = (event: string, name: string) => {
-    return changeEvent(event, name).then(({ analysis, ...event }) => {
+  changeEvent = (eventKey: string, name: string) => {
+    return changeEvent(eventKey, name).then(({ analysis, ...event }) => {
       if (this.mounted) {
         this.setState(actions.changeEvent(analysis, event));
       }
@@ -248,7 +251,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
         ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
       ],
       nextPage,
-      500
+      ACTIVITY_PAGE_SIZE
     ).then(result => {
       if (!prevResult) {
         return this.loadAllActivities(project, result);
@@ -288,7 +291,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
           ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE
         ],
         1,
-        100,
+        ACTIVITY_PAGE_SIZE_FIRST_BATCH,
         serializeQuery(query)
       ),
       getAllMetrics(),

@@ -19,11 +19,57 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { changeEvent, createEvent } from '../../../../api/projectActivity';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockLocation, mockMetric, mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockAnalysisEvent,
+  mockLocation,
+  mockMetric,
+  mockRouter
+} from '../../../../helpers/testMocks';
+import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import ProjectActivityAppContainer from '../ProjectActivityAppContainer';
+
+jest.mock('../../../../helpers/dates', () => ({
+  parseDate: jest.fn(date => `PARSED:${date}`)
+}));
+
+jest.mock('../../../../api/time-machine', () => {
+  const { mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    getAllTimeMachineData: jest.fn().mockResolvedValue({
+      measures: [
+        {
+          metric: 'bugs',
+          history: [{ date: '2022-01-01', value: '10' }]
+        }
+      ],
+      paging: mockPaging({ total: 1 })
+    })
+  };
+});
+
+jest.mock('../../../../api/metrics', () => {
+  const { mockMetric } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    getAllMetrics: jest.fn().mockResolvedValue([mockMetric()])
+  };
+});
+
+jest.mock('../../../../api/projectActivity', () => {
+  const { mockAnalysis, mockPaging } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    ...jest.requireActual('../../../../api/projectActivity'),
+    createEvent: jest.fn(),
+    changeEvent: jest.fn(),
+    getProjectActivity: jest.fn().mockResolvedValue({
+      analyses: [mockAnalysis({ key: 'foo' })],
+      paging: mockPaging({ total: 1 })
+    })
+  };
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -45,6 +91,33 @@ it('should filter metric correctly', () => {
       mockMetric({ key: MetricKey.security_hotspots_reviewed })
     ]);
   expect(metrics).toHaveLength(1);
+});
+
+it('should correctly create and update custom events', async () => {
+  const analysisKey = 'foo';
+  const name = 'bar';
+  const newName = 'baz';
+  const event = mockAnalysisEvent({ name });
+  (createEvent as jest.Mock).mockResolvedValueOnce({ analysis: analysisKey, ...event });
+  (changeEvent as jest.Mock).mockResolvedValueOnce({
+    analysis: analysisKey,
+    ...event,
+    name: newName
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  const instance = wrapper.instance();
+
+  instance.addCustomEvent(analysisKey, name);
+  expect(createEvent).toHaveBeenCalledWith(analysisKey, name, undefined);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().analyses[0].events[0]).toEqual(event);
+
+  instance.changeEvent(event.key, newName);
+  expect(changeEvent).toHaveBeenCalledWith(event.key, newName);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().analyses[0].events[0]).toEqual({ ...event, name: newName });
 });
 
 function shallowRender(props: Partial<ProjectActivityAppContainer['props']> = {}) {

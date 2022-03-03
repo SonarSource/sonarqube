@@ -138,3 +138,11 @@ describe('fetchProjects', () => {
     });
   });
 });
+
+describe('defineMetrics', () => {
+  it('returns the correct list of metrics', () => {
+    expect(utils.defineMetrics({ view: 'leak' })).toBe(utils.LEAK_METRICS);
+    expect(utils.defineMetrics({ view: 'overall' })).toBe(utils.METRICS);
+    expect(utils.defineMetrics({})).toBe(utils.METRICS);
+  });
+});

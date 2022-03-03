@@ -23,7 +23,7 @@ import * as React from 'react';
 import { getAllMetrics } from '../../../../api/metrics';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import MetricContextProvider from '../MetricsContextProvider';
+import MetricsContextProvider from '../MetricsContextProvider';
 
 jest.mock('../../../../api/metrics', () => ({
   getAllMetrics: jest.fn().mockResolvedValue({})
@@ -40,9 +40,9 @@ it('should call metric', async () => {
 });
 
 function shallowRender() {
-  return shallow<MetricContextProvider>(
-    <MetricContextProvider>
+  return shallow<MetricsContextProvider>(
+    <MetricsContextProvider>
       <div />
-    </MetricContextProvider>
+    </MetricsContextProvider>
   );
 }

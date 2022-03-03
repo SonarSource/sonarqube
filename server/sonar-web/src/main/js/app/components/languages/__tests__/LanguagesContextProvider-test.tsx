@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getLanguages } from '../../../../api/languages';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import LanguageContextProvider from '../LanguagesContextProvider';
+import LanguagesContextProvider from '../LanguagesContextProvider';
 
 jest.mock('../../../../api/languages', () => ({
   getLanguages: jest.fn().mockResolvedValue({})
@@ -38,9 +38,9 @@ it('should call language', async () => {
 });
 
 function shallowRender() {
-  return shallow<LanguageContextProvider>(
-    <LanguageContextProvider>
+  return shallow<LanguagesContextProvider>(
+    <LanguagesContextProvider>
       <div />
-    </LanguageContextProvider>
+    </LanguagesContextProvider>
   );
 }

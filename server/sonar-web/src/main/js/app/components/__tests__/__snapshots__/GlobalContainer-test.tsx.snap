@@ -17,8 +17,8 @@ exports[`should render correctly 1`] = `
           >
             <Workspace>
               <withAppStateContext(IndexationContextProvider)>
-                <LanguageContextProvider>
-                  <MetricContextProvider>
+                <LanguagesContextProvider>
+                  <MetricsContextProvider>
                     <Connect(GlobalNav)
                       location={
                         Object {
@@ -38,8 +38,8 @@ exports[`should render correctly 1`] = `
                       dismissable={true}
                     />
                     <ChildComponent />
-                  </MetricContextProvider>
-                </LanguageContextProvider>
+                  </MetricsContextProvider>
+                </LanguagesContextProvider>
               </withAppStateContext(IndexationContextProvider)>
             </Workspace>
           </div>

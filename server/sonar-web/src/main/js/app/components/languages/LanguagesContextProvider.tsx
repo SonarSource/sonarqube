@@ -27,7 +27,7 @@ interface State {
   languages: Languages;
 }
 
-export default class LanguageContextProvider extends React.PureComponent<{}, State> {
+export default class LanguagesContextProvider extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
     languages: {}

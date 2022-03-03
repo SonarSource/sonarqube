@@ -86,7 +86,7 @@ export const VIEWS = [
 
 const PAGE_SIZE = 50;
 
-const METRICS = [
+export const METRICS = [
   MetricKey.alert_status,
   MetricKey.bugs,
   MetricKey.reliability_rating,
@@ -103,7 +103,7 @@ const METRICS = [
   MetricKey.projects
 ];
 
-const LEAK_METRICS = [
+export const LEAK_METRICS = [
   MetricKey.alert_status,
   MetricKey.new_bugs,
   MetricKey.new_reliability_rating,
@@ -190,13 +190,11 @@ export function fetchProjects(query: Query, isFavorite: boolean, pageIndex = 1) 
     });
 }
 
-function defineMetrics(query: Query): string[] {
-  switch (query.view) {
-    case 'leak':
-      return LEAK_METRICS;
-    default:
-      return METRICS;
+export function defineMetrics(query: Query): string[] {
+  if (query.view === 'leak') {
+    return LEAK_METRICS;
   }
+  return METRICS;
 }
 
 function defineFacets(query: Query): string[] {
