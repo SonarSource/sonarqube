@@ -36,7 +36,7 @@ public interface LiveMeasureMapper {
     @Param("metricKeys") Collection<String> metricKeys);
 
   List<LiveMeasureDto> selectByComponentUuidAndMetricKeys(
-    @Param("componentUuid")String componentUuid,
+    @Param("componentUuid") String componentUuid,
     @Param("metricKeys") Collection<String> metricKeys);
 
   void scrollSelectByComponentUuidAndMetricKeys(
@@ -58,6 +58,8 @@ public interface LiveMeasureMapper {
     @Param("ncloc") String nclocKey,
     @Param("private") Boolean privateProject,
     @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
+
+  List<LargestBranchNclocDto> getLargestBranchNclocPerProject();
 
   Long countProjectsHavingMeasure(
     @Param("metric") String metric);

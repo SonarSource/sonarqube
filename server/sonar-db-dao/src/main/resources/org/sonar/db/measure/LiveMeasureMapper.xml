@@ -71,6 +71,47 @@
     ) sumncloc
   </select>
 
+  <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="org.sonar.db.measure.LargestBranchNclocDto">
+    select tie_breaker.projectUuid,
+    tie_breaker.projectName,
+    tie_breaker.projectKey,
+    ncloc as loc,
+    pb.kee as branchName,
+    pb.branch_type as branchType,
+    s.created_at as lastAnalysisDate
+      from
+        (select counter.projectUuid as projectUuid,
+          counter.maxncloc ncloc,
+          max(case
+            when c.main_branch_project_uuid is null
+            then 1
+            else 0
+          end) as mainBranch,
+          min(c.kee) as component_kee,
+          counter.projectName,
+          counter.projectKey
+          from
+            (select b.project_uuid as projectUuid,
+              p.name as projectName,
+              p.kee as projectKey,
+              max(lm.value) as maxncloc
+                from live_measures lm
+                inner join metrics m on m.uuid = lm.metric_uuid
+                inner join project_branches b on b.uuid = lm.component_uuid
+                inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
+                where m.name = 'ncloc'
+                group by b.project_uuid, p.name, p.kee) counter
+          inner join live_measures lmo on lmo.value = counter.maxncloc
+          inner join project_branches br on br.project_uuid = counter.projectUuid and br.uuid = lmo.component_uuid
+          inner join components c on c.uuid = br.uuid
+          group by counter.projectUuid, counter.maxncloc, counter.projectName, counter.projectKey) tie_breaker
+      inner join components c2 on c2.kee  = tie_breaker.component_kee
+      inner join project_branches pb on c2.uuid = pb.uuid
+      inner join snapshots s on s.component_uuid = c2.uuid
+      where s.islast = ${_true}
+      order by ncloc desc
+  </select>
+
   <select id="countProjectsHavingMeasure" parameterType="map" resultType="long">
     select count(1)
       from live_measures lm

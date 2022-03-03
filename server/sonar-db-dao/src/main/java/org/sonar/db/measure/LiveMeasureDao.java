@@ -102,6 +102,10 @@ public class LiveMeasureDao implements Dao {
     return ncloc == null ? 0L : ncloc;
   }
 
+  public List<LargestBranchNclocDto> getLargestBranchNclocPerProject(DbSession dbSession) {
+    return mapper(dbSession).getLargestBranchNclocPerProject();
+  }
+
   public long countProjectsHavingMeasure(DbSession dbSession, String metric) {
     return mapper(dbSession).countProjectsHavingMeasure(metric);
   }

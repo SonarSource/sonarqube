@@ -326,6 +326,20 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
+  public void get_branch_with_max_ncloc_per_project() {
+    SetupProjectsWithLoc();
+
+    List<LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession());
+
+    assertThat(results).hasSize(5);
+    assertLocForProject(results.get(0), "projectWithTieOnBranchSize", "master", 250);
+    assertLocForProject(results.get(1), "projectWithTieOnOtherBranches", "tieBranch1", 230);
+    assertLocForProject(results.get(2), "projectWithBranchBiggerThanMaster", "notMasterBranch", 200);
+    assertLocForProject(results.get(3), "simpleProject", "master", 10);
+    assertLocForProject(results.get(4), "projectWithLinesButNoLoc", "master", 0);
+  }
+
+  @Test
   public void countNcloc_empty() {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
@@ -684,5 +698,49 @@ public class LiveMeasureDaoTest {
     assertThat(selected.get(0)).isEqualToComparingOnlyGivenFields(dto,
       // do not compare the field "uuid", which is used only for insert, not select
       "componentUuid", "projectUuid", "metricUuid", "value", "textValue", "data", "variation");
+  }
+
+  private void SetupProjectsWithLoc() {
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
+    MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
+
+    addProjectWithMeasure("simpleProject", ncloc, 10d);
+
+    ComponentDto projectWithBranchBiggerThanMaster = addProjectWithMeasure("projectWithBranchBiggerThanMaster", ncloc, 100d);
+    addBranchToProjectWithMeasure(projectWithBranchBiggerThanMaster,"notMasterBranch", ncloc, 200d);
+
+    ComponentDto projectWithLinesButNoLoc = addProjectWithMeasure("projectWithLinesButNoLoc", lines, 365d);
+    addMeasureToComponent(projectWithLinesButNoLoc,ncloc,0d,false);
+
+    ComponentDto projectWithTieOnBranchSize = addProjectWithMeasure("projectWithTieOnBranchSize", ncloc, 250d);
+    addBranchToProjectWithMeasure(projectWithTieOnBranchSize,"tieBranch", ncloc, 250d);
+
+    ComponentDto projectWithTieOnOtherBranches = addProjectWithMeasure("projectWithTieOnOtherBranches", ncloc, 220d);
+    addBranchToProjectWithMeasure(projectWithTieOnOtherBranches,"tieBranch1", ncloc, 230d);
+    addBranchToProjectWithMeasure(projectWithTieOnOtherBranches,"tieBranch2", ncloc, 230d);
+  }
+
+  private ComponentDto addProjectWithMeasure(String projectKey, MetricDto metric, double metricValue) {
+    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey(projectKey));
+    addMeasureToComponent(project, metric, metricValue,true);
+    return project;
+  }
+
+  private void addMeasureToComponent(ComponentDto component, MetricDto metric, double metricValue, boolean addSnapshot) {
+    db.measures().insertLiveMeasure(component, metric, m -> m.setValue(metricValue));
+    if (addSnapshot) {
+      db.components().insertSnapshot(component, t -> t.setLast(true));
+    }
+  }
+
+  private void addBranchToProjectWithMeasure(ComponentDto project, String branchKey, MetricDto metric, double metricValue) {
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setKey(branchKey));
+    addMeasureToComponent(branch, metric, metricValue,true);
+  }
+
+  private void assertLocForProject(LargestBranchNclocDto result, String projectKey, String branchKey, long linesOfCode) {
+    assertThat(result.getProjectKey()).isEqualTo(projectKey);
+    assertThat(result.getBranchName()).isEqualTo(branchKey);
+    assertThat(result.getLoc()).isEqualTo(linesOfCode);
   }
 }
