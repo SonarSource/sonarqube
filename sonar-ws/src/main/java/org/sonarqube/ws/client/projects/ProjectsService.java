@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.projects;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse;
@@ -91,6 +92,19 @@ public class ProjectsService extends BaseService {
         .setParam("project", request.getProject())
         .setMediaType(MediaTypes.JSON)
       ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/license_usage">Further information about this action online (including a response example)</a>
+   * @since 9.4
+   */
+  public String licenseUsage() {
+    GetRequest getRequest = new GetRequest(path("license_usage"))
+      .setMediaType(MediaTypes.CSV);
+    return call(getRequest).content();
   }
 
   /**
