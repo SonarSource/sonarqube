@@ -29,6 +29,7 @@ import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
  * @since 5.3
  */
 public final class MediaTypes {
+  public static final String CSV = "text/csv";
   public static final String DEFAULT = "application/octet-stream";
   public static final String HTML = "text/html";
   public static final String JAVASCRIPT = "application/javascript";
@@ -40,7 +41,6 @@ public final class MediaTypes {
   public static final String ZIP = "application/zip";
   private static final String BMP = "image/bmp";
   private static final String CSS = "text/css";
-  private static final String CSV = "text/csv";
   private static final String DTD = "application/xml-dtd";
   private static final String GIF = "image/gif";
   private static final String ICO = "image/x-icon";

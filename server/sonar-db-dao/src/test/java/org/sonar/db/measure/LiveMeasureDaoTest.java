@@ -327,7 +327,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void get_branch_with_max_ncloc_per_project() {
-    SetupProjectsWithLoc();
+    setupProjectsWithLoc();
 
     List<LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession());
 
@@ -700,7 +700,7 @@ public class LiveMeasureDaoTest {
       "componentUuid", "projectUuid", "metricUuid", "value", "textValue", "data", "variation");
   }
 
-  private void SetupProjectsWithLoc() {
+  private void setupProjectsWithLoc() {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 

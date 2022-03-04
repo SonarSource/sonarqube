@@ -91,17 +91,4 @@ public class LargestBranchNclocDto {
     this.lastAnalysisDate = lastAnalysisDate;
     return this;
   }
-
-  @Override
-  public String toString() {
-    return new StringBuilder("ProjectMaxNclocDto{")
-      .append("projectUuid='").append(projectUuid).append('\'')
-      .append(", projectName='").append(projectName).append('\'')
-      .append(", projectKey='").append(projectKey).append('\'')
-      .append(", loc=").append(loc)
-      .append(", branchName='").append(branchName).append('\'')
-      .append(", branchType='").append(branchType).append('\'')
-      .append(", lastAnalysisDate=").append(lastAnalysisDate)
-      .append('}').toString();
-  }
 }

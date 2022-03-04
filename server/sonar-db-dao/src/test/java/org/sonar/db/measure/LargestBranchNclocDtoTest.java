@@ -40,16 +40,6 @@ public class LargestBranchNclocDtoTest {
     assertThat(underTest.getLastAnalysisDate()).isEqualTo(1L);
   }
 
-  @Test
-  public void test_ToString() {
-    assertThat(new LargestBranchNclocDto())
-      .hasToString("ProjectMaxNclocDto{projectUuid='null', projectName='null', projectKey='null', loc=0, branchName='null', branchType='null', lastAnalysisDate=0}");
-    setUnderTest();
-    assertThat(underTest)
-      .hasToString(
-      "ProjectMaxNclocDto{projectUuid='projectUuid', projectName='projectName', projectKey='projectKey', loc=123, branchName='branchName', branchType='branchType', lastAnalysisDate=1}");
-  }
-
   private void setUnderTest() {
     underTest
       .setProjectUuid("projectUuid")
