@@ -290,7 +290,11 @@ describe('requestTryAndRepeatUntil', () => {
   it('should slow down after 2 calls', async () => {
     const apiCall = jest.fn().mockResolvedValue({});
     const stopRepeat = jest.fn().mockReturnValue(false);
-    requestTryAndRepeatUntil(apiCall, { max: 5, slowThreshold: 3 }, stopRepeat);
+    const promiseResult = requestTryAndRepeatUntil(
+      apiCall,
+      { max: 5, slowThreshold: 3 },
+      stopRepeat
+    );
 
     for (let i = 1; i < 3; i++) {
       jest.advanceTimersByTime(500);
@@ -308,6 +312,12 @@ describe('requestTryAndRepeatUntil', () => {
 
     jest.advanceTimersByTime(3000);
     expect(apiCall).toBeCalledTimes(4);
+
+    await new Promise(setImmediate);
+    jest.runAllTimers();
+    expect(apiCall).toBeCalledTimes(5);
+
+    await expect(promiseResult).rejects.toBeUndefined();
   });
 });
 
