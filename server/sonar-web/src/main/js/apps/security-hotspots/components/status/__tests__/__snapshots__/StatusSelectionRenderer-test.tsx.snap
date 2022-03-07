@@ -21,6 +21,16 @@ exports[`should render correctly 1`] = `
       checked={false}
       className="big-spacer-bottom"
       onCheck={[MockFunction]}
+      value="ACKNOWLEDGED"
+    >
+      <StatusDescription
+        statusOption="ACKNOWLEDGED"
+      />
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
       value="FIXED"
     >
       <StatusDescription
@@ -85,6 +95,16 @@ exports[`should render correctly: loading 1`] = `
     >
       <StatusDescription
         statusOption="TO_REVIEW"
+      />
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="ACKNOWLEDGED"
+    >
+      <StatusDescription
+        statusOption="ACKNOWLEDGED"
       />
     </Radio>
     <Radio

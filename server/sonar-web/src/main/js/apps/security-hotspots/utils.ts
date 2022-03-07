@@ -157,6 +157,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
 const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
   [HotspotStatus.TO_REVIEW]: HotspotStatusOption.TO_REVIEW,
   [HotspotStatus.REVIEWED]: HotspotStatusOption.FIXED,
+  [HotspotResolution.ACKNOWLEDGED]: HotspotStatusOption.ACKNOWLEDGED,
   [HotspotResolution.FIXED]: HotspotStatusOption.FIXED,
   [HotspotResolution.SAFE]: HotspotStatusOption.SAFE
 };
@@ -172,6 +173,10 @@ export function getStatusOptionFromStatusAndResolution(
 
 const STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP = {
   [HotspotStatusOption.TO_REVIEW]: { status: HotspotStatus.TO_REVIEW, resolution: undefined },
+  [HotspotStatusOption.ACKNOWLEDGED]: {
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.ACKNOWLEDGED
+  },
   [HotspotStatusOption.FIXED]: {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.FIXED
@@ -188,6 +193,7 @@ export function getStatusAndResolutionFromStatusOption(statusOption: HotspotStat
 
 const STATUS_OPTION_TO_STATUS_FILTER = {
   [HotspotStatusOption.TO_REVIEW]: HotspotStatusFilter.TO_REVIEW,
+  [HotspotStatusOption.ACKNOWLEDGED]: HotspotStatusFilter.ACKNOWLEDGED,
   [HotspotStatusOption.FIXED]: HotspotStatusFilter.FIXED,
   [HotspotStatusOption.SAFE]: HotspotStatusFilter.SAFE
 };

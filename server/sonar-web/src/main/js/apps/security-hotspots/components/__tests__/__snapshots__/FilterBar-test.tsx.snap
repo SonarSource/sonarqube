@@ -60,6 +60,10 @@ exports[`should render correctly: anonymous 1`] = `
                   "value": "TO_REVIEW",
                 },
                 Object {
+                  "label": "hotspot.filters.status.acknowledged",
+                  "value": "ACKNOWLEDGED",
+                },
+                Object {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
@@ -174,6 +178,10 @@ exports[`should render correctly: logged-in 1`] = `
                 Object {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
+                },
+                Object {
+                  "label": "hotspot.filters.status.acknowledged",
+                  "value": "ACKNOWLEDGED",
                 },
                 Object {
                   "label": "hotspot.filters.status.fixed",
@@ -292,6 +300,10 @@ exports[`should render correctly: non-project 1`] = `
                   "value": "TO_REVIEW",
                 },
                 Object {
+                  "label": "hotspot.filters.status.acknowledged",
+                  "value": "ACKNOWLEDGED",
+                },
+                Object {
                   "label": "hotspot.filters.status.fixed",
                   "value": "FIXED",
                 },
@@ -365,6 +377,10 @@ exports[`should render correctly: on Pull request 1`] = `
                 Object {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
+                },
+                Object {
+                  "label": "hotspot.filters.status.acknowledged",
+                  "value": "ACKNOWLEDGED",
                 },
                 Object {
                   "label": "hotspot.filters.status.fixed",
@@ -443,6 +459,10 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
                 Object {
                   "label": "hotspot.filters.status.to_review",
                   "value": "TO_REVIEW",
+                },
+                Object {
+                  "label": "hotspot.filters.status.acknowledged",
+                  "value": "ACKNOWLEDGED",
                 },
                 Object {
                   "label": "hotspot.filters.status.fixed",

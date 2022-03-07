@@ -45,6 +45,10 @@ export interface FilterBarProps {
 
 const statusOptions: Array<{ label: string; value: string }> = [
   { value: HotspotStatusFilter.TO_REVIEW, label: translate('hotspot.filters.status.to_review') },
+  {
+    value: HotspotStatusFilter.ACKNOWLEDGED,
+    label: translate('hotspot.filters.status.acknowledged')
+  },
   { value: HotspotStatusFilter.FIXED, label: translate('hotspot.filters.status.fixed') },
   { value: HotspotStatusFilter.SAFE, label: translate('hotspot.filters.status.safe') }
 ];

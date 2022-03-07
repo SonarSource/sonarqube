@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button, ButtonLink } from '../../../components/controls/buttons';
@@ -48,26 +47,16 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
 
   return (
     <Modal contentLabel={modalTitle}>
-      <div className="modal-head">
-        <h2
-          className={classNames('huge text-normal', {
-            'text-success': closingHotspots
-          })}>
-          {modalTitle}
-        </h2>
+      <div className="modal-head huge text-center text-bold">
+        <p>{translateWithParameters('hotspots.successful_status_change_to_x', statusLabel)}</p>
       </div>
 
-      <div className="modal-body">
+      <div className="modal-body text-center big">
         <FormattedMessage
           id="hotspots.successfully_changed_to_x"
-          defaultMessage={translate('hotspots.successfully_changed_to_x')}
+          defaultMessage={translate('hotspots.find_in_status_filter_x')}
           values={{
-            status_label: statusLabel,
-            status_change: (
-              <strong>
-                {translateWithParameters('hotspots.successful_status_change_to_x', statusLabel)}
-              </strong>
-            )
+            status_label: <strong>{statusLabel}</strong>
           }}
         />
         {closingHotspots && (
@@ -93,7 +82,7 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
         <ButtonLink onClick={props.onSwitchFilterToStatusOfUpdatedHotspot}>
           {translateWithParameters('hotspots.see_x_hotspots', statusLabel)}
         </ButtonLink>
-        <Button className="button-primary padded" onClick={props.onClose}>
+        <Button className="button padded" onClick={props.onClose}>
           {translate('hotspots.continue_to_next_hotspot')}
         </Button>
       </div>

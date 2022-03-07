@@ -57,6 +57,7 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
     <div className="abs-width-400">
       <div className="big-padded">
         {renderOption(HotspotStatusOption.TO_REVIEW)}
+        {renderOption(HotspotStatusOption.ACKNOWLEDGED)}
         {renderOption(HotspotStatusOption.FIXED)}
         {renderOption(HotspotStatusOption.SAFE)}
       </div>

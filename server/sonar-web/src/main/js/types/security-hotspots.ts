@@ -40,19 +40,22 @@ export enum HotspotStatus {
 
 export enum HotspotResolution {
   FIXED = 'FIXED',
-  SAFE = 'SAFE'
+  SAFE = 'SAFE',
+  ACKNOWLEDGED = 'ACKNOWLEDGED'
 }
 
 export enum HotspotStatusFilter {
   FIXED = 'FIXED',
   SAFE = 'SAFE',
-  TO_REVIEW = 'TO_REVIEW'
+  TO_REVIEW = 'TO_REVIEW',
+  ACKNOWLEDGED = 'ACKNOWLEDGED'
 }
 
 export enum HotspotStatusOption {
   FIXED = 'FIXED',
   SAFE = 'SAFE',
-  TO_REVIEW = 'TO_REVIEW'
+  TO_REVIEW = 'TO_REVIEW',
+  ACKNOWLEDGED = 'ACKNOWLEDGED'
 }
 
 export interface HotspotFilters {
