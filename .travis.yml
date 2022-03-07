@@ -3,9 +3,6 @@ install: true
 script: ./travis.sh
 dist: bionic
 
-before_install:
-  - nvm install 14
-
 branches:
   except:
     - /^dogfood\/.*$/
@@ -42,6 +39,7 @@ before_install:
   - which java
   - java -version
   - $JAVA_HOME/bin/java -version
+  - nvm install 14
   - nvm use 14
 
 notifications:
