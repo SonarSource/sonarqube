@@ -113,7 +113,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
    */
   private Optional<ScmInfo> generateAndMergeDb(Component file, boolean keepAuthorAndRevision) {
     Optional<DbScmInfo> dbInfoOpt = scmInfoDbLoader.getScmInfo(file);
-    if (!dbInfoOpt.isPresent()) {
+    if (dbInfoOpt.isEmpty()) {
       return generateScmInfoForAllFile(file);
     }
 

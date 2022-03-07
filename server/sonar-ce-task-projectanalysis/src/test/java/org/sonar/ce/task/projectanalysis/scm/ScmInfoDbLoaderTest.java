@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -36,10 +37,14 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
+import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.period.Period;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 
@@ -69,11 +74,20 @@ public class ScmInfoDbLoaderTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
+  @Rule
+  public PeriodHolderRule periodHolder = new PeriodHolderRule();
 
-  private Branch branch = mock(Branch.class);
-  private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final Branch branch = mock(Branch.class);
+  private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
+  private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids = mock(NewCodeReferenceBranchComponentUuids.class);
 
-  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, movedFiles, dbTester.getDbClient(), referenceBranchComponentUuids);
+  private final ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, movedFiles, dbTester.getDbClient(), referenceBranchComponentUuids,
+      newCodeReferenceBranchComponentUuids, periodHolder);
+
+  @Before
+  public void before() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), null, null));
+  }
 
   @Test
   public void returns_ScmInfo_from_DB() {
@@ -118,6 +132,27 @@ public class ScmInfoDbLoaderTest {
     String hash = computeSourceHash(1);
 
     when(referenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
+    addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
+
+    DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+    assertThat(scmInfo.fileHash()).isEqualTo(hash);
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from DB for file 'targetBranchFileUuid'");
+  }
+
+  @Test
+  public void read_from_target_if_reference_branch() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), null, null));
+
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
+    analysisMetadataHolder.setBaseAnalysis(null);
+    analysisMetadataHolder.setBranch(branch);
+
+    String targetBranchFileUuid = "targetBranchFileUuid";
+    String hash = computeSourceHash(1);
+
+    when(newCodeReferenceBranchComponentUuids.getComponentUuid(FILE.getDbKey())).thenReturn(targetBranchFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", hash, targetBranchFileUuid);
 
     DbScmInfo scmInfo = underTest.getScmInfo(FILE).get();
