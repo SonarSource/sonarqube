@@ -42,6 +42,7 @@ before_install:
   - which java
   - java -version
   - $JAVA_HOME/bin/java -version
+  - nvm use 14
 
 notifications:
   email: false
