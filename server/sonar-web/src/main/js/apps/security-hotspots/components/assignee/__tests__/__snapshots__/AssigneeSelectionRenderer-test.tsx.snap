@@ -71,7 +71,7 @@ exports[`should render correctly: open with results 1`] = `
         key="john.doe"
         onClick={[Function]}
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="spacer-right"
           name="John Doe"
           size={16}
@@ -83,7 +83,7 @@ exports[`should render correctly: open with results 1`] = `
         key="highlighted"
         onClick={[Function]}
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="spacer-right"
           name="John Doe"
           size={16}

@@ -21,8 +21,9 @@ import { IntlShape } from 'react-intl';
 import { Store as ReduxStore } from 'redux';
 import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
+import { AppState } from './appstate';
 import { L10nBundle } from './l10n';
-import { AppState, CurrentUser, Dict } from './types';
+import { CurrentUser, Dict } from './types';
 
 export enum AdminPageExtension {
   GovernanceConsole = 'governance/views_console'

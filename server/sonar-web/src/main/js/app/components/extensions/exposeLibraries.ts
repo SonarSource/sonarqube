@@ -70,6 +70,7 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import Measure from '../../../components/measure/Measure';
+import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
 import { Alert } from '../../../components/ui/Alert';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -237,6 +238,7 @@ const exposeLibraries = () => {
         Radio,
         RadioToggle,
         Rating,
+        RatingTooltipContent,
         ReloadButton,
         ResetButtonLink,
         SearchBox,

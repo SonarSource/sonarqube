@@ -90,7 +90,7 @@ exports[`should render correctly: default 1`] = `
     <div
       className="display-flex-center"
     >
-      <Connect(Avatar)
+      <withAppStateContext(Avatar)
         className="text-middle big-spacer-right flex-0"
         name="John Doe"
         size={36}

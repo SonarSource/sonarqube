@@ -6,7 +6,7 @@ exports[`should render correctly: anonymous users 1`] = `
   height={48}
   id="global-navigation"
 >
-  <Connect(GlobalNavBranding) />
+  <withAppStateContext(GlobalNavBranding) />
   <withAppStateContext(GlobalNavMenu)
     currentUser={
       Object {
@@ -47,7 +47,7 @@ exports[`should render correctly: logged in users 1`] = `
   height={48}
   id="global-navigation"
 >
-  <Connect(GlobalNavBranding) />
+  <withAppStateContext(GlobalNavBranding) />
   <withAppStateContext(GlobalNavMenu)
     currentUser={
       Object {

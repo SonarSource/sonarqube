@@ -18,59 +18,62 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
+import { getValues } from '../../../api/settings';
 import { AdminPageExtension } from '../../../types/extension';
+import { SettingsKey } from '../../../types/settings';
 import { Extension } from '../../../types/types';
-import { fetchValues } from '../../settings/store/actions';
 import '../style.css';
 import { HousekeepingPolicy, RangeOption } from '../utils';
 import AuditAppRenderer from './AuditAppRenderer';
 
 interface Props {
-  auditHousekeepingPolicy: HousekeepingPolicy;
-  fetchValues: typeof fetchValues;
   adminPages: Extension[];
 }
 
 interface State {
   dateRange?: { from?: Date; to?: Date };
-  hasGovernanceExtension?: boolean;
   downloadStarted: boolean;
+  housekeepingPolicy: HousekeepingPolicy;
   selection: RangeOption;
 }
 
-export class AuditApp extends React.PureComponent<Props, State> {
+export default class AuditApp extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    const hasGovernanceExtension = Boolean(
-      props.adminPages?.find(e => e.key === AdminPageExtension.GovernanceConsole)
-    );
+
     this.state = {
       downloadStarted: false,
-      selection: RangeOption.Today,
-      hasGovernanceExtension
+      housekeepingPolicy: HousekeepingPolicy.Monthly,
+      selection: RangeOption.Today
     };
   }
 
   componentDidMount() {
-    const { hasGovernanceExtension } = this.state;
-
-    if (hasGovernanceExtension) {
-      this.props.fetchValues(['sonar.dbcleaner.auditHousekeeping']);
+    if (this.hasGovernanceExtension()) {
+      this.fetchHouseKeepingPolicy();
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.adminPages !== this.props.adminPages) {
-      const hasGovernanceExtension = Boolean(
-        this.props.adminPages?.find(e => e.key === AdminPageExtension.GovernanceConsole)
-      );
-      this.setState({
-        hasGovernanceExtension
-      });
+    if (prevProps.adminPages !== this.props.adminPages && this.hasGovernanceExtension()) {
+      this.fetchHouseKeepingPolicy();
     }
   }
+
+  fetchHouseKeepingPolicy = async () => {
+    const results = await getValues({ keys: SettingsKey.AuditHouseKeeping });
+
+    this.setState({
+      housekeepingPolicy:
+        (results[0]?.value as HousekeepingPolicy | undefined) ?? HousekeepingPolicy.Monthly
+    });
+  };
+
+  hasGovernanceExtension = () => {
+    return Boolean(
+      this.props.adminPages?.find(e => e.key === AdminPageExtension.GovernanceConsole)
+    );
+  };
 
   handleDateSelection = (dateRange: { from?: Date; to?: Date }) =>
     this.setState({ dateRange, downloadStarted: false, selection: RangeOption.Custom });
@@ -85,10 +88,7 @@ export class AuditApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { hasGovernanceExtension, ...auditAppRendererProps } = this.state;
-    const { auditHousekeepingPolicy } = this.props;
-
-    if (!hasGovernanceExtension) {
+    if (!this.hasGovernanceExtension()) {
       return null;
     }
 
@@ -97,20 +97,8 @@ export class AuditApp extends React.PureComponent<Props, State> {
         handleDateSelection={this.handleDateSelection}
         handleOptionSelection={this.handleOptionSelection}
         handleStartDownload={this.handleStartDownload}
-        housekeepingPolicy={auditHousekeepingPolicy || HousekeepingPolicy.Monthly}
-        {...auditAppRendererProps}
+        {...this.state}
       />
     );
   }
 }
-
-const mapDispatchToProps = { fetchValues };
-
-const mapStateToProps = (state: Store) => {
-  const settingValue = getGlobalSettingValue(state, 'sonar.dbcleaner.auditHousekeeping');
-  return {
-    auditHousekeepingPolicy: settingValue?.value as HousekeepingPolicy
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AuditApp);

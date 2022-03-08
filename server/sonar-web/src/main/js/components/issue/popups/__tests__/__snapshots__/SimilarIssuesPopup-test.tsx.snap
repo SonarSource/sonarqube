@@ -127,7 +127,7 @@ exports[`should render correctly when assigned 1`] = `
 >
   <span>
     assigned_to
-    <Connect(Avatar)
+    <withAppStateContext(Avatar)
       className="little-spacer-left little-spacer-right"
       name="Luke Skywalker"
       size={16}
@@ -143,7 +143,7 @@ exports[`should render correctly when assigned 2`] = `
 >
   <span>
     assigned_to
-    <Connect(Avatar)
+    <withAppStateContext(Avatar)
       className="little-spacer-left little-spacer-right"
       name="luke"
       size={16}

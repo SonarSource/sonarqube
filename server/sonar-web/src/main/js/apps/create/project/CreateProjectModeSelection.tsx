@@ -24,7 +24,7 @@ import ChevronsIcon from '../../../components/icons/ChevronsIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 import { CreateProjectModes } from './types';
 
 export interface CreateProjectModeSelectionProps {

@@ -22,7 +22,7 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { AlmKeys } from '../../../types/alm-settings';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 import SentenceWithHighlights from './SentenceWithHighlights';
 
 export interface AllSetProps {

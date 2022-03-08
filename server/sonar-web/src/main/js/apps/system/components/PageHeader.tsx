@@ -23,7 +23,7 @@ import { ClipboardButton } from '../../../components/controls/clipboard';
 import { Alert } from '../../../components/ui/Alert';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 import PageActions from './PageActions';
 
 export interface Props {

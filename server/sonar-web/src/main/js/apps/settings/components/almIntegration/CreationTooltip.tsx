@@ -24,8 +24,8 @@ import Tooltip from '../../../../components/controls/Tooltip';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
+import { AppState } from '../../../../types/appstate';
 import { EditionKey } from '../../../../types/editions';
-import { AppState } from '../../../../types/types';
 
 export interface CreationTooltipProps {
   alm: AlmKeys;

@@ -23,8 +23,8 @@ import InstanceMessage from '../../components/common/InstanceMessage';
 import { Alert } from '../../components/ui/Alert';
 import { getEdition } from '../../helpers/editions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
-import { AppState } from '../../types/types';
 import withAppStateContext from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
 

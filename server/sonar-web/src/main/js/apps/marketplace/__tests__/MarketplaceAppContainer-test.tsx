@@ -18,39 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import * as React from 'react';
-import { mockAppState } from '../../../helpers/testMocks';
-import { App } from '../App';
+import React from 'react';
+import { mockAppState, mockLocation } from '../../../helpers/testMocks';
+import { GlobalSettingKeys } from '../../../types/settings';
+import { EditionKey } from '../../../types/editions';
+import { MarketplaceAppContainer, MarketplaceAppContainerProps } from '../MarketplaceAppContainer';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender().dive()).toMatchSnapshot('default');
   expect(
     shallowRender({
       appState: mockAppState({
         settings: {
-          'sonar.lf.enableGravatar': 'true',
-          'sonar.lf.gravatarServerUrl': 'http://example.com'
+          [GlobalSettingKeys.UpdatecenterActivated]: 'true'
         }
       })
-    })
-  ).toMatchSnapshot('with gravatar');
+    }).dive()
+  ).toMatchSnapshot('update center active');
 });
 
-it('should correctly set the scrollbar width as a custom property', () => {
-  shallowRender();
-  expect(document.body.style.getPropertyValue('--sbw')).toBe('0px');
-});
-
-function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App
-      appState={mockAppState({
-        settings: {
-          'sonar.lf.enableGravatar': 'false',
-          'sonar.lf.gravatarServerUrl': ''
-        }
-      })}
-      {...props}
+function shallowRender(overrides: Partial<MarketplaceAppContainerProps> = {}) {
+  return shallow<MarketplaceAppContainerProps>(
+    <MarketplaceAppContainer
+      appState={mockAppState({ edition: EditionKey.community, standalone: true })}
+      location={mockLocation()}
+      {...overrides}
     />
   );
 }

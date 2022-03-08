@@ -19,7 +19,7 @@
  */
 
 import * as React from 'react';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 
 const defaultAppState = {
   authenticationError: false,

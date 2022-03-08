@@ -39,7 +39,7 @@ exports[`should render the changelog popup correctly 1`] = `
             className="text-left text-top"
           >
             <p>
-              <Connect(Avatar)
+              <withAppStateContext(Avatar)
                 className="little-spacer-right"
                 hash="gravatarhash"
                 name="John Doe"
@@ -104,7 +104,7 @@ exports[`should render the changelog popup when we have a deleted user 1`] = `
             className="text-left text-top"
           >
             <p>
-              <Connect(Avatar)
+              <withAppStateContext(Avatar)
                 className="little-spacer-right"
                 name="john.doe"
                 size={16}

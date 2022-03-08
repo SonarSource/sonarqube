@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { gtm } from '../../../helpers/analytics';
 import { installScript } from '../../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensionsHandler';
 import { mockAppState, mockLocation } from '../../../helpers/testMocks';
@@ -33,7 +32,6 @@ jest.mock('../../../helpers/extensionsHandler', () => ({
   getWebAnalyticsPageHandlerFromCache: jest.fn().mockReturnValue(undefined)
 }));
 
-jest.mock('../../../helpers/analytics', () => ({ gtm: jest.fn() }));
 beforeAll(() => {
   jest.useFakeTimers();
 });
@@ -52,7 +50,6 @@ it('should not trigger if no analytics system is given', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
   expect(installScript).not.toHaveBeenCalled();
-  expect(gtm).not.toHaveBeenCalled();
 });
 
 it('should work for WebAnalytics plugin', () => {
@@ -68,22 +65,6 @@ it('should work for WebAnalytics plugin', () => {
   wrapper.instance().trackPage();
   jest.runAllTimers();
   expect(pageChange).toHaveBeenCalledWith('/path');
-});
-
-it('should work for Google Tag Manager', () => {
-  (window as any).dataLayer = [];
-  const { dataLayer } = window as any;
-  const push = jest.spyOn(dataLayer, 'push');
-  const wrapper = shallowRender({ trackingIdGTM: '123' });
-
-  expect(wrapper.find('Helmet').prop('onChangeClientState')).toBe(wrapper.instance().trackPage);
-  expect(gtm).toBeCalled();
-  expect(dataLayer).toHaveLength(0);
-
-  wrapper.instance().trackPage();
-  jest.runAllTimers();
-  expect(push).toBeCalledWith({ event: 'render-end' });
-  expect(dataLayer).toHaveLength(1);
 });
 
 function shallowRender(props: Partial<PageTracker['props']> = {}) {

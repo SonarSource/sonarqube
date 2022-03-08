@@ -10,7 +10,7 @@ exports[`should render correctly: default 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="Luke Skywalker"
           size={20}
@@ -49,7 +49,7 @@ exports[`should render correctly: default 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="Luke Skywalker"
           size={20}
@@ -88,7 +88,7 @@ exports[`should render correctly: default 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -130,7 +130,7 @@ exports[`should render correctly: default 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -172,7 +172,7 @@ exports[`should render correctly: default 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -255,7 +255,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="Luke Skywalker"
           size={20}
@@ -294,7 +294,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="Luke Skywalker"
           size={20}
@@ -333,7 +333,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -375,7 +375,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -417,7 +417,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -459,7 +459,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="john.doe"
           size={20}
@@ -501,7 +501,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}
@@ -592,7 +592,7 @@ exports[`should render correctly: show full list 1`] = `
       <div
         className="display-flex-center"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="little-spacer-right"
           name="John Doe"
           size={20}

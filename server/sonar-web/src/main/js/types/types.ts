@@ -83,25 +83,6 @@ export interface AnalysisEvent {
   };
 }
 
-export interface AppState {
-  authenticationError?: boolean;
-  authorizationError?: boolean;
-  branchesEnabled?: boolean;
-  canAdmin?: boolean;
-  edition: 'community' | 'developer' | 'enterprise' | 'datacenter' | undefined;
-  globalPages?: Extension[];
-  projectImportFeatureEnabled?: boolean;
-  instanceUsesDefaultAdminCredentials?: boolean;
-  multipleAlmEnabled?: boolean;
-  needIssueSync?: boolean;
-  productionDatabase: boolean;
-  qualifiers: string[];
-  settings: Dict<string>;
-  standalone?: boolean;
-  version: string;
-  webAnalyticsJsPath?: string;
-}
-
 export interface Breadcrumb {
   key: string;
   name: string;

@@ -20,7 +20,7 @@
 
 import * as React from 'react';
 import { getWrappedDisplayName } from '../../../components/hoc/utils';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 import { AppStateContext } from './AppStateContext';
 
 export interface WithAppStateContextProps {

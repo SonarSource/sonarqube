@@ -41,7 +41,7 @@ exports[`should render 1`] = `
 
 exports[`test behavior should correctly render facet item 1`] = `
 <React.Fragment>
-  <Connect(Avatar)
+  <withAppStateContext(Avatar)
     className="little-spacer-right"
     name="Name Baz"
     size={16}
@@ -52,7 +52,7 @@ exports[`test behavior should correctly render facet item 1`] = `
 
 exports[`test behavior should correctly render facet item 2`] = `
 <React.Fragment>
-  <Connect(Avatar)
+  <withAppStateContext(Avatar)
     className="little-spacer-right"
     name="foo"
     size={16}
@@ -63,7 +63,7 @@ exports[`test behavior should correctly render facet item 2`] = `
 
 exports[`test behavior should correctly render search result correctly 1`] = `
 <React.Fragment>
-  <Connect(Avatar)
+  <withAppStateContext(Avatar)
     className="little-spacer-right"
     name="Name Bar"
     size={16}
@@ -80,7 +80,7 @@ exports[`test behavior should correctly render search result correctly 1`] = `
 
 exports[`test behavior should correctly render search result correctly 2`] = `
 <React.Fragment>
-  <Connect(Avatar)
+  <withAppStateContext(Avatar)
     className="little-spacer-right"
     name="foo"
     size={16}

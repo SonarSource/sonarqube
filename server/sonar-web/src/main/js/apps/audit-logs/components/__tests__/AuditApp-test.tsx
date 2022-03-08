@@ -20,30 +20,41 @@
 import { subDays } from 'date-fns';
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { getValues } from '../../../../api/settings';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { AdminPageExtension } from '../../../../types/extension';
 import { HousekeepingPolicy, RangeOption } from '../../utils';
-import { AuditApp } from '../AuditApp';
+import AuditApp from '../AuditApp';
 import AuditAppRenderer from '../AuditAppRenderer';
+
+jest.mock('../../../../api/settings', () => ({
+  getValues: jest.fn().mockResolvedValue([])
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should do nothing if governance is not available', async () => {
-  const fetchValues = jest.fn();
-  const wrapper = shallowRender({ fetchValues, adminPages: [] });
+  const wrapper = shallowRender({ adminPages: [] });
   await waitAndUpdate(wrapper);
 
   expect(wrapper.type()).toBeNull();
-  expect(fetchValues).not.toBeCalled();
+  expect(getValues).not.toBeCalled();
 });
 
-it('should fetch houskeeping policy on mount', async () => {
-  const fetchValues = jest.fn();
-  const wrapper = shallowRender({ fetchValues });
+it('should handle housekeeping policy', async () => {
+  (getValues as jest.Mock).mockResolvedValueOnce([{ value: HousekeepingPolicy.Weekly }]);
+
+  const wrapper = shallowRender();
+
   await waitAndUpdate(wrapper);
-  expect(fetchValues).toBeCalled();
+
+  expect(wrapper.find(AuditAppRenderer).props().housekeepingPolicy).toBe(HousekeepingPolicy.Weekly);
 });
 
 it('should handle date selection', () => {
@@ -76,11 +87,22 @@ it('should handle predefined selection', () => {
   expect(wrapper.state().dateRange).toBeUndefined();
 });
 
+it('should handle update to admin pages', async () => {
+  const wrapper = shallowRender({ adminPages: [] });
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.type()).toBeNull();
+  expect(getValues).not.toBeCalled();
+
+  wrapper.setProps({ adminPages: [{ key: AdminPageExtension.GovernanceConsole, name: 'name' }] });
+  await waitAndUpdate(wrapper);
+
+  expect(getValues).toBeCalled();
+});
+
 function shallowRender(props: Partial<AuditApp['props']> = {}) {
   return shallow<AuditApp>(
     <AuditApp
-      auditHousekeepingPolicy={HousekeepingPolicy.Monthly}
-      fetchValues={jest.fn()}
       adminPages={[{ key: AdminPageExtension.GovernanceConsole, name: 'name' }]}
       {...props}
     />

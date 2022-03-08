@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 import FinishButton from '../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import Step from '../components/Step';

@@ -33,7 +33,7 @@ exports[`should render correctly 1`] = `
         item="luke"
         key="luke"
       >
-        <Connect(Avatar)
+        <withAppStateContext(Avatar)
           className="spacer-right"
           name="Skywalker"
           size={16}

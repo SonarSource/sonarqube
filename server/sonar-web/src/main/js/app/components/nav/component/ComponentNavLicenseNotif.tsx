@@ -22,9 +22,9 @@ import { Link } from 'react-router';
 import { isValidLicense } from '../../../../api/marketplace';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task } from '../../../../types/tasks';
-import { AppState } from '../../../../types/types';
 import withAppStateContext from '../../app-state/withAppStateContext';
 
 interface Props {

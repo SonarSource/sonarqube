@@ -24,9 +24,10 @@ import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { AppState } from '../../../types/appstate';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
-import { AppState, Component } from '../../../types/types';
+import { Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';
 
 const EmptyOverview = lazyLoadComponent(() => import('./EmptyOverview'));

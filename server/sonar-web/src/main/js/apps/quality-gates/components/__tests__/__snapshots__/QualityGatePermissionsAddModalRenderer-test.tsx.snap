@@ -334,7 +334,7 @@ exports[`should render options correctly: group 1`] = `
 
 exports[`should render options correctly: user 1`] = `
 <React.Fragment>
-  <Connect(Avatar)
+  <withAppStateContext(Avatar)
     hash="A"
     name="name"
     size={16}

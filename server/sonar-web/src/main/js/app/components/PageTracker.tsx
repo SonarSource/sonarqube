@@ -19,19 +19,15 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { Location, withRouter } from '../../components/hoc/withRouter';
-import { gtm } from '../../helpers/analytics';
 import { installScript } from '../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensionsHandler';
 import { getInstance } from '../../helpers/system';
-import { getGlobalSettingValue, Store } from '../../store/rootReducer';
-import { AppState } from '../../types/types';
+import { AppState } from '../../types/appstate';
 import withAppStateContext from './app-state/withAppStateContext';
 
 interface Props {
   location: Location;
-  trackingIdGTM?: string;
   appState: AppState;
 }
 
@@ -43,54 +39,37 @@ export class PageTracker extends React.Component<Props, State> {
   state: State = {};
 
   componentDidMount() {
-    const { trackingIdGTM, appState } = this.props;
+    const { appState } = this.props;
 
     if (appState.webAnalyticsJsPath && !getWebAnalyticsPageHandlerFromCache()) {
       installScript(appState.webAnalyticsJsPath, 'head');
     }
-
-    if (trackingIdGTM) {
-      gtm(trackingIdGTM);
-    }
   }
 
   trackPage = () => {
-    const { location, trackingIdGTM } = this.props;
+    const { location } = this.props;
     const { lastLocation } = this.state;
-    const { dataLayer } = window as any;
     const locationChanged = location.pathname !== lastLocation;
     const webAnalyticsPageChange = getWebAnalyticsPageHandlerFromCache();
 
     if (webAnalyticsPageChange && locationChanged) {
       this.setState({ lastLocation: location.pathname });
       setTimeout(() => webAnalyticsPageChange(location.pathname), 500);
-    } else if (dataLayer && dataLayer.push && trackingIdGTM && location.pathname !== '/') {
-      this.setState({ lastLocation: location.pathname });
-      setTimeout(() => dataLayer.push({ event: 'render-end' }), 500);
     }
   };
 
   render() {
-    const { trackingIdGTM, appState } = this.props;
+    const { appState } = this.props;
 
     return (
       <Helmet
         defaultTitle={getInstance()}
         defer={false}
-        onChangeClientState={
-          trackingIdGTM || appState.webAnalyticsJsPath ? this.trackPage : undefined
-        }>
+        onChangeClientState={appState.webAnalyticsJsPath ? this.trackPage : undefined}>
         {this.props.children}
       </Helmet>
     );
   }
 }
 
-const mapStateToProps = (state: Store) => {
-  const trackingIdGTM = getGlobalSettingValue(state, 'sonar.analytics.gtm.trackingId');
-  return {
-    trackingIdGTM: trackingIdGTM && trackingIdGTM.value
-  };
-};
-
-export default withRouter(connect(mapStateToProps)(withAppStateContext(PageTracker)));
+export default withRouter(withAppStateContext(PageTracker));

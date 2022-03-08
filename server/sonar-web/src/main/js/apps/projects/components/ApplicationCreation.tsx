@@ -27,9 +27,10 @@ import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
+import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
-import { AppState, LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/types';
 
 export interface ApplicationCreationProps {
   appState: AppState;

@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getRatingTooltip as nextGetRatingTooltip, isDiffMetric } from '../../helpers/measures';
 import { Dict, Measure, MeasureEnhanced, MeasureIntern, Metric } from '../../types/types';
 
-const KNOWN_RATINGS = [
+export const KNOWN_RATINGS = [
   'sqale_rating',
   'maintainability_rating', // Needed to provide the label for "new_maintainability_rating"
   'reliability_rating',
@@ -38,12 +37,4 @@ export function enhanceMeasure(measure: Measure, metrics: Dict<Metric>): Measure
 
 export function getLeakValue(measure: MeasureIntern | undefined): string | undefined {
   return measure?.period?.value;
-}
-
-export function getRatingTooltip(metricKey: string, value: number): string | undefined {
-  const finalMetricKey = isDiffMetric(metricKey) ? metricKey.substr(4) : metricKey;
-  if (KNOWN_RATINGS.includes(finalMetricKey)) {
-    return nextGetRatingTooltip(finalMetricKey, value);
-  }
-  return undefined;
 }

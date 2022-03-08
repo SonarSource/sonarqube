@@ -17,23 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Dispatch } from 'redux';
-import { getValues } from '../../../api/settings';
-import { closeAllGlobalMessages } from '../../../store/globalMessages';
-import { receiveValues } from './values';
 
-export function fetchValues(keys: string[], component?: string) {
-  return (dispatch: Dispatch) =>
-    getValues({ keys: keys.join(), component }).then(settings => {
-      dispatch(receiveValues(keys, settings, component));
-      dispatch(closeAllGlobalMessages());
-    });
-}
+import { EditionKey } from './editions';
+import { GlobalSettingKeys } from './settings';
+import { Extension } from './types';
 
-export function setValues(
-  keys: string[],
-  settings: Array<{ key: string; value?: string }>,
-  component?: string
-) {
-  return (dispatch: Dispatch) => dispatch(receiveValues(keys, settings, component));
+export interface AppState {
+  authenticationError?: boolean;
+  authorizationError?: boolean;
+  branchesEnabled?: boolean;
+  canAdmin?: boolean;
+  edition?: EditionKey;
+  globalPages?: Extension[];
+  projectImportFeatureEnabled?: boolean;
+  instanceUsesDefaultAdminCredentials?: boolean;
+  multipleAlmEnabled?: boolean;
+  needIssueSync?: boolean;
+  productionDatabase: boolean;
+  qualifiers: string[];
+  settings: { [key in GlobalSettingKeys]?: string };
+  standalone?: boolean;
+  version: string;
+  webAnalyticsJsPath?: string;
 }

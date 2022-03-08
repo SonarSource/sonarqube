@@ -30,7 +30,8 @@ import { MetricsContext } from '../app/components/metrics/MetricsContext';
 import getStore from '../app/utils/getStore';
 import { RouteWithChildRoutes } from '../app/utils/startReactApp';
 import { Store as State } from '../store/rootReducer';
-import { AppState, Dict, Metric } from '../types/types';
+import { AppState } from '../types/appstate';
+import { Dict, Metric } from '../types/types';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState } from './testMocks';
 

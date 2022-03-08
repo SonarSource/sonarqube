@@ -6,9 +6,14 @@ exports[`renders LEVEL 1`] = `
 />
 `;
 
-exports[`renders known RATING 1`] = `
+exports[`renders RATING 1`] = `
 <Tooltip
-  overlay="tooltip"
+  overlay={
+    <withAppStateContext(RatingTooltipContent)
+      metricKey="sqale_rating"
+      value="3"
+    />
+  }
 >
   <span>
     <Rating
@@ -34,10 +39,4 @@ exports[`renders undefined measure 1`] = `
 <span>
   –
 </span>
-`;
-
-exports[`renders unknown RATING 1`] = `
-<Rating
-  value="4"
-/>
 `;

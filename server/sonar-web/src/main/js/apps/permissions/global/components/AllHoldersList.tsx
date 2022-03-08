@@ -20,8 +20,9 @@
 import * as React from 'react';
 import withAppStateContext from '../../../../app/components/app-state/withAppStateContext';
 import ListFooter from '../../../../components/controls/ListFooter';
+import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
-import { AppState, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
+import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import HoldersList from '../../shared/components/HoldersList';
 import SearchForm from '../../shared/components/SearchForm';
 import {

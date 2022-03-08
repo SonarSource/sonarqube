@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
-import { AppState } from '../../../../types/types';
+import { AppState } from '../../../../types/appstate';
 import withAppStateContext from '../withAppStateContext';
 
 const appState = mockAppState();

@@ -30,9 +30,10 @@ import NavBarTabs from '../../../../components/ui/NavBarTabs';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
+import { AppState } from '../../../../types/appstate';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
-import { AppState, Component, Extension } from '../../../../types/types';
+import { Component, Extension } from '../../../../types/types';
 import withAppStateContext from '../../app-state/withAppStateContext';
 import './Menu.css';
 

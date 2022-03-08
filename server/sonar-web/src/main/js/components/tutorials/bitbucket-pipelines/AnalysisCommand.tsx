@@ -20,7 +20,8 @@
 import { Dictionary } from 'lodash';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { AppState, Component } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
+import { Component } from '../../../types/types';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
 import { BuildTools } from '../types';

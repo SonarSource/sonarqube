@@ -29,7 +29,8 @@ import SearchBox from '../../components/controls/SearchBox';
 import SelectLegacy from '../../components/controls/SelectLegacy';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
-import { AppState, Visibility } from '../../types/types';
+import { AppState } from '../../types/appstate';
+import { Visibility } from '../../types/types';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { isBranch, isPullRequest } from '../../../helpers/branch-like';
-import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
+import { AppState } from '../../../types/appstate';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../types/component';
 import {
@@ -29,6 +29,7 @@ import {
   ReferencedLanguage,
   ReferencedRule
 } from '../../../types/issues';
+import { GlobalSettingKeys } from '../../../types/settings';
 import { Component, Dict, UserBase } from '../../../types/types';
 import { Query } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
@@ -48,6 +49,7 @@ import TagFacet from './TagFacet';
 import TypeFacet from './TypeFacet';
 
 export interface Props {
+  appState: AppState;
   branchLike?: BranchLike;
   component: Component | undefined;
   createdAfterIncludesTime: boolean;
@@ -64,7 +66,6 @@ export interface Props {
   referencedLanguages: Dict<ReferencedLanguage>;
   referencedRules: Dict<ReferencedRule>;
   referencedUsers: Dict<UserBase>;
-  disableDeveloperAggregatedInfo: boolean;
 }
 
 export class Sidebar extends React.PureComponent<Props> {
@@ -108,6 +109,7 @@ export class Sidebar extends React.PureComponent<Props> {
 
   render() {
     const {
+      appState: { settings },
       component,
       createdAfterIncludesTime,
       facets,
@@ -115,6 +117,9 @@ export class Sidebar extends React.PureComponent<Props> {
       query,
       branchLike
     } = this.props;
+
+    const disableDeveloperAggregatedInfo =
+      settings[GlobalSettingKeys.DeveloperAggregatedInfoDisabled] === 'true';
 
     const branch =
       (isBranch(branchLike) && branchLike.name) ||
@@ -255,7 +260,7 @@ export class Sidebar extends React.PureComponent<Props> {
           />
         )}
         {this.renderComponentFacets()}
-        {!this.props.myIssues && !this.props.disableDeveloperAggregatedInfo && (
+        {!this.props.myIssues && !disableDeveloperAggregatedInfo && (
           <AssigneeFacet
             assigned={query.assigned}
             assignees={query.assignees}
@@ -269,7 +274,7 @@ export class Sidebar extends React.PureComponent<Props> {
             stats={facets.assignees}
           />
         )}
-        {displayAuthorFacet && !this.props.disableDeveloperAggregatedInfo && (
+        {displayAuthorFacet && !disableDeveloperAggregatedInfo && (
           <AuthorFacet
             author={query.author}
             component={component}
@@ -287,14 +292,4 @@ export class Sidebar extends React.PureComponent<Props> {
   }
 }
 
-export const mapStateToProps = (state: Store) => {
-  const disableDeveloperAggregatedInfo = getGlobalSettingValue(
-    state,
-    'sonar.developerAggregatedInfo.disabled'
-  );
-  return {
-    disableDeveloperAggregatedInfo: disableDeveloperAggregatedInfo?.value === true.toString()
-  };
-};
-
-export default connect(mapStateToProps)(Sidebar);
+export default withAppStateContext(Sidebar);

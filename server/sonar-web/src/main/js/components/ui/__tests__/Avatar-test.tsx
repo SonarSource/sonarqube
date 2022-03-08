@@ -19,15 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { unconnectedAvatar as Avatar } from '../Avatar';
+import { mockAppState } from '../../../helpers/testMocks';
+import { GlobalSettingKeys } from '../../../types/settings';
+import { Avatar } from '../Avatar';
 
 const gravatarServerUrl = 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}';
 
 it('should be able to render with hash only', () => {
   const avatar = shallow(
     <Avatar
-      enableGravatar={true}
-      gravatarServerUrl={gravatarServerUrl}
+      appState={mockAppState({
+        settings: {
+          [GlobalSettingKeys.EnableGravatar]: 'true',
+          [GlobalSettingKeys.GravatarServerUrl]: gravatarServerUrl
+        }
+      })}
       hash="7daf6c79d4802916d83f6266e24850af"
       name="Foo"
       size={30}
@@ -38,14 +44,14 @@ it('should be able to render with hash only', () => {
 
 it('falls back to dummy avatar', () => {
   const avatar = shallow(
-    <Avatar enableGravatar={false} gravatarServerUrl="" name="Foo Bar" size={30} />
+    <Avatar appState={mockAppState({ settings: {} })} name="Foo Bar" size={30} />
   );
   expect(avatar).toMatchSnapshot();
 });
 
 it('do not fail when name is missing', () => {
   const avatar = shallow(
-    <Avatar enableGravatar={false} gravatarServerUrl="" name={undefined} size={30} />
+    <Avatar appState={mockAppState({ settings: {} })} name={undefined} size={30} />
   );
   expect(avatar.getElement()).toBeNull();
 });

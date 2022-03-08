@@ -34,8 +34,9 @@ import {
   AlmSettingsBindingStatus,
   AlmSettingsBindingStatusType
 } from '../../../../types/alm-settings';
+import { AppState } from '../../../../types/appstate';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { AppState, Dict } from '../../../../types/types';
+import { Dict } from '../../../../types/types';
 import AlmIntegrationRenderer from './AlmIntegrationRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location' | 'router'> {

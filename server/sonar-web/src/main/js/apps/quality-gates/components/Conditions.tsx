@@ -27,14 +27,9 @@ import ModalButton from '../../../components/controls/ModalButton';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
+import { AppState } from '../../../types/appstate';
 import { MetricKey } from '../../../types/metrics';
-import {
-  AppState,
-  Condition as ConditionType,
-  Dict,
-  Metric,
-  QualityGate
-} from '../../../types/types';
+import { Condition as ConditionType, Dict, Metric, QualityGate } from '../../../types/types';
 import Condition from './Condition';
 import ConditionModal from './ConditionModal';
 

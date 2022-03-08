@@ -63,68 +63,6 @@ export function isDiffMetric(metricKey: MetricKey | string): boolean {
   return metricKey.indexOf('new_') === 0;
 }
 
-function getRatingGrid(): string {
-  // workaround cyclic dependencies
-  const getStore = require('../app/utils/getStore').default;
-  const { getGlobalSettingValue } = require('../store/rootReducer');
-
-  const store = getStore();
-  const settingValue = getGlobalSettingValue(store.getState(), 'sonar.technicalDebt.ratingGrid');
-  return settingValue ? settingValue.value : '';
-}
-
-let maintainabilityRatingGrid: number[];
-
-function getMaintainabilityRatingGrid(): number[] {
-  if (maintainabilityRatingGrid) {
-    return maintainabilityRatingGrid;
-  }
-
-  const str = getRatingGrid();
-  const numbers = str
-    .split(',')
-    .map(s => parseFloat(s))
-    .filter(n => !isNaN(n));
-
-  if (numbers.length === 4) {
-    maintainabilityRatingGrid = numbers;
-  } else {
-    maintainabilityRatingGrid = [0, 0, 0, 0];
-  }
-
-  return maintainabilityRatingGrid;
-}
-
-function getMaintainabilityRatingTooltip(rating: number): string {
-  const maintainabilityGrid = getMaintainabilityRatingGrid();
-  const maintainabilityRatingThreshold = maintainabilityGrid[Math.floor(rating) - 2];
-
-  if (rating < 2) {
-    return translateWithParameters(
-      'metric.sqale_rating.tooltip.A',
-      formatMeasure(maintainabilityGrid[0] * 100, 'PERCENT')
-    );
-  }
-
-  const ratingLetter = formatMeasure(rating, 'RATING');
-
-  return translateWithParameters(
-    'metric.sqale_rating.tooltip',
-    ratingLetter,
-    formatMeasure(maintainabilityRatingThreshold * 100, 'PERCENT')
-  );
-}
-
-export function getRatingTooltip(metricKey: MetricKey | string, value: number | string): string {
-  const ratingLetter = formatMeasure(value, 'RATING');
-
-  const finalMetricKey = isDiffMetric(metricKey) ? metricKey.substr(4) : metricKey;
-
-  return finalMetricKey === 'sqale_rating' || finalMetricKey === 'maintainability_rating'
-    ? getMaintainabilityRatingTooltip(Number(value))
-    : translate('metric', finalMetricKey, 'tooltip', ratingLetter);
-}
-
 export function getDisplayMetrics(metrics: Metric[]) {
   return metrics.filter(metric => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
 }

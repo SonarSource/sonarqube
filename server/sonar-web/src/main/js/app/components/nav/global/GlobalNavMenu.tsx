@@ -25,8 +25,9 @@ import Dropdown from '../../../../components/controls/Dropdown';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
+import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
-import { AppState, CurrentUser, Extension } from '../../../../types/types';
+import { CurrentUser, Extension } from '../../../../types/types';
 import withAppStateContext from '../../app-state/withAppStateContext';
 
 interface Props {

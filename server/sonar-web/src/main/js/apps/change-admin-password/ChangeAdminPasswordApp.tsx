@@ -21,7 +21,7 @@ import * as React from 'react';
 import { changePassword } from '../../api/users';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { Location, withRouter } from '../../components/hoc/withRouter';
-import { AppState } from '../../types/types';
+import { AppState } from '../../types/appstate';
 import ChangeAdminPasswordAppRenderer from './ChangeAdminPasswordAppRenderer';
 import { DEFAULT_ADMIN_LOGIN, DEFAULT_ADMIN_PASSWORD } from './constants';
 

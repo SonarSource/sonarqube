@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
-import { getLeakValue, getRatingTooltip } from '../../../components/measure/utils';
+import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
+import { getLeakValue } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import Rating from '../../../components/ui/Rating';
 import { findMeasure } from '../../../helpers/measures';
@@ -50,10 +51,9 @@ function renderRatingLink(props: IssueRatingProps) {
   }
 
   const value = measure && (useDiffMetric ? getLeakValue(measure) : measure.value);
-  const tooltip = value && getRatingTooltip(rating, Number(value));
 
   return (
-    <Tooltip overlay={tooltip}>
+    <Tooltip overlay={value && <RatingTooltipContent metricKey={rating} value={value} />}>
       <span>
         <DrilldownLink
           branchLike={branchLike}

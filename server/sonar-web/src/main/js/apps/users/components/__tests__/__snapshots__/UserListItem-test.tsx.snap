@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   <td
     className="thin nowrap text-middle"
   >
-    <Connect(Avatar)
+    <withAppStateContext(Avatar)
       name="One"
       size={36}
     />
@@ -92,7 +92,7 @@ exports[`should render correctly without last connection date 1`] = `
   <td
     className="thin nowrap text-middle"
   >
-    <Connect(Avatar)
+    <withAppStateContext(Avatar)
       name="One"
       size={36}
     />

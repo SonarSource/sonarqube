@@ -25,7 +25,7 @@ import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { AppState } from '../../../../types/types';
+import { AppState } from '../../../../types/appstate';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export interface PublishStepsProps {

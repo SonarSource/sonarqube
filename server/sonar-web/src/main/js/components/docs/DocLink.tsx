@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import DetachIcon from '../../components/icons/DetachIcon';
 import { isSonarCloud } from '../../helpers/system';
-import { AppState } from '../../types/types';
+import { AppState } from '../../types/appstate';
 
 interface OwnProps {
   appState: AppState;

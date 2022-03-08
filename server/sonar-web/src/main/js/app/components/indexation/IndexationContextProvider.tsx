@@ -19,8 +19,8 @@
  */
 /* eslint-disable react/no-unused-state */
 import * as React from 'react';
+import { AppState } from '../../../types/appstate';
 import { IndexationContextInterface, IndexationStatus } from '../../../types/indexation';
-import { AppState } from '../../../types/types';
 import withAppStateContext from '../app-state/withAppStateContext';
 import { IndexationContext } from './IndexationContext';
 import IndexationNotificationHelper from './IndexationNotificationHelper';

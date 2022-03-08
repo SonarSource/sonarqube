@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { AppState, Component } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
+import { Component } from '../../../types/types';
 import { BuildTools } from '../types';
 import CFamily from './commands/CFamily';
 import DotNet from './commands/DotNet';

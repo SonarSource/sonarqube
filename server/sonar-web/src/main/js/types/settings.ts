@@ -20,10 +20,21 @@
 import { Dict } from './types';
 
 export const enum SettingsKey {
+  AuditHouseKeeping = 'sonar.dbcleaner.auditHousekeeping',
   DaysBeforeDeletingInactiveBranchesAndPRs = 'sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs',
   DefaultProjectVisibility = 'projects.default.visibility',
   ServerBaseUrl = 'sonar.core.serverBaseURL',
   PluginRiskConsent = 'sonar.plugins.risk.consent'
+}
+
+export enum GlobalSettingKeys {
+  LogoUrl = 'sonar.lf.logoUrl',
+  LogoWidth = 'sonar.lf.logoWidthPx',
+  EnableGravatar = 'sonar.lf.enableGravatar',
+  GravatarServerUrl = 'sonar.lf.gravatarServerUrl',
+  RatingGrid = 'sonar.technicalDebt.ratingGrid',
+  DeveloperAggregatedInfoDisabled = 'sonar.developerAggregatedInfo.disabled',
+  UpdatecenterActivated = 'sonar.updatecenter.activate'
 }
 
 export type SettingDefinitionAndValue = {

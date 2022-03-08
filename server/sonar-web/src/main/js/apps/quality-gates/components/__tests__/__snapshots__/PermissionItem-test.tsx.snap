@@ -25,7 +25,7 @@ exports[`should render correctly: user 1`] = `
 <div
   className="display-flex-center permission-list-item padded"
 >
-  <Connect(Avatar)
+  <withAppStateContext(Avatar)
     className="spacer-right"
     name="John Doe"
     size={32}

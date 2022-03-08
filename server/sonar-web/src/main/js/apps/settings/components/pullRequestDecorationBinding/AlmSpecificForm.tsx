@@ -32,8 +32,9 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
+import { AppState } from '../../../../types/appstate';
 import { EditionKey } from '../../../../types/editions';
-import { AppState, Dict } from '../../../../types/types';
+import { Dict } from '../../../../types/types';
 
 export interface AlmSpecificFormProps {
   alm: AlmKeys;

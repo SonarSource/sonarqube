@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from 'history';
+import { Location, LocationDescriptor } from 'history';
 import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { AppState } from '../types/appstate';
+import { EditionKey } from '../types/editions';
 import { Language } from '../types/languages';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
@@ -29,7 +31,6 @@ import {
   AlmApplication,
   Analysis,
   AnalysisEvent,
-  AppState,
   Condition,
   CurrentUser,
   FlowLocation,
@@ -117,7 +118,7 @@ export function mockAnalysisEvent(overrides: Partial<AnalysisEvent> = {}): Analy
 
 export function mockAppState(overrides: Partial<AppState> = {}): AppState {
   return {
-    edition: 'community',
+    edition: EditionKey.community,
     productionDatabase: true,
     qualifiers: ['TRK'],
     settings: {},
@@ -526,7 +527,12 @@ export function mockQualityProfileExporter(override?: Partial<Exporter>): Export
   };
 }
 
-export function mockRouter(overrides: { push?: Function; replace?: Function } = {}) {
+export function mockRouter(
+  overrides: {
+    push?: (loc: LocationDescriptor) => void;
+    replace?: (loc: LocationDescriptor) => void;
+  } = {}
+) {
   return {
     createHref: jest.fn(),
     createPath: jest.fn(),

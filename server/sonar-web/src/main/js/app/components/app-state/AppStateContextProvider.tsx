@@ -20,29 +20,16 @@
  */
 
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { setValues } from '../../../apps/settings/store/actions';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 import { AppStateContext } from './AppStateContext';
 
 export interface AppStateContextProviderProps {
-  setValues: typeof setValues;
   appState: AppState;
 }
 
-export function AppStateContextProvider({
-  setValues,
+export default function AppStateContextProvider({
   appState,
   children
 }: React.PropsWithChildren<AppStateContextProviderProps>) {
-  React.useEffect(() => {
-    setValues(
-      Object.keys(appState.settings),
-      Object.entries(appState.settings).map(([key, value]) => ({ key, value }))
-    );
-  });
-
   return <AppStateContext.Provider value={appState}>{children}</AppStateContext.Provider>;
 }
-const mapDispatchToProps = { setValues };
-export default connect(null, mapDispatchToProps)(AppStateContextProvider);

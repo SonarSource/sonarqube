@@ -24,7 +24,7 @@ import { ClearButton } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { AppState } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
 
 export interface Props {
   appState: AppState;

@@ -28,8 +28,9 @@ import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
 import { isLoggedIn } from '../../helpers/users';
 import { getCurrentUser, Store } from '../../store/rootReducer';
+import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
-import { AppState, CurrentUser } from '../../types/types';
+import { CurrentUser } from '../../types/types';
 import withAppStateContext from './app-state/withAppStateContext';
 
 const LicensePromptModal = lazyLoadComponent(

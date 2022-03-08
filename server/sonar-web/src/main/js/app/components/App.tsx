@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
-import { getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { AppState } from '../../types/appstate';
+import { GlobalSettingKeys } from '../../types/settings';
+import withAppStateContext from './app-state/withAppStateContext';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
 interface Props {
-  enableGravatar: boolean;
-  gravatarServerUrl: string;
+  appState: AppState;
 }
 
 export class App extends React.PureComponent<Props> {
@@ -68,8 +68,19 @@ export class App extends React.PureComponent<Props> {
   };
 
   renderPreconnectLink = () => {
+    const {
+      appState: { settings }
+    } = this.props;
+
+    const enableGravatar = settings[GlobalSettingKeys.EnableGravatar] === 'true';
+    const gravatarServerUrl = settings[GlobalSettingKeys.GravatarServerUrl];
+
+    if (!enableGravatar || !gravatarServerUrl) {
+      return null;
+    }
+
     const parser = document.createElement('a');
-    parser.href = this.props.gravatarServerUrl;
+    parser.href = gravatarServerUrl;
     if (parser.hostname !== window.location.hostname) {
       return <link href={parser.origin} rel="preconnect" />;
     }
@@ -79,7 +90,7 @@ export class App extends React.PureComponent<Props> {
   render() {
     return (
       <>
-        <PageTracker>{this.props.enableGravatar && this.renderPreconnectLink()}</PageTracker>
+        <PageTracker>{this.renderPreconnectLink()}</PageTracker>
         {this.props.children}
         <KeyboardShortcutsModal />
       </>
@@ -87,13 +98,4 @@ export class App extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store) => {
-  const enableGravatar = getGlobalSettingValue(state, 'sonar.lf.enableGravatar');
-  const gravatarServerUrl = getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl');
-  return {
-    enableGravatar: Boolean(enableGravatar && enableGravatar.value === 'true'),
-    gravatarServerUrl: (gravatarServerUrl && gravatarServerUrl.value) || ''
-  };
-};
-
-export default connect(mapStateToProps)(App);
+export default withAppStateContext(App);

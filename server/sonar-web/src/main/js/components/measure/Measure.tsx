@@ -22,7 +22,7 @@ import Tooltip from '../../components/controls/Tooltip';
 import Level from '../../components/ui/Level';
 import Rating from '../../components/ui/Rating';
 import { formatMeasure } from '../../helpers/measures';
-import { getRatingTooltip } from './utils';
+import RatingTooltipContent from './RatingTooltipContent';
 
 interface Props {
   className?: string;
@@ -57,8 +57,9 @@ export default function Measure({
     return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }
 
-  const tooltip = getRatingTooltip(metricKey, Number(value));
+  const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
   const rating = <Rating small={small} value={value} />;
+
   if (tooltip) {
     return (
       <Tooltip overlay={tooltip}>

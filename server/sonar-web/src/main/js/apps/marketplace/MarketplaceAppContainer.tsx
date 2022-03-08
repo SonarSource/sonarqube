@@ -18,35 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import AdminContext from '../../app/components/AdminContext';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import { getGlobalSettingValue, Store } from '../../store/rootReducer';
+import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
-import { AppState, RawQuery } from '../../types/types';
-import { fetchValues } from '../settings/store/actions';
+import { GlobalSettingKeys } from '../../types/settings';
+import { RawQuery } from '../../types/types';
 import App from './App';
 
-interface OwnProps {
+export interface MarketplaceAppContainerProps {
   location: { pathname: string; query: RawQuery };
   appState: AppState;
 }
 
-interface StateToProps {
-  fetchValues: typeof fetchValues;
-  updateCenterActive: boolean;
-}
-
-function WithAdminContext(props: StateToProps & OwnProps) {
-  React.useEffect(() => {
-    props.fetchValues(['sonar.updatecenter.activate']);
-  });
+export function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {
+  const { appState, location } = props;
 
   const propsToPass = {
-    location: props.location,
-    updateCenterActive: props.updateCenterActive,
-    currentEdition: props.appState.edition as EditionKey,
-    standaloneMode: props.appState.standalone
+    location,
+    updateCenterActive: appState.settings[GlobalSettingKeys.UpdatecenterActivated] === 'true',
+    currentEdition: appState.edition as EditionKey,
+    standaloneMode: appState.standalone
   };
 
   return (
@@ -62,13 +54,4 @@ function WithAdminContext(props: StateToProps & OwnProps) {
   );
 }
 
-const mapDispatchToProps = { fetchValues };
-
-const mapStateToProps = (state: Store) => {
-  const updateCenterActive = getGlobalSettingValue(state, 'sonar.updatecenter.activate');
-  return {
-    updateCenterActive: Boolean(updateCenterActive && updateCenterActive.value === 'true')
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(withAppStateContext(WithAdminContext));
+export default withAppStateContext(MarketplaceAppContainer);

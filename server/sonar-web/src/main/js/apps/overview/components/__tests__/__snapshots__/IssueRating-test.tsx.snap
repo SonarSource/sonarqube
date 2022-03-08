@@ -8,7 +8,12 @@ exports[`should render correctly for bugs 1`] = `
     metric_domain.Reliability
   </span>
   <Tooltip
-    overlay="metric.reliability_rating.tooltip.A"
+    overlay={
+      <withAppStateContext(RatingTooltipContent)
+        metricKey="reliability_rating"
+        value="1.0"
+      />
+    }
   >
     <span>
       <DrilldownLink
@@ -43,7 +48,12 @@ exports[`should render correctly for bugs 2`] = `
     metric_domain.Reliability
   </span>
   <Tooltip
-    overlay="metric.reliability_rating.tooltip.A"
+    overlay={
+      <withAppStateContext(RatingTooltipContent)
+        metricKey="new_reliability_rating"
+        value="1.0"
+      />
+    }
   >
     <span>
       <DrilldownLink
@@ -78,7 +88,12 @@ exports[`should render correctly for code smells 1`] = `
     metric_domain.Maintainability
   </span>
   <Tooltip
-    overlay="metric.sqale_rating.tooltip.A.0.0%"
+    overlay={
+      <withAppStateContext(RatingTooltipContent)
+        metricKey="sqale_rating"
+        value="1.0"
+      />
+    }
   >
     <span>
       <DrilldownLink
@@ -113,7 +128,12 @@ exports[`should render correctly for code smells 2`] = `
     metric_domain.Maintainability
   </span>
   <Tooltip
-    overlay="metric.sqale_rating.tooltip.A.0.0%"
+    overlay={
+      <withAppStateContext(RatingTooltipContent)
+        metricKey="new_maintainability_rating"
+        value="1.0"
+      />
+    }
   >
     <span>
       <DrilldownLink
@@ -148,7 +168,12 @@ exports[`should render correctly for vulnerabilities 1`] = `
     metric_domain.Security
   </span>
   <Tooltip
-    overlay="metric.security_rating.tooltip.A"
+    overlay={
+      <withAppStateContext(RatingTooltipContent)
+        metricKey="security_rating"
+        value="1.0"
+      />
+    }
   >
     <span>
       <DrilldownLink
@@ -183,7 +208,12 @@ exports[`should render correctly for vulnerabilities 2`] = `
     metric_domain.Security
   </span>
   <Tooltip
-    overlay="metric.security_rating.tooltip.A"
+    overlay={
+      <withAppStateContext(RatingTooltipContent)
+        metricKey="new_security_rating"
+        value="1.0"
+      />
+    }
   >
     <span>
       <DrilldownLink

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import settingsApp, * as fromSettingsApp from '../apps/settings/store/rootReducer';
 import { BranchLike } from '../types/branch-like';
 import { CurrentUserSettingNames } from '../types/types';
 import branches, * as fromBranches from './branches';
@@ -29,18 +28,12 @@ export type Store = {
   branches: fromBranches.State;
   globalMessages: fromGlobalMessages.State;
   users: fromUsers.State;
-
-  // apps
-  settingsApp: any;
 };
 
 export default combineReducers<Store>({
   branches,
   globalMessages,
-  users,
-
-  // apps
-  settingsApp
+  users
 });
 
 export function getGlobalMessages(state: Store) {
@@ -53,10 +46,6 @@ export function getCurrentUserSetting(state: Store, key: CurrentUserSettingNames
 
 export function getCurrentUser(state: Store) {
   return fromUsers.getCurrentUser(state.users);
-}
-
-export function getGlobalSettingValue(state: Store, key: string) {
-  return fromSettingsApp.getValue(state.settingsApp, key);
 }
 
 export function getBranchStatusByBranchLike(

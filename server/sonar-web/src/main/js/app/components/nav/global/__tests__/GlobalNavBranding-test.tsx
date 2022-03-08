@@ -19,34 +19,32 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Measure from '../Measure';
+import { mockAppState } from '../../../../../helpers/testMocks';
+import { GlobalNavBranding, GlobalNavBrandingProps } from '../GlobalNavBranding';
 
-it('renders trivial measure', () => {
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
   expect(
-    shallow(<Measure metricKey="coverage" metricType="PERCENT" value="73.0" />)
-  ).toMatchSnapshot();
+    shallowRender({
+      appState: mockAppState({
+        settings: {
+          'sonar.lf.logoUrl': 'http://sonarsource.com/custom-logo.svg'
+        }
+      })
+    })
+  ).toMatchSnapshot('with logo');
+  expect(
+    shallowRender({
+      appState: mockAppState({
+        settings: {
+          'sonar.lf.logoUrl': 'http://sonarsource.com/custom-logo.svg',
+          'sonar.lf.logoWidthPx': '200'
+        }
+      })
+    })
+  ).toMatchSnapshot('with logo and width');
 });
 
-it('renders leak measure', () => {
-  expect(
-    shallow(<Measure metricKey="new_coverage" metricType="PERCENT" value="36.0" />)
-  ).toMatchSnapshot();
-});
-
-it('renders LEVEL', () => {
-  expect(
-    shallow(<Measure metricKey="quality_gate_status" metricType="LEVEL" value="ERROR" />)
-  ).toMatchSnapshot();
-});
-
-it('renders RATING', () => {
-  expect(
-    shallow(<Measure metricKey="sqale_rating" metricType="RATING" value="3" />)
-  ).toMatchSnapshot();
-});
-
-it('renders undefined measure', () => {
-  expect(
-    shallow(<Measure metricKey="foo" metricType="PERCENT" value={undefined} />)
-  ).toMatchSnapshot();
-});
+function shallowRender(overrides: Partial<GlobalNavBrandingProps> = {}) {
+  return shallow(<GlobalNavBranding appState={mockAppState()} {...overrides} />);
+}

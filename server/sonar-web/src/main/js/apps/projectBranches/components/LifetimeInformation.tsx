@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { getValues } from '../../../api/settings';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import { AppState } from '../../../types/appstate';
 import { SettingsKey } from '../../../types/settings';
-import { AppState } from '../../../types/types';
 import LifetimeInformationRenderer from './LifetimeInformationRenderer';
 
 interface Props {

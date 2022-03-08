@@ -39,10 +39,11 @@ import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
 } from '../../types/alm-settings';
+import { AppState } from '../../types/appstate';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
-import { AppState, Component, Status } from '../../types/types';
+import { Component, Status } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withAppStateContext from './app-state/withAppStateContext';
 import ComponentContainerNotFound from './ComponentContainerNotFound';

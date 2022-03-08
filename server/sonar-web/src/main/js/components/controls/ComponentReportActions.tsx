@@ -27,10 +27,11 @@ import withAppStateContext from '../../app/components/app-state/withAppStateCont
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isLoggedIn } from '../../helpers/users';
+import { AppState } from '../../types/appstate';
 import { Branch } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { ComponentReportStatus } from '../../types/component-report';
-import { AppState, Component, CurrentUser } from '../../types/types';
+import { Component, CurrentUser } from '../../types/types';
 import { withCurrentUser } from '../hoc/withCurrentUser';
 import ComponentReportActionsRenderer from './ComponentReportActionsRenderer';
 

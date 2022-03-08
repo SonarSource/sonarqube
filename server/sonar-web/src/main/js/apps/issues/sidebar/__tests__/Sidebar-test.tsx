@@ -21,12 +21,11 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import { flatten } from 'lodash';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { getGlobalSettingValue } from '../../../../store/rootReducer';
+import { mockAppState } from '../../../../helpers/testMocks';
+import { GlobalSettingKeys } from '../../../../types/settings';
 import { ComponentQualifier } from '../../../../types/component';
 import { Query } from '../../utils';
-import { mapStateToProps, Sidebar } from '../Sidebar';
-
-jest.mock('../../../../store/rootReducer', () => ({ getGlobalSettingValue: jest.fn() }));
+import { Sidebar } from '../Sidebar';
 
 it('should render facets for global page', () => {
   expect(renderSidebar()).toMatchSnapshot();
@@ -52,16 +51,13 @@ it('should render facets when my issues are selected', () => {
 });
 
 it('should not render developer nominative facets when asked not to', () => {
-  expect(renderSidebar({ disableDeveloperAggregatedInfo: true })).toMatchSnapshot();
-});
-
-it('should init the component with the proper store value', () => {
-  mapStateToProps({} as any);
-
-  expect(getGlobalSettingValue).toHaveBeenCalledWith(
-    expect.any(Object),
-    'sonar.developerAggregatedInfo.disabled'
-  );
+  expect(
+    renderSidebar({
+      appState: mockAppState({
+        settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'true' }
+      })
+    })
+  ).toMatchSnapshot();
 });
 
 const renderSidebar = (props?: Partial<Sidebar['props']>) => {
@@ -69,6 +65,9 @@ const renderSidebar = (props?: Partial<Sidebar['props']>) => {
     mapChildren(
       shallow<Sidebar>(
         <Sidebar
+          appState={mockAppState({
+            settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'false' }
+          })}
           component={undefined}
           createdAfterIncludesTime={false}
           facets={{}}
@@ -84,7 +83,6 @@ const renderSidebar = (props?: Partial<Sidebar['props']>) => {
           referencedLanguages={{}}
           referencedRules={{}}
           referencedUsers={{}}
-          disableDeveloperAggregatedInfo={false}
           {...props}
         />
       )

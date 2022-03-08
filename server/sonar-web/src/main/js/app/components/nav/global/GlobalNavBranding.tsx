@@ -18,18 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { getGlobalSettingValue, Store } from '../../../../store/rootReducer';
+import { AppState } from '../../../../types/appstate';
+import { GlobalSettingKeys } from '../../../../types/settings';
+import withAppStateContext from '../../app-state/withAppStateContext';
 
-interface StateProps {
-  customLogoUrl?: string;
-  customLogoWidth?: string | number;
+export interface GlobalNavBrandingProps {
+  appState: AppState;
 }
 
-export function GlobalNavBranding({ customLogoUrl, customLogoWidth }: StateProps) {
+export function GlobalNavBranding({ appState: { settings } }: GlobalNavBrandingProps) {
+  const customLogoUrl = settings[GlobalSettingKeys.LogoUrl];
+  const customLogoWidth = settings[GlobalSettingKeys.LogoWidth];
+
   const title = translate('layout.sonar.slogan');
   const url = customLogoUrl || `${getBaseUrl()}/images/logo.svg?v=6.6`;
   const width = customLogoUrl ? customLogoWidth || 100 : 83;
@@ -41,13 +44,4 @@ export function GlobalNavBranding({ customLogoUrl, customLogoWidth }: StateProps
   );
 }
 
-const mapStateToProps = (state: Store): StateProps => {
-  const customLogoUrl = getGlobalSettingValue(state, 'sonar.lf.logoUrl');
-  const customLogoWidth = getGlobalSettingValue(state, 'sonar.lf.logoWidthPx');
-  return {
-    customLogoUrl: customLogoUrl && customLogoUrl.value,
-    customLogoWidth: customLogoWidth && customLogoWidth.value
-  };
-};
-
-export default connect(mapStateToProps)(GlobalNavBranding);
+export default withAppStateContext(GlobalNavBranding);

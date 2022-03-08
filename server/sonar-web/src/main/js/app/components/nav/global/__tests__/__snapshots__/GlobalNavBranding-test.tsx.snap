@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Link
+  className="navbar-brand"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/"
+>
+  <img
+    alt="layout.sonar.slogan"
+    height={30}
+    src="/images/logo.svg?v=6.6"
+    title="layout.sonar.slogan"
+    width={83}
+  />
+</Link>
+`;
+
+exports[`should render correctly: with logo 1`] = `
+<Link
+  className="navbar-brand"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/"
+>
+  <img
+    alt="layout.sonar.slogan"
+    height={30}
+    src="http://sonarsource.com/custom-logo.svg"
+    title="layout.sonar.slogan"
+    width={100}
+  />
+</Link>
+`;
+
+exports[`should render correctly: with logo and width 1`] = `
+<Link
+  className="navbar-brand"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/"
+>
+  <img
+    alt="layout.sonar.slogan"
+    height={30}
+    src="http://sonarsource.com/custom-logo.svg"
+    title="layout.sonar.slogan"
+    width="200"
+  />
+</Link>
+`;

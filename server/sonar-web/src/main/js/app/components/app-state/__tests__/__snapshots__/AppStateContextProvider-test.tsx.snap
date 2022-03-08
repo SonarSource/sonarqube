@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should set value correctly 1`] = `
+<AppStateContextProvider
+  appState={
+    Object {
+      "edition": "community",
+      "productionDatabase": true,
+      "qualifiers": Array [
+        "TRK",
+      ],
+      "settings": Object {
+        "sonar.lf.logoUrl": "whatevs/",
+      },
+      "version": "1.0",
+    }
+  }
+/>
+`;

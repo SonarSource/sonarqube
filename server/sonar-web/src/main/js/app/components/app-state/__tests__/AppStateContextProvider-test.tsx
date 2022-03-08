@@ -21,20 +21,18 @@ import { mount } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { AppStateContextProvider, AppStateContextProviderProps } from '../AppStateContextProvider';
+import AppStateContextProvider, { AppStateContextProviderProps } from '../AppStateContextProvider';
 
 it('should set value correctly', async () => {
-  const setValues = jest.fn();
+  const appState = mockAppState({ settings: { 'sonar.lf.logoUrl': 'whatevs/' } });
   const wrapper = render({
-    appState: mockAppState({ settings: { foo: 'bar' } }),
-    setValues
+    appState
   });
   await waitAndUpdate(wrapper);
-  expect(setValues).toHaveBeenCalledWith(['foo'], [{ key: 'foo', value: 'bar' }]);
+
+  expect(wrapper).toMatchSnapshot();
 });
 
 function render(override?: Partial<AppStateContextProviderProps>) {
-  return mount(
-    <AppStateContextProvider appState={mockAppState()} setValues={jest.fn()} {...override} />
-  );
+  return mount(<AppStateContextProvider appState={mockAppState()} {...override} />);
 }

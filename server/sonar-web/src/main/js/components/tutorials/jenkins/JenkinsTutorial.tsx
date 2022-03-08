@@ -28,7 +28,8 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
-import { AppState, Component, CurrentUserSetting } from '../../../types/types';
+import { AppState } from '../../../types/appstate';
+import { Component, CurrentUserSetting } from '../../../types/types';
 import AllSetStep from '../components/AllSetStep';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';

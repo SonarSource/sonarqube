@@ -60,7 +60,7 @@ exports[`should render the right interface for logged in user 1`] = `
     href="#"
     title="Skywalker"
   >
-    <Connect(Avatar)
+    <withAppStateContext(Avatar)
       name="Skywalker"
       size={32}
     />

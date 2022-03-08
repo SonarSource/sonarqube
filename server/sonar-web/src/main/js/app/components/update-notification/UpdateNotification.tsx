@@ -27,9 +27,10 @@ import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton
 import { sortUpgrades, UpdateUseCase } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { AppState } from '../../../types/appstate';
 import { Permissions } from '../../../types/permissions';
 import { SystemUpgrade } from '../../../types/system';
-import { AppState, CurrentUser, Dict } from '../../../types/types';
+import { CurrentUser, Dict } from '../../../types/types';
 import withAppStateContext from '../app-state/withAppStateContext';
 import './UpdateNotification.css';
 

@@ -27,9 +27,9 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import {
-  AppState,
   Component,
   NewCodePeriod,
   NewCodePeriodSettingType,
