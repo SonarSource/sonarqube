@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
@@ -907,7 +908,7 @@ public class FileSystemMediumTest {
         "  Excluded sources for coverage: **/coverage.exclusions",
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'moduleA'",
-        "  Base dir: " + baseDirModuleA.getAbsolutePath(),
+        "  Base dir: " + baseDirModuleA.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
         "  Source paths: src",
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
@@ -916,7 +917,7 @@ public class FileSystemMediumTest {
         "  Excluded sources for coverage: **/coverage.exclusions",
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'moduleB'",
-        "  Base dir: " + baseDirModuleB.getAbsolutePath(),
+        "  Base dir: " + baseDirModuleB.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
         "  Source paths: src",
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
@@ -925,7 +926,7 @@ public class FileSystemMediumTest {
         "  Excluded sources for coverage: **/coverage.exclusions",
         "  Excluded sources for duplication: **/cpd.exclusions",
         "Indexing files of module 'com.foo.project'",
-        "  Base dir: " + baseDir.getAbsolutePath(),
+        "  Base dir: " + baseDir.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS),
         "  Included sources: **/global.inclusions",
         "  Excluded sources: **/global.exclusions, **/global.test.inclusions",
         "  Included tests: **/global.test.inclusions",

@@ -21,6 +21,7 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
@@ -127,7 +128,7 @@ public class MetadataGeneratorTest {
   @Test
   public void complete_input_file() throws Exception {
     // file system
-    Path baseDir = temp.newFolder().toPath();
+    Path baseDir = temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
     Path srcFile = baseDir.resolve("src/main/java/foo/Bar.java");
     FileUtils.touch(srcFile.toFile());
     FileUtils.write(srcFile.toFile(), "single line");
