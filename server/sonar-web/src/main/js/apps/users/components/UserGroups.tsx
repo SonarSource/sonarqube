@@ -21,7 +21,7 @@ import * as React from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { User } from '../../../types/types';
+import { User } from '../../../types/users';
 import GroupsForm from './GroupsForm';
 
 interface Props {

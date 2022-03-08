@@ -24,7 +24,8 @@ import SecurityHotspotIcon from '../components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from '../components/icons/VulnerabilityIcon';
 import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
-import { Dict, FlowLocation, Issue, TextRange, UserBase } from '../types/types';
+import { Dict, FlowLocation, Issue, TextRange } from '../types/types';
+import { UserBase } from '../types/users';
 import { ISSUE_TYPES } from './constants';
 
 interface Rule {}

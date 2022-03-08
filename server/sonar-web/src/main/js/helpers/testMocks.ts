@@ -32,13 +32,11 @@ import {
   Analysis,
   AnalysisEvent,
   Condition,
-  CurrentUser,
   FlowLocation,
   Group,
   HealthType,
   IdentityProvider,
   Issue,
-  LoggedInUser,
   Measure,
   MeasureEnhanced,
   Metric,
@@ -55,9 +53,9 @@ import {
   SourceViewerFile,
   SysInfoBase,
   SysInfoCluster,
-  SysInfoStandalone,
-  User
+  SysInfoStandalone
 } from '../types/types';
+import { CurrentUser, LoggedInUser, User } from '../types/users';
 
 export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): AlmApplication {
   return {

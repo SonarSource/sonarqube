@@ -30,7 +30,8 @@ import {
   ReferencedRule
 } from '../../../types/issues';
 import { GlobalSettingKeys } from '../../../types/settings';
-import { Component, Dict, UserBase } from '../../../types/types';
+import { Component, Dict } from '../../../types/types';
+import { UserBase } from '../../../types/users';
 import { Query } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';

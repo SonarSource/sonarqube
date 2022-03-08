@@ -22,7 +22,7 @@ import { DeleteButton } from '../../../components/controls/buttons';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { Group, isUser } from '../../../types/quality-gates';
-import { UserBase } from '../../../types/types';
+import { UserBase } from '../../../types/users';
 
 export interface PermissionItemProps {
   onClickDelete: (item: UserBase | Group) => void;

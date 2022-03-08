@@ -18,7 +18,7 @@ exports[`should open the popup when the button is clicked 2`] = `
     onRequestClose={[Function]}
     open={true}
     overlay={
-      <Connect(withCurrentUser(SetAssigneePopup))
+      <withCurrentUserContext(SetAssigneePopup)
         onSelect={[MockFunction]}
       />
     }
@@ -61,7 +61,7 @@ exports[`should render a fallback assignee display if assignee info are not avai
     onRequestClose={[Function]}
     open={false}
     overlay={
-      <Connect(withCurrentUser(SetAssigneePopup))
+      <withCurrentUserContext(SetAssigneePopup)
         onSelect={[MockFunction]}
       />
     }
@@ -94,7 +94,7 @@ exports[`should render with the action 1`] = `
     onRequestClose={[Function]}
     open={false}
     overlay={
-      <Connect(withCurrentUser(SetAssigneePopup))
+      <withCurrentUserContext(SetAssigneePopup)
         onSelect={[MockFunction]}
       />
     }

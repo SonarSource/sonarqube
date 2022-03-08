@@ -19,18 +19,13 @@
  */
 import { Store } from 'redux';
 import rootReducer, { Store as State } from '../../store/rootReducer';
-import { receiveCurrentUser } from '../../store/users';
 import configureStore from '../../store/utils/configureStore';
-import { CurrentUser } from '../../types/types';
 
 let store: Store<State, any>;
 
-const createStore = (currentUser?: CurrentUser) => {
+const createStore = () => {
   store = configureStore(rootReducer);
-  if (currentUser) {
-    store.dispatch(receiveCurrentUser(currentUser));
-  }
   return store;
 };
 
-export default (currentUser?: CurrentUser) => (store ? store : createStore(currentUser));
+export default () => (store ? store : createStore());

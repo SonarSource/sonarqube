@@ -27,7 +27,8 @@ import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { AppState } from '../../../../types/appstate';
 import { ComponentQualifier } from '../../../../types/component';
-import { CurrentUser, Extension } from '../../../../types/types';
+import { Extension } from '../../../../types/types';
+import { CurrentUser } from '../../../../types/users';
 import withAppStateContext from '../../app-state/withAppStateContext';
 
 interface Props {

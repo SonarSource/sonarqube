@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
-import { isLoggedIn } from '../../../helpers/users';
-import { CurrentUser, RawQuery } from '../../../types/types';
+import { RawQuery } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 
 interface Props {
@@ -30,7 +31,7 @@ interface Props {
   query?: RawQuery;
 }
 
-export default class FavoriteFilter extends React.PureComponent<Props> {
+export class FavoriteFilter extends React.PureComponent<Props> {
   handleSaveFavorite = () => {
     save(PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE);
   };
@@ -71,3 +72,5 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withCurrentUserContext(FavoriteFilter);

@@ -182,7 +182,7 @@ exports[`should render correctly for applications 1`] = `
       />
     </div>
   </div>
-  <Connect(withCurrentUser(SonarLintPromotion))
+  <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
       Array [
         Object {
@@ -395,7 +395,7 @@ exports[`should render correctly for applications 2`] = `
       />
     </div>
   </div>
-  <Connect(withCurrentUser(SonarLintPromotion))
+  <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
       Array [
         Object {
@@ -528,7 +528,7 @@ exports[`should render correctly for projects 1`] = `
       />
     </div>
   </div>
-  <Connect(withCurrentUser(SonarLintPromotion))
+  <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
       Array [
         Object {
@@ -599,7 +599,7 @@ exports[`should render correctly for projects 2`] = `
       </span>
     </div>
   </div>
-  <Connect(withCurrentUser(SonarLintPromotion))
+  <withCurrentUserContext(SonarLintPromotion)
     qgConditions={Array []}
   />
 </div>
@@ -721,7 +721,7 @@ exports[`should render correctly for projects 3`] = `
       />
     </div>
   </div>
-  <Connect(withCurrentUser(SonarLintPromotion))
+  <withCurrentUserContext(SonarLintPromotion)
     qgConditions={
       Array [
         Object {

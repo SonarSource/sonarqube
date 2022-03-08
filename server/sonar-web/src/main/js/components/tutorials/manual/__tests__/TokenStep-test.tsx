@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { change, click, submit, waitAndUpdate } from '../../../../helpers/testUtils';
-import { LoggedInUser } from '../../../../types/types';
+import { LoggedInUser } from '../../../../types/users';
 import TokenStep from '../TokenStep';
 
 jest.mock('../../../../api/user-tokens', () => ({

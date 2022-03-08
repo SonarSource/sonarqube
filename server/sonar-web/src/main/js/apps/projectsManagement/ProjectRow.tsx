@@ -26,7 +26,7 @@ import Tooltip from '../../components/controls/Tooltip';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
 import { getComponentOverviewUrl } from '../../helpers/urls';
-import { LoggedInUser } from '../../types/types';
+import { LoggedInUser } from '../../types/users';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 

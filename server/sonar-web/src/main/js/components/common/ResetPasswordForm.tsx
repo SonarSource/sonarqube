@@ -24,7 +24,7 @@ import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
-import { LoggedInUser } from '../../types/types';
+import { LoggedInUser } from '../../types/users';
 
 interface Props {
   className?: string;

@@ -19,13 +19,12 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import Favorite from '../../../../components/controls/Favorite';
-import { isLoggedIn } from '../../../../helpers/users';
-import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { BranchLike } from '../../../../types/branch-like';
-import { Component, CurrentUser } from '../../../../types/types';
+import { Component } from '../../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../../types/users';
+import withCurrentUserContext from '../../current-user/withCurrentUserContext';
 import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 import CurrentBranchLikeMergeInformation from './branch-like/CurrentBranchLikeMergeInformation';
 import { Breadcrumb } from './Breadcrumb';
@@ -70,8 +69,4 @@ export function Header(props: HeaderProps) {
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(React.memo(Header));
+export default withCurrentUserContext(React.memo(Header));

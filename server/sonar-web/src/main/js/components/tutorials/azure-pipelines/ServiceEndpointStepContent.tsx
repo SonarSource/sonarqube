@@ -22,7 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import EditTokenModal from '../components/EditTokenModal';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 

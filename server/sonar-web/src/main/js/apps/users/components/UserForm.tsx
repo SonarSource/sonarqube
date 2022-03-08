@@ -28,7 +28,7 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
-import { User } from '../../../types/types';
+import { User } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {

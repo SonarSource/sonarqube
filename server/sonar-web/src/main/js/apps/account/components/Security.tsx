@@ -19,34 +19,29 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import ResetPasswordForm from '../../../components/common/ResetPasswordForm';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import Tokens from './Tokens';
 
 export interface SecurityProps {
-  user: LoggedInUser;
+  currentUser: LoggedInUser;
 }
 
-export function Security({ user }: SecurityProps) {
+export function Security({ currentUser }: SecurityProps) {
   return (
     <div className="account-body account-container">
       <Helmet defer={false} title={translate('my_account.security')} />
-      <Tokens login={user.login} />
-      {user.local && (
+      <Tokens login={currentUser.login} />
+      {currentUser.local && (
         <section className="boxed-group">
           <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
-          <ResetPasswordForm className="boxed-group-inner" user={user} />
+          <ResetPasswordForm className="boxed-group-inner" user={currentUser} />
         </section>
       )}
     </div>
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  user: getCurrentUser(state) as LoggedInUser
-});
-
-export default connect(mapStateToProps)(Security);
+export default withCurrentUserContext(Security);

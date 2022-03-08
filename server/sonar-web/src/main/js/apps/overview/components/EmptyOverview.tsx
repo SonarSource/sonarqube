@@ -19,17 +19,16 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { connect } from 'react-redux';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { isLoggedIn } from '../../../helpers/users';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { Component, CurrentUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface EmptyOverviewProps {
   branchLike?: BranchLike;
@@ -106,8 +105,4 @@ export function EmptyOverview(props: EmptyOverviewProps) {
   );
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(EmptyOverview);
+export default withCurrentUserContext(EmptyOverview);

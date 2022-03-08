@@ -21,7 +21,8 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import EditTokenModal from './EditTokenModal';
 
 export interface TokenStepGeneratorProps {

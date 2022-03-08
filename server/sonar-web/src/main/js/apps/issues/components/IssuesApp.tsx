@@ -62,15 +62,8 @@ import {
   ReferencedRule
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
-import {
-  Component,
-  CurrentUser,
-  Dict,
-  Issue,
-  Paging,
-  RawQuery,
-  UserBase
-} from '../../../types/types';
+import { Component, Dict, Issue, Paging, RawQuery } from '../../../types/types';
+import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';

@@ -22,7 +22,7 @@ import ResetPasswordForm from '../../components/common/ResetPasswordForm';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
-import { LoggedInUser } from '../../types/types';
+import { LoggedInUser } from '../../types/users';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 
 export interface ResetPasswordProps {

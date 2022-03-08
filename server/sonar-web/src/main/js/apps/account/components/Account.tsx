@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
-import { CurrentUser, LoggedInUser } from '../../../types/types';
+import { CurrentUser, LoggedInUser } from '../../../types/users';
 import '../account.css';
 import Nav from './Nav';
 import UserCard from './UserCard';
@@ -66,4 +66,4 @@ export class Account extends React.PureComponent<Props> {
   }
 }
 
-export default withCurrentUser(Account);
+export default withCurrentUserContext(Account);

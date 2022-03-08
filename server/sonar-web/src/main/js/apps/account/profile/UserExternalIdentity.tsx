@@ -22,7 +22,8 @@ import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/system';
-import { IdentityProvider, LoggedInUser } from '../../../types/types';
+import { IdentityProvider } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 
 export interface UserExternalIdentityProps {
   user: LoggedInUser;

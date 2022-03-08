@@ -20,19 +20,19 @@
 import { debounce, uniq, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { getComponents, Project } from '../../api/components';
 import { changeProjectDefaultVisibility } from '../../api/permissions';
 import { getValues } from '../../api/settings';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../components/controls/ListFooter';
 import { toShortNotSoISOString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
-import { getCurrentUser, Store } from '../../store/rootReducer';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
-import { LoggedInUser, Visibility } from '../../types/types';
+import { Visibility } from '../../types/types';
+import { LoggedInUser } from '../../types/users';
 import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
@@ -259,8 +259,4 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state) as LoggedInUser
-});
-
-export default connect(mapStateToProps)(App);
+export default withCurrentUserContext(App);

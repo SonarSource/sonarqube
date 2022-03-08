@@ -22,8 +22,7 @@ import * as React from 'react';
 import { searchUsers } from '../../../../api/users';
 import { KeyboardCodes } from '../../../../helpers/keycodes';
 import { translate } from '../../../../helpers/l10n';
-import { isUserActive } from '../../../../helpers/users';
-import { LoggedInUser, UserActive } from '../../../../types/types';
+import { isUserActive, LoggedInUser, UserActive } from '../../../../types/users';
 import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
 
 interface Props {

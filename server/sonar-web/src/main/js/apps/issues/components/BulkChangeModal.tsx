@@ -36,8 +36,8 @@ import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { isLoggedIn, isUserActive } from '../../../helpers/users';
-import { Component, CurrentUser, Dict, Issue, IssueType, Paging } from '../../../types/types';
+import { Component, Dict, Issue, IssueType, Paging } from '../../../types/types';
+import { CurrentUser, isLoggedIn, isUserActive } from '../../../types/users';
 import { searchAssignees } from '../utils';
 
 interface AssigneeOption {

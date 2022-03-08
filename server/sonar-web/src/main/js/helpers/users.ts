@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CurrentUser, LoggedInUser, UserActive, UserBase } from '../types/types';
+import { CurrentUser, HomePage } from '../types/users';
 
 export function hasGlobalPermission(user: CurrentUser, permission: string): boolean {
   if (!user.permissions) {
@@ -26,10 +26,10 @@ export function hasGlobalPermission(user: CurrentUser, permission: string): bool
   return user.permissions.global.includes(permission);
 }
 
-export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
-  return user.isLoggedIn;
-}
-
-export function isUserActive(user: UserBase): user is UserActive {
-  return user.active !== false && Boolean(user.name);
+export function isSameHomePage(a: HomePage, b: HomePage) {
+  return (
+    a.type === b.type &&
+    (a as any).branch === (b as any).branch &&
+    (a as any).component === (b as any).component
+  );
 }

@@ -25,7 +25,7 @@ import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import { HotspotStatus } from '../../../../../types/security-hotspots';
-import { UserActive } from '../../../../../types/types';
+import { UserActive } from '../../../../../types/users';
 import { Assignee } from '../Assignee';
 import AssigneeRenderer from '../AssigneeRenderer';
 

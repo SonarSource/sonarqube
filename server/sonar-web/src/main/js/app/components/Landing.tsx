@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { getHomePageUrl } from '../../helpers/urls';
-import { isLoggedIn } from '../../helpers/users';
-import { CurrentUser } from '../../types/types';
+import { CurrentUser, isLoggedIn } from '../../types/users';
+import withCurrentUserContext from './current-user/withCurrentUserContext';
 
 export interface LandingProps {
   currentUser: CurrentUser;
@@ -45,4 +44,4 @@ export class Landing extends React.PureComponent<LandingProps> {
   }
 }
 
-export default withRouter(withCurrentUser(Landing));
+export default withRouter(withCurrentUserContext(Landing));

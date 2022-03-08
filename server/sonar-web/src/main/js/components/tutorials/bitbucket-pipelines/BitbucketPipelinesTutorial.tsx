@@ -24,7 +24,8 @@ import {
   AlmSettingsInstance,
   ProjectAlmBindingResponse
 } from '../../../types/alm-settings';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import AllSetStep from '../components/AllSetStep';
 import FinishButton from '../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';

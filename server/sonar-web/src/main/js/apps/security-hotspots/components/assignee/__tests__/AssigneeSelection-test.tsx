@@ -23,7 +23,7 @@ import { searchUsers } from '../../../../../api/users';
 import { KeyboardCodes } from '../../../../../helpers/keycodes';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
-import { UserActive } from '../../../../../types/types';
+import { UserActive } from '../../../../../types/users';
 import AssigneeSelection from '../AssigneeSelection';
 
 jest.mock('../../../../../api/users', () => ({

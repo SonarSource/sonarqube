@@ -19,7 +19,6 @@
  */
 import { connect } from 'react-redux';
 import { searchIssues } from '../../../../api/issues';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { fetchBranchStatus } from '../../../../store/rootActions';
 import '../AppContainer';
 
@@ -35,19 +34,11 @@ jest.mock('../../../../helpers/issues', () => ({
   parseIssueFromResponse: jest.fn(() => 'parsedIssue')
 }));
 
-jest.mock('../../../../store/rootReducer', () => {
-  const { mockCurrentUser } = jest.requireActual('../../../../helpers/testMocks');
-  return {
-    getCurrentUser: jest.fn(() => mockCurrentUser())
-  };
-});
-
 describe('redux', () => {
   it('should correctly map state and dispatch props', async () => {
     const [mapStateToProps, mapDispatchToProps] = (connect as jest.Mock).mock.calls[0];
-    const { currentUser, fetchIssues } = mapStateToProps({});
+    const { fetchIssues } = mapStateToProps({});
 
-    expect(currentUser).toEqual(mockCurrentUser());
     expect(mapDispatchToProps).toEqual(expect.objectContaining({ fetchBranchStatus }));
 
     const result = await fetchIssues({ foo: 'bar' });

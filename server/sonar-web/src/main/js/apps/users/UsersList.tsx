@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider, User } from '../../types/types';
+import { IdentityProvider } from '../../types/types';
+import { User } from '../../types/users';
 import UserListItem from './components/UserListItem';
 
 interface Props {

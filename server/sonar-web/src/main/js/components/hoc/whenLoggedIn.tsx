@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import handleRequiredAuthentication from '../../helpers/handleRequiredAuthentication';
-import { isLoggedIn } from '../../helpers/users';
-import { CurrentUser } from '../../types/types';
+import { CurrentUser, isLoggedIn } from '../../types/users';
 import { getWrappedDisplayName } from './utils';
-import { withCurrentUser } from './withCurrentUser';
 
 export function whenLoggedIn<P>(WrappedComponent: React.ComponentType<P>) {
   class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
@@ -37,11 +36,10 @@ export function whenLoggedIn<P>(WrappedComponent: React.ComponentType<P>) {
     render() {
       if (isLoggedIn(this.props.currentUser)) {
         return <WrappedComponent {...this.props} />;
-      } else {
-        return null;
       }
+      return null;
     }
   }
 
-  return withCurrentUser(Wrapper);
+  return withCurrentUserContext(Wrapper);
 }

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockUser } from '../../../../../helpers/testMocks';
-import { UserActive } from '../../../../../types/types';
+import { UserActive } from '../../../../../types/users';
 import AssigneeSelectionRenderer, {
   HotspotAssigneeSelectRendererProps
 } from '../AssigneeSelectionRenderer';

@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import NavBar from '../../../../components/ui/NavBar';
-import { getCurrentUser, Store } from '../../../../store/rootReducer';
-import { CurrentUser } from '../../../../types/types';
+import { CurrentUser } from '../../../../types/users';
 import { rawSizes } from '../../../theme';
+import withCurrentUserContext from '../../current-user/withCurrentUserContext';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import Search from '../../search/Search';
 import './GlobalNav.css';
@@ -52,10 +51,4 @@ export function GlobalNav(props: GlobalNavProps) {
   );
 }
 
-const mapStateToProps = (state: Store) => {
-  return {
-    currentUser: getCurrentUser(state)
-  };
-};
-
-export default connect(mapStateToProps)(GlobalNav);
+export default withCurrentUserContext(GlobalNav);

@@ -22,9 +22,9 @@ import { WithRouterProps } from 'react-router';
 import { Button } from '../../../components/controls/buttons';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';
-import { CurrentUser } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface EmptyInstanceProps {
   currentUser: CurrentUser;

@@ -24,7 +24,8 @@ import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/com
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
-import { Dict, HomePage } from '../types/types';
+import { Dict } from '../types/types';
+import { HomePage } from '../types/users';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 import { IS_SSR } from './browser';
 import { serializeOptionalBoolean } from './query';

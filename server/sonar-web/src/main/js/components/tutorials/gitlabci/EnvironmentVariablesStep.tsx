@@ -22,7 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from '../../../components/controls/buttons';
 import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import Step from '../components/Step';
 import TokenStepGenerator from '../components/TokenStepGenerator';
 

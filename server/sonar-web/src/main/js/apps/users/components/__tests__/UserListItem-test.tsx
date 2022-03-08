@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from '../../../../helpers/testUtils';
-import { User } from '../../../../types/types';
+import { User } from '../../../../types/users';
 import UserListItem from '../UserListItem';
 
 jest.mock('../../../../components/intl/DateFromNow');

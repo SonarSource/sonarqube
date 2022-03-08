@@ -21,7 +21,8 @@ import * as React from 'react';
 import { colors } from '../../../app/theme';
 import { getTextColor } from '../../../helpers/colors';
 import { getBaseUrl } from '../../../helpers/system';
-import { IdentityProvider, User } from '../../../types/types';
+import { IdentityProvider } from '../../../types/types';
+import { User } from '../../../types/users';
 
 export interface Props {
   identityProvider?: IdentityProvider;

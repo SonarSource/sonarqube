@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getMeasures } from '../../../../../api/measures';
-import { isLoggedIn } from '../../../../../helpers/users';
-import { getCurrentUser, Store } from '../../../../../store/rootReducer';
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { MetricKey } from '../../../../../types/metrics';
-import { Component, CurrentUser, Dict, Measure, Metric } from '../../../../../types/types';
+import { Component, Dict, Measure, Metric } from '../../../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../../../types/users';
+import withCurrentUserContext from '../../../current-user/withCurrentUserContext';
 import withMetricsContext from '../../../metrics/withMetricsContext';
 import ProjectBadges from './badges/ProjectBadges';
 import InfoDrawerPage from './InfoDrawerPage';
@@ -121,8 +120,4 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(withMetricsContext(ProjectInformation));
+export default withCurrentUserContext(withMetricsContext(ProjectInformation));

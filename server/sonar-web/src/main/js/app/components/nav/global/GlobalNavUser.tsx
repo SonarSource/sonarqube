@@ -24,8 +24,7 @@ import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { isLoggedIn } from '../../../../helpers/users';
-import { CurrentUser, LoggedInUser } from '../../../../types/types';
+import { CurrentUser, isLoggedIn, LoggedInUser } from '../../../../types/users';
 import { rawSizes } from '../../../theme';
 
 interface Props {

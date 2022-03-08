@@ -15,11 +15,9 @@ exports[`should render correctly: branches not enabled 1`] = `
     alm="bitbucket"
     branchesEnabled={false}
     finished={false}
-    onChangeSkipNextTime={[Function]}
     onDone={[Function]}
     onOpen={[Function]}
     open={true}
-    skipNextTime={false}
   />
   <PipelineStep
     alm="bitbucket"
@@ -98,11 +96,9 @@ exports[`should render correctly: default 1`] = `
     alm="bitbucket"
     branchesEnabled={true}
     finished={false}
-    onChangeSkipNextTime={[Function]}
     onDone={[Function]}
     onOpen={[Function]}
     open={true}
-    skipNextTime={false}
   />
   <MultiBranchPipelineStep
     alm="bitbucket"

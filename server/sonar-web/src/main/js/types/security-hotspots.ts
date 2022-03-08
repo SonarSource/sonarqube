@@ -18,14 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from './component';
-import {
-  FlowLocation,
-  IssueChangelog,
-  IssueChangelogDiff,
-  Paging,
-  TextRange,
-  UserBase
-} from './types';
+import { FlowLocation, IssueChangelog, IssueChangelogDiff, Paging, TextRange } from './types';
+import { UserBase } from './users';
 
 export enum RiskExposure {
   LOW = 'LOW',

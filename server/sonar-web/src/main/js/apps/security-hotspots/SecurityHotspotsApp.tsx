@@ -24,14 +24,13 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
-import { withCurrentUser } from '../../components/hoc/withCurrentUser';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { Router } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { KeyboardCodes, KeyboardKeys } from '../../helpers/keycodes';
 import { scrollToElement } from '../../helpers/scrolling';
 import { getStandards } from '../../helpers/security-standard';
-import { isLoggedIn } from '../../helpers/users';
 import { fetchBranchStatus } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
@@ -42,7 +41,8 @@ import {
   HotspotStatusFilter,
   RawHotspot
 } from '../../types/security-hotspots';
-import { Component, CurrentUser, Dict } from '../../types/types';
+import { Component, Dict } from '../../types/types';
+import { CurrentUser, isLoggedIn } from '../../types/users';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 import { getLocations, SECURITY_STANDARDS } from './utils';
@@ -547,4 +547,4 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchBranchStatus };
 
-export default withCurrentUser(connect(null, mapDispatchToProps)(SecurityHotspotsApp));
+export default withCurrentUserContext(connect(null, mapDispatchToProps)(SecurityHotspotsApp));

@@ -22,7 +22,7 @@ import { deactivateUser } from '../../../api/users';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { UserActive } from '../../../types/types';
+import { UserActive } from '../../../types/users';
 
 export interface Props {
   onClose: () => void;

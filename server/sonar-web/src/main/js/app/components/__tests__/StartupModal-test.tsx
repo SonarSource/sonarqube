@@ -27,7 +27,7 @@ import { get, save } from '../../../helpers/storage';
 import { mockAppState } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
 import { EditionKey } from '../../../types/editions';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import { StartupModal } from '../StartupModal';
 
 jest.mock('../../../api/marketplace', () => ({

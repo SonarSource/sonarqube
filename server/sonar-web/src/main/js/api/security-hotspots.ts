@@ -29,7 +29,7 @@ import {
   HotspotSetStatusRequest,
   HotspotStatus
 } from '../types/security-hotspots';
-import { UserBase } from '../types/types';
+import { UserBase } from '../types/users';
 
 const HOTSPOTS_SEARCH_URL = '/api/hotspots/search';
 

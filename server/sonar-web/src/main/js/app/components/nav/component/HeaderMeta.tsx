@@ -18,19 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import DetachIcon from '../../../../components/icons/DetachIcon';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { translate } from '../../../../helpers/l10n';
-import { isLoggedIn } from '../../../../helpers/users';
-import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { TaskWarning } from '../../../../types/tasks';
-import { Component, CurrentUser, HomePage } from '../../../../types/types';
+import { Component } from '../../../../types/types';
+import { CurrentUser, HomePage, isLoggedIn } from '../../../../types/users';
+import withCurrentUserContext from '../../current-user/withCurrentUserContext';
 import ComponentNavWarnings from './ComponentNavWarnings';
 import './HeaderMeta.css';
 
@@ -124,8 +123,4 @@ export function getCurrentPage(component: Component, branchLike: BranchLike | un
   return currentPage;
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(HeaderMeta);
+export default withCurrentUserContext(HeaderMeta);

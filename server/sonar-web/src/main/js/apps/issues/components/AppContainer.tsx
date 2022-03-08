@@ -19,20 +19,16 @@
  */
 import { connect } from 'react-redux';
 import { searchIssues } from '../../../api/issues';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { withRouter } from '../../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { fetchBranchStatus } from '../../../store/rootActions';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { Store } from '../../../store/rootReducer';
 import { FetchIssuesPromise } from '../../../types/issues';
 import { RawQuery } from '../../../types/types';
 
 const IssuesAppContainer = lazyLoadComponent(() => import('./IssuesApp'), 'IssuesAppContainer');
-
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state),
-  fetchIssues
-});
 
 const fetchIssues = (query: RawQuery) => {
   return searchIssues({
@@ -47,6 +43,12 @@ const fetchIssues = (query: RawQuery) => {
   });
 };
 
+const mapStateToProps = (_state: Store) => ({
+  fetchIssues
+});
+
 const mapDispatchToProps = { fetchBranchStatus };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(IssuesAppContainer));
+export default withRouter(
+  withCurrentUserContext(connect(mapStateToProps, mapDispatchToProps)(IssuesAppContainer))
+);

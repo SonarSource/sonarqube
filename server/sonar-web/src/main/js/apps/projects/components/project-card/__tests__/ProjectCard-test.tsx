@@ -23,7 +23,7 @@ import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadge
 import TagsList from '../../../../../components/tags/TagsList';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
-import { CurrentUser } from '../../../../../types/types';
+import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
 import ProjectCardQualityGate from '../ProjectCardQualityGate';

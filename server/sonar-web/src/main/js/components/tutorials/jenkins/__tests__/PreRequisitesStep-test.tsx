@@ -42,11 +42,9 @@ function shallowRender(props: Partial<PreRequisitesStepProps> = {}) {
       alm={AlmKeys.BitbucketServer}
       branchesEnabled={true}
       finished={false}
-      onChangeSkipNextTime={jest.fn()}
       onDone={jest.fn()}
       onOpen={jest.fn()}
       open={false}
-      skipNextTime={true}
       {...props}
     />
   );

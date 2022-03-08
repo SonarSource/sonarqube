@@ -36,7 +36,8 @@ import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
 import { Facet, RawFacet } from '../../types/issues';
 import { SecurityStandard, StandardType } from '../../types/security';
-import { Dict, Issue, Paging, RawQuery, UserBase } from '../../types/types';
+import { Dict, Issue, Paging, RawQuery } from '../../types/types';
+import { UserBase } from '../../types/users';
 
 export interface Query {
   assigned: boolean;

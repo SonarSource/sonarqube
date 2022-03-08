@@ -39,7 +39,7 @@ exports[`should render correctly for a branch 1`] = `
     >
       version 0.0.1
     </span>
-    <Connect(HomePageSelect)
+    <withCurrentUserContext(HomePageSelect)
       className="spacer-left"
       currentPage={
         Object {
@@ -92,7 +92,7 @@ exports[`should render correctly for a main project branch 1`] = `
     >
       version 0.0.1
     </span>
-    <Connect(HomePageSelect)
+    <withCurrentUserContext(HomePageSelect)
       className="spacer-left"
       currentPage={
         Object {
@@ -133,7 +133,7 @@ exports[`should render correctly for a portfolio 1`] = `
         }
       />
     </span>
-    <Connect(HomePageSelect)
+    <withCurrentUserContext(HomePageSelect)
       className="spacer-left"
       currentPage={
         Object {

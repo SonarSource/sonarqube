@@ -28,7 +28,8 @@ import {
   QualityGateProjectStatus,
   SearchPermissionsParameters
 } from '../types/quality-gates';
-import { Condition, Paging, QualityGate, UserBase } from '../types/types';
+import { Condition, Paging, QualityGate } from '../types/types';
+import { UserBase } from '../types/users';
 
 export function fetchQualityGates(): Promise<{
   actions: { create: boolean };

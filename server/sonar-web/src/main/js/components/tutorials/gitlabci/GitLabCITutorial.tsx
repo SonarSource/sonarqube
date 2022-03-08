@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import AllSetStep from '../components/AllSetStep';
 import { BuildTools } from '../types';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';

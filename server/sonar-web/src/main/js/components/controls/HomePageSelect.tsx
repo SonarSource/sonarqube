@@ -19,25 +19,18 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { connect } from 'react-redux';
+import { setHomePage } from '../../api/users';
+import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { ButtonLink } from '../../components/controls/buttons';
 import Tooltip from '../../components/controls/Tooltip';
 import HomeIcon from '../../components/icons/HomeIcon';
 import { translate } from '../../helpers/l10n';
-import { isLoggedIn } from '../../helpers/users';
-import { getCurrentUser, Store } from '../../store/rootReducer';
-import { setHomePage } from '../../store/users';
-import { CurrentUser, HomePage } from '../../types/types';
+import { isSameHomePage } from '../../helpers/users';
+import { HomePage, isLoggedIn } from '../../types/users';
 
-interface StateProps {
-  currentUser: CurrentUser;
-}
-
-interface DispatchProps {
-  setHomePage: (homepage: HomePage) => void;
-}
-
-interface Props extends StateProps, DispatchProps {
+interface Props
+  extends Pick<CurrentUserContextInterface, 'currentUser' | 'updateCurrentUserHomepage'> {
   className?: string;
   currentPage: HomePage;
 }
@@ -45,12 +38,22 @@ interface Props extends StateProps, DispatchProps {
 export const DEFAULT_HOMEPAGE: HomePage = { type: 'PROJECTS' };
 
 export class HomePageSelect extends React.PureComponent<Props> {
+  async setCurrentUserHomepage(homepage: HomePage) {
+    const { currentUser } = this.props;
+
+    if (currentUser && isLoggedIn(currentUser)) {
+      await setHomePage(homepage);
+
+      this.props.updateCurrentUserHomepage(homepage);
+    }
+  }
+
   handleClick = () => {
-    this.props.setHomePage(this.props.currentPage);
+    this.setCurrentUserHomepage(this.props.currentPage);
   };
 
   handleReset = () => {
-    this.props.setHomePage(DEFAULT_HOMEPAGE);
+    this.setCurrentUserHomepage(DEFAULT_HOMEPAGE);
   };
 
   render() {
@@ -88,18 +91,4 @@ export class HomePageSelect extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  currentUser: getCurrentUser(state)
-});
-
-const mapDispatchToProps: DispatchProps = { setHomePage };
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomePageSelect);
-
-function isSameHomePage(a: HomePage, b: HomePage) {
-  return (
-    a.type === b.type &&
-    (a as any).branch === (b as any).branch &&
-    (a as any).component === (b as any).component
-  );
-}
+export default withCurrentUserContext(HomePageSelect);

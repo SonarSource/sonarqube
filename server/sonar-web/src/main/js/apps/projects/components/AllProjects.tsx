@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -32,10 +33,10 @@ import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthent
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { get, save } from '../../../helpers/storage';
-import { isLoggedIn } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
-import { CurrentUser, RawQuery } from '../../../types/types';
+import { RawQuery } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { hasFilterParams, hasViewParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
@@ -317,4 +318,4 @@ export class AllProjects extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withAppStateContext(AllProjects));
+export default withRouter(withCurrentUserContext(withAppStateContext(AllProjects)));

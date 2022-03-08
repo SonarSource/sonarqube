@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
-import { Component, CurrentUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { CurrentUser } from '../../../types/users';
 import { HotspotHeader } from './HotspotHeader';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
@@ -100,4 +101,4 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
   );
 }
 
-export default withCurrentUser(HotspotViewerRenderer);
+export default withCurrentUserContext(HotspotViewerRenderer);

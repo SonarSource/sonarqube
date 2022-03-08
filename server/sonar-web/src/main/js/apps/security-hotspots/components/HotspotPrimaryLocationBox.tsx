@@ -19,12 +19,11 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { ButtonLink } from '../../../components/controls/buttons';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
-import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
-import { CurrentUser } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import './HotspotPrimaryLocationBox.css';
 
 export interface HotspotPrimaryLocationBoxProps {
@@ -67,4 +66,4 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
   );
 }
 
-export default withCurrentUser(HotspotPrimaryLocationBox);
+export default withCurrentUserContext(HotspotPrimaryLocationBox);

@@ -2,7 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <Fragment>
-  <Connect(withCurrentUser(FirstAnalysisNextStepsNotif))
+  <withCurrentUserContext(FirstAnalysisNextStepsNotif)
     component={
       Object {
         "breadcrumbs": Array [],
@@ -173,7 +173,7 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: empty project 1`] = `
 <Fragment>
-  <Connect(withCurrentUser(FirstAnalysisNextStepsNotif))
+  <withCurrentUserContext(FirstAnalysisNextStepsNotif)
     component={
       Object {
         "breadcrumbs": Array [],
@@ -265,7 +265,7 @@ exports[`should render correctly: empty project 1`] = `
 
 exports[`should render correctly: loading 1`] = `
 <Fragment>
-  <Connect(withCurrentUser(FirstAnalysisNextStepsNotif))
+  <withCurrentUserContext(FirstAnalysisNextStepsNotif)
     component={
       Object {
         "breadcrumbs": Array [],

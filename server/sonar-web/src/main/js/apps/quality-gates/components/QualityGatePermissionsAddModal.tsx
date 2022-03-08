@@ -21,7 +21,8 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 import { searchGroups, searchUsers } from '../../../api/quality-gates';
 import { Group, SearchPermissionsParameters } from '../../../types/quality-gates';
-import { QualityGate, UserBase } from '../../../types/types';
+import { QualityGate } from '../../../types/types';
+import { UserBase } from '../../../types/users';
 import QualityGatePermissionsAddModalRenderer from './QualityGatePermissionsAddModalRenderer';
 
 interface Props {

@@ -27,7 +27,7 @@ import SelectList, {
   SelectListSearchParams
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { User } from '../../../types/types';
+import { User } from '../../../types/users';
 
 interface Props {
   onClose: () => void;

@@ -24,11 +24,11 @@ import { Security, SecurityProps } from '../Security';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('local user');
-  expect(shallowRender({ user: mockLoggedInUser({ local: false }) })).toMatchSnapshot(
+  expect(shallowRender({ currentUser: mockLoggedInUser({ local: false }) })).toMatchSnapshot(
     'non-local user'
   );
 });
 
 function shallowRender(props: Partial<SecurityProps> = {}) {
-  return shallow(<Security user={mockLoggedInUser({ local: true })} {...props} />);
+  return shallow(<Security currentUser={mockLoggedInUser({ local: true })} {...props} />);
 }

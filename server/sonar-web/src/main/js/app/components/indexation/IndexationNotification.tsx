@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
-import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { hasGlobalPermission } from '../../../helpers/users';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { Permissions } from '../../../types/permissions';
-import { CurrentUser } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
+import withCurrentUserContext from '../current-user/withCurrentUserContext';
 import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
@@ -104,4 +104,4 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(withIndexationContext(IndexationNotification));
+export default withCurrentUserContext(withIndexationContext(IndexationNotification));

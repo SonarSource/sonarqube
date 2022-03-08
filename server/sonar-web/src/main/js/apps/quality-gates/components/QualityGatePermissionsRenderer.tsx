@@ -24,7 +24,8 @@ import ConfirmModal from '../../../components/controls/ConfirmModal';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
-import { QualityGate, UserBase } from '../../../types/types';
+import { QualityGate } from '../../../types/types';
+import { UserBase } from '../../../types/users';
 import PermissionItem from './PermissionItem';
 import QualityGatePermissionsAddModal from './QualityGatePermissionsAddModal';
 

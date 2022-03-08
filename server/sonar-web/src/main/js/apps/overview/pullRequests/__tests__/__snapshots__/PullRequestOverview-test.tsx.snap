@@ -53,7 +53,7 @@ exports[`should render correctly for a failed QG 1`] = `
           }
           level="ERROR"
         />
-        <Connect(withCurrentUser(SonarLintPromotion))
+        <withCurrentUserContext(SonarLintPromotion)
           qgConditions={
             Array [
               Object {
@@ -1424,7 +1424,7 @@ exports[`should render correctly for a passed QG 1`] = `
           }
           level="OK"
         />
-        <Connect(withCurrentUser(SonarLintPromotion))
+        <withCurrentUserContext(SonarLintPromotion)
           qgConditions={Array []}
         />
       </div>

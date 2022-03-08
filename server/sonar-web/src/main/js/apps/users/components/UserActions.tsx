@@ -23,8 +23,7 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
-import { isUserActive } from '../../../helpers/users';
-import { User } from '../../../types/types';
+import { isUserActive, User } from '../../../types/users';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
-import { isLoggedIn } from '../../../helpers/users';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
-import { Component, CurrentUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface TutorialsAppProps {
   component: Component;
@@ -50,4 +50,4 @@ export function TutorialsApp(props: TutorialsAppProps) {
   );
 }
 
-export default withCurrentUser(TutorialsApp);
+export default withCurrentUserContext(TutorialsApp);

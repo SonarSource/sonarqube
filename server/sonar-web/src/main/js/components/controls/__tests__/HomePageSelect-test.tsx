@@ -22,8 +22,12 @@ import * as React from 'react';
 import { ButtonLink } from '../../../components/controls/buttons';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
-import { HomePage } from '../../../types/types';
+import { HomePage } from '../../../types/users';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
+
+jest.mock('../../../api/users', () => ({
+  setHomePage: jest.fn().mockResolvedValue(null)
+}));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('unchecked');
@@ -40,20 +44,20 @@ it('should render correctly', () => {
 });
 
 it('should correctly call webservices', async () => {
-  const setHomePage = jest.fn();
+  const updateCurrentUserHomepage = jest.fn();
   const currentPage: HomePage = { type: 'MY_ISSUES' };
-  const wrapper = shallowRender({ setHomePage, currentPage });
+  const wrapper = shallowRender({ updateCurrentUserHomepage, currentPage });
 
   // Set homepage.
   click(wrapper.find(ButtonLink));
   await waitAndUpdate(wrapper);
-  expect(setHomePage).toHaveBeenLastCalledWith(currentPage);
+  expect(updateCurrentUserHomepage).toHaveBeenLastCalledWith(currentPage);
 
   // Reset.
   wrapper.setProps({ currentUser: mockLoggedInUser({ homepage: currentPage }) });
   click(wrapper.find(ButtonLink));
   await waitAndUpdate(wrapper);
-  expect(setHomePage).toHaveBeenLastCalledWith(DEFAULT_HOMEPAGE);
+  expect(updateCurrentUserHomepage).toHaveBeenLastCalledWith(DEFAULT_HOMEPAGE);
 });
 
 function shallowRender(props: Partial<HomePageSelect['props']> = {}) {
@@ -61,7 +65,7 @@ function shallowRender(props: Partial<HomePageSelect['props']> = {}) {
     <HomePageSelect
       currentPage={{ type: 'MY_PROJECTS' }}
       currentUser={mockLoggedInUser()}
-      setHomePage={jest.fn()}
+      updateCurrentUserHomepage={jest.fn()}
       {...props}
     />
   );

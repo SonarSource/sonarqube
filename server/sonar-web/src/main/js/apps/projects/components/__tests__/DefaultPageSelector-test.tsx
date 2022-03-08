@@ -29,7 +29,7 @@ import {
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { hasGlobalPermission } from '../../../../helpers/users';
-import { CurrentUser } from '../../../../types/types';
+import { CurrentUser } from '../../../../types/users';
 import { DefaultPageSelector } from '../DefaultPageSelector';
 
 jest.mock(

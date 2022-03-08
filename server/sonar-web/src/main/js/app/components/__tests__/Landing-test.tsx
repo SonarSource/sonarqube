@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockCurrentUser, mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
-import { CurrentUser } from '../../../types/types';
+import { CurrentUser } from '../../../types/users';
 import { Landing } from '../Landing';
 
 it.each([

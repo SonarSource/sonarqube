@@ -23,7 +23,7 @@ import EscKeydownHandler from '../../../../components/controls/EscKeydownHandler
 import OutsideClickHandler from '../../../../components/controls/OutsideClickHandler';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { LoggedInUser, UserActive, UserBase } from '../../../../types/types';
+import { LoggedInUser, UserActive, UserBase } from '../../../../types/users';
 import AssigneeSelection from './AssigneeSelection';
 
 export interface AssigneeRendererProps {

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { getAlmSettings } from '../../../api/alm-settings';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { Button } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import EllipsisIcon from '../../../components/icons/EllipsisIcon';
 import { IMPORT_COMPATIBLE_ALMS, IMPORT_COMPATIBLE_ALM_COUNT } from '../../../helpers/constants';
@@ -30,7 +30,7 @@ import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
@@ -143,4 +143,4 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(ProjectCreationMenu);
+export default withCurrentUserContext(ProjectCreationMenu);

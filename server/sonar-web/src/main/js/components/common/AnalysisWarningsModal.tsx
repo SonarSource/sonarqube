@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../api/ce';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { ButtonLink } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
 import WarningIcon from '../../components/icons/WarningIcon';
@@ -26,8 +27,7 @@ import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate } from '../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../helpers/sanitize';
 import { TaskWarning } from '../../types/tasks';
-import { CurrentUser } from '../../types/types';
-import { withCurrentUser } from '../hoc/withCurrentUser';
+import { CurrentUser } from '../../types/users';
 
 interface Props {
   componentKey?: string;
@@ -171,4 +171,4 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(AnalysisWarningsModal);
+export default withCurrentUserContext(AnalysisWarningsModal);

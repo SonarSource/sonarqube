@@ -22,7 +22,6 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { rawSizes } from '../../../app/theme';
 import { Button } from '../../../components/controls/buttons';
-import Checkbox from '../../../components/controls/Checkbox';
 import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
@@ -34,15 +33,13 @@ export interface PreRequisitesStepProps {
   alm: AlmKeys;
   branchesEnabled: boolean;
   finished: boolean;
-  onChangeSkipNextTime: (skip: boolean) => void;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  skipNextTime: boolean;
 }
 
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
-  const { alm, branchesEnabled, finished, open, skipNextTime } = props;
+  const { alm, branchesEnabled, finished, open } = props;
   return (
     <Step
       finished={finished}
@@ -84,22 +81,6 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
           </p>
           <p className="big-spacer-bottom">
             {translate('onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations')}
-          </p>
-          <p className="big-spacer-bottom display-flex-center">
-            <label
-              className="cursor-pointer"
-              htmlFor="skip-prereqs"
-              onClick={() => {
-                props.onChangeSkipNextTime(!skipNextTime);
-              }}>
-              {translate('onboarding.tutorial.with.jenkins.prereqs.skip_next_time')}
-            </label>
-            <Checkbox
-              checked={skipNextTime}
-              className="little-spacer-left"
-              id="skip-prereqs"
-              onCheck={props.onChangeSkipNextTime}
-            />
           </p>
           <Button className="big-spacer-top" onClick={props.onDone}>
             {translate('onboarding.tutorial.with.jenkins.prereqs.done')}

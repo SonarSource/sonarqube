@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
 import { Button } from '../../../../components/controls/buttons';
 import { DropdownOverlay } from '../../../../components/controls/Dropdown';
 import Toggler from '../../../../components/controls/Toggler';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import DropdownIcon from '../../../../components/icons/DropdownIcon';
 import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
-import { isLoggedIn } from '../../../../helpers/users';
 import { Hotspot, HotspotStatusOption } from '../../../../types/security-hotspots';
-import { CurrentUser } from '../../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../../types/users';
 import { getStatusOptionFromStatusAndResolution } from '../../utils';
 import StatusDescription from './StatusDescription';
 import StatusSelection from './StatusSelection';
@@ -87,4 +86,4 @@ export function Status(props: StatusProps) {
   );
 }
 
-export default withCurrentUser(Status);
+export default withCurrentUserContext(Status);

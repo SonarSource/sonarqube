@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { getComponentNavigation } from '../../../api/nav';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
 import { Button } from '../../../components/controls/buttons';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
@@ -30,7 +30,7 @@ import { hasGlobalPermission } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 
 export interface ApplicationCreationProps {
   appState: AppState;
@@ -85,4 +85,4 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
   );
 }
 
-export default withCurrentUser(withRouter(withAppStateContext(ApplicationCreation)));
+export default withCurrentUserContext(withRouter(withAppStateContext(ApplicationCreation)));

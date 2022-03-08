@@ -18,13 +18,13 @@ exports[`should render correctly 1`] = `
     <div
       className="display-flex-center"
     >
-      <Connect(withCurrentUser(ProjectCreationMenu))
+      <withCurrentUserContext(ProjectCreationMenu)
         className="little-spacer-right"
       />
-      <Connect(withCurrentUser(withRouter(withAppStateContext(ApplicationCreation))))
+      <withCurrentUserContext(withRouter(withAppStateContext(ApplicationCreation)))
         className="little-spacer-right"
       />
-      <Connect(HomePageSelect)
+      <withCurrentUserContext(HomePageSelect)
         className="spacer-left little-spacer-right"
         currentPage={
           Object {
@@ -94,13 +94,13 @@ exports[`should render correctly while loading 1`] = `
     <div
       className="display-flex-center"
     >
-      <Connect(withCurrentUser(ProjectCreationMenu))
+      <withCurrentUserContext(ProjectCreationMenu)
         className="little-spacer-right"
       />
-      <Connect(withCurrentUser(withRouter(withAppStateContext(ApplicationCreation))))
+      <withCurrentUserContext(withRouter(withAppStateContext(ApplicationCreation)))
         className="little-spacer-right"
       />
-      <Connect(HomePageSelect)
+      <withCurrentUserContext(HomePageSelect)
         className="spacer-left little-spacer-right"
         currentPage={
           Object {

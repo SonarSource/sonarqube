@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
-import { User } from '../../../types/types';
+import { User } from '../../../types/users';
 import TokensForm from './TokensForm';
 
 interface Props {

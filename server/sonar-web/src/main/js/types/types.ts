@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { UserActive, UserBase } from './users';
+
 export type Dict<T> = { [key: string]: T };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
@@ -178,40 +181,6 @@ export interface Condition {
   op?: string;
 }
 
-export interface CoveredFile {
-  key: string;
-  longName: string;
-  coveredLines: number;
-}
-
-export interface Coupon {
-  billing?: {
-    address?: string;
-    country?: string;
-    email?: string;
-    name?: string;
-    use?: string;
-  };
-  maxNcloc: number;
-  planActiveUntil: string;
-}
-
-export interface CurrentUser {
-  isLoggedIn: boolean;
-  permissions?: { global: string[] };
-  usingSonarLintConnectedMode?: boolean;
-}
-
-export interface CurrentUserSetting {
-  key: CurrentUserSettingNames;
-  value: string;
-}
-
-export type CurrentUserSettingNames =
-  | 'notifications.optOut'
-  | 'notifications.readDate'
-  | 'tutorials.jenkins.skipBitbucketPreReqs';
-
 export interface CustomMeasure {
   createdAt?: string;
   description?: string;
@@ -277,26 +246,6 @@ export interface Group {
 }
 
 export type HealthType = 'RED' | 'YELLOW' | 'GREEN';
-
-export type HomePage =
-  | { type: 'APPLICATION'; branch: string | undefined; component: string }
-  | { type: 'ISSUES' }
-  | { type: 'MY_ISSUES' }
-  | { type: 'MY_PROJECTS' }
-  | { type: 'PORTFOLIO'; component: string }
-  | { type: 'PORTFOLIOS' }
-  | { type: 'PROJECT'; branch: string | undefined; component: string }
-  | { type: 'PROJECTS' };
-
-export type HomePageType =
-  | 'APPLICATION'
-  | 'ISSUES'
-  | 'MY_ISSUES'
-  | 'MY_PROJECTS'
-  | 'PORTFOLIO'
-  | 'PORTFOLIOS'
-  | 'PROJECT'
-  | 'PROJECTS';
 
 export interface IdentityProvider {
   backgroundColor: string;
@@ -413,18 +362,6 @@ export interface LinePopup {
   line: number;
   name: string;
   open?: boolean;
-}
-
-export interface LoggedInUser extends CurrentUser, UserActive {
-  externalIdentity?: string;
-  externalProvider?: string;
-  groups: string[];
-  homepage?: HomePage;
-  isLoggedIn: true;
-  local?: boolean;
-  scmAccounts: string[];
-  settings?: CurrentUserSetting[];
-  sonarLintAdSeen?: boolean;
 }
 
 export interface Measure extends MeasureIntern {
@@ -836,29 +773,6 @@ export interface TextRange {
   startOffset: number;
   endLine: number;
   endOffset: number;
-}
-
-export interface User extends UserBase {
-  externalIdentity?: string;
-  externalProvider?: string;
-  groups?: string[];
-  lastConnectionDate?: string;
-  local: boolean;
-  scmAccounts?: string[];
-  tokensCount?: number;
-}
-
-export interface UserActive extends UserBase {
-  active?: true;
-  name: string;
-}
-
-export interface UserBase {
-  active?: boolean;
-  avatar?: string;
-  email?: string;
-  login: string;
-  name?: string;
 }
 
 export interface UserSelected extends UserActive {

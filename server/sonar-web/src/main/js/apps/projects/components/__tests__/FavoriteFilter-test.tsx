@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { save } from '../../../../helpers/storage';
 import { click } from '../../../../helpers/testUtils';
-import FavoriteFilter from '../FavoriteFilter';
+import { FavoriteFilter } from '../FavoriteFilter';
 
 jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn()

@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getIdentityProviders, searchUsers } from '../../api/users';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ListFooter from '../../components/controls/ListFooter';
-import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider, Paging, User } from '../../types/types';
+import { IdentityProvider, Paging } from '../../types/types';
+import { User } from '../../types/users';
 import Header from './Header';
 import Search from './Search';
 import UsersList from './UsersList';
@@ -141,4 +142,4 @@ export class UsersApp extends React.PureComponent<Props, State> {
   }
 }
 
-export default withRouter(withCurrentUser(UsersApp));
+export default withRouter(withCurrentUserContext(UsersApp));

@@ -16,7 +16,7 @@ exports[`should render correctly: cluster sysinfo 1`] = `
   <div
     className="page-notifs"
   >
-    <Connect(withCurrentUser(withAppStateContext(UpdateNotification)))
+    <withCurrentUserContext(withAppStateContext(UpdateNotification))
       dismissable={false}
     />
   </div>
@@ -209,7 +209,7 @@ exports[`should render correctly: loading 1`] = `
   <div
     className="page-notifs"
   >
-    <Connect(withCurrentUser(withAppStateContext(UpdateNotification)))
+    <withCurrentUserContext(withAppStateContext(UpdateNotification))
       dismissable={false}
     />
   </div>
@@ -232,7 +232,7 @@ exports[`should render correctly: stand-alone sysinfo 1`] = `
   <div
     className="page-notifs"
   >
-    <Connect(withCurrentUser(withAppStateContext(UpdateNotification)))
+    <withCurrentUserContext(withAppStateContext(UpdateNotification))
       dismissable={false}
     />
   </div>

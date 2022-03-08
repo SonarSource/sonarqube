@@ -25,7 +25,7 @@ import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
-import { UserBase } from '../../../types/types';
+import { UserBase } from '../../../types/users';
 
 export interface QualityGatePermissionsAddModalRendererProps {
   onClose: () => void;

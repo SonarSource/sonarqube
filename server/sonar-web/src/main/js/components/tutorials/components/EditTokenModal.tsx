@@ -27,7 +27,8 @@ import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import { getUniqueTokenName } from '../utils';
 
 interface State {

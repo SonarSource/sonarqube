@@ -17,12 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
 
-const stateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(stateToProps)(lazyLoadComponent(() => import('./AllProjects')));
+export default lazyLoadComponent(() => import('./AllProjects'));

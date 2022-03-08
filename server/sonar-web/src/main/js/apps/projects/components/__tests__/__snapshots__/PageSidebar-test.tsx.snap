@@ -2,7 +2,7 @@
 
 exports[`should render \`leak\` view correctly 1`] = `
 <div>
-  <Connect(FavoriteFilter)
+  <withCurrentUserContext(FavoriteFilter)
     query={
       Object {
         "view": "leak",
@@ -68,7 +68,7 @@ exports[`should render \`leak\` view correctly 1`] = `
 
 exports[`should render \`leak\` view correctly with no applications 1`] = `
 <div>
-  <Connect(FavoriteFilter)
+  <withCurrentUserContext(FavoriteFilter)
     query={
       Object {
         "view": "leak",
@@ -131,7 +131,7 @@ exports[`should render \`leak\` view correctly with no applications 1`] = `
 
 exports[`should render correctly 1`] = `
 <div>
-  <Connect(FavoriteFilter) />
+  <withCurrentUserContext(FavoriteFilter) />
   <div
     className="projects-facets-header clearfix"
   >
@@ -193,7 +193,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly with no applications 1`] = `
 <div>
-  <Connect(FavoriteFilter) />
+  <withCurrentUserContext(FavoriteFilter) />
   <div
     className="projects-facets-header clearfix"
   >

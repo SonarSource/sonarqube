@@ -24,15 +24,15 @@ import {
   unsubscribeFromEmailReport
 } from '../../api/component-report';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { isLoggedIn } from '../../helpers/users';
 import { AppState } from '../../types/appstate';
 import { Branch } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { ComponentReportStatus } from '../../types/component-report';
-import { Component, CurrentUser } from '../../types/types';
-import { withCurrentUser } from '../hoc/withCurrentUser';
+import { Component } from '../../types/types';
+import { CurrentUser, isLoggedIn } from '../../types/users';
 import ComponentReportActionsRenderer from './ComponentReportActionsRenderer';
 
 interface Props {
@@ -134,4 +134,4 @@ export class ComponentReportActions extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(withAppStateContext(ComponentReportActions));
+export default withCurrentUserContext(withAppStateContext(ComponentReportActions));

@@ -28,7 +28,7 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
-import { User } from '../../../types/types';
+import { User } from '../../../types/users';
 
 interface Props {
   isCurrentUser: boolean;

@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { Project } from '../../api/components';
 import { translate } from '../../helpers/l10n';
-import { LoggedInUser } from '../../types/types';
+import { LoggedInUser } from '../../types/users';
 import ProjectRow from './ProjectRow';
 
 interface Props {

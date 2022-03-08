@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Component, LoggedInUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import InstanceMessage from '../../common/InstanceMessage';
 import ProjectAnalysisStep from './ProjectAnalysisStep';
 import TokenStep from './TokenStep';

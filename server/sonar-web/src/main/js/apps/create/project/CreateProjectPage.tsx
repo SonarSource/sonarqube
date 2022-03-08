@@ -28,7 +28,7 @@ import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloudProjectCreate';

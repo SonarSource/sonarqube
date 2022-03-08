@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import Avatar from '../../../components/ui/Avatar';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 
 interface Props {
   user: LoggedInUser;

@@ -23,9 +23,9 @@ import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { isUserActive } from '../../../helpers/users';
 import { Facet } from '../../../types/issues';
-import { Dict, UserBase } from '../../../types/types';
+import { Dict } from '../../../types/types';
+import { isUserActive, UserBase } from '../../../types/users';
 import { Query, searchAssignees } from '../utils';
 
 interface Props {

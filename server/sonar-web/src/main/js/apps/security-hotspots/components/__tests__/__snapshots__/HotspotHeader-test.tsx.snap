@@ -42,7 +42,7 @@ exports[`should render correctly 1`] = `
   <div
     className="display-flex-space-between"
   >
-    <Connect(withCurrentUser(Status))
+    <withCurrentUserContext(Status)
       hotspot={
         Object {
           "assignee": "assignee",
@@ -142,7 +142,7 @@ exports[`should render correctly 1`] = `
         >
           assignee: 
         </div>
-        <Connect(withCurrentUser(Assignee))
+        <withCurrentUserContext(Assignee)
           hotspot={
             Object {
               "assignee": "assignee",

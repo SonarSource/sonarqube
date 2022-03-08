@@ -63,24 +63,6 @@ exports[`should render correctly: content 1`] = `
   >
     onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations
   </p>
-  <p
-    className="big-spacer-bottom display-flex-center"
-  >
-    <label
-      className="cursor-pointer"
-      htmlFor="skip-prereqs"
-      onClick={[Function]}
-    >
-      onboarding.tutorial.with.jenkins.prereqs.skip_next_time
-    </label>
-    <Checkbox
-      checked={true}
-      className="little-spacer-left"
-      id="skip-prereqs"
-      onCheck={[MockFunction]}
-      thirdState={false}
-    />
-  </p>
   <Button
     className="big-spacer-top"
     onClick={[MockFunction]}
@@ -142,24 +124,6 @@ exports[`should render correctly: content for branches disabled 1`] = `
     className="big-spacer-bottom"
   >
     onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations
-  </p>
-  <p
-    className="big-spacer-bottom display-flex-center"
-  >
-    <label
-      className="cursor-pointer"
-      htmlFor="skip-prereqs"
-      onClick={[Function]}
-    >
-      onboarding.tutorial.with.jenkins.prereqs.skip_next_time
-    </label>
-    <Checkbox
-      checked={true}
-      className="little-spacer-left"
-      id="skip-prereqs"
-      onCheck={[MockFunction]}
-      thirdState={false}
-    />
   </p>
   <Button
     className="big-spacer-top"
@@ -225,24 +189,6 @@ exports[`should render correctly: content for branches disabled, gitlab 1`] = `
     className="big-spacer-bottom"
   >
     onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations
-  </p>
-  <p
-    className="big-spacer-bottom display-flex-center"
-  >
-    <label
-      className="cursor-pointer"
-      htmlFor="skip-prereqs"
-      onClick={[Function]}
-    >
-      onboarding.tutorial.with.jenkins.prereqs.skip_next_time
-    </label>
-    <Checkbox
-      checked={true}
-      className="little-spacer-left"
-      id="skip-prereqs"
-      onCheck={[MockFunction]}
-      thirdState={false}
-    />
   </p>
   <Button
     className="big-spacer-top"

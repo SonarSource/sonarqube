@@ -19,33 +19,21 @@
  */
 import { combineReducers } from 'redux';
 import { BranchLike } from '../types/branch-like';
-import { CurrentUserSettingNames } from '../types/types';
 import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
-import users, * as fromUsers from './users';
 
 export type Store = {
   branches: fromBranches.State;
   globalMessages: fromGlobalMessages.State;
-  users: fromUsers.State;
 };
 
 export default combineReducers<Store>({
   branches,
-  globalMessages,
-  users
+  globalMessages
 });
 
 export function getGlobalMessages(state: Store) {
   return fromGlobalMessages.getGlobalMessages(state.globalMessages);
-}
-
-export function getCurrentUserSetting(state: Store, key: CurrentUserSettingNames) {
-  return fromUsers.getCurrentUserSetting(state.users, key);
-}
-
-export function getCurrentUser(state: Store) {
-  return fromUsers.getCurrentUser(state.users);
 }
 
 export function getBranchStatusByBranchLike(

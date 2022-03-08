@@ -20,20 +20,20 @@
 
 import styled from '@emotion/styled';
 import React from 'react';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { colors, sizes } from '../../../app/theme';
 import { ClipboardButton, ClipboardIconButton } from '../../../components/controls/clipboard';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getComponentSecurityHotspotsUrl, getPathUrlAsString } from '../../../helpers/urls';
-import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Hotspot } from '../../../types/security-hotspots';
-import { Component, CurrentUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import HotspotOpenInIdeButton from './HotspotOpenInIdeButton';
 
 export interface HotspotSnippetHeaderProps {
@@ -113,4 +113,4 @@ const FilePath = styled.div`
   }
 `;
 
-export default withCurrentUser(HotspotSnippetHeader);
+export default withCurrentUserContext(HotspotSnippetHeader);

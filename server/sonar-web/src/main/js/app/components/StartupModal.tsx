@@ -19,19 +19,17 @@
  */
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { showLicense } from '../../api/marketplace';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../components/lazyLoadComponent';
 import { parseDate, toShortNotSoISOString } from '../../helpers/dates';
 import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
-import { isLoggedIn } from '../../helpers/users';
-import { getCurrentUser, Store } from '../../store/rootReducer';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
-import { CurrentUser } from '../../types/types';
+import { CurrentUser, isLoggedIn } from '../../types/users';
 import withAppStateContext from './app-state/withAppStateContext';
+import withCurrentUserContext from './current-user/withCurrentUserContext';
 
 const LicensePromptModal = lazyLoadComponent(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
@@ -98,8 +96,4 @@ export class StartupModal extends React.PureComponent<Props & StateProps, State>
   }
 }
 
-const mapStateToProps = (state: Store): StateProps => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(withRouter(withAppStateContext(StartupModal)));
+export default withCurrentUserContext(withRouter(withAppStateContext(StartupModal)));

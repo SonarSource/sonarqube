@@ -26,13 +26,14 @@ import { getExtensionStart } from '../../../helpers/extensions';
 import { getCurrentL10nBundle, translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { AppState } from '../../../types/appstate';
 import { ExtensionStartMethod } from '../../../types/extension';
-import { CurrentUser, Dict, Extension as TypeExtension } from '../../../types/types';
+import { Dict, Extension as TypeExtension } from '../../../types/types';
+import { CurrentUser } from '../../../types/users';
 import * as theme from '../../theme';
 import getStore from '../../utils/getStore';
 import withAppStateContext from '../app-state/withAppStateContext';
+import withCurrentUserContext from '../current-user/withCurrentUserContext';
 
 interface Props extends WrappedComponentProps {
   appState: AppState;
@@ -126,9 +127,10 @@ export class Extension extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({ currentUser: getCurrentUser(state) });
-const mapDispatchToProps = { onFail: addGlobalErrorMessage };
-
 export default injectIntl(
-  withRouter(withAppStateContext(connect(mapStateToProps, mapDispatchToProps)(Extension)))
+  withRouter(
+    withAppStateContext(
+      withCurrentUserContext(connect(null, { onFail: addGlobalErrorMessage })(Extension))
+    )
+  )
 );

@@ -42,13 +42,18 @@ function formatDate(date: Date): string {
 }
 
 it('should render correctly', async () => {
-  const wrapper = shallowRender({
+  let wrapper = shallowRender({
     appState: mockAppState({ version: '9.0' }),
     currentUser: mockLoggedInUser({ permissions: { global: [Permissions.Admin] } })
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot('default');
-  expect(wrapper.setProps({ currentUser: mockCurrentUser() })).toMatchSnapshot('anonymous user');
+
+  wrapper = shallowRender({
+    appState: mockAppState({ version: '9.0' }),
+    currentUser: mockCurrentUser()
+  });
+  expect(wrapper.type()).toBeNull();
 });
 
 it('should not show prompt when not admin', async () => {

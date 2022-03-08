@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BranchLike } from './branch-like';
-import { MeasureEnhanced, Metric, Status, UserBase } from './types';
+import { MeasureEnhanced, Metric, Status } from './types';
+import { UserBase } from './users';
 
 export interface QualityGateProjectStatus {
   conditions?: QualityGateProjectStatusCondition[];

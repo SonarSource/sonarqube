@@ -18,25 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { getCurrentUser, Store } from '../../store/rootReducer';
-import { CurrentUser } from '../../types/types';
-import { getWrappedDisplayName } from './utils';
+import { getWrappedDisplayName } from '../../../components/hoc/utils';
+import { CurrentUserContext, CurrentUserContextInterface } from './CurrentUserContext';
 
-export function withCurrentUser<P>(
-  WrappedComponent: React.ComponentType<P & { currentUser: CurrentUser }>
+export default function withCurrentUserContext<P>(
+  WrappedComponent: React.ComponentType<P & Pick<CurrentUserContextInterface, 'currentUser'>>
 ) {
-  class Wrapper extends React.Component<P & { currentUser: CurrentUser }> {
-    static displayName = getWrappedDisplayName(WrappedComponent, 'withCurrentUser');
+  return class WithCurrentUserContext extends React.PureComponent<
+    Omit<P, keyof CurrentUserContextInterface>
+  > {
+    static displayName = getWrappedDisplayName(WrappedComponent, 'withCurrentUserContext');
 
     render() {
-      return <WrappedComponent {...this.props} />;
+      return (
+        <CurrentUserContext.Consumer>
+          {(currentUserContext: CurrentUserContextInterface) => (
+            <WrappedComponent {...currentUserContext} {...(this.props as P)} />
+          )}
+        </CurrentUserContext.Consumer>
+      );
     }
-  }
-
-  function mapStateToProps(state: Store) {
-    return { currentUser: getCurrentUser(state) };
-  }
-
-  return connect(mapStateToProps)(Wrapper);
+  };
 }

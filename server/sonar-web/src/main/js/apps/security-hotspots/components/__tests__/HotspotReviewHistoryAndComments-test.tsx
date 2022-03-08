@@ -27,7 +27,7 @@ import {
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { isLoggedIn } from '../../../../helpers/users';
+import { isLoggedIn } from '../../../../types/users';
 import HotspotReviewHistory from '../HotspotReviewHistory';
 import HotspotReviewHistoryAndComments from '../HotspotReviewHistoryAndComments';
 
@@ -37,7 +37,7 @@ jest.mock('../../../../api/security-hotspots', () => ({
   editSecurityHotspotComment: jest.fn().mockResolvedValue({})
 }));
 
-jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));
+jest.mock('../../../../types/users', () => ({ isLoggedIn: jest.fn(() => true) }));
 
 it('should render correctly', () => {
   const wrapper = shallowRender();

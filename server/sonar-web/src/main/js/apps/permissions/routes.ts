@@ -27,6 +27,6 @@ export const globalPermissionsRoutes = [
 
 export const projectPermissionsRoutes = [
   {
-    indexRoute: { component: lazyLoadComponent(() => import('./project/components/AppContainer')) }
+    indexRoute: { component: lazyLoadComponent(() => import('./project/components/App')) }
   }
 ];

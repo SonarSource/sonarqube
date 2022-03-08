@@ -23,7 +23,8 @@ import { Location, Router } from '../components/hoc/withRouter';
 import { Store } from '../store/rootReducer';
 import { AppState } from './appstate';
 import { L10nBundle } from './l10n';
-import { CurrentUser, Dict } from './types';
+import { Dict } from './types';
+import { CurrentUser } from './users';
 
 export enum AdminPageExtension {
   GovernanceConsole = 'governance/views_console'

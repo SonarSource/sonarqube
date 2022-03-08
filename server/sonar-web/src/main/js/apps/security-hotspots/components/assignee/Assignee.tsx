@@ -19,12 +19,11 @@
  */
 import * as React from 'react';
 import { assignSecurityHotspot } from '../../../../api/security-hotspots';
+import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
 import addGlobalSuccessMessage from '../../../../app/utils/addGlobalSuccessMessage';
-import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { isLoggedIn } from '../../../../helpers/users';
 import { Hotspot, HotspotStatus } from '../../../../types/security-hotspots';
-import { CurrentUser, UserActive } from '../../../../types/types';
+import { CurrentUser, isLoggedIn, UserActive } from '../../../../types/users';
 import AssigneeRenderer from './AssigneeRenderer';
 
 interface Props {
@@ -107,4 +106,4 @@ export class Assignee extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(Assignee);
+export default withCurrentUserContext(Assignee);

@@ -19,14 +19,8 @@
  */
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
-import {
-  CurrentUser,
-  CurrentUserSetting,
-  HomePage,
-  IdentityProvider,
-  Paging,
-  User
-} from '../types/types';
+import { IdentityProvider, Paging } from '../types/types';
+import { CurrentUser, HomePage, User } from '../types/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current');
@@ -100,10 +94,6 @@ export function deactivateUser(data: { login: string }): Promise<User> {
 
 export function setHomePage(homepage: HomePage): Promise<void | Response> {
   return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
-}
-
-export function setUserSetting(setting: CurrentUserSetting): Promise<void | Response> {
-  return post('/api/users/set_setting', setting).catch(throwGlobalError);
 }
 
 export function dismissSonarlintAd(): Promise<void | Response> {

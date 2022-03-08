@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import { SonarCloudNotifications } from '../SonarCloudNotifications';
+import { CurrentUser, HomePage } from '../../../types/users';
 
-it('should match snapshot', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<SonarCloudNotifications['props']> = {}) {
-  return shallow(
-    <SonarCloudNotifications
-      notificationsOptOut={true}
-      setCurrentUserSetting={jest.fn()}
-      {...props}
-    />
-  );
+export interface CurrentUserContextInterface {
+  currentUser: CurrentUser;
+  updateCurrentUserHomepage: (homepage: HomePage) => void;
+  updateCurrentUserSonarLintAdSeen: () => void;
 }
+
+export const CurrentUserContext = React.createContext<CurrentUserContextInterface | undefined>(
+  undefined
+);

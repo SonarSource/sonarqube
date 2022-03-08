@@ -23,7 +23,7 @@ import { EditButton } from '../../../../../components/controls/buttons';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
 import { click } from '../../../../../helpers/testUtils';
-import { UserActive } from '../../../../../types/types';
+import { UserActive } from '../../../../../types/users';
 import AssigneeRenderer, { AssigneeRendererProps } from '../AssigneeRenderer';
 import AssigneeSelection from '../AssigneeSelection';
 

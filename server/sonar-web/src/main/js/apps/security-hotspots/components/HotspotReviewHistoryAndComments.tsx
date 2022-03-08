@@ -26,9 +26,8 @@ import {
 import FormattingTips from '../../../components/common/FormattingTips';
 import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
-import { CurrentUser } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import HotspotReviewHistory from './HotspotReviewHistory';
 
 interface Props {

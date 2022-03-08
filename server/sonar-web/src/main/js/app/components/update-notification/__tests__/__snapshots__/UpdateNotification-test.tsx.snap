@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: anonymous user 1`] = `""`;
-
 exports[`should render correctly: default 1`] = `
 <DismissableAlert
   alertKey="new_minor_version9.1"

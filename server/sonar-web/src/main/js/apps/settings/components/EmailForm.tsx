@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { sendTestEmail } from '../../../api/settings';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { SubmitButton } from '../../../components/controls/buttons';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
-import { LoggedInUser } from '../../../types/types';
+import { LoggedInUser } from '../../../types/users';
 
 interface Props {
   currentUser: LoggedInUser;
@@ -175,4 +175,4 @@ export class EmailForm extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(EmailForm);
+export default withCurrentUserContext(EmailForm);

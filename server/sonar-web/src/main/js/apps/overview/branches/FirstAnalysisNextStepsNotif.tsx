@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
-import { isLoggedIn } from '../../../helpers/users';
 import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ComponentQualifier } from '../../../types/component';
-import { Component, CurrentUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/components/AdditionalCategoryKeys';
 
 export interface FirstAnalysisNextStepsNotifProps {
@@ -130,4 +130,4 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
   );
 }
 
-export default withCurrentUser(FirstAnalysisNextStepsNotif);
+export default withCurrentUserContext(FirstAnalysisNextStepsNotif);

@@ -16,7 +16,7 @@ exports[`should render correctly 1`] = `
   <A11ySkipTarget
     anchor="security_hotspots_main"
   />
-  <Connect(withCurrentUser(FilterBar))
+  <withCurrentUserContext(FilterBar)
     component={
       Object {
         "breadcrumbs": Array [],
@@ -323,7 +323,7 @@ exports[`should render correctly with hotspots 1`] = `
   <A11ySkipTarget
     anchor="security_hotspots_main"
   />
-  <Connect(withCurrentUser(FilterBar))
+  <withCurrentUserContext(FilterBar)
     component={
       Object {
         "breadcrumbs": Array [],
@@ -461,7 +461,7 @@ exports[`should render correctly: loading 1`] = `
   <A11ySkipTarget
     anchor="security_hotspots_main"
   />
-  <Connect(withCurrentUser(FilterBar))
+  <withCurrentUserContext(FilterBar)
     component={
       Object {
         "breadcrumbs": Array [],
@@ -527,7 +527,7 @@ exports[`should render correctly: no hotspots with filters 1`] = `
   <A11ySkipTarget
     anchor="security_hotspots_main"
   />
-  <Connect(withCurrentUser(FilterBar))
+  <withCurrentUserContext(FilterBar)
     component={
       Object {
         "breadcrumbs": Array [],

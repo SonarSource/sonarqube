@@ -15,7 +15,7 @@ exports[`should render 1`] = `
       effort={125}
     />
   </div>
-  <Connect(HomePageSelect)
+  <withCurrentUserContext(HomePageSelect)
     className="huge-spacer-left"
     currentPage={
       Object {

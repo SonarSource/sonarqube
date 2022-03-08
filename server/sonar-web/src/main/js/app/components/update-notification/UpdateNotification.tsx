@@ -20,18 +20,19 @@
 import { groupBy, isEmpty, mapValues } from 'lodash';
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../api/system';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { Alert, AlertVariant } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
 import { sortUpgrades, UpdateUseCase } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
-import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { hasGlobalPermission } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
 import { Permissions } from '../../../types/permissions';
 import { SystemUpgrade } from '../../../types/system';
-import { CurrentUser, Dict } from '../../../types/types';
+import { Dict } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import withAppStateContext from '../app-state/withAppStateContext';
+import withCurrentUserContext from '../current-user/withCurrentUserContext';
 import './UpdateNotification.css';
 
 const MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION = 6;
@@ -74,20 +75,12 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       canSeeNotification: false,
       useCase: UpdateUseCase.NewMinorVersion
     };
-    this.fetchSystemUpgradeInformation();
   }
 
   componentDidMount() {
     this.mounted = true;
-  }
 
-  componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.currentUser !== this.props.currentUser ||
-      this.props.appState.version !== prevProps.appState.version
-    ) {
-      this.fetchSystemUpgradeInformation();
-    }
+    this.fetchSystemUpgradeInformation();
   }
 
   componentWillUnmount() {
@@ -250,4 +243,4 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(withAppStateContext(UpdateNotification));
+export default withCurrentUserContext(withAppStateContext(UpdateNotification));

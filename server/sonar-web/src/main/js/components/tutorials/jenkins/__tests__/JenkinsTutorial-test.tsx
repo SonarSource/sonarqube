@@ -98,29 +98,6 @@ it('should correctly navigate between steps', () => {
   expect(wrapper.find(WebhookStep).props().open).toBe(true);
 });
 
-it('should correctly store the user setting', () => {
-  const setCurrentUserSetting = jest.fn();
-  const wrapper = shallowRender({ setCurrentUserSetting });
-
-  wrapper.find(PreRequisitesStep).prop('onChangeSkipNextTime')(true);
-  expect(setCurrentUserSetting).toBeCalledWith({
-    key: 'tutorials.jenkins.skipBitbucketPreReqs',
-    value: 'true'
-  });
-
-  wrapper.find(PreRequisitesStep).prop('onChangeSkipNextTime')(false);
-  expect(setCurrentUserSetting).toBeCalledWith({
-    key: 'tutorials.jenkins.skipBitbucketPreReqs',
-    value: 'false'
-  });
-});
-
-it('should correctly skip the pre-reqs step if the user requested it', () => {
-  const wrapper = shallowRender({ skipPreReqs: true });
-  expect(wrapper.find(PreRequisitesStep).props().open).toBe(false);
-  expect(wrapper.find(MultiBranchPipelineStep).props().open).toBe(true);
-});
-
 it('should correctly select an ALM if no project is bound', () => {
   const wrapper = shallowRender({ projectBinding: undefined });
   expect(wrapper.find(PreRequisitesStep).exists()).toBe(false);
@@ -139,8 +116,6 @@ function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {
       appState={mockAppState({ branchesEnabled: true })}
       component={mockComponent()}
       projectBinding={mockProjectBitbucketBindingResponse()}
-      setCurrentUserSetting={jest.fn()}
-      skipPreReqs={false}
       willRefreshAutomatically={true}
       {...props}
     />

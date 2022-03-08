@@ -19,8 +19,8 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
+import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
-import { mockStore } from '../../../helpers/testMocks';
 import { whenLoggedIn } from '../whenLoggedIn';
 
 jest.mock('../../../helpers/handleRequiredAuthentication', () => jest.fn());
@@ -47,11 +47,19 @@ function getRenderedType(wrapper: ShallowWrapper) {
   return wrapper
     .dive()
     .dive()
+    .dive()
     .type();
 }
 
 function shallowRender(isLoggedIn = true) {
-  return shallow(<UnderTest />, {
-    context: { store: mockStore({ users: { currentUser: { isLoggedIn } } }) }
-  });
+  return shallow(
+    <CurrentUserContext.Provider
+      value={{
+        currentUser: { isLoggedIn },
+        updateCurrentUserHomepage: () => {},
+        updateCurrentUserSonarLintAdSeen: () => {}
+      }}>
+      <UnderTest />
+    </CurrentUserContext.Provider>
+  );
 }

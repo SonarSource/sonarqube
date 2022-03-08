@@ -28,7 +28,8 @@ import {
   searchUsers
 } from '../../../api/quality-gates';
 import { Group, isUser, SearchPermissionsParameters } from '../../../types/quality-gates';
-import { QualityGate, UserBase } from '../../../types/types';
+import { QualityGate } from '../../../types/types';
+import { UserBase } from '../../../types/users';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
 
 interface Props {

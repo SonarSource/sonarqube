@@ -25,7 +25,7 @@ import Avatar from '../../../../components/ui/Avatar';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
-import { UserActive } from '../../../../types/types';
+import { UserActive } from '../../../../types/users';
 import './AssigneeSelection.css';
 
 export interface HotspotAssigneeSelectRendererProps {

@@ -9,7 +9,7 @@ exports[`renders correctly: default 1`] = `
   <div
     className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
   >
-    <Connect(Component)
+    <withCurrentUserContext(Component)
       branchLikes={Array []}
       component={
         Object {
@@ -40,7 +40,7 @@ exports[`renders correctly: default 1`] = `
         }
       }
     />
-    <Connect(HeaderMeta)
+    <withCurrentUserContext(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -112,7 +112,7 @@ exports[`renders correctly: default 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(withMetricsContext(ProjectInformation))
+    <withCurrentUserContext(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -203,7 +203,7 @@ exports[`renders correctly: has failed notification 1`] = `
   <div
     className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
   >
-    <Connect(Component)
+    <withCurrentUserContext(Component)
       branchLikes={Array []}
       component={
         Object {
@@ -234,7 +234,7 @@ exports[`renders correctly: has failed notification 1`] = `
         }
       }
     />
-    <Connect(HeaderMeta)
+    <withCurrentUserContext(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -306,7 +306,7 @@ exports[`renders correctly: has failed notification 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(withMetricsContext(ProjectInformation))
+    <withCurrentUserContext(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -383,7 +383,7 @@ exports[`renders correctly: has failed project binding 1`] = `
   <div
     className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
   >
-    <Connect(Component)
+    <withCurrentUserContext(Component)
       branchLikes={Array []}
       component={
         Object {
@@ -414,7 +414,7 @@ exports[`renders correctly: has failed project binding 1`] = `
         }
       }
     />
-    <Connect(HeaderMeta)
+    <withCurrentUserContext(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -486,7 +486,7 @@ exports[`renders correctly: has failed project binding 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(withMetricsContext(ProjectInformation))
+    <withCurrentUserContext(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -565,7 +565,7 @@ exports[`renders correctly: has in progress notification 1`] = `
   <div
     className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
   >
-    <Connect(Component)
+    <withCurrentUserContext(Component)
       branchLikes={Array []}
       component={
         Object {
@@ -596,7 +596,7 @@ exports[`renders correctly: has in progress notification 1`] = `
         }
       }
     />
-    <Connect(HeaderMeta)
+    <withCurrentUserContext(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -668,7 +668,7 @@ exports[`renders correctly: has in progress notification 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(withMetricsContext(ProjectInformation))
+    <withCurrentUserContext(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -747,7 +747,7 @@ exports[`renders correctly: has pending notification 1`] = `
   <div
     className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
   >
-    <Connect(Component)
+    <withCurrentUserContext(Component)
       branchLikes={Array []}
       component={
         Object {
@@ -778,7 +778,7 @@ exports[`renders correctly: has pending notification 1`] = `
         }
       }
     />
-    <Connect(HeaderMeta)
+    <withCurrentUserContext(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -850,7 +850,7 @@ exports[`renders correctly: has pending notification 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(withMetricsContext(ProjectInformation))
+    <withCurrentUserContext(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [
@@ -894,7 +894,7 @@ exports[`renders correctly: has warnings 1`] = `
   <div
     className="display-flex-center display-flex-space-between little-padded-top"
   >
-    <Connect(Component)
+    <withCurrentUserContext(Component)
       branchLikes={Array []}
       component={
         Object {
@@ -925,7 +925,7 @@ exports[`renders correctly: has warnings 1`] = `
         }
       }
     />
-    <Connect(HeaderMeta)
+    <withCurrentUserContext(HeaderMeta)
       component={
         Object {
           "breadcrumbs": Array [
@@ -1005,7 +1005,7 @@ exports[`renders correctly: has warnings 1`] = `
     onClose={[Function]}
     top={120}
   >
-    <Connect(withMetricsContext(ProjectInformation))
+    <withCurrentUserContext(withMetricsContext(ProjectInformation))
       component={
         Object {
           "breadcrumbs": Array [

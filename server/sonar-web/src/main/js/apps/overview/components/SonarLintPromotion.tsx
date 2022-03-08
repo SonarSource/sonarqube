@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import SonarLintIcon from '../../../components/icons/SonarLintIcon';
 import { translate } from '../../../helpers/l10n';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
-import { CurrentUser } from '../../../types/types';
+import { CurrentUser } from '../../../types/users';
 
 export interface SonarLintPromotionProps {
   currentUser: CurrentUser;
@@ -77,4 +77,4 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
   );
 }
 
-export default withCurrentUser(SonarLintPromotion);
+export default withCurrentUserContext(SonarLintPromotion);

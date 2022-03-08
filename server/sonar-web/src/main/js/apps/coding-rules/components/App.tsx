@@ -21,11 +21,11 @@ import key from 'keymaster';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import { Profile, searchQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesApp, searchRules } from '../../../api/rules';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
@@ -41,10 +41,9 @@ import {
   removeWhitePageClass
 } from '../../../helpers/pages';
 import { scrollToElement } from '../../../helpers/scrolling';
-import { isLoggedIn } from '../../../helpers/users';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { SecurityStandard } from '../../../types/security';
-import { CurrentUser, Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
+import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import {
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
@@ -690,8 +689,4 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
   return facets;
 }
 
-const mapStateToProps = (state: Store) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default withRouter(connect(mapStateToProps)(App));
+export default withRouter(withCurrentUserContext(App));

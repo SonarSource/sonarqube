@@ -7,7 +7,7 @@ exports[`should render correctly 1`] = `
   >
     hotspots.no_associated_lines
   </p>
-  <Connect(withCurrentUser(HotspotSnippetHeader))
+  <withCurrentUserContext(HotspotSnippetHeader)
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
@@ -143,7 +143,7 @@ exports[`should render correctly when secondary location is selected: with selec
   >
     hotspots.no_associated_lines
   </p>
-  <Connect(withCurrentUser(HotspotSnippetHeader))
+  <withCurrentUserContext(HotspotSnippetHeader)
     branchLike={
       Object {
         "analysisDate": "2018-01-01",
@@ -274,7 +274,7 @@ exports[`should render correctly when secondary location is selected: with selec
 
 exports[`should render correctly: with sourcelines 1`] = `
 <Fragment>
-  <Connect(withCurrentUser(HotspotSnippetHeader))
+  <withCurrentUserContext(HotspotSnippetHeader)
     branchLike={
       Object {
         "analysisDate": "2018-01-01",

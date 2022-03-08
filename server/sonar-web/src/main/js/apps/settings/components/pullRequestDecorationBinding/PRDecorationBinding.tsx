@@ -29,8 +29,8 @@ import {
   setProjectGitlabBinding,
   validateProjectAlmBinding
 } from '../../../../api/alm-settings';
+import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
-import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { HttpStatus } from '../../../../helpers/request';
 import { hasGlobalPermission } from '../../../../helpers/users';
 import {
@@ -40,7 +40,8 @@ import {
   ProjectAlmBindingResponse
 } from '../../../../types/alm-settings';
 import { Permissions } from '../../../../types/permissions';
-import { Component, CurrentUser } from '../../../../types/types';
+import { Component } from '../../../../types/types';
+import { CurrentUser } from '../../../../types/users';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 type FormData = Omit<ProjectAlmBindingResponse, 'alm'>;
@@ -351,4 +352,4 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(PRDecorationBinding);
+export default withCurrentUserContext(PRDecorationBinding);

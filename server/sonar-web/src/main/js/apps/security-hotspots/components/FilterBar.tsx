@@ -18,18 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import RadioToggle from '../../../components/controls/RadioToggle';
 import SelectLegacy from '../../../components/controls/SelectLegacy';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
-import { isLoggedIn } from '../../../helpers/users';
 import { ComponentQualifier } from '../../../types/component';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
-import { Component, CurrentUser } from '../../../types/types';
+import { Component } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface FilterBarProps {
   currentUser: CurrentUser;
@@ -169,4 +169,4 @@ export function FilterBar(props: FilterBarProps) {
   );
 }
 
-export default withCurrentUser(FilterBar);
+export default withCurrentUserContext(FilterBar);

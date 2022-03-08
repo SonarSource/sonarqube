@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { searchProjects } from '../../../api/components';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { get } from '../../../helpers/storage';
-import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
-import { CurrentUser } from '../../../types/types';
+import { hasGlobalPermission } from '../../../helpers/users';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { PROJECTS_ALL, PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE } from '../utils';
 import AllProjectsContainer from './AllProjectsContainer';
 
@@ -98,4 +98,4 @@ export class DefaultPageSelector extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(withRouter(DefaultPageSelector));
+export default withCurrentUserContext(withRouter(DefaultPageSelector));

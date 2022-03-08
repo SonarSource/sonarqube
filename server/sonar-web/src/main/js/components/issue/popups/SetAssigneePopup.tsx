@@ -20,14 +20,13 @@
 import { map } from 'lodash';
 import * as React from 'react';
 import { searchUsers } from '../../../api/users';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { DropdownOverlay } from '../../../components/controls/Dropdown';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
-import { isLoggedIn, isUserActive } from '../../../helpers/users';
-import { CurrentUser, UserActive, UserBase } from '../../../types/types';
+import { CurrentUser, isLoggedIn, isUserActive, UserActive, UserBase } from '../../../types/users';
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
-import { withCurrentUser } from '../../hoc/withCurrentUser';
 import Avatar from '../../ui/Avatar';
 
 interface Props {
@@ -121,4 +120,4 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUser(SetAssigneePopup);
+export default withCurrentUserContext(SetAssigneePopup);

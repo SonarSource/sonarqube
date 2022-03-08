@@ -18,21 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { dismissSonarlintAd } from '../../../api/users';
 import { ButtonLink } from '../../../components/controls/buttons';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { isLoggedIn } from '../../../helpers/users';
-import { setSonarlintAd } from '../../../store/users';
-import { CurrentUser } from '../../../types/types';
+import { isLoggedIn } from '../../../types/users';
+import { CurrentUserContextInterface } from '../current-user/CurrentUserContext';
+import withCurrentUserContext from '../current-user/withCurrentUserContext';
 import './PromotionNotification.css';
 
-export interface PromotionNotificationProps {
-  setSonarlintAd: () => void;
-  currentUser: CurrentUser;
-}
+export interface PromotionNotificationProps
+  extends Pick<CurrentUserContextInterface, 'currentUser' | 'updateCurrentUserSonarLintAdSeen'> {}
 
 export function PromotionNotification(props: PromotionNotificationProps) {
   const { currentUser } = props;
@@ -43,7 +39,7 @@ export function PromotionNotification(props: PromotionNotificationProps) {
 
   const onClick = () => {
     dismissSonarlintAd();
-    props.setSonarlintAd();
+    props.updateCurrentUserSonarLintAdSeen();
   };
 
   return (
@@ -74,6 +70,4 @@ export function PromotionNotification(props: PromotionNotificationProps) {
   );
 }
 
-const dispatchToProps = { setSonarlintAd };
-
-export default connect(null, dispatchToProps)(withCurrentUser(PromotionNotification));
+export default withCurrentUserContext(PromotionNotification);
