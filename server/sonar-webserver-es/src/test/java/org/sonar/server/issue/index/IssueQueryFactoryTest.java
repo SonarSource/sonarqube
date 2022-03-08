@@ -261,11 +261,11 @@ public class IssueQueryFactoryTest {
   public void use_provided_timezone_to_parse_createdAfter() {
     SearchRequest request = new SearchRequest()
       .setCreatedAfter("2020-04-16")
-      .setTimeZone("Europe/Volgograd");
+      .setTimeZone("Australia/Sydney");
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2020-04-16T00:00:00+0400"));
+    assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2020-04-16T00:00:00+1000"));
   }
 
   @Test
