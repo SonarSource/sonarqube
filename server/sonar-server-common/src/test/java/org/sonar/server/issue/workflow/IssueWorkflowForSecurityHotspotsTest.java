@@ -42,8 +42,10 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
+import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_SAFE;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
@@ -57,6 +59,7 @@ import static org.sonar.server.issue.workflow.IssueWorkflowTest.emptyIfNull;
 @RunWith(DataProviderRunner.class)
 public class IssueWorkflowForSecurityHotspotsTest {
   private static final IssueChangeContext SOME_CHANGE_CONTEXT = IssueChangeContext.createUser(new Date(), "USER1");
+  private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   private final IssueFieldsSetter updater = new IssueFieldsSetter();
   private final IssueWorkflow underTest = new IssueWorkflow(new FunctionExecutor(updater), updater);
@@ -69,7 +72,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESOLVE_AS_SAFE);
+    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESOLVE_AS_SAFE, RESOLVE_AS_ACKNOWLEDGED);
   }
 
   @DataProvider
@@ -90,7 +93,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_SAFE, RESET_AS_TO_REVIEW);
+    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_SAFE, RESET_AS_TO_REVIEW, RESOLVE_AS_ACKNOWLEDGED);
   }
 
   @Test
@@ -100,7 +103,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
 
     List<Transition> transitions = underTest.outTransitions(hotspot);
 
-    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESET_AS_TO_REVIEW);
+    assertThat(keys(transitions)).containsExactlyInAnyOrder(RESOLVE_AS_REVIEWED, RESET_AS_TO_REVIEW, RESOLVE_AS_ACKNOWLEDGED);
   }
 
   @Test
@@ -121,8 +124,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
       Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
       Stream.of(randomAlphabetic(12)))
       .flatMap(t -> t)
-      .filter(t -> !RESOLUTION_FIXED.equals(t))
-      .filter(t -> !RESOLUTION_SAFE.equals(t))
+      .filter(t -> !RESOLUTION_TYPES.contains(t))
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
   }

@@ -68,6 +68,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -80,6 +81,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class ChangeStatusActionTest {
   private static final Random RANDOM = new Random();
   private static final String NO_COMMENT = null;
+  private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -170,16 +172,15 @@ public class ChangeStatusActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE]");
+      .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE, ACKNOWLEDGED]");
   }
 
   @DataProvider
   public static Object[][] badResolutions() {
     return Stream.of(STATUS_TO_REVIEW, STATUS_REVIEWED)
       .flatMap(t -> Stream.concat(Issue.RESOLUTIONS.stream(), Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream())
-        .filter(r -> !r.equals(RESOLUTION_FIXED))
-        .filter(r -> !r.equals(RESOLUTION_SAFE))
-        .map(r -> new Object[] {t, r}))
+          .filter(r -> !RESOLUTION_TYPES.contains(r))
+          .map(r -> new Object[] {t, r}))
       .toArray(Object[][]::new);
   }
 
@@ -202,7 +203,8 @@ public class ChangeStatusActionTest {
   public static Object[][] validResolutions() {
     return new Object[][] {
       {RESOLUTION_FIXED},
-      {RESOLUTION_SAFE}
+      {RESOLUTION_SAFE},
+      {RESOLUTION_ACKNOWLEDGED}
     };
   }
 
@@ -260,7 +262,8 @@ public class ChangeStatusActionTest {
     return new Object[][] {
       {STATUS_TO_REVIEW, null},
       {STATUS_REVIEWED, RESOLUTION_FIXED},
-      {STATUS_REVIEWED, RESOLUTION_SAFE}
+      {STATUS_REVIEWED, RESOLUTION_SAFE},
+      {STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED}
     };
   }
 
@@ -429,7 +432,9 @@ public class ChangeStatusActionTest {
       {RESOLUTION_FIXED, DefaultTransitions.RESOLVE_AS_REVIEWED, true},
       {RESOLUTION_FIXED, DefaultTransitions.RESOLVE_AS_REVIEWED, false},
       {RESOLUTION_SAFE, DefaultTransitions.RESOLVE_AS_SAFE, true},
-      {RESOLUTION_SAFE, DefaultTransitions.RESOLVE_AS_SAFE, false}
+      {RESOLUTION_SAFE, DefaultTransitions.RESOLVE_AS_SAFE, false},
+      {RESOLUTION_ACKNOWLEDGED, DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED, true},
+      {RESOLUTION_ACKNOWLEDGED, DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED, false}
     };
   }
 
@@ -476,7 +481,9 @@ public class ChangeStatusActionTest {
       {RESOLUTION_FIXED, true},
       {RESOLUTION_FIXED, false},
       {RESOLUTION_SAFE, true},
-      {RESOLUTION_SAFE, false}
+      {RESOLUTION_SAFE, false},
+      {RESOLUTION_ACKNOWLEDGED, true},
+      {RESOLUTION_ACKNOWLEDGED, false}
     };
   }
 
@@ -521,10 +528,16 @@ public class ChangeStatusActionTest {
       {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_FIXED},
       {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_FIXED},
       {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_SAFE},
+      {STATUS_TO_REVIEW, null, STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED},
       {STATUS_REVIEWED, RESOLUTION_FIXED, STATUS_REVIEWED, RESOLUTION_SAFE},
+      {STATUS_REVIEWED, RESOLUTION_FIXED, STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED},
       {STATUS_REVIEWED, RESOLUTION_FIXED, STATUS_TO_REVIEW, null},
       {STATUS_REVIEWED, RESOLUTION_SAFE, STATUS_REVIEWED, RESOLUTION_FIXED},
-      {STATUS_REVIEWED, RESOLUTION_SAFE, STATUS_TO_REVIEW, null}
+      {STATUS_REVIEWED, RESOLUTION_SAFE, STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED},
+      {STATUS_REVIEWED, RESOLUTION_SAFE, STATUS_TO_REVIEW, null},
+      {STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED, STATUS_REVIEWED, RESOLUTION_FIXED},
+      {STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED, STATUS_REVIEWED, RESOLUTION_SAFE},
+      {STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED, STATUS_TO_REVIEW, null}
     };
     return Arrays.stream(changingStatuses)
       .flatMap(b -> Stream.of(

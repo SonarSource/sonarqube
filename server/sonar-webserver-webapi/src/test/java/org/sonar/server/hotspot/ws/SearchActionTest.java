@@ -92,6 +92,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUSES;
@@ -112,6 +113,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 public class SearchActionTest {
   private static final Random RANDOM = new Random();
   private static final int ONE_MINUTE = 60_000;
+  private static final List<String> RESOLUTION_TYPES = List.of(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -243,7 +245,7 @@ public class SearchActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE]");
+      .hasMessage("Value of parameter 'resolution' (" + badResolution + ") must be one of: [FIXED, SAFE, ACKNOWLEDGED]");
   }
 
   @DataProvider
@@ -253,8 +255,7 @@ public class SearchActionTest {
         Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
         Stream.of(randomAlphabetic(4)))
       .flatMap(t -> t)
-      .filter(t -> !RESOLUTION_FIXED.equals(t))
-      .filter(t -> !RESOLUTION_SAFE.equals(t))
+      .filter(t -> !RESOLUTION_TYPES.contains(t))
       .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }

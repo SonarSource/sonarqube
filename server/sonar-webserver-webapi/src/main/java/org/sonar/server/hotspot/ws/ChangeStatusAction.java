@@ -39,6 +39,7 @@ import org.sonar.server.issue.ws.IssueUpdater;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.SECURITY_HOTSPOT_RESOLUTIONS;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
@@ -132,9 +133,15 @@ public class ChangeStatusAction implements HotspotsWsAction {
     if (STATUS_TO_REVIEW.equals(newStatus)) {
       return DefaultTransitions.RESET_AS_TO_REVIEW;
     }
+
     if (STATUS_REVIEWED.equals(newStatus) && RESOLUTION_FIXED.equals(newResolution)) {
       return DefaultTransitions.RESOLVE_AS_REVIEWED;
     }
+
+    if (STATUS_REVIEWED.equals(newStatus) && RESOLUTION_ACKNOWLEDGED.equals(newResolution)) {
+      return DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;
+    }
+
     return DefaultTransitions.RESOLVE_AS_SAFE;
   }
 

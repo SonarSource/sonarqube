@@ -64,6 +64,11 @@ public interface DefaultTransitions {
   String RESOLVE_AS_SAFE = "resolveassafe";
 
   /**
+   * @since 9.4
+   */
+  String RESOLVE_AS_ACKNOWLEDGED = "resolveasacknowledged";
+
+  /**
    * @since 7.8
    */
   String RESET_AS_TO_REVIEW = "resetastoreview";
