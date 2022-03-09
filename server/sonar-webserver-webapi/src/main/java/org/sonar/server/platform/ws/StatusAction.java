@@ -21,12 +21,14 @@ package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.System;
 
@@ -41,13 +43,15 @@ public class StatusAction implements SystemWsAction {
   private final DatabaseMigrationState migrationState;
   private final Platform platform;
   private final RestartFlagHolder restartFlagHolder;
+  private final UserSession userSession;
 
   public StatusAction(Server server, DatabaseMigrationState migrationState,
-                      Platform platform, RestartFlagHolder restartFlagHolder) {
+    Platform platform, RestartFlagHolder restartFlagHolder, UserSession userSession) {
     this.server = server;
     this.migrationState = migrationState;
     this.platform = platform;
     this.restartFlagHolder = restartFlagHolder;
+    this.userSession = userSession;
   }
 
   @Override
@@ -69,14 +73,19 @@ public class StatusAction implements SystemWsAction {
         "</p>")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(this.getClass(), "example-status.json"))
+      .setChangelog(new Change("9.4", "returns server id and server version only when authenticated"))
       .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     System.StatusResponse.Builder protobuf = System.StatusResponse.newBuilder();
-    ofNullable(server.getId()).ifPresent(protobuf::setId);
-    ofNullable(server.getVersion()).ifPresent(protobuf::setVersion);
+
+    if(userSession.isLoggedIn()) {
+      ofNullable(server.getId()).ifPresent(protobuf::setId);
+      ofNullable(server.getVersion()).ifPresent(protobuf::setVersion);
+    }
+
     protobuf.setStatus(computeStatus());
     WsUtils.writeProtobuf(protobuf.build(), request, response);
   }

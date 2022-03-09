@@ -53,7 +53,7 @@ public class UserSessionInitializer {
     "/batch/index", "/batch/file",
     "/maintenance/*", "/setup/*",
     "/sessions/*", "/oauth2/callback/*",
-    "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
+    "/api/system/db_migration_status", "/api/system/migrate_db",
     "/api/users/identity_providers", "/api/l10n/index",
     "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate",
     "/api/project_badges/measure", "/api/project_badges/quality_gate");
@@ -65,6 +65,9 @@ public class UserSessionInitializer {
     "/api/system/liveness",
     "/api/monitoring/metrics");
 
+  private static final Set<String> URL_OPTIONAL_AUTHENTICATION = Set.of(
+    "/api/system/status");
+
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")
     .excludes(staticResourcePatterns())
@@ -73,6 +76,10 @@ public class UserSessionInitializer {
 
   private static final UrlPattern PASSCODE_URLS = UrlPattern.builder()
     .includes(URL_USING_PASSCODE)
+    .build();
+
+  private static final UrlPattern OPTIONAL_AUTH_URLS = UrlPattern.builder()
+    .includes(URL_OPTIONAL_AUTHENTICATION)
     .build();
 
   private final Configuration config;
@@ -93,7 +100,7 @@ public class UserSessionInitializer {
     try {
       // Do not set user session when url is excluded
       if (URL_PATTERN.matches(path)) {
-        loadUserSession(request, response, PASSCODE_URLS.matches(path));
+        loadUserSession(request, response, PASSCODE_URLS.matches(path) || OPTIONAL_AUTH_URLS.matches(path));
       }
       return true;
     } catch (AuthenticationException e) {
@@ -117,9 +124,9 @@ public class UserSessionInitializer {
     return provider != AuthenticationEvent.Provider.LOCAL && provider != AuthenticationEvent.Provider.JWT;
   }
 
-  private void loadUserSession(HttpServletRequest request, HttpServletResponse response, boolean urlSupportsSystemPasscode) {
+  private void loadUserSession(HttpServletRequest request, HttpServletResponse response, boolean urlSupportsOptionalAuthentication) {
     UserSession session = requestAuthenticator.authenticate(request, response);
-    if (!session.isLoggedIn() && !urlSupportsSystemPasscode && config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE)) {
+    if (!session.isLoggedIn() && !urlSupportsOptionalAuthentication && config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE)) {
       // authentication is required
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(AuthenticationEvent.Method.BASIC))

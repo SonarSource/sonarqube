@@ -88,9 +88,7 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/oauth2/callback/github");
     assertPathIsIgnored("/oauth2/callback/foo");
     assertPathIsIgnored("/api/system/db_migration_status");
-    assertPathIsIgnored("/api/system/status");
     assertPathIsIgnored("/api/system/migrate_db");
-    assertPathIsIgnored("/api/server/version");
     assertPathIsIgnored("/api/users/identity_providers");
     assertPathIsIgnored("/api/l10n/index");
 
@@ -98,13 +96,17 @@ public class UserSessionInitializerTest {
     assertPathIsIgnored("/api/project_badges/measure");
     assertPathIsIgnored("/api/project_badges/quality_gate");
 
-    // exlude passcode urls
+    // exlude urls that support passcode
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/info");
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/pause");
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/resume");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/health");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/liveness");
     assertPathIsIgnoredWithAnonymousAccess("/api/monitoring/metrics");
+
+    //check that /api/system/status authentication is optional
+    assertPathIsIgnoredWithAnonymousAccess("/api/system/status");
+    assertPathIsNotIgnored("/api/system/status");
 
     // exclude static resources
     assertPathIsIgnored("/css/style.css");
