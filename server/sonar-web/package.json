@@ -141,7 +141,7 @@
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn install --immutable && yarn test --coverage --ci",
+    "validate-ci": "yarn install --immutable && yarn test --coverage --maxWorkers=4 --ci",
     "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check"
   },
   "engines": {
