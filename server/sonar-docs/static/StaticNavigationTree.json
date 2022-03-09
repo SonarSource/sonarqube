@@ -57,6 +57,7 @@
           "/analysis/languages/flex/",
           "/analysis/languages/go/",
           "/analysis/languages/html/",
+          "/analysis/languages/iac/",
           "/analysis/languages/java/",
           "/analysis/languages/javascript/",
           "/analysis/languages/kotlin/",
