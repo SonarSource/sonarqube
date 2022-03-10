@@ -93,6 +93,9 @@ The minimum number of threads always kept running. The default value is 5.
 **`SONAR_WEB_HTTP_ACCEPTCOUNT=25`**  
 The maximum queue length for incoming connection requests when all possible request processing threads are in use. Any requests received when the queue is full will be refused. The default value is 25.
 
+**`SONAR_WEB_HTTP_KEEPALIVETIMEOUT=60000`**  
+The number of milliseconds this Connector will wait for another HTTP request before closing the connection. Use a value of -1 to indicate no (i.e. infinite) timeout. The default value is 60000 (ms).
+
 **`SONAR_AUTH_JWTBASE64HS256SECRET=`**  
 By default users are logged out and sessions closed when server is restarted. If you prefer keeping user sessions open, a secret should be defined. Value is HS256 key encoded with base64. It must be unique for each installation of SonarQube. Example of command-line:  
 echo -n "type_what_you_want" | openssl dgst -sha256 -hmac "key" -binary | base64

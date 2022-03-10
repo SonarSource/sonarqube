@@ -96,6 +96,7 @@ public class ProcessProperties {
     WEB_HTTP_MIN_THREADS("sonar.web.http.minThreads"),
     WEB_HTTP_MAX_THREADS("sonar.web.http.maxThreads"),
     WEB_HTTP_ACCEPT_COUNT("sonar.web.http.acceptCount"),
+    WEB_HTTP_KEEP_ALIVE_TIMEOUT("sonar.web.http.keepAliveTimeout"),
     WEB_SESSION_TIMEOUT_IN_MIN("sonar.web.sessionTimeoutInMinutes"),
     WEB_SYSTEM_PASS_CODE("sonar.web.systemPasscode"),
     WEB_ACCESSLOGS_ENABLE("sonar.web.accessLogs.enable"),
