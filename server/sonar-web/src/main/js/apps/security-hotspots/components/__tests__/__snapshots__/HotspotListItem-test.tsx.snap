@@ -12,21 +12,18 @@ exports[`should render correctly 1`] = `
     '3' is a magic number.
   </div>
   <div
-    className="display-flex-center"
+    className="display-flex-center big-spacer-top"
   >
     <QualifierIcon
       qualifier="FIL"
     />
     <div
-      className="little-spacer-left hotspot-box-filename text-ellipsis big-spacer-top big-spacer-bottom"
+      className="little-spacer-left hotspot-box-filename text-ellipsis"
       title="com.github.kevinsawicki.http.HttpRequest"
     >
       com.github.kevinsawicki.http.HttpRequest
     </div>
   </div>
-  <div
-    className="spacer-top"
-  />
 </a>
 `;
 
@@ -44,28 +41,24 @@ exports[`should render correctly 2`] = `
     '3' is a magic number.
   </div>
   <div
-    className="display-flex-center"
+    className="display-flex-center big-spacer-top"
   >
     <QualifierIcon
       qualifier="FIL"
     />
     <div
-      className="little-spacer-left hotspot-box-filename text-ellipsis big-spacer-top big-spacer-bottom"
+      className="little-spacer-left hotspot-box-filename text-ellipsis"
       title="com.github.kevinsawicki.http.HttpRequest"
     >
       com.github.kevinsawicki.http.HttpRequest
     </div>
   </div>
-  <div
-    className="spacer-top"
-  >
-    <LocationsList
-      isCrossFile={false}
-      locations={Array []}
-      onLocationSelect={[Function]}
-      scroll={[MockFunction]}
-      uniqueKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-    />
-  </div>
+  <LocationsList
+    isCrossFile={false}
+    locations={Array []}
+    onLocationSelect={[Function]}
+    scroll={[MockFunction]}
+    uniqueKey="01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+  />
 </a>
 `;

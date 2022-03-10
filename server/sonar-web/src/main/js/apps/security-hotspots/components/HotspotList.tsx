@@ -137,13 +137,13 @@ export default class HotspotList extends React.Component<Props, State> {
             hotspotsTotal
           )}
         </h1>
-        <ul className="big-spacer-bottom">
+        <ul className="big-spacer-bottom big-spacer-top">
           {groupedHotspots.map((riskGroup, riskGroupIndex) => {
             const isLastRiskGroup = riskGroupIndex === groupedHotspots.length - 1;
 
             return (
               <li className="big-spacer-bottom" key={riskGroup.risk}>
-                <div className="hotspot-risk-header little-spacer-left">
+                <div className="hotspot-risk-header little-spacer-left spacer-top spacer-bottom">
                   <span>{translate('hotspots.risk_exposure')}:</span>
                   <div className={classNames('hotspot-risk-badge', 'spacer-left', riskGroup.risk)}>
                     {translate('risk_exposure', riskGroup.risk)}

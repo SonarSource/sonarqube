@@ -50,26 +50,22 @@ export default function HotspotListItem(props: HotspotListItemProps) {
         role={selected ? 'button' : undefined}>
         {hotspot.message}
       </div>
-      <div className="display-flex-center">
+      <div className="display-flex-center big-spacer-top">
         <QualifierIcon qualifier={ComponentQualifier.File} />
-        <div
-          className="little-spacer-left hotspot-box-filename text-ellipsis big-spacer-top big-spacer-bottom"
-          title={path}>
+        <div className="little-spacer-left hotspot-box-filename text-ellipsis" title={path}>
           {path}
         </div>
       </div>
-      <div className="spacer-top">
-        {selected && (
-          <LocationsList
-            locations={locations}
-            isCrossFile={false} // Currently we are not supporting cross file for security hotspot
-            uniqueKey={hotspot.key}
-            onLocationSelect={props.onLocationClick}
-            selectedLocationIndex={selectedHotspotLocation}
-            scroll={props.onScroll}
-          />
-        )}
-      </div>
+      {selected && (
+        <LocationsList
+          locations={locations}
+          isCrossFile={false} // Currently we are not supporting cross file for security hotspot
+          uniqueKey={hotspot.key}
+          onLocationSelect={props.onLocationClick}
+          selectedLocationIndex={selectedHotspotLocation}
+          scroll={props.onScroll}
+        />
+      )}
     </a>
   );
 }

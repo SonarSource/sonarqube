@@ -36,7 +36,9 @@ export default function StatusDescription(props: StatusDescriptionProps) {
         {showTitle && `${translate('status')}: `}
         <div className="badge">{translate('hotspots.status_option', statusOption)}</div>
       </h3>
-      <span>{translate('hotspots.status_option', statusOption, 'description')}</span>
+      <div className="little-spacer-top">
+        {translate('hotspots.status_option', statusOption, 'description')}
+      </div>
     </Container>
   );
 }

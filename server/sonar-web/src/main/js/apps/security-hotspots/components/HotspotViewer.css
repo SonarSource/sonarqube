@@ -29,3 +29,7 @@
   max-height: calc(100vh - 500px);
   overflow: auto;
 }
+
+.hotspot-content .markdown {
+  line-height: 1.8;
+}

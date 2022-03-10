@@ -9,9 +9,11 @@ exports[`should render correctly 1`] = `
       hotspots.status_option.TO_REVIEW
     </div>
   </h3>
-  <span>
+  <div
+    className="little-spacer-top"
+  >
     hotspots.status_option.TO_REVIEW.description
-  </span>
+  </div>
 </Styled(div)>
 `;
 
@@ -25,8 +27,10 @@ exports[`should render correctly: with title 1`] = `
       hotspots.status_option.TO_REVIEW
     </div>
   </h3>
-  <span>
+  <div
+    className="little-spacer-top"
+  >
     hotspots.status_option.TO_REVIEW.description
-  </span>
+  </div>
 </Styled(div)>
 `;

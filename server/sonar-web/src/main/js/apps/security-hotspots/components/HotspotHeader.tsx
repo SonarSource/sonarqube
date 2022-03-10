@@ -38,7 +38,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
     <div className="huge-spacer-bottom">
       <div className="display-flex-column big-spacer-bottom">
         <div className="big text-bold">{message}</div>
-        <div>
+        <div className="spacer-top">
           <span className="note padded-right">{rule.name}</span>
           <Link className="small" to={getRuleUrl(rule.key)} target="_blank">
             {rule.key}
@@ -52,7 +52,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
         />
         <div className="display-flex-end">
           <div className="display-inline-flex-center it__hs-assignee">
-            <div className="text-bold big-spacer-right">{`${translate('assignee')}: `}</div>
+            <div className="big-spacer-right">{`${translate('assignee')}: `}</div>
             <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
           </div>
         </div>

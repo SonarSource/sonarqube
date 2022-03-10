@@ -12,7 +12,9 @@ exports[`should render correctly 1`] = `
     >
       '3' is a magic number.
     </div>
-    <div>
+    <div
+      className="spacer-top"
+    >
       <span
         className="note padded-right"
       >
@@ -136,7 +138,7 @@ exports[`should render correctly 1`] = `
         className="display-inline-flex-center it__hs-assignee"
       >
         <div
-          className="text-bold big-spacer-right"
+          className="big-spacer-right"
         >
           assignee: 
         </div>

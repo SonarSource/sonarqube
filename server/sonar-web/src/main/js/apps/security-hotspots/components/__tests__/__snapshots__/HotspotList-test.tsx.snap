@@ -13,7 +13,7 @@ exports[`should render correctly 1`] = `
     hotspots.list_title.TO_REVIEW.0
   </h1>
   <ul
-    className="big-spacer-bottom"
+    className="big-spacer-bottom big-spacer-top"
   />
   <ListFooter
     count={0}
@@ -37,7 +37,7 @@ exports[`should render correctly 2`] = `
     hotspots.list_title.TO_REVIEW.0
   </h1>
   <ul
-    className="big-spacer-bottom"
+    className="big-spacer-bottom big-spacer-top"
   />
   <ListFooter
     count={0}
@@ -60,7 +60,7 @@ exports[`should render correctly when the list of hotspot is static 1`] = `
     hotspots.list_title.0
   </h1>
   <ul
-    className="big-spacer-bottom"
+    className="big-spacer-bottom big-spacer-top"
   />
   <ListFooter
     count={0}
@@ -84,14 +84,14 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
     hotspots.list_title.TO_REVIEW.5
   </h1>
   <ul
-    className="big-spacer-bottom"
+    className="big-spacer-bottom big-spacer-top"
   >
     <li
       className="big-spacer-bottom"
       key="HIGH"
     >
       <div
-        className="hotspot-risk-header little-spacer-left"
+        className="hotspot-risk-header little-spacer-left spacer-top spacer-bottom"
       >
         <span>
           hotspots.risk_exposure
@@ -211,7 +211,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
       key="MEDIUM"
     >
       <div
-        className="hotspot-risk-header little-spacer-left"
+        className="hotspot-risk-header little-spacer-left spacer-top spacer-bottom"
       >
         <span>
           hotspots.risk_exposure
@@ -364,14 +364,14 @@ exports[`should render correctly with hotspots: pagination 1`] = `
     hotspots.list_title.TO_REVIEW.7
   </h1>
   <ul
-    className="big-spacer-bottom"
+    className="big-spacer-bottom big-spacer-top"
   >
     <li
       className="big-spacer-bottom"
       key="HIGH"
     >
       <div
-        className="hotspot-risk-header little-spacer-left"
+        className="hotspot-risk-header little-spacer-left spacer-top spacer-bottom"
       >
         <span>
           hotspots.risk_exposure
@@ -491,7 +491,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
       key="MEDIUM"
     >
       <div
-        className="hotspot-risk-header little-spacer-left"
+        className="hotspot-risk-header little-spacer-left spacer-top spacer-bottom"
       >
         <span>
           hotspots.risk_exposure
