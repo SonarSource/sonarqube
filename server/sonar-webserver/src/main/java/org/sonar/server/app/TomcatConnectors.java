@@ -29,6 +29,7 @@ import static org.sonar.process.ProcessProperties.Property.WEB_HOST;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_ACCEPT_COUNT;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MAX_THREADS;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MIN_THREADS;
+import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_KEEP_ALIVE_TIMEOUT;
 
 /**
  * Configuration of Tomcat connectors
@@ -82,6 +83,7 @@ class TomcatConnectors {
     connector.setProperty("minSpareThreads", String.valueOf(props.valueAsInt(WEB_HTTP_MIN_THREADS.getKey(), 5)));
     connector.setProperty("maxThreads", String.valueOf(props.valueAsInt(WEB_HTTP_MAX_THREADS.getKey(), 50)));
     connector.setProperty("acceptCount", String.valueOf(props.valueAsInt(WEB_HTTP_ACCEPT_COUNT.getKey(), 25)));
+    connector.setProperty("keepAliveTimeout", String.valueOf(props.valueAsInt(WEB_HTTP_KEEP_ALIVE_TIMEOUT.getKey(), 60000)));
   }
 
   private static void configureCompression(Connector connector) {
