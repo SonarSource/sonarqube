@@ -120,6 +120,7 @@
     "jest": "27.4.7",
     "jest-emotion": "10.0.32",
     "jest-junit": "13.0.0",
+    "jsdom": "16.7.0",
     "path-browserify": "1.0.1",
     "postcss-calc": "7.0.2",
     "postcss-custom-properties": "9.1.1",
@@ -142,7 +143,8 @@
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn ts-check && yarn format-check && yarn test",
     "validate-ci": "yarn install --immutable && yarn test --coverage --maxWorkers=4 --ci",
-    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check"
+    "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check",
+    "update-cwes": "node scripts/update-cwes.js"
   },
   "engines": {
     "node": ">=8"

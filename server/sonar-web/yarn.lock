@@ -3392,6 +3392,7 @@ __metadata:
     jest: 27.4.7
     jest-emotion: 10.0.32
     jest-junit: 13.0.0
+    jsdom: 16.7.0
     keymaster: 1.6.2
     lodash: 4.17.21
     lunr: 2.3.9
@@ -8305,7 +8306,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsdom@npm:^16.6.0":
+"jsdom@npm:16.7.0, jsdom@npm:^16.6.0":
   version: 16.7.0
   resolution: "jsdom@npm:16.7.0"
   dependencies:
