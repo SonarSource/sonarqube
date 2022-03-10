@@ -28,7 +28,7 @@ import { getFilePath, getLocations } from '../utils';
 export interface HotspotListItemProps {
   hotspot: RawHotspot;
   onClick: (hotspot: RawHotspot) => void;
-  onLocationClick: (index: number) => void;
+  onLocationClick: (index?: number) => void;
   onScroll: (element: Element) => void;
   selected: boolean;
   selectedHotspotLocation?: number;
@@ -44,7 +44,12 @@ export default function HotspotListItem(props: HotspotListItemProps) {
       className={classNames('hotspot-item', { highlight: selected })}
       href="#"
       onClick={() => !selected && props.onClick(hotspot)}>
-      <div className="little-spacer-left text-bold">{hotspot.message}</div>
+      <div
+        className={classNames('little-spacer-left text-bold', { 'cursor-pointer': selected })}
+        onClick={selected ? () => props.onLocationClick() : undefined}
+        role={selected ? 'button' : undefined}>
+        {hotspot.message}
+      </div>
       <div className="display-flex-center">
         <QualifierIcon qualifier={ComponentQualifier.File} />
         <div

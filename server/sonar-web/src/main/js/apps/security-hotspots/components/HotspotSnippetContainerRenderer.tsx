@@ -93,6 +93,8 @@ export default function HotspotSnippetContainerRenderer(
 
   const scrollableRef = React.useRef<HTMLDivElement>(null);
 
+  const secondaryLocationSelected = selectedHotspotLocation !== undefined;
+
   /* Use memo is important to not rerender and trigger additional scrolls */
   const hotspotPrimaryLocationBox = React.useMemo(
     () => (
@@ -100,9 +102,10 @@ export default function HotspotSnippetContainerRenderer(
         hotspot={hotspot}
         onCommentClick={props.onCommentButtonClick}
         scroll={getScrollHandler(scrollableRef)}
+        secondaryLocationSelected={secondaryLocationSelected}
       />
     ),
-    [hotspot, props.onCommentButtonClick]
+    [hotspot, secondaryLocationSelected, props.onCommentButtonClick]
   );
 
   const renderHotspotBoxInLine = (lineNumber: number) =>

@@ -37,7 +37,9 @@ exports[`should render correctly 2`] = `
   onClick={[Function]}
 >
   <div
-    className="little-spacer-left text-bold"
+    className="little-spacer-left text-bold cursor-pointer"
+    onClick={[Function]}
+    role="button"
   >
     '3' is a magic number.
   </div>

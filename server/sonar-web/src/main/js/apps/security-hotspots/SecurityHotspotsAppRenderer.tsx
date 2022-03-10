@@ -56,7 +56,7 @@ export interface SecurityHotspotsAppRendererProps {
   loadingMore: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onLocationClick: (index: number) => void;
+  onLocationClick: (index?: number) => void;
   onLoadMore: () => void;
   onShowAllHotspots: () => void;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;

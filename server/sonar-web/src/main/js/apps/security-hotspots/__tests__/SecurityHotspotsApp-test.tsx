@@ -19,12 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockHtmlElement } from '../../../helpers/mocks/dom';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
+import { KeyboardCodes } from '../../../helpers/keycodes';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { mockHtmlElement } from '../../../helpers/mocks/dom';
 import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
+import { scrollToElement } from '../../../helpers/scrolling';
 import { getStandards } from '../../../helpers/security-standard';
 import {
   mockCurrentUser,
@@ -43,8 +45,6 @@ import {
 } from '../../../types/security-hotspots';
 import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
-import { scrollToElement } from '../../../helpers/scrolling';
-import { KeyboardCodes } from '../../../helpers/keycodes';
 
 const originalAddEventListener = window.addEventListener;
 const originalRemoveEventListener = window.removeEventListener;
@@ -447,6 +447,10 @@ it('should handle secondary location click', () => {
   expect(wrapper.instance().state.selectedHotspotLocationIndex).toEqual(1);
 
   wrapper.instance().handleLocationClick(1);
+  expect(wrapper.instance().state.selectedHotspotLocationIndex).toBeUndefined();
+
+  wrapper.setState({ selectedHotspotLocationIndex: 2 });
+  wrapper.instance().handleLocationClick();
   expect(wrapper.instance().state.selectedHotspotLocationIndex).toBeUndefined();
 });
 

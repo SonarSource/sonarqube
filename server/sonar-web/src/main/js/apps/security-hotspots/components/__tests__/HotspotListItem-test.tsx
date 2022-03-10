@@ -37,6 +37,16 @@ it('should handle click', () => {
   expect(onClick).toBeCalledWith(hotspot);
 });
 
+it('should handle click on the title', () => {
+  const hotspot = mockRawHotspot({ key: 'hotspotKey' });
+  const onLocationClick = jest.fn();
+  const wrapper = shallowRender({ hotspot, onLocationClick, selected: true });
+
+  wrapper.find('div.cursor-pointer').simulate('click');
+
+  expect(onLocationClick).toBeCalledWith();
+});
+
 function shallowRender(props: Partial<HotspotListItemProps> = {}) {
   return shallow(
     <HotspotListItem

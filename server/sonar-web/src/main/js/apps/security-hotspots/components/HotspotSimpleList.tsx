@@ -42,7 +42,7 @@ export interface HotspotSimpleListProps {
   hotspotsTotal: number;
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onLocationClick: (index: number) => void;
+  onLocationClick: (index?: number) => void;
   onScroll: (element: Element) => void;
   onLoadMore: () => void;
   selectedHotspot: RawHotspot;

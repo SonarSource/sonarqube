@@ -471,9 +471,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       .catch(this.handleCallFailure);
   };
 
-  handleLocationClick = (locationIndex: number) => {
+  handleLocationClick = (locationIndex?: number) => {
     const { selectedHotspotLocationIndex } = this.state;
-    if (locationIndex === selectedHotspotLocationIndex) {
+
+    if (locationIndex === undefined || locationIndex === selectedHotspotLocationIndex) {
       this.setState({
         selectedHotspotLocationIndex: undefined
       });

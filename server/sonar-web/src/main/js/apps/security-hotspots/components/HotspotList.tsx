@@ -37,7 +37,7 @@ interface Props {
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
-  onLocationClick: (index: number) => void;
+  onLocationClick: (index?: number) => void;
   onScroll: (element: Element) => void;
   securityCategories: StandardSecurityCategories;
   selectedHotspot: RawHotspot;

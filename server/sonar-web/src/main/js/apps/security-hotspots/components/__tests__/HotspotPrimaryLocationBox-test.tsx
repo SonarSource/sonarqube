@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -53,6 +53,38 @@ it('should handle click', () => {
   expect(onCommentClick).toBeCalled();
 });
 
+it('should scroll on load if no secondary locations selected', () => {
+  const node = document.createElement('div');
+  jest.spyOn(React, 'useRef').mockImplementationOnce(() => ({ current: node }));
+  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+
+  const scroll = jest.fn();
+  shallowRender({ scroll });
+
+  expect(scroll).toBeCalled();
+});
+
+it('should not scroll on load if a secondary location is selected', () => {
+  const node = document.createElement('div');
+  jest.spyOn(React, 'useRef').mockImplementationOnce(() => ({ current: node }));
+  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+
+  const scroll = jest.fn();
+  shallowRender({ scroll, secondaryLocationSelected: true });
+
+  expect(scroll).not.toBeCalled();
+});
+
+it('should not scroll on load if node is not defined', () => {
+  jest.spyOn(React, 'useRef').mockImplementationOnce(() => ({ current: undefined }));
+  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+
+  const scroll = jest.fn();
+  shallowRender({ scroll });
+
+  expect(scroll).not.toBeCalled();
+});
+
 function shallowRender(props: Partial<HotspotPrimaryLocationBoxProps> = {}) {
   return shallow(
     <HotspotPrimaryLocationBox
@@ -60,6 +92,7 @@ function shallowRender(props: Partial<HotspotPrimaryLocationBoxProps> = {}) {
       hotspot={mockHotspot()}
       onCommentClick={jest.fn()}
       scroll={jest.fn()}
+      secondaryLocationSelected={false}
       {...props}
     />
   );

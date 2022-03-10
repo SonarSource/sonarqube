@@ -32,10 +32,21 @@ export interface HotspotPrimaryLocationBoxProps {
   onCommentClick: () => void;
   currentUser: CurrentUser;
   scroll: (element: HTMLElement, offset?: number) => void;
+  secondaryLocationSelected: boolean;
 }
 
 export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps) {
-  const { hotspot, currentUser } = props;
+  const { hotspot, currentUser, secondaryLocationSelected } = props;
+
+  const locationRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const { current } = locationRef;
+    if (current && !secondaryLocationSelected) {
+      props.scroll(current);
+    }
+  });
+
   return (
     <div
       className={classNames(
@@ -43,7 +54,7 @@ export function HotspotPrimaryLocationBox(props: HotspotPrimaryLocationBoxProps)
         'display-flex-space-between display-flex-center padded-top padded-bottom big-padded-left big-padded-right',
         `hotspot-risk-exposure-${hotspot.rule.vulnerabilityProbability}`
       )}
-      ref={element => element && props.scroll(element)}>
+      ref={locationRef}>
       <div className="text-bold">{hotspot.message}</div>
       {isLoggedIn(currentUser) && (
         <ButtonLink
