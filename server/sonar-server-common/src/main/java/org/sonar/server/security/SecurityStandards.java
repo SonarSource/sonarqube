@@ -176,7 +176,7 @@ public final class SecurityStandards {
     .put(SQCategory.XXE, Set.of("611", "827"))
     .put(SQCategory.OBJECT_INJECTION, Set.of("134", "470", "502"))
     .put(SQCategory.WEAK_CRYPTOGRAPHY, Set.of("295", "297", "321", "322", "323", "324", "325", "326", "327", "328", "330", "780"))
-    .put(SQCategory.AUTH, Set.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "284", "308", "732"))
+    .put(SQCategory.AUTH, Set.of("798", "640", "620", "549", "522", "521", "263", "262", "261", "259", "308"))
     .put(SQCategory.INSECURE_CONF, Set.of("102", "215", "346", "614", "489", "942"))
     .put(SQCategory.FILE_MANIPULATION, Set.of("97", "73"))
     .put(SQCategory.ENCRYPTION_OF_SENSITIVE_DATA, Set.of("311", "315", "319"))
