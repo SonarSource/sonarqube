@@ -322,6 +322,10 @@
       "title": "Improper Handling of Windows ::DATA Alternate Data Stream",
       "description": "The software does not properly prevent access to, or detect usage of, alternate data streams (ADS)."
     },
+    "71": {
+      "title": "DEPRECATED: Apple '.DS_Store'",
+      "description": "This entry has been deprecated as it represents a specific observed example of a UNIX Hard Link weakness type rather than its own individual weakness type. Please refer to CWE-62."
+    },
     "72": {
       "title": "Improper Handling of Apple HFS+ Alternate Data Stream Path",
       "description": "The software does not properly handle special paths that may identify the data or resource fork of a file on the HFS+ file system."
@@ -401,6 +405,10 @@
     "91": {
       "title": "XML Injection (aka Blind XPath Injection)",
       "description": "The software does not properly neutralize special elements that are used in XML, allowing attackers to modify the syntax, content, or commands of the XML before it is processed by an end system."
+    },
+    "92": {
+      "title": "DEPRECATED: Improper Sanitization of Custom Special Characters",
+      "description": "This entry has been deprecated. It originally came from PLOVER, which sometimes defined \"other\" and \"miscellaneous\" categories in order to satisfy exhaustiveness requirements for taxonomies. Within the context of CWE, the use of a more abstract entry is preferred in mapping situations. CWE-75 is a more appropriate mapping."
     },
     "93": {
       "title": "Improper Neutralization of CRLF Sequences ('CRLF Injection')",
@@ -549,6 +557,10 @@
     "131": {
       "title": "Incorrect Calculation of Buffer Size",
       "description": "The software does not correctly calculate the size to be used when allocating a buffer, which could lead to a buffer overflow."
+    },
+    "132": {
+      "title": "DEPRECATED: Miscalculated Null Termination",
+      "description": "This entry has been deprecated because it was a duplicate of CWE-170. All content has been transferred to CWE-170."
     },
     "134": {
       "title": "Use of Externally-Controlled Format String",
@@ -850,6 +862,18 @@
       "title": "Insertion of Sensitive Information Into Debugging Code",
       "description": "The application inserts sensitive information into debugging code, which could expose this information if the debugging code is not disabled in production."
     },
+    "216": {
+      "title": "DEPRECATED: Containment Errors (Container Errors)",
+      "description": "This entry has been deprecated, as it was not effective as a weakness and was structured more like a category. In addition, the name is inappropriate, since the \"container\" term is widely understood by developers in different ways than originally intended by PLOVER, the original source for this entry."
+    },
+    "217": {
+      "title": "DEPRECATED: Failure to Protect Stored Data from Modification",
+      "description": "This entry has been deprecated because it incorporated and confused multiple weaknesses. The issues formerly covered in this entry can be found at CWE-766 and CWE-767."
+    },
+    "218": {
+      "title": "DEPRECATED: Failure to provide confidentiality for stored data",
+      "description": "This weakness has been deprecated because it was a duplicate of CWE-493. All content has been transferred to CWE-493."
+    },
     "219": {
       "title": "Storage of File with Sensitive Data Under Web Root",
       "description": "The application stores sensitive data under the web document root with insufficient access control, which might make it accessible to untrusted parties."
@@ -873,6 +897,10 @@
     "224": {
       "title": "Obscured Security-relevant Information by Alternate Name",
       "description": "The software records security-relevant information according to an alternate name of the affected entity, instead of the canonical name."
+    },
+    "225": {
+      "title": "DEPRECATED: General Information Management Problems",
+      "description": "This weakness can be found at CWE-199."
     },
     "226": {
       "title": "Sensitive Information in Resource Not Removed Before Reuse",
@@ -954,9 +982,17 @@
       "title": "J2EE Bad Practices: Direct Use of Sockets",
       "description": "The J2EE application directly uses sockets instead of using framework method calls."
     },
+    "247": {
+      "title": "DEPRECATED: Reliance on DNS Lookups in a Security Decision",
+      "description": "This entry has been deprecated because it was a duplicate of CWE-350. All content has been transferred to CWE-350."
+    },
     "248": {
       "title": "Uncaught Exception",
       "description": "An exception is thrown from a function, but it is not caught."
+    },
+    "249": {
+      "title": "DEPRECATED: Often Misused: Path Manipulation",
+      "description": "This entry has been deprecated because of name\n\tconfusion and an accidental combination of multiple\n\tweaknesses. Most of its content has been transferred to\n\tCWE-785.\n\n        This entry was deprecated for several reasons. The primary\n        reason is over-loading of the \"path manipulation\" term and the\n        description. The original description for this entry was the\n        same as that for the \"Often Misused: File System\" item in the\n        original Seven Pernicious Kingdoms paper. However, Seven\n        Pernicious Kingdoms also has a \"Path Manipulation\" phrase that\n        is for external control of pathnames (CWE-73), which is a\n        factor in symbolic link following and path traversal, neither\n        of which is explicitly mentioned in 7PK. Fortify uses the\n        phrase \"Often Misused: Path Manipulation\" for a broader range\n        of problems, generally for issues related to buffer\n        management. Given the multiple conflicting uses of this term,\n        there is a chance that CWE users may have incorrectly mapped\n        to this entry.\n\n\tThe second reason for deprecation is an implied combination of\n\tmultiple weaknesses within buffer-handling functions. The\n\tfocus of this entry was generally on the path-conversion\n\tfunctions and their association with buffer\n\toverflows. However, some of Fortify's Vulncat entries have the\n\tterm \"path manipulation\" but describe a non-overflow weakness\n\tin which the buffer is not guaranteed to contain the entire\n\tpathname, i.e., there is information truncation (see CWE-222\n\tfor a similar concept). A new entry for this non-overflow\n\tweakness may be created in a future version of CWE."
     },
     "250": {
       "title": "Execution with Unnecessary Privileges",
@@ -1101,6 +1137,10 @@
     "291": {
       "title": "Reliance on IP Address for Authentication",
       "description": "The software uses an IP address for authentication."
+    },
+    "292": {
+      "title": "DEPRECATED: Trusting Self-reported DNS Name",
+      "description": "This entry has been deprecated because it was a duplicate of CWE-350. All content has been transferred to CWE-350."
     },
     "293": {
       "title": "Using Referer Field for Authentication",
@@ -1402,6 +1442,10 @@
       "title": "Incomplete Internal State Distinction",
       "description": "The software does not properly determine which state it is in, causing it to assume it is in state X when in fact it is in state Y, causing it to perform incorrect operations in a security-relevant manner."
     },
+    "373": {
+      "title": "DEPRECATED: State Synchronization Error",
+      "description": "This entry was deprecated because it overlapped the same concepts as race condition (CWE-362) and Improper Synchronization (CWE-662)."
+    },
     "374": {
       "title": "Passing Mutable Objects to an Untrusted Method",
       "description": "The program sends non-cloned mutable data as an argument to a method or function."
@@ -1554,6 +1598,10 @@
       "title": "Unprotected Windows Messaging Channel ('Shatter')",
       "description": "The software does not properly verify the source of a message in the Windows Messaging System while running at elevated privileges, creating an alternate channel through which an attacker can directly send a message to the product."
     },
+    "423": {
+      "title": "DEPRECATED: Proxied Trusted Channel",
+      "description": "This entry has been deprecated because it was a duplicate of CWE-441. All content has been transferred to CWE-441."
+    },
     "424": {
       "title": "Improper Protection of Alternate Path",
       "description": "The product does not sufficiently protect all possible paths that a user can take to access restricted functionality or resources."
@@ -1618,6 +1666,10 @@
       "title": "Unintended Proxy or Intermediary ('Confused Deputy')",
       "description": "The product receives a request, message, or directive from an upstream component, but the product does not sufficiently preserve the original source of the request before forwarding the request to an external actor that is outside of the product's control sphere. This causes the product to appear to be the source of the request, leading it to act as a proxy or other intermediary between the upstream component and the external actor."
     },
+    "443": {
+      "title": "DEPRECATED: HTTP response splitting",
+      "description": "This weakness can be found at CWE-113."
+    },
     "444": {
       "title": "Inconsistent Interpretation of HTTP Requests ('HTTP Request Smuggling')",
       "description": "When malformed or abnormal HTTP requests are interpreted by one or more entities in the data flow between the user and the web server, such as a proxy or firewall, they can be interpreted inconsistently, allowing the attacker to \"smuggle\" a request to one device without the other device being aware of it."
@@ -1665,6 +1717,10 @@
     "457": {
       "title": "Use of Uninitialized Variable",
       "description": "The code uses a variable that has not been initialized, leading to unpredictable or unintended results."
+    },
+    "458": {
+      "title": "DEPRECATED: Incorrect Initialization",
+      "description": "This weakness has been deprecated because its name and description did not match. The description duplicated CWE-454, while the name suggested a more abstract initialization problem. Please refer to CWE-665 for the more abstract problem."
     },
     "459": {
       "title": "Incomplete Cleanup",
@@ -1862,6 +1918,10 @@
       "title": "Covert Storage Channel",
       "description": "A covert storage channel transfers information through the setting of bits by one program and the reading of those bits by another. What distinguishes this case from that of ordinary operation is that the bits are used to convey encoded information."
     },
+    "516": {
+      "title": "DEPRECATED: Covert Timing Channel",
+      "description": "This weakness can be found at CWE-385."
+    },
     "520": {
       "title": ".NET Misconfiguration: Use of Impersonation",
       "description": "Allowing a .NET application to run at potentially escalated levels of access to the underlying operating and file systems can be dangerous and result in various forms of attacks."
@@ -1914,6 +1974,14 @@
       "title": "Insertion of Sensitive Information into Log File",
       "description": "Information written to log files can be of a sensitive nature and give valuable guidance to an attacker or expose sensitive user information."
     },
+    "533": {
+      "title": "DEPRECATED: Information Exposure Through Server Log Files",
+      "description": "This entry has been deprecated because its abstraction was too low-level.  See CWE-532."
+    },
+    "534": {
+      "title": "DEPRECATED: Information Exposure Through Debug Log Files",
+      "description": "This entry has been deprecated because its abstraction was too low-level.  See CWE-532."
+    },
     "535": {
       "title": "Exposure of Information Through Shell Error Message",
       "description": "A command shell error message indicates that there exists an unhandled exception in the web application code. In many cases, an attacker can leverage the conditions that cause these errors in order to gain unauthorized access to the system."
@@ -1942,6 +2010,10 @@
       "title": "Inclusion of Sensitive Information in an Include File",
       "description": "If an include file source is accessible, the file can contain usernames and passwords, as well as sensitive information pertaining to the application and system."
     },
+    "542": {
+      "title": "DEPRECATED: Information Exposure Through Cleanup Log Files",
+      "description": "This entry has been deprecated because its abstraction was too low-level.  See CWE-532."
+    },
     "543": {
       "title": "Use of Singleton Pattern Without Synchronization in a Multithreaded Context",
       "description": "The software uses the singleton pattern when creating a resource within a multithreaded environment."
@@ -1949,6 +2021,10 @@
     "544": {
       "title": "Missing Standardized Error Handling Mechanism",
       "description": "The software does not use a standardized method for handling errors throughout the code, which might introduce inconsistent error handling and resultant weaknesses."
+    },
+    "545": {
+      "title": "DEPRECATED: Use of Dynamic Class Loading",
+      "description": "This weakness has been deprecated because it partially overlaps CWE-470, it describes legitimate programmer behavior, and other portions will need to be integrated into other entries."
     },
     "546": {
       "title": "Suspicious Comment",
@@ -2122,6 +2198,10 @@
       "title": "Sensitive Data Storage in Improperly Locked Memory",
       "description": "The application stores sensitive data in memory that is not locked, or that has been incorrectly locked, which might cause the memory to be written to swap files on disk by the virtual memory manager. This can make the data more accessible to external actors."
     },
+    "592": {
+      "title": "DEPRECATED: Authentication Bypass Issues",
+      "description": "This weakness has been deprecated because it covered redundant concepts already described in CWE-287."
+    },
     "593": {
       "title": "Authentication Bypass: OpenSSL CTX Object Modified after SSL Objects are Created",
       "description": "The software modifies the SSL context after connection creation has begun."
@@ -2133,6 +2213,10 @@
     "595": {
       "title": "Comparison of Object References Instead of Object Contents",
       "description": "The program compares object references instead of the contents of the objects themselves, preventing it from detecting equivalent objects."
+    },
+    "596": {
+      "title": "DEPRECATED: Incorrect Semantic Object Comparison",
+      "description": "This weakness has been deprecated.  It was poorly described and difficult to distinguish from other entries.  It was also inappropriate to assign a separate ID solely because of domain-specific considerations.  Its closest equivalent is CWE-1023."
     },
     "597": {
       "title": "Use of Wrong Operator in String Comparison",
@@ -2581,6 +2665,10 @@
     "768": {
       "title": "Incorrect Short Circuit Evaluation",
       "description": "The software contains a conditional statement with multiple logical expressions in which one of the non-leading expressions may produce side effects. This may lead to an unexpected state in the program after the execution of the conditional, because short-circuiting logic may prevent the side effects from occurring."
+    },
+    "769": {
+      "title": "DEPRECATED: Uncontrolled File Descriptor Consumption",
+      "description": "This entry has been deprecated because it was a duplicate of CWE-774. All content has been transferred to CWE-774."
     },
     "770": {
       "title": "Allocation of Resources Without Limits or Throttling",
@@ -3317,6 +3405,10 @@
     "1177": {
       "title": "Use of Prohibited Code",
       "description": "The software uses a function, library, or third party component\n\t     that has been explicitly prohibited, whether by the developer or\n\t     the customer."
+    },
+    "1187": {
+      "title": "DEPRECATED: Use of Uninitialized Resource",
+      "description": "This entry has been deprecated because it was a duplicate of CWE-908. All content has been transferred to CWE-908."
     },
     "1188": {
       "title": "Insecure Default Initialization of Resource",

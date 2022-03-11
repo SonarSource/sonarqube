@@ -42,7 +42,6 @@ const jsdom = require('jsdom');
 const { trim } = require('lodash');
 const path = require('path');
 
-const IGNORED_STATUSES = ['Deprecated'];
 const STANDARDS_JSON_FILE = path.join(
   __dirname,
   '..',
@@ -84,14 +83,9 @@ function getCWEs(xml) {
   weaknesses.forEach(weakness => {
     const id = weakness.getAttribute('ID');
     const title = weakness.getAttribute('Name');
-    const status = weakness.getAttribute('Status');
     let description = '';
 
     if (!id) {
-      return;
-    }
-
-    if (IGNORED_STATUSES.includes(status)) {
       return;
     }
 
