@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import { AppState } from '../../../../types/types';
+import { AppState } from '../../../../types/appstate';
 import routes from '../../routes';
 
 jest.mock('../../../../api/quality-gates');
