@@ -133,6 +133,7 @@ public final class SecurityStandards {
     FILE_MANIPULATION("file-manipulation", LOW),
     ENCRYPTION_OF_SENSITIVE_DATA("encrypt-data", LOW),
     TRACEABILITY("traceability", LOW),
+    PERMISSION("permission", MEDIUM),
     OTHERS("others", LOW);
 
     private static final Map<String, SQCategory> SQ_CATEGORY_BY_KEY = stream(values()).collect(uniqueIndex(SQCategory::getKey));
@@ -180,6 +181,7 @@ public final class SecurityStandards {
     .put(SQCategory.FILE_MANIPULATION, Set.of("97", "73"))
     .put(SQCategory.ENCRYPTION_OF_SENSITIVE_DATA, Set.of("311", "315", "319"))
     .put(SQCategory.TRACEABILITY, Set.of("778"))
+    .put(SQCategory.PERMISSION, Set.of("266", "269", "284", "668", "732"))
     .build();
   private static final Ordering<SQCategory> SQ_CATEGORY_ORDERING = Ordering.explicit(stream(SQCategory.values()).collect(Collectors.toList()));
   public static final Ordering<String> SQ_CATEGORY_KEYS_ORDERING = Ordering.explicit(stream(SQCategory.values()).map(SQCategory::getKey).collect(Collectors.toList()));

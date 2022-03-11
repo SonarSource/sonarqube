@@ -3960,6 +3960,9 @@
     "traceability": {
       "title": "Traceability"
     },
+    "permission": {
+      "title": "Permission"
+    },
     "others": {
       "title": "Others"
     }
