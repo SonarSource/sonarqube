@@ -47,11 +47,11 @@ export default function StatusUpdateSuccessModal(props: StatusUpdateSuccessModal
 
   return (
     <Modal contentLabel={modalTitle}>
-      <div className="modal-head huge text-center text-bold">
+      <div className="modal-head big text-center text-bold">
         <p>{translateWithParameters('hotspots.successful_status_change_to_x', statusLabel)}</p>
       </div>
 
-      <div className="modal-body text-center big">
+      <div className="modal-body text-center">
         <FormattedMessage
           id="hotspots.successfully_changed_to_x"
           defaultMessage={translate('hotspots.find_in_status_filter_x')}

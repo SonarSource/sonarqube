@@ -5,14 +5,14 @@ exports[`should render correctly: default 1`] = `
   contentLabel="hotspots.congratulations"
 >
   <div
-    className="modal-head huge text-center text-bold"
+    className="modal-head big text-center text-bold"
   >
     <p>
       hotspots.successful_status_change_to_x.hotspots.status_option.FIXED
     </p>
   </div>
   <div
-    className="modal-body text-center big"
+    className="modal-body text-center"
   >
     <FormattedMessage
       defaultMessage="hotspots.find_in_status_filter_x"
@@ -64,14 +64,14 @@ exports[`should render correctly: opening hotspots again 1`] = `
   contentLabel="hotspots.update.success"
 >
   <div
-    className="modal-head huge text-center text-bold"
+    className="modal-head big text-center text-bold"
   >
     <p>
       hotspots.successful_status_change_to_x.hotspots.status_option.TO_REVIEW
     </p>
   </div>
   <div
-    className="modal-body text-center big"
+    className="modal-body text-center"
   >
     <FormattedMessage
       defaultMessage="hotspots.find_in_status_filter_x"
