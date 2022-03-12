@@ -20,6 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import io.codescan.sonarqube.codescanhosted.ce.CodeScanBranchSupportDelegate;
+import org.sonar.ce.configuration.WorkerCountProviderImpl;
 import io.codescan.sonarqube.codescanhosted.web.CodeScanBranchFeatureExtension;
 import java.util.List;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -264,6 +265,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // batch
       BatchWsModule.class,
+
+      // CE worker provider
+      WorkerCountProviderImpl.class,
 
       // update center
       UpdateCenterModule.class,
