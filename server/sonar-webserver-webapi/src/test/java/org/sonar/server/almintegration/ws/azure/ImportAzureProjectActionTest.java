@@ -20,8 +20,6 @@
 package org.sonar.server.almintegration.ws.azure;
 
 import java.util.Optional;
-import java.util.stream.IntStream;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +39,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -56,18 +55,20 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
-import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ImportAzureProjectActionTest {
+
+  private static final String GENERATED_PROJECT_KEY = "TEST_PROJECT_KEY";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -82,13 +83,15 @@ public class ImportAzureProjectActionTest {
   private final Encryption encryption = mock(Encryption.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
+  private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final ImportAzureProjectAction importAzureProjectAction = new ImportAzureProjectAction(db.getDbClient(), userSession,
-    azureDevOpsHttpClient, projectDefaultVisibility, componentUpdater, importHelper);
+    azureDevOpsHttpClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator);
   private final WsActionTester ws = new WsActionTester(importAzureProjectAction);
 
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+    when(projectKeyGenerator.generateUniqueProjectKey(any(), any())).thenReturn(GENERATED_PROJECT_KEY);
   }
 
   @Test
@@ -113,7 +116,7 @@ public class ImportAzureProjectActionTest {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(repo.getProject().getName() + "_" + repo.getName());
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repo.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -132,6 +135,8 @@ public class ImportAzureProjectActionTest {
       .findFirst();
     assertThat(mainBranch).isPresent();
     assertThat(mainBranch.get().getKey()).hasToString("repo-default-branch");
+
+    verify(projectKeyGenerator).generateUniqueProjectKey(repo.getProject().getName(), repo.getName());
   }
 
   @Test
@@ -236,8 +241,7 @@ public class ImportAzureProjectActionTest {
       dto.setUserUuid(user.getUuid());
     });
     GsonAzureRepo repo = getGsonAzureRepo();
-    String projectKey = repo.getProject().getName() + "_" + repo.getName();
-    db.components().insertPublicProject(p -> p.setDbKey(projectKey));
+    db.components().insertPublicProject(p -> p.setDbKey(GENERATED_PROJECT_KEY));
 
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name")).thenReturn(repo);
@@ -248,21 +252,7 @@ public class ImportAzureProjectActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Could not create null, key already exists: " + projectKey);
-  }
-
-  @Test
-  public void sanitize_project_and_repo_names_with_invalid_characters() {
-    assertThat(importAzureProjectAction.generateProjectKey("project name", "repo name"))
-      .isEqualTo("project_name_repo_name");
-  }
-
-  @Test
-  public void sanitize_long_project_and_repo_names() {
-    String projectName = IntStream.range(0, 260).mapToObj(i -> "a").collect(joining());
-
-    assertThat(importAzureProjectAction.generateProjectKey(projectName, "repo name"))
-      .hasSize(250);
+      .hasMessage("Could not create null, key already exists: " + GENERATED_PROJECT_KEY);
   }
 
   @Test

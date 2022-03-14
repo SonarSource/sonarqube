@@ -36,6 +36,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -60,16 +61,18 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
+  private final ProjectKeyGenerator projectKeyGenerator;
 
   public ImportBitbucketServerProjectAction(DbClient dbClient, UserSession userSession, BitbucketServerRestClient bitbucketServerRestClient,
     ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater,
-    ImportHelper importHelper) {
+    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.bitbucketServerRestClient = bitbucketServerRestClient;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
+    this.projectKeyGenerator = projectKeyGenerator;
   }
 
   @Override
@@ -141,8 +144,9 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
 
   private ComponentDto createProject(DbSession dbSession, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
+    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getKey(), repo.getSlug());
     NewComponent newProject = newComponentBuilder()
-      .setKey(getProjectKey(repo))
+      .setKey(uniqueProjectKey)
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
@@ -163,11 +167,6 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
       componentDto.name(), componentDto.getKey());
-  }
-
-  private static String getProjectKey(Repository repo) {
-    String key = repo.getProject().getKey() + "_" + repo.getSlug();
-    return key.replace("~", "");
   }
 
 }

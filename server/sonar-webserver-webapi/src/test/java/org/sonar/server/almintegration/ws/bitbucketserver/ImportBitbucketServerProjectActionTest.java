@@ -44,6 +44,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -58,6 +59,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,12 +67,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ImportBitbucketServerProjectActionTest {
+  private static final String GENERATED_PROJECT_KEY = "TEST_PROJECT_KEY";
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -84,8 +88,9 @@ public class ImportBitbucketServerProjectActionTest {
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
+  private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final WsActionTester ws = new WsActionTester(new ImportBitbucketServerProjectAction(db.getDbClient(), userSession,
-    bitbucketServerRestClient, projectDefaultVisibility, componentUpdater, importHelper));
+    bitbucketServerRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator));
 
   private static BranchesList defaultBranchesList;
 
@@ -98,6 +103,7 @@ public class ImportBitbucketServerProjectActionTest {
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+    when(projectKeyGenerator.generateUniqueProjectKey(any(), any())).thenReturn(GENERATED_PROJECT_KEY);
   }
 
   @Test
@@ -121,40 +127,13 @@ public class ImportBitbucketServerProjectActionTest {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(project.getKey() + "_" + repo.getSlug());
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repo.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
-  }
-
-  @Test
-  public void import_project_with_tilda() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
-    Project project = getGsonBBSProject();
-    project.setKey("~" + project.getKey());
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
-
-    Projects.CreateWsResponse response = ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .setParam("projectKey", "~projectKey")
-      .setParam("repositorySlug", "repo-slug")
-      .executeProtobuf(Projects.CreateWsResponse.class);
-
-    Projects.CreateWsResponse.Project result = response.getProject();
-
-    String key = project.getKey() + "_" + repo.getSlug();
-    assertThat(result.getKey()).isNotEqualTo(key);
-    assertThat(result.getKey()).isEqualTo(key.substring(1));
+    verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(project.getKey()), repo.getSlug());
   }
 
   @Test
@@ -168,8 +147,7 @@ public class ImportBitbucketServerProjectActionTest {
     });
     Project project = getGsonBBSProject();
     Repository repo = getGsonBBSRepo(project);
-    String projectKey = project.getKey() + "_" + repo.getSlug();
-    db.components().insertPublicProject(p -> p.setDbKey(projectKey));
+    db.components().insertPublicProject(p -> p.setDbKey(GENERATED_PROJECT_KEY));
 
     assertThatThrownBy(() -> {
       when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
@@ -182,7 +160,7 @@ public class ImportBitbucketServerProjectActionTest {
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Could not create null, key already exists: " + projectKey);
+      .hasMessage("Could not create null, key already exists: " + GENERATED_PROJECT_KEY);
   }
 
   @Test

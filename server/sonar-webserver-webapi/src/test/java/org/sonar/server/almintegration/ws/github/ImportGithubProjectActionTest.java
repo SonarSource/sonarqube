@@ -36,9 +36,9 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -63,6 +63,8 @@ import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class ImportGithubProjectActionTest {
 
+  private static final String PROJECT_KEY_NAME = "PROJECT_NAME";
+
   @Rule
   public UserSessionRule userSession = standalone();
 
@@ -76,9 +78,10 @@ public class ImportGithubProjectActionTest {
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
+  private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
-    projectDefaultVisibility, appClient, componentUpdater, importHelper));
+    projectDefaultVisibility, appClient, componentUpdater, importHelper, projectKeyGenerator));
 
   @Before
   public void before() {
@@ -86,23 +89,23 @@ public class ImportGithubProjectActionTest {
   }
 
   @Test
-  public void import_project() {
+  public void importProject_ifProjectWithSameNameDoesNotExist_importSucceed() {
     AlmSettingDto githubAlmSetting = setupAlm();
     db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "octocat/Hello-World",
-      "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any()))
-      .thenReturn(Optional.of(repository));
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false, "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
       .setParam(PARAM_ORGANIZATION, "octocat")
-      .setParam(PARAM_REPOSITORY_KEY, "octocat/Hello-World")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(repository.getFullName().replace("/", "_"));
+    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
     assertThat(result.getName()).isEqualTo(repository.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -114,33 +117,35 @@ public class ImportGithubProjectActionTest {
   }
 
   @Test
-  public void fail_project_already_exist() {
+  public void importProject_ifProjectWithSameNameAlreadyExists_importSucceed() {
     AlmSettingDto githubAlmSetting = setupAlm();
     db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
-    db.components().insertPublicProject(p -> p.setDbKey("octocat_Hello-World"));
+    db.components().insertPublicProject(p -> p.setDbKey("Hello-World"));
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "octocat/Hello-World",
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "Hello-World",
       "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", "main");
-    when(appClient.getRepository(any(), any(), any(), any()))
-      .thenReturn(Optional.of(repository));
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
 
-    TestRequest request = ws.newRequest()
-        .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-        .setParam(PARAM_ORGANIZATION, "octocat")
-        .setParam(PARAM_REPOSITORY_KEY, "octocat/Hello-World");
-    assertThatThrownBy(request::execute)
-        .isInstanceOf(BadRequestException.class)
-        .hasMessage("Could not create null, key already exists: octocat_Hello-World");
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "Hello-World")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
+    assertThat(result.getName()).isEqualTo(repository.getName());
   }
 
   @Test
   public void fail_when_not_logged_in() {
     TestRequest request = ws.newRequest()
-        .setParam(PARAM_ALM_SETTING, "asdfghjkl")
-        .setParam(PARAM_ORGANIZATION, "test")
-        .setParam(PARAM_REPOSITORY_KEY, "test/repo");
+      .setParam(PARAM_ALM_SETTING, "asdfghjkl")
+      .setParam(PARAM_ORGANIZATION, "test")
+      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
-        .isInstanceOf(UnauthorizedException.class);
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -156,12 +161,12 @@ public class ImportGithubProjectActionTest {
     userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
 
     TestRequest request = ws.newRequest()
-        .setParam(PARAM_ALM_SETTING, "unknown")
-        .setParam(PARAM_ORGANIZATION, "test")
-        .setParam(PARAM_REPOSITORY_KEY, "test/repo");
+      .setParam(PARAM_ALM_SETTING, "unknown")
+      .setParam(PARAM_ORGANIZATION, "test")
+      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
-        .isInstanceOf(NotFoundException.class)
-        .hasMessage("ALM Setting 'unknown' not found");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("ALM Setting 'unknown' not found");
   }
 
   @Test
@@ -169,12 +174,12 @@ public class ImportGithubProjectActionTest {
     AlmSettingDto githubAlmSetting = setupAlm();
 
     TestRequest request = ws.newRequest()
-        .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-        .setParam(PARAM_ORGANIZATION, "test")
-        .setParam(PARAM_REPOSITORY_KEY, "test/repo");
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "test")
+      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("No personal access token found");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("No personal access token found");
   }
 
   @Test

@@ -35,6 +35,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -59,15 +60,17 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private final GithubApplicationClient githubApplicationClient;
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
+  private final ProjectKeyGenerator projectKeyGenerator;
 
   public ImportGithubProjectAction(DbClient dbClient, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility,
-    GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper) {
+    GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.githubApplicationClient = githubApplicationClient;
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
+    this.projectKeyGenerator = projectKeyGenerator;
   }
 
   @Override
@@ -131,17 +134,14 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
   private ComponentDto createProject(DbSession dbSession, Repository repo, String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
+    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getFullName());
     return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-      .setKey(getProjectKeyFromRepository(repo))
-      .setName(repo.getName())
-      .setPrivate(visibility)
-      .setQualifier(PROJECT)
-      .build(),
+        .setKey(uniqueProjectKey)
+        .setName(repo.getName())
+        .setPrivate(visibility)
+        .setQualifier(PROJECT)
+        .build(),
       userSession.getUuid(), userSession.getLogin(), mainBranchName, s -> {});
-  }
-
-  static String getProjectKeyFromRepository(Repository repo) {
-    return repo.getFullName().replace("/", "_");
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ComponentDto componentDto, AlmSettingDto almSettingDto) {

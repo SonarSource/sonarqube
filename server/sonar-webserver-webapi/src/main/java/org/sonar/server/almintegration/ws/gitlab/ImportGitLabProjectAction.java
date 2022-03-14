@@ -19,7 +19,6 @@
  */
 package org.sonar.server.almintegration.ws.gitlab;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.alm.client.gitlab.GitLabBranch;
@@ -28,7 +27,6 @@ import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -37,6 +35,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
@@ -56,19 +55,19 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final GitlabHttpClient gitlabHttpClient;
   private final ComponentUpdater componentUpdater;
-  private final UuidFactory uuidFactory;
   private final ImportHelper importHelper;
+  private final ProjectKeyGenerator projectKeyGenerator;
 
   public ImportGitLabProjectAction(DbClient dbClient, UserSession userSession,
     ProjectDefaultVisibility projectDefaultVisibility, GitlabHttpClient gitlabHttpClient,
-    ComponentUpdater componentUpdater, UuidFactory uuidFactory, ImportHelper importHelper) {
+    ComponentUpdater componentUpdater, ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.gitlabHttpClient = gitlabHttpClient;
     this.componentUpdater = componentUpdater;
-    this.uuidFactory = uuidFactory;
     this.importHelper = importHelper;
+    this.projectKeyGenerator = projectKeyGenerator;
   }
 
   @Override
@@ -135,10 +134,10 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   private ComponentDto createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
-    String sqProjectKey = generateProjectKey(gitlabProject.getPathWithNamespace(), uuidFactory.create());
+    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(gitlabProject.getPathWithNamespace());
 
     return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-        .setKey(sqProjectKey)
+        .setKey(uniqueProjectKey)
         .setName(gitlabProject.getName())
         .setPrivate(visibility)
         .setQualifier(PROJECT)
@@ -147,14 +146,4 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       });
   }
 
-  @VisibleForTesting
-  String generateProjectKey(String pathWithNamespace, String uuid) {
-    String sqProjectKey = pathWithNamespace + "_" + uuid;
-
-    if (sqProjectKey.length() > 250) {
-      sqProjectKey = sqProjectKey.substring(sqProjectKey.length() - 250);
-    }
-
-    return sqProjectKey.replace("/", "_");
-  }
 }

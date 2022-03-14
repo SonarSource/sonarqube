@@ -56,6 +56,7 @@ import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.authentication.AuthenticationModule;
@@ -526,6 +527,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeoutConfigurationImpl.class,
       CredentialsEncoderHelper.class,
       ImportHelper.class,
+      ProjectKeyGenerator.class,
       GithubAppSecurityImpl.class,
       GithubApplicationClientImpl.class,
       GithubApplicationHttpClientImpl.class,

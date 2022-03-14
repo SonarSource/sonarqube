@@ -33,6 +33,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -56,15 +57,18 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
+  private final ProjectKeyGenerator projectKeyGenerator;
 
   public ImportBitbucketCloudRepoAction(DbClient dbClient, UserSession userSession, BitbucketCloudRestClient bitbucketCloudRestClient,
-    ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater, ImportHelper importHelper) {
+    ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater, ImportHelper importHelper,
+    ProjectKeyGenerator projectKeyGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.bitbucketCloudRestClient = bitbucketCloudRestClient;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
+    this.projectKeyGenerator = projectKeyGenerator;
   }
 
   @Override
@@ -124,8 +128,9 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
   private ComponentDto createProject(DbSession dbSession, String workspace, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
+    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(workspace, repo.getSlug());
     NewComponent newProject = newComponentBuilder()
-      .setKey(workspace + "_" + repo.getSlug())
+      .setKey(uniqueProjectKey)
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)

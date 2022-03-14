@@ -39,6 +39,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -54,17 +55,22 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ImportBitbucketCloudRepoActionTest {
+
+  private static final String GENERATED_PROJECT_KEY = "TEST_PROJECT_KEY";
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -77,12 +83,14 @@ public class ImportBitbucketCloudRepoActionTest {
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
+  private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final WsActionTester ws = new WsActionTester(new ImportBitbucketCloudRepoAction(db.getDbClient(), userSession,
-    bitbucketCloudRestClient, projectDefaultVisibility, componentUpdater, importHelper));
+    bitbucketCloudRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator));
 
   @Before
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+    when(projectKeyGenerator.generateUniqueProjectKey(any(), any())).thenReturn(GENERATED_PROJECT_KEY);
   }
 
   @Test
@@ -103,7 +111,7 @@ public class ImportBitbucketCloudRepoActionTest {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(almSetting.getAppId() + "_" + repo.getSlug());
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repo.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -115,6 +123,7 @@ public class ImportBitbucketCloudRepoActionTest {
     Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.get().getUuid(), "develop");
     assertThat(branchDto).isPresent();
     assertThat(branchDto.get().isMain()).isTrue();
+    verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(almSetting.getAppId()), repo.getSlug());
   }
 
   @Test
@@ -127,8 +136,7 @@ public class ImportBitbucketCloudRepoActionTest {
       dto.setUserUuid(user.getUuid());
     });
     Repository repo = getGsonBBCRepo();
-    String projectKey = almSetting.getAppId() + "_" + repo.getSlug();
-    db.components().insertPublicProject(p -> p.setDbKey(projectKey));
+    db.components().insertPublicProject(p -> p.setDbKey(GENERATED_PROJECT_KEY));
 
     when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
 
@@ -138,7 +146,7 @@ public class ImportBitbucketCloudRepoActionTest {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
-      .hasMessageContaining("Could not create null, key already exists: " + projectKey);
+      .hasMessageContaining("Could not create null, key already exists: " + GENERATED_PROJECT_KEY);
   }
 
   @Test

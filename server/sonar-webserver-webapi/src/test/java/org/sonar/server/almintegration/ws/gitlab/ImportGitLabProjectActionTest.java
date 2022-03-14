@@ -20,7 +20,6 @@
 package org.sonar.server.almintegration.ws.gitlab;
 
 import java.util.Optional;
-import java.util.stream.IntStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,13 +30,13 @@ import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.SequenceUuidFactory;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -50,7 +49,6 @@ import org.sonarqube.ws.Projects;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -62,6 +60,8 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 
 public class ImportGitLabProjectActionTest {
+
+  private static final String PROJECT_KEY_NAME = "PROJECT_NAME";
 
   private final System2 system2 = mock(System2.class);
 
@@ -75,11 +75,11 @@ public class ImportGitLabProjectActionTest {
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestProjectIndexers(), new SequenceUuidFactory());
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
-  private final UuidFactory uuidFactory = mock(UuidFactory.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
+  private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final ImportGitLabProjectAction importGitLabProjectAction = new ImportGitLabProjectAction(
-    db.getDbClient(), userSession, projectDefaultVisibility, gitlabHttpClient, componentUpdater, uuidFactory, importHelper);
+    db.getDbClient(), userSession, projectDefaultVisibility, gitlabHttpClient, componentUpdater, importHelper, projectKeyGenerator);
   private final WsActionTester ws = new WsActionTester(importGitLabProjectAction);
 
   @Before
@@ -100,7 +100,7 @@ public class ImportGitLabProjectActionTest {
     Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
-    when(uuidFactory.create()).thenReturn("uuid");
+    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -110,7 +110,7 @@ public class ImportGitLabProjectActionTest {
     verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(project.getPathWithNamespace() + "_uuid");
+    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
     assertThat(result.getName()).isEqualTo(project.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -131,7 +131,7 @@ public class ImportGitLabProjectActionTest {
     Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("main", true)));
-    when(uuidFactory.create()).thenReturn("uuid");
+    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -142,7 +142,7 @@ public class ImportGitLabProjectActionTest {
     verify(gitlabHttpClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(project.getPathWithNamespace() + "_uuid");
+    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
     assertThat(result.getName()).isEqualTo(project.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -167,7 +167,7 @@ public class ImportGitLabProjectActionTest {
     Project project = getGitlabProject();
     when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(emptyList());
-    when(uuidFactory.create()).thenReturn("uuid");
+    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -178,7 +178,7 @@ public class ImportGitLabProjectActionTest {
     verify(gitlabHttpClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(project.getPathWithNamespace() + "_uuid");
+    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
     assertThat(result.getName()).isEqualTo(project.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -190,36 +190,6 @@ public class ImportGitLabProjectActionTest {
       .containsExactlyInAnyOrder(tuple("master", true));
   }
 
-  @Test
-  public void generate_project_key_less_than_250() {
-    String name = "abcdeert";
-    assertThat(importGitLabProjectAction.generateProjectKey(name, "uuid")).isEqualTo("abcdeert_uuid");
-  }
-
-  @Test
-  public void generate_project_key_equal_250() {
-    String name = IntStream.range(0, 245).mapToObj(i -> "a").collect(joining());
-    String projectKey = importGitLabProjectAction.generateProjectKey(name, "uuid");
-    assertThat(projectKey)
-      .hasSize(250)
-      .isEqualTo(name + "_uuid");
-
-  }
-
-  @Test
-  public void generate_project_key_more_than_250() {
-    String name = IntStream.range(0, 250).mapToObj(i -> "a").collect(joining());
-    String projectKey = importGitLabProjectAction.generateProjectKey(name, "uuid");
-    assertThat(projectKey)
-      .hasSize(250)
-      .isEqualTo(name.substring(5) + "_uuid");
-  }
-
-  @Test
-  public void generate_project_key_containing_slash() {
-    String name = "a/b/c";
-    assertThat(importGitLabProjectAction.generateProjectKey(name, "uuid")).isEqualTo("a_b_c_uuid");
-  }
 
   private Project getGitlabProject() {
     return new Project(randomAlphanumeric(5), randomAlphanumeric(5));

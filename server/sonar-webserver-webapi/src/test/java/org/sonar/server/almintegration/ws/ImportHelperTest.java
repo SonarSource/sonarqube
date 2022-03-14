@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.NotFoundException;
@@ -42,11 +40,6 @@ public class ImportHelperTest {
 
   private final System2 system2 = System2.INSTANCE;
   private final ComponentDto componentDto = ComponentTesting.newPublicProjectDto();
-  private final BranchDto branchDto = new BranchDto()
-    .setBranchType(BranchType.BRANCH)
-    .setKey("main")
-    .setUuid(componentDto.uuid())
-    .setProjectUuid(componentDto.uuid());
   private final Request request = mock(Request.class);
 
   @Rule
@@ -55,7 +48,7 @@ public class ImportHelperTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private ImportHelper underTest = new ImportHelper(db.getDbClient(), userSession);
+  private final ImportHelper underTest = new ImportHelper(db.getDbClient(), userSession);
 
   @Test
   public void it_throws_exception_when_provisioning_project_without_permission() {
@@ -91,7 +84,7 @@ public class ImportHelperTest {
     CreateWsResponse.Project project = response.getProject();
 
     assertThat(project).extracting(CreateWsResponse.Project::getKey, CreateWsResponse.Project::getName,
-      CreateWsResponse.Project::getQualifier)
+        CreateWsResponse.Project::getQualifier)
       .containsExactly(componentDto.getDbKey(), componentDto.name(), componentDto.qualifier());
   }
 }

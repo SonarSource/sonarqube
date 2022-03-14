@@ -19,7 +19,6 @@
  */
 package org.sonar.server.almintegration.ws.azure;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureRepo;
@@ -34,6 +33,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
@@ -57,16 +57,18 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
+  private final ProjectKeyGenerator projectKeyGenerator;
 
   public ImportAzureProjectAction(DbClient dbClient, UserSession userSession, AzureDevOpsHttpClient azureDevOpsHttpClient,
     ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater,
-    ImportHelper importHelper) {
+    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.azureDevOpsHttpClient = azureDevOpsHttpClient;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
+    this.projectKeyGenerator = projectKeyGenerator;
   }
 
   @Override
@@ -128,8 +130,9 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
   private ComponentDto createProject(DbSession dbSession, GsonAzureRepo repo) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
+    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getName(), repo.getName());
     return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-        .setKey(generateProjectKey(repo.getProject().getName(), repo.getName()))
+        .setKey(uniqueProjectKey)
         .setName(repo.getName())
         .setPrivate(visibility)
         .setQualifier(PROJECT)
@@ -150,17 +153,6 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setMonorepo(false);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
       componentDto.name(), componentDto.getKey());
-  }
-
-  @VisibleForTesting
-  String generateProjectKey(String projectName, String repoName) {
-    String sqProjectKey = projectName + "_" + repoName;
-
-    if (sqProjectKey.length() > 250) {
-      sqProjectKey = sqProjectKey.substring(sqProjectKey.length() - 250);
-    }
-
-    return sqProjectKey.replace(" ", "_");
   }
 
 }
