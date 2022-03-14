@@ -21,31 +21,32 @@ package org.sonar.scanner.report;
 
 import com.google.protobuf.ByteString;
 import java.util.Map;
-import org.sonar.scanner.cache.PluginCacheEnabled;
+import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.cache.ScannerWriteCache;
-import org.sonar.scanner.protocol.internal.ScannerInternal.PluginCacheMsg;
+import org.sonar.scanner.protocol.internal.ScannerInternal;
+import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
-public class PluginCachePublisher implements ReportPublisherStep {
-  private final PluginCacheEnabled pluginCacheEnabled;
+public class AnalysisCachePublisher implements ReportPublisherStep {
+  private final AnalysisCacheEnabled analysisCacheEnabled;
   private final ScannerWriteCache cache;
 
-  public PluginCachePublisher(PluginCacheEnabled pluginCacheEnabled, ScannerWriteCache cache) {
-    this.pluginCacheEnabled = pluginCacheEnabled;
+  public AnalysisCachePublisher(AnalysisCacheEnabled analysisCacheEnabled, ScannerWriteCache cache) {
+    this.analysisCacheEnabled = analysisCacheEnabled;
     this.cache = cache;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    if (!pluginCacheEnabled.isEnabled() || cache.getCache().isEmpty()) {
+    if (!analysisCacheEnabled.isEnabled() || cache.getCache().isEmpty()) {
       return;
     }
-    PluginCacheMsg.Builder pluginCacheMsg = PluginCacheMsg.newBuilder();
+    AnalysisCacheMsg.Builder analysisCacheMsg = ScannerInternal.AnalysisCacheMsg.newBuilder();
 
     for (Map.Entry<String, byte[]> entry : cache.getCache().entrySet()) {
-      pluginCacheMsg.putMap(entry.getKey(), ByteString.copyFrom(entry.getValue()));
+      analysisCacheMsg.putMap(entry.getKey(), ByteString.copyFrom(entry.getValue()));
     }
 
-    writer.writePluginCache(pluginCacheMsg.build());
+    writer.writeAnalysisCache(analysisCacheMsg.build());
   }
 }

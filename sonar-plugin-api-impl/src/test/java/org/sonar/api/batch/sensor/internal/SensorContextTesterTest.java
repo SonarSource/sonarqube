@@ -36,6 +36,8 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -51,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Mockito.mock;
 
 public class SensorContextTesterTest {
 
@@ -79,6 +82,24 @@ public class SensorContextTesterTest {
     assertThat(tester.canSkipUnchangedFiles()).isFalse();
     tester.setCanSkipUnchangedFiles(true);
     assertThat(tester.canSkipUnchangedFiles()).isTrue();
+  }
+
+  @Test
+  public void testPluginCache() {
+    assertThat(tester.nextCache()).isNull();
+    assertThat(tester.previousAnalysisCache()).isNull();
+    assertThat(tester.isCacheEnabled()).isFalse();
+
+    ReadCache readCache = mock(ReadCache.class);
+    WriteCache writeCache = mock(WriteCache.class);
+
+    tester.setPreviousAnalysisCache(readCache);
+    tester.setNextCache(writeCache);
+    tester.setCacheEnabled(true);
+
+    assertThat(tester.nextCache()).isEqualTo(writeCache);
+    assertThat(tester.previousAnalysisCache()).isEqualTo(readCache);
+    assertThat(tester.isCacheEnabled()).isTrue();
   }
 
   @Test

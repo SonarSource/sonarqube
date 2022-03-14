@@ -95,8 +95,8 @@ public class ScannerReportWriter {
     return file;
   }
 
-  public File writePluginCache(ScannerInternal.PluginCacheMsg cacheMsg) {
-    File file = fileStructure.pluginCache();
+  public File writeAnalysisCache(ScannerInternal.AnalysisCacheMsg cacheMsg) {
+    File file = fileStructure.analysisCache();
     Protobuf.writeGzip(cacheMsg, file);
     return file;
   }

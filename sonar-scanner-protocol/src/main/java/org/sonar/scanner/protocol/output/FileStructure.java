@@ -66,7 +66,7 @@ public class FileStructure {
     return new File(dir, "metadata.pb");
   }
 
-  public File pluginCache() {
+  public File analysisCache() {
     return new File(dir, "plugin-cache.pb");
   }
 

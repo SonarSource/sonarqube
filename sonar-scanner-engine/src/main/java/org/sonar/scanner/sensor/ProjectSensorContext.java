@@ -29,6 +29,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -53,6 +55,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
 
@@ -69,9 +72,13 @@ public class ProjectSensorContext implements SensorContext {
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
   private final boolean skipUnchangedFiles;
+  private final WriteCache writeCache;
+  private final ReadCache readCache;
+  private final AnalysisCacheEnabled analysisCacheEnabled;
 
   public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
-    SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration) {
+    SensorStorage sensorStorage, SonarRuntime sonarRuntime, BranchConfiguration branchConfiguration, WriteCache writeCache, ReadCache readCache,
+    AnalysisCacheEnabled analysisCacheEnabled) {
     this.project = project;
     this.config = config;
     this.mutableSettings = mutableSettings;
@@ -79,6 +86,9 @@ public class ProjectSensorContext implements SensorContext {
     this.activeRules = activeRules;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
+    this.writeCache = writeCache;
+    this.readCache = readCache;
+    this.analysisCacheEnabled = analysisCacheEnabled;
     this.skipUnchangedFiles = branchConfiguration.isPullRequest();
   }
 
@@ -181,6 +191,21 @@ public class ProjectSensorContext implements SensorContext {
   public void markForPublishing(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublished(true);
+  }
+
+  @Override
+  public WriteCache nextCache() {
+    return writeCache;
+  }
+
+  @Override
+  public ReadCache previousAnalysisCache() {
+    return readCache;
+  }
+
+  @Override
+  public boolean isCacheEnabled() {
+    return analysisCacheEnabled.isEnabled();
   }
 
   @Override

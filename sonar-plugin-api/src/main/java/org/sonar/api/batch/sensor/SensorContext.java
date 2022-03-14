@@ -20,11 +20,14 @@
 package org.sonar.api.batch.sensor;
 
 import java.io.Serializable;
+import org.sonar.api.Beta;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -218,4 +221,33 @@ public interface SensorContext {
    */
   void markForPublishing(InputFile inputFile);
 
+  /**
+   * Access object to write cache that will be stored and made available in a future analysis.
+   * If cache is disabled, the methods in the returned object will have no effect.
+   * This API is experimental and can be changed or dropped at any time.
+   * @see #isCacheEnabled()
+   * @since 9.4
+   */
+  @Beta
+  WriteCache nextCache();
+
+  /**
+   * Access object to read cached data. The origin of the cached data is not specified and could come from a different branch.
+   * If cache is disabled, the methods in the returned object will have no effect.
+   * This API is experimental and can be changed or dropped at any time.
+   * @see #isCacheEnabled()
+   * @since 9.4
+   */
+  @Beta
+  ReadCache previousAnalysisCache();
+
+  /**
+   * Returns true if caching is enabled.
+   * This API is experimental and can be changed or dropped at any time.
+   * @see #nextCache()
+   * @see #previousAnalysisCache()
+   * @since 9.4
+   */
+  @Beta
+  boolean isCacheEnabled();
 }

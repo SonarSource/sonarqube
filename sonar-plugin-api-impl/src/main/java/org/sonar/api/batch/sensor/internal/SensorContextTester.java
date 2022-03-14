@@ -47,6 +47,8 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.code.NewSignificantCode;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -110,8 +112,11 @@ public class SensorContextTester implements SensorContext {
   private DefaultInputProject project;
   private DefaultInputModule module;
   private SonarRuntime runtime;
+  private ReadCache readCache;
+  private WriteCache writeCache;
   private boolean canSkipUnchangedFiles;
   private boolean cancelled;
+  private boolean cacheEnabled = false;
 
   private SensorContextTester(Path moduleBaseDir) {
     this.settings = new MapSettings();
@@ -406,6 +411,35 @@ public class SensorContextTester implements SensorContext {
   public void markForPublishing(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublished(true);
+  }
+
+  @Override
+  public WriteCache nextCache() {
+    return writeCache;
+  }
+
+  public void setNextCache(WriteCache writeCache) {
+    this.writeCache = writeCache;
+  }
+
+  @Override
+  public ReadCache previousAnalysisCache() {
+    return readCache;
+  }
+
+
+  public void setPreviousAnalysisCache(ReadCache cache) {
+    this.readCache = cache;
+  }
+
+  @Override
+  public boolean isCacheEnabled() {
+    return cacheEnabled;
+  }
+
+
+  public void setCacheEnabled(boolean enabled) {
+    this.cacheEnabled = enabled;
   }
 
   @Override

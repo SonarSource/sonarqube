@@ -81,12 +81,12 @@ public class ScannerReportReader {
 
   @CheckForNull
   public InputStream getPluginCache() {
-    File file = fileStructure.pluginCache();
+    File file = fileStructure.analysisCache();
     if (fileExists(file)) {
       try {
-        return new BufferedInputStream(new FileInputStream(fileStructure.pluginCache()));
+        return new BufferedInputStream(new FileInputStream(fileStructure.analysisCache()));
       } catch (FileNotFoundException e) {
-        throw new IllegalStateException("Unable to open file " + fileStructure.pluginCache(), e);
+        throw new IllegalStateException("Unable to open file " + fileStructure.analysisCache(), e);
       }
     }
     return null;

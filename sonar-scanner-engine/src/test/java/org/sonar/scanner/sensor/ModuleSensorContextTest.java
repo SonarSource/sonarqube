@@ -37,6 +37,9 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
+import org.sonar.scanner.cache.AnalysisCacheEnabled;
+import org.sonar.scanner.cache.ReadCacheImpl;
+import org.sonar.scanner.cache.WriteCacheImpl;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +58,9 @@ public class ModuleSensorContextTest {
   private SensorStorage sensorStorage;
   private SonarRuntime runtime;
   private BranchConfiguration branchConfiguration;
+  private WriteCacheImpl writeCache;
+  private ReadCacheImpl readCache;
+  private AnalysisCacheEnabled analysisCacheEnabled;
 
   @Before
   public void prepare() throws Exception {
@@ -66,17 +72,24 @@ public class ModuleSensorContextTest {
     settings = new MapSettings();
     sensorStorage = mock(SensorStorage.class);
     branchConfiguration = mock(BranchConfiguration.class);
+    writeCache = mock(WriteCacheImpl.class);
+    readCache = mock(ReadCacheImpl.class);
+    analysisCacheEnabled = mock(AnalysisCacheEnabled.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
   }
 
   @Test
   public void shouldProvideComponents() {
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime, branchConfiguration);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
+      branchConfiguration, writeCache, readCache, analysisCacheEnabled);
     assertThat(adaptor.activeRules()).isEqualTo(activeRules);
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
     assertThat(adaptor.runtime()).isEqualTo(runtime);
     assertThat(adaptor.canSkipUnchangedFiles()).isFalse();
+
+    assertThat(adaptor.nextCache()).isEqualTo(writeCache);
+    assertThat(adaptor.previousAnalysisCache()).isEqualTo(readCache);
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newExternalIssue()).isNotNull();
@@ -90,7 +103,8 @@ public class ModuleSensorContextTest {
   @Test
   public void pull_request_can_skip_unchanged_files() {
     when(branchConfiguration.isPullRequest()).thenReturn(true);
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime, branchConfiguration);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime,
+      branchConfiguration, writeCache, readCache, analysisCacheEnabled);
     assertThat(adaptor.canSkipUnchangedFiles()).isTrue();
   }
 

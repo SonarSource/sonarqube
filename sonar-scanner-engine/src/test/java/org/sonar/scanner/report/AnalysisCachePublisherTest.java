@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.scanner.cache.PluginCacheEnabled;
+import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.cache.ScannerWriteCache;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
@@ -38,13 +38,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class PluginCachePublisherTest {
+public class AnalysisCachePublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private final ScannerWriteCache writeCache = mock(ScannerWriteCache.class);
-  private final PluginCacheEnabled pluginCacheEnabled = mock(PluginCacheEnabled.class);
-  private final PluginCachePublisher publisher = new PluginCachePublisher(pluginCacheEnabled, writeCache);
+  private final AnalysisCacheEnabled analysisCacheEnabled = mock(AnalysisCacheEnabled.class);
+  private final AnalysisCachePublisher publisher = new AnalysisCachePublisher(analysisCacheEnabled, writeCache);
 
   private ScannerReportWriter scannerReportWriter;
 
@@ -55,7 +55,7 @@ public class PluginCachePublisherTest {
 
   @Test
   public void publish_does_nothing_if_cache_not_enabled() {
-    when(pluginCacheEnabled.isEnabled()).thenReturn(false);
+    when(analysisCacheEnabled.isEnabled()).thenReturn(false);
     publisher.publish(scannerReportWriter);
     verifyNoInteractions(writeCache);
     assertThat(scannerReportWriter.getFileStructure().root()).isEmptyDirectory();
@@ -64,18 +64,18 @@ public class PluginCachePublisherTest {
   @Test
   public void publish_cache() {
     when(writeCache.getCache()).thenReturn(Map.of("key1", "value1".getBytes(StandardCharsets.UTF_8)));
-    when(pluginCacheEnabled.isEnabled()).thenReturn(true);
+    when(analysisCacheEnabled.isEnabled()).thenReturn(true);
     publisher.publish(scannerReportWriter);
     verify(writeCache, times(2)).getCache();
-    assertThat(scannerReportWriter.getFileStructure().pluginCache()).exists();
+    assertThat(scannerReportWriter.getFileStructure().analysisCache()).exists();
   }
 
   @Test
   public void publish_empty_cache() {
     when(writeCache.getCache()).thenReturn(emptyMap());
-    when(pluginCacheEnabled.isEnabled()).thenReturn(true);
+    when(analysisCacheEnabled.isEnabled()).thenReturn(true);
     publisher.publish(scannerReportWriter);
     verify(writeCache).getCache();
-    assertThat(scannerReportWriter.getFileStructure().pluginCache()).doesNotExist();
+    assertThat(scannerReportWriter.getFileStructure().analysisCache()).doesNotExist();
   }
 }

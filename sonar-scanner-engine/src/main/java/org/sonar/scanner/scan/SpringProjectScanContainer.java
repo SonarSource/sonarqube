@@ -35,6 +35,7 @@ import org.sonar.core.config.ScannerProperties;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.metric.ScannerMetrics;
+import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
@@ -42,7 +43,10 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
-import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.scanner.cache.AnalysisCacheEnabled;
+import org.sonar.scanner.cache.AnalysisCacheLoader;
+import org.sonar.scanner.cache.AnalysisCacheMemoryStorage;
+import org.sonar.scanner.cache.AnalysisCacheProvider;
 import org.sonar.scanner.ci.CiConfigurationProvider;
 import org.sonar.scanner.ci.vendors.AppVeyor;
 import org.sonar.scanner.ci.vendors.AwsCodeBuild;
@@ -84,6 +88,7 @@ import org.sonar.scanner.report.ChangedLinesPublisher;
 import org.sonar.scanner.report.ComponentsPublisher;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
 import org.sonar.scanner.report.MetadataPublisher;
+import org.sonar.scanner.report.AnalysisCachePublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.SourcePublisher;
 import org.sonar.scanner.report.TestExecutionPublisher;
@@ -128,8 +133,8 @@ import org.sonar.scanner.sensor.ProjectSensorsExecutor;
 import org.sonar.scm.git.GitScmSupport;
 import org.sonar.scm.svn.SvnScmSupport;
 
-import static org.sonar.api.utils.Preconditions.checkNotNull;
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
+import static org.sonar.api.utils.Preconditions.checkNotNull;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isDeprecatedScannerSide;
 import static org.sonar.scanner.bootstrap.ExtensionUtils.isInstantiationStrategy;
@@ -166,6 +171,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       new ProjectPullRequestsProvider(),
       ProjectRepositoriesSupplier.class,
       new ProjectServerSettingsProvider(),
+      AnalysisCacheEnabled.class,
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -223,6 +229,11 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
       ProjectCoverageAndDuplicationExclusions.class,
 
+      // Plugin cache
+      AnalysisCacheProvider.class,
+      AnalysisCacheMemoryStorage.class,
+      AnalysisCacheLoader.class,
+
       // Report
       ReferenceBranchSupplier.class,
       ScannerMetrics.class,
@@ -232,6 +243,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ActiveRulesPublisher.class,
       AnalysisWarningsPublisher.class,
       ComponentsPublisher.class,
+      AnalysisCachePublisher.class,
       TestExecutionPublisher.class,
       SourcePublisher.class,
       ChangedLinesPublisher.class,

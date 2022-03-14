@@ -35,7 +35,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
-import org.sonar.scanner.protocol.internal.ScannerInternal.PluginCacheMsg;
+import org.sonar.scanner.protocol.internal.ScannerInternal;
+import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 
@@ -214,13 +215,13 @@ public class ScannerReportReaderTest {
   @Test
   public void read_plugin_cache() throws IOException {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
-    writer.writePluginCache(PluginCacheMsg.newBuilder()
+    writer.writeAnalysisCache(ScannerInternal.AnalysisCacheMsg.newBuilder()
       .putMap("key", ByteString.copyFrom("data", UTF_8))
       .build());
 
     ScannerReportReader reader = new ScannerReportReader(dir);
 
-    PluginCacheMsg cache = Protobuf.read(new GZIPInputStream(reader.getPluginCache()), PluginCacheMsg.parser());
+    AnalysisCacheMsg cache = Protobuf.read(new GZIPInputStream(reader.getPluginCache()), ScannerInternal.AnalysisCacheMsg.parser());
     assertThat(cache.getMapMap()).containsOnly(new AbstractMap.SimpleEntry<>("key", ByteString.copyFrom("data", UTF_8)));
   }
 
