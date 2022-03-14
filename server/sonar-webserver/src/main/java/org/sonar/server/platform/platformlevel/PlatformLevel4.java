@@ -221,6 +221,8 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
+import org.sonar.server.scannercache.ScannerCache;
+import org.sonar.server.scannercache.ws.ScannerCacheWsModule;
 import org.sonar.server.setting.ProjectConfigurationLoaderImpl;
 import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingsWsModule;
@@ -522,6 +524,10 @@ public class PlatformLevel4 extends PlatformLevel {
       UninstallAction.class,
       CancelAllAction.class,
       PluginsWs.class,
+
+      // Scanner Cache
+      ScannerCache.class,
+      new ScannerCacheWsModule(),
 
       // ALM integrations
       TimeoutConfigurationImpl.class,

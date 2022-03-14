@@ -27,6 +27,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskInputDao;
@@ -89,7 +90,7 @@ public class CeQueueCleanerTest {
     runCleaner();
 
     CeTaskInputDao dataDao = dbTester.getDbClient().ceTaskInputDao();
-    Optional<CeTaskInputDao.DataStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
+    Optional<DbInputStream> task1Data = dataDao.selectData(dbTester.getSession(), "TASK_1");
     assertThat(task1Data).isPresent();
     task1Data.get().close();
 

@@ -126,11 +126,6 @@ public class ComponentFinder {
       .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
   }
 
-  public BranchDto getMainBranch(DbSession dbSession, ComponentDto projectDto) {
-    return dbClient.branchDao().selectByUuid(dbSession, projectDto.uuid())
-      .orElseThrow(() -> new IllegalStateException(String.format("Can't find main branch for project '%s'", projectDto.getKey())));
-  }
-
   private static void checkByUuidOrKey(@Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
     checkArgument(componentUuid != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
   }
