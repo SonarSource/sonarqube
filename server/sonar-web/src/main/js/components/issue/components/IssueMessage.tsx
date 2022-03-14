@@ -51,30 +51,59 @@ export default function IssueMessage(props: IssueMessageProps) {
   const ruleEngine = engineName ? engineName : engine;
 
   return (
-    <div className="display-inline-flex-center issue-message break-word">
-      <span className="spacer-right">{message}</span>
-      {quickFixAvailable && (
-        <Tooltip
-          overlay={
-            <FormattedMessage
-              id="issue.quick_fix_available_with_sonarlint"
-              defaultMessage={translate('issue.quick_fix_available_with_sonarlint')}
-              values={{
-                link: (
-                  <a
-                    href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
-                    rel="noopener noreferrer"
-                    target="_blank">
-                    SonarLint
-                  </a>
-                )
-              }}
-            />
-          }
-          mouseLeaveDelay={0.5}>
-          <SonarLintIcon className="it__issues-sonarlint-quick-fix spacer-right" size={15} />
-        </Tooltip>
-      )}
+    <>
+      <div className="display-inline-flex-center issue-message break-word">
+        <span className="spacer-right">{message}</span>
+        {quickFixAvailable && (
+          <Tooltip
+            overlay={
+              <FormattedMessage
+                id="issue.quick_fix_available_with_sonarlint"
+                defaultMessage={translate('issue.quick_fix_available_with_sonarlint')}
+                values={{
+                  link: (
+                    <a
+                      href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
+                      rel="noopener noreferrer"
+                      target="_blank">
+                      SonarLint
+                    </a>
+                  )
+                }}
+              />
+            }
+            mouseLeaveDelay={0.5}>
+            <SonarLintIcon className="it__issues-sonarlint-quick-fix spacer-right" size={15} />
+          </Tooltip>
+        )}
+        {ruleStatus && (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
+          <DocumentationTooltip
+            className="spacer-left"
+            content={translate('rules.status', ruleStatus, 'help')}
+            links={[
+              {
+                href: '/documentation/user-guide/rules/',
+                label: translateWithParameters('see_x', translate('rules'))
+              }
+            ]}>
+            <span className="spacer-right badge badge-error">
+              {translate('rules.status', ruleStatus)}
+            </span>
+          </DocumentationTooltip>
+        )}
+        {ruleEngine && (
+          <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
+            <div className="badge spacer-right text-baseline">{ruleEngine}</div>
+          </Tooltip>
+        )}
+        {manualVulnerability && (
+          <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
+            <div className="badge spacer-right text-baseline">
+              {translate('issue.manual_vulnerability')}
+            </div>
+          </Tooltip>
+        )}
+      </div>
       <ButtonLink
         aria-label={translate('issue.why_this_issue.long')}
         className="issue-see-rule spacer-right text-baseline"
@@ -85,33 +114,6 @@ export default function IssueMessage(props: IssueMessageProps) {
         }>
         {translate('issue.why_this_issue')}
       </ButtonLink>
-      {ruleStatus && (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) && (
-        <DocumentationTooltip
-          className="spacer-left"
-          content={translate('rules.status', ruleStatus, 'help')}
-          links={[
-            {
-              href: '/documentation/user-guide/rules/',
-              label: translateWithParameters('see_x', translate('rules'))
-            }
-          ]}>
-          <span className="spacer-right badge badge-error">
-            {translate('rules.status', ruleStatus)}
-          </span>
-        </DocumentationTooltip>
-      )}
-      {ruleEngine && (
-        <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
-          <div className="badge spacer-right text-baseline">{ruleEngine}</div>
-        </Tooltip>
-      )}
-      {manualVulnerability && (
-        <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-          <div className="badge spacer-right text-baseline">
-            {translate('issue.manual_vulnerability')}
-          </div>
-        </Tooltip>
-      )}
-    </div>
+    </>
   );
 }

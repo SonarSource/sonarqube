@@ -47,16 +47,17 @@
 .issue-row {
   display: flex;
   margin-bottom: 5px;
+  align-items: flex-start;
 }
 
 .issue-row-meta {
-  flex-grow: 0;
   padding-right: 5px;
   white-space: nowrap;
+  margin-top: 2px;
 }
 
 .issue-message {
-  flex-grow: 1;
+  flex: 1;
   padding-left: var(--gridSize);
   padding-right: var(--gridSize);
   line-height: 18px;
@@ -81,6 +82,7 @@
 .issue-meta {
   line-height: 16px;
   font-size: var(--smallFontSize);
+  display: flex;
 }
 
 .issue-meta + .issue-meta {
@@ -100,6 +102,7 @@
 .issue-see-rule {
   border-bottom: none;
   font-size: var(--smallFontSize);
+  margin-top: 5px;
 }
 
 .issue-changelog {
