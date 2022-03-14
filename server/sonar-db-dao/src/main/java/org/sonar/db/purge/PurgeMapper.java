@@ -175,4 +175,5 @@ public interface PurgeMapper {
 
   void deleteUserDismissedMessagesByProjectUuid(@Param("projectUuid") String projectUuid);
 
+  void deleteScannerCacheByBranchUuid(@Param("branchUuid") String branchUuid);
 }

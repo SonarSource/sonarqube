@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "org.sonar.scanner.protocol.internal";
+option optimize_for = SPEED;
+
+message PluginCacheMsg {
+    map<string, bytes> map = 1;
+}

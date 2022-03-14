@@ -44,6 +44,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,7 +53,6 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
-import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
@@ -1675,7 +1675,7 @@ public class PurgeDaoTest {
     return db.getDbClient().ceTaskCharacteristicsDao().selectByTaskUuids(db.getSession(), Collections.singletonList(taskUuid));
   }
 
-  private Optional<CeTaskInputDao.DataStream> selectTaskInput(String taskUuid) {
+  private Optional<DbInputStream> selectTaskInput(String taskUuid) {
     return db.getDbClient().ceTaskInputDao().selectData(db.getSession(), taskUuid);
   }
 

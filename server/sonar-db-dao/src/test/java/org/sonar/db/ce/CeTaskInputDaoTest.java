@@ -25,8 +25,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbTester;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,12 +54,10 @@ public class CeTaskInputDaoTest {
     InputStream report = IOUtils.toInputStream(SOME_DATA);
     underTest.insert(dbTester.getSession(), A_UUID, report);
 
-    Optional<CeTaskInputDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isPresent();
-    try {
-      assertThat(IOUtils.toString(result.get().getInputStream())).isEqualTo(SOME_DATA);
-    } finally {
-      result.get().close();
+    try (DbInputStream is = result.get()) {
+      assertThat(IOUtils.toString(is, UTF_8)).isEqualTo(SOME_DATA);
     }
   }
 
@@ -69,7 +69,7 @@ public class CeTaskInputDaoTest {
 
   @Test
   public void selectData_returns_absent_if_uuid_not_found() {
-    Optional<CeTaskInputDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isNotPresent();
   }
 
@@ -78,7 +78,7 @@ public class CeTaskInputDaoTest {
     insertData(A_UUID);
     dbTester.commit();
 
-    Optional<CeTaskInputDao.DataStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
+    Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isNotPresent();
   }
 

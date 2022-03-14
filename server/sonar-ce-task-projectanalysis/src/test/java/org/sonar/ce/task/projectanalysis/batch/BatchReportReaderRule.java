@@ -20,6 +20,8 @@
 package org.sonar.ce.task.projectanalysis.batch;
 
 import com.google.common.base.Preconditions;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,6 +59,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<ScannerReport.LineSgnificantCode>> significantCode = new HashMap<>();
   private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
+  private byte[] pluginCache;
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -104,6 +107,19 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
       throw new IllegalStateException("Metadata is missing");
     }
     return metadata;
+  }
+
+  @CheckForNull
+  @Override
+  public InputStream getPluginCache() {
+    if (pluginCache == null) {
+      return null;
+    }
+    return new ByteArrayInputStream(pluginCache);
+  }
+
+  public void setPluginCache(byte[] cache) {
+    this.pluginCache = cache;
   }
 
   public BatchReportReaderRule setMetadata(ScannerReport.Metadata metadata) {

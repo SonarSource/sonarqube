@@ -20,9 +20,13 @@
 package org.sonar.scanner.protocol.output;
 
 import com.google.common.collect.Lists;
+import com.google.protobuf.ByteString;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.AbstractMap;
+import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -30,9 +34,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.Protobuf;
+import org.sonar.scanner.protocol.internal.ScannerInternal.PluginCacheMsg;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -202,6 +209,19 @@ public class ScannerReportReaderTest {
 
     ScannerReportReader sut = new ScannerReportReader(dir);
     assertThat(sut.readCpdTextBlocks(1)).toIterable().hasSize(1);
+  }
+
+  @Test
+  public void read_plugin_cache() throws IOException {
+    ScannerReportWriter writer = new ScannerReportWriter(dir);
+    writer.writePluginCache(PluginCacheMsg.newBuilder()
+      .putMap("key", ByteString.copyFrom("data", UTF_8))
+      .build());
+
+    ScannerReportReader reader = new ScannerReportReader(dir);
+
+    PluginCacheMsg cache = Protobuf.read(new GZIPInputStream(reader.getPluginCache()), PluginCacheMsg.parser());
+    assertThat(cache.getMapMap()).containsOnly(new AbstractMap.SimpleEntry<>("key", ByteString.copyFrom("data", UTF_8)));
   }
 
   @Test

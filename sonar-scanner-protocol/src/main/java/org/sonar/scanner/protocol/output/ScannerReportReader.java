@@ -19,7 +19,11 @@
  */
 package org.sonar.scanner.protocol.output;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
@@ -71,6 +75,19 @@ public class ScannerReportReader {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, componentRef);
     if (fileExists(file)) {
       return Protobuf.read(file, ScannerReport.Changesets.parser());
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public InputStream getPluginCache() {
+    File file = fileStructure.pluginCache();
+    if (fileExists(file)) {
+      try {
+        return new BufferedInputStream(new FileInputStream(fileStructure.pluginCache()));
+      } catch (FileNotFoundException e) {
+        throw new IllegalStateException("Unable to open file " + fileStructure.pluginCache(), e);
+      }
     }
     return null;
   }

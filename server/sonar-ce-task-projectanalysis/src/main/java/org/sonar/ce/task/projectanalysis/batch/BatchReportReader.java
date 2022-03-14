@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.batch;
 
+import java.io.InputStream;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.CloseableIterator;
@@ -26,6 +27,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 public interface BatchReportReader {
   ScannerReport.Metadata readMetadata();
+
+  @CheckForNull
+  InputStream getPluginCache();
 
   CloseableIterator<String> readScannerLogs();
 

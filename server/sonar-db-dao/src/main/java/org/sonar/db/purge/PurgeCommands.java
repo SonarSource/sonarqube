@@ -485,4 +485,11 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteScannerCache(String rootUuid) {
+    profiler.start("deleteScannerCache (scanner_cache)");
+    purgeMapper.deleteScannerCacheByBranchUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
 }

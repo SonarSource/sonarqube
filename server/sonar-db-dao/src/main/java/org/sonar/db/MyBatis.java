@@ -136,6 +136,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
+import org.sonar.db.scannercache.ScannerCacheMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.source.FileSourceMapper;
@@ -299,6 +300,7 @@ public class MyBatis {
       RuleMapper.class,
       RuleRepositoryMapper.class,
       SamlMessageIdMapper.class,
+      ScannerCacheMapper.class,
       SchemaMigrationMapper.class,
       SessionTokenMapper.class,
       SnapshotMapper.class,

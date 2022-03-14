@@ -19,17 +19,36 @@
  */
 package org.sonar.server.platform.db.migration.version.v94;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class DbVersion94 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6301, "Drop unused Issues Column REPORTER", DropReporterIssueColumn.class)
-      .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
-      .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
-      .add(6304, "Create table 'SCANNER_CACHE", CreateScannerCacheTable.class)
-    ;
+public class CreateScannerCacheTableTest {
+  private static final String TABLE_NAME = "scanner_cache";
+
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createEmpty();
+
+  private final CreateScannerCacheTable underTest = new CreateScannerCacheTable(db.database());
+
+  @Test
+  public void migration_should_create_table() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
+
+    underTest.execute();
+
+    db.assertTableExists(TABLE_NAME);
+  }
+
+  @Test
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertTableDoesNotExist(TABLE_NAME);
+
+    underTest.execute();
+    //re-entrant
+    underTest.execute();
+
+    db.assertTableExists(TABLE_NAME);
   }
 }

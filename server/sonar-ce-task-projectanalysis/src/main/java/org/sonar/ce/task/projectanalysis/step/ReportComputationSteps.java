@@ -48,6 +48,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
 
+    PersistPluginCacheStep.class,
     LoadQualityProfilesStep.class,
 
     // load project related stuffs

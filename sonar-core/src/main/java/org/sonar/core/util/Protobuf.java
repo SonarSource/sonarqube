@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -74,6 +75,22 @@ public class Protobuf {
     OutputStream out = null;
     try {
       out = new BufferedOutputStream(new FileOutputStream(toFile, false));
+      message.writeTo(out);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to write message", e).addContext("file", toFile);
+    } finally {
+      IOUtils.closeQuietly(out);
+    }
+  }
+
+  /**
+   * Writes a single message to {@code file}, compressed with gzip. Existing content is replaced, the message is not
+   * appended.
+   */
+  public static void writeGzip(Message message, File toFile) {
+    OutputStream out = null;
+    try {
+      out = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(toFile, false)));
       message.writeTo(out);
     } catch (Exception e) {
       throw ContextException.of("Unable to write message", e).addContext("file", toFile);

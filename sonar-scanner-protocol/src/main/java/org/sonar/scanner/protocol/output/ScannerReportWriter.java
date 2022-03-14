@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.core.util.ContextException;
 import org.sonar.core.util.Protobuf;
+import org.sonar.scanner.protocol.internal.ScannerInternal;
 
 @Immutable
 public class ScannerReportWriter {
@@ -91,6 +92,12 @@ public class ScannerReportWriter {
   public File writeComponentChangedLines(int componentRef, ScannerReport.ChangedLines changedLines) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGED_LINES, componentRef);
     Protobuf.write(changedLines, file);
+    return file;
+  }
+
+  public File writePluginCache(ScannerInternal.PluginCacheMsg cacheMsg) {
+    File file = fileStructure.pluginCache();
+    Protobuf.writeGzip(cacheMsg, file);
     return file;
   }
 

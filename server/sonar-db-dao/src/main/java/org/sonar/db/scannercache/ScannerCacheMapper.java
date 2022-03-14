@@ -17,19 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v94;
+package org.sonar.db.scannercache;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.apache.ibatis.annotations.Param;
 
-public class DbVersion94 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6301, "Drop unused Issues Column REPORTER", DropReporterIssueColumn.class)
-      .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
-      .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
-      .add(6304, "Create table 'SCANNER_CACHE", CreateScannerCacheTable.class)
-    ;
-  }
+public interface ScannerCacheMapper {
+  void removeAll();
+
+  void remove(@Param("branchUuid") String branchUuid);
 }

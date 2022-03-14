@@ -17,61 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.db.scannercache;
 
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import org.sonar.api.utils.System2;
+import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
-public class CeTaskInputDao implements Dao {
-
-  private final System2 system;
-
-  public CeTaskInputDao(System2 system) {
-    this.system = system;
+public class ScannerCacheDao implements Dao {
+  public void removeAll(DbSession session) {
+    mapper(session).removeAll();
   }
 
-  public void insert(DbSession dbSession, String taskUuid, InputStream data) {
-    long now = system.now();
+  public void remove(DbSession session, String branchUuid) {
+    mapper(session).remove(branchUuid);
+  }
+
+  public void insert(DbSession dbSession, String branchUuid, InputStream data) {
     Connection connection = dbSession.getConnection();
     try (PreparedStatement stmt = connection.prepareStatement(
-      "INSERT INTO ce_task_input (task_uuid, created_at, updated_at, input_data) VALUES (?, ?, ?, ?)")) {
-      stmt.setString(1, taskUuid);
-      stmt.setLong(2, now);
-      stmt.setLong(3, now);
-      stmt.setBinaryStream(4, data);
+      "INSERT INTO scanner_cache (branch_uuid, data) VALUES (?, ?)")) {
+      stmt.setString(1, branchUuid);
+      stmt.setBinaryStream(2, data);
       stmt.executeUpdate();
       connection.commit();
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to insert data of CE task " + taskUuid, e);
+      throw new IllegalStateException("Fail to insert cache for branch " + branchUuid, e);
     }
   }
 
-  public Optional<DbInputStream> selectData(DbSession dbSession, String taskUuid) {
+  @CheckForNull
+  public DbInputStream selectData(DbSession dbSession, String branchUuid) {
     PreparedStatement stmt = null;
     ResultSet rs = null;
     DbInputStream result = null;
     try {
-      stmt = dbSession.getConnection().prepareStatement("SELECT input_data FROM ce_task_input WHERE task_uuid=? AND input_data IS NOT NULL");
-      stmt.setString(1, taskUuid);
+      stmt = dbSession.getConnection().prepareStatement("SELECT data FROM scanner_cache WHERE branch_uuid=?");
+      stmt.setString(1, branchUuid);
       rs = stmt.executeQuery();
       if (rs.next()) {
         result = new DbInputStream(stmt, rs, rs.getBinaryStream(1));
-        return Optional.of(result);
+        return result;
       }
-      return Optional.empty();
+      return null;
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to select data of CE task " + taskUuid, e);
+      throw new IllegalStateException("Fail to select cache for branch " + branchUuid, e);
     } finally {
       if (result == null) {
         DatabaseUtils.closeQuietly(rs);
@@ -80,12 +76,7 @@ public class CeTaskInputDao implements Dao {
     }
   }
 
-  public List<String> selectUuidsNotInQueue(DbSession dbSession) {
-    return dbSession.getMapper(CeTaskInputMapper.class).selectUuidsNotInQueue();
-  }
-
-  public void deleteByUuids(DbSession dbSession, Collection<String> uuids) {
-    CeTaskInputMapper mapper = dbSession.getMapper(CeTaskInputMapper.class);
-    DatabaseUtils.executeLargeUpdates(uuids, mapper::deleteByUuids);
+  private static ScannerCacheMapper mapper(DbSession session) {
+    return session.getMapper(ScannerCacheMapper.class);
   }
 }

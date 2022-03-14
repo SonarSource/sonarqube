@@ -20,6 +20,10 @@
 package org.sonar.core.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,7 +74,7 @@ public class ProtobufTest {
   }
 
   @Test
-  public void fail_to_write_single_message() throws Exception {
+  public void fail_to_write_single_message() {
     assertThatThrownBy(() -> {
       File dir = temp.newFolder();
       Protobuf.write(Fake.getDefaultInstance(), dir);
@@ -97,7 +101,18 @@ public class ProtobufTest {
   }
 
   @Test
-  public void fail_to_read_stream() throws Exception {
+  public void write_gzip_file() throws IOException {
+    File file = temp.newFile();
+
+    Fake item1 = Fake.newBuilder().setLabel("one").setLine(1).build();
+    Protobuf.writeGzip(item1, file);
+    try (InputStream is = new GZIPInputStream(new FileInputStream(file))) {
+      assertThat(Protobuf.read(is, Fake.parser()).getLabel()).isEqualTo("one");
+    }
+  }
+
+  @Test
+  public void fail_to_read_stream() {
     assertThatThrownBy(() -> {
       File dir = temp.newFolder();
       Protobuf.readStream(dir, Fake.parser());

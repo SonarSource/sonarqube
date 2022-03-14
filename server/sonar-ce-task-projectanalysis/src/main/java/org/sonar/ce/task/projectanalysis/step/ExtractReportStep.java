@@ -32,9 +32,9 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.projectanalysis.batch.MutableBatchReportDirectoryHolder;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.process.FileUtils2;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
@@ -63,11 +63,11 @@ public class ExtractReportStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<CeTaskInputDao.DataStream> opt = dbClient.ceTaskInputDao().selectData(dbSession, task.getUuid());
+      Optional<DbInputStream> opt = dbClient.ceTaskInputDao().selectData(dbSession, task.getUuid());
       if (opt.isPresent()) {
         File unzippedDir = tempFolder.newDir();
-        try (CeTaskInputDao.DataStream reportStream = opt.get();
-             InputStream zipStream = new BufferedInputStream(reportStream.getInputStream())) {
+        try (DbInputStream reportStream = opt.get();
+             InputStream zipStream = new BufferedInputStream(reportStream)) {
           ZipUtils.unzip(zipStream, unzippedDir);
         } catch (IOException e) {
           throw new IllegalStateException("Fail to extract report " + task.getUuid() + " from database", e);

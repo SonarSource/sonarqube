@@ -17,19 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v94;
+package org.sonar.db;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.internal.apachecommons.io.input.ProxyInputStream;
 
-public class DbVersion94 implements DbVersion {
+public class DbInputStream extends ProxyInputStream {
+  private final PreparedStatement stmt;
+  private final ResultSet rs;
+  private final InputStream stream;
+
+  public DbInputStream(PreparedStatement stmt, ResultSet rs, InputStream stream) {
+    super(stream);
+    this.stmt = stmt;
+    this.rs = rs;
+    this.stream = stream;
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6301, "Drop unused Issues Column REPORTER", DropReporterIssueColumn.class)
-      .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
-      .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
-      .add(6304, "Create table 'SCANNER_CACHE", CreateScannerCacheTable.class)
-    ;
+  public void close() {
+    IOUtils.closeQuietly(stream);
+    DatabaseUtils.closeQuietly(rs);
+    DatabaseUtils.closeQuietly(stmt);
   }
 }

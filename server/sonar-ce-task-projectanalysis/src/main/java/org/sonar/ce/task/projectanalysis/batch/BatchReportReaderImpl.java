@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -59,6 +60,13 @@ public class BatchReportReaderImpl implements BatchReportReader {
       this.metadata = delegate.readMetadata();
     }
     return this.metadata;
+  }
+
+  @CheckForNull
+  @Override
+  public InputStream getPluginCache() {
+    ensureInitialized();
+    return delegate.getPluginCache();
   }
 
   @Override
