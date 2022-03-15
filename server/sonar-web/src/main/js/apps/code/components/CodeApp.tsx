@@ -35,7 +35,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
-import { fetchBranchStatus } from '../../../store/rootActions';
+import { fetchBranchStatus } from '../../../store/branches';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';

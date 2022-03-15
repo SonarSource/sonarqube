@@ -23,7 +23,7 @@ import withCurrentUserContext from '../../../app/components/current-user/withCur
 import { withRouter } from '../../../components/hoc/withRouter';
 import { lazyLoadComponent } from '../../../components/lazyLoadComponent';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { fetchBranchStatus } from '../../../store/rootActions';
+import { fetchBranchStatus } from '../../../store/branches';
 import { Store } from '../../../store/rootReducer';
 import { FetchIssuesPromise } from '../../../types/issues';
 import { RawQuery } from '../../../types/types';

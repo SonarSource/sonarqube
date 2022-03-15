@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getBranchLikeKey } from '../helpers/branch-like';
+import { Dispatch } from 'redux';
+import { getQualityGateProjectStatus } from '../api/quality-gates';
+import addGlobalErrorMessage from '../app/utils/addGlobalErrorMessage';
+import { getBranchLikeKey, getBranchLikeQuery } from '../helpers/branch-like';
+import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
+import { ActionType } from '../types/actions';
 import { BranchLike } from '../types/branch-like';
 import { QualityGateStatusCondition } from '../types/quality-gates';
 import { Dict, Status } from '../types/types';
-import { ActionType } from './utils/actions';
 
 export interface BranchStatusData {
   conditions?: QualityGateStatusCondition[];
@@ -56,7 +60,7 @@ export function registerBranchStatusAction(
   };
 }
 
-export default function(state: State = { byComponent: {} }, action: Action): State {
+export default function branchesReducer(state: State = { byComponent: {} }, action: Action): State {
   if (action.type === Actions.RegisterBranchStatus) {
     const { component, conditions, branchLike, ignoredConditions, status } = action;
     const branchLikeKey = getBranchLikeKey(branchLike);
@@ -85,4 +89,27 @@ export function getBranchStatusByBranchLike(
 ): BranchStatusData {
   const branchLikeKey = getBranchLikeKey(branchLike);
   return state.byComponent[component] && state.byComponent[component][branchLikeKey];
+}
+
+export function fetchBranchStatus(branchLike: BranchLike, projectKey: string) {
+  return (dispatch: Dispatch) => {
+    getQualityGateProjectStatus({ projectKey, ...getBranchLikeQuery(branchLike) }).then(
+      projectStatus => {
+        const { ignoredConditions, status } = projectStatus;
+        const conditions = extractStatusConditionsFromProjectStatus(projectStatus);
+        dispatch(
+          registerBranchStatusAction(branchLike, projectKey, status, conditions, ignoredConditions)
+        );
+      },
+      () => {
+        addGlobalErrorMessage('Fetching Quality Gate status failed');
+      }
+    );
+  };
+}
+
+export function registerBranchStatus(branchLike: BranchLike, component: string, status: Status) {
+  return (dispatch: Dispatch) => {
+    dispatch(registerBranchStatusAction(branchLike, component, status));
+  };
 }

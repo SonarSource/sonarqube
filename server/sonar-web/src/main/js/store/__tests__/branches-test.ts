@@ -24,7 +24,9 @@ import { BranchLike } from '../../types/branch-like';
 import { QualityGateStatusCondition } from '../../types/quality-gates';
 import { Status } from '../../types/types';
 import reducer, {
+  fetchBranchStatus,
   getBranchStatusByBranchLike,
+  registerBranchStatus,
   registerBranchStatusAction,
   State
 } from '../branches';
@@ -82,3 +84,66 @@ function convertToState(items: TestArgs[] = []) {
 
   return state;
 }
+
+jest.mock('../../app/utils/addGlobalErrorMessage', () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
+
+jest.mock('../../api/quality-gates', () => {
+  const { mockQualityGateProjectStatus } = jest.requireActual('../../helpers/mocks/quality-gates');
+  return {
+    getQualityGateProjectStatus: jest.fn().mockResolvedValue(
+      mockQualityGateProjectStatus({
+        conditions: [
+          {
+            actualValue: '10',
+            comparator: 'GT',
+            errorThreshold: '0',
+            metricKey: 'foo',
+            periodIndex: 1,
+            status: 'ERROR'
+          }
+        ]
+      })
+    )
+  };
+});
+
+describe('branch store actions', () => {
+  const branchLike = mockBranch();
+  const component = 'foo';
+  const status = 'OK';
+
+  it('correctly registers a new branch status', () => {
+    const dispatch = jest.fn();
+
+    registerBranchStatus(branchLike, component, status)(dispatch);
+    expect(dispatch).toBeCalledWith({
+      branchLike,
+      component,
+      status,
+      type: 'REGISTER_BRANCH_STATUS'
+    });
+  });
+
+  it('correctly fetches a branch status', async () => {
+    const dispatch = jest.fn();
+
+    fetchBranchStatus(branchLike, component)(dispatch);
+    await new Promise(setImmediate);
+
+    expect(dispatch).toBeCalledWith({
+      branchLike,
+      component,
+      status,
+      conditions: [
+        mockQualityGateStatusCondition({
+          period: 1
+        })
+      ],
+      ignoredConditions: false,
+      type: 'REGISTER_BRANCH_STATUS'
+    });
+  });
+});

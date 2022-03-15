@@ -19,7 +19,7 @@
  */
 import { request } from '../helpers/request';
 
-export function login(login: string, password: string): Promise<Response> {
+export function logIn(login: string, password: string): Promise<Response> {
   return request('/api/authentication/login')
     .setMethod('POST')
     .setData({ login, password })
@@ -27,7 +27,7 @@ export function login(login: string, password: string): Promise<Response> {
     .then(basicCheckStatus);
 }
 
-export function logout(): Promise<Response> {
+export function logOut(): Promise<Response> {
   return request('/api/authentication/logout')
     .setMethod('POST')
     .submit()

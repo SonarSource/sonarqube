@@ -44,7 +44,7 @@ import {
   removeSideBarClass,
   removeWhitePageClass
 } from '../../../helpers/pages';
-import { fetchBranchStatus } from '../../../store/rootActions';
+import { fetchBranchStatus } from '../../../store/branches';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import {

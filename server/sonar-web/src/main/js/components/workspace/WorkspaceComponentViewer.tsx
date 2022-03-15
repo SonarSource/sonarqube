@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { getParents } from '../../api/components';
 import { isPullRequest } from '../../helpers/branch-like';
 import { scrollToElement } from '../../helpers/scrolling';
-import { fetchBranchStatus } from '../../store/rootActions';
+import { fetchBranchStatus } from '../../store/branches';
 import { BranchLike } from '../../types/branch-like';
 import { Issue, SourceViewerFile } from '../../types/types';
 import SourceViewer from '../SourceViewer/SourceViewer';

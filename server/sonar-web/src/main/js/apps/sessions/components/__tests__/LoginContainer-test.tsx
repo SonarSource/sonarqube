@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { logIn } from '../../../../api/auth';
 import { getIdentityProviders } from '../../../../api/users';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
@@ -32,6 +33,10 @@ jest.mock('../../../../api/users', () => {
       .mockResolvedValue({ identityProviders: [mockIdentityProvider()] })
   };
 });
+
+jest.mock('../../../../api/auth', () => ({
+  logIn: jest.fn().mockResolvedValue({})
+}));
 
 beforeEach(jest.clearAllMocks);
 
@@ -53,14 +58,12 @@ it('should not provide any options if no IdPs are present', async () => {
 });
 
 it('should handle submission', () => {
-  const doLogin = jest.fn().mockResolvedValue(null);
-  const wrapper = shallowRender({ doLogin });
+  (logIn as jest.Mock).mockResolvedValue(null);
+  const wrapper = shallowRender();
   wrapper.instance().handleSubmit('user', 'pass');
-  expect(doLogin).toBeCalledWith('user', 'pass');
+  expect(logIn).toBeCalledWith('user', 'pass');
 });
 
 function shallowRender(props: Partial<LoginContainer['props']> = {}) {
-  return shallow<LoginContainer>(
-    <LoginContainer doLogin={jest.fn()} location={mockLocation()} {...props} />
-  );
+  return shallow<LoginContainer>(<LoginContainer location={mockLocation()} {...props} />);
 }

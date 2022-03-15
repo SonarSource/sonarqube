@@ -28,7 +28,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { fetchBranchStatus } from '../../../store/rootActions';
+import { fetchBranchStatus } from '../../../store/branches';
 import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
 import { BranchLike, PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';

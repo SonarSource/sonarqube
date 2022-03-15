@@ -34,7 +34,7 @@ import {
 } from '../../helpers/branch-like';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl } from '../../helpers/urls';
-import { registerBranchStatus } from '../../store/rootActions';
+import { registerBranchStatus } from '../../store/branches';
 import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse

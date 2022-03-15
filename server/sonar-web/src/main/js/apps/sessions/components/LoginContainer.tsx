@@ -19,25 +19,18 @@
  */
 import { Location } from 'history';
 import * as React from 'react';
-import { connect } from 'react-redux';
+import { logIn } from '../../../api/auth';
 import { getIdentityProviders } from '../../../api/users';
+import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
 import { getReturnUrl } from '../../../helpers/urls';
-import { doLogin } from '../../../store/rootActions';
 import { IdentityProvider } from '../../../types/types';
 import Login from './Login';
 
-interface OwnProps {
+interface Props {
   location: Pick<Location, 'hash' | 'pathname' | 'query'> & {
     query: { advanced?: string; return_to?: string };
   };
 }
-
-interface DispatchToProps {
-  doLogin: (login: string, password: string) => Promise<void>;
-}
-
-type Props = OwnProps & DispatchToProps;
-
 interface State {
   identityProviders?: IdentityProvider[];
 }
@@ -55,7 +48,9 @@ export class LoginContainer extends React.PureComponent<Props, State> {
           this.setState({ identityProviders });
         }
       },
-      () => {}
+      () => {
+        /* already handled */
+      }
     );
   }
 
@@ -67,8 +62,13 @@ export class LoginContainer extends React.PureComponent<Props, State> {
     window.location.href = getReturnUrl(this.props.location);
   };
 
-  handleSubmit = (login: string, password: string) => {
-    return this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {});
+  handleSubmit = (id: string, password: string) => {
+    return logIn(id, password)
+      .then(this.handleSuccessfulLogin)
+      .catch(() => {
+        addGlobalErrorMessage('Authentication failed');
+        return Promise.reject();
+      });
   };
 
   render() {
@@ -89,7 +89,4 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = null;
-const mapDispatchToProps = { doLogin: doLogin as any };
-
-export default connect(mapStateToProps, mapDispatchToProps)(LoginContainer);
+export default LoginContainer;

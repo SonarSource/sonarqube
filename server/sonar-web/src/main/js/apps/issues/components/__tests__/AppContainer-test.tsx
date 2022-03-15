@@ -19,7 +19,7 @@
  */
 import { connect } from 'react-redux';
 import { searchIssues } from '../../../../api/issues';
-import { fetchBranchStatus } from '../../../../store/rootActions';
+import { fetchBranchStatus } from '../../../../store/branches';
 import '../AppContainer';
 
 jest.mock('react-redux', () => ({

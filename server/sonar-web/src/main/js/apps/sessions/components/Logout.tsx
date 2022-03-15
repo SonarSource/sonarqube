@@ -18,26 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import { logOut } from '../../../api/auth';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import RecentHistory from '../../../app/components/RecentHistory';
+import addGlobalErrorMessage from '../../../app/utils/addGlobalErrorMessage';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { doLogout } from '../../../store/rootActions';
 
-interface Props {
-  doLogout: () => Promise<void>;
-}
-
-export class Logout extends React.PureComponent<Props> {
+export class Logout extends React.PureComponent<{}> {
   componentDidMount() {
-    this.props.doLogout().then(
-      () => {
+    logOut()
+      .then(() => {
         RecentHistory.clear();
         window.location.replace(getBaseUrl() + '/');
-      },
-      () => {}
-    );
+      })
+      .catch(() => {
+        addGlobalErrorMessage('Logout failed');
+      });
   }
 
   render() {
@@ -50,8 +47,4 @@ export class Logout extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = { doLogout };
-
-export default connect(mapStateToProps, mapDispatchToProps)(Logout as any);
+export default Logout;

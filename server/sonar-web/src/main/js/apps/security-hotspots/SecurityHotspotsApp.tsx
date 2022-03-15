@@ -31,7 +31,7 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpe
 import { KeyboardCodes, KeyboardKeys } from '../../helpers/keycodes';
 import { scrollToElement } from '../../helpers/scrolling';
 import { getStandards } from '../../helpers/security-standard';
-import { fetchBranchStatus } from '../../store/rootActions';
+import { fetchBranchStatus } from '../../store/branches';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import {

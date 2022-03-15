@@ -19,7 +19,7 @@
  */
 import { uniqueId } from 'lodash';
 import { Dispatch } from 'redux';
-import { ActionType } from './utils/actions';
+import { ActionType } from '../types/actions';
 
 enum MessageLevel {
   Error = 'ERROR',
@@ -32,6 +32,10 @@ interface Message {
   level: MessageLevel;
 }
 
+const MESSAGE_DISPLAY_TIME = 5000;
+
+/* Action creators */
+
 function addGlobalMessageActionCreator(id: string, message: string, level: MessageLevel) {
   return { type: 'ADD_GLOBAL_MESSAGE', message, level, id };
 }
@@ -40,20 +44,15 @@ export function closeGlobalMessage(id: string) {
   return { type: 'CLOSE_GLOBAL_MESSAGE', id };
 }
 
-export function closeAllGlobalMessages() {
-  return { type: 'CLOSE_ALL_GLOBAL_MESSAGES' };
-}
-
 type Action =
   | ActionType<typeof addGlobalMessageActionCreator, 'ADD_GLOBAL_MESSAGE'>
-  | ActionType<typeof closeGlobalMessage, 'CLOSE_GLOBAL_MESSAGE'>
-  | ActionType<typeof closeAllGlobalMessages, 'CLOSE_ALL_GLOBAL_MESSAGES'>;
+  | ActionType<typeof closeGlobalMessage, 'CLOSE_GLOBAL_MESSAGE'>;
 
 function addGlobalMessage(message: string, level: MessageLevel) {
   return (dispatch: Dispatch) => {
     const id = uniqueId('global-message-');
     dispatch(addGlobalMessageActionCreator(id, message, level));
-    setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
+    setTimeout(() => dispatch(closeGlobalMessage(id)), MESSAGE_DISPLAY_TIME);
   };
 }
 
@@ -67,7 +66,7 @@ export function addGlobalSuccessMessage(message: string) {
 
 export type State = Message[];
 
-export default function(state: State = [], action: Action): State {
+export default function globalMessagesReducer(state: State = [], action: Action): State {
   switch (action.type) {
     case 'ADD_GLOBAL_MESSAGE':
       return [{ id: action.id, message: action.message, level: action.level }];
@@ -75,8 +74,6 @@ export default function(state: State = [], action: Action): State {
     case 'CLOSE_GLOBAL_MESSAGE':
       return state.filter(message => message.id !== action.id);
 
-    case 'CLOSE_ALL_GLOBAL_MESSAGES':
-      return [];
     default:
       return state;
   }

@@ -19,11 +19,21 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { logOut } from '../../../../api/auth';
+import addGlobalErrorMessage from '../../../../app/utils/addGlobalErrorMessage';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
 import { Logout } from '../Logout';
 
-const originalLocation = window.location;
+jest.mock('../../../../api/auth', () => ({
+  logOut: jest.fn().mockResolvedValue(true)
+}));
 
+jest.mock('../../../../app/utils/addGlobalErrorMessage', () => ({
+  __esModule: true,
+  default: jest.fn()
+}));
+
+const originalLocation = window.location;
 beforeAll(() => {
   const location = {
     ...window.location,
@@ -47,26 +57,28 @@ afterAll(() => {
 });
 
 it('should logout correctly', async () => {
-  const doLogout = jest.fn().mockResolvedValue(true);
+  (logOut as jest.Mock).mockResolvedValue(true);
 
-  const wrapper = shallowRender({ doLogout });
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(doLogout).toHaveBeenCalled();
+  expect(logOut).toHaveBeenCalled();
   expect(window.location.replace).toHaveBeenCalledWith('/');
+  expect(addGlobalErrorMessage).not.toHaveBeenCalled();
 });
 
 it('should not redirect if logout fails', async () => {
-  const doLogout = jest.fn().mockRejectedValue(false);
+  (logOut as jest.Mock).mockRejectedValue(false);
 
-  const wrapper = shallowRender({ doLogout });
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  expect(doLogout).toHaveBeenCalled();
+  expect(logOut).toHaveBeenCalled();
   expect(window.location.replace).not.toHaveBeenCalled();
+  expect(addGlobalErrorMessage).toHaveBeenCalled();
   expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(props: Partial<Logout['props']> = {}) {
-  return shallow(<Logout doLogout={jest.fn()} {...props} />);
+function shallowRender() {
+  return shallow(<Logout />);
 }

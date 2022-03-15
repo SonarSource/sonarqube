@@ -21,17 +21,12 @@ import { mockPullRequest } from '../../helpers/mocks/branch-like';
 import * as fromBranches from '../branches';
 import { getBranchStatusByBranchLike, Store } from '../rootReducer';
 
-jest.mock('../branches', () => {
-  return {
-    ...jest.requireActual('../branches'),
-    getBranchStatusByBranchLike: jest.fn()
-  };
-});
-
 it('correctly reduce state for branches', () => {
-  const branches = {};
+  const spiedOn = jest.spyOn(fromBranches, 'getBranchStatusByBranchLike').mockReturnValueOnce({});
+
+  const branches = { byComponent: {} };
   const component = 'foo';
   const branchLike = mockPullRequest();
   getBranchStatusByBranchLike({ branches } as Store, component, branchLike);
-  expect(fromBranches.getBranchStatusByBranchLike).toBeCalledWith(branches, component, branchLike);
+  expect(spiedOn).toBeCalledWith(branches, component, branchLike);
 });
