@@ -24,6 +24,7 @@ import './Radio.css';
 interface Props {
   checked: boolean;
   className?: string;
+  alignLabel?: boolean;
   disabled?: boolean;
   onCheck: (value: string) => void;
   value: string;
@@ -39,12 +40,17 @@ export default class Radio extends React.PureComponent<Props> {
   };
 
   render() {
-    const { className, checked, children, disabled } = this.props;
+    const { className, checked, children, disabled, alignLabel = false } = this.props;
 
     return (
       <a
         aria-checked={checked}
-        className={classNames('display-inline-flex-center link-radio', className, { disabled })}
+        className={classNames(
+          alignLabel ? 'display-inline-flex-start' : 'display-inline-flex-center',
+          'link-radio',
+          className,
+          { disabled }
+        )}
         href="#"
         onClick={this.handleClick}
         role="radio">

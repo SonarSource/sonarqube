@@ -33,3 +33,7 @@
 .hotspot-content .markdown {
   line-height: 1.8;
 }
+
+.status-radio i {
+  margin-top: 5px;
+}

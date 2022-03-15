@@ -45,10 +45,11 @@ export default function StatusSelectionRenderer(props: StatusSelectionRendererPr
     return (
       <Radio
         checked={selectedStatus === status}
-        className="big-spacer-bottom"
+        className="big-spacer-bottom status-radio"
+        alignLabel={true}
         onCheck={props.onStatusChange}
         value={status}>
-        <StatusDescription statusOption={status} />
+        <StatusDescription statusOption={status} statusInBadge={false} />
       </Radio>
     );
   };

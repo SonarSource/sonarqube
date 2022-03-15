@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
@@ -25,16 +26,19 @@ import { HotspotStatusOption } from '../../../../types/security-hotspots';
 export interface StatusDescriptionProps {
   statusOption: HotspotStatusOption;
   showTitle?: boolean;
+  statusInBadge?: boolean;
 }
 
 export default function StatusDescription(props: StatusDescriptionProps) {
-  const { statusOption, showTitle } = props;
+  const { statusOption, showTitle, statusInBadge = true } = props;
 
   return (
     <Container>
       <h3>
         {showTitle && `${translate('status')}: `}
-        <div className="badge">{translate('hotspots.status_option', statusOption)}</div>
+        <div className={classNames({ badge: statusInBadge })}>
+          {translate('hotspots.status_option', statusOption)}
+        </div>
       </h3>
       <div className="little-spacer-top">
         {translate('hotspots.status_option', statusOption, 'description')}

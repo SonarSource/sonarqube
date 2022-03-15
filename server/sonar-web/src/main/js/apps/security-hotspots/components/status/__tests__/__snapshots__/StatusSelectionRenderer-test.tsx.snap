@@ -8,42 +8,50 @@ exports[`should render correctly 1`] = `
     className="big-padded"
   >
     <Radio
+      alignLabel={true}
       checked={true}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="TO_REVIEW"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="TO_REVIEW"
       />
     </Radio>
     <Radio
+      alignLabel={true}
       checked={false}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="ACKNOWLEDGED"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="ACKNOWLEDGED"
       />
     </Radio>
     <Radio
+      alignLabel={true}
       checked={false}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="FIXED"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="FIXED"
       />
     </Radio>
     <Radio
+      alignLabel={true}
       checked={false}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="SAFE"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="SAFE"
       />
     </Radio>
@@ -88,42 +96,50 @@ exports[`should render correctly: loading 1`] = `
     className="big-padded"
   >
     <Radio
+      alignLabel={true}
       checked={true}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="TO_REVIEW"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="TO_REVIEW"
       />
     </Radio>
     <Radio
+      alignLabel={true}
       checked={false}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="ACKNOWLEDGED"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="ACKNOWLEDGED"
       />
     </Radio>
     <Radio
+      alignLabel={true}
       checked={false}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="FIXED"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="FIXED"
       />
     </Radio>
     <Radio
+      alignLabel={true}
       checked={false}
-      className="big-spacer-bottom"
+      className="big-spacer-bottom status-radio"
       onCheck={[MockFunction]}
       value="SAFE"
     >
       <StatusDescription
+        statusInBadge={false}
         statusOption="SAFE"
       />
     </Radio>

@@ -489,6 +489,11 @@ th.huge-spacer-right {
   align-items: baseline;
 }
 
+.display-inline-flex-start {
+  display: inline-flex !important;
+  align-items: flex-start;
+}
+
 .display-inline-flex-center {
   display: inline-flex !important;
   align-items: center;

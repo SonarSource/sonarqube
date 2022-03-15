@@ -25,6 +25,7 @@ import StatusDescription, { StatusDescriptionProps } from '../StatusDescription'
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ showTitle: true })).toMatchSnapshot('with title');
+  expect(shallowRender({ statusInBadge: false })).toMatchSnapshot('without status in badge');
 });
 
 function shallowRender(props?: Partial<StatusDescriptionProps>) {
