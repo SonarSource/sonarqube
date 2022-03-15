@@ -78,9 +78,9 @@ abstract class AbstractManagedProcess implements ManagedProcess {
     int exitValue = process.waitFor();
     if (exitValueLogged.compareAndSet(false, true)) {
       if (exitValue != EXPECTED_EXIT_VALUE) {
-        LOG.warn("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+        LOG.warn("Process exited with exit value [{}]: {}", processId.getHumanReadableName(), exitValue);
       } else {
-        LOG.debug("Process exited with exit value [{}]: {}", processId.getKey(), exitValue);
+        LOG.debug("Process exited with exit value [{}]: {}", processId.getHumanReadableName(), exitValue);
       }
     }
   }

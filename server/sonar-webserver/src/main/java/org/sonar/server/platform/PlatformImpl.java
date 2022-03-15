@@ -40,6 +40,8 @@ import org.sonar.server.platform.platformlevel.PlatformLevel4;
 import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
 
+import static org.sonar.process.ProcessId.WEB_SERVER;
+
 /**
  * @since 2.2
  */
@@ -106,7 +108,7 @@ public class PlatformImpl implements Platform {
           // switch current container last to avoid giving access to a partially initialized container
           runIfNotAborted(() -> {
             currentLevel = level4;
-            LOGGER.info("WebServer is operational");
+            LOGGER.info("{} is operational", WEB_SERVER.getHumanReadableName());
           });
 
           // stop safemode container if it existed

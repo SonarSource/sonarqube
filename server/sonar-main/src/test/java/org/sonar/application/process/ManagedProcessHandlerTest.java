@@ -279,7 +279,7 @@ public class ManagedProcessHandlerTest {
   @Test
   public void test_toString() {
     ManagedProcessHandler underTest = newHanderBuilder(A_PROCESS_ID).build();
-    assertThat(underTest.toString()).isEqualTo("Process[" + A_PROCESS_ID.getKey() + "]");
+    assertThat(underTest).hasToString("Process[" + A_PROCESS_ID.getHumanReadableName() + "]");
   }
 
   private static class TestManagedProcess implements ManagedProcess, AutoCloseable {

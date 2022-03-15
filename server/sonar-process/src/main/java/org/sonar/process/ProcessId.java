@@ -23,18 +23,21 @@ import static java.lang.String.format;
 
 public enum ProcessId {
 
-  APP("app", 0, "sonar"),
-  ELASTICSEARCH("es", 1, "es"),
-  WEB_SERVER("web", 2, "web"),
-  COMPUTE_ENGINE("ce", 3, "ce");
+  APP("app", 0, "sonar", "SonarQube"),
+  ELASTICSEARCH("es", 1, "es", "ElasticSearch"),
+  WEB_SERVER("web", 2, "web", "Web Server"),
+  COMPUTE_ENGINE("ce", 3, "ce", "Compute Engine");
 
   private final String key;
   private final int ipcIndex;
   private final String logFilenamePrefix;
-  ProcessId(String key, int ipcIndex, String logFilenamePrefix) {
+  private final String humanReadableName;
+
+  ProcessId(String key, int ipcIndex, String logFilenamePrefix, String humanReadableName) {
     this.key = key;
     this.ipcIndex = ipcIndex;
     this.logFilenamePrefix = logFilenamePrefix;
+    this.humanReadableName = humanReadableName;
   }
 
   public String getKey() {
@@ -55,14 +58,8 @@ public enum ProcessId {
     return logFilenamePrefix;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("[");
-    sb.append("key='").append(key).append('\'');
-    sb.append(", ipcIndex=").append(ipcIndex);
-    sb.append(", logFilenamePrefix=").append(logFilenamePrefix);
-    sb.append(']');
-    return sb.toString();
+  public String getHumanReadableName() {
+    return humanReadableName;
   }
 
   public static ProcessId fromKey(String key) {

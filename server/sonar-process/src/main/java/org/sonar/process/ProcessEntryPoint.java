@@ -38,7 +38,7 @@ public class ProcessEntryPoint {
   private static final long HARD_STOP_TIMEOUT_MS = 1_000L;
 
   private final Props props;
-  private final String processKey;
+  private final ProcessId processId;
   private final Lifecycle lifecycle = new Lifecycle();
   private final ProcessCommands commands;
   private final SystemExit exit;
@@ -51,7 +51,7 @@ public class ProcessEntryPoint {
 
   public ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands, Runtime runtime) {
     this.props = props;
-    this.processKey = props.nonNullValue(PROPERTY_PROCESS_KEY);
+    this.processId = ProcessId.fromKey(props.nonNullValue(PROPERTY_PROCESS_KEY));
     this.exit = exit;
     this.commands = commands;
     this.stopWatcher = createStopWatcher(commands, this);
@@ -80,13 +80,13 @@ public class ProcessEntryPoint {
     try {
       launch(logger);
     } catch (Exception e) {
-      logger.warn("Fail to start {}", processKey, e);
+      logger.warn("Fail to start {}", processId.getHumanReadableName(), e);
       hardStop();
     }
   }
 
   private void launch(Logger logger) throws InterruptedException {
-    logger.info("Starting {}", processKey);
+    logger.info("Starting {}", processId.getHumanReadableName());
     runtime.addShutdownHook(new Thread(() -> {
       exit.setInShutdownHook();
       stop();

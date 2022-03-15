@@ -179,7 +179,7 @@ public class ProcessEntryPointTest {
     Props props = new Props(new Properties());
     props.set(PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
     props.set(PROPERTY_PROCESS_INDEX, "1");
-    props.set(PROPERTY_PROCESS_KEY, "test");
+    props.set(PROPERTY_PROCESS_KEY, ProcessId.COMPUTE_ENGINE.getKey());
     props.set(PROPERTY_GRACEFUL_STOP_TIMEOUT_MS, "30000");
     return props;
   }

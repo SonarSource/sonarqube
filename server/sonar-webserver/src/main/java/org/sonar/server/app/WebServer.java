@@ -30,6 +30,8 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 
+import static org.sonar.process.ProcessId.WEB_SERVER;
+
 public class WebServer implements Monitored {
   public static final String PROPERTY_SHARED_PATH = "process.sharedDir";
 
@@ -76,7 +78,7 @@ public class WebServer implements Monitored {
   public void stop() {
     // hard stop is as graceful as stop for the WebServer
     hardStop();
-    LoggerFactory.getLogger(WebServer.class).info("WebServer stopped");
+    LoggerFactory.getLogger(WebServer.class).info("{} stopped", WEB_SERVER.getHumanReadableName());
   }
 
   @Override

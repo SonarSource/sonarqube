@@ -277,7 +277,7 @@ public class ProcessLauncherImplTest {
     JavaCommand<?> javaCommand = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
     assertThatThrownBy(() -> underTest.launch(javaCommand))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fail to launch process [es]");
+      .hasMessage("Fail to launch process [%s]", ProcessId.ELASTICSEARCH.getHumanReadableName());
   }
 
   private EsScriptCommand createEsScriptCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {

@@ -117,7 +117,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       if (process != null) {
         process.destroyForcibly();
       }
-      throw new IllegalStateException(format("Fail to launch monitor of process [%s]", processId.getKey()), e);
+      throw new IllegalStateException(format("Fail to launch monitor of process [%s]", processId.getHumanReadableName()), e);
     }
   }
 
@@ -127,7 +127,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       logLaunchedCommand(esScriptCommand, processBuilder);
       return processBuilder.start();
     } catch (Exception e) {
-      throw new IllegalStateException(format("Fail to launch process [%s]", esScriptCommand.getProcessId().getKey()), e);
+      throw new IllegalStateException(format("Fail to launch process [%s]", esScriptCommand.getProcessId().getHumanReadableName()), e);
     }
   }
 
@@ -223,7 +223,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       logLaunchedCommand(javaCommand, processBuilder);
       return processBuilder.start();
     } catch (Exception e) {
-      throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
+      throw new IllegalStateException(format("Fail to launch process [%s]", processId.getHumanReadableName()), e);
     }
   }
 

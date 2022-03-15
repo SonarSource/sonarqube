@@ -39,12 +39,15 @@ public class ProcessIdTest {
   public void all_values_are_unique() {
     Set<Integer> ipcIndices = new HashSet<>();
     Set<String> keys = new HashSet<>();
+    Set<String> humanReadableNames = new HashSet<>();
     for (ProcessId processId : ProcessId.values()) {
       ipcIndices.add(processId.getIpcIndex());
       keys.add(processId.getKey());
+      humanReadableNames.add(processId.getHumanReadableName());
     }
     assertThat(ipcIndices).hasSize(ProcessId.values().length);
     assertThat(keys).hasSize(ProcessId.values().length);
+    assertThat(humanReadableNames).hasSize(ProcessId.values().length);
   }
 
   @Test
@@ -68,4 +71,5 @@ public class ProcessIdTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Process [foo] does not exist");
   }
+
 }

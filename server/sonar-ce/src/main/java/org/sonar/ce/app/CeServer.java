@@ -36,6 +36,7 @@ import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 
 /**
  * The Compute Engine server which starts a daemon thread to run the {@link ComputeEngineImpl} when it's {@link #start()}
@@ -159,22 +160,22 @@ public class CeServer implements Monitored {
 
     private boolean attemptStartup() {
       try {
-        LOG.info("Compute Engine starting up...");
+        LOG.info("{} starting up...", COMPUTE_ENGINE.getHumanReadableName());
         computeEngine.startup();
-        LOG.info("Compute Engine is operational");
+        LOG.info("{} is started", COMPUTE_ENGINE.getHumanReadableName());
         return true;
       } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
-        LOG.error("Compute Engine startup failed: " + e.getMessage());
+        LOG.error("{} startup failed: {}", COMPUTE_ENGINE.getHumanReadableName(), e.getMessage());
         return false;
       } catch (Throwable e) {
-        LOG.error("Compute Engine startup failed", e);
+        LOG.error("{} startup failed", COMPUTE_ENGINE.getHumanReadableName(), e);
         return false;
       }
     }
 
     private void attemptShutdown() {
       try {
-        LOG.info("Compute Engine is stopping...");
+        LOG.info("{} is stopping...", COMPUTE_ENGINE.getHumanReadableName());
         if (!hardStop) {
           computeEngine.stopProcessing();
         }
@@ -182,9 +183,9 @@ public class CeServer implements Monitored {
         // make sure that interrupt flag is unset because we don't want to interrupt shutdown of pico container
         interrupted();
         computeEngine.shutdown();
-        LOG.info("Compute Engine is stopped");
+        LOG.info("{} is stopped", COMPUTE_ENGINE.getHumanReadableName());
       } catch (Throwable e) {
-        LOG.error("Compute Engine failed to stop", e);
+        LOG.error("{} failed to stop", COMPUTE_ENGINE.getHumanReadableName(), e);
       }
     }
 

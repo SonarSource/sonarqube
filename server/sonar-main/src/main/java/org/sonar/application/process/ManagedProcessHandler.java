@@ -75,7 +75,7 @@ public class ManagedProcessHandler {
     try {
       this.process = commandLauncher.get();
     } catch (RuntimeException e) {
-      LOG.error("Fail to launch process [{}]", processId.getKey(), e);
+      LOG.error("Failed to launch process [{}]", processId.getHumanReadableName(), e);
       lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING);
       finalizeStop();
       throw e;
@@ -104,7 +104,7 @@ public class ManagedProcessHandler {
     if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING)) {
       stopImpl();
       if (process != null && process.isAlive()) {
-        LOG.info("{} failed to stop in a graceful fashion. Hard stopping it.", processId.getKey());
+        LOG.info("{} failed to stop in a graceful fashion. Hard stopping it.", processId.getHumanReadableName());
         hardStop();
       } else {
         // enforce stop and clean-up even if process has been quickly stopped
@@ -124,7 +124,7 @@ public class ManagedProcessHandler {
     if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.HARD_STOPPING)) {
       hardStopImpl();
       if (process != null && process.isAlive()) {
-        LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getKey());
+        LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getHumanReadableName());
       }
       // enforce stop and clean-up even if process has been quickly stopped
       finalizeStop();
@@ -233,7 +233,7 @@ public class ManagedProcessHandler {
 
   @Override
   public String toString() {
-    return format("Process[%s]", processId.getKey());
+    return format("Process[%s]", processId.getHumanReadableName());
   }
 
   /**
@@ -250,7 +250,7 @@ public class ManagedProcessHandler {
       // this name is different than Thread#toString(), which includes name, priority
       // and thread group
       // -> do not override toString()
-      super(format("StopWatcher[%s]", processId.getKey()));
+      super(format("StopWatcher[%s]", processId.getHumanReadableName()));
     }
 
     @Override
@@ -267,7 +267,7 @@ public class ManagedProcessHandler {
       try {
         hardStop();
       } catch (InterruptedException e) {
-        LOG.debug("Interrupted while stopping [{}] after process ended", processId.getKey(), e);
+        LOG.debug("Interrupted while stopping [{}] after process ended", processId.getHumanReadableName(), e);
         Thread.currentThread().interrupt();
       }
     }
@@ -278,7 +278,7 @@ public class ManagedProcessHandler {
       // this name is different than Thread#toString(), which includes name, priority
       // and thread group
       // -> do not override toString()
-      super(format("EventWatcher[%s]", processId.getKey()));
+      super(format("EventWatcher[%s]", processId.getHumanReadableName()));
     }
 
     @Override

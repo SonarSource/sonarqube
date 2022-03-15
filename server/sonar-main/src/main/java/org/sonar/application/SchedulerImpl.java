@@ -202,7 +202,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       // this early stop of the process will be picked up by onProcessStop (which calls hardStopAsync)
       // through interface ProcessLifecycleListener#onProcessState implemented by SchedulerImpl
       LOG.trace("Failed to start process [{}] (currentThread={})",
-        processHandler.getProcessId().getKey(), Thread.currentThread().getName(), e);
+        processHandler.getProcessId().getHumanReadableName(), Thread.currentThread().getName(), e);
     }
   }
 
@@ -240,7 +240,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private void stopProcess(ProcessId processId) throws InterruptedException {
     ManagedProcessHandler process = processesById.get(processId);
     if (process != null) {
-      LOG.debug("Stopping [{}]...", process.getProcessId().getKey());
+      LOG.debug("Stopping [{}]...", process.getProcessId().getHumanReadableName());
       process.stop();
     }
   }
@@ -331,7 +331,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     if (type == Type.OPERATIONAL) {
       onProcessOperational(processId);
     } else if (type == Type.ASK_FOR_RESTART && nodeLifecycle.tryToMoveTo(RESTARTING)) {
-      LOG.info("SQ restart requested by Process[{}]", processId.getKey());
+      LOG.info("SQ restart requested by Process[{}]", processId.getHumanReadableName());
       stopAsyncForRestart();
     }
   }
@@ -341,7 +341,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     appState.setOperational(processId);
     boolean lastProcessStarted = operationalCountDown.decrementAndGet() == 0;
     if (lastProcessStarted && nodeLifecycle.tryToMoveTo(NodeLifecycle.State.OPERATIONAL)) {
-      LOG.info("SonarQube is up");
+      LOG.info("SonarQube is operational");
     }
   }
 
@@ -352,7 +352,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
         tryToStartAll();
       } catch (InterruptedException e) {
         // startup process was interrupted, let's assume it means shutdown was requested
-        LOG.debug("Startup process was interrupted on notification that process [{}] was operation", processId.getKey(), e);
+        LOG.debug("Startup process was interrupted on notification that process [{}] was operational", processId.getHumanReadableName(), e);
         hardStopAsync();
         Thread.currentThread().interrupt();
       }
@@ -375,7 +375,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private void onProcessStop(ProcessId processId) {
-    LOG.info("Process[{}] is stopped", processId.getKey());
+    LOG.info("Process[{}] is stopped", processId.getHumanReadableName());
     boolean lastProcessStopped = stopCountDown.decrementAndGet() == 0;
     switch (nodeLifecycle.getState()) {
       case RESTARTING:
