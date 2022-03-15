@@ -104,6 +104,7 @@ import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import {
   getStandards,
   renderCWECategory,
+  renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
@@ -157,6 +158,7 @@ const exposeLibraries = () => {
         getStandards,
         renderCWECategory,
         renderOwaspTop10Category,
+        renderOwaspTop102021Category,
         renderSansTop25Category,
         renderSonarSourceSecurityCategory,
         getCodeUrl,
