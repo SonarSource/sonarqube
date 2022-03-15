@@ -59,6 +59,7 @@ public class AzureDevOpsHttpClient {
     client = new OkHttpClientBuilder()
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
+      .setFollowRedirects(false)
       .build();
   }
 

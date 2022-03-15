@@ -64,6 +64,7 @@ public class BitbucketServerRestClient {
     client = okHttpClientBuilder
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
+      .setFollowRedirects(false)
       .build();
   }
 

@@ -59,9 +59,10 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
   public GithubApplicationHttpClientImpl(TimeoutConfiguration timeoutConfiguration) {
     client = new OkHttpClientBuilder()
-        .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
-        .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
-        .build();
+      .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
+      .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
+      .setFollowRedirects(false)
+      .build();
   }
 
   @Override
