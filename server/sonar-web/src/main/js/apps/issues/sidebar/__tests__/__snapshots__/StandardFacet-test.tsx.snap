@@ -92,6 +92,18 @@ exports[`should render sub-facets 1`] = `
   </FacetBox>
   <FacetBox
     className="is-inner"
+    property="owaspTop10-2021"
+  >
+    <FacetHeader
+      fetching={false}
+      name="issues.facet.owaspTop10_2021"
+      onClick={[Function]}
+      open={false}
+      values={Array []}
+    />
+  </FacetBox>
+  <FacetBox
+    className="is-inner"
     property="owaspTop10"
   >
     <FacetHeader

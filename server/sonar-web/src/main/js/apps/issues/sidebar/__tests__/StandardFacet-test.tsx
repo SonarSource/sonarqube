@@ -78,6 +78,7 @@ it('should clear standards facet', () => {
   expect(onChange).toBeCalledWith({
     cwe: [],
     owaspTop10: [],
+    'owaspTop10-2021': [],
     sansTop25: [],
     sonarsourceSecurity: [],
     standards: []
@@ -161,6 +162,7 @@ it('should display correct selection', () => {
   const wrapper = shallowRender({
     open: true,
     owaspTop10: ['a1', 'a3'],
+    'owaspTop10-2021': ['a1', 'a2'],
     sansTop25: ['risky-resource', 'foo'],
     cwe: ['42', '1111', 'unknown'],
     sonarsourceSecurity: ['sql-injection', 'others']
@@ -170,6 +172,8 @@ it('should display correct selection', () => {
     'Others',
     'OWASP A1 - a1 title',
     'OWASP A3',
+    'OWASP A1 - a1 title',
+    'OWASP A2',
     'SANS Risky Resource Management',
     'SANS foo',
     'CWE-42 - cwe-42 title',
@@ -177,6 +181,7 @@ it('should display correct selection', () => {
     'Unknown CWE'
   ]);
   checkValues('owaspTop10', ['A1 - a1 title', 'A3']);
+  checkValues('owaspTop10-2021', ['A1 - a1 title', 'A2']);
   checkValues('sansTop25', ['Risky Resource Management', 'foo']);
   checkValues('sonarsourceSecurity', ['SQL Injection', 'Others']);
 
@@ -198,6 +203,7 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
       cweStats={{}}
       fetchingCwe={false}
       fetchingOwaspTop10={false}
+      fetchingOwaspTop10-2021={false}
       fetchingSansTop25={false}
       fetchingSonarSourceSecurity={false}
       loadSearchResultCount={jest.fn()}
@@ -207,6 +213,9 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
       owaspTop10={[]}
       owaspTop10Open={false}
       owaspTop10Stats={{}}
+      owaspTop10-2021={[]}
+      owaspTop10-2021Open={false}
+      owaspTop10-2021Stats={{}}
       query={{} as Query}
       sansTop25={[]}
       sansTop25Open={false}
@@ -220,6 +229,7 @@ function shallowRender(props: Partial<StandardFacet['props']> = {}) {
   wrapper.setState({
     standards: {
       owaspTop10: { a1: { title: 'a1 title' } },
+      'owaspTop10-2021': { a1: { title: 'a1 title' } },
       sansTop25: { 'risky-resource': { title: 'Risky Resource Management' } },
       cwe: { 42: { title: 'cwe-42 title' }, unknown: { title: 'Unknown CWE' } },
       sonarsourceSecurity: {

@@ -39,12 +39,28 @@ export function renderOwaspTop10Category(
   category: string,
   withPrefix = false
 ): string {
-  const record = standards.owaspTop10[category];
+  return renderOwaspCategory('owaspTop10', standards, category, withPrefix);
+}
+
+export function renderOwaspTop102021Category(
+  standards: Standards,
+  category: string,
+  withPrefix = false
+): string {
+  return renderOwaspCategory('owaspTop10-2021', standards, category, withPrefix);
+}
+
+function renderOwaspCategory(
+  type: 'owaspTop10' | 'owaspTop10-2021',
+  standards: Standards,
+  category: string,
+  withPrefix: boolean
+) {
+  const record = standards[type][category];
   if (!record) {
     return addPrefix(category.toUpperCase(), 'OWASP', withPrefix);
-  } else {
-    return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
   }
+  return addPrefix(`${category.toUpperCase()} - ${record.title}`, 'OWASP', withPrefix);
 }
 
 export function renderSansTop25Category(

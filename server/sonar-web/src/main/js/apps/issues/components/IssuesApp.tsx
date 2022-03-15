@@ -153,6 +153,11 @@ export default class App extends React.PureComponent<Props, State> {
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
         owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
+        'owaspTop10-2021': shouldOpenStandardsChildFacet(
+          {},
+          query,
+          SecurityStandard.OWASP_TOP10_2021
+        ),
         sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
         severities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
@@ -406,7 +411,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     const facets = requestFacets
       ? Object.keys(openFacets)
-          .filter(facet => facet !== STANDARDS)
+          .filter(facet => facet !== STANDARDS && openFacets[facet])
           .join(',')
       : undefined;
 
@@ -432,7 +437,6 @@ export default class App extends React.PureComponent<Props, State> {
     if (myIssues) {
       Object.assign(parameters, { assignees: '__me__' });
     }
-
     return this.props.fetchIssues(parameters);
   };
 

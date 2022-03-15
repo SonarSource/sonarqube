@@ -157,6 +157,17 @@ exports[`should render correctly when filtered by category or cwe: category 1`] 
               "title": "Sensitive Data Exposure",
             },
           },
+          "owaspTop10-2021": Object {
+            "a1": Object {
+              "title": "Injection",
+            },
+            "a2": Object {
+              "title": "Broken Authentication",
+            },
+            "a3": Object {
+              "title": "Sensitive Data Exposure",
+            },
+          },
           "sansTop25": Object {
             "insecure-interaction": Object {
               "title": "Insecure Interaction Between Components",
@@ -268,6 +279,17 @@ exports[`should render correctly when filtered by category or cwe: cwe 1`] = `
             },
           },
           "owaspTop10": Object {
+            "a1": Object {
+              "title": "Injection",
+            },
+            "a2": Object {
+              "title": "Broken Authentication",
+            },
+            "a3": Object {
+              "title": "Sensitive Data Exposure",
+            },
+          },
+          "owaspTop10-2021": Object {
             "a1": Object {
               "title": "Injection",
             },

@@ -23,29 +23,53 @@ import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
-import { createMemoryHistory, RouteConfig, Router } from 'react-router';
+import { createMemoryHistory, Route, RouteComponent, RouteConfig, Router } from 'react-router';
 import { Store } from 'redux';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
+import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
 import getStore from '../app/utils/getStore';
 import { RouteWithChildRoutes } from '../app/utils/startReactApp';
 import { Store as State } from '../store/rootReducer';
 import { AppState } from '../types/appstate';
 import { Dict, Metric } from '../types/types';
+import { CurrentUser } from '../types/users';
 import { DEFAULT_METRICS } from './mocks/metrics';
-import { mockAppState } from './testMocks';
+import { mockAppState, mockCurrentUser } from './testMocks';
 
 interface RenderContext {
   metrics?: Dict<Metric>;
   store?: Store<State, any>;
   history?: History;
   appState?: AppState;
+  currentUser?: CurrentUser;
+}
+
+export function renderComponentApp(
+  indexPath: string,
+  component: RouteComponent,
+  context: RenderContext = {}
+): RenderResult {
+  return renderRoutedApp(<Route path={indexPath} component={component} />, indexPath, context);
 }
 
 export function renderApp(
   indexPath: string,
   routes: RouteConfig,
+  context: RenderContext
+): RenderResult {
+  return renderRoutedApp(
+    <RouteWithChildRoutes path={indexPath} childRoutes={routes} />,
+    indexPath,
+    context
+  );
+}
+
+function renderRoutedApp(
+  children: React.ReactElement,
+  indexPath: string,
   {
+    currentUser = mockCurrentUser(),
     metrics = DEFAULT_METRICS,
     store = getStore(),
     appState = mockAppState(),
@@ -58,11 +82,11 @@ export function renderApp(
       <IntlProvider defaultLocale="en" locale="en">
         <MetricsContext.Provider value={metrics}>
           <Provider store={store}>
-            <AppStateContextProvider appState={appState}>
-              <Router history={history}>
-                <RouteWithChildRoutes path={indexPath} childRoutes={routes} />
-              </Router>
-            </AppStateContextProvider>
+            <CurrentUserContextProvider currentUser={currentUser}>
+              <AppStateContextProvider appState={appState}>
+                <Router history={history}>{children}</Router>
+              </AppStateContextProvider>
+            </CurrentUserContextProvider>
           </Provider>
         </MetricsContext.Provider>
       </IntlProvider>

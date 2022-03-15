@@ -108,6 +108,11 @@ export class App extends React.PureComponent<Props, State> {
       openFacets: {
         languages: true,
         owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
+        'owaspTop10-2021': shouldOpenStandardsChildFacet(
+          {},
+          query,
+          SecurityStandard.OWASP_TOP10_2021
+        ),
         sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),

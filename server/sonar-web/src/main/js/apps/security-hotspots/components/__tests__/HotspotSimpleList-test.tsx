@@ -73,6 +73,10 @@ function shallowRender(props: Partial<HotspotSimpleListProps> = {}) {
           a1: { title: 'A1 - SQL Injection' },
           a3: { title: 'A3 - Sensitive Data Exposure' }
         },
+        'owaspTop10-2021': {
+          a1: { title: 'A1 - SQL Injection' },
+          a3: { title: 'A3 - Sensitive Data Exposure' }
+        },
         sansTop25: {},
         sonarsourceSecurity: {}
       }}

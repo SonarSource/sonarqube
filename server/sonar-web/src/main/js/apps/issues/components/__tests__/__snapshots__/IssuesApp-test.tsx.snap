@@ -99,6 +99,7 @@ exports[`should show warnning when not all projects are accessible 1`] = `
           openFacets={
             Object {
               "owaspTop10": false,
+              "owaspTop10-2021": false,
               "sansTop25": false,
               "severities": true,
               "sonarsourceSecurity": false,
@@ -121,6 +122,7 @@ exports[`should show warnning when not all projects are accessible 1`] = `
               "issues": Array [],
               "languages": Array [],
               "owaspTop10": Array [],
+              "owaspTop10-2021": Array [],
               "projects": Array [],
               "resolutions": Array [],
               "resolved": true,

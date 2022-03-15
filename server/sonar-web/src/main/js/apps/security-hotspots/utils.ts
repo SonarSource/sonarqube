@@ -20,6 +20,7 @@
 import { flatten, groupBy, sortBy } from 'lodash';
 import {
   renderCWECategory,
+  renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
@@ -47,12 +48,14 @@ export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, Ris
 export const SECURITY_STANDARDS = [
   SecurityStandard.SONARSOURCE,
   SecurityStandard.OWASP_TOP10,
+  SecurityStandard.OWASP_TOP10_2021,
   SecurityStandard.SANS_TOP25,
   SecurityStandard.CWE
 ];
 
 export const SECURITY_STANDARD_RENDERER = {
   [SecurityStandard.OWASP_TOP10]: renderOwaspTop10Category,
+  [SecurityStandard.OWASP_TOP10_2021]: renderOwaspTop102021Category,
   [SecurityStandard.SANS_TOP25]: renderSansTop25Category,
   [SecurityStandard.SONARSOURCE]: renderSonarSourceSecurityCategory,
   [SecurityStandard.CWE]: renderCWECategory

@@ -53,6 +53,7 @@ export interface Query {
   issues: string[];
   languages: string[];
   owaspTop10: string[];
+  'owaspTop10-2021': string[];
   projects: string[];
   resolutions: string[];
   resolved: boolean;
@@ -95,6 +96,7 @@ export function parseQuery(query: RawQuery): Query {
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
+    'owaspTop10-2021': parseAsArray(query['owaspTop10-2021'], parseAsString),
     projects: parseAsArray(query.projects, parseAsString),
     resolutions: parseAsArray(query.resolutions, parseAsString),
     resolved: parseAsBoolean(query.resolved),
@@ -132,6 +134,7 @@ export function serializeQuery(query: Query): RawQuery {
     issues: serializeStringArray(query.issues),
     languages: serializeStringArray(query.languages),
     owaspTop10: serializeStringArray(query.owaspTop10),
+    'owaspTop10-2021': serializeStringArray(query['owaspTop10-2021']),
     projects: serializeStringArray(query.projects),
     resolutions: serializeStringArray(query.resolutions),
     resolved: query.resolved ? undefined : 'false',

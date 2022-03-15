@@ -154,6 +154,17 @@ export function mockStandards(): Standards {
         title: 'Sensitive Data Exposure'
       }
     },
+    'owaspTop10-2021': {
+      a1: {
+        title: 'Injection'
+      },
+      a2: {
+        title: 'Broken Authentication'
+      },
+      a3: {
+        title: 'Sensitive Data Exposure'
+      }
+    },
     sansTop25: {
       'insecure-interaction': {
         title: 'Insecure Interaction Between Components'

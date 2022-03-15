@@ -363,6 +363,7 @@ it('should display the right facets open', () => {
     }).state('openFacets')
   ).toEqual({
     owaspTop10: false,
+    'owaspTop10-2021': false,
     sansTop25: false,
     severities: true,
     standards: false,
@@ -375,6 +376,7 @@ it('should display the right facets open', () => {
     }).state('openFacets')
   ).toEqual({
     owaspTop10: true,
+    'owaspTop10-2021': false,
     sansTop25: false,
     severities: true,
     standards: true,

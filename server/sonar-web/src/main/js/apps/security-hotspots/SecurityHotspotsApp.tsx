@@ -98,6 +98,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       selectedHotspot: undefined,
       standards: {
         [SecurityStandard.OWASP_TOP10]: {},
+        [SecurityStandard.OWASP_TOP10_2021]: {},
         [SecurityStandard.SANS_TOP25]: {},
         [SecurityStandard.SONARSOURCE]: {},
         [SecurityStandard.CWE]: {}

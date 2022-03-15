@@ -41,6 +41,7 @@ export interface Query {
   inheritance: RuleInheritance | undefined;
   languages: string[];
   owaspTop10: string[];
+  'owaspTop10-2021': string[];
   profile: string | undefined;
   repositories: string[];
   ruleKey: string | undefined;
@@ -85,6 +86,7 @@ export function parseQuery(query: RawQuery): Query {
     inheritance: parseAsInheritance(query.inheritance),
     languages: parseAsArray(query.languages, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
+    'owaspTop10-2021': parseAsArray(query['owaspTop10-2021'], parseAsString),
     profile: parseAsOptionalString(query.qprofile),
     repositories: parseAsArray(query.repositories, parseAsString),
     ruleKey: parseAsOptionalString(query.rule_key),
@@ -110,6 +112,7 @@ export function serializeQuery(query: Query): RawQuery {
     is_template: serializeOptionalBoolean(query.template),
     languages: serializeStringArray(query.languages),
     owaspTop10: serializeStringArray(query.owaspTop10),
+    'owaspTop10-2021': serializeStringArray(query['owaspTop10-2021']),
     q: serializeString(query.searchQuery),
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
@@ -133,6 +136,7 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
     'cwe',
     'languages',
     'owaspTop10',
+    'owaspTop10-2021',
     'repositories',
     'sansTop25',
     'severities',
@@ -164,9 +168,8 @@ export function hasRuleKey(query: RawQuery) {
 function parseAsInheritance(value?: string): RuleInheritance | undefined {
   if (value === 'INHERITED' || value === 'NONE' || value === 'OVERRIDES') {
     return value;
-  } else {
-    return undefined;
   }
+  return undefined;
 }
 
 function serializeInheritance(value: RuleInheritance | undefined): string | undefined {

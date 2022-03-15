@@ -58,6 +58,7 @@ exports[`should render correctly 1`] = `
     Object {
       "cwe": Object {},
       "owaspTop10": Object {},
+      "owaspTop10-2021": Object {},
       "sansTop25": Object {},
       "sonarsourceSecurity": Object {},
     }

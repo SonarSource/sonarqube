@@ -110,6 +110,7 @@ export default function FacetsList(props: FacetsListProps) {
         cweStats={props.facets && props.facets.cwe}
         fetchingCwe={false}
         fetchingOwaspTop10={false}
+        fetchingOwaspTop10-2021={false}
         fetchingSansTop25={false}
         fetchingSonarSourceSecurity={false}
         onChange={props.onFilterChange}
@@ -118,6 +119,9 @@ export default function FacetsList(props: FacetsListProps) {
         owaspTop10={props.query.owaspTop10}
         owaspTop10Open={!!props.openFacets.owaspTop10}
         owaspTop10Stats={props.facets && props.facets.owaspTop10}
+        owaspTop10-2021={props.query['owaspTop10-2021']}
+        owaspTop10-2021Open={!!props.openFacets['owaspTop10-2021']}
+        owaspTop10-2021Stats={props.facets && props.facets['owaspTop10-2021']}
         query={props.query}
         sansTop25={props.query.sansTop25}
         sansTop25Open={!!props.openFacets.sansTop25}

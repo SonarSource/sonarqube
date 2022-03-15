@@ -20,6 +20,7 @@
 import { Standards } from '../../types/security';
 import {
   renderCWECategory,
+  renderOwaspTop102021Category,
   renderOwaspTop10Category,
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
@@ -36,6 +37,7 @@ describe('renderCWECategory', () => {
       }
     },
     owaspTop10: {},
+    'owaspTop10-2021': {},
     sansTop25: {},
     sonarsourceSecurity: {}
   };
@@ -56,6 +58,7 @@ describe('renderOwaspTop10Category', () => {
         title: 'Injection'
       }
     },
+    'owaspTop10-2021': {},
     sansTop25: {},
     sonarsourceSecurity: {}
   };
@@ -67,10 +70,31 @@ describe('renderOwaspTop10Category', () => {
   });
 });
 
+describe('renderOwaspTop102021Category', () => {
+  const standards: Standards = {
+    cwe: {},
+    owaspTop10: {},
+    'owaspTop10-2021': {
+      a1: {
+        title: 'Injection'
+      }
+    },
+    sansTop25: {},
+    sonarsourceSecurity: {}
+  };
+  it('should render owasp categories correctly', () => {
+    expect(renderOwaspTop102021Category(standards, 'a1')).toEqual('A1 - Injection');
+    expect(renderOwaspTop102021Category(standards, 'a1', true)).toEqual('OWASP A1 - Injection');
+    expect(renderOwaspTop102021Category(standards, 'a2')).toEqual('A2');
+    expect(renderOwaspTop102021Category(standards, 'a2', true)).toEqual('OWASP A2');
+  });
+});
+
 describe('renderSansTop25Category', () => {
   const standards: Standards = {
     cwe: {},
     owaspTop10: {},
+    'owaspTop10-2021': {},
     sansTop25: {
       'insecure-interaction': {
         title: 'Insecure Interaction Between Components'
@@ -94,6 +118,7 @@ describe('renderSonarSourceSecurityCategory', () => {
   const standards: Standards = {
     cwe: {},
     owaspTop10: {},
+    'owaspTop10-2021': {},
     sansTop25: {},
     sonarsourceSecurity: {
       xss: {
