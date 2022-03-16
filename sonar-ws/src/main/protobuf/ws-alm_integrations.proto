@@ -26,13 +26,13 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "AlmIntegrations";
 option optimize_for = SPEED;
 
-// WS api/alm_integrations/search_bitbucketserver_repos
+// WS api/alm_integrations/search_bibucketserver_repos
 message SearchBitbucketserverReposWsResponse {
   optional bool isLastPage = 1;
   repeated BBSRepo repositories = 2;
 }
 
-// WS api/alm_integrations/search_bitbucketcloud_repos
+// WS api/alm_integrations/search_bibucketcloud_repos
 message SearchBitbucketcloudReposWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   optional bool isLastPage = 2;
@@ -44,7 +44,7 @@ message SearchAzureReposWsResponse {
   repeated AzureRepo repositories = 2;
 }
 
-// WS api/alm_integrations/list_bitbucketserver_projects
+// WS api/alm_integrations/list_bibucketserver_projects
 message ListBitbucketserverProjectsWsResponse {
   repeated AlmProject projects = 1;
 }

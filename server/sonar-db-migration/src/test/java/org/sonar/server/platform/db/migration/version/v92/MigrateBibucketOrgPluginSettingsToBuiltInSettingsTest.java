@@ -32,14 +32,14 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrateBitbucketOrgPluginSettingsToBuiltInSettingsTest {
+public class MigrateBibucketOrgPluginSettingsToBuiltInSettingsTest {
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(MigrateBitbucketOrgPluginSettingsToBuiltInSettingsTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(MigrateBibucketOrgPluginSettingsToBuiltInSettingsTest.class, "schema.sql");
 
-  private final DataChange underTest = new MigrateBitbucketOrgPluginSettingsToBuiltInSettings(db.database());
+  private final DataChange underTest = new MigrateBibucketOrgPluginSettingsToBuiltInSettings(db.database());
 
   @Test
   public void migration_populate_new_property_based_on_plugin_property() throws SQLException {
