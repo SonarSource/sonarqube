@@ -24,7 +24,7 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bibucketserver_projects">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bitbucketserver_projects">Further information about this action online (including a response example)</a>
  * @since 8.2
  */
 @Generated("sonar-ws-generator")

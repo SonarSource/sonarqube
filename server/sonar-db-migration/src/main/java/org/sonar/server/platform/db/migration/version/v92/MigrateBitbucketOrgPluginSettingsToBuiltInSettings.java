@@ -24,9 +24,9 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Upsert;
 
-public class MigrateBibucketOrgPluginSettingsToBuiltInSettings extends DataChange {
+public class MigrateBitbucketOrgPluginSettingsToBuiltInSettings extends DataChange {
 
-  public MigrateBibucketOrgPluginSettingsToBuiltInSettings(Database db) {
+  public MigrateBitbucketOrgPluginSettingsToBuiltInSettings(Database db) {
     super(db);
   }
 
