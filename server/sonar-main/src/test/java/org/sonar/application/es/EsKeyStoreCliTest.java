@@ -22,6 +22,7 @@ package org.sonar.application.es;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,16 +61,20 @@ public class EsKeyStoreCliTest {
     MockProcess process = (MockProcess) underTest.executeWith(EsKeyStoreCliTest::mockLaunch);
 
     JavaCommand<?> executedCommand = process.getExecutedCommand();
+
+    String expectedHomeLibPath = Paths.get(homeDir.toString(), "lib") + "/*";
+    String expectedHomeKeystorePath = Paths.get(homeDir.toString(), "lib", "tools", "keystore-cli") + "/*";
+
     assertThat(executedCommand.getClassName()).isEqualTo("org.elasticsearch.common.settings.KeyStoreCli");
     assertThat(executedCommand.getClasspath())
-      .containsExactly(homeDir.getAbsolutePath() + "/lib/*", homeDir.getAbsolutePath() + "/lib/tools/keystore-cli/*");
+      .containsExactly(expectedHomeLibPath, expectedHomeKeystorePath);
     assertThat(executedCommand.getParameters()).containsExactly("add", "-x", "-f", "test.property1", "test.property2", "test.property3");
     assertThat(executedCommand.getJvmOptions().getAll()).containsExactly(
       "-Xshare:auto",
       "-Xms4m",
       "-Xmx64m",
-      "-Des.path.home=" + homeDir.getAbsolutePath(),
-      "-Des.path.conf=" + confDir.getAbsolutePath(),
+      "-Des.path.home=" + homeDir.toPath(),
+      "-Des.path.conf=" + confDir.toPath(),
       "-Des.distribution=default",
       "-Des.distribution.type=tar");
 
