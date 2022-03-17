@@ -72,7 +72,7 @@ public class ValuesAction implements SettingsWsAction {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
   private static final Splitter DOT_SPLITTER = Splitter.on(".").omitEmptyStrings();
-  private static final Set<String> SERVER_SETTING_KEYS = ImmutableSet.of(SERVER_STARTTIME, SERVER_ID);
+  private static final Set<String> SERVER_SETTING_KEYS = Set.of(SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
