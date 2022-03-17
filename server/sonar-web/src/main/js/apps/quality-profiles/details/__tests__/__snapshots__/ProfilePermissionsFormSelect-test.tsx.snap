@@ -1,20 +1,89 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<SelectLegacy
+<Select
   autoFocus={true}
-  className="Select-big"
-  clearable={false}
+  className="Select-big width-100"
+  components={
+    Object {
+      "Control": [Function],
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
   filterOptions={[Function]}
+  id="change-profile-permission"
+  inputId="change-profile-permission-input"
+  isClearable={false}
   isLoading={true}
-  noResultsText="no_results"
+  isSearchable={true}
+  noOptionsMessage={[Function]}
   onChange={[MockFunction]}
   onInputChange={[Function]}
-  optionRenderer={[Function]}
-  options={Array []}
+  options={
+    Array [
+      Object {
+        "name": "lambda",
+        "value": "group:lambda",
+      },
+    ]
+  }
   placeholder=""
-  searchable={true}
-  value="group:lambda"
-  valueRenderer={[Function]}
+  value={
+    Array [
+      Object {
+        "name": "lambda",
+        "value": "group:lambda",
+      },
+    ]
+  }
 />
+`;
+
+exports[`should render control correctly: control renderer 1`] = `
+<Control
+  className="abs-height-100 Select-control"
+/>
+`;
+
+exports[`should render option correctly: option renderer 1`] = `
+<Option
+  className="Select-option"
+  data={
+    Object {
+      "name": "name",
+      "value": "test",
+    }
+  }
+>
+  <GroupIcon
+    size={16}
+  />
+  <strong
+    className="spacer-left"
+  >
+    name
+  </strong>
+</Option>
+`;
+
+exports[`should render value correctly: value renderer 1`] = `
+<SingleValue
+  className="Select-value-label"
+  data={
+    Object {
+      "name": "name",
+      "value": "test",
+    }
+  }
+>
+  <GroupIcon
+    size={16}
+  />
+  <strong
+    className="spacer-left"
+  >
+    name
+  </strong>
+</SingleValue>
 `;

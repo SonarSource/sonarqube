@@ -48,14 +48,18 @@ exports[`should render correctly: default 1`] = `
         className="modal-field"
       >
         <label
-          htmlFor="create-profile-language"
+          htmlFor="create-profile-language-input"
         >
           language
           <MandatoryFieldMarker />
         </label>
-        <SelectLegacy
-          clearable={false}
+        <Select
+          autoFocus={true}
+          className="width-100"
           id="create-profile-language"
+          inputId="create-profile-language-input"
+          isClearable={false}
+          isSearchable={true}
           name="language"
           onChange={[Function]}
           options={
@@ -70,20 +74,31 @@ exports[`should render correctly: default 1`] = `
               },
             ]
           }
-          value="css"
+          value={
+            Array [
+              Object {
+                "label": "CSS",
+                "value": "css",
+              },
+            ]
+          }
         />
       </div>
       <div
         className="modal-field"
       >
         <label
-          htmlFor="create-profile-parent"
+          htmlFor="create-profile-parent-input"
         >
           quality_profiles.parent
         </label>
-        <SelectLegacy
-          clearable={true}
+        <Select
+          autoFocus={true}
+          className="width-100"
           id="create-profile-parent"
+          inputId="create-profile-parent-input"
+          isClearable={false}
+          isSearchable={true}
           name="parentKey"
           onChange={[Function]}
           options={
@@ -98,7 +113,14 @@ exports[`should render correctly: default 1`] = `
               },
             ]
           }
-          value=""
+          value={
+            Array [
+              Object {
+                "label": "none",
+                "value": "",
+              },
+            ]
+          }
         />
       </div>
       <input
@@ -175,14 +197,18 @@ exports[`should render correctly: with query filter 1`] = `
         className="modal-field"
       >
         <label
-          htmlFor="create-profile-language"
+          htmlFor="create-profile-language-input"
         >
           language
           <MandatoryFieldMarker />
         </label>
-        <SelectLegacy
-          clearable={false}
+        <Select
+          autoFocus={true}
+          className="width-100"
           id="create-profile-language"
+          inputId="create-profile-language-input"
+          isClearable={false}
+          isSearchable={true}
           name="language"
           onChange={[Function]}
           options={
@@ -197,20 +223,31 @@ exports[`should render correctly: with query filter 1`] = `
               },
             ]
           }
-          value="js"
+          value={
+            Array [
+              Object {
+                "label": "JavaScript",
+                "value": "js",
+              },
+            ]
+          }
         />
       </div>
       <div
         className="modal-field"
       >
         <label
-          htmlFor="create-profile-parent"
+          htmlFor="create-profile-parent-input"
         >
           quality_profiles.parent
         </label>
-        <SelectLegacy
-          clearable={true}
+        <Select
+          autoFocus={true}
+          className="width-100"
           id="create-profile-parent"
+          inputId="create-profile-parent-input"
+          isClearable={false}
+          isSearchable={true}
           name="parentKey"
           onChange={[Function]}
           options={
@@ -225,7 +262,14 @@ exports[`should render correctly: with query filter 1`] = `
               },
             ]
           }
-          value=""
+          value={
+            Array [
+              Object {
+                "label": "none",
+                "value": "",
+              },
+            ]
+          }
         />
       </div>
       <div

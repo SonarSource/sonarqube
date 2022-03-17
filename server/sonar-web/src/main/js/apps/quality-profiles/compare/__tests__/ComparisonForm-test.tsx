@@ -19,39 +19,68 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import { mockReactSelectOptionProps } from '../../../../helpers/mocks/react-select';
+import Select from '../../../../components/controls/Select';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import ComparisonForm from '../ComparisonForm';
 
 it('should render Select with right options', () => {
+  const output = shallowRender().find(Select);
+
+  expect(output.length).toBe(1);
+  expect(output.prop('value')).toEqual([
+    { isDefault: true, value: 'another', label: 'another name' }
+  ]);
+  expect(output.prop('options')).toEqual([
+    { isDefault: true, value: 'another', label: 'another name' }
+  ]);
+});
+
+it('should render option correctly', () => {
+  const wrapper = shallowRender();
+  const mockOptions = [
+    {
+      value: 'val',
+      label: 'label',
+      isDefault: undefined
+    }
+  ];
+  const OptionRenderer = wrapper.instance().optionRenderer.bind(null, mockOptions);
+  expect(
+    shallow(<OptionRenderer {...mockReactSelectOptionProps({ value: 'test' })} />)
+  ).toMatchSnapshot('option render');
+});
+
+it('should render value correctly', () => {
+  const wrapper = shallowRender();
+  const mockOptions = [
+    {
+      value: 'val',
+      label: 'label',
+      isDefault: true
+    }
+  ];
+  const ValueRenderer = wrapper.instance().singleValueRenderer.bind(null, mockOptions);
+  expect(
+    shallow(<ValueRenderer {...mockReactSelectOptionProps({ value: 'test' })} />)
+  ).toMatchSnapshot('value render');
+});
+
+function shallowRender(overrides: Partial<ComparisonForm['props']> = {}) {
   const profile = mockQualityProfile();
   const profiles = [
     profile,
-    mockQualityProfile({ key: 'another', name: 'another name' }),
+    mockQualityProfile({ key: 'another', name: 'another name', isDefault: true }),
     mockQualityProfile({ key: 'java', name: 'java', language: 'java' })
   ];
 
-  const profileDefault = { value: 'c', label: 'c name', isDefault: true };
-
-  const output = shallow(
+  return shallow<ComparisonForm>(
     <ComparisonForm
       onCompare={() => true}
       profile={profile}
       profiles={profiles}
       withKey="another"
+      {...overrides}
     />
-  ).find(SelectLegacy);
-  expect(output.props().valueRenderer!(profileDefault)).toMatchSnapshot('Render default for value');
-  expect(output.props().valueRenderer!(profile)).toMatchSnapshot('Render for value');
-
-  expect(output.props().optionRenderer!(profileDefault)).toMatchSnapshot(
-    'Render default for option'
   );
-  expect(output.props().optionRenderer!(profile)).toMatchSnapshot('Render for option');
-
-  expect(output.length).toBe(1);
-  expect(output.prop('value')).toBe('another');
-  expect(output.prop('options')).toEqual([
-    { isDefault: false, value: 'another', label: 'another name' }
-  ]);
-});
+}

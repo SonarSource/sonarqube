@@ -19,7 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { GroupTypeBase, Props } from 'react-select';
+import { components, GroupTypeBase, InputProps, Props } from 'react-select';
+import { mockReactSelectIndicatorProps } from '../../../helpers/mocks/react-select';
 import Select from '../Select';
 
 describe('Select', () => {
@@ -27,11 +28,40 @@ describe('Select', () => {
     expect(shallowRender()).toMatchSnapshot('default');
   });
 
+  it('should render complex select component', () => {
+    const inputRenderer = (props: InputProps) => (
+      <components.Input {...props} className={`little-spacer-top ${props.className}`} />
+    );
+
+    const props = {
+      isClearable: true,
+      isLoading: true,
+      components: {
+        Input: inputRenderer
+      }
+    };
+    expect(shallowRender(props)).toMatchSnapshot('other props');
+  });
+
+  it('should render clearIndicator correctly', () => {
+    const wrapper = shallowRender();
+    const ClearIndicator = wrapper.instance().clearIndicator;
+    const clearIndicator = shallow(<ClearIndicator {...mockReactSelectIndicatorProps()} />);
+    expect(clearIndicator).toBeDefined();
+  });
+
+  it('should render dropdownIndicator correctly', () => {
+    const wrapper = shallowRender();
+    const DropdownIndicator = wrapper.instance().dropdownIndicator;
+    const clearIndicator = shallow(<DropdownIndicator {...mockReactSelectIndicatorProps()} />);
+    expect(clearIndicator).toBeDefined();
+  });
+
   function shallowRender<
     Option,
     IsMulti extends boolean = false,
     Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
   >(props: Partial<Props<Option, IsMulti, Group>> = {}) {
-    return shallow<Props<Option, IsMulti, Group>>(<Select {...props} />);
+    return shallow<Select<Option, IsMulti, Group>>(<Select {...props} />);
   }
 });

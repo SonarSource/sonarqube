@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockReactSelectOptionProps } from '../../../../helpers/mocks/react-select';
 import { mockRouter } from '../../../../helpers/testMocks';
 import { ProfilesListHeader } from '../ProfilesListHeader';
 
@@ -27,8 +28,16 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render option correctly', () => {
+  const wrapper = shallowRender();
+  const OptionRendererer = wrapper.instance().optionRenderer;
+  expect(
+    shallow(<OptionRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
+  ).toMatchSnapshot('option renderer');
+});
+
 function shallowRender(props: Partial<ProfilesListHeader['props']> = {}) {
-  return shallow(
+  return shallow<ProfilesListHeader>(
     <ProfilesListHeader
       languages={[
         { key: 'js', name: 'JavaScript' },

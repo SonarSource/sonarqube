@@ -1,9 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Select should render complex select component: other props 1`] = `
+<StateManager
+  components={
+    Object {
+      "ClearIndicator": [Function],
+      "DropdownIndicator": [Function],
+      "Input": [Function],
+      "MultiValueRemove": [Function],
+    }
+  }
+  defaultInputValue=""
+  defaultMenuIsOpen={false}
+  defaultValue={null}
+  isClearable={true}
+  isLoading={true}
+  styles={
+    Object {
+      "container": [Function],
+      "control": [Function],
+      "indicatorsContainer": [Function],
+      "input": [Function],
+      "loadingIndicator": [Function],
+      "menu": [Function],
+      "menuList": [Function],
+      "multiValue": [Function],
+      "multiValueLabel": [Function],
+      "multiValueRemove": [Function],
+      "noOptionsMessage": [Function],
+      "option": [Function],
+      "placeholder": [Function],
+      "singleValue": [Function],
+      "valueContainer": [Function],
+    }
+  }
+/>
+`;
+
 exports[`Select should render correctly: default 1`] = `
 <StateManager
   components={
     Object {
+      "ClearIndicator": [Function],
       "DropdownIndicator": [Function],
       "MultiValueRemove": [Function],
     }
@@ -17,11 +55,13 @@ exports[`Select should render correctly: default 1`] = `
       "control": [Function],
       "indicatorsContainer": [Function],
       "input": [Function],
+      "loadingIndicator": [Function],
       "menu": [Function],
       "menuList": [Function],
       "multiValue": [Function],
       "multiValueLabel": [Function],
       "multiValueRemove": [Function],
+      "noOptionsMessage": [Function],
       "option": [Function],
       "placeholder": [Function],
       "singleValue": [Function],

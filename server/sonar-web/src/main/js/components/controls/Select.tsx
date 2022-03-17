@@ -22,6 +22,7 @@ import * as React from 'react';
 import ReactSelect, { GroupTypeBase, IndicatorProps, Props, StylesConfig } from 'react-select';
 import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
 import { colors, others, sizes, zIndexes } from '../../app/theme';
+import { ClearButton } from './buttons';
 
 const ArrowSpan = styled.span`
   border-color: #999 transparent transparent;
@@ -32,30 +33,43 @@ const ArrowSpan = styled.span`
   width: 0;
 `;
 
-export default function Select<
+export default class Select<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->(props: Props<Option, IsMulti, Group>) {
-  function DropdownIndicator({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
+> extends React.PureComponent<Props<Option, IsMulti, Group>> {
+  dropdownIndicator({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
     return <ArrowSpan {...innerProps} />;
   }
 
-  function MultiValueRemove(props: MultiValueRemoveProps<Option, Group>) {
+  clearIndicator({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
+    return (
+      <ClearButton
+        className="button-tiny spacer-left spacer-right text-middle"
+        iconProps={{ size: 12 }}
+        {...innerProps}
+      />
+    );
+  }
+
+  multiValueRemove(props: MultiValueRemoveProps<Option, Group>) {
     return <div {...props.innerProps}>×</div>;
   }
 
-  return (
-    <ReactSelect
-      {...props}
-      styles={selectStyle<Option, IsMulti, Group>()}
-      components={{
-        ...props.components,
-        DropdownIndicator,
-        MultiValueRemove
-      }}
-    />
-  );
+  render() {
+    return (
+      <ReactSelect
+        {...this.props}
+        styles={selectStyle<Option, IsMulti, Group>()}
+        components={{
+          ...this.props.components,
+          DropdownIndicator: this.dropdownIndicator,
+          ClearIndicator: this.clearIndicator,
+          MultiValueRemove: this.multiValueRemove
+        }}
+      />
+    );
+  }
 }
 
 export function selectStyle<
@@ -74,7 +88,7 @@ export function selectStyle<
     }),
     control: () => ({
       position: 'relative',
-      display: 'table',
+      display: 'flex',
       width: '100%',
       minHeight: `${sizes.controlHeight}`,
       lineHeight: `calc(${sizes.controlHeight} - 2px)`,
@@ -101,9 +115,6 @@ export function selectStyle<
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     }),
-    input: () => ({
-      paddingLeft: '1px'
-    }),
     valueContainer: (_provided, state) => {
       if (state.hasValue && state.isMulti) {
         return {
@@ -128,13 +139,13 @@ export function selectStyle<
       };
     },
     indicatorsContainer: () => ({
-      cursor: 'pointer',
-      display: 'table-cell',
       position: 'relative',
-      textAlign: 'center',
+      cursor: 'pointer',
+      textAlign: 'end',
       verticalAlign: 'middle',
       width: '20px',
-      paddingRight: '5px'
+      paddingRight: '5px',
+      flex: 1
     }),
     multiValue: () => ({
       display: 'inline-block',
@@ -206,6 +217,23 @@ export function selectStyle<
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis'
+    }),
+    input: () => ({
+      padding: '0px',
+      margin: '0px',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      paddingLeft: '1px'
+    }),
+    loadingIndicator: () => ({
+      position: 'absolute',
+      padding: '8px',
+      fontSize: '4px'
+    }),
+    noOptionsMessage: () => ({
+      color: `${colors.gray60}`,
+      padding: '8px 10px'
     })
   };
 }

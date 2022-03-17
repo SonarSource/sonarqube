@@ -129,7 +129,9 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
         <form onSubmit={this.handleFormSubmit}>
           <div className="modal-body">
             <div className="modal-field">
-              <label>{translate('quality_profiles.search_description')}</label>
+              <label htmlFor="change-profile-permission-input">
+                {translate('quality_profiles.search_description')}
+              </label>
               <ProfilePermissionsFormSelect
                 onChange={this.handleValueChange}
                 onSearch={this.handleSearch}

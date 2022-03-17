@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { GroupTypeBase, OptionProps } from 'react-select';
+import { ControlProps, GroupTypeBase, IndicatorProps, InputProps, OptionProps } from 'react-select';
 
 export function mockReactSelectOptionProps<
   OptionType,
@@ -31,4 +31,24 @@ export function mockReactSelectOptionProps<
     ...overrides,
     data
   } as OptionProps<OptionType, IsMulti, GroupType>;
+}
+
+export function mockReactSelectInputProps(): InputProps {
+  return {} as InputProps;
+}
+
+export function mockReactSelectControlProps<
+  OptionType,
+  IsMulti extends boolean,
+  GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
+>(): ControlProps<OptionType, IsMulti, GroupType> {
+  return {} as ControlProps<OptionType, IsMulti, GroupType>;
+}
+
+export function mockReactSelectIndicatorProps<
+  OptionType,
+  IsMulti extends boolean,
+  GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
+>(): IndicatorProps<OptionType, IsMulti, GroupType> {
+  return {} as IndicatorProps<OptionType, IsMulti, GroupType>;
 }

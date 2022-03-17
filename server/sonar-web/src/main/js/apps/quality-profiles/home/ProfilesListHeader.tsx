@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import { components, OptionProps } from 'react-select';
+import Select from '../../../components/controls/Select';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
@@ -36,6 +37,11 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
     router.replace(!option ? PROFILE_PATH : getProfilesForLanguagePath(option.value));
   };
 
+  optionRenderer = (props: OptionProps<{ value: string }, false>) => (
+    // This class is added for the integration test.
+    <components.Option {...props} className="Select-option" />
+  );
+
   render() {
     const { currentFilter, languages } = this.props;
     if (languages.length < 2) {
@@ -47,17 +53,24 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
       value: language.key
     }));
 
-    const currentLanguage = currentFilter && options.find(l => l.value === currentFilter);
-
     return (
       <header className="quality-profiles-list-header clearfix">
-        <span className="spacer-right">{translate('quality_profiles.filter_by')}:</span>
-        <SelectLegacy
+        <label htmlFor="quality-profiles-filter-input" className="spacer-right">
+          {translate('quality_profiles.filter_by')}:
+        </label>
+        <Select
           className="input-medium"
-          clearable={true}
+          autoFocus={true}
+          id="quality-profiles-filter"
+          inputId="quality-profiles-filter-input"
+          isClearable={true}
           onChange={this.handleChange}
+          components={{
+            Option: this.optionRenderer
+          }}
           options={options}
-          value={currentLanguage}
+          isSearchable={true}
+          value={options.filter(o => o.value === currentFilter)}
         />
       </header>
     );

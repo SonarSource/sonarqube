@@ -4,15 +4,25 @@ exports[`should render correctly 1`] = `
 <header
   className="quality-profiles-list-header clearfix"
 >
-  <span
+  <label
     className="spacer-right"
+    htmlFor="quality-profiles-filter-input"
   >
     quality_profiles.filter_by
     :
-  </span>
-  <SelectLegacy
+  </label>
+  <Select
+    autoFocus={true}
     className="input-medium"
-    clearable={true}
+    components={
+      Object {
+        "Option": [Function],
+      }
+    }
+    id="quality-profiles-filter"
+    inputId="quality-profiles-filter-input"
+    isClearable={true}
+    isSearchable={true}
     onChange={[Function]}
     options={
       Array [
@@ -26,6 +36,18 @@ exports[`should render correctly 1`] = `
         },
       ]
     }
+    value={Array []}
   />
 </header>
+`;
+
+exports[`should render option correctly: option renderer 1`] = `
+<Option
+  className="Select-option"
+  data={
+    Object {
+      "value": "val",
+    }
+  }
+/>
 `;

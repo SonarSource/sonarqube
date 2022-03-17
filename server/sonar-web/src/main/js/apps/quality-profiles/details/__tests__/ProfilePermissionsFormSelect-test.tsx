@@ -19,6 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import {
+  mockReactSelectControlProps,
+  mockReactSelectOptionProps
+} from '../../../../helpers/mocks/react-select';
 import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
 
 jest.mock('lodash', () => {
@@ -62,3 +66,38 @@ it('searches', () => {
   wrapper.prop<Function>('onInputChange')('foo');
   expect(onSearch).not.toBeCalled();
 });
+
+it('should render option correctly', () => {
+  const wrapper = shallowRender();
+  const OptionRenderer = wrapper.instance().optionRenderer;
+  expect(
+    shallow(<OptionRenderer {...mockReactSelectOptionProps({ value: 'test', name: 'name' })} />)
+  ).toMatchSnapshot('option renderer');
+});
+
+it('should render value correctly', () => {
+  const wrapper = shallowRender();
+  const ValueRenderer = wrapper.instance().singleValueRenderer;
+  expect(
+    shallow(<ValueRenderer {...mockReactSelectOptionProps({ value: 'test', name: 'name' })} />)
+  ).toMatchSnapshot('value renderer');
+});
+
+it('should render control correctly', () => {
+  const wrapper = shallowRender();
+  const ControlRenderer = wrapper.instance().controlRenderer;
+  expect(shallow(<ControlRenderer {...mockReactSelectControlProps()} />)).toMatchSnapshot(
+    'control renderer'
+  );
+});
+
+function shallowRender(overrides: Partial<ProfilePermissionsFormSelect['props']> = {}) {
+  return shallow<ProfilePermissionsFormSelect>(
+    <ProfilePermissionsFormSelect
+      onChange={jest.fn()}
+      onSearch={jest.fn(() => Promise.resolve([]))}
+      selected={{ name: 'lambda' }}
+      {...overrides}
+    />
+  );
+}

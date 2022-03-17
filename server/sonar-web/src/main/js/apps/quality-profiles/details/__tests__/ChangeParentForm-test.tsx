@@ -33,7 +33,7 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it("should handle form' submit correcty", async () => {
+it('should handle form submit correcty', async () => {
   const onChange = jest.fn();
 
   const wrapper = shallowRender({ onChange });
@@ -41,6 +41,14 @@ it("should handle form' submit correcty", async () => {
   await waitAndUpdate(wrapper);
 
   expect(onChange).toHaveBeenCalled();
+});
+
+it('should handle select change correcty', async () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleSelectChange({ value: 'val' });
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.instance().state.selected).toEqual('val');
 });
 
 function shallowRender(props?: Partial<ChangeParentForm['props']>) {

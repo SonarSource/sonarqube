@@ -19,6 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import Select from '../../../components/controls/Select';
 import {
   changeProfileParent,
   createQualityProfile,
@@ -26,7 +27,6 @@ import {
 } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
 import { Location } from '../../../components/hoc/withRouter';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -137,6 +137,17 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
         }))
       ];
     }
+    const languagesOptions = languages.map(l => ({
+      label: l.name,
+      value: l.key
+    }));
+
+    const isParentProfileClearable = () => {
+      if (this.state.parent !== undefined && this.state.parent !== '') {
+        return true;
+      }
+      return false;
+    };
 
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
@@ -170,34 +181,39 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                 />
               </div>
               <div className="modal-field">
-                <label htmlFor="create-profile-language">
+                <label htmlFor="create-profile-language-input">
                   {translate('language')}
                   <MandatoryFieldMarker />
                 </label>
-                <SelectLegacy
-                  clearable={false}
+                <Select
+                  className="width-100"
+                  autoFocus={true}
                   id="create-profile-language"
+                  inputId="create-profile-language-input"
                   name="language"
+                  isClearable={false}
                   onChange={this.handleLanguageChange}
-                  options={languages.map(l => ({
-                    label: l.name,
-                    value: l.key
-                  }))}
-                  value={selectedLanguage}
+                  options={languagesOptions}
+                  isSearchable={true}
+                  value={languagesOptions.filter(o => o.value === selectedLanguage)}
                 />
               </div>
               {selectedLanguage && profiles.length && (
                 <div className="modal-field">
-                  <label htmlFor="create-profile-parent">
+                  <label htmlFor="create-profile-parent-input">
                     {translate('quality_profiles.parent')}
                   </label>
-                  <SelectLegacy
-                    clearable={true}
+                  <Select
+                    className="width-100"
+                    autoFocus={true}
                     id="create-profile-parent"
+                    inputId="create-profile-parent-input"
                     name="parentKey"
+                    isClearable={isParentProfileClearable()}
                     onChange={this.handleParentChange}
                     options={profiles}
-                    value={this.state.parent || ''}
+                    isSearchable={true}
+                    value={profiles.filter(o => o.value === (this.state.parent || ''))}
                   />
                 </div>
               )}

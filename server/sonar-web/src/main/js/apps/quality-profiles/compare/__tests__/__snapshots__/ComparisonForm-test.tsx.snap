@@ -1,47 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render Select with right options: Render default for option 1`] = `
-<div>
-  <span>
-    c name
-  </span>
-  <Tooltip
-    overlay="quality_profiles.list.default.help"
-  >
-    <span
-      className=" spacer-left badge"
-    >
-      default
-    </span>
-  </Tooltip>
-</div>
+exports[`should render option correctly: option render 1`] = `
+<Option
+  data={
+    Object {
+      "value": "test",
+    }
+  }
+/>
 `;
 
-exports[`should render Select with right options: Render default for value 1`] = `
-<div>
-  <span>
-    c name
-  </span>
-  <Tooltip
-    overlay="quality_profiles.list.default.help"
-  >
-    <span
-      className=" spacer-left badge"
-    >
-      default
-    </span>
-  </Tooltip>
-</div>
-`;
-
-exports[`should render Select with right options: Render for option 1`] = `
-<div>
-  <span />
-</div>
-`;
-
-exports[`should render Select with right options: Render for value 1`] = `
-<div>
-  <span />
-</div>
+exports[`should render value correctly: value render 1`] = `
+<SingleValue
+  data={
+    Object {
+      "value": "test",
+    }
+  }
+/>
 `;

@@ -21,7 +21,9 @@ exports[`correctly adds groups 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          htmlFor="change-profile-permission-input"
+        >
           quality_profiles.search_description
         </label>
         <ProfilePermissionsFormSelect
@@ -79,7 +81,9 @@ exports[`correctly adds users 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          htmlFor="change-profile-permission-input"
+        >
           quality_profiles.search_description
         </label>
         <ProfilePermissionsFormSelect
@@ -139,7 +143,9 @@ exports[`should render correctly: default 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          htmlFor="change-profile-permission-input"
+        >
           quality_profiles.search_description
         </label>
         <ProfilePermissionsFormSelect
@@ -187,7 +193,9 @@ exports[`should render correctly: submitting 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          htmlFor="change-profile-permission-input"
+        >
           quality_profiles.search_description
         </label>
         <ProfilePermissionsFormSelect

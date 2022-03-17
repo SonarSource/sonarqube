@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, identity } from 'lodash';
+import { debounce, identity, omit } from 'lodash';
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
+import Select from '../../../components/controls/Select';
 import GroupIcon from '../../../components/icons/GroupIcon';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
@@ -83,29 +84,65 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
     }
   };
 
+  optionRenderer(props: OptionProps<OptionWithValue, false>) {
+    const { data } = props;
+    return (
+      <components.Option {...props} className="Select-option">
+        {customOptions(data)}
+      </components.Option>
+    );
+  }
+
+  singleValueRenderer = (props: SingleValueProps<OptionWithValue>) => (
+    <components.SingleValue {...props} className="Select-value-label">
+      {customOptions(props.data)}
+    </components.SingleValue>
+  );
+
+  controlRenderer = (props: ControlProps<OptionWithValue, false>) => (
+    <components.Control {...omit(props, ['children'])} className="abs-height-100 Select-control">
+      {props.children}
+    </components.Control>
+  );
+
   render() {
     const noResultsText = translate('no_results');
-
+    const { selected } = this.props;
     // create a uniq string both for users and groups
     const options = this.state.searchResults.map(r => ({ ...r, value: getStringValue(r) }));
 
+    // when user input is empty the options shows only top 30 names
+    // the below code add the selected user so that it appears too
+    if (
+      selected !== undefined &&
+      options.find(o => o.value === getStringValue(selected)) === undefined
+    ) {
+      options.unshift({ ...selected, value: getStringValue(selected) });
+    }
+
     return (
-      <SelectLegacy
+      <Select
+        className="Select-big width-100"
         autoFocus={true}
-        className="Select-big"
-        clearable={false}
-        // disable default react-select filtering
-        filterOptions={identity}
-        isLoading={this.state.loading}
-        noResultsText={noResultsText}
+        isClearable={false}
+        id="change-profile-permission"
+        inputId="change-profile-permission-input"
         onChange={this.props.onChange}
         onInputChange={this.handleInputChange}
-        optionRenderer={optionRenderer}
-        options={options}
         placeholder=""
-        searchable={true}
-        value={this.props.selected && getStringValue(this.props.selected)}
-        valueRenderer={optionRenderer}
+        noOptionsMessage={() => noResultsText}
+        isLoading={this.state.loading}
+        options={options}
+        isSearchable={true}
+        filterOptions={identity}
+        components={{
+          Option: this.optionRenderer,
+          SingleValue: this.singleValueRenderer,
+          Control: this.controlRenderer
+        }}
+        value={options.filter(
+          o => o.value === (this.props.selected && getStringValue(this.props.selected))
+        )}
       />
     );
   }
@@ -119,7 +156,7 @@ function getStringValue(option: Option) {
   return isUser(option) ? `user:${option.login}` : `group:${option.name}`;
 }
 
-function optionRenderer(option: OptionWithValue) {
+function customOptions(option: OptionWithValue) {
   return isUser(option) ? (
     <>
       <Avatar hash={option.avatar} name={option.name} size={16} />

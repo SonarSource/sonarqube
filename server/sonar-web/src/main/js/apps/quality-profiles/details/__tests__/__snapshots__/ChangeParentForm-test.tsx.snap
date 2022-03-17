@@ -27,14 +27,18 @@ exports[`should render correctly 1`] = `
         className="modal-field"
       >
         <label
-          htmlFor="change-profile-parent"
+          htmlFor="change-profile-parent-input"
         >
           quality_profiles.parent
           <MandatoryFieldMarker />
         </label>
-        <SelectLegacy
-          clearable={false}
+        <Select
+          autoFocus={true}
+          className="width-100"
           id="change-profile-parent"
+          inputId="change-profile-parent-input"
+          isClearable={false}
+          isSearchable={true}
           name="parentKey"
           onChange={[Function]}
           options={
@@ -61,7 +65,14 @@ exports[`should render correctly 1`] = `
               },
             ]
           }
-          value=""
+          value={
+            Array [
+              Object {
+                "label": "none",
+                "value": "",
+              },
+            ]
+          }
         />
       </div>
     </div>

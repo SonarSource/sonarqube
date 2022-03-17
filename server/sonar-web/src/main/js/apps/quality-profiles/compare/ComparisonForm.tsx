@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import { components, OptionProps, SingleValueProps } from 'react-select';
+import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -30,10 +31,30 @@ interface Props {
   withKey?: string;
 }
 
+interface Option {
+  value: string;
+  label: string;
+  isDefault: boolean | undefined;
+}
 export default class ComparisonForm extends React.PureComponent<Props> {
   handleChange = (option: { value: string }) => {
     this.props.onCompare(option.value);
   };
+
+  optionRenderer(
+    options: Option[],
+    props: OptionProps<Omit<Option, 'label' | 'isDefault'>, false>
+  ) {
+    const { data } = props;
+    return <components.Option {...props}>{renderValue(data, options)}</components.Option>;
+  }
+
+  singleValueRenderer = (
+    options: Option[],
+    props: SingleValueProps<Omit<typeof options[0], 'label' | 'isDefault'>>
+  ) => (
+    <components.SingleValue {...props}>{renderValue(props.data, options)}</components.SingleValue>
+  );
 
   render() {
     const { profile, profiles, withKey } = this.props;
@@ -41,32 +62,42 @@ export default class ComparisonForm extends React.PureComponent<Props> {
       .filter(p => p.language === profile.language && p !== profile)
       .map(p => ({ value: p.key, label: p.name, isDefault: p.isDefault }));
 
-    function renderValue(p: typeof options[0]) {
-      return (
-        <div>
-          <span>{p.label}</span>
-          {p.isDefault && (
-            <Tooltip overlay={translate('quality_profiles.list.default.help')}>
-              <span className=" spacer-left badge">{translate('default')}</span>
-            </Tooltip>
-          )}
-        </div>
-      );
-    }
-
     return (
       <div className="display-inline-block">
-        <label className="spacer-right">{translate('quality_profiles.compare_with')}</label>
-        <SelectLegacy
+        <label htmlFor="quality-profiles-comparision-input" className="spacer-right">
+          {translate('quality_profiles.compare_with')}
+        </label>
+        <Select
           className="input-large"
-          clearable={false}
+          autoFocus={true}
+          isClearable={false}
+          id="quality-profiles-comparision"
+          inputId="quality-profiles-comparision-input"
           onChange={this.handleChange}
           options={options}
-          valueRenderer={renderValue}
-          optionRenderer={renderValue}
-          placeholder={translate('select_verb')}
-          value={withKey}
+          isSearchable={true}
+          components={{
+            Option: this.optionRenderer.bind(this, options),
+            SingleValue: this.singleValueRenderer.bind(null, options)
+          }}
+          value={options.filter(o => o.value === withKey)}
         />
+      </div>
+    );
+  }
+}
+
+function renderValue(p: Omit<Option, 'label' | 'isDefault'>, options: Option[]) {
+  const selectedOption = options.find(o => o.value === p.value);
+  if (selectedOption !== undefined) {
+    return (
+      <div>
+        <span>{selectedOption.label}</span>
+        {selectedOption.isDefault && (
+          <Tooltip overlay={translate('quality_profiles.list.default.help')}>
+            <span className="spacer-left badge">{translate('default')}</span>
+          </Tooltip>
+        )}
       </div>
     );
   }

@@ -19,10 +19,10 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import Select from '../../../components/controls/Select';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
@@ -92,6 +92,8 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
       this.state.selected == null ||
       this.state.selected === this.props.profile.parentKey;
 
+    const selectedValue = this.state.selected ?? (this.props.profile.parentKey || '');
+
     return (
       <Modal
         contentLabel={translate('quality_profiles.change_parent')}
@@ -104,21 +106,21 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
           <div className="modal-body">
             <MandatoryFieldsExplanation className="modal-field" />
             <div className="modal-field">
-              <label htmlFor="change-profile-parent">
+              <label htmlFor="change-profile-parent-input">
                 {translate('quality_profiles.parent')}
                 <MandatoryFieldMarker />
               </label>
-              <SelectLegacy
-                clearable={false}
-                id="change-profile-parent"
+              <Select
+                className="width-100"
+                autoFocus={true}
                 name="parentKey"
+                isClearable={false}
+                id="change-profile-parent"
+                inputId="change-profile-parent-input"
                 onChange={this.handleSelectChange}
                 options={options}
-                value={
-                  this.state.selected != null
-                    ? this.state.selected
-                    : this.props.profile.parentKey || ''
-                }
+                isSearchable={true}
+                value={options.filter(o => o.value === selectedValue)}
               />
             </div>
           </div>
