@@ -77,7 +77,7 @@ import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileExportDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
-import org.sonar.db.scannercache.ScannerCacheDao;
+import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.GroupDao;
@@ -169,7 +169,7 @@ public class DbClient {
   private final UserDismissedMessagesDao userDismissedMessagesDao;
   private final ApplicationProjectsDao applicationProjectsDao;
   private final ProjectBadgeTokenDao projectBadgeTokenDao;
-  private final ScannerCacheDao scannerCacheDao;
+  private final ScannerAnalysisCacheDao scannerAnalysisCacheDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -250,7 +250,7 @@ public class DbClient {
     samlMessageIdDao = getDao(map, SamlMessageIdDao.class);
     userDismissedMessagesDao = getDao(map, UserDismissedMessagesDao.class);
     applicationProjectsDao = getDao(map, ApplicationProjectsDao.class);
-    scannerCacheDao = getDao(map, ScannerCacheDao.class);
+    scannerAnalysisCacheDao = getDao(map, ScannerAnalysisCacheDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -551,7 +551,7 @@ public class DbClient {
     return projectBadgeTokenDao;
   }
 
-  public ScannerCacheDao scannerCacheDao() {
-    return scannerCacheDao;
+  public ScannerAnalysisCacheDao scannerAnalysisCacheDao() {
+    return scannerAnalysisCacheDao;
   }
 }

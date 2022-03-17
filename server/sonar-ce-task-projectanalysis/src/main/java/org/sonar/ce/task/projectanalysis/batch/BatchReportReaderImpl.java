@@ -64,9 +64,9 @@ public class BatchReportReaderImpl implements BatchReportReader {
 
   @CheckForNull
   @Override
-  public InputStream getPluginCache() {
+  public InputStream getAnalysisCache() {
     ensureInitialized();
-    return delegate.getPluginCache();
+    return delegate.getAnalysisCache();
   }
 
   @Override

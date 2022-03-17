@@ -30,7 +30,7 @@ import org.sonar.db.DbInputStream;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
-public class ScannerCacheDao implements Dao {
+public class ScannerAnalysisCacheDao implements Dao {
   public void removeAll(DbSession session) {
     mapper(session).removeAll();
   }
@@ -42,7 +42,7 @@ public class ScannerCacheDao implements Dao {
   public void insert(DbSession dbSession, String branchUuid, InputStream data) {
     Connection connection = dbSession.getConnection();
     try (PreparedStatement stmt = connection.prepareStatement(
-      "INSERT INTO scanner_cache (branch_uuid, data) VALUES (?, ?)")) {
+      "INSERT INTO scanner_analysis_cache (branch_uuid, data) VALUES (?, ?)")) {
       stmt.setString(1, branchUuid);
       stmt.setBinaryStream(2, data);
       stmt.executeUpdate();
@@ -58,7 +58,7 @@ public class ScannerCacheDao implements Dao {
     ResultSet rs = null;
     DbInputStream result = null;
     try {
-      stmt = dbSession.getConnection().prepareStatement("SELECT data FROM scanner_cache WHERE branch_uuid=?");
+      stmt = dbSession.getConnection().prepareStatement("SELECT data FROM scanner_analysis_cache WHERE branch_uuid=?");
       stmt.setString(1, branchUuid);
       rs = stmt.executeQuery();
       if (rs.next()) {
@@ -76,7 +76,7 @@ public class ScannerCacheDao implements Dao {
     }
   }
 
-  private static ScannerCacheMapper mapper(DbSession session) {
-    return session.getMapper(ScannerCacheMapper.class);
+  private static ScannerAnalysisCacheMapper mapper(DbSession session) {
+    return session.getMapper(ScannerAnalysisCacheMapper.class);
   }
 }

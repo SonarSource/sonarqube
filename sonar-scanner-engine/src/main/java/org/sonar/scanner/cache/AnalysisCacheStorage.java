@@ -20,10 +20,8 @@
 package org.sonar.scanner.cache;
 
 import java.io.InputStream;
-import javax.annotation.CheckForNull;
 
 public interface AnalysisCacheStorage {
-  @CheckForNull
   InputStream get(String key);
 
   boolean contains(String key);

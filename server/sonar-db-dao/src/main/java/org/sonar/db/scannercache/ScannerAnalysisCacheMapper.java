@@ -17,19 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.scannercache.ws;
+package org.sonar.db.scannercache;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface ScannerAnalysisCacheMapper {
+  void removeAll();
 
-public class ScannerCacheWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new ScannerCacheWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(3);
-  }
-
+  void remove(@Param("branchUuid") String branchUuid);
 }

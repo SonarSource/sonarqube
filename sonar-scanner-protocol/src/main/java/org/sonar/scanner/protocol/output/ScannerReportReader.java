@@ -80,7 +80,7 @@ public class ScannerReportReader {
   }
 
   @CheckForNull
-  public InputStream getPluginCache() {
+  public InputStream getAnalysisCache() {
     File file = fileStructure.analysisCache();
     if (fileExists(file)) {
       try {

@@ -28,10 +28,10 @@ import static org.sonar.server.platform.db.migration.def.BlobColumnDef.newBlobCo
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateScannerCacheTable extends CreateTableChange {
+public class CreateScannerAnalysisCacheTable extends CreateTableChange {
 
-  public CreateScannerCacheTable(Database db) {
-    super(db, "scanner_cache");
+  public CreateScannerAnalysisCacheTable(Database db) {
+    super(db, "scanner_analysis_cache");
   }
 
   @Override

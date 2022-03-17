@@ -20,7 +20,6 @@
 package org.sonar.scanner.cache;
 
 import java.io.InputStream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 
@@ -34,15 +33,11 @@ public class AnalysisCacheMemoryStorage implements AnalysisCacheStorage {
   }
 
   @Override
-  @CheckForNull
   public InputStream get(String key) {
-    if (cache == null) {
-      return null;
+    if (!contains(key)) {
+      throw new IllegalArgumentException("Key not found: " + key);
     }
-    if (cache.containsMap(key)) {
-      return cache.getMapOrThrow(key).newInput();
-    }
-    return null;
+    return cache.getMapOrThrow(key).newInput();
   }
 
   @Override

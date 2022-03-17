@@ -33,7 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.scannercache.ScannerCacheDao;
+import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -54,7 +54,7 @@ public class GetActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private final ScannerCacheDao dao = new ScannerCacheDao();
+  private final ScannerAnalysisCacheDao dao = new ScannerAnalysisCacheDao();
   private final ScannerCache cache = new ScannerCache(dbTester.getDbClient(), dao);
   private final ComponentFinder finder = new ComponentFinder(dbTester.getDbClient(), null);
   private final GetAction ws = new GetAction(dbTester.getDbClient(), userSession, finder, cache);

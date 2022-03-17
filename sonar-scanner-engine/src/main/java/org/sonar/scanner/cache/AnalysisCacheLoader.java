@@ -40,7 +40,7 @@ import org.sonarqube.ws.client.WsResponse;
 public class AnalysisCacheLoader {
   static final String CONTENT_ENCODING = "Content-Encoding";
   static final String ACCEPT_ENCODING = "Accept-Encoding";
-  private static final String URL = "api/scanner_cache/get";
+  private static final String URL = "api/analysis_cache/get";
 
   private final DefaultScannerWsClient wsClient;
   private final InputProject project;

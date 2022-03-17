@@ -24,14 +24,14 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
-import org.sonar.db.scannercache.ScannerCacheDao;
+import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 
 @ServerSide
 public class ScannerCache {
   private final DbClient dbClient;
-  private final ScannerCacheDao dao;
+  private final ScannerAnalysisCacheDao dao;
 
-  public ScannerCache(DbClient dbClient, ScannerCacheDao dao) {
+  public ScannerCache(DbClient dbClient, ScannerAnalysisCacheDao dao) {
     this.dbClient = dbClient;
     this.dao = dao;
   }

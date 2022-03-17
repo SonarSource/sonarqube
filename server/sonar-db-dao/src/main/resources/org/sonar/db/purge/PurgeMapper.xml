@@ -593,8 +593,8 @@
     delete from user_dismissed_messages where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteScannerCacheByBranchUuid">
-    delete from scanner_cache where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
+  <delete id="deleteScannerAnalysisCacheByBranchUuid">
+    delete from scanner_analysis_cache where branch_uuid = #{branchUuid,jdbcType=VARCHAR}
   </delete>
 </mapper>
 

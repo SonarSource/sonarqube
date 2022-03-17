@@ -31,7 +31,7 @@ import org.sonar.db.DbInputStream;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.scannercache.ScannerCacheDao;
+import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.scannercache.ScannerCache;
 import org.sonar.server.tester.UserSessionRule;
@@ -49,7 +49,7 @@ public class ClearActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private final ScannerCacheDao dao = new ScannerCacheDao();
+  private final ScannerAnalysisCacheDao dao = new ScannerAnalysisCacheDao();
   private final ScannerCache cache = new ScannerCache(dbTester.getDbClient(), dao);
   private final ClearAction ws = new ClearAction(userSession, cache);
   private final WsActionTester wsTester = new WsActionTester(ws);
@@ -67,7 +67,7 @@ public class ClearActionTest {
     TestResponse response = wsTester.newRequest().execute();
 
     response.assertNoContent();
-    assertThat(dbTester.countRowsOfTable("scanner_cache")).isZero();
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isZero();
   }
 
   @Test

@@ -94,7 +94,7 @@ public final class SqTables {
     "rules_parameters",
     "rules_profiles",
     "rule_repositories",
-    "scanner_cache",
+    "scanner_analysis_cache",
     "schema_migrations",
     "session_tokens",
     "snapshots",

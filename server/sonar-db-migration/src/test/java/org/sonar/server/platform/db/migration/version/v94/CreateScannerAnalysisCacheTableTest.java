@@ -24,13 +24,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class CreateScannerCacheTableTest {
-  private static final String TABLE_NAME = "scanner_cache";
+public class CreateScannerAnalysisCacheTableTest {
+  private static final String TABLE_NAME = "scanner_analysis_cache";
 
   @Rule
   public final CoreDbTester db = CoreDbTester.createEmpty();
 
-  private final CreateScannerCacheTable underTest = new CreateScannerCacheTable(db.database());
+  private final CreateScannerAnalysisCacheTable underTest = new CreateScannerAnalysisCacheTable(db.database());
 
   @Test
   public void migration_should_create_table() throws SQLException {

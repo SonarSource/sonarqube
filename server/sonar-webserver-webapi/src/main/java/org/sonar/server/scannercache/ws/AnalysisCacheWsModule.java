@@ -19,12 +19,15 @@
  */
 package org.sonar.server.scannercache.ws;
 
-import org.sonar.server.ws.WsAction;
+import org.sonar.core.platform.Module;
 
-/**
- * Marker interface for coding rule related actions
- *
- */
-interface ScannerCacheWsAction extends WsAction {
-  // Marker interface
+public class AnalysisCacheWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      AnalysisCacheWs.class,
+      GetAction.class,
+      ClearAction.class
+    );
+  }
 }

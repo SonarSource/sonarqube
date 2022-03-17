@@ -33,7 +33,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.TransactionIsolationLevel;
-import org.sonar.api.Startable;
 import org.sonar.db.alm.pat.AlmPatMapper;
 import org.sonar.db.alm.setting.AlmSettingMapper;
 import org.sonar.db.alm.setting.ProjectAlmSettingMapper;
@@ -136,7 +135,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryMapper;
-import org.sonar.db.scannercache.ScannerCacheMapper;
+import org.sonar.db.scannercache.ScannerAnalysisCacheMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.source.FileSourceMapper;
@@ -300,7 +299,7 @@ public class MyBatis {
       RuleMapper.class,
       RuleRepositoryMapper.class,
       SamlMessageIdMapper.class,
-      ScannerCacheMapper.class,
+      ScannerAnalysisCacheMapper.class,
       SchemaMigrationMapper.class,
       SessionTokenMapper.class,
       SnapshotMapper.class,

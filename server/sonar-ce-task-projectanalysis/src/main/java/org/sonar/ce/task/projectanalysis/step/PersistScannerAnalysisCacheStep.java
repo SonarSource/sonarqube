@@ -28,13 +28,13 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 
-public class PersistPluginCacheStep implements ComputationStep {
-  private static final Logger LOGGER = Loggers.get(PersistPluginCacheStep.class);
+public class PersistScannerAnalysisCacheStep implements ComputationStep {
+  private static final Logger LOGGER = Loggers.get(PersistScannerAnalysisCacheStep.class);
   private final BatchReportReader reportReader;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
 
-  public PersistPluginCacheStep(BatchReportReader reportReader, DbClient dbClient, TreeRootHolder treeRootHolder) {
+  public PersistScannerAnalysisCacheStep(BatchReportReader reportReader, DbClient dbClient, TreeRootHolder treeRootHolder) {
     this.reportReader = reportReader;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
@@ -42,18 +42,18 @@ public class PersistPluginCacheStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist scanner plugin cache";
+    return "Persist scanner analysis cache";
   }
 
   @Override
   public void execute(ComputationStep.Context context) {
-    InputStream pluginCacheStream = reportReader.getPluginCache();
-    if (pluginCacheStream != null) {
-      try (var dataStream = pluginCacheStream;
+    InputStream scannerAnalysisCacheStream = reportReader.getAnalysisCache();
+    if (scannerAnalysisCacheStream != null) {
+      try (var dataStream = scannerAnalysisCacheStream;
         var dbSession = dbClient.openSession(false)) {
         String branchUuid = treeRootHolder.getRoot().getUuid();
-        dbClient.scannerCacheDao().remove(dbSession, branchUuid);
-        dbClient.scannerCacheDao().insert(dbSession, branchUuid, dataStream);
+        dbClient.scannerAnalysisCacheDao().remove(dbSession, branchUuid);
+        dbClient.scannerAnalysisCacheDao().insert(dbSession, branchUuid, dataStream);
         dbSession.commit();
       } catch (IOException e) {
         LOGGER.error("Error in reading plugin cache", e);

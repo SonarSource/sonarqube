@@ -42,7 +42,7 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
-public class GetAction implements ScannerCacheWsAction {
+public class GetAction implements AnalysisCacheWsAction {
   private static final String PROJECT = "project";
   private static final String BRANCH = "branch";
 

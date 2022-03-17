@@ -21,22 +21,22 @@ package org.sonar.server.scannercache.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-public class ScannerCacheWs implements WebService {
+public class AnalysisCacheWs implements WebService {
 
-  private final ScannerCacheWsAction[] actions;
+  private final AnalysisCacheWsAction[] actions;
 
-  public ScannerCacheWs(ScannerCacheWsAction... actions) {
+  public AnalysisCacheWs(AnalysisCacheWsAction... actions) {
     this.actions = actions;
   }
 
   @Override
   public void define(Context context) {
     NewController controller = context
-      .createController("api/scanner_cache")
+      .createController("api/analysis_cache")
       .setSince("9.4")
-      .setDescription("Access the scanner cache");
+      .setDescription("Access the analysis cache");
 
-    for (ScannerCacheWsAction action : actions) {
+    for (AnalysisCacheWsAction action : actions) {
       action.define(controller);
     }
 

@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,18 +50,18 @@ public class AnalysisCacheMemoryStorageTest {
   }
 
   @Test
-  public void get_returns_null_if_doesnt_contain_key() {
+  public void get_throws_IAE_if_doesnt_contain_key() {
     when(loader.load()).thenReturn(Optional.of(AnalysisCacheMsg.newBuilder().build()));
     storage.load();
     assertThat(storage.contains("key1")).isFalse();
-    assertThat(storage.get("key1")).isNull();
+    assertThatThrownBy(() -> storage.get("key1")).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  public void get_returns_null_if_no_cache() {
+  public void get_throws_IAE_if_no_cache() {
     when(loader.load()).thenReturn(Optional.empty());
     storage.load();
     assertThat(storage.contains("key1")).isFalse();
-    assertThat(storage.get("key1")).isNull();
+    assertThatThrownBy(() -> storage.get("key1")).isInstanceOf(IllegalArgumentException.class);
   }
 }

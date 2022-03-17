@@ -37,33 +37,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PersistPluginCacheStepTest {
+public class PersistScannerAnalysisCacheStepTest {
   @Rule
   public BatchReportReaderRule reader = new BatchReportReaderRule();
   @Rule
   public DbTester dbTester = DbTester.create();
   private final DbClient client = dbTester.getDbClient();
   private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  private final PersistPluginCacheStep step = new PersistPluginCacheStep(reader, dbTester.getDbClient(), treeRootHolder);
+  private final PersistScannerAnalysisCacheStep step = new PersistScannerAnalysisCacheStep(reader, dbTester.getDbClient(), treeRootHolder);
 
   @Test
   public void inserts_cache() throws IOException {
-    reader.setPluginCache("test".getBytes(UTF_8));
+    reader.setAnalysisCache("test".getBytes(UTF_8));
 
     Component root = mock(Component.class);
     when(root.getUuid()).thenReturn("branch");
     treeRootHolder.setRoot(root);
 
     step.execute(mock(ComputationStep.Context.class));
-    assertThat(dbTester.countRowsOfTable("scanner_cache")).isOne();
-    try (DbInputStream data = client.scannerCacheDao().selectData(dbTester.getSession(), "branch")) {
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isOne();
+    try (DbInputStream data = client.scannerAnalysisCacheDao().selectData(dbTester.getSession(), "branch")) {
       assertThat(IOUtils.toString(data, UTF_8)).isEqualTo("test");
     }
   }
 
   @Test
   public void updates_cache() throws IOException {
-    client.scannerCacheDao().insert(dbTester.getSession(), "branch", new ByteArrayInputStream("test".getBytes(UTF_8)));
+    client.scannerAnalysisCacheDao().insert(dbTester.getSession(), "branch", new ByteArrayInputStream("test".getBytes(UTF_8)));
     inserts_cache();
   }
 }

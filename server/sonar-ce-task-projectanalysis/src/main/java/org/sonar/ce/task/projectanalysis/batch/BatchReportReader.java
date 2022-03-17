@@ -29,7 +29,7 @@ public interface BatchReportReader {
   ScannerReport.Metadata readMetadata();
 
   @CheckForNull
-  InputStream getPluginCache();
+  InputStream getAnalysisCache();
 
   CloseableIterator<String> readScannerLogs();
 

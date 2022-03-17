@@ -39,18 +39,18 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ScannerCacheDaoTest {
+public class ScannerAnalysisCacheDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = dbTester.getSession();
-  private final ScannerCacheDao underTest = dbTester.getDbClient().scannerCacheDao();
+  private final ScannerAnalysisCacheDao underTest = dbTester.getDbClient().scannerAnalysisCacheDao();
 
   @Test
   public void insert_should_insert_in_db() throws IOException {
     underTest.insert(dbSession, "branch1", stringToInputStream("test data"));
     dbSession.commit();
-    assertThat(dbTester.countRowsOfTable("scanner_cache")).isOne();
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isOne();
     assertThat(dataStreamToString(underTest.selectData(dbSession, "branch1"))).isEqualTo("test data");
   }
 
@@ -65,10 +65,10 @@ public class ScannerCacheDaoTest {
     underTest.insert(dbSession, "branch1", stringToInputStream("test data"));
     underTest.insert(dbSession, "branch2", stringToInputStream("test data"));
 
-    assertThat(dbTester.countRowsOfTable("scanner_cache")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isEqualTo(2);
     underTest.removeAll(dbSession);
     dbSession.commit();
-    assertThat(dbTester.countRowsOfTable("scanner_cache")).isZero();
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isZero();
   }
 
   @Test

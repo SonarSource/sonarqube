@@ -213,7 +213,7 @@ public class ScannerReportReaderTest {
   }
 
   @Test
-  public void read_plugin_cache() throws IOException {
+  public void read_analysis_cache() throws IOException {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     writer.writeAnalysisCache(ScannerInternal.AnalysisCacheMsg.newBuilder()
       .putMap("key", ByteString.copyFrom("data", UTF_8))
@@ -221,7 +221,7 @@ public class ScannerReportReaderTest {
 
     ScannerReportReader reader = new ScannerReportReader(dir);
 
-    AnalysisCacheMsg cache = Protobuf.read(new GZIPInputStream(reader.getPluginCache()), ScannerInternal.AnalysisCacheMsg.parser());
+    AnalysisCacheMsg cache = Protobuf.read(new GZIPInputStream(reader.getAnalysisCache()), ScannerInternal.AnalysisCacheMsg.parser());
     assertThat(cache.getMapMap()).containsOnly(new AbstractMap.SimpleEntry<>("key", ByteString.copyFrom("data", UTF_8)));
   }
 

@@ -26,23 +26,23 @@ import org.sonar.api.server.ws.WebService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScannerCacheWsTest {
+public class AnalysisCacheWsTest {
   @Test
   public void define_ws() {
-    ScannerCacheWsAction action = new FakeAction();
-    ScannerCacheWs underTest = new ScannerCacheWs(action);
+    AnalysisCacheWsAction action = new FakeAction();
+    AnalysisCacheWs underTest = new AnalysisCacheWs(action);
     WebService.Context context = new WebService.Context();
 
     underTest.define(context);
 
-    WebService.Controller controller = context.controller("api/scanner_cache");
+    WebService.Controller controller = context.controller("api/analysis_cache");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("9.4");
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(1);
   }
 
-  private static class FakeAction implements ScannerCacheWsAction {
+  private static class FakeAction implements AnalysisCacheWsAction {
     @Override
     public void define(WebService.NewController newController) {
       newController.createAction("fake").setHandler(this);

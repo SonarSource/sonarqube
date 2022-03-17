@@ -59,7 +59,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<ScannerReport.LineSgnificantCode>> significantCode = new HashMap<>();
   private Map<Integer, ScannerReport.ChangedLines> changedLines = new HashMap<>();
   private List<ScannerReport.AnalysisWarning> analysisWarnings = Collections.emptyList();
-  private byte[] pluginCache;
+  private byte[] analysisCache;
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -111,15 +111,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   @CheckForNull
   @Override
-  public InputStream getPluginCache() {
-    if (pluginCache == null) {
+  public InputStream getAnalysisCache() {
+    if (analysisCache == null) {
       return null;
     }
-    return new ByteArrayInputStream(pluginCache);
+    return new ByteArrayInputStream(analysisCache);
   }
 
-  public void setPluginCache(byte[] cache) {
-    this.pluginCache = cache;
+  public void setAnalysisCache(byte[] cache) {
+    this.analysisCache = cache;
   }
 
   public BatchReportReaderRule setMetadata(ScannerReport.Metadata metadata) {

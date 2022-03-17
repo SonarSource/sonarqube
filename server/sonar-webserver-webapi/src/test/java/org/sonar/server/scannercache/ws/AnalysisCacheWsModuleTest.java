@@ -19,15 +19,17 @@
  */
 package org.sonar.server.scannercache.ws;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.core.platform.ListContainer;
 
-public class ScannerCacheWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ScannerCacheWs.class,
-      GetAction.class,
-      ClearAction.class
-    );
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class AnalysisCacheWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ListContainer container = new ListContainer();
+    new AnalysisCacheWsModule().configure(container);
+    assertThat(container.getAddedObjects()).hasSize(3);
   }
+
 }

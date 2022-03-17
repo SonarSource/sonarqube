@@ -29,7 +29,7 @@ public class DbVersion94 implements DbVersion {
       .add(6301, "Drop unused Issues Column REPORTER", DropReporterIssueColumn.class)
       .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
       .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
-      .add(6304, "Create table 'SCANNER_CACHE", CreateScannerCacheTable.class)
+      .add(6304, "Create table 'SCANNER_ANALYSIS_CACHE", CreateScannerAnalysisCacheTable.class)
     ;
   }
 }

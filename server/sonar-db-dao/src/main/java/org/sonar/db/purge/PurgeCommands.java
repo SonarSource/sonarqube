@@ -486,8 +486,8 @@ class PurgeCommands {
   }
 
   public void deleteScannerCache(String rootUuid) {
-    profiler.start("deleteScannerCache (scanner_cache)");
-    purgeMapper.deleteScannerCacheByBranchUuid(rootUuid);
+    profiler.start("deleteScannerCache (scanner_analysis_cache)");
+    purgeMapper.deleteScannerAnalysisCacheByBranchUuid(rootUuid);
     session.commit();
     profiler.stop();
   }

@@ -28,7 +28,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
-public class ClearAction implements ScannerCacheWsAction {
+public class ClearAction implements AnalysisCacheWsAction {
   private final UserSession userSession;
   private final ScannerCache cache;
 
