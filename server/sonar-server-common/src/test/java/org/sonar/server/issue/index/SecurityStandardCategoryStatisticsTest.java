@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import java.util.ArrayList;
 import org.junit.Test;
 
 import static java.util.OptionalInt.empty;
@@ -30,7 +31,7 @@ public class SecurityStandardCategoryStatisticsTest {
   public void hasMoreRules_default_false() {
     SecurityStandardCategoryStatistics standardCategoryStatistics = new SecurityStandardCategoryStatistics(
       "cat", 0, empty(), 0,
-      0, 5, null
+      0, 5, null, null
     );
     assertThat(standardCategoryStatistics.hasMoreRules()).isFalse();
   }
@@ -39,10 +40,34 @@ public class SecurityStandardCategoryStatisticsTest {
   public void hasMoreRules_is_updatable() {
     SecurityStandardCategoryStatistics standardCategoryStatistics = new SecurityStandardCategoryStatistics(
       "cat", 0, empty(), 0,
-      0, 5, null
+      0, 5, null, null
     );
     standardCategoryStatistics.setHasMoreRules(true);
     assertThat(standardCategoryStatistics.hasMoreRules()).isTrue();
+  }
+
+  @Test
+  public void test_getters() {
+    SecurityStandardCategoryStatistics standardCategoryStatistics = new SecurityStandardCategoryStatistics(
+      "cat", 1, empty(), 0,
+      0, 5, new ArrayList<>(), "version"
+    );
+
+    standardCategoryStatistics.setActiveRules(3);
+    standardCategoryStatistics.setTotalRules(3);
+
+    assertThat(standardCategoryStatistics.getCategory()).isEqualTo("cat");
+    assertThat(standardCategoryStatistics.getVulnerabilities()).isEqualTo(1);
+    assertThat(standardCategoryStatistics.getVulnerabilityRating()).isEmpty();
+    assertThat(standardCategoryStatistics.getToReviewSecurityHotspots()).isZero();
+    assertThat(standardCategoryStatistics.getReviewedSecurityHotspots()).isZero();
+    assertThat(standardCategoryStatistics.getSecurityReviewRating()).isEqualTo(5);
+    assertThat(standardCategoryStatistics.getChildren()).isEmpty();
+    assertThat(standardCategoryStatistics.getActiveRules()).isEqualTo(3);
+    assertThat(standardCategoryStatistics.getTotalRules()).isEqualTo(3);
+    assertThat(standardCategoryStatistics.getVersion()).isPresent();
+    assertThat(standardCategoryStatistics.getVersion().get()).contains("version");
+    assertThat(standardCategoryStatistics.hasMoreRules()).isFalse();
   }
 
 }

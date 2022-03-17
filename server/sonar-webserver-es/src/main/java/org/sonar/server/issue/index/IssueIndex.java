@@ -1050,7 +1050,7 @@ public class IssueIndex {
         AggregationBuilders.filter(sansCategory, boolQuery().filter(termQuery(FIELD_ISSUE_SANS_TOP_25, sansCategory))),
         includeCwe,
         SecurityStandards.CWES_BY_SANS_TOP_25.get(sansCategory))));
-    return search(request, includeCwe);
+    return search(request, includeCwe, null);
   }
 
   public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String projectUuid, boolean isViewOrApp) {
@@ -1061,7 +1061,7 @@ public class IssueIndex {
           AggregationBuilders.filter(cweYear, boolQuery().filter(existsQuery(FIELD_ISSUE_CWE))),
           true,
           CWES_BY_CWE_TOP_25.get(cweYear))));
-    List<SecurityStandardCategoryStatistics> result = search(request, true);
+    List<SecurityStandardCategoryStatistics> result = search(request, true, null);
     for (SecurityStandardCategoryStatistics cweReport : result) {
       Set<String> foundRules = cweReport.getChildren().stream()
         .map(SecurityStandardCategoryStatistics::getCategory)
@@ -1074,7 +1074,7 @@ public class IssueIndex {
   }
 
   private static SecurityStandardCategoryStatistics emptyCweStatistics(String rule) {
-    return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null);
+    return new SecurityStandardCategoryStatistics(rule, 0, OptionalInt.of(1), 0, 0, 1, null, null);
   }
 
   public List<SecurityStandardCategoryStatistics> getSonarSourceReport(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
@@ -1085,11 +1085,11 @@ public class IssueIndex {
           AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SQ_SECURITY_CATEGORY, sonarsourceCategory.getKey()))),
           includeCwe,
           SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory))));
-    return search(request, includeCwe);
+    return search(request, includeCwe, null);
   }
 
   public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspTop10Version version) {
-    String queryKey = version == Y2021 ? FIELD_ISSUE_OWASP_TOP_10_2021 : FIELD_ISSUE_OWASP_TOP_10;
+    String queryKey = version.equals(Y2021) ? FIELD_ISSUE_OWASP_TOP_10_2021 : FIELD_ISSUE_OWASP_TOP_10;
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i)
       .forEach(owaspCategory -> request.aggregation(
@@ -1097,30 +1097,30 @@ public class IssueIndex {
           AggregationBuilders.filter(owaspCategory, boolQuery().filter(termQuery(queryKey, owaspCategory))),
           includeCwe,
           null)));
-    return search(request, includeCwe);
+    return search(request, includeCwe, version.label());
   }
 
-  private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeCwe) {
+  private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeCwe, @Nullable String version) {
     SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
       .source(sourceBuilder);
     SearchResponse response = client.search(request);
     return response.getAggregations().asList().stream()
-      .map(c -> processSecurityReportIssueSearchResults((ParsedFilter) c, includeCwe))
+      .map(c -> processSecurityReportIssueSearchResults((ParsedFilter) c, includeCwe, version))
       .collect(MoreCollectors.toList());
   }
 
-  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResults(ParsedFilter categoryBucket, boolean includeCwe) {
+  private static SecurityStandardCategoryStatistics processSecurityReportIssueSearchResults(ParsedFilter categoryBucket, boolean includeCwe, String version) {
     List<SecurityStandardCategoryStatistics> children = new ArrayList<>();
     if (includeCwe) {
       Stream<? extends Terms.Bucket> stream = ((ParsedStringTerms) categoryBucket.getAggregations().get(AGG_CWES)).getBuckets().stream();
-      children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null)).collect(toList());
+      children = stream.map(cweBucket -> processSecurityReportCategorySearchResults(cweBucket, cweBucket.getKeyAsString(), null, null)).collect(toList());
     }
 
-    return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children);
+    return processSecurityReportCategorySearchResults(categoryBucket, categoryBucket.getName(), children, version);
   }
 
   private static SecurityStandardCategoryStatistics processSecurityReportCategorySearchResults(HasAggregations categoryBucket, String categoryName,
-    @Nullable List<SecurityStandardCategoryStatistics> children) {
+    @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version) {
     List<? extends Terms.Bucket> severityBuckets = ((ParsedStringTerms) ((ParsedFilter) categoryBucket.getAggregations().get(AGG_VULNERABILITIES)).getAggregations()
       .get(AGG_SEVERITIES)).getBuckets();
     long vulnerabilities = severityBuckets.stream().mapToLong(b -> ((ParsedValueCount) b.getAggregations().get(AGG_COUNT)).getValue()).sum();
@@ -1139,7 +1139,7 @@ public class IssueIndex {
     Integer securityReviewRating = computeRating(percent.orElse(null)).getIndex();
 
     return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots,
-      reviewedSecurityHotspots, securityReviewRating, children);
+      reviewedSecurityHotspots, securityReviewRating, children, version);
   }
 
   private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, @Nullable Collection<String> cwesInCategory) {

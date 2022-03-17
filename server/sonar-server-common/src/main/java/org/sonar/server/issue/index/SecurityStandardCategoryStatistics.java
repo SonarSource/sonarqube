@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import javax.annotation.Nullable;
 
@@ -27,7 +28,7 @@ public class SecurityStandardCategoryStatistics {
 
   private final String category;
   private final long vulnerabilities;
-  private final OptionalInt vulnerabiliyRating;
+  private final OptionalInt vulnerabilityRating;
   private final long toReviewSecurityHotspots;
   private final long reviewedSecurityHotspots;
   private final Integer securityReviewRating;
@@ -35,16 +36,18 @@ public class SecurityStandardCategoryStatistics {
   private long activeRules;
   private long totalRules;
   private boolean hasMoreRules;
+  private final Optional<String> version;
 
   public SecurityStandardCategoryStatistics(String category, long vulnerabilities, OptionalInt vulnerabiliyRating, long toReviewSecurityHotspots,
-    long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children) {
+    long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children, @Nullable String version) {
     this.category = category;
     this.vulnerabilities = vulnerabilities;
-    this.vulnerabiliyRating = vulnerabiliyRating;
+    this.vulnerabilityRating = vulnerabiliyRating;
     this.toReviewSecurityHotspots = toReviewSecurityHotspots;
     this.reviewedSecurityHotspots = reviewedSecurityHotspots;
     this.securityReviewRating = securityReviewRating;
     this.children = children;
+    this.version = Optional.ofNullable(version);
     this.hasMoreRules = false;
   }
 
@@ -56,8 +59,8 @@ public class SecurityStandardCategoryStatistics {
     return vulnerabilities;
   }
 
-  public OptionalInt getVulnerabiliyRating() {
-    return vulnerabiliyRating;
+  public OptionalInt getVulnerabilityRating() {
+    return vulnerabilityRating;
   }
 
   public long getToReviewSecurityHotspots() {
@@ -68,7 +71,9 @@ public class SecurityStandardCategoryStatistics {
     return reviewedSecurityHotspots;
   }
 
-  public Integer getSecurityReviewRating() { return securityReviewRating; }
+  public Integer getSecurityReviewRating() {
+    return securityReviewRating;
+  }
 
   public List<SecurityStandardCategoryStatistics> getChildren() {
     return children;
@@ -85,6 +90,10 @@ public class SecurityStandardCategoryStatistics {
 
   public long getTotalRules() {
     return totalRules;
+  }
+
+  public Optional<String> getVersion() {
+    return version;
   }
 
   public SecurityStandardCategoryStatistics setTotalRules(long totalRules) {

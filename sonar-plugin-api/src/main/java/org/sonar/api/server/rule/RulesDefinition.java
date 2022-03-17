@@ -250,16 +250,22 @@ public interface RulesDefinition {
   }
 
   enum OwaspTop10Version {
-    Y2017("2017"), Y2021("2021");
+    Y2017("2017", "owaspTop10"), Y2021("2021", "owaspTop10-2021");
 
     private final String label;
+    private final String prefix;
 
-    OwaspTop10Version(String label) {
+    OwaspTop10Version(String label, String prefix) {
       this.label = label;
+      this.prefix = prefix;
     }
 
     public String label() {
       return label;
+    }
+
+    public String prefix() {
+      return prefix;
     }
   }
 

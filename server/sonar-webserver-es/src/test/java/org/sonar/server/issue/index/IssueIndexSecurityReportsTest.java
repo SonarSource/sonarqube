@@ -49,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
@@ -76,16 +77,28 @@ public class IssueIndexSecurityReportsTest {
   public void getOwaspTop10Report_dont_count_vulnerabilities_from_other_projects() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto another = newPrivateProjectDto();
-    indexIssues(
-      newDoc("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
-      newDoc("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR));
+
+    IssueDoc openVulDoc = newDoc("openvul1", project).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR);
+    openVulDoc.setOwaspTop10For2021(singletonList("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR);
+
+    IssueDoc otherProjectDoc = newDoc("anotherProject", another).setOwaspTop10(singletonList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL);
+    otherProjectDoc.setOwaspTop10For2021(singletonList("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL);
+
+    indexIssues(openVulDoc, otherProjectDoc);
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabiliyRating)
+        SecurityStandardCategoryStatistics::getVulnerabilityRating)
       .contains(
         tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10For2021Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2021);
+    assertThat(owaspTop10For2021Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating)
+      .contains(
+        tuple("a2", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */));
 
   }
 
@@ -94,15 +107,25 @@ public class IssueIndexSecurityReportsTest {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDoc("openvul1", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
+      newDoc("openvul12021", project).setOwaspTop10For2021(asList("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
       newDoc("notopenvul", project).setOwaspTop10(asList("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
+        .setSeverity(Severity.BLOCKER),
+      newDoc("notopenvul2021", project).setOwaspTop10For2021(asList("a2")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)
         .setSeverity(Severity.BLOCKER));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabiliyRating)
+        SecurityStandardCategoryStatistics::getVulnerabilityRating)
       .contains(
         tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10For2021Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2021);
+    assertThat(owaspTop10For2021Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating)
+      .contains(
+        tuple("a2", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */));
   }
 
   @Test
@@ -115,7 +138,14 @@ public class IssueIndexSecurityReportsTest {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabiliyRating)
+        SecurityStandardCategoryStatistics::getVulnerabilityRating)
+      .containsOnly(
+        tuple(0L, OptionalInt.empty()));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10For2021Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2021);
+    assertThat(owaspTop10For2021Report)
+      .extracting(SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating)
       .containsOnly(
         tuple(0L, OptionalInt.empty()));
   }
@@ -126,13 +156,21 @@ public class IssueIndexSecurityReportsTest {
     ComponentDto another = newPrivateProjectDto();
     indexIssues(
       newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
-      newDoc("anotherProject", another).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+      newDoc("openhotspot2021", project).setOwaspTop10For2021(asList("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("anotherProject", another).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("anotherProject2021", another).setOwaspTop10For2021(asList("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots)
       .contains(
         tuple("a1", 1L /* openhotspot1 */));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10For2021Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2021);
+    assertThat(owaspTop10For2021Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots)
+      .contains(
+        tuple("a2", 1L /* openhotspot1 */));
   }
 
   @Test
@@ -140,14 +178,23 @@ public class IssueIndexSecurityReportsTest {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDoc("openhotspot1", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("openhotspot2021", project).setOwaspTop10For2021(asList("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
       newDoc("closedHotspot", project).setOwaspTop10(asList("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED));
+        .setResolution(Issue.RESOLUTION_FIXED),
+    newDoc("closedHotspot2021", project).setOwaspTop10For2021(asList("a2")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED));
 
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2017);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots)
       .contains(
         tuple("a1", 1L /* openhotspot1 */));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10For2021Report = underTest.getOwaspTop10Report(project.uuid(), false, false, Y2021);
+    assertThat(owaspTop10For2021Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots)
+      .contains(
+        tuple("a2", 1L /* openhotspot1 */));
   }
 
   @Test
@@ -167,15 +214,38 @@ public class IssueIndexSecurityReportsTest {
       .collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getChildren));
 
     assertThat(cweByOwasp.get("a1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-      SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+      SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
       SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
         tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
         tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
     assertThat(cweByOwasp.get("a3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-      SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+      SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
       SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
+  }
+
+  @Test
+  public void getOwaspTop10For2021Report_aggregation_with_cwe() {
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwasp2021Report(true);
+
+    Map<String, List<SecurityStandardCategoryStatistics>> cweByOwasp = owaspTop10Report.stream()
+      .collect(Collectors.toMap(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getChildren));
+
+    assertThat(cweByOwasp.get("a1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
+    assertThat(cweByOwasp.get("a3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
         tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
@@ -200,7 +270,41 @@ public class IssueIndexSecurityReportsTest {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, includeCwe, Y2017);
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
+      .containsExactlyInAnyOrder(
+        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
+        tuple("a2", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */, 4),
+        tuple("a4", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a5", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 5),
+        tuple("a7", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */, 1),
+        tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 1));
+    return owaspTop10Report;
+  }
+
+  private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwasp2021Report(boolean includeCwe) {
+    ComponentDto project = newPrivateProjectDto();
+    indexIssues(
+      newDoc("openvul1", project).setOwaspTop10For2021(asList("a1", "a3")).setCwe(asList("123", "456")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
+        .setSeverity(Severity.MAJOR),
+      newDoc("openvul2", project).setOwaspTop10For2021(asList("a3", "a6")).setCwe(asList("123")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_REOPENED)
+        .setSeverity(Severity.MINOR),
+      newDoc("notowaspvul", project).setOwaspTop10For2021(singletonList(UNKNOWN_STANDARD)).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.CRITICAL),
+      newDoc("toreviewhotspot1", project).setOwaspTop10For2021(asList("a1", "a3")).setCwe(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT)
+        .setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("toreviewhotspot2", project).setOwaspTop10For2021(asList("a3", "a6")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
+      newDoc("reviewedHotspot", project).setOwaspTop10For2021(asList("a3", "a8")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED)
+        .setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("notowasphotspot", project).setOwaspTop10For2021(singletonList(UNKNOWN_STANDARD)).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW));
+
+    List<SecurityStandardCategoryStatistics> owaspTop10Report = underTest.getOwaspTop10Report(project.uuid(), false, includeCwe, Y2021);
+    assertThat(owaspTop10Report)
+      .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
         SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
@@ -240,7 +344,7 @@ public class IssueIndexSecurityReportsTest {
     List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(project.uuid(), false, false);
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
         SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
@@ -281,7 +385,7 @@ public class IssueIndexSecurityReportsTest {
     List<SecurityStandardCategoryStatistics> sansTop25Report = underTest.getSansTop25Report(portfolio1.uuid(), true, false);
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
-        SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
+        SecurityStandardCategoryStatistics::getVulnerabilityRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
         SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
         tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),

@@ -233,14 +233,11 @@ class DefaultNewRule extends RulesDefinition.NewRule {
   }
 
   @Override
-  public DefaultNewRule addOwaspTop10(OwaspTop10Version version, OwaspTop10... standards) {
-    Objects.requireNonNull(version, "Owasp version must not be null");
-
-    //backward compatibility
-    String versionPrefix = OwaspTop10Version.Y2017.equals(version) ? "owaspTop10:" : "owaspTop10-" + version.label() + ":";
+  public DefaultNewRule addOwaspTop10(OwaspTop10Version owaspTop10Version, OwaspTop10... standards) {
+    Objects.requireNonNull(owaspTop10Version, "Owasp version must not be null");
 
     for (OwaspTop10 owaspTop10 : standards) {
-      String standard = versionPrefix + owaspTop10.name().toLowerCase(Locale.ENGLISH);
+      String standard = owaspTop10Version.prefix() + ":" + owaspTop10.name().toLowerCase(Locale.ENGLISH);
       securityStandards.add(standard);
     }
     return this;
