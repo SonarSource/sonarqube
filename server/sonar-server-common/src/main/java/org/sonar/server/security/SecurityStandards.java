@@ -53,6 +53,7 @@ public final class SecurityStandards {
   public static final String SANS_TOP_25_POROUS_DEFENSES = "porous-defenses";
 
   private static final String OWASP_TOP10_PREFIX = "owaspTop10:";
+  private static final String OWASP_TOP10_2021_PREFIX = "owaspTop10-2021:";
   private static final String CWE_PREFIX = "cwe:";
   // See https://www.sans.org/top25-software-errors
   private static final Set<String> INSECURE_CWE = new HashSet<>(asList("89", "78", "79", "434", "352", "601"));
@@ -207,7 +208,11 @@ public final class SecurityStandards {
   }
 
   public Set<String> getOwaspTop10() {
-    return toOwaspTop10(standards);
+    return toOwaspTop10(standards, OWASP_TOP10_PREFIX);
+  }
+
+  public Set<String> getOwaspTop10For2021() {
+    return toOwaspTop10(standards, OWASP_TOP10_2021_PREFIX);
   }
 
   /**
@@ -245,10 +250,10 @@ public final class SecurityStandards {
     return new SecurityStandards(standards, cwe, sqCategory, ignoredSQCategories);
   }
 
-  private static Set<String> toOwaspTop10(Set<String> securityStandards) {
+  private static Set<String> toOwaspTop10(Set<String> securityStandards, String prefix) {
     return securityStandards.stream()
-      .filter(s -> s.startsWith(OWASP_TOP10_PREFIX))
-      .map(s -> s.substring(OWASP_TOP10_PREFIX.length()))
+      .filter(s -> s.startsWith(prefix))
+      .map(s -> s.substring(prefix.length()))
       .collect(toSet());
   }
 

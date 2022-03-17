@@ -236,6 +236,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       SecurityStandards securityStandards = fromSecurityStandards(deserializeSecurityStandardsString(rs.getString(22)));
       SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
       doc.setOwaspTop10(securityStandards.getOwaspTop10());
+      doc.setOwaspTop10For2021(securityStandards.getOwaspTop10For2021());
       doc.setCwe(securityStandards.getCwe());
       doc.setSansTop25(securityStandards.getSansTop25());
       doc.setSonarSourceSecurityCategory(sqCategory);

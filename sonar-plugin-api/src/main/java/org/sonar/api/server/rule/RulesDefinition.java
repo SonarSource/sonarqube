@@ -235,6 +235,20 @@ public interface RulesDefinition {
     boolean isExternal();
   }
 
+  enum CweVersion {
+    Y2020("2020"), Y2021("2021");
+
+    private final String label;
+
+    CweVersion(String label) {
+      this.label = label;
+    }
+
+    public String label() {
+      return label;
+    }
+  }
+
   enum OwaspTop10Version {
     Y2017("2017"), Y2021("2021");
 

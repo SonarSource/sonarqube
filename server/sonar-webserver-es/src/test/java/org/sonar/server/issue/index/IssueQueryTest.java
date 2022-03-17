@@ -20,8 +20,8 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import java.util.Date;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
@@ -29,7 +29,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
@@ -40,21 +39,22 @@ public class IssueQueryTest {
     RuleDefinitionDto rule = new RuleDefinitionDto().setUuid(Uuids.createFast());
     PeriodStart filterDate = new IssueQuery.PeriodStart(new Date(10_000_000_000L), false);
     IssueQuery query = IssueQuery.builder()
-      .issueKeys(newArrayList("ABCDE"))
-      .severities(newArrayList(Severity.BLOCKER))
-      .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
-      .resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
-      .projectUuids(newArrayList("PROJECT"))
-      .componentUuids(newArrayList("org/struts/Action.java"))
-      .moduleUuids(newArrayList("org.struts:core"))
-      .rules(newArrayList(rule))
-      .assigneeUuids(newArrayList("gargantua"))
-      .languages(newArrayList("xoo"))
-      .tags(newArrayList("tag1", "tag2"))
-      .types(newArrayList("RELIABILITY", "SECURITY"))
-      .owaspTop10(newArrayList("a1", "a2"))
-      .sansTop25(newArrayList("insecure-interaction", "porous-defenses"))
-      .cwe(newArrayList("12", "125"))
+      .issueKeys(List.of("ABCDE"))
+      .severities(List.of(Severity.BLOCKER))
+      .statuses(List.of(Issue.STATUS_RESOLVED))
+      .resolutions(List.of(Issue.RESOLUTION_FALSE_POSITIVE))
+      .projectUuids(List.of("PROJECT"))
+      .componentUuids(List.of("org/struts/Action.java"))
+      .moduleUuids(List.of("org.struts:core"))
+      .rules(List.of(rule))
+      .assigneeUuids(List.of("gargantua"))
+      .languages(List.of("xoo"))
+      .tags(List.of("tag1", "tag2"))
+      .types(List.of("RELIABILITY", "SECURITY"))
+      .owaspTop10(List.of("a1", "a2"))
+      .owaspTop10For2021(List.of("a3", "a4"))
+      .sansTop25(List.of("insecure-interaction", "porous-defenses"))
+      .cwe(List.of("12", "125"))
       .branchUuid("my_branch")
       .createdAfterByProjectUuids(ImmutableMap.of("PROJECT", filterDate))
       .assigned(true)
@@ -77,6 +77,7 @@ public class IssueQueryTest {
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
     assertThat(query.owaspTop10()).containsOnly("a1", "a2");
+    assertThat(query.owaspTop10For2021()).containsOnly("a3", "a4");
     assertThat(query.sansTop25()).containsOnly("insecure-interaction", "porous-defenses");
     assertThat(query.cwe()).containsOnly("12", "125");
     assertThat(query.branchUuid()).isEqualTo("my_branch");
@@ -94,7 +95,7 @@ public class IssueQueryTest {
   @Test
   public void build_query_without_dates() {
     IssueQuery query = IssueQuery.builder()
-      .issueKeys(newArrayList("ABCDE"))
+      .issueKeys(List.of("ABCDE"))
       .createdAfter(null)
       .createdBefore(null)
       .createdAt(null)

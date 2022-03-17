@@ -68,6 +68,7 @@ import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -104,6 +105,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
@@ -122,6 +124,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.FILES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.MODULE_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
+import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndex.Facet.PROJECT_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RESOLUTIONS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
@@ -151,6 +154,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODU
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_CODE_REFERENCE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RULE_UUID;
@@ -180,6 +184,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
@@ -245,6 +250,7 @@ public class IssueIndex {
     ASSIGNEES(PARAM_ASSIGNEES, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, MAX_FACET_SIZE),
     ASSIGNED_TO_ME(FACET_ASSIGNED_TO_ME, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, 1),
     OWASP_TOP_10(PARAM_OWASP_TOP_10, FIELD_ISSUE_OWASP_TOP_10, STICKY, DEFAULT_FACET_SIZE),
+    OWASP_TOP_10_2021(PARAM_OWASP_TOP_10_2021, FIELD_ISSUE_OWASP_TOP_10_2021, STICKY, DEFAULT_FACET_SIZE),
     SANS_TOP_25(PARAM_SANS_TOP_25, FIELD_ISSUE_SANS_TOP_25, STICKY, DEFAULT_FACET_SIZE),
     CWE(PARAM_CWE, FIELD_ISSUE_CWE, STICKY, DEFAULT_FACET_SIZE),
     CREATED_AT(PARAM_CREATED_AT, FIELD_ISSUE_FUNC_CREATED_AT, NON_STICKY),
@@ -444,6 +450,7 @@ public class IssueIndex {
 
     // security category
     addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
+    addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10_2021, OWASP_TOP_10_2021, query.owaspTop10For2021(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_CWE, CWE, query.cwe(), filters);
     addSecurityCategoryFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY, query.sonarsourceSecurity(), filters);
@@ -1043,7 +1050,7 @@ public class IssueIndex {
         AggregationBuilders.filter(sansCategory, boolQuery().filter(termQuery(FIELD_ISSUE_SANS_TOP_25, sansCategory))),
         includeCwe,
         SecurityStandards.CWES_BY_SANS_TOP_25.get(sansCategory))));
-    return processSecurityReportSearchResults(request, includeCwe);
+    return search(request, includeCwe);
   }
 
   public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String projectUuid, boolean isViewOrApp) {
@@ -1054,7 +1061,7 @@ public class IssueIndex {
           AggregationBuilders.filter(cweYear, boolQuery().filter(existsQuery(FIELD_ISSUE_CWE))),
           true,
           CWES_BY_CWE_TOP_25.get(cweYear))));
-    List<SecurityStandardCategoryStatistics> result = processSecurityReportSearchResults(request, true);
+    List<SecurityStandardCategoryStatistics> result = search(request, true);
     for (SecurityStandardCategoryStatistics cweReport : result) {
       Set<String> foundRules = cweReport.getChildren().stream()
         .map(SecurityStandardCategoryStatistics::getCategory)
@@ -1078,21 +1085,22 @@ public class IssueIndex {
           AggregationBuilders.filter(sonarsourceCategory.getKey(), boolQuery().filter(termQuery(FIELD_ISSUE_SQ_SECURITY_CATEGORY, sonarsourceCategory.getKey()))),
           includeCwe,
           SecurityStandards.CWES_BY_SQ_CATEGORY.get(sonarsourceCategory))));
-    return processSecurityReportSearchResults(request, includeCwe);
+    return search(request, includeCwe);
   }
 
-  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe) {
+  public List<SecurityStandardCategoryStatistics> getOwaspTop10Report(String projectUuid, boolean isViewOrApp, boolean includeCwe, OwaspTop10Version version) {
+    String queryKey = version == Y2021 ? FIELD_ISSUE_OWASP_TOP_10_2021 : FIELD_ISSUE_OWASP_TOP_10;
     SearchSourceBuilder request = prepareNonClosedVulnerabilitiesAndHotspotSearch(projectUuid, isViewOrApp);
     IntStream.rangeClosed(1, 10).mapToObj(i -> "a" + i)
       .forEach(owaspCategory -> request.aggregation(
         newSecurityReportSubAggregations(
-          AggregationBuilders.filter(owaspCategory, boolQuery().filter(termQuery(FIELD_ISSUE_OWASP_TOP_10, owaspCategory))),
+          AggregationBuilders.filter(owaspCategory, boolQuery().filter(termQuery(queryKey, owaspCategory))),
           includeCwe,
           null)));
-    return processSecurityReportSearchResults(request, includeCwe);
+    return search(request, includeCwe);
   }
 
-  private List<SecurityStandardCategoryStatistics> processSecurityReportSearchResults(SearchSourceBuilder sourceBuilder, boolean includeCwe) {
+  private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeCwe) {
     SearchRequest request = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
       .source(sourceBuilder);
     SearchResponse response = client.search(request);

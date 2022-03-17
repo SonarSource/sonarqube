@@ -99,6 +99,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_TAGS = "tags";
   public static final String FIELD_ISSUE_TYPE = "type";
   public static final String FIELD_ISSUE_OWASP_TOP_10 = "owaspTop10";
+  public static final String FIELD_ISSUE_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FIELD_ISSUE_SANS_TOP_25 = "sansTop25";
   public static final String FIELD_ISSUE_CWE = "cwe";
   public static final String FIELD_ISSUE_SQ_SECURITY_CATEGORY = "sonarsourceSecurity";
@@ -167,6 +168,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_TOP_10).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_ISSUE_OWASP_TOP_10_2021).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SANS_TOP_25).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_CWE).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SQ_SECURITY_CATEGORY).disableNorms().build();

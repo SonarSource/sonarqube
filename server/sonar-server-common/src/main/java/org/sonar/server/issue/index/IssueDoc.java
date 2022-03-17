@@ -290,8 +290,18 @@ public class IssueDoc extends BaseDoc {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10);
   }
 
+  @CheckForNull
+  public Collection<String> getOwaspTop10For2021() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021);
+  }
+
   public IssueDoc setOwaspTop10(@Nullable Collection<String> o) {
     setField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10, o);
+    return this;
+  }
+
+  public IssueDoc setOwaspTop10For2021(@Nullable Collection<String> o) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10_2021, o);
     return this;
   }
 
