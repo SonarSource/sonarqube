@@ -21,7 +21,9 @@ exports[`should render correctly 1`] = `
       className="little-spacer-left hotspot-box-filename text-ellipsis"
       title="com.github.kevinsawicki.http.HttpRequest"
     >
-      com.github.kevinsawicki.http.HttpRequest
+      <bdi>
+        com.github.kevinsawicki.http.HttpRequest
+      </bdi>
     </div>
   </div>
 </a>
@@ -50,7 +52,9 @@ exports[`should render correctly 2`] = `
       className="little-spacer-left hotspot-box-filename text-ellipsis"
       title="com.github.kevinsawicki.http.HttpRequest"
     >
-      com.github.kevinsawicki.http.HttpRequest
+      <bdi>
+        com.github.kevinsawicki.http.HttpRequest
+      </bdi>
     </div>
   </div>
   <LocationsList

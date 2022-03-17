@@ -5,6 +5,8 @@ exports[`should render 1`] = `
   className="concise-issue-component text-ellipsis note"
   title="src/app/folder/sub-folder/long-folder/name/app.js"
 >
-  src/app/folder/sub-folder/long-folder/name/app.js
+  <bdi>
+    src/app/folder/sub-folder/long-folder/name/app.js
+  </bdi>
 </div>
 `;

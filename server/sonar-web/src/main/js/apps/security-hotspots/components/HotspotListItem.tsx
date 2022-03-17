@@ -53,7 +53,9 @@ export default function HotspotListItem(props: HotspotListItemProps) {
       <div className="display-flex-center big-spacer-top">
         <QualifierIcon qualifier={ComponentQualifier.File} />
         <div className="little-spacer-left hotspot-box-filename text-ellipsis" title={path}>
-          {path}
+          {/* <bdi> is used to avoid some cases where the path is wrongly displayed */}
+          {/* because of the parent's direction=rtl */}
+          <bdi>{path}</bdi>
         </div>
       </div>
       {selected && (

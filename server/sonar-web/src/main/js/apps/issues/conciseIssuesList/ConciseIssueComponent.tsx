@@ -26,7 +26,9 @@ interface Props {
 export default function ConciseIssueComponent({ path }: Props) {
   return (
     <div className="concise-issue-component text-ellipsis note" title={path}>
-      {path}
+      {/* <bdi> is used to avoid some cases where the path is wrongly displayed */}
+      {/* because of the parent's direction=rtl */}
+      <bdi>{path}</bdi>
     </div>
   );
 }
