@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
@@ -116,7 +115,7 @@ public class MetadataPublisherTest {
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     underTest = new MetadataPublisher(projectInfo, inputModuleHierarchy, qProfiles, cpdSettings,
-      pluginRepository, branches, scmRevision, componentStore, scmConfiguration);
+      pluginRepository, branches, scmRevision, componentStore, scmConfiguration, referenceBranchSupplier);
   }
 
   @Test
@@ -128,12 +127,13 @@ public class MetadataPublisherTest {
       "php", new ScannerPlugin("php", 45678L, null)));
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
-
+    when(referenceBranchSupplier.getFromProperties()).thenReturn("newCodeReference");
     underTest.publish(writer);
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
+    assertThat(metadata.getNewCodeReferenceBranch()).isEqualTo("newCodeReference");
     assertThat(metadata.getProjectKey()).isEqualTo("root");
     assertThat(metadata.getModulesProjectRelativePathByKeyMap()).containsOnly(entry("module", "modulePath"), entry("root", ""));
     assertThat(metadata.getProjectVersion()).isEmpty();
@@ -238,6 +238,20 @@ public class MetadataPublisherTest {
     assertThat(metadata.getBranchType()).isEqualTo(ScannerReport.Metadata.BranchType.BRANCH);
     assertThat(metadata.getReferenceBranchName()).isEmpty();
     assertThat(metadata.getTargetBranchName()).isEqualTo(targetName);
+  }
+
+  @Test
+  public void dont_write_new_code_reference_if_not_specified_in_properties() throws IOException {
+    when(referenceBranchSupplier.get()).thenReturn("ref");
+    when(referenceBranchSupplier.getFromProperties()).thenReturn(null);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+
+    assertThat(metadata.getNewCodeReferenceBranch()).isEmpty();
   }
 
   @Test

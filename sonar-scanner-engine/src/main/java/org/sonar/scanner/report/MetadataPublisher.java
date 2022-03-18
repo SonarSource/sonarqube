@@ -37,6 +37,7 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -57,10 +58,11 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ScmRevision scmRevision;
   private final InputComponentStore componentStore;
   private final ScmConfiguration scmConfiguration;
+  private final ReferenceBranchSupplier referenceBranchSupplier;
 
   public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, QualityProfiles qProfiles,
     CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
-    ScmRevision scmRevision, InputComponentStore componentStore, ScmConfiguration scmConfiguration) {
+    ScmRevision scmRevision, InputComponentStore componentStore, ScmConfiguration scmConfiguration, ReferenceBranchSupplier referenceBranchSupplier) {
     this.projectInfo = projectInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.qProfiles = qProfiles;
@@ -70,6 +72,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.scmRevision = scmRevision;
     this.componentStore = componentStore;
     this.scmConfiguration = scmConfiguration;
+    this.referenceBranchSupplier = referenceBranchSupplier;
   }
 
   @Override
@@ -86,6 +89,11 @@ public class MetadataPublisher implements ReportPublisherStep {
 
     if (branchConfiguration.branchName() != null) {
       addBranchInformation(builder);
+    }
+
+    String newCodeReferenceBranch = referenceBranchSupplier.getFromProperties();
+    if (newCodeReferenceBranch != null) {
+      builder.setNewCodeReferenceBranch(newCodeReferenceBranch);
     }
 
     addScmInformation(builder);
