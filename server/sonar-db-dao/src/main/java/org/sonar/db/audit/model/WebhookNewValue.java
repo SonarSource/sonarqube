@@ -19,6 +19,7 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.function.UnaryOperator;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.project.ProjectDto;
@@ -66,6 +67,12 @@ public class WebhookNewValue extends NewValue {
     this.projectUuid = projectDto.getUuid();
     this.projectKey = projectDto.getKey();
     this.projectName = projectDto.getName();
+  }
+
+  public void sanitizeUrl(UnaryOperator<String> sanitizer) {
+    if (this.url != null) {
+      this.url = sanitizer.apply(this.url);
+    }
   }
 
   @CheckForNull
