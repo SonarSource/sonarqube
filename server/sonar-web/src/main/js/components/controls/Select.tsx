@@ -134,6 +134,7 @@ export function selectStyle<
       boxShadow: `${others.defaultShadow}`
     }),
     menuList: () => ({
+      boxSizing: 'border-box',
       maxHeight: '198px',
       padding: '5px 0',
       overflowY: 'auto'
