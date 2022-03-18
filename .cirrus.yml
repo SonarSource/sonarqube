@@ -39,21 +39,18 @@ only_upon_sql_changes_or_nightly_depending_on_build_template: &ONLY_UPON_SQL_CHA
   depends_on: build
   only_if: >-
     $CIRRUS_BRANCH == "branch-nightly-build" ||
-    ($CIRRUS_CRON == "" && changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java',
-    'server/sonar-db-dao/**/*Dao.java'))
+    changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java')
 
 only_default_branches_template: &ONLY_DEFAULT_BRANCHES_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-    $CIRRUS_BRANCH != "public_master" &&
-    $CIRRUS_CRON == ""
+    $CIRRUS_BRANCH != "public_master"
 
 only_default_depending_on_build_template: &ONLY_DEFAULT_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
   only_if: >-
     $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-    $CIRRUS_BRANCH != "public_master" &&
-    $CIRRUS_CRON == ""
+    $CIRRUS_BRANCH != "public_master"
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
@@ -622,14 +619,13 @@ upgd_oracle12_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 ws_scan_task:
+  depends_on: build
   only_if: >-
-    $CIRRUS_CRON == "nightly" ||
-    $CIRRUS_CRON == "weekly-latest" ||
-    $CIRRUS_CRON == "weekly-lts" ||
+    $CIRRUS_BRANCH == 'master' ||
+    $CIRRUS_BRANCH =~ 'branch.*' ||
     changesInclude('private/cirrus/cirrus-whitesource-scan.sh')
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  depends_on: build
   timeout_in: 30m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
