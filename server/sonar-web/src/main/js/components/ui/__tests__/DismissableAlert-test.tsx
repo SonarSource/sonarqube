@@ -32,9 +32,16 @@ jest.mock('../../../helpers/storage', () => ({
   save: jest.fn()
 }));
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn()
+  };
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
 });
 
 it('should render correctly', () => {

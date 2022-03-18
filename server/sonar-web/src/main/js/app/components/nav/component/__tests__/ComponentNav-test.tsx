@@ -29,9 +29,24 @@ import ComponentNav, { ComponentNavProps } from '../ComponentNav';
 import Menu from '../Menu';
 import InfoDrawer from '../projectInformation/InfoDrawer';
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn().mockImplementation(f => f())
+  };
+});
+
+jest.mock('../../../RecentHistory', () => {
+  return {
+    __esModule: true,
+    default: class RecentHistory {
+      static add = jest.fn();
+    }
+  };
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
 });
 
 it('renders correctly', () => {
@@ -53,7 +68,6 @@ it('correctly adds data to the history if there are breadcrumbs', () => {
   const key = 'foo';
   const name = 'Foo';
   const qualifier = ComponentQualifier.Portfolio;
-  const spy = jest.spyOn(RecentHistory, 'add');
 
   shallowRender({
     component: mockComponent({
@@ -69,7 +83,7 @@ it('correctly adds data to the history if there are breadcrumbs', () => {
     })
   });
 
-  expect(spy).toBeCalledWith(key, name, qualifier.toLowerCase());
+  expect(RecentHistory.add).toBeCalledWith(key, name, qualifier.toLowerCase());
 });
 
 it('correctly toggles the project info display', () => {

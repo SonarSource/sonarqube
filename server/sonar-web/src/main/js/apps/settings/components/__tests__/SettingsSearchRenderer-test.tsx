@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import { mockDefinition } from '../../../../helpers/mocks/settings';
 import { scrollToElement } from '../../../../helpers/scrolling';
 import SettingsSearchRenderer, { SettingsSearchRendererProps } from '../SettingsSearchRenderer';
@@ -26,6 +26,14 @@ import SettingsSearchRenderer, { SettingsSearchRendererProps } from '../Settings
 jest.mock('../../../../helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
+
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useRef: jest.fn(),
+    useEffect: jest.fn()
+  };
+});
 
 afterAll(() => {
   jest.clearAllMocks();
@@ -52,11 +60,10 @@ it('should scroll to selected element', () => {
   const selected = {};
   const selectedRef = { current: selected };
 
-  jest
-    .spyOn(React, 'useRef')
+  (React.useRef as jest.Mock)
     .mockImplementationOnce(() => scrollableRef)
     .mockImplementationOnce(() => selectedRef);
-  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
 
   shallowRender();
 

@@ -27,6 +27,13 @@ import AzurePersonalAccessTokenForm, {
   AzurePersonalAccessTokenFormProps
 } from '../AzurePersonalAccessTokenForm';
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn()
+  };
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
@@ -51,7 +58,7 @@ it('should correctly handle form interactions', () => {
   // If validation fails, we toggle the submitting flag and call useEffect()
   // to set the `touched` flag to false again. Trigger a re-render, and mock
   // useEffect(). This should de-activate the submit button again.
-  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+  (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
   wrapper.setProps({ submitting: false });
   expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 });

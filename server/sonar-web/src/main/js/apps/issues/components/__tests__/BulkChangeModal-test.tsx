@@ -31,12 +31,6 @@ jest.mock('../../../../api/issues', () => ({
   searchIssueTags: jest.fn().mockResolvedValue([undefined, []])
 }));
 
-jest.mock('../BulkChangeModal', () => {
-  const mock = jest.requireActual('../BulkChangeModal');
-  mock.MAX_PAGE_SIZE = 1;
-  return mock;
-});
-
 jest.mock('../../utils', () => ({
   searchAssignees: jest.fn().mockResolvedValue({
     results: [

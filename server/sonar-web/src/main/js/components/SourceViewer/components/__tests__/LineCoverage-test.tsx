@@ -18,8 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { shallow } from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import { LineCoverage, LineCoverageProps } from '../LineCoverage';
+
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useRef: jest.fn(),
+    useEffect: jest.fn()
+  };
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('covered');
@@ -39,8 +47,8 @@ it('should render correctly', () => {
 
 it('should correctly trigger a scroll', () => {
   const element = { current: {} };
-  jest.spyOn(React, 'useEffect').mockImplementation(f => f());
-  jest.spyOn(React, 'useRef').mockImplementation(() => element);
+  (React.useEffect as jest.Mock).mockImplementation(f => f());
+  (React.useRef as jest.Mock).mockImplementation(() => element);
 
   const scroll = jest.fn();
   shallowRender({ scroll, scrollToUncoveredLine: true });

@@ -109,7 +109,7 @@ exports[`should display form when issues are present 1`] = `
 
 exports[`should display warning when too many issues are passed 1`] = `
 <h2>
-  issue_bulk_change.form.title.1
+  issue_bulk_change.form.title.500
 </h2>
 `;
 
@@ -123,7 +123,7 @@ exports[`should display warning when too many issues are passed 2`] = `
     values={
       Object {
         "max": <strong>
-          1
+          500
         </strong>,
       }
     }

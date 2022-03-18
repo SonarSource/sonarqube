@@ -27,7 +27,14 @@ module.exports = {
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {
     '\\.js$': 'babel-jest',
-    '\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.tsx?$': [
+      '@swc/jest',
+      {
+        jsc: {
+          target: 'es2018'
+        }
+      }
+    ]
   },
   reporters: [
     'default',

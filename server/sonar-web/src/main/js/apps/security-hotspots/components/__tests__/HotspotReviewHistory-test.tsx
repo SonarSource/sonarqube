@@ -28,6 +28,13 @@ import { mockUser } from '../../../../helpers/testMocks';
 import HotspotCommentPopup from '../HotspotCommentPopup';
 import HotspotReviewHistory, { HotspotReviewHistoryProps } from '../HotspotReviewHistory';
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useState: jest.fn().mockImplementation(() => ['', jest.fn()])
+  };
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ showFullHistory: true })).toMatchSnapshot('show full list');
@@ -46,7 +53,7 @@ it('should render correctly', () => {
 it('should correctly handle comment updating', () => {
   return new Promise<void>((resolve, reject) => {
     const setEditedCommentKey = jest.fn();
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => ['', setEditedCommentKey]);
+    (React.useState as jest.Mock).mockImplementationOnce(() => ['', setEditedCommentKey]);
 
     const onEditComment = jest.fn();
     const wrapper = shallowRender({ onEditComment, showFullHistory: true });
@@ -102,7 +109,7 @@ it('should correctly handle comment updating', () => {
 it('should correctly handle comment deleting', () => {
   return new Promise<void>((resolve, reject) => {
     const setEditedCommentKey = jest.fn();
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => ['', setEditedCommentKey]);
+    (React.useState as jest.Mock).mockImplementationOnce(() => ['', setEditedCommentKey]);
 
     const onDeleteComment = jest.fn();
     const wrapper = shallowRender({ onDeleteComment, showFullHistory: true });

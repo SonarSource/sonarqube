@@ -40,6 +40,14 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+jest.mock('react', () => {
+  return {
+    ...jest.requireActual('react'),
+    useRef: jest.fn(),
+    useEffect: jest.fn()
+  };
+});
+
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(
@@ -97,9 +105,9 @@ describe('side effect', () => {
   const fakeParent = document.createElement('div');
 
   beforeEach(() => {
-    jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+    (React.useEffect as jest.Mock).mockImplementationOnce(f => f());
     jest.spyOn(document, 'querySelector').mockImplementationOnce(() => fakeElement);
-    jest.spyOn(React, 'useRef').mockImplementationOnce(() => ({ current: fakeParent }));
+    (React.useRef as jest.Mock).mockImplementationOnce(() => ({ current: fakeParent }));
   });
 
   it('should trigger scrolling', () => {
@@ -117,7 +125,7 @@ describe('side effect', () => {
   });
 
   it('should not trigger scrolling if no parent', () => {
-    const mockUseRef = jest.spyOn(React, 'useRef');
+    const mockUseRef = React.useRef as jest.Mock;
     mockUseRef.mockReset();
     mockUseRef.mockImplementationOnce(() => ({ current: null }));
     shallowRender({ selectedHotspot: mockRawHotspot() });

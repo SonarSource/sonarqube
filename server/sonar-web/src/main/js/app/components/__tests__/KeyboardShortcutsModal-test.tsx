@@ -23,16 +23,22 @@ import Modal from '../../../components/controls/Modal';
 import { mockEvent } from '../../../helpers/testMocks';
 import KeyboardShortcutsModal from '../KeyboardShortcutsModal';
 
-let handle: void | (() => void);
-beforeEach(() => {
-  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => {
-    handle = f();
-  });
+jest.mock('react', () => {
+  let close: () => void;
+  return {
+    ...jest.requireActual('react'),
+    useEffect: jest.fn().mockImplementation(f => {
+      close = f();
+    }),
+    clean: () => {
+      close();
+    }
+  };
 });
 
 afterEach(() => {
-  if (handle) {
-    handle();
+  if ((React as any).clean as () => void) {
+    (React as any).clean();
   }
 });
 
