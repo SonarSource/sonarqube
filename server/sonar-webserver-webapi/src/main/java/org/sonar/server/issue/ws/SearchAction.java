@@ -112,6 +112,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
@@ -149,6 +150,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_TAGS,
     PARAM_TYPES,
     PARAM_OWASP_TOP_10,
+    PARAM_OWASP_TOP_10_2021,
     PARAM_SANS_TOP_25,
     PARAM_CWE,
     PARAM_CREATED_AT,
@@ -259,8 +261,12 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_TOP_10)
-      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")
+      .setDescription("Comma-separated list of OWASP Top 10 2017 lowercase categories.")
       .setSince("7.3")
+      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
+    action.createParam(PARAM_OWASP_TOP_10_2021)
+      .setDescription("Comma-separated list of OWASP Top 10 2021 lowercase categories.")
+      .setSince("9.4")
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
@@ -460,6 +466,7 @@ public class SearchAction implements IssuesWsAction {
     setTypesFacet(facets);
 
     addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10, request.getOwaspTop10());
+    addMandatoryValuesToFacet(facets, PARAM_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryValuesToFacet(facets, PARAM_SANS_TOP_25, request.getSansTop25());
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
@@ -535,6 +542,7 @@ public class SearchAction implements IssuesWsAction {
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+      .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))

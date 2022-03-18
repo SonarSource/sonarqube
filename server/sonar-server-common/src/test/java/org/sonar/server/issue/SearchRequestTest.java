@@ -48,7 +48,8 @@ public class SearchRequestTest {
       .setRules(asList("key-a", "key-b"))
       .setSort("CREATION_DATE")
       .setAsc(true)
-      .setInNewCodePeriod(true);
+      .setInNewCodePeriod(true)
+      .setOwaspTop10For2021(asList("a2", "a3"));
 
     assertThat(underTest.getIssues()).containsOnlyOnce("anIssueKey");
     assertThat(underTest.getSeverities()).containsExactly("MAJOR", "MINOR");
@@ -69,6 +70,7 @@ public class SearchRequestTest {
     assertThat(underTest.getSort()).isEqualTo("CREATION_DATE");
     assertThat(underTest.getAsc()).isTrue();
     assertThat(underTest.getInNewCodePeriod()).isTrue();
+    assertThat(underTest.getOwaspTop10For2021()).containsExactly("a2", "a3");
   }
 
   @Test

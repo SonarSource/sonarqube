@@ -133,6 +133,7 @@ public class IssueQueryFactory {
         .tags(request.getTags())
         .types(request.getTypes())
         .owaspTop10(request.getOwaspTop10())
+        .owaspTop10For2021(request.getOwaspTop10For2021())
         .sansTop25(request.getSansTop25())
         .cwe(request.getCwe())
         .sonarsourceSecurity(request.getSonarsourceSecurity())
