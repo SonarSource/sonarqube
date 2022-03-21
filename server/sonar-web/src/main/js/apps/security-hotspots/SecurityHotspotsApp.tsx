@@ -447,6 +447,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         [SecurityStandard.OWASP_TOP10]: undefined,
         [SecurityStandard.SANS_TOP25]: undefined,
         [SecurityStandard.SONARSOURCE]: undefined,
+        [SecurityStandard.OWASP_TOP10_2021]: undefined,
         file: undefined
       }
     });

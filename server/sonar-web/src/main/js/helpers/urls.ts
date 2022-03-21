@@ -144,6 +144,7 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
       assignedToMe,
       file,
       ...pick(query, [
+        SecurityStandard.OWASP_TOP10_2021,
         SecurityStandard.SONARSOURCE,
         SecurityStandard.OWASP_TOP10,
         SecurityStandard.SANS_TOP25,

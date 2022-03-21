@@ -20,6 +20,7 @@
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
+import { SecurityStandard } from '../../types/security';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 import {
   convertGithubApiUrlToLink,
@@ -88,11 +89,24 @@ describe('#getComponentSecurityHotspotsUrl', () => {
     expect(
       getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {
         sinceLeakPeriod: 'true',
+        [SecurityStandard.OWASP_TOP10_2021]: 'a1',
+        [SecurityStandard.CWE]: 'a1',
+        [SecurityStandard.OWASP_TOP10]: 'a1',
+        [SecurityStandard.SANS_TOP25]: 'a1',
+        [SecurityStandard.SONARSOURCE]: 'a1',
         ignoredParam: '1234'
       })
     ).toEqual({
       pathname: '/security_hotspots',
-      query: { id: SIMPLE_COMPONENT_KEY, sinceLeakPeriod: 'true' }
+      query: {
+        id: SIMPLE_COMPONENT_KEY,
+        [SecurityStandard.OWASP_TOP10_2021]: 'a1',
+        [SecurityStandard.CWE]: 'a1',
+        [SecurityStandard.OWASP_TOP10]: 'a1',
+        [SecurityStandard.SANS_TOP25]: 'a1',
+        [SecurityStandard.SONARSOURCE]: 'a1',
+        sinceLeakPeriod: 'true'
+      }
     });
   });
 });
