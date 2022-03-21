@@ -89,6 +89,7 @@ public class ActivateRulesActionTest {
       "severities",
       "cwe",
       "owaspTop10",
+      "owaspTop10-2021",
       "sansTop25",
       "sonarsourceSecurity");
   }

@@ -458,7 +458,7 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_security_owaspTop10_return_vulnerabilities_and_hotspots_only() {
+  public void search_by_security_owaspTop10_2017_return_vulnerabilities_and_hotspots_only() {
     RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
     RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
     createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
@@ -466,6 +466,18 @@ public class RuleIndexTest {
 
     RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
     SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
+  }
+
+  @Test
+  public void search_by_security_owaspTop10_2021_return_vulnerabilities_and_hotspots_only() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10-2021:a1", "owaspTop10-2021:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10-2021:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
+    createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
+    index();
+
+    RuleQuery query = new RuleQuery().setOwaspTop10For2021(of("a5", "a10"));
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10-2021"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
@@ -483,7 +495,7 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_security_sonarsource_return_vulnerabilities_and_hotspots_only() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10-2021:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
     createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(CODE_SMELL));
     RuleDefinitionDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
     index();

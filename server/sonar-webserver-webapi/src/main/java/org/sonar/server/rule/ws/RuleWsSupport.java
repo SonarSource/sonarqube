@@ -58,6 +58,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
@@ -120,8 +121,13 @@ public class RuleWsSupport {
       .setExampleValue("12,125," + SecurityStandards.UNKNOWN_STANDARD);
 
     action.createParam(PARAM_OWASP_TOP_10)
-      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")
+      .setDescription("Comma-separated list of OWASP Top 10 2017 lowercase categories.")
       .setSince("7.3")
+      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
+
+    action.createParam(PARAM_OWASP_TOP_10_2021)
+      .setDescription("Comma-separated list of OWASP Top 10 2021 lowercase categories.")
+      .setSince("9.4")
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
 
     action.createParam(PARAM_SANS_TOP_25)

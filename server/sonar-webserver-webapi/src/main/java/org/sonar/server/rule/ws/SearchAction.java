@@ -73,6 +73,7 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OLD_DEFAULT;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OWASP_TOP_10;
+import static org.sonar.server.rule.index.RuleIndex.FACET_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_SANS_TOP_25;
 import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
@@ -86,6 +87,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
@@ -99,7 +101,7 @@ public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
-  private static final String[] POSSIBLE_FACETS = new String[] {
+  private static final String[] POSSIBLE_FACETS = new String[]{
     FACET_LANGUAGES,
     FACET_REPOSITORIES,
     FACET_TAGS,
@@ -110,6 +112,7 @@ public class SearchAction implements RulesWsAction {
     FACET_OLD_DEFAULT,
     FACET_CWE,
     FACET_OWASP_TOP_10,
+    FACET_OWASP_TOP_10_2021,
     FACET_SANS_TOP_25,
     FACET_SONARSOURCE_SECURITY};
 
@@ -160,15 +163,15 @@ public class SearchAction implements RulesWsAction {
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
     action.setDescription("Search for a collection of relevant rules matching a specified query.<br/>" +
-      "Since 5.5, following fields in the response have been deprecated :" +
-      "<ul>" +
-      "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
-      "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
-      "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
-      "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
-      "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
-      "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
-      "</ul>")
+        "Since 5.5, following fields in the response have been deprecated :" +
+        "<ul>" +
+        "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
+        "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
+        "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
+        "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
+        "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
+        "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("4.4")
       .setHandler(this);
@@ -301,6 +304,7 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_TYPES, RuleType.names());
     addMandatoryFacetValues(results, FACET_CWE, request.getCwe());
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10, request.getOwaspTop10());
+    addMandatoryFacetValues(results, FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryFacetValues(results, FACET_SANS_TOP_25, request.getSansTop25());
     addMandatoryFacetValues(results, FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
 
@@ -316,6 +320,7 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_TYPES, request.getTypes());
     facetValuesByFacetKey.put(FACET_CWE, request.getCwe());
     facetValuesByFacetKey.put(FACET_OWASP_TOP_10, request.getOwaspTop10());
+    facetValuesByFacetKey.put(FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     facetValuesByFacetKey.put(FACET_SANS_TOP_25, request.getSansTop25());
     facetValuesByFacetKey.put(FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
 
@@ -378,6 +383,7 @@ public class SearchAction implements RulesWsAction {
       .setTypes(request.paramAsStrings(PARAM_TYPES))
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
+      .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
   }
@@ -464,6 +470,7 @@ public class SearchAction implements RulesWsAction {
     private List<String> types;
     private List<String> cwe;
     private List<String> owaspTop10;
+    private List<String> owaspTop10For2021;
     private List<String> sansTop25;
     private List<String> sonarsourceSecurity;
 
@@ -581,6 +588,15 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setOwaspTop10(@Nullable List<String> owaspTop10) {
       this.owaspTop10 = owaspTop10;
+      return this;
+    }
+
+    public List<String> getOwaspTop10For2021() {
+      return owaspTop10For2021;
+    }
+
+    public SearchRequest setOwaspTop10For2021(@Nullable List<String> owaspTop10For2021) {
+      this.owaspTop10For2021 = owaspTop10For2021;
       return this;
     }
 

@@ -54,6 +54,7 @@ public class RuleQuery {
   private String ruleKey;
   private boolean includeExternal;
   private Collection<String> owaspTop10;
+  private Collection<String> owaspTop10For2021;
   private Collection<String> sansTop25;
   private Collection<String> cwe;
   private Collection<String> sonarsourceSecurity;
@@ -304,6 +305,16 @@ public class RuleQuery {
 
   public RuleQuery setOwaspTop10(@Nullable Collection<String> owaspTop10) {
     this.owaspTop10 = owaspTop10;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getOwaspTop10For2021() {
+    return owaspTop10For2021;
+  }
+
+  public RuleQuery setOwaspTop10For2021(@Nullable Collection<String> owaspTop10For2021) {
+    this.owaspTop10For2021 = owaspTop10For2021;
     return this;
   }
 

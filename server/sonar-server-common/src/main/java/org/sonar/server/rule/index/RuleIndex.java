@@ -98,6 +98,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_LANGUAGE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_NAME;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10_2021;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_SANS_TOP_25;
@@ -128,6 +129,7 @@ public class RuleIndex {
   public static final String FACET_CWE = "cwe";
   public static final String FACET_SANS_TOP_25 = "sansTop25";
   public static final String FACET_OWASP_TOP_10 = "owaspTop10";
+  public static final String FACET_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FACET_SONARSOURCE_SECURITY = "sonarsourceSecurity";
 
   private static final int MAX_FACET_SIZE = 100;
@@ -215,13 +217,13 @@ public class RuleIndex {
     BoolQueryBuilder textQuery = boolQuery();
     JavaTokenizer.split(queryText)
       .stream().map(token -> boolQuery().should(
-      matchQuery(
-        SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
-        StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20F))
-      .should(
-        matchPhraseQuery(
-          ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
-          token).boost(3F)))
+          matchQuery(
+            SEARCH_GRAMS_ANALYZER.subField(FIELD_RULE_NAME),
+            StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)).boost(20F))
+        .should(
+          matchPhraseQuery(
+            ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
+            token).boost(3F)))
       .forEach(textQuery::must);
     qb.should(textQuery.boost(20F));
 
@@ -235,7 +237,7 @@ public class RuleIndex {
 
   private static QueryBuilder termQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, SEARCH_WORDS_ANALYZER.subField(field))
+        field, SEARCH_WORDS_ANALYZER.subField(field))
       .operator(Operator.AND)
       .boost(boost);
   }
@@ -255,63 +257,27 @@ public class RuleIndex {
         QueryBuilders.termQuery(FIELD_RULE_STATUS,
           RuleStatus.REMOVED.toString())));
 
-    if (StringUtils.isNotEmpty(query.getInternalKey())) {
-      filters.put(FIELD_RULE_INTERNAL_KEY,
-        QueryBuilders.termQuery(FIELD_RULE_INTERNAL_KEY, query.getInternalKey()));
-    }
+    addFilter(filters, FIELD_RULE_INTERNAL_KEY, query.getInternalKey());
 
-    if (StringUtils.isNotEmpty(query.getRuleKey())) {
-      filters.put(FIELD_RULE_RULE_KEY,
-        QueryBuilders.termQuery(FIELD_RULE_RULE_KEY, query.getRuleKey()));
-    }
+    addFilter(filters, FIELD_RULE_RULE_KEY, query.getRuleKey());
 
-    if (isNotEmpty(query.getLanguages())) {
-      filters.put(FIELD_RULE_LANGUAGE,
-        QueryBuilders.termsQuery(FIELD_RULE_LANGUAGE, query.getLanguages()));
-    }
+    addFilter(filters, query.getLanguages(), FIELD_RULE_LANGUAGE);
 
-    if (isNotEmpty(query.getRepositories())) {
-      filters.put(FIELD_RULE_REPOSITORY,
-        QueryBuilders.termsQuery(FIELD_RULE_REPOSITORY, query.getRepositories()));
-    }
+    addFilter(filters, query.getRepositories(), FIELD_RULE_REPOSITORY);
 
-    if (isNotEmpty(query.getSeverities())) {
-      filters.put(FIELD_RULE_SEVERITY,
-        QueryBuilders.termsQuery(FIELD_RULE_SEVERITY, query.getSeverities()));
-    }
+    addFilter(filters, query.getSeverities(), FIELD_RULE_SEVERITY);
 
-    if (isNotEmpty(query.getCwe())) {
-      filters.put(FIELD_RULE_CWE,
-        boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_CWE, query.getCwe()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
-    }
+    addSecurityStandardFilter(filters, FIELD_RULE_CWE, query.getCwe());
 
-    if (isNotEmpty(query.getOwaspTop10())) {
-      filters.put(FIELD_RULE_OWASP_TOP_10,
-        boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
-    }
+    addSecurityStandardFilter(filters, FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10());
 
-    if (isNotEmpty(query.getSansTop25())) {
-      filters.put(FIELD_RULE_SANS_TOP_25,
-        boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_SANS_TOP_25, query.getSansTop25()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
-    }
+    addSecurityStandardFilter(filters, FIELD_RULE_OWASP_TOP_10_2021, query.getOwaspTop10For2021());
 
-    if (isNotEmpty(query.getSonarsourceSecurity())) {
-      filters.put(FIELD_RULE_SONARSOURCE_SECURITY,
-        boolQuery()
-          .must(QueryBuilders.termsQuery(FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity()))
-          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
-    }
+    addSecurityStandardFilter(filters, FIELD_RULE_SANS_TOP_25, query.getSansTop25());
 
-    if (StringUtils.isNotEmpty(query.getKey())) {
-      filters.put(FIELD_RULE_KEY,
-        QueryBuilders.termQuery(FIELD_RULE_KEY, query.getKey()));
-    }
+    addSecurityStandardFilter(filters, FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity());
+
+    addFilter(filters, FIELD_RULE_KEY, query.getKey());
 
     if (isNotEmpty(query.getTags())) {
       filters.put(FIELD_RULE_TAGS, buildTagsFilter(query.getTags()));
@@ -382,6 +348,29 @@ public class RuleIndex {
     }
 
     return filters;
+  }
+
+  private static void addSecurityStandardFilter(Map<String, QueryBuilder> filters, String key, Collection<String> values) {
+    if (isNotEmpty(values)) {
+      filters.put(key,
+        boolQuery()
+          .must(QueryBuilders.termsQuery(key, values))
+          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
+    }
+  }
+
+  private static void addFilter(Map<String, QueryBuilder> filters, Collection<String> key, String value) {
+    if (isNotEmpty(key)) {
+      filters.put(value,
+        QueryBuilders.termsQuery(value, key));
+    }
+  }
+
+  private static void addFilter(Map<String, QueryBuilder> filters, String key, String value) {
+    if (StringUtils.isNotEmpty(value)) {
+      filters.put(key,
+        QueryBuilders.termQuery(key, value));
+    }
   }
 
   private static BoolQueryBuilder buildTagsFilter(Collection<String> tags) {
@@ -476,10 +465,10 @@ public class RuleIndex {
 
   private static Function<TermsAggregationBuilder, AggregationBuilder> filterSecurityCategories() {
     return termsAggregation -> AggregationBuilders.filter(
-      "filter_by_rule_types_" + termsAggregation.getName(),
-      termsQuery(FIELD_RULE_TYPE,
-        VULNERABILITY.name(),
-        SECURITY_HOTSPOT.name()))
+        "filter_by_rule_types_" + termsAggregation.getName(),
+        termsQuery(FIELD_RULE_TYPE,
+          VULNERABILITY.name(),
+          SECURITY_HOTSPOT.name()))
       .subAggregation(termsAggregation);
   }
 
@@ -496,6 +485,13 @@ public class RuleIndex {
       Collection<String> categories = query.getOwaspTop10();
       aggregations.put(FACET_OWASP_TOP_10,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_TOP_10, FACET_OWASP_TOP_10,
+          FACET_DEFAULT_SIZE, filterSecurityCategories(),
+          (categories == null) ? (new String[0]) : categories.toArray()));
+    }
+    if (options.getFacets().contains(FACET_OWASP_TOP_10_2021)) {
+      Collection<String> categories = query.getOwaspTop10For2021();
+      aggregations.put(FACET_OWASP_TOP_10_2021,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_TOP_10_2021, FACET_OWASP_TOP_10_2021,
           FACET_DEFAULT_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }

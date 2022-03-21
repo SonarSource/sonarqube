@@ -168,6 +168,16 @@ public class RuleDoc extends BaseDoc {
   }
 
   @CheckForNull
+  public Collection<String> getOwaspTop10For2021() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10_2021);
+  }
+
+  public RuleDoc setOwaspTop10For2021(@Nullable Collection<String> o) {
+    setField(RuleIndexDefinition.FIELD_RULE_OWASP_TOP_10_2021, o);
+    return this;
+  }
+
+  @CheckForNull
   public Collection<String> getSansTop25() {
     return getNullableField(RuleIndexDefinition.FIELD_RULE_SANS_TOP_25);
   }
@@ -290,6 +300,7 @@ public class RuleDoc extends BaseDoc {
       .setLanguage(dto.getLanguage())
       .setCwe(securityStandards.getCwe())
       .setOwaspTop10(securityStandards.getOwaspTop10())
+      .setOwaspTop10For2021(securityStandards.getOwaspTop10For2021())
       .setSansTop25(securityStandards.getSansTop25())
       .setSonarSourceSecurityCategory(securityStandards.getSqCategory())
       .setName(dto.getName())
