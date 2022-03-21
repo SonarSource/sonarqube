@@ -234,7 +234,7 @@ The following piece of code contains 9 comment lines:
 | Language | Note
 | ---|---
 | COBOL | Lines containing the following instructions are counted both as comments and lines of code: `AUTHOR`, `INSTALLATION`, `DATE-COMPILED`, `DATE-WRITTEN`, `SECURITY`.
-| Java | File headers are not counted as comment lines (becuase they usually define the license).
+| Java | File headers are not counted as comment lines (because they usually define the license).
 
 **Comments (%)** (`comment_lines_density`)  
 Density of comment lines = Comment lines / (Lines of code + Comment lines) * 100
