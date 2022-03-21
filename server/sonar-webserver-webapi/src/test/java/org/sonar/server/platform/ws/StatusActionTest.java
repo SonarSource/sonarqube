@@ -21,7 +21,6 @@ package org.sonar.server.platform.ws;
 
 import java.util.Date;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.WebService;
@@ -29,7 +28,6 @@ import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.base.Predicates.in;
@@ -55,15 +53,12 @@ public class StatusActionTest {
     DatabaseMigrationState.Status.SUCCEEDED, DatabaseMigrationState.Status.RUNNING);
   private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.STARTING, Platform.Status.UP);
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   private static Server server = new Dummy51Server();
   private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
   private Platform platform = mock(Platform.class);
   private RestartFlagHolder restartFlagHolder = new RestartFlagHolderImpl();
 
-  private WsActionTester underTest = new WsActionTester(new StatusAction(server, migrationState, platform, restartFlagHolder, userSessionRule));
+  private WsActionTester underTest = new WsActionTester(new StatusAction(server, migrationState, platform, restartFlagHolder));
 
   @Test
   public void action_status_is_defined() {
@@ -71,21 +66,12 @@ public class StatusActionTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNotNull();
-    assertThat(action.changelog()).isNotEmpty();
+
     assertThat(action.params()).isEmpty();
   }
 
   @Test
-  public void verify_example_unauthenticated() {
-    when(platform.status()).thenReturn(Platform.Status.UP);
-    restartFlagHolder.unset();
-
-    assertJson(underTest.newRequest().execute().getInput()).isSimilarTo(getClass().getResource("example-status-unauthenticated.json"));
-  }
-
-  @Test
-  public void verify_example_logged_in() {
-    userSessionRule.logIn();
+  public void verify_example() {
     when(platform.status()).thenReturn(Platform.Status.UP);
     restartFlagHolder.unset();
 
