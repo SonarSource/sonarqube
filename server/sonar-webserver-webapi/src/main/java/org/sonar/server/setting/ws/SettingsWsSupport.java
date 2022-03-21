@@ -31,14 +31,13 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static java.util.Collections.singleton;
 import static org.sonar.api.web.UserRole.ADMIN;
 
 @ServerSide
 public class SettingsWsSupport {
   public static final String DOT_SECURED = ".secured";
   @VisibleForTesting
-  static final Set<String> ADMIN_ONLY_SETTINGS = singleton("sonar.auth.bitbucket.workspaces");
+  static final Set<String> ADMIN_ONLY_SETTINGS = Set.of("sonar.auth.bitbucket.workspaces", "sonar.auth.github.organizations");
 
   private final UserSession userSession;
 
