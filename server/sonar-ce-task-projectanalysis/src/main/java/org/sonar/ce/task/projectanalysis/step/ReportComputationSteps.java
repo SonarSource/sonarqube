@@ -47,8 +47,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ExecuteStatelessInitExtensionsStep.class,
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
-
-    PersistScannerAnalysisCacheStep.class,
     LoadQualityProfilesStep.class,
 
     // load project related stuffs
@@ -89,6 +87,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     HandleUnanalyzedLanguagesStep.class,
 
     // Persist data
+    PersistScannerAnalysisCacheStep.class,
     PersistComponentsStep.class,
     PersistAnalysisStep.class,
     PersistAnalysisPropertiesStep.class,

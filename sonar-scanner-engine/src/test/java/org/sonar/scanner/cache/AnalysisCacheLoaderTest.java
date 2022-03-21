@@ -29,20 +29,29 @@ import java.util.Optional;
 import java.util.zip.DeflaterInputStream;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.scanner.fs.InputProject;
+import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
-import org.sonar.scanner.protocol.internal.ScannerInternal;
 import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scan.branch.BranchType;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.scanner.cache.AnalysisCacheLoader.CONTENT_ENCODING;
 
 public class AnalysisCacheLoaderTest {
+  private final static AnalysisCacheMsg MSG = AnalysisCacheMsg.newBuilder()
+    .putMap("key", ByteString.copyFrom("value", StandardCharsets.UTF_8))
+    .build();
   private final WsResponse response = mock(WsResponse.class);
   private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private final InputProject project = mock(InputProject.class);
@@ -51,33 +60,73 @@ public class AnalysisCacheLoaderTest {
 
   @Before
   public void before() {
+    when(project.key()).thenReturn("myproject");
     when(wsClient.call(any())).thenReturn(response);
   }
 
   @Test
   public void loads_content() throws IOException {
-    ScannerInternal.AnalysisCacheMsg expected = ScannerInternal.AnalysisCacheMsg.newBuilder()
-      .putMap("key", ByteString.copyFrom("value", StandardCharsets.UTF_8))
-      .build();
-    setResponse(expected);
+    setResponse(MSG);
     AnalysisCacheMsg msg = loader.load().get();
-    assertThat(msg).isEqualTo(expected);
+    assertThat(msg).isEqualTo(MSG);
+    assertRequestPath("api/analysis_cache/get?project=myproject");
+  }
+
+  @Test
+  public void loads_content_for_branch() throws IOException {
+    when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
+    when(branchConfiguration.branchName()).thenReturn("name");
+
+    setResponse(MSG);
+    AnalysisCacheMsg msg = loader.load().get();
+
+    assertThat(msg).isEqualTo(MSG);
+    assertRequestPath("api/analysis_cache/get?project=myproject&branch=name");
+  }
+
+  @Test
+  public void loads_content_for_pr() throws IOException {
+    when(branchConfiguration.isPullRequest()).thenReturn(true);
+    when(branchConfiguration.pullRequestKey()).thenReturn("key");
+    setResponse(MSG);
+    AnalysisCacheMsg msg = loader.load().get();
+    assertThat(msg).isEqualTo(MSG);
+    assertRequestPath("api/analysis_cache/get?project=myproject&pullRequest=key");
   }
 
   @Test
   public void loads_compressed_content() throws IOException {
-    AnalysisCacheMsg expected = AnalysisCacheMsg.newBuilder()
-      .putMap("key", ByteString.copyFrom("value", StandardCharsets.UTF_8))
-      .build();
-    setCompressedResponse(expected);
+    setCompressedResponse(MSG);
     AnalysisCacheMsg msg = loader.load().get();
-    assertThat(msg).isEqualTo(expected);
+    assertThat(msg).isEqualTo(MSG);
   }
 
   @Test
   public void returns_empty_if_404() {
-    when(response.code()).thenReturn(404);
+    when(wsClient.call(any())).thenThrow(new HttpException("url", 404, "content"));
     assertThat(loader.load()).isEmpty();
+  }
+
+  @Test
+  public void throw_error_if_http_exception_not_404() {
+    when(wsClient.call(any())).thenThrow(new HttpException("url", 401, "content"));
+    assertThatThrownBy(loader::load)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Failed to download analysis cache: HTTP code 401: content");
+  }
+
+  @Test
+  public void throw_error_if_cant_decompress_content() {
+    setInvalidCompressedResponse();
+    assertThatThrownBy(loader::load)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to download analysis cache");
+  }
+
+  private void assertRequestPath(String expectedPath) {
+    ArgumentCaptor<WsRequest> requestCaptor = ArgumentCaptor.forClass(WsRequest.class);
+    verify(wsClient).call(requestCaptor.capture());
+    assertThat(requestCaptor.getValue().getPath()).isEqualTo(expectedPath);
   }
 
   private void setResponse(AnalysisCacheMsg msg) throws IOException {
@@ -86,6 +135,11 @@ public class AnalysisCacheLoaderTest {
 
   private void setCompressedResponse(AnalysisCacheMsg msg) throws IOException {
     when(response.contentStream()).thenReturn(new DeflaterInputStream(createInputStream(msg)));
+    when(response.header(CONTENT_ENCODING)).thenReturn(Optional.of("gzip"));
+  }
+
+  private void setInvalidCompressedResponse() {
+    when(response.contentStream()).thenReturn(new ByteArrayInputStream(new byte[] {1, 2, 3}));
     when(response.header(CONTENT_ENCODING)).thenReturn(Optional.of("gzip"));
   }
 

@@ -423,12 +423,12 @@ public class SensorContextTester implements SensorContext {
   }
 
   @Override
-  public ReadCache previousAnalysisCache() {
+  public ReadCache previousCache() {
     return readCache;
   }
 
 
-  public void setPreviousAnalysisCache(ReadCache cache) {
+  public void setPreviousCache(ReadCache cache) {
     this.readCache = cache;
   }
 

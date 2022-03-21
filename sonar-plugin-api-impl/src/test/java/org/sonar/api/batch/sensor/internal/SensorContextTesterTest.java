@@ -87,18 +87,18 @@ public class SensorContextTesterTest {
   @Test
   public void testPluginCache() {
     assertThat(tester.nextCache()).isNull();
-    assertThat(tester.previousAnalysisCache()).isNull();
+    assertThat(tester.previousCache()).isNull();
     assertThat(tester.isCacheEnabled()).isFalse();
 
     ReadCache readCache = mock(ReadCache.class);
     WriteCache writeCache = mock(WriteCache.class);
 
-    tester.setPreviousAnalysisCache(readCache);
+    tester.setPreviousCache(readCache);
     tester.setNextCache(writeCache);
     tester.setCacheEnabled(true);
 
     assertThat(tester.nextCache()).isEqualTo(writeCache);
-    assertThat(tester.previousAnalysisCache()).isEqualTo(readCache);
+    assertThat(tester.previousCache()).isEqualTo(readCache);
     assertThat(tester.isCacheEnabled()).isTrue();
   }
 

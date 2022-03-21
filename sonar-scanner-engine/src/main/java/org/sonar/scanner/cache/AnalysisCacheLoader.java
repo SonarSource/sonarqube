@@ -21,10 +21,10 @@ package org.sonar.scanner.cache;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.Optional;
 import java.util.zip.InflaterInputStream;
 import org.sonar.api.scanner.fs.InputProject;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.util.Protobuf;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal;
@@ -32,6 +32,7 @@ import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
 
 /**
@@ -56,24 +57,26 @@ public class AnalysisCacheLoader {
     String url = URL + "?project=" + project.key();
     if (branchConfiguration.branchType() == BranchType.BRANCH && branchConfiguration.branchName() != null) {
       url = url + "&branch=" + branchConfiguration.branchName();
+    } else if (branchConfiguration.isPullRequest()) {
+      url = url + "&pullRequest=" + branchConfiguration.pullRequestKey();
     }
 
     GetRequest request = new GetRequest(url).setHeader(ACCEPT_ENCODING, "gzip");
 
-    try (WsResponse response = wsClient.call(request)) {
-      if (response.code() == HttpURLConnection.HTTP_NOT_FOUND) {
+    try (WsResponse response = wsClient.call(request); InputStream is = response.contentStream()) {
+      Optional<String> contentEncoding = response.header(CONTENT_ENCODING);
+      if (contentEncoding.isPresent() && contentEncoding.get().equals("gzip")) {
+        return Optional.of(decompress(is));
+      } else {
+        return Optional.of(Protobuf.read(is, AnalysisCacheMsg.parser()));
+      }
+    } catch (HttpException e) {
+      if (e.code() == 404) {
         return Optional.empty();
       }
-      try (InputStream is = response.contentStream()) {
-        Optional<String> contentEncoding = response.header(CONTENT_ENCODING);
-        if (contentEncoding.isPresent() && contentEncoding.get().equals("gzip")) {
-          return Optional.of(decompress(is));
-        } else {
-          return Optional.of(Protobuf.read(is, AnalysisCacheMsg.parser()));
-        }
-      } catch (IOException e) {
-        throw new IllegalStateException("Failed to download cache", e);
-      }
+      throw MessageException.of("Failed to download analysis cache: " + DefaultScannerWsClient.createErrorMessage(e));
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to download analysis cache", e);
     }
   }
 
@@ -81,7 +84,7 @@ public class AnalysisCacheLoader {
     try (InflaterInputStream iis = new InflaterInputStream(is)) {
       return Protobuf.read(iis, ScannerInternal.AnalysisCacheMsg.parser());
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to decompress plugin cache", e);
+      throw new IllegalStateException("Failed to decompress analysis cache", e);
     }
   }
 }

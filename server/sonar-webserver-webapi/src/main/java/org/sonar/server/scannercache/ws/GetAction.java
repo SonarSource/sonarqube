@@ -28,8 +28,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbInputStream;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
@@ -41,10 +41,12 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 
 public class GetAction implements AnalysisCacheWsAction {
   private static final String PROJECT = "project";
   private static final String BRANCH = "branch";
+  private static final String PR = "pullRequest";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -76,20 +78,26 @@ public class GetAction implements AnalysisCacheWsAction {
       .setDescription("Branch key. If not provided, main branch will be used.")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
       .setRequired(false);
+
+    action.createParam(PR)
+      .setDescription("Pull request id. Not available in the community edition.")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
+      .setRequired(false);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PROJECT);
     String branchKey = request.param(BRANCH);
+    String prKey = request.param(PR);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, null);
+      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, prKey);
       checkPermission(component);
 
       try (DbInputStream dbInputStream = cache.get(component.uuid())) {
         if (dbInputStream == null) {
-          throw new NotFoundException("No cache for given branch");
+          throw new NotFoundException("No cache for given branch or pull request");
         }
 
         boolean compressed = requestedCompressedData(request);

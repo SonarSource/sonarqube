@@ -32,6 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
 import org.sonar.server.component.ComponentFinder;
@@ -115,10 +116,41 @@ public class GetActionTest {
   }
 
   @Test
+  public void get_data_for_pr() throws IOException {
+    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    BranchDto branch = dbTester.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.PULL_REQUEST));
+
+    dao.insert(dbTester.getSession(), project1.getUuid(), stringToCompressedInputStream("test data1"));
+    dao.insert(dbTester.getSession(), branch.getUuid(), stringToCompressedInputStream("test data2"));
+
+    userSession.logIn().addProjectPermission(SCAN, project1);
+    TestResponse response = wsTester.newRequest()
+      .setParam("project", project1.getKey())
+      .setParam("pullRequest", branch.getKey())
+      .setHeader("Accept-Encoding", "gzip")
+      .execute();
+
+    assertThat(compressedInputStreamToString(response.getInputStream())).isEqualTo("test data2");
+  }
+
+  @Test
   public void return_not_found_if_project_not_found() {
     TestRequest request = wsTester
       .newRequest()
       .setParam("project", "project1");
+    assertThatThrownBy(request::execute).isInstanceOf(NotFoundException.class);
+  }
+
+  @Test
+  public void return_not_found_if_branch_mixed_with_pr() {
+    ProjectDto project1 = dbTester.components().insertPrivateProjectDto();
+    BranchDto branch = dbTester.components().insertProjectBranch(project1);
+
+    userSession.logIn().addProjectPermission(SCAN, project1);
+    TestRequest request = wsTester.newRequest()
+      .setParam("project", project1.getKey())
+      .setParam("pullRequest", branch.getKey());
+
     assertThatThrownBy(request::execute).isInstanceOf(NotFoundException.class);
   }
 

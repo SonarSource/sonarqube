@@ -89,7 +89,7 @@ public class ModuleSensorContextTest {
     assertThat(adaptor.canSkipUnchangedFiles()).isFalse();
 
     assertThat(adaptor.nextCache()).isEqualTo(writeCache);
-    assertThat(adaptor.previousAnalysisCache()).isEqualTo(readCache);
+    assertThat(adaptor.previousCache()).isEqualTo(readCache);
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newExternalIssue()).isNotNull();

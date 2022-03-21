@@ -239,13 +239,13 @@ public interface SensorContext {
    * @since 9.4
    */
   @Beta
-  ReadCache previousAnalysisCache();
+  ReadCache previousCache();
 
   /**
    * Returns true if caching is enabled.
    * This API is experimental and can be changed or dropped at any time.
    * @see #nextCache()
-   * @see #previousAnalysisCache()
+   * @see #previousCache()
    * @since 9.4
    */
   @Beta

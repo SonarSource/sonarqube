@@ -199,7 +199,7 @@ public class ProjectSensorContext implements SensorContext {
   }
 
   @Override
-  public ReadCache previousAnalysisCache() {
+  public ReadCache previousCache() {
     return readCache;
   }
 
