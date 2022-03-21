@@ -19,6 +19,7 @@
  */
 package org.sonar.alm.client;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.OptionalLong;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Loggers;
@@ -27,8 +28,11 @@ import org.sonar.api.utils.log.Loggers;
  * Implementation of {@link TimeoutConfiguration} reading values from configuration properties.
  */
 public class TimeoutConfigurationImpl implements TimeoutConfiguration {
-  private static final String CONNECT_TIMEOUT_PROPERTY = "sonar.alm.timeout.connect";
-  private static final String READ_TIMEOUT_PROPERTY = "sonar.alm.timeout.read";
+
+  @VisibleForTesting
+  public static final String CONNECT_TIMEOUT_PROPERTY = "sonar.alm.timeout.connect";
+  @VisibleForTesting
+  public static final String READ_TIMEOUT_PROPERTY = "sonar.alm.timeout.read";
 
   private static final long DEFAULT_TIMEOUT = 30_000;
   private final Configuration configuration;

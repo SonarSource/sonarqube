@@ -26,6 +26,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 
 import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_PASSWORD;
@@ -51,6 +52,7 @@ public class OkHttpClientProvider {
   /**
    * @return a {@link OkHttpClient} singleton
    */
+  @Primary
   @Bean("OkHttpClient")
   public OkHttpClient provide(Configuration config, SonarRuntime runtime) {
     OkHttpClientBuilder builder = new OkHttpClientBuilder();

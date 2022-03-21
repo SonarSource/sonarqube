@@ -61,13 +61,14 @@ public class BitbucketCloudRestClient {
   private final String bitbucketCloudEndpoint;
   private final String accessTokenEndpoint;
 
+
   @Inject
-  public BitbucketCloudRestClient(OkHttpClient okHttpClient) {
-    this(okHttpClient, ENDPOINT, ACCESS_TOKEN_ENDPOINT);
+  public BitbucketCloudRestClient(OkHttpClient bitBucketCloudHttpClient) {
+    this(bitBucketCloudHttpClient, ENDPOINT, ACCESS_TOKEN_ENDPOINT);
   }
 
-  protected BitbucketCloudRestClient(OkHttpClient okHttpClient, String bitbucketCloudEndpoint, String accessTokenEndpoint) {
-    this.client = okHttpClient;
+  protected BitbucketCloudRestClient(OkHttpClient bitBucketCloudHttpClient, String bitbucketCloudEndpoint, String accessTokenEndpoint) {
+    this.client = bitBucketCloudHttpClient;
     this.bitbucketCloudEndpoint = bitbucketCloudEndpoint;
     this.accessTokenEndpoint = accessTokenEndpoint;
   }

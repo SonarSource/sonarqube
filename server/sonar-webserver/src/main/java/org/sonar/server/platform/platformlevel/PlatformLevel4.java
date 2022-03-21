@@ -23,7 +23,7 @@ import java.util.List;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.AzureDevOpsValidator;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClientConfiguration;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudValidator;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
@@ -184,14 +184,13 @@ import org.sonar.server.projectlink.ws.ProjectLinksModule;
 import org.sonar.server.projecttag.ws.ProjectTagsWsModule;
 import org.sonar.server.property.InternalPropertiesImpl;
 import org.sonar.server.pushapi.ServerPushWsModule;
+import org.sonar.server.pushapi.qualityprofile.DistributedRuleActivatorEventsDistributor;
+import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
+import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 import org.sonar.server.qualitygate.ProjectsInWarningModule;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import org.sonar.server.qualitygate.ws.QualityGateWsModule;
-import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationHandler;
-import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationTemplate;
-import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
-import org.sonar.server.pushapi.qualityprofile.DistributedRuleActivatorEventsDistributor;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
@@ -201,9 +200,10 @@ import org.sonar.server.qualityprofile.QProfileParser;
 import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.QProfileRulesImpl;
 import org.sonar.server.qualityprofile.QProfileTreeImpl;
-import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventServiceImpl;
+import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationHandler;
+import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationTemplate;
+import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
-import org.sonar.server.pushapi.qualityprofile.StandaloneRuleActivatorEventsDistributor;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.root.ws.RootWsModule;
@@ -537,8 +537,8 @@ public class PlatformLevel4 extends PlatformLevel {
       GithubAppSecurityImpl.class,
       GithubApplicationClientImpl.class,
       GithubApplicationHttpClientImpl.class,
+      BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
-      BitbucketCloudRestClient.class,
       GitlabHttpClient.class,
       AzureDevOpsHttpClient.class,
       new AlmIntegrationsWSModule(),
