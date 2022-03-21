@@ -22,12 +22,10 @@ package org.sonar.server.platform.ws;
 import com.google.common.io.Resources;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.platform.Server;
-import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -35,11 +33,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class ServerWs implements WebService, RequestHandler {
 
   private final Server server;
-  private final UserSession userSession;
 
-  public ServerWs(Server server, UserSession userSession) {
+  public ServerWs(Server server) {
     this.server = server;
-    this.userSession = userSession;
   }
 
   @Override
@@ -50,7 +46,6 @@ public class ServerWs implements WebService, RequestHandler {
       .setDescription("Version of SonarQube in plain text")
       .setSince("2.10")
       .setResponseExample(Resources.getResource(this.getClass(), "example-server-version.txt"))
-      .setChangelog(new Change("9.4", "require authentication"))
       .setHandler(this);
 
     controller.done();
@@ -58,7 +53,6 @@ public class ServerWs implements WebService, RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn();
     response.stream().setMediaType(MediaTypes.TXT);
     IOUtils.write(server.getVersion(), response.stream().output(), UTF_8);
   }

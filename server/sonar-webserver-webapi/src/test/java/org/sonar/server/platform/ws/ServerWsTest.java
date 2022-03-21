@@ -19,14 +19,10 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.assertj.core.api.Assertions;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.DumbResponse;
 import org.sonar.server.ws.TestResponse;
 
@@ -36,11 +32,8 @@ import static org.mockito.Mockito.when;
 
 public class ServerWsTest {
 
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   private Server server = mock(Server.class);
-  private ServerWs underTest = new ServerWs(server, userSessionRule);
+  private ServerWs underTest = new ServerWs(server);
 
   @Test
   public void define_version_action() {
@@ -55,20 +48,10 @@ public class ServerWsTest {
     assertThat(versionAction.since()).isEqualTo("2.10");
     assertThat(versionAction.description()).isNotEmpty();
     assertThat(versionAction.isPost()).isFalse();
-    assertThat(versionAction.changelog()).isNotEmpty();
-  }
-
-  @Test
-  public void require_authentication() {
-    DumbResponse response = new DumbResponse();
-    Assertions.assertThatThrownBy(() -> underTest.handle(mock(Request.class), response))
-      .hasMessage("Authentication is required")
-      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
   public void returns_version_as_plain_text() throws Exception {
-    userSessionRule.logIn();
     when(server.getVersion()).thenReturn("6.4-SNAPSHOT");
 
     DumbResponse response = new DumbResponse();
@@ -79,7 +62,6 @@ public class ServerWsTest {
 
   @Test
   public void test_example_of_version() {
-    userSessionRule.logIn();
     WebService.Context context = new WebService.Context();
     underTest.define(context);
 
