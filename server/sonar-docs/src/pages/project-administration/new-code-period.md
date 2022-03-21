@@ -35,7 +35,7 @@ You can define New Code as changes from a previous version, a specific analysis,
 
 - **Reference Branch** – Choose a specific branch to define your New Code. Any changes made from your reference branch are considered New Code.
 
-   Available at the project and branch level.
+   Available at the project and branch level. You can also specify a reference branch using a scanner parameter, overriding the server's definition. See the [Scanner Analysis Parameters](/analysis/analysis-parameters/).
 
 - **Number of days** – Specify a number of days for a floating New Code period. For example, setting **Number of Days** to 30 creates a floating New Code period beginning 30 days from the current date.
   Available at the global, project, and branch level.

@@ -77,7 +77,7 @@ Key | Description | Default
 `sonar.scm.revision`| Overrides the revision, for instance the Git sha1, displayed in analysis results. By default value is provided by the CI environment or guessed by the checked-out sources.| 
 `sonar.buildString`| The string passed with this property will be stored with the analysis and available in the results of `api/project_analyses/search`, thus allowing you to later identify a specific analysis and obtain its ID for use with `api/project_analyses/set_baseline`. | |
 `sonar.analysis.[yourKey]`| This property stub allows you to insert custom key/value pairs into the analysis context, which will also be passed forward to [webhooks](/project-administration/webhooks/). | |
-
+`sonar.newCode.referenceBranch`| Defines the new code period for this branch to use the given branch as a reference branch, overriding the server's setting. See [New Code Period](/project-administration/new-code-period/). 
 
 ### Duplications
 Key | Description | Default
