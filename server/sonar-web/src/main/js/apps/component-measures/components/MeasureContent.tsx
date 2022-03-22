@@ -128,34 +128,40 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         metricKeys: baseComponentMetrics.join(),
         ...getBranchLikeQuery(branchLike)
       })
-    ]).then(([tree, measures]) => {
-      if (this.mounted) {
-        const metric = tree.metrics.find(m => m.key === requestedMetric.key);
-        const components = tree.components.map(component =>
-          enhanceComponent(component, metric, metrics)
-        );
+    ]).then(
+      ([tree, measures]) => {
+        if (this.mounted) {
+          const metric = tree.metrics.find(m => m.key === requestedMetric.key);
+          const components = tree.components.map(component =>
+            enhanceComponent(component, metric, metrics)
+          );
 
-        const measure = measures.find(measure => measure.metric === requestedMetric.key);
-        const secondaryMeasure = measures.find(measure => measure.metric !== requestedMetric.key);
+          const measure = measures.find(m => m.metric === requestedMetric.key);
+          const secondaryMeasure = measures.find(m => m.metric !== requestedMetric.key);
 
-        this.setState(({ selectedComponent }) => ({
-          baseComponent: tree.baseComponent,
-          components,
-          measure,
-          metric,
-          paging: tree.paging,
-          secondaryMeasure,
-          selectedComponent:
-            components.length > 0 &&
-            components.find(
-              c =>
-                getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(selectedComponent)
-            )
-              ? selectedComponent
-              : undefined
-        }));
+          this.setState(({ selectedComponent }) => ({
+            baseComponent: tree.baseComponent,
+            components,
+            measure,
+            metric,
+            paging: tree.paging,
+            secondaryMeasure,
+            selectedComponent:
+              components.length > 0 &&
+              components.find(
+                c =>
+                  getComponentMeasureUniqueKey(c) ===
+                  getComponentMeasureUniqueKey(selectedComponent)
+              )
+                ? selectedComponent
+                : undefined
+          }));
+        }
+      },
+      () => {
+        /* noop */
       }
-    });
+    );
   };
 
   fetchMoreComponents = () => {

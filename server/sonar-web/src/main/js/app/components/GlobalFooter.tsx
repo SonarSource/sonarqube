@@ -24,7 +24,6 @@ import { Alert } from '../../components/ui/Alert';
 import { getEdition } from '../../helpers/editions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
-import { EditionKey } from '../../types/editions';
 import withAppStateContext from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
 
@@ -34,7 +33,7 @@ export interface GlobalFooterProps {
 }
 
 export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) {
-  const currentEdition = appState?.edition && getEdition(appState.edition as EditionKey);
+  const currentEdition = appState?.edition && getEdition(appState.edition);
 
   return (
     <div className="page-footer page-container" id="footer">

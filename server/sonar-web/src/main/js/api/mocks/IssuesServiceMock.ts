@@ -34,7 +34,7 @@ function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   };
 }
 
-export default class IssueServiceMock {
+export default class IssuesServiceMock {
   isAdmin = false;
   standards?: Standards;
 
