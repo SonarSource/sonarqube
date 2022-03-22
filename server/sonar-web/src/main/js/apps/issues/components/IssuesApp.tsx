@@ -23,6 +23,7 @@ import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
+import { searchIssues } from '../../../api/issues';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import EmptySearch from '../../../components/common/EmptySearch';
@@ -43,6 +44,7 @@ import {
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
+import { parseIssueFromResponse } from '../../../helpers/issues';
 import { KeyboardCodes, KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -97,7 +99,6 @@ interface Props {
   component?: Component;
   currentUser: CurrentUser;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
-  fetchIssues: (query: RawQuery) => Promise<FetchIssuesPromise>;
   location: Location;
   onBranchesChange?: () => void;
   router: Pick<Router, 'push' | 'replace'>;
@@ -405,6 +406,19 @@ export default class App extends React.PureComponent<Props, State> {
 
   createdAfterIncludesTime = () => Boolean(this.props.location.query.createdAfter?.includes('T'));
 
+  fetchIssuesHelper = (query: RawQuery) => {
+    return searchIssues({
+      ...query,
+      additionalFields: '_all',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    }).then(response => {
+      const parsedIssues = response.issues.map(issue =>
+        parseIssueFromResponse(issue, response.components, response.users, response.rules)
+      );
+      return { ...response, issues: parsedIssues } as FetchIssuesPromise;
+    });
+  };
+
   fetchIssues = (additional: RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
     const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
@@ -437,7 +451,8 @@ export default class App extends React.PureComponent<Props, State> {
     if (myIssues) {
       Object.assign(parameters, { assignees: '__me__' });
     }
-    return this.props.fetchIssues(parameters);
+
+    return this.fetchIssuesHelper(parameters);
   };
 
   fetchFirstIssues() {
@@ -701,7 +716,7 @@ export default class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters).then(({ facets }) => parseFacets(facets)[property]);
+    return this.fetchIssuesHelper(parameters).then(({ facets }) => parseFacets(facets)[property]);
   };
 
   closeFacet = (property: string) => {

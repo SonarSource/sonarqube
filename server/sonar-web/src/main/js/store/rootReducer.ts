@@ -18,28 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { combineReducers } from 'redux';
-import { BranchLike } from '../types/branch-like';
-import branches, * as fromBranches from './branches';
 import globalMessages, * as fromGlobalMessages from './globalMessages';
 
 export type Store = {
-  branches: fromBranches.State;
   globalMessages: fromGlobalMessages.State;
 };
 
 export default combineReducers<Store>({
-  branches,
   globalMessages
 });
 
 export function getGlobalMessages(state: Store) {
   return fromGlobalMessages.getGlobalMessages(state.globalMessages);
-}
-
-export function getBranchStatusByBranchLike(
-  state: Store,
-  component: string,
-  branchLike: BranchLike
-) {
-  return fromBranches.getBranchStatusByBranchLike(state.branches, component, branchLike);
 }

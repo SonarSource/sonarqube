@@ -19,7 +19,6 @@
  */
 import { differenceBy } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
 import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
@@ -34,7 +33,6 @@ import {
 } from '../../helpers/branch-like';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl } from '../../helpers/urls';
-import { registerBranchStatus } from '../../store/branches';
 import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse
@@ -46,6 +44,7 @@ import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 import { Component, Status } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withAppStateContext from './app-state/withAppStateContext';
+import withBranchStatusActions from './branch-status/withBranchStatusActions';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
@@ -55,7 +54,7 @@ interface Props {
   appState: AppState;
   children: React.ReactElement;
   location: Pick<Location, 'query' | 'pathname'>;
-  registerBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
+  updateBranchStatus: (branchLike: BranchLike, component: string, status: Status) => void;
   router: Pick<Router, 'replace'>;
 }
 
@@ -359,7 +358,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   registerBranchStatuses = (branchLikes: BranchLike[], component: Component) => {
     branchLikes.forEach(branchLike => {
       if (branchLike.status) {
-        this.props.registerBranchStatus(
+        this.props.updateBranchStatus(
           branchLike,
           component.key,
           branchLike.status.qualityGateStatus
@@ -467,8 +466,4 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { registerBranchStatus };
-
-export default withRouter(
-  connect(null, mapDispatchToProps)(withAppStateContext(ComponentContainer))
-);
+export default withRouter(withAppStateContext(withBranchStatusActions(ComponentContainer)));

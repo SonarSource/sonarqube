@@ -21,6 +21,7 @@ import * as React from 'react';
 import Workspace from '../../components/workspace/Workspace';
 import A11yProvider from './a11y/A11yProvider';
 import A11ySkipLinks from './a11y/A11ySkipLinks';
+import BranchStatusContextProvider from './branch-status/BranchStatusContextProvider';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
 import GlobalFooter from './GlobalFooter';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
@@ -50,19 +51,21 @@ export default function GlobalContainer(props: Props) {
           <div className="global-container">
             <div className="page-wrapper" id="container">
               <div className="page-container">
-                <Workspace>
-                  <IndexationContextProvider>
-                    <LanguagesContextProvider>
-                      <MetricsContextProvider>
-                        <GlobalNav location={props.location} />
-                        <GlobalMessagesContainer />
-                        <IndexationNotification />
-                        <UpdateNotification dismissable={true} />
-                        {props.children}
-                      </MetricsContextProvider>
-                    </LanguagesContextProvider>
-                  </IndexationContextProvider>
-                </Workspace>
+                <BranchStatusContextProvider>
+                  <Workspace>
+                    <IndexationContextProvider>
+                      <LanguagesContextProvider>
+                        <MetricsContextProvider>
+                          <GlobalNav location={props.location} />
+                          <GlobalMessagesContainer />
+                          <IndexationNotification />
+                          <UpdateNotification dismissable={true} />
+                          {props.children}
+                        </MetricsContextProvider>
+                      </LanguagesContextProvider>
+                    </IndexationContextProvider>
+                  </Workspace>
+                </BranchStatusContextProvider>
               </div>
               <PromotionNotification />
             </div>

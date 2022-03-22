@@ -24,6 +24,7 @@ import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { AppState } from '../types/appstate';
 import { EditionKey } from '../types/editions';
+import { RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
@@ -365,6 +366,31 @@ export function mockEvent(overrides = {}) {
     stopPropagation() {},
     ...overrides
   } as any;
+}
+
+export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue> = {}): RawIssue {
+  const rawIssue: RawIssue = {
+    component: 'main.js',
+    key: 'AVsae-CQS-9G3txfbFN2',
+    line: 25,
+    project: 'myproject',
+    rule: 'javascript:S1067',
+    severity: 'MAJOR',
+    status: 'OPEN',
+    textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
+    ...overrides
+  };
+
+  if (withLocations) {
+    const loc = mockFlowLocation;
+
+    rawIssue.flows = [{ locations: [loc(), loc()] }];
+  }
+
+  return {
+    ...rawIssue,
+    ...overrides
+  };
 }
 
 export function mockIssue(withLocations = false, overrides: Partial<Issue> = {}) {

@@ -21,7 +21,7 @@ import { uniqueId } from 'lodash';
 import { Dispatch } from 'redux';
 import { ActionType } from '../types/actions';
 
-enum MessageLevel {
+export enum MessageLevel {
   Error = 'ERROR',
   Success = 'SUCCESS'
 }

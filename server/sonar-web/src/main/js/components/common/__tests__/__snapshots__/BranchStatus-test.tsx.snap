@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: Error 1`] = `
 <Level
-  level="OK"
+  level="ERROR"
   small={true}
 />
 `;
 
-exports[`should render correctly 2`] = `
+exports[`should render correctly: Successful 1`] = `
 <Level
-  level="ERROR"
+  level="OK"
   small={true}
 />
 `;

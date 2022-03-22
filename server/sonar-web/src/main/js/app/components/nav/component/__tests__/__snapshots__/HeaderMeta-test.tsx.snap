@@ -196,7 +196,7 @@ exports[`should render correctly for a pull request 1`] = `
         size={12}
       />
     </a>
-    <Connect(BranchStatus)
+    <withBranchStatus(BranchStatus)
       branchLike={
         Object {
           "analysisDate": "2018-01-01",
@@ -208,7 +208,30 @@ exports[`should render correctly for a pull request 1`] = `
           "url": "https://example.com/pull/1234",
         }
       }
-      component="my-project"
+      component={
+        Object {
+          "analysisDate": "2017-01-02T00:00:00.000Z",
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+          "version": "0.0.1",
+        }
+      }
     />
   </div>
 </Fragment>

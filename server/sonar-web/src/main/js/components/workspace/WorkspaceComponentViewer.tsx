@@ -19,11 +19,10 @@
  */
 import { debounce } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getParents } from '../../api/components';
+import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import { isPullRequest } from '../../helpers/branch-like';
 import { scrollToElement } from '../../helpers/scrolling';
-import { fetchBranchStatus } from '../../store/branches';
 import { BranchLike } from '../../types/branch-like';
 import { Issue, SourceViewerFile } from '../../types/types';
 import SourceViewer from '../SourceViewer/SourceViewer';
@@ -137,6 +136,4 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
   }
 }
 
-const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
-
-export default connect(null, mapDispatchToProps)(WorkspaceComponentViewer);
+export default withBranchStatusActions(WorkspaceComponentViewer);

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QualityGateStatusCondition } from './quality-gates';
 import { NewCodePeriod, Status } from './types';
 
 export interface Branch {
@@ -61,4 +62,10 @@ export type BranchParameters = { branch?: string } | { pullRequest?: string };
 
 export interface BranchWithNewCodePeriod extends Branch {
   newCodePeriod?: NewCodePeriod;
+}
+
+export interface BranchStatusData {
+  conditions?: QualityGateStatusCondition[];
+  ignoredConditions?: boolean;
+  status?: Status;
 }

@@ -19,14 +19,22 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { BranchStatus } from '../BranchStatus';
+import { BranchStatus, BranchStatusProps } from '../BranchStatus';
 
 it('should render correctly', () => {
   expect(shallowRender().type()).toBeNull();
-  expect(shallowRender('OK')).toMatchSnapshot();
-  expect(shallowRender('ERROR')).toMatchSnapshot();
+  expect(
+    shallowRender({
+      status: 'OK'
+    })
+  ).toMatchSnapshot('Successful');
+  expect(
+    shallowRender({
+      status: 'ERROR'
+    })
+  ).toMatchSnapshot('Error');
 });
 
-function shallowRender(status?: string) {
-  return shallow(<BranchStatus status={status} />);
+function shallowRender(overrides: Partial<BranchStatusProps> = {}) {
+  return shallow(<BranchStatus {...overrides} />);
 }

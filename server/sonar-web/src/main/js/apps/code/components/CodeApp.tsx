@@ -24,9 +24,9 @@ import { Location } from 'history';
 import { debounce, intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
+import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
@@ -35,7 +35,6 @@ import { Alert } from '../../../components/ui/Alert';
 import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
-import { fetchBranchStatus } from '../../../store/branches';
 import { BranchLike } from '../../../types/branch-like';
 import { isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Issue, Metric } from '../../../types/types';
@@ -52,19 +51,14 @@ import Components from './Components';
 import Search from './Search';
 import SourceViewerWrapper from './SourceViewerWrapper';
 
-interface DispatchToProps {
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
-}
-
-interface OwnProps {
+interface Props {
   branchLike?: BranchLike;
   component: Component;
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   location: Pick<Location, 'query'>;
   router: Pick<InjectedRouter, 'push'>;
   metrics: Dict<Metric>;
 }
-
-type Props = DispatchToProps & OwnProps;
 
 interface State {
   baseComponent?: ComponentMeasure;
@@ -404,8 +398,4 @@ const AlertContent = styled.div`
   align-items: center;
 `;
 
-const mapDispatchToProps: DispatchToProps = {
-  fetchBranchStatus: fetchBranchStatus as any
-};
-
-export default connect(null, mapDispatchToProps)(withMetricsContext(CodeApp));
+export default withBranchStatusActions(withMetricsContext(CodeApp));

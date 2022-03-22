@@ -17,16 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mockPullRequest } from '../../helpers/mocks/branch-like';
-import * as fromBranches from '../branches';
-import { getBranchStatusByBranchLike, Store } from '../rootReducer';
+import globalMessagesReducer, { MessageLevel } from '../globalMessages';
 
-it('correctly reduce state for branches', () => {
-  const spiedOn = jest.spyOn(fromBranches, 'getBranchStatusByBranchLike').mockReturnValueOnce({});
+describe('globalMessagesReducer', () => {
+  it('should handle ADD_GLOBAL_MESSAGE', () => {
+    const actionAttributes = { id: 'id', message: 'There was an error', level: MessageLevel.Error };
 
-  const branches = { byComponent: {} };
-  const component = 'foo';
-  const branchLike = mockPullRequest();
-  getBranchStatusByBranchLike({ branches } as Store, component, branchLike);
-  expect(spiedOn).toBeCalledWith(branches, component, branchLike);
+    expect(
+      globalMessagesReducer([], {
+        type: 'ADD_GLOBAL_MESSAGE',
+        ...actionAttributes
+      })
+    ).toEqual([actionAttributes]);
+  });
+
+  it('should handle CLOSE_GLOBAL_MESSAGE', () => {
+    const state = [
+      { id: 'm1', message: 'message 1', level: MessageLevel.Success },
+      { id: 'm2', message: 'message 2', level: MessageLevel.Success }
+    ];
+
+    expect(globalMessagesReducer(state, { type: 'CLOSE_GLOBAL_MESSAGE', id: 'm2' })).toEqual([
+      state[0]
+    ]);
+  });
 });

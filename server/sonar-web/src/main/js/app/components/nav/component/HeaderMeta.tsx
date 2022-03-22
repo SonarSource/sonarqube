@@ -86,7 +86,7 @@ export function HeaderMeta(props: HeaderMetaProps) {
               <DetachIcon className="little-spacer-left" size={12} />
             </a>
           )}
-          <BranchStatus branchLike={branchLike} component={component.key} />
+          <BranchStatus branchLike={branchLike} component={component} />
         </div>
       )}
     </>

@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import key from 'keymaster';
 import * as React from 'react';
+import { searchIssues } from '../../../../api/issues';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { KeyboardCodes, KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
@@ -36,10 +37,12 @@ import {
   mockIssue,
   mockLocation,
   mockLoggedInUser,
+  mockRawIssue,
   mockRouter
 } from '../../../../helpers/testMocks';
 import { KEYCODE_MAP, keydown, waitAndUpdate } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
+import { ReferencedComponent } from '../../../../types/issues';
 import { Issue, Paging } from '../../../../types/types';
 import {
   disableLocationsNavigator,
@@ -51,6 +54,7 @@ import {
 } from '../../actions';
 import BulkChangeModal from '../BulkChangeModal';
 import App from '../IssuesApp';
+import IssuesSourceViewer from '../IssuesSourceViewer';
 
 jest.mock('../../../../helpers/pages', () => ({
   addSideBarClass: jest.fn(),
@@ -82,6 +86,16 @@ jest.mock('keymaster', () => {
   return key;
 });
 
+jest.mock('../../../../api/issues', () => ({
+  searchIssues: jest.fn().mockResolvedValue({ facets: [], issues: [] })
+}));
+
+const RAW_ISSUES = [
+  mockRawIssue(false, { key: 'foo' }),
+  mockRawIssue(false, { key: 'bar' }),
+  mockRawIssue(true, { key: 'third' }),
+  mockRawIssue(false, { key: 'fourth' })
+];
 const ISSUES = [
   mockIssue(false, { key: 'foo' }),
   mockIssue(false, { key: 'bar' }),
@@ -91,7 +105,7 @@ const ISSUES = [
 const FACETS = [{ property: 'severities', values: [{ val: 'MINOR', count: 4 }] }];
 const PAGING = { pageIndex: 1, pageSize: 100, total: 4 };
 
-const referencedComponent = { key: 'foo-key', name: 'bar', uuid: 'foo-uuid' };
+const referencedComponent: ReferencedComponent = { key: 'foo-key', name: 'bar', uuid: 'foo-uuid' };
 
 const originalAddEventListener = window.addEventListener;
 const originalRemoveEventListener = window.removeEventListener;
@@ -103,6 +117,17 @@ beforeEach(() => {
   Object.defineProperty(window, 'removeEventListener', {
     value: jest.fn()
   });
+
+  (searchIssues as jest.Mock).mockResolvedValue({
+    components: [referencedComponent],
+    effortTotal: 1,
+    facets: FACETS,
+    issues: RAW_ISSUES,
+    languages: [],
+    paging: PAGING,
+    rules: [],
+    users: []
+  });
 });
 
 afterEach(() => {
@@ -112,6 +137,9 @@ afterEach(() => {
   Object.defineProperty(window, 'removeEventListener', {
     value: originalRemoveEventListener
   });
+
+  jest.clearAllMocks();
+  (searchIssues as jest.Mock).mockReset();
 });
 
 it('should show warnning when not all projects are accessible', () => {
@@ -205,11 +233,11 @@ it('should open standard facets for vulnerabilities and hotspots', () => {
 it('should switch to source view if an issue is selected', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find(IssuesSourceViewer).exists()).toBe(false);
 
   wrapper.setProps({ location: mockLocation({ query: { open: 'third' } }) });
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find(IssuesSourceViewer).exists()).toBe(true);
 });
 
 it('should correctly bind key events for issue navigation', async () => {
@@ -297,18 +325,18 @@ it('should be able to check all issue with global checkbox', async () => {
 });
 
 it('should check all issues, even the ones that are not visible', async () => {
-  const wrapper = shallowRender({
-    fetchIssues: jest.fn().mockResolvedValue({
-      components: [referencedComponent],
-      effortTotal: 1,
-      facets: FACETS,
-      issues: ISSUES,
-      languages: [],
-      paging: { pageIndex: 1, pageSize: 100, total: 250 },
-      rules: [],
-      users: []
-    })
+  (searchIssues as jest.Mock).mockResolvedValueOnce({
+    components: [referencedComponent],
+    effortTotal: 1,
+    facets: FACETS,
+    issues: ISSUES,
+    languages: [],
+    paging: { pageIndex: 1, pageSize: 100, total: 250 },
+    rules: [],
+    users: []
   });
+
+  const wrapper = shallowRender();
   const instance = wrapper.instance();
   await waitAndUpdate(wrapper);
 
@@ -319,18 +347,17 @@ it('should check all issues, even the ones that are not visible', async () => {
 });
 
 it('should check max 500 issues', async () => {
-  const wrapper = shallowRender({
-    fetchIssues: jest.fn().mockResolvedValue({
-      components: [referencedComponent],
-      effortTotal: 1,
-      facets: FACETS,
-      issues: ISSUES,
-      languages: [],
-      paging: { pageIndex: 1, pageSize: 100, total: 1000 },
-      rules: [],
-      users: []
-    })
+  (searchIssues as jest.Mock).mockResolvedValue({
+    components: [referencedComponent],
+    effortTotal: 1,
+    facets: FACETS,
+    issues: ISSUES,
+    languages: [],
+    paging: { pageIndex: 1, pageSize: 100, total: 1000 },
+    rules: [],
+    users: []
   });
+  const wrapper = shallowRender();
   const instance = wrapper.instance();
   await waitAndUpdate(wrapper);
 
@@ -342,8 +369,8 @@ it('should check max 500 issues', async () => {
 });
 
 it('should fetch issues for component', async () => {
+  (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
   const wrapper = shallowRender({
-    fetchIssues: fetchIssuesMockFactory(),
     location: mockLocation({
       query: { open: '0' }
     })
@@ -405,11 +432,12 @@ it('should correctly handle filter changes', () => {
 });
 
 it('should fetch issues until defined', async () => {
+  (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
+
   const mockDone = (_: Issue[], paging: Paging) =>
     paging.total <= paging.pageIndex * paging.pageSize;
 
   const wrapper = shallowRender({
-    fetchIssues: fetchIssuesMockFactory(),
     location: mockLocation({
       query: { open: '0' }
     })
@@ -488,9 +516,8 @@ describe('keyup event handler', () => {
 });
 
 it('should fetch more issues', async () => {
-  const wrapper = shallowRender({
-    fetchIssues: fetchIssuesMockFactory()
-  });
+  (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
+  const wrapper = shallowRender({});
   const instance = wrapper.instance();
   await waitAndUpdate(wrapper);
 
@@ -509,7 +536,7 @@ it('should refresh branch status if issues are updated', async () => {
 
   const updatedIssue: Issue = { ...ISSUES[0], type: 'SECURITY_HOTSPOT' };
   instance.handleIssueChange(updatedIssue);
-  expect(wrapper.state().issues).toEqual([updatedIssue, ISSUES[1], ISSUES[2], ISSUES[3]]);
+  expect(wrapper.state().issues[0].type).toEqual(updatedIssue.type);
   expect(fetchBranchStatus).toBeCalledWith(branchLike, component.key);
 
   fetchBranchStatus.mockClear();
@@ -530,9 +557,9 @@ it('should update the open issue when it is changed', async () => {
 });
 
 it('should handle createAfter query param with time', async () => {
-  const fetchIssues = fetchIssuesMockFactory();
+  (searchIssues as jest.Mock).mockImplementation(mockSearchIssuesResponse());
+
   const wrapper = shallowRender({
-    fetchIssues,
     location: mockLocation({ query: { createdAfter: '2020-10-21' } })
   });
   expect(wrapper.instance().createdAfterIncludesTime()).toBe(false);
@@ -541,23 +568,23 @@ it('should handle createAfter query param with time', async () => {
   wrapper.setProps({ location: mockLocation({ query: { createdAfter: '2020-10-21T17:21:00Z' } }) });
   expect(wrapper.instance().createdAfterIncludesTime()).toBe(true);
 
-  fetchIssues.mockClear();
+  (searchIssues as jest.Mock).mockClear();
 
   wrapper.instance().fetchIssues({});
-  expect(fetchIssues).toBeCalledWith(
+  expect(searchIssues).toBeCalledWith(
     expect.objectContaining({ createdAfter: '2020-10-21T17:21:00+0000' })
   );
 });
 
-function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {
-  return jest.fn().mockImplementation(({ p }: { p: number }) =>
+function mockSearchIssuesResponse(keyCount = 0, lineCount = 1) {
+  return ({ p = 1 }) =>
     Promise.resolve({
       components: [referencedComponent],
       effortTotal: 1,
       facets: FACETS,
       issues: [
-        mockIssue(false, {
-          key: '' + keyCount++,
+        mockRawIssue(false, {
+          key: `${keyCount++}`,
           textRange: {
             startLine: lineCount++,
             endLine: lineCount,
@@ -565,8 +592,8 @@ function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {
             endOffset: 15
           }
         }),
-        mockIssue(false, {
-          key: '' + keyCount++,
+        mockRawIssue(false, {
+          key: `${keyCount}`,
           textRange: {
             startLine: lineCount++,
             endLine: lineCount,
@@ -576,11 +603,10 @@ function fetchIssuesMockFactory(keyCount = 0, lineCount = 1) {
         })
       ],
       languages: [],
-      paging: { pageIndex: p || 1, pageSize: 2, total: 6 },
+      paging: { pageIndex: p, pageSize: 2, total: 6 },
       rules: [],
       users: []
-    })
-  );
+    });
 }
 
 function shallowRender(props: Partial<App['props']> = {}) {
@@ -594,16 +620,6 @@ function shallowRender(props: Partial<App['props']> = {}) {
       }}
       currentUser={mockLoggedInUser()}
       fetchBranchStatus={jest.fn()}
-      fetchIssues={jest.fn().mockResolvedValue({
-        components: [referencedComponent],
-        effortTotal: 1,
-        facets: FACETS,
-        issues: ISSUES,
-        languages: [],
-        paging: PAGING,
-        rules: [],
-        users: []
-      })}
       location={mockLocation({ pathname: '/issues', query: {} })}
       onBranchesChange={() => {}}
       router={mockRouter()}

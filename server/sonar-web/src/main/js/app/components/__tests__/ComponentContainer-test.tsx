@@ -144,10 +144,10 @@ it("doesn't load branches portfolio", async () => {
 });
 
 it('updates branches on change', async () => {
-  const registerBranchStatus = jest.fn();
+  const updateBranchStatus = jest.fn();
   const wrapper = shallowRender({
     location: mockLocation({ query: { id: 'portfolioKey' } }),
-    registerBranchStatus
+    updateBranchStatus
   });
   wrapper.setState({
     branchLikes: [mockMainBranch()],
@@ -160,7 +160,7 @@ it('updates branches on change', async () => {
   expect(getBranches).toBeCalledWith('projectKey');
   expect(getPullRequests).toBeCalledWith('projectKey');
   await waitAndUpdate(wrapper);
-  expect(registerBranchStatus).toBeCalledTimes(2);
+  expect(updateBranchStatus).toBeCalledTimes(2);
 });
 
 it('fetches status', async () => {
@@ -441,7 +441,7 @@ function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
     <ComponentContainer
       appState={mockAppState()}
       location={mockLocation({ query: { id: 'foo' } })}
-      registerBranchStatus={jest.fn()}
+      updateBranchStatus={jest.fn()}
       router={mockRouter()}
       {...props}>
       <Inner />

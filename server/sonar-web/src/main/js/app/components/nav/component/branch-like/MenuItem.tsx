@@ -58,7 +58,7 @@ export function MenuItem(props: MenuItemProps) {
           )}
         </div>
         <div className="spacer-left">
-          <BranchStatus branchLike={branchLike} component={component.key} />
+          <BranchStatus branchLike={branchLike} component={component} />
         </div>
       </div>
     </li>

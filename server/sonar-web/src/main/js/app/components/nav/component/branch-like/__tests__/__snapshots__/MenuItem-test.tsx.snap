@@ -36,7 +36,7 @@ exports[`should render a main branch correctly 1`] = `
     <div
       className="spacer-left"
     >
-      <Connect(BranchStatus)
+      <withBranchStatus(BranchStatus)
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -45,7 +45,28 @@ exports[`should render a main branch correctly 1`] = `
             "name": "master",
           }
         }
-        component="my-project"
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
       />
     </div>
   </div>
@@ -85,7 +106,7 @@ exports[`should render a non-main branch, indented and selected item correctly 1
     <div
       className="spacer-left"
     >
-      <Connect(BranchStatus)
+      <withBranchStatus(BranchStatus)
         branchLike={
           Object {
             "analysisDate": "2018-01-01",
@@ -96,7 +117,28 @@ exports[`should render a non-main branch, indented and selected item correctly 1
             "title": "Foo Bar feature",
           }
         }
-        component="my-project"
+        component={
+          Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          }
+        }
       />
     </div>
   </div>

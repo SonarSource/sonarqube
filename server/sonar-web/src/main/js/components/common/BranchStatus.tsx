@@ -18,21 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
+import withBranchStatus from '../../app/components/branch-status/withBranchStatus';
 import Level from '../../components/ui/Level';
-import { getBranchStatusByBranchLike, Store } from '../../store/rootReducer';
-import { BranchLike } from '../../types/branch-like';
+import { BranchStatusData } from '../../types/branch-like';
 
-interface ExposedProps {
-  branchLike: BranchLike;
-  component: string;
-}
+export type BranchStatusProps = Pick<BranchStatusData, 'status'>;
 
-interface BranchStatusProps {
-  status?: string;
-}
+export function BranchStatus(props: BranchStatusProps) {
+  const { status } = props;
 
-export function BranchStatus({ status }: BranchStatusProps) {
   if (!status) {
     return null;
   }
@@ -40,10 +34,4 @@ export function BranchStatus({ status }: BranchStatusProps) {
   return <Level level={status} small={true} />;
 }
 
-const mapStateToProps = (state: Store, props: ExposedProps) => {
-  const { branchLike, component } = props;
-  const { status } = getBranchStatusByBranchLike(state, component, branchLike);
-  return { status };
-};
-
-export default connect(mapStateToProps)(BranchStatus);
+export default withBranchStatus(BranchStatus);

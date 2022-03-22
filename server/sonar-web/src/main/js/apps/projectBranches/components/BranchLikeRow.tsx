@@ -58,7 +58,7 @@ export function BranchLikeRow(props: BranchLikeRowProps) {
         </span>
       </td>
       <td className="nowrap">
-        <BranchStatus branchLike={branchLike} component={component.key} />
+        <BranchStatus branchLike={branchLike} component={component} />
       </td>
       <td className="nowrap">{<DateFromNow date={branchLike.analysisDate} />}</td>
       {displayPurgeSetting && isBranch(branchLike) && (

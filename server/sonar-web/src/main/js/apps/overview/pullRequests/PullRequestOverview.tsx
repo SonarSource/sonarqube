@@ -20,20 +20,19 @@
 import classNames from 'classnames';
 import { differenceBy, uniq } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getMeasuresWithMetrics } from '../../../api/measures';
+import { BranchStatusContextInterface } from '../../../app/components/branch-status/BranchStatusContext';
+import withBranchStatus from '../../../app/components/branch-status/withBranchStatus';
+import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { fetchBranchStatus } from '../../../store/branches';
-import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
-import { BranchLike, PullRequest } from '../../../types/branch-like';
+import { BranchStatusData, PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
-import { QualityGateStatusCondition } from '../../../types/quality-gates';
-import { Component, MeasureEnhanced, Status } from '../../../types/types';
+import { Component, MeasureEnhanced } from '../../../types/types';
 import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
 import MeasurementLabel from '../components/MeasurementLabel';
@@ -44,22 +43,10 @@ import { MeasurementType, PR_METRICS } from '../utils';
 import AfterMergeEstimate from './AfterMergeEstimate';
 import LargeQualityGateBadge from './LargeQualityGateBadge';
 
-interface StateProps {
-  conditions?: QualityGateStatusCondition[];
-  ignoredConditions?: boolean;
-  status?: Status;
-}
-
-interface DispatchProps {
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => void;
-}
-
-interface OwnProps {
+interface Props extends BranchStatusData, Pick<BranchStatusContextInterface, 'fetchBranchStatus'> {
   branchLike: PullRequest;
   component: Component;
 }
-
-type Props = StateProps & DispatchProps & OwnProps;
 
 interface State {
   loading: boolean;
@@ -281,18 +268,4 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
   }
 }
 
-const mapStateToProps = (state: Store, { branchLike, component }: Props) => {
-  const { conditions, ignoredConditions, status } = getBranchStatusByBranchLike(
-    state,
-    component.key,
-    branchLike
-  );
-  return { conditions, ignoredConditions, status };
-};
-
-const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
-
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(PullRequestOverview);
+export default withBranchStatus(withBranchStatusActions(PullRequestOverview));

@@ -22,10 +22,10 @@ import key from 'keymaster';
 import { debounce, keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
+import withBranchStatusActions from '../../../app/components/branch-status/withBranchStatusActions';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
@@ -44,7 +44,6 @@ import {
   removeSideBarClass,
   removeWhitePageClass
 } from '../../../helpers/pages';
-import { fetchBranchStatus } from '../../../store/branches';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import {
@@ -354,11 +353,9 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
-
 const AlertContent = styled.div`
   display: flex;
   align-items: center;
 `;
 
-export default withRouter(connect(null, mapDispatchToProps)(App));
+export default withRouter(withBranchStatusActions(App));

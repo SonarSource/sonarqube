@@ -21,9 +21,9 @@ import { Location } from 'history';
 import key from 'keymaster';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
+import withBranchStatusActions from '../../app/components/branch-status/withBranchStatusActions';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { Router } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
@@ -31,7 +31,6 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpe
 import { KeyboardCodes, KeyboardKeys } from '../../helpers/keycodes';
 import { scrollToElement } from '../../helpers/scrolling';
 import { getStandards } from '../../helpers/security-standard';
-import { fetchBranchStatus } from '../../store/branches';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard, Standards } from '../../types/security';
 import {
@@ -547,6 +546,4 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 }
 
-const mapDispatchToProps = { fetchBranchStatus };
-
-export default withCurrentUserContext(connect(null, mapDispatchToProps)(SecurityHotspotsApp));
+export default withCurrentUserContext(withBranchStatusActions(SecurityHotspotsApp));
