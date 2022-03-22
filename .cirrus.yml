@@ -33,8 +33,7 @@ only_default_depending_on_build_template: &ONLY_DEFAUT_DEPENDING_ON_BUILD_TEMPLA
   only_if: >-
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
            $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_BRANCH != "branch-nightly-build" &&
-           $CIRRUS_CRON == ""
+           $CIRRUS_BRANCH != "branch-nightly-build"
 
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
@@ -95,8 +94,7 @@ build_task:
   <<: *NODE_MODULES_CACHE_TEMPLATE
   only_if: >-
            $CIRRUS_BRANCH !=~ "dogfood/.*" &&
-           $CIRRUS_BRANCH != "public_master" &&
-           $CIRRUS_CRON == ""
+           $CIRRUS_BRANCH != "public_master"
   timeout_in: 90m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
@@ -480,12 +478,10 @@ upgd_oracle12_task:
     <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 ws_scan_task:
-  only_if: >-
-    $CIRRUS_CRON == "nightly" ||
-    $CIRRUS_CRON == "weekly-latest" ||
-    $CIRRUS_CRON == "weekly-lts" ||
-    changesInclude('private/cirrus/cirrus-whitesource-scan.sh')
   depends_on: build
+  only_if: >-
+    $CIRRUS_BRANCH == 'master' ||
+    $CIRRUS_BRANCH =~ 'branch.*'
   timeout_in: 30m
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
