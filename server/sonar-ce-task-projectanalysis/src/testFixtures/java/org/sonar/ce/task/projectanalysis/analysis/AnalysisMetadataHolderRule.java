@@ -47,6 +47,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
+  private final InitializedProperty<String> newCodeReferenceBranch = new InitializedProperty<>();
 
   @Override
   public AnalysisMetadataHolderRule setUuid(String s) {
@@ -194,11 +195,26 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
+  public MutableAnalysisMetadataHolder setNewCodeReferenceBranch(String newCodeReferenceBranch) {
+    checkState(!this.newCodeReferenceBranch.isInitialized(), "ScmRevisionId has already been set");
+    this.newCodeReferenceBranch.setProperty(defaultIfBlank(newCodeReferenceBranch, null));
+    return this;
+  }
+
+  @Override
   public Optional<String> getScmRevision() {
     if (!scmRevision.isInitialized()) {
       return Optional.empty();
     }
     return Optional.ofNullable(scmRevision.getProperty());
+  }
+
+  @Override
+  public Optional<String> getNewCodeReferenceBranch() {
+    if (!newCodeReferenceBranch.isInitialized()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(newCodeReferenceBranch.getProperty());
   }
 
   @Override

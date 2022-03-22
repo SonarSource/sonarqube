@@ -27,6 +27,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -39,6 +40,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -62,8 +64,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
@@ -80,14 +84,15 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
-  private System2 system2Mock = mock(System2.class);
-  private NewCodePeriodDao dao = new NewCodePeriodDao(system2Mock, new SequenceUuidFactory());
-  private NewCodePeriodResolver newCodePeriodResolver = new NewCodePeriodResolver(dbTester.getDbClient(), analysisMetadataHolder);
-  private ZonedDateTime analysisDate = ZonedDateTime.of(2019, 3, 20, 5, 30, 40, 0, ZoneId.systemDefault());
-
-  private LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver);
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private final PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
+  private final System2 system2Mock = mock(System2.class);
+  private final NewCodePeriodDao dao = new NewCodePeriodDao(system2Mock, new SequenceUuidFactory());
+  private final NewCodePeriodResolver newCodePeriodResolver = new NewCodePeriodResolver(dbTester.getDbClient(), analysisMetadataHolder);
+  private final ZonedDateTime analysisDate = ZonedDateTime.of(2019, 3, 20, 5, 30, 40, 0, ZoneId.systemDefault());
+  private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
+  private final LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver,
+    ceTaskMessages, system2Mock);
 
   private ComponentDto project;
 
@@ -115,6 +120,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     verify(analysisMetadataHolder).isFirstAnalysis();
     verify(analysisMetadataHolder).isBranch();
     verify(analysisMetadataHolder).getProject();
+    verify(analysisMetadataHolder).getNewCodeReferenceBranch();
     assertThat(periodsHolder.hasPeriod()).isFalse();
     verifyNoMoreInteractions(analysisMetadataHolder);
   }
@@ -166,6 +172,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setBranchPeriod(project.uuid(), branch.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "10");
 
     testNumberOfDays(branch);
+    verifyNoInteractions(ceTaskMessages);
   }
 
   @Test
@@ -177,6 +184,50 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
     assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", null);
+    verifyNoInteractions(ceTaskMessages);
+  }
+
+  @Test
+  public void add_analysis_warning_if_scanner_defines_reference_when_branch_setting_also_defines_reference() {
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    setupRoot(branch);
+
+    setBranchPeriod(project.uuid(), branch.uuid(), NewCodePeriodType.REFERENCE_BRANCH, "master");
+
+    String newCodeReferenceBranch = "newCodeReferenceBranch";
+    when(analysisMetadataHolder.getNewCodeReferenceBranch()).thenReturn(Optional.of(newCodeReferenceBranch));
+
+    underTest.execute(new TestComputationStepContext());
+    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, newCodeReferenceBranch, null);
+    verify(ceTaskMessages).add(any(CeTaskMessages.Message.class));
+  }
+
+  @Test
+  public void scanner_defines_new_code_reference_branch() {
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    setupRoot(branch);
+
+    String newCodeReferenceBranch = "newCodeReferenceBranch";
+    when(analysisMetadataHolder.getNewCodeReferenceBranch()).thenReturn(Optional.of(newCodeReferenceBranch));
+
+    underTest.execute(new TestComputationStepContext());
+    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, newCodeReferenceBranch, null);
+    verifyNoInteractions(ceTaskMessages);
+  }
+
+  @Test
+  public void scanner_overrides_new_code_reference_branch() {
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    setupRoot(branch);
+
+    setProjectPeriod(project.uuid(), NewCodePeriodType.REFERENCE_BRANCH, "master");
+
+    String newCodeReferenceBranch = "newCodeReferenceBranch";
+    when(analysisMetadataHolder.getNewCodeReferenceBranch()).thenReturn(Optional.of(newCodeReferenceBranch));
+
+    underTest.execute(new TestComputationStepContext());
+    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, newCodeReferenceBranch, null);
+    verify(ceTaskMessages).add(any(CeTaskMessages.Message.class));
   }
 
   @Test
@@ -188,6 +239,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     underTest.execute(new TestComputationStepContext());
     assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", null);
+    verifyNoInteractions(ceTaskMessages);
   }
 
   private void testNumberOfDays(ComponentDto projectOrBranch) {
@@ -217,6 +269,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     assertPeriod(NewCodePeriodType.SPECIFIC_ANALYSIS, selectedAnalysis.getUuid(), selectedAnalysis.getCreatedAt());
     verifyDebugLogs("Resolving new code period with a specific analysis");
+    verifyNoInteractions(ceTaskMessages);
   }
 
   @Test

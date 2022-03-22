@@ -49,7 +49,6 @@ public class AnalysisMetadataHolderImplTest {
     .build();
   private static final long SOME_DATE = 10000000L;
 
-
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
 
@@ -75,6 +74,32 @@ public class AnalysisMetadataHolderImplTest {
     underTest.setAnalysisDate(SOME_DATE);
 
     assertThat(underTest.getAnalysisDate()).isEqualTo(SOME_DATE);
+  }
+
+  @Test
+  public void get_new_code_reference_branch() {
+
+    String newCodeReferenceBranch = "newCodeReferenceBranch";
+    underTest.setNewCodeReferenceBranch(newCodeReferenceBranch);
+
+    assertThat(underTest.getNewCodeReferenceBranch()).hasValue(newCodeReferenceBranch);
+  }
+
+  @Test
+  public void get_new_code_reference_branch_return_empty_when_holder_is_not_initialized() {
+
+    assertThat(underTest.getNewCodeReferenceBranch()).isEmpty();
+  }
+
+  @Test
+  public void set_new_code_reference_branch_throws_ISE_when_called_twice() {
+
+    String newCodeReferenceBranch = "newCodeReferenceBranch";
+    underTest.setNewCodeReferenceBranch(newCodeReferenceBranch);
+
+    assertThatThrownBy(() -> underTest.setNewCodeReferenceBranch(newCodeReferenceBranch))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("newCodeReferenceBranch has already been set");
   }
 
   @Test
@@ -338,7 +363,7 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setRootComponentRef(10);
 
-    assertThatThrownBy(() ->  underTest.setRootComponentRef(9))
+    assertThatThrownBy(() -> underTest.setRootComponentRef(9))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Root component ref has already been set");
   }
@@ -359,7 +384,7 @@ public class AnalysisMetadataHolderImplTest {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setScmRevision("bd56dab");
 
-    assertThatThrownBy(() ->  underTest.setScmRevision("bd56dab"))
+    assertThatThrownBy(() -> underTest.setScmRevision("bd56dab"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("ScmRevision has already been set");
   }

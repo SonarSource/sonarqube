@@ -104,6 +104,19 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
+  public void set_new_code_reference_branch() {
+    String newCodeReferenceBranch = "newCodeReferenceBranch";
+    reportReader.setMetadata(
+      newBatchReportBuilder()
+        .setNewCodeReferenceBranch(newCodeReferenceBranch)
+        .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(analysisMetadataHolder.getNewCodeReferenceBranch()).hasValue(newCodeReferenceBranch);
+  }
+
+  @Test
   public void set_project_from_dto() {
     reportReader.setMetadata(
       newBatchReportBuilder()

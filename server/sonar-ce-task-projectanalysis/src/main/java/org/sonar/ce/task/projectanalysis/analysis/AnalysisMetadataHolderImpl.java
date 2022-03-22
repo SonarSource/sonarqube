@@ -48,6 +48,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
+  private final InitializedProperty<String> newCodeReferenceBranch = new InitializedProperty<>();
 
   private final PlatformEditionProvider editionProvider;
 
@@ -210,11 +211,27 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
+  public MutableAnalysisMetadataHolder setNewCodeReferenceBranch(String newCodeReferenceBranch) {
+    checkState(!this.newCodeReferenceBranch.isInitialized(), "newCodeReferenceBranch has already been set");
+    requireNonNull(newCodeReferenceBranch, "newCodeReferenceBranch can't be null");
+    this.newCodeReferenceBranch.setProperty(newCodeReferenceBranch);
+    return this;
+  }
+
+  @Override
   public Optional<String> getScmRevision() {
     if (!scmRevision.isInitialized()) {
       return Optional.empty();
     }
     return Optional.ofNullable(scmRevision.getProperty());
+  }
+
+  @Override
+  public Optional<String> getNewCodeReferenceBranch() {
+    if (!newCodeReferenceBranch.isInitialized()) {
+      return Optional.empty();
+    }
+    return Optional.of(newCodeReferenceBranch.getProperty());
   }
 
   @Override

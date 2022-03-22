@@ -80,6 +80,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     analysisMetadata.setRootComponentRef(reportMetadata.getRootComponentRef());
     analysisMetadata.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
     analysisMetadata.setScmRevision(reportMetadata.getScmRevisionId());
+    analysisMetadata.setNewCodeReferenceBranch(reportMetadata.getNewCodeReferenceBranch());
   }
 
   /**

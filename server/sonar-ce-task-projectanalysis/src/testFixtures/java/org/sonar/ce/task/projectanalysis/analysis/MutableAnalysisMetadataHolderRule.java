@@ -165,9 +165,18 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     return this;
   }
 
+  @Override public MutableAnalysisMetadataHolder setNewCodeReferenceBranch(String newCodeReferenceBranch) {
+    delegate.setNewCodeReferenceBranch(newCodeReferenceBranch);
+    return this;
+  }
+
   @Override
   public Optional<String> getScmRevision() {
     return delegate.getScmRevision();
+  }
+
+  @Override public Optional<String> getNewCodeReferenceBranch() {
+    return delegate.getNewCodeReferenceBranch();
   }
 
   @Override

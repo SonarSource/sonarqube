@@ -124,4 +124,9 @@ public interface AnalysisMetadataHolder {
    * Scm Revision of the analysed code
    */
   Optional<String> getScmRevision();
+
+  /**
+   * Reference branch for the new code period, set by scanner parameter sonar.newCode.referenceBranch
+   */
+  Optional<String> getNewCodeReferenceBranch();
 }
