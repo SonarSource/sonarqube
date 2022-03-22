@@ -20,6 +20,7 @@
 package org.sonar.scanner.phases;
 
 import java.io.File;
+import java.nio.file.LinkOption;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class ProjectCoverageExclusionsTest {
 
   @Before
   public void prepare() throws Exception {
-    baseDir = temp.newFolder();
+    baseDir = temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
   }
 
   @Test
