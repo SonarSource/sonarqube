@@ -20,6 +20,7 @@
 package org.sonar.server.es;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -47,7 +48,9 @@ public class Facets {
 
   public static final String SELECTED_SUB_AGG_NAME_SUFFIX = "_selected";
   public static final String TOTAL = "total";
-  private static final java.lang.String NO_DATA_PREFIX = "no_data_";
+  private static final String NO_DATA_PREFIX = "no_data_";
+  private static final String FILTER_SUFFIX = "_filter";
+  private static final String FILTER_BY_RULE_PREFIX = "filter_by_rule_types_";
 
   private final LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName;
   private final ZoneId timeZone;
@@ -122,14 +125,32 @@ public class Facets {
     if (Filter.class.isAssignableFrom(aggregation.getClass())) {
       Filter filter = (Filter) aggregation;
       if (filter.getName().startsWith(NO_DATA_PREFIX)) {
-        LinkedHashMap<String, Long> facet = getOrCreateFacet(filter.getName().replaceFirst(NO_DATA_PREFIX,""));
+        LinkedHashMap<String, Long> facet = getOrCreateFacet(filter.getName().replaceFirst(NO_DATA_PREFIX, ""));
         facet.put("NO_DATA", ((Filter) aggregation).getDocCount());
       }
     }
 
-    for (Aggregation sub : aggregation.getAggregations()) {
+    for (Aggregation sub : getOrderedAggregations(aggregation)) {
       processAggregation(sub);
     }
+  }
+
+  private static List<Aggregation> getOrderedAggregations(HasAggregations topAggregation) {
+    String topAggregationName = ((Aggregation) topAggregation).getName();
+    List<Aggregation> orderedAggregations = new ArrayList<>();
+    for (Aggregation aggregation : topAggregation.getAggregations()) {
+      if (isNameMatchingTopAggregation(topAggregationName, aggregation.getName())) {
+        orderedAggregations.add(0, aggregation);
+      } else {
+        orderedAggregations.add(aggregation);
+      }
+    }
+    return orderedAggregations;
+  }
+
+  private static boolean isNameMatchingTopAggregation(String topAggregationName, String aggregationName) {
+    return aggregationName.equals(topAggregationName) ||
+      aggregationName.equals(FILTER_BY_RULE_PREFIX + topAggregationName.replace(FILTER_SUFFIX, ""));
   }
 
   private void processDateHistogram(Histogram aggregation) {

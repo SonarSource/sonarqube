@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
@@ -64,6 +65,8 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
+import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -194,7 +197,39 @@ public class IssueIndexFacetsTest {
       newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10(singletonList("a3")),
       newDoc("I3", file));
 
-    assertThatFacetHasOnly(IssueQuery.builder(), "owaspTop10",
+    assertThatFacetHasOnly(IssueQuery.builder(), Y2017.prefix(),
+      entry("a1", 1L),
+      entry("a2", 1L),
+      entry("a3", 1L));
+  }
+
+  @Test
+  public void facets_on_owaspTop10_2021() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(singletonList("a3")),
+      newDoc("I3", file));
+
+    assertThatFacetHasExactly(IssueQuery.builder(), Y2021.prefix(),
+      entry("a1", 1L),
+      entry("a2", 1L),
+      entry("a3", 1L));
+  }
+
+  @Test
+  public void facets_on_owaspTop10_2021_stay_ordered() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(asList("a1", "a2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10For2021(singletonList("a3")),
+      newDoc("I3", file));
+
+    assertThatFacetHasExactly(IssueQuery.builder().owaspTop10For2021(Collections.singletonList("a3")), Y2021.prefix(),
       entry("a1", 1L),
       entry("a2", 1L),
       entry("a3", 1L));
