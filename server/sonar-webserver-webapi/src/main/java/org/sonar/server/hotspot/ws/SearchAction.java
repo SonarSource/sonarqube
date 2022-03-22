@@ -109,7 +109,8 @@ public class SearchAction implements HotspotsWsAction {
   private static final String PARAM_PULL_REQUEST = "pullRequest";
   private static final String PARAM_SINCE_LEAK_PERIOD = "sinceLeakPeriod";
   private static final String PARAM_ONLY_MINE = "onlyMine";
-  private static final String PARAM_OWASP_TOP_10 = "owaspTop10";
+  private static final String PARAM_OWASP_TOP_10_2017 = "owaspTop10";
+  private static final String PARAM_OWASP_TOP_10_2021 = "owaspTop10-2021";
   private static final String PARAM_SANS_TOP_25 = "sansTop25";
   private static final String PARAM_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   private static final String PARAM_CWE = "cwe";
@@ -143,7 +144,8 @@ public class SearchAction implements HotspotsWsAction {
 
   private static WsRequest toWsRequest(Request request) {
     Set<String> hotspotKeys = setFromList(request.paramAsStrings(PARAM_HOTSPOTS));
-    Set<String> owaspTop10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10));
+    Set<String> owasp2017Top10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10_2017));
+    Set<String> owasp2021Top10 = setFromList(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     Set<String> sansTop25 = setFromList(request.paramAsStrings(PARAM_SANS_TOP_25));
     Set<String> sonarsourceSecurity = setFromList(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
     Set<String> cwes = setFromList(request.paramAsStrings(PARAM_CWE));
@@ -152,8 +154,8 @@ public class SearchAction implements HotspotsWsAction {
     return new WsRequest(
       request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
-      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owaspTop10, sansTop25, sonarsourceSecurity, cwes,
-      files);
+      request.paramAsBoolean(PARAM_SINCE_LEAK_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), owasp2017Top10, owasp2021Top10, sansTop25,
+      sonarsourceSecurity, cwes, files);
   }
 
   @Override
@@ -227,9 +229,13 @@ public class SearchAction implements HotspotsWsAction {
       .setDescription("If 'projectKey' is provided, returns only Security Hotspots assigned to the current user")
       .setBooleanPossibleValues()
       .setRequired(false);
-    action.createParam(PARAM_OWASP_TOP_10)
-      .setDescription("Comma-separated list of OWASP Top 10 lowercase categories.")
+    action.createParam(PARAM_OWASP_TOP_10_2017)
+      .setDescription("Comma-separated list of OWASP 2017 Top 10 lowercase categories.")
       .setSince("8.6")
+      .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
+    action.createParam(PARAM_OWASP_TOP_10_2021)
+      .setDescription("Comma-separated list of OWASP 2021 Top 10 lowercase categories.")
+      .setSince("9.4")
       .setPossibleValues("a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10");
     action.createParam(PARAM_SANS_TOP_25)
       .setDescription("Comma-separated list of SANS Top 25 categories.")
@@ -388,8 +394,11 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private static void addSecurityStandardFilters(WsRequest wsRequest, IssueQuery.Builder builder) {
-    if (!wsRequest.getOwaspTop10().isEmpty()) {
-      builder.owaspTop10(wsRequest.getOwaspTop10());
+    if (!wsRequest.getOwaspTop10For2017().isEmpty()) {
+      builder.owaspTop10(wsRequest.getOwaspTop10For2017());
+    }
+    if (!wsRequest.getOwaspTop10For2021().isEmpty()) {
+      builder.owaspTop10For2021(wsRequest.getOwaspTop10For2021());
     }
     if (!wsRequest.getSansTop25().isEmpty()) {
       builder.sansTop25(wsRequest.getSansTop25());
@@ -605,7 +614,8 @@ public class SearchAction implements HotspotsWsAction {
     private final String resolution;
     private final boolean sinceLeakPeriod;
     private final boolean onlyMine;
-    private final Set<String> owaspTop10;
+    private final Set<String> owaspTop10For2017;
+    private final Set<String> owaspTop10For2021;
     private final Set<String> sansTop25;
     private final Set<String> sonarsourceSecurity;
     private final Set<String> cwe;
@@ -615,7 +625,7 @@ public class SearchAction implements HotspotsWsAction {
       @Nullable String projectKey, @Nullable String branch, @Nullable String pullRequest,
       Set<String> hotspotKeys,
       @Nullable String status, @Nullable String resolution, @Nullable Boolean sinceLeakPeriod,
-      @Nullable Boolean onlyMine, Set<String> owaspTop10, Set<String> sansTop25, Set<String> sonarsourceSecurity,
+      @Nullable Boolean onlyMine, Set<String> owaspTop10For2017, Set<String> owaspTop10For2021, Set<String> sansTop25, Set<String> sonarsourceSecurity,
       Set<String> cwe, @Nullable Set<String> files) {
       this.page = page;
       this.index = index;
@@ -627,7 +637,8 @@ public class SearchAction implements HotspotsWsAction {
       this.resolution = resolution;
       this.sinceLeakPeriod = sinceLeakPeriod != null && sinceLeakPeriod;
       this.onlyMine = onlyMine != null && onlyMine;
-      this.owaspTop10 = owaspTop10;
+      this.owaspTop10For2017 = owaspTop10For2017;
+      this.owaspTop10For2021 = owaspTop10For2021;
       this.sansTop25 = sansTop25;
       this.sonarsourceSecurity = sonarsourceSecurity;
       this.cwe = cwe;
@@ -674,8 +685,12 @@ public class SearchAction implements HotspotsWsAction {
       return onlyMine;
     }
 
-    public Set<String> getOwaspTop10() {
-      return owaspTop10;
+    public Set<String> getOwaspTop10For2017() {
+      return owaspTop10For2017;
+    }
+
+    public Set<String> getOwaspTop10For2021() {
+      return owaspTop10For2021;
     }
 
     public Set<String> getSansTop25() {
