@@ -22,6 +22,7 @@ package org.sonar.scm.git;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,7 +73,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void testBlame() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
     JGitBlameCommand jGitBlameCommand = newJGitBlameCommand();
@@ -114,7 +115,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void properFailureIfNotAGitProject() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
     JGitBlameCommand jGitBlameCommand = newJGitBlameCommand();
@@ -139,7 +140,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void testBlameOnNestedModule() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("dummy-git-nested.zip", projectDir);
 
     JGitBlameCommand jGitBlameCommand = newJGitBlameCommand();
@@ -191,7 +192,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void dontFailOnModifiedFile() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
     JGitBlameCommand jGitBlameCommand = newJGitBlameCommand();
@@ -214,7 +215,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void dontFailOnNewFile() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
     JGitBlameCommand jGitBlameCommand = newJGitBlameCommand();
@@ -271,7 +272,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void return_early_when_shallow_clone_detected() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("shallow-git.zip", projectDir);
 
     File baseDir = new File(projectDir, "shallow-git");
@@ -297,7 +298,7 @@ public class JGitBlameCommandTest {
 
   @Test
   public void return_early_when_clone_with_reference_detected() throws IOException {
-    File projectDir = temp.newFolder();
+    File projectDir = createNewTempFolder();
     javaUnzip("dummy-git-reference-clone.zip", projectDir);
 
     Path baseDir = projectDir.toPath().resolve("dummy-git2");
@@ -322,6 +323,11 @@ public class JGitBlameCommandTest {
     assertThat(output.blame.get(inputFile).stream().map(BlameLine::revision))
       .containsOnly("6b3aab35a3ea32c1636fee56f996e677653c48ea", "843c7c30d7ebd9a479e8f1daead91036c75cbc4e", "0d269c1acfb8e6d4d33f3c43041eb87e0df0f5e7");
     verifyZeroInteractions(analysisWarnings);
+  }
+
+  private File createNewTempFolder() throws IOException {
+    //This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
+    return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
   }
 
   private JGitBlameCommand newJGitBlameCommand() {
