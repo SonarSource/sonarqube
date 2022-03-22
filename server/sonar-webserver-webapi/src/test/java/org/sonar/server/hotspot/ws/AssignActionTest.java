@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +59,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,8 +70,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUSES;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -334,12 +340,15 @@ public class AssignActionTest {
   }
 
   @Test
-  @UseDataProvider("allIssueStatusesExceptToReviewAndClosed")
-  public void fail_if_assign_user_to_hotspot_for_OTHER_STATUSES_for_public_project(String status) {
+  @UseDataProvider("allIssueStatusesAndResolutionsThatThrowOnAssign")
+  public void fail_if_assign_user_to_hotspot_for_which_it_is_forbidden(String status, String resolution) {
     ComponentDto project = dbTester.components().insertPublicProject();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> {
+      h.setStatus(status);
+      h.setResolution(resolution);
+    });
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -347,32 +356,42 @@ public class AssignActionTest {
     String login = userSessionRule.getLogin();
     assertThatThrownBy(() -> executeRequest(hotspot, login, null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Assignee can only be changed on Security Hotspots with status 'TO_REVIEW'");
-  }
-
-  @Test
-  @UseDataProvider("allIssueStatusesExceptToReviewAndClosed")
-  public void fail_if_assign_user_to_hotspot_for_OTHER_STATUSES_for_private_project(String status) {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status));
-
-    UserDto userDto = insertUser(randomAlphanumeric(10));
-    userSessionRule.logIn(userDto).registerComponents(project);
-
-    String login = userSessionRule.getLogin();
-    assertThatThrownBy(() -> executeRequest(hotspot, login, null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Assignee can only be changed on Security Hotspots with status 'TO_REVIEW'");
+      .hasMessage("Cannot change the assignee of this hotspot given its current status and resolution");
   }
 
   @DataProvider
-  public static Object[][] allIssueStatusesExceptToReviewAndClosed() {
+  public static Object[][] allIssueStatusesAndResolutionsThatThrowOnAssign() {
     return STATUSES.stream()
       .filter(status -> !STATUS_TO_REVIEW.equals(status))
       .filter(status -> !STATUS_CLOSED.equals(status))
-      .map(status -> new Object[] {status})
+      .flatMap(status -> Arrays.stream(new Object[] {RESOLUTION_SAFE, RESOLUTION_FIXED})
+        .map(resolution -> new Object[] {status, resolution}))
       .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("allIssueStatusesAndResolutionsThatDoNotThrowOnAssign")
+  public void fail_if_assign_user_to_hotspot_for_which_it_is_allowed(String status, String resolution) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> {
+      h.setStatus(status);
+      h.setResolution(resolution);
+    });
+
+    UserDto userDto = insertUser(randomAlphanumeric(10));
+    userSessionRule.logIn(userDto).registerComponents(project);
+
+    String login = userSessionRule.getLogin();
+    assertThatNoException().isThrownBy(() -> executeRequest(hotspot, login, null));
+  }
+
+  @DataProvider
+  public static Object[][] allIssueStatusesAndResolutionsThatDoNotThrowOnAssign() {
+    return new Object[][] {
+      new Object[] {STATUS_TO_REVIEW, null},
+      new Object[] {STATUS_REVIEWED, RESOLUTION_ACKNOWLEDGED}
+    };
   }
 
   @Test

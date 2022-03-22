@@ -24,7 +24,7 @@ import addGlobalSuccessMessage from '../../../../../app/utils/addGlobalSuccessMe
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
-import { HotspotStatus } from '../../../../../types/security-hotspots';
+import { HotspotResolution, HotspotStatus } from '../../../../../types/security-hotspots';
 import { UserActive } from '../../../../../types/users';
 import { Assignee } from '../Assignee';
 import AssigneeRenderer from '../AssigneeRenderer';
@@ -37,9 +37,19 @@ jest.mock('../../../../../app/utils/addGlobalSuccessMessage', () => jest.fn());
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it.each([
+  [HotspotStatus.TO_REVIEW, undefined, true],
+  [HotspotStatus.REVIEWED, HotspotResolution.FIXED, false],
+  [HotspotStatus.REVIEWED, HotspotResolution.SAFE, false],
+  [HotspotStatus.REVIEWED, HotspotResolution.ACKNOWLEDGED, true]
+])('should allow edition properly', (status, resolution, canEdit) => {
   expect(
-    shallowRender({ hotspot: mockHotspot({ status: HotspotStatus.TO_REVIEW }) })
-  ).toMatchSnapshot('can edit');
+    shallowRender({ hotspot: mockHotspot({ status, resolution }) })
+      .find(AssigneeRenderer)
+      .props().canEdit
+  ).toBe(canEdit);
 });
 
 it('should handle edition event correctly', () => {

@@ -18,22 +18,3 @@ exports[`should render correctly 1`] = `
   onExitEditionMode={[Function]}
 />
 `;
-
-exports[`should render correctly: can edit 1`] = `
-<AssigneeRenderer
-  assignee={
-    Object {
-      "active": true,
-      "local": true,
-      "login": "assignee",
-      "name": "John Doe",
-    }
-  }
-  canEdit={true}
-  editing={false}
-  loading={false}
-  onAssign={[Function]}
-  onEnterEditionMode={[Function]}
-  onExitEditionMode={[Function]}
-/>
-`;

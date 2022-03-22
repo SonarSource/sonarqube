@@ -22,7 +22,7 @@ import { assignSecurityHotspot } from '../../../../api/security-hotspots';
 import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
 import addGlobalSuccessMessage from '../../../../app/utils/addGlobalSuccessMessage';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { Hotspot, HotspotStatus } from '../../../../types/security-hotspots';
+import { Hotspot, HotspotResolution, HotspotStatus } from '../../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn, UserActive } from '../../../../types/users';
 import AssigneeRenderer from './AssigneeRenderer';
 
@@ -85,11 +85,12 @@ export class Assignee extends React.PureComponent<Props, State> {
   render() {
     const {
       currentUser,
-      hotspot: { assigneeUser, status }
+      hotspot: { assigneeUser, status, resolution }
     } = this.props;
     const { editing, loading } = this.state;
 
-    const canEdit = status === HotspotStatus.TO_REVIEW;
+    const canEdit =
+      status === HotspotStatus.TO_REVIEW || resolution === HotspotResolution.ACKNOWLEDGED;
 
     return (
       <AssigneeRenderer

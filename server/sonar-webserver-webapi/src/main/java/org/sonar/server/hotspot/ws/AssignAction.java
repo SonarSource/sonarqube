@@ -37,6 +37,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.ws.IssueUpdater;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -102,9 +103,9 @@ public class AssignAction implements HotspotsWsAction {
 
       IssueDto hotspotDto = hotspotWsSupport.loadHotspot(dbSession, hotspotKey);
 
-      checkIfHotspotToReview(hotspotDto);
+      checkHotspotStatusAndResolution(hotspotDto);
       hotspotWsSupport.loadAndCheckProject(dbSession, hotspotDto, UserRole.USER);
-      UserDto assignee = isNullOrEmpty(login) ? null :getAssignee(dbSession, login);
+      UserDto assignee = isNullOrEmpty(login) ? null : getAssignee(dbSession, login);
 
       IssueChangeContext context = hotspotWsSupport.newIssueChangeContext();
 
@@ -124,9 +125,9 @@ public class AssignAction implements HotspotsWsAction {
     }
   }
 
-  private static void checkIfHotspotToReview(IssueDto hotspotDto) {
-    if (!STATUS_TO_REVIEW.equals(hotspotDto.getStatus())) {
-      throw new IllegalArgumentException(String.format("Assignee can only be changed on Security Hotspots with status '%s'", STATUS_TO_REVIEW));
+  private static void checkHotspotStatusAndResolution(IssueDto hotspotDto) {
+    if (!STATUS_TO_REVIEW.equals(hotspotDto.getStatus()) && !RESOLUTION_ACKNOWLEDGED.equals(hotspotDto.getResolution())) {
+      throw new IllegalArgumentException("Cannot change the assignee of this hotspot given its current status and resolution");
     }
   }
 
