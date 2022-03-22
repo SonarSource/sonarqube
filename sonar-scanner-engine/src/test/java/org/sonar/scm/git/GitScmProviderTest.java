@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -279,7 +280,7 @@ public class GitScmProviderTest {
     addSubmodule(gitForRepo2, "sub2", worktreeForRepo3.toUri().toString());
     addSubmodule(git, "sub1", worktreeForRepo2.toUri().toString());
 
-    File mainFolderWithAllSubmodules = temp.newFolder();
+    File mainFolderWithAllSubmodules = temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
     Git.cloneRepository()
       .setURI(worktree.toUri().toString())
       .setDirectory(mainFolderWithAllSubmodules)
