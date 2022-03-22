@@ -622,8 +622,7 @@ ws_scan_task:
   depends_on: build
   only_if: >-
     $CIRRUS_BRANCH == 'master' ||
-    $CIRRUS_BRANCH =~ 'branch.*' ||
-    changesInclude('private/cirrus/cirrus-whitesource-scan.sh')
+    $CIRRUS_BRANCH =~ 'branch.*'
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
