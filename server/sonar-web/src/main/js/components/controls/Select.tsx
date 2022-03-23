@@ -20,6 +20,7 @@
 import styled from '@emotion/styled';
 import * as React from 'react';
 import ReactSelect, { GroupTypeBase, IndicatorProps, Props, StylesConfig } from 'react-select';
+import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
 import { colors, others, sizes, zIndexes } from '../../app/theme';
 
 const ArrowSpan = styled.span`
@@ -40,13 +41,18 @@ export default function Select<
     return <ArrowSpan {...innerProps} />;
   }
 
+  function MultiValueRemove(props: MultiValueRemoveProps<Option, Group>) {
+    return <div {...props.innerProps}>×</div>;
+  }
+
   return (
     <ReactSelect
       {...props}
       styles={selectStyle<Option, IsMulti, Group>()}
       components={{
         ...props.components,
-        DropdownIndicator
+        DropdownIndicator,
+        MultiValueRemove
       }}
     />
   );
@@ -63,13 +69,14 @@ export function selectStyle<
       display: 'inline-block',
       verticalAlign: 'middle',
       fontSize: '12px',
-      textAlign: 'left'
+      textAlign: 'left',
+      width: '100%'
     }),
     control: () => ({
       position: 'relative',
       display: 'table',
       width: '100%',
-      height: `${sizes.controlHeight}`,
+      minHeight: `${sizes.controlHeight}`,
       lineHeight: `calc(${sizes.controlHeight} - 2px)`,
       border: `1px solid ${colors.gray80}`,
       borderCollapse: 'separate',
@@ -94,20 +101,32 @@ export function selectStyle<
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     }),
-    valueContainer: () => ({
-      bottom: 0,
-      left: 0,
-      lineHeight: '23px',
-      paddingLeft: '8px',
-      paddingRight: '24px',
-      position: 'absolute',
-      right: 0,
-      top: 0,
-      maxWidth: '100%',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
+    input: () => ({
+      paddingLeft: '1px'
     }),
+    valueContainer: (_provided, state) => {
+      if (state.hasValue && state.isMulti) {
+        return {
+          lineHeight: '23px',
+          paddingLeft: '1px'
+        };
+      }
+
+      return {
+        bottom: 0,
+        left: 0,
+        lineHeight: '23px',
+        paddingLeft: '8px',
+        paddingRight: '24px',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      };
+    },
     indicatorsContainer: () => ({
       cursor: 'pointer',
       display: 'table-cell',
@@ -116,6 +135,39 @@ export function selectStyle<
       verticalAlign: 'middle',
       width: '20px',
       paddingRight: '5px'
+    }),
+    multiValue: () => ({
+      display: 'inline-block',
+      backgroundColor: 'rgba(0, 126, 255, 0.08)',
+      borderRadius: '2px',
+      border: '1px solid rgba(0, 126, 255, 0.24)',
+      color: '#333',
+      maxWidth: '200px',
+      fontSize: '12px',
+      lineHeight: '14px',
+      margin: '1px 4px 1px 1px',
+      verticalAlign: 'top'
+    }),
+    multiValueLabel: () => ({
+      display: 'inline-block',
+      cursor: 'default',
+      padding: '2px 5px',
+      overflow: 'hidden',
+      marginRight: 'auto',
+      maxWidth: 'calc(200px - 28px)',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      verticalAlign: 'middle'
+    }),
+    multiValueRemove: () => ({
+      order: '-1',
+      cursor: 'pointer',
+      borderLeft: '1px solid rgba(0, 126, 255, 0.24)',
+      verticalAlign: 'middle',
+      padding: '1px 5px',
+      fontSize: '12px',
+      lineHeight: '14px',
+      display: 'inline-block'
     }),
     menu: () => ({
       borderBottomRightRadius: '4px',
@@ -138,6 +190,9 @@ export function selectStyle<
       maxHeight: '198px',
       padding: '5px 0',
       overflowY: 'auto'
+    }),
+    placeholder: () => ({
+      color: '#666'
     }),
     option: (_provided, state) => ({
       display: 'block',

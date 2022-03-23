@@ -56,18 +56,23 @@ it('should pre-select a profile if only 1 is available', () => {
     language: 'js'
   });
   const wrapper = shallowRender({ profile: undefined, referencedProfiles: { foo: profile } });
-  expect(wrapper.state().selectedProfiles).toEqual(['foo']);
+  expect(wrapper.state().selectedProfiles).toEqual([profile]);
 });
 
 it('should handle profile selection', () => {
   const wrapper = shallowRender();
-  wrapper.instance().handleProfileSelect([{ value: 'foo' }, { value: 'bar' }]);
-  expect(wrapper.state().selectedProfiles).toEqual(['foo', 'bar']);
+  const profiles = [mockQualityProfile({ name: 'foo' }), mockQualityProfile({ name: 'bar' })];
+  wrapper.instance().handleProfileSelect(profiles);
+  expect(wrapper.state().selectedProfiles).toEqual(profiles);
 });
 
 it('should handle form submission', async () => {
   const wrapper = shallowRender({ profile: undefined });
-  wrapper.setState({ selectedProfiles: ['foo', 'bar'] });
+  const profiles = [
+    mockQualityProfile({ name: 'foo', key: 'foo' }),
+    mockQualityProfile({ name: 'bar', key: 'bar' })
+  ];
+  wrapper.setState({ selectedProfiles: profiles });
 
   // Activate.
   submit(wrapper.find('form'));

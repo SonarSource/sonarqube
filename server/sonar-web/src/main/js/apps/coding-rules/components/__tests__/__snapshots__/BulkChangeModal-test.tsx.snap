@@ -24,7 +24,7 @@ exports[`should render correctly: deactivate action 1`] = `
       >
         <h3>
           <label
-            htmlFor="coding-rules-bulk-change-profile"
+            id="coding-rules-bulk-change-profile"
           >
             coding_rules.deactivate_in
           </label>
@@ -79,7 +79,7 @@ exports[`should render correctly: default 1`] = `
       >
         <h3>
           <label
-            htmlFor="coding-rules-bulk-change-profile"
+            id="coding-rules-bulk-change-profile"
           >
             coding_rules.activate_in
           </label>
@@ -166,13 +166,19 @@ exports[`should render correctly: no profile pre-selected 1`] = `
       >
         <h3>
           <label
-            htmlFor="coding-rules-bulk-change-profile"
+            id="coding-rules-bulk-change-profile"
           >
             coding_rules.activate_in
           </label>
         </h3>
-        <SelectLegacy
-          multi={true}
+        <Select
+          aria-labelledby="coding-rules-bulk-change-profile"
+          getOptionLabel={[Function]}
+          getOptionValue={[Function]}
+          isClearable={false}
+          isMulti={true}
+          isSearchable={true}
+          noOptionsMessage={[Function]}
           onChange={[Function]}
           options={Array []}
           value={Array []}
@@ -234,7 +240,7 @@ exports[`should render correctly: results 1`] = `
       >
         <h3>
           <label
-            htmlFor="coding-rules-bulk-change-profile"
+            id="coding-rules-bulk-change-profile"
           >
             coding_rules.activate_in
           </label>

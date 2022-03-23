@@ -5,6 +5,7 @@ exports[`Select should render correctly: default 1`] = `
   components={
     Object {
       "DropdownIndicator": [Function],
+      "MultiValueRemove": [Function],
     }
   }
   defaultInputValue=""
@@ -15,9 +16,14 @@ exports[`Select should render correctly: default 1`] = `
       "container": [Function],
       "control": [Function],
       "indicatorsContainer": [Function],
+      "input": [Function],
       "menu": [Function],
       "menuList": [Function],
+      "multiValue": [Function],
+      "multiValueLabel": [Function],
+      "multiValueRemove": [Function],
       "option": [Function],
+      "placeholder": [Function],
       "singleValue": [Function],
       "valueContainer": [Function],
     }

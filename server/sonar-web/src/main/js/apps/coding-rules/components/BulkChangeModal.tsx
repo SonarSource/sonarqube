@@ -22,7 +22,7 @@ import { bulkActivateRules, bulkDeactivateRules, Profile } from '../../../api/qu
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -49,7 +49,7 @@ interface ActivationResult {
 interface State {
   finished: boolean;
   results: ActivationResult[];
-  selectedProfiles: any[];
+  selectedProfiles: Profile[];
   submitting: boolean;
 }
 
@@ -63,7 +63,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     const selectedProfiles = [];
     const availableProfiles = this.getAvailableQualityProfiles(props);
     if (availableProfiles.length === 1) {
-      selectedProfiles.push(availableProfiles[0].key);
+      selectedProfiles.push(availableProfiles[0]);
     }
 
     this.state = { finished: false, results: [], selectedProfiles, submitting: false };
@@ -77,8 +77,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleProfileSelect = (options: { value: string }[]) => {
-    const selectedProfiles = options.map(option => option.value);
+  handleProfileSelect = (selectedProfiles: Profile[]) => {
     this.setState({ selectedProfiles });
   };
 
@@ -116,7 +115,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     // otherwise take all profiles selected in the dropdown
     const profiles: string[] = this.props.profile
       ? [this.props.profile.key]
-      : this.state.selectedProfiles;
+      : this.state.selectedProfiles.map(p => p.key);
 
     for (const profile of profiles) {
       looper = looper
@@ -180,15 +179,18 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
   renderProfileSelect = () => {
     const profiles = this.getAvailableQualityProfiles();
-    const options = profiles.map(profile => ({
-      label: `${profile.name} - ${profile.languageName}`,
-      value: profile.key
-    }));
+
     return (
-      <SelectLegacy
-        multi={true}
+      <Select
+        aria-labelledby="coding-rules-bulk-change-profile-header"
+        isMulti={true}
+        isClearable={false}
+        isSearchable={true}
+        noOptionsMessage={() => translate('coding_rules.bulk_change.no_quality_profile')}
+        getOptionLabel={profile => `${profile.name} - ${profile.languageName}`}
+        getOptionValue={profile => profile.key}
         onChange={this.handleProfileSelect}
-        options={options}
+        options={profiles}
         value={this.state.selectedProfiles}
       />
     );
@@ -220,7 +222,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
             {!this.state.finished && !this.state.submitting && (
               <div className="modal-field">
                 <h3>
-                  <label htmlFor="coding-rules-bulk-change-profile">
+                  <label id="coding-rules-bulk-change-profile-header">
                     {action === 'activate'
                       ? translate('coding_rules.activate_in')
                       : translate('coding_rules.deactivate_in')}
