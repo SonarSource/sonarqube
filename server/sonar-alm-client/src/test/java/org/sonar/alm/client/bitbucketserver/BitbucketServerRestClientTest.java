@@ -361,7 +361,7 @@ public class BitbucketServerRestClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unable to contact Bitbucket server");
 
-    assertThat(String.join(", ", logTester.logs())).contains("Unable to contact Bitbucket server: Failed to connect");
+    assertThat(String.join(", ", logTester.logs())).contains("Unable to contact Bitbucket server");
   }
 
   @Test
