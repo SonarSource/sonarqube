@@ -27,30 +27,42 @@ exports[`should render correctly: custom rule 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-quality-profile-select"
+        >
           coding_rules.quality_profile
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-quality-profile-select"
           className="js-profile"
-          clearable={false}
-          disabled={false}
+          getOptionLabel={[Function]}
+          isClearable={false}
+          isDisabled={false}
           onChange={[Function]}
           options={Array []}
-          value=""
         />
       </div>
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-severity-select"
+        >
           severity
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-severity-select"
           className="js-severity"
-          clearable={false}
-          disabled={false}
+          components={
+            Object {
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
+          isClearable={false}
+          isDisabled={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -75,9 +87,12 @@ exports[`should render correctly: custom rule 1`] = `
               },
             ]
           }
-          searchable={false}
-          value="MAJOR"
-          valueRenderer={[Function]}
+          value={
+            Object {
+              "label": "severity.MAJOR",
+              "value": "MAJOR",
+            }
+          }
         />
       </div>
       <div
@@ -136,30 +151,42 @@ exports[`should render correctly: default 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-quality-profile-select"
+        >
           coding_rules.quality_profile
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-quality-profile-select"
           className="js-profile"
-          clearable={false}
-          disabled={false}
+          getOptionLabel={[Function]}
+          isClearable={false}
+          isDisabled={false}
           onChange={[Function]}
           options={Array []}
-          value=""
         />
       </div>
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-severity-select"
+        >
           severity
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-severity-select"
           className="js-severity"
-          clearable={false}
-          disabled={false}
+          components={
+            Object {
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
+          isClearable={false}
+          isDisabled={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -184,9 +211,12 @@ exports[`should render correctly: default 1`] = `
               },
             ]
           }
-          searchable={false}
-          value="MAJOR"
-          valueRenderer={[Function]}
+          value={
+            Object {
+              "label": "severity.MAJOR",
+              "value": "MAJOR",
+            }
+          }
         />
       </div>
       <div
@@ -280,30 +310,42 @@ exports[`should render correctly: submitting 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-quality-profile-select"
+        >
           coding_rules.quality_profile
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-quality-profile-select"
           className="js-profile"
-          clearable={false}
-          disabled={true}
+          getOptionLabel={[Function]}
+          isClearable={false}
+          isDisabled={true}
           onChange={[Function]}
           options={Array []}
-          value=""
         />
       </div>
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-severity-select"
+        >
           severity
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-severity-select"
           className="js-severity"
-          clearable={false}
-          disabled={true}
+          components={
+            Object {
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
+          isClearable={false}
+          isDisabled={true}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -328,9 +370,12 @@ exports[`should render correctly: submitting 1`] = `
               },
             ]
           }
-          searchable={false}
-          value="MAJOR"
-          valueRenderer={[Function]}
+          value={
+            Object {
+              "label": "severity.MAJOR",
+              "value": "MAJOR",
+            }
+          }
         />
       </div>
       <div
@@ -422,30 +467,42 @@ exports[`should render correctly: update mode 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-quality-profile-select"
+        >
           coding_rules.quality_profile
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-quality-profile-select"
           className="js-profile"
-          clearable={false}
-          disabled={false}
+          getOptionLabel={[Function]}
+          isClearable={false}
+          isDisabled={false}
           onChange={[Function]}
           options={Array []}
-          value=""
         />
       </div>
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-severity-select"
+        >
           severity
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-severity-select"
           className="js-severity"
-          clearable={false}
-          disabled={false}
+          components={
+            Object {
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
+          isClearable={false}
+          isDisabled={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -470,9 +527,12 @@ exports[`should render correctly: update mode 1`] = `
               },
             ]
           }
-          searchable={false}
-          value="MAJOR"
-          valueRenderer={[Function]}
+          value={
+            Object {
+              "label": "severity.MAJOR",
+              "value": "MAJOR",
+            }
+          }
         />
       </div>
       <div
@@ -561,37 +621,81 @@ exports[`should render correctly: with deep profiles 1`] = `
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-quality-profile-select"
+        >
           coding_rules.quality_profile
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-quality-profile-select"
           className="js-profile"
-          clearable={false}
-          disabled={true}
+          getOptionLabel={[Function]}
+          isClearable={false}
+          isDisabled={true}
           onChange={[Function]}
           options={
             Array [
               Object {
-                "label": "name",
-                "value": "key",
+                "actions": Object {
+                  "edit": true,
+                },
+                "activeDeprecatedRuleCount": 2,
+                "activeRuleCount": 10,
+                "childrenCount": 0,
+                "depth": 0,
+                "isBuiltIn": false,
+                "isDefault": false,
+                "isInherited": false,
+                "key": "key",
+                "language": "js",
+                "languageName": "JavaScript",
+                "name": "name",
+                "projectCount": 3,
               },
             ]
           }
-          value="key"
+          value={
+            Object {
+              "actions": Object {
+                "edit": true,
+              },
+              "activeDeprecatedRuleCount": 2,
+              "activeRuleCount": 10,
+              "childrenCount": 0,
+              "depth": 0,
+              "isBuiltIn": false,
+              "isDefault": false,
+              "isInherited": false,
+              "key": "key",
+              "language": "js",
+              "languageName": "JavaScript",
+              "name": "name",
+              "projectCount": 3,
+            }
+          }
         />
       </div>
       <div
         className="modal-field"
       >
-        <label>
+        <label
+          id="coding-rules-severity-select"
+        >
           severity
         </label>
-        <SelectLegacy
+        <Select
+          aria-labelledby="coding-rules-severity-select"
           className="js-severity"
-          clearable={false}
-          disabled={false}
+          components={
+            Object {
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
+          isClearable={false}
+          isDisabled={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -616,9 +720,12 @@ exports[`should render correctly: with deep profiles 1`] = `
               },
             ]
           }
-          searchable={false}
-          value="MAJOR"
-          valueRenderer={[Function]}
+          value={
+            Object {
+              "label": "severity.MAJOR",
+              "value": "MAJOR",
+            }
+          }
         />
       </div>
       <div

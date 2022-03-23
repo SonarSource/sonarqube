@@ -23,3 +23,32 @@ export enum RuleStatus {
   Deprecated = 'DEPRECATED',
   Removed = 'REMOVED'
 }
+
+export interface SearchRulesQuery {
+  activation?: boolean | string;
+  active_severities?: string;
+  asc?: boolean | string;
+  available_since?: string;
+  cwe?: string;
+  f?: string;
+  facets?: string;
+  include_external?: boolean | string;
+  inheritance?: string;
+  is_template?: boolean | string;
+  languages?: string;
+  owaspTop10?: string;
+  p?: number;
+  ps?: number;
+  q?: string;
+  qprofile?: string;
+  repositories?: string;
+  rule_key?: string;
+  s?: string;
+  sansTop25?: string;
+  severities?: string;
+  sonarsourceSecurity?: string;
+  statuses?: string;
+  tags?: string;
+  template_key?: string;
+  types?: string;
+}

@@ -27,12 +27,13 @@ import { createMemoryHistory, Route, RouteComponent, RouteConfig, Router } from 
 import { Store } from 'redux';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import CurrentUserContextProvider from '../app/components/current-user/CurrentUserContextProvider';
+import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
 import getStore from '../app/utils/getStore';
 import { RouteWithChildRoutes } from '../app/utils/startReactApp';
 import { Store as State } from '../store/rootReducer';
 import { AppState } from '../types/appstate';
-import { Dict, Metric } from '../types/types';
+import { Dict, Languages, Metric } from '../types/types';
 import { CurrentUser } from '../types/users';
 import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
@@ -42,6 +43,7 @@ interface RenderContext {
   store?: Store<State, any>;
   history?: History;
   appState?: AppState;
+  languages?: Languages;
   currentUser?: CurrentUser;
 }
 
@@ -56,7 +58,7 @@ export function renderComponentApp(
 export function renderApp(
   indexPath: string,
   routes: RouteConfig,
-  context: RenderContext
+  context?: RenderContext
 ): RenderResult {
   return renderRoutedApp(
     <RouteWithChildRoutes path={indexPath} childRoutes={routes} />,
@@ -73,7 +75,8 @@ function renderRoutedApp(
     metrics = DEFAULT_METRICS,
     store = getStore(),
     appState = mockAppState(),
-    history = createMemoryHistory()
+    history = createMemoryHistory(),
+    languages = {}
   }: RenderContext = {}
 ): RenderResult {
   history.push(`/${indexPath}`);
@@ -82,11 +85,13 @@ function renderRoutedApp(
       <IntlProvider defaultLocale="en" locale="en">
         <MetricsContext.Provider value={metrics}>
           <Provider store={store}>
-            <CurrentUserContextProvider currentUser={currentUser}>
-              <AppStateContextProvider appState={appState}>
-                <Router history={history}>{children}</Router>
-              </AppStateContextProvider>
-            </CurrentUserContextProvider>
+            <LanguagesContext.Provider value={languages}>
+              <CurrentUserContextProvider currentUser={currentUser}>
+                <AppStateContextProvider appState={appState}>
+                  <Router history={history}>{children}</Router>
+                </AppStateContextProvider>
+              </CurrentUserContextProvider>
+            </LanguagesContext.Provider>
           </Provider>
         </MetricsContext.Provider>
       </IntlProvider>

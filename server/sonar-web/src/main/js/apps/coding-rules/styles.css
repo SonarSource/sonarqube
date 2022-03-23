@@ -101,7 +101,8 @@
   line-height: 1;
 }
 
-.coding-rules-details-tag-edit-cancel {
+.coding-rules-details-tag-edit-cancel,
+.coding-rules-severity-value svg {
   vertical-align: middle;
 }
 

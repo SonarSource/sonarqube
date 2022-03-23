@@ -150,9 +150,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   renderResult = (result: ActivationResult) => {
     const { profile: profileKey } = result;
     const profile = this.props.referencedProfiles[profileKey];
-    if (!profile) {
-      return null;
-    }
+
     const { languages } = this.props;
     const language = languages[profile.language]
       ? languages[profile.language].name

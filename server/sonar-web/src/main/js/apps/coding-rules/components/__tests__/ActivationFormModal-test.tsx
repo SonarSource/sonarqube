@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { activateRule } from '../../../../api/quality-profiles';
 import {
   mockQualityProfile,
   mockRule,
@@ -27,6 +28,10 @@ import {
   mockRuleDetailsParameter
 } from '../../../../helpers/testMocks';
 import ActivationFormModal from '../ActivationFormModal';
+
+jest.mock('../../../../api/quality-profiles', () => ({
+  activateRule: jest.fn().mockResolvedValueOnce({})
+}));
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
@@ -45,6 +50,29 @@ it('should render correctly', () => {
   const wrapper = shallowRender();
   wrapper.setState({ submitting: true });
   expect(wrapper).toMatchSnapshot('submitting');
+});
+
+it('should activate rule on quality profile when submit', () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleFormSubmit(({
+    preventDefault: jest.fn()
+  } as any) as React.SyntheticEvent<HTMLFormElement>);
+  expect(activateRule).toHaveBeenCalledWith({
+    key: '',
+    params: {
+      '1': '1',
+      '2': '1'
+    },
+    rule: 'javascript:S1067',
+    severity: 'MAJOR'
+  });
+});
+
+it('should handle profile change correctly', () => {
+  const wrapper = shallowRender();
+  const qualityProfile = mockQualityProfile();
+  wrapper.instance().handleProfileChange(qualityProfile);
+  expect(wrapper.state().profile).toBe(qualityProfile);
 });
 
 function shallowRender(props: Partial<ActivationFormModal['props']> = {}) {

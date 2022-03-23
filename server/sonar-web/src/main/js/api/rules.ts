@@ -20,40 +20,14 @@
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
+import { SearchRulesQuery } from '../types/rules';
 import { RuleActivation, RuleDetails } from '../types/types';
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app').catch(throwGlobalError);
 }
 
-export function searchRules(data: {
-  activation?: boolean | string;
-  active_severities?: string;
-  asc?: boolean | string;
-  available_since?: string;
-  cwe?: string;
-  f?: string;
-  facets?: string;
-  include_external?: boolean | string;
-  inheritance?: string;
-  is_template?: boolean | string;
-  languages?: string;
-  owaspTop10?: string;
-  p?: number;
-  ps?: number;
-  q?: string;
-  qprofile?: string;
-  repositories?: string;
-  rule_key?: string;
-  s?: string;
-  sansTop25?: string;
-  severities?: string;
-  sonarsourceSecurity?: string;
-  statuses?: string;
-  tags?: string;
-  template_key?: string;
-  types?: string;
-}): Promise<SearchRulesResponse> {
+export function searchRules(data: SearchRulesQuery): Promise<SearchRulesResponse> {
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
 }
 

@@ -19,10 +19,11 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
 import { activateRule, Profile } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
 import { SEVERITIES } from '../../../helpers/constants';
@@ -40,9 +41,13 @@ interface Props {
   rule: Rule | RuleDetails;
 }
 
+interface ProfileWithDeph extends Profile {
+  depth: number;
+}
+
 interface State {
   params: Dict<string>;
-  profile: string;
+  profile?: ProfileWithDeph;
   severity: string;
   submitting: boolean;
 }
@@ -55,7 +60,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const profilesWithDepth = this.getQualityProfilesWithDepth(props);
     this.state = {
       params: this.getParams(props),
-      profile: profilesWithDepth.length > 0 ? profilesWithDepth[0].key : '',
+      profile: profilesWithDepth.length > 0 ? profilesWithDepth[0] : undefined,
       severity: props.activation ? props.activation.severity : props.rule.severity,
       submitting: false
     };
@@ -105,7 +110,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     event.preventDefault();
     this.setState({ submitting: true });
     const data = {
-      key: this.state.profile,
+      key: this.state.profile?.key || '',
       params: this.state.params,
       rule: this.props.rule.key,
       severity: this.state.severity
@@ -132,16 +137,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
   };
 
-  handleProfileChange = ({ value }: { value: string }) => {
-    this.setState({ profile: value });
+  handleProfileChange = (profile: ProfileWithDeph) => {
+    this.setState({ profile });
   };
 
-  handleSeverityChange = ({ value }: { value: string }) => {
+  handleSeverityChange = ({ value }: OptionTypeBase) => {
     this.setState({ severity: value });
-  };
-
-  renderSeverityOption = ({ value }: { value: string }) => {
-    return <SeverityHelper severity={value} />;
   };
 
   render() {
@@ -152,6 +153,26 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const isCustomRule = !!(rule as RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
+    const serverityOption = SEVERITIES.map(severity => ({
+      label: translate('severity', severity),
+      value: severity
+    }));
+
+    function Option(props: OptionProps<OptionTypeBase, false>) {
+      return (
+        <components.Option {...props}>
+          <SeverityHelper severity={props.data.value} />
+        </components.Option>
+      );
+    }
+
+    function SingleValue(props: SingleValueProps<OptionTypeBase>) {
+      return (
+        <components.SingleValue {...props}>
+          <SeverityHelper className="coding-rules-severity-value" severity={props.data.value} />
+        </components.SingleValue>
+      );
+    }
 
     return (
       <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
@@ -166,34 +187,32 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             )}
 
             <div className="modal-field">
-              <label>{translate('coding_rules.quality_profile')}</label>
-              <SelectLegacy
+              <label id="coding-rules-quality-profile-select">
+                {translate('coding_rules.quality_profile')}
+              </label>
+              <Select
                 className="js-profile"
-                clearable={false}
-                disabled={submitting || profilesWithDepth.length === 1}
+                aria-labelledby="coding-rules-quality-profile-select"
+                isClearable={false}
+                isDisabled={submitting || profilesWithDepth.length === 1}
                 onChange={this.handleProfileChange}
-                options={profilesWithDepth.map(profile => ({
-                  label: '   '.repeat(profile.depth) + profile.name,
-                  value: profile.key
-                }))}
+                getOptionLabel={p => '   '.repeat(p.depth) + p.name}
+                options={profilesWithDepth}
                 value={profile}
               />
             </div>
             <div className="modal-field">
-              <label>{translate('severity')}</label>
-              <SelectLegacy
+              <label id="coding-rules-severity-select">{translate('severity')}</label>
+              <Select
                 className="js-severity"
-                clearable={false}
-                disabled={submitting}
+                isClearable={false}
+                isDisabled={submitting}
+                aria-labelledby="coding-rules-severity-select"
                 onChange={this.handleSeverityChange}
-                optionRenderer={this.renderSeverityOption}
-                options={SEVERITIES.map(severity => ({
-                  label: translate('severity', severity),
-                  value: severity
-                }))}
-                searchable={false}
-                value={severity}
-                valueRenderer={this.renderSeverityOption}
+                components={{ Option, SingleValue }}
+                options={serverityOption}
+                isSearchable={false}
+                value={serverityOption.find(s => s.value === severity)}
               />
             </div>
             {isCustomRule ? (

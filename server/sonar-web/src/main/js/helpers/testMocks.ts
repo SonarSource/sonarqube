@@ -23,6 +23,7 @@ import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
 import { AppState } from '../types/appstate';
+import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
 import { RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
@@ -832,8 +833,6 @@ export function mockDumpStatus(props: Partial<DumpStatus> = {}): DumpStatus {
   };
 }
 
-export function mockRuleRepository(
-  override: Partial<{ key: string; language: string; name: string }> = {}
-) {
+export function mockRuleRepository(override: Partial<RuleRepository> = {}) {
   return { key: 'css', language: 'css', name: 'SonarQube', ...override };
 }

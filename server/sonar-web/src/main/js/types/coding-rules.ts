@@ -19,9 +19,15 @@
  */
 import { Dict, Rule, RuleActivation } from './types';
 
+export interface RuleRepository {
+  key: string;
+  language: string;
+  name: string;
+}
+
 export interface GetRulesAppResponse {
   canWrite?: boolean;
-  repositories: { key: string; language: string; name: string }[];
+  repositories: RuleRepository[];
 }
 
 export interface SearchRulesResponse {
