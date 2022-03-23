@@ -4,8 +4,6 @@ sonarqube {
   }
 }
 
-configureCompileJavaToVersion 8
-
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 

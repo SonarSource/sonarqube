@@ -4,9 +4,6 @@ sonarqube {
   }
 }
 
-configureCompileJavaToVersion 8
-
-
 dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
 

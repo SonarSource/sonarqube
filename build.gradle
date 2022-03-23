@@ -130,73 +130,7 @@ subprojects {
 
   ext {
     protobufVersion = '3.19.4'
-
-    // define a method which can be called by project to change Java version to compile to
-    configureCompileJavaToVersion = { javaVersion ->
-      if ( javaVersion != 11 & javaVersion != 8) {
-        throw new InvalidUserDataException("Only Java 8 and 11 are supported")
-      }
-      if ( javaVersion == 8 ) {
-        println "Configuring project ${project.name} to compile to Java ${javaVersion}"
-
-        if (!project.hasProperty('skipJava8Checks')) {
-          task ensureDependenciesRunOnJava8(dependsOn: [configurations.compileClasspath]) {
-            ext.readJavaMajorVersion = { classFile ->
-              classFile.withDataInputStream({ d ->
-                if (d.skip(7) == 7) {
-                  // read the version of the class file
-                  d.read()
-                } else {
-                  throw new GradleException("Could not read major version from $classFile")
-                }
-              })
-            }
-
-            doLast {
-              [configurations.compileClasspath].each { config ->
-                config.resolvedConfiguration.files
-                  .findAll({ f -> f.name.endsWith("jar") })
-                  .each { jarFile ->
-                    def onlyJava8 = true
-                    zipTree(jarFile)
-                      .matching({
-                        include "**/*.class"
-                        // multi-release jar files were introduced with Java 9 => contains only classes targeting Java 9+
-                        exclude "META-INF/versions/**"
-                        // ignore module-info existing in some archives for Java 9 forward compatibility
-                        exclude "module-info.class"
-                      })
-                      .files
-                      .each { classFile ->
-                        int javaMajorVersion = readJavaMajorVersion(classFile)
-                        if (javaMajorVersion > 52) {
-                          println "$classFile has been compiled to a more recent version of Java than 8 (java8=52, java11=55, actual=$javaMajorVersion)"
-                          onlyJava8 = false
-                        }
-                      }
-                    if (!onlyJava8) {
-                      throw new GradleException("Dependency ${jarFile} in configuration ${config.name} contains class file(s) compiled to a Java version > Java 8 (see logs for details)")
-                    }
-                  }
-              }
-            }
-          }
-
-          compileJava.dependsOn ensureDependenciesRunOnJava8
-        }
-      }
-
-      sourceCompatibility = javaVersion
-      targetCompatibility = javaVersion
-
-      tasks.withType(JavaCompile) {
-        options.compilerArgs.addAll(['--release', javaVersion + ''])
-        options.encoding = 'UTF-8'
-      }
-    }
   }
-
-  configureCompileJavaToVersion 11
 
   sonarqube {
     properties {
