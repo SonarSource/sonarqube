@@ -64,6 +64,19 @@ public class MigrationContainerImplTest {
   }
 
   @Test
+  public void add_duplicate_steps_has_no_effect() {
+    InternalMigrationStepRegistry registry = new MigrationStepRegistryImpl();
+    registry.add(1, "test", NoOpMigrationStep.class);
+    registry.add(2, "test2", NoOpMigrationStep.class);
+
+    SpringComponentContainer parent = new SpringComponentContainer();
+    parent.add(registry.build());
+    parent.startComponents();
+    MigrationContainerImpl underTest = new MigrationContainerImpl(parent, NoOpExecutor.class);
+    assertThat(underTest.getComponentsByType(MigrationStep.class)).hasSize(1);
+  }
+
+  @Test
   public void migration_container_lazily_instance_components() {
     assertThat(StartCallCounter.startCalls).isZero();
 

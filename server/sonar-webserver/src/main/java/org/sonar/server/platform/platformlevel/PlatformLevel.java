@@ -26,7 +26,6 @@ import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.WebServer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Objects.requireNonNull;
 
 public abstract class PlatformLevel {
   private final String name;

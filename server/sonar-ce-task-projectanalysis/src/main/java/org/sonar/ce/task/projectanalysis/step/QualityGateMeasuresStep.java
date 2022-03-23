@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
@@ -28,7 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.CoreMetrics;
@@ -55,7 +55,6 @@ import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.stream.MoreCollectors;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus.NO_VALUE_STATUS;
@@ -146,9 +145,9 @@ public class QualityGateMeasuresStep implements ComputationStep {
     }
   }
 
-  private static Map<Condition, ConditionStatus> createStatusPerCondition(Iterable<Condition> conditions, Iterable<EvaluatedCondition> evaluatedConditions) {
-    Map<Condition, EvaluatedCondition> evaluatedConditionPerCondition = from(evaluatedConditions)
-      .uniqueIndex(EvaluatedConditionToCondition.INSTANCE);
+  private static Map<Condition, ConditionStatus> createStatusPerCondition(Collection<Condition> conditions, Collection<EvaluatedCondition> evaluatedConditions) {
+    Map<Condition, EvaluatedCondition> evaluatedConditionPerCondition = evaluatedConditions.stream()
+      .collect(Collectors.toMap(EvaluatedCondition::getCondition, Function.identity()));
 
     ImmutableMap.Builder<Condition, ConditionStatus> builder = ImmutableMap.builder();
     for (Condition condition : conditions) {
@@ -164,7 +163,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
   }
 
   private void updateMeasures(Component project, Set<Condition> conditions, QualityGateDetailsDataBuilder builder) {
-    Multimap<Metric, Condition> conditionsPerMetric = conditions.stream().collect(MoreCollectors.index(Condition::getMetric, java.util.function.Function.identity()));
+    Multimap<Metric, Condition> conditionsPerMetric = conditions.stream().collect(MoreCollectors.index(Condition::getMetric, Function.identity()));
     boolean ignoredConditions = false;
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
@@ -264,16 +263,6 @@ public class QualityGateMeasuresStep implements ComputationStep {
     public QualityGateDetailsDataBuilder setIgnoredConditions(boolean ignoredConditions) {
       this.ignoredConditions = ignoredConditions;
       return this;
-    }
-  }
-
-  private enum EvaluatedConditionToCondition implements Function<EvaluatedCondition, Condition> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public Condition apply(@Nonnull EvaluatedCondition input) {
-      return input.getCondition();
     }
   }
 

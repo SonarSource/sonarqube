@@ -19,15 +19,14 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Function;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -437,7 +436,7 @@ public class RuleMapper {
     INSTANCE;
 
     @Override
-    public Rules.Rule.Param apply(@Nonnull RuleParamDto param) {
+    public Rules.Rule.Param apply(RuleParamDto param) {
       Rules.Rule.Param.Builder paramResponse = Rules.Rule.Param.newBuilder();
       paramResponse.setKey(param.getName());
       if (param.getDescription() != null) {

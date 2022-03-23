@@ -19,18 +19,15 @@
  */
 package org.sonar.ce.task.projectanalysis.language;
 
-import com.google.common.base.Function;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Maps.uniqueIndex;
-import static java.util.Arrays.asList;
 
 /**
  * Implementation of {@link LanguageRepository} which find {@link Language} instances available in the container.
@@ -46,20 +43,11 @@ public class LanguageRepositoryImpl implements LanguageRepository {
 
   @Autowired(required = false)
   public LanguageRepositoryImpl(Language... languages) {
-    this.languagesByKey = uniqueIndex(filter(asList(languages), notNull()), LanguageToKey.INSTANCE);
+    this.languagesByKey = Arrays.stream(languages).filter(Objects::nonNull).collect(Collectors.toMap(Language::getKey, Function.identity()));
   }
 
   @Override
   public Optional<Language> find(String languageKey) {
     return Optional.ofNullable(languagesByKey.get(languageKey));
-  }
-
-  private enum LanguageToKey implements Function<Language, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull Language input) {
-      return input.getKey();
-    }
   }
 }

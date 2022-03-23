@@ -35,7 +35,7 @@ public class LanguageRepositoryImplTest {
   @Test
   public void constructor_fails_is_language_have_the_same_key() {
     assertThatThrownBy(() -> new LanguageRepositoryImpl(createLanguage(SOME_LANGUAGE_KEY, " 1"), createLanguage(SOME_LANGUAGE_KEY, " 2")))
-      .isInstanceOf(IllegalArgumentException.class);
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

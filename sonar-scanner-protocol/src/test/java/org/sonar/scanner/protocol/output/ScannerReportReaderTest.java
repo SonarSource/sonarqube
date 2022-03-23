@@ -226,6 +226,12 @@ public class ScannerReportReaderTest {
   }
 
   @Test
+  public void read_analysis_cache_returns_null_if_no_file_exists() {
+    ScannerReportReader reader = new ScannerReportReader(dir);
+    assertThat(reader.getAnalysisCache()).isNull();
+  }
+
+    @Test
   public void empty_list_if_no_duplication_block_found() {
     assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).toIterable().isEmpty();
   }

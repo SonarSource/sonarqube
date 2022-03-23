@@ -90,7 +90,7 @@ public class ReferenceBranchSupplier {
     Optional<String> value = configuration.get(NEW_CODE_PARAM_KEY);
     if (value.isPresent()) {
       String referenceBranchName = value.get();
-      if (getBranchName().equals(referenceBranchName)) {
+      if (referenceBranchName.equals(getBranchName())) {
         throw new IllegalStateException(format("Reference branch set with '%s' points to the current branch '%s'", NEW_CODE_PARAM_KEY, referenceBranchName));
       }
       return referenceBranchName;

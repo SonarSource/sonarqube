@@ -84,10 +84,6 @@ public abstract class CoreExtensionsInstaller {
     coreExtension.load(context);
   }
 
-  private <T> boolean hasSupportedAnnotation(T component) {
-    return AnnotationUtils.getAnnotation(component, supportedAnnotationType) != null;
-  }
-
   private class ContextImpl implements CoreExtension.Context {
     private final ExtensionContainer container;
     private final Predicate<Object> extensionFilter;
@@ -146,6 +142,10 @@ public abstract class CoreExtensionsInstaller {
         return true;
       }
       return false;
+    }
+
+    private <T> boolean hasSupportedAnnotation(T component) {
+      return AnnotationUtils.getAnnotation(component, supportedAnnotationType) != null;
     }
   }
 }
