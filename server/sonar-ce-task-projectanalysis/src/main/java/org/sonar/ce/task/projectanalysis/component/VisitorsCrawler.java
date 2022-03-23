@@ -19,19 +19,18 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.util.Objects.requireNonNull;
 
@@ -45,23 +44,21 @@ public class VisitorsCrawler implements ComponentCrawler {
   private final List<VisitorWrapper> preOrderVisitorWrappers;
   private final List<VisitorWrapper> postOrderVisitorWrappers;
 
-  public VisitorsCrawler(Iterable<ComponentVisitor> visitors) {
+  public VisitorsCrawler(Collection<ComponentVisitor> visitors) {
     this(visitors, false);
   }
 
-  public VisitorsCrawler(Iterable<ComponentVisitor> visitors, boolean computeDuration) {
-    List<VisitorWrapper> visitorWrappers = from(visitors).transform(ToVisitorWrapper.INSTANCE).toList();
-    this.preOrderVisitorWrappers = from(visitorWrappers).filter(MathPreOrderVisitor.INSTANCE).toList();
-    this.postOrderVisitorWrappers = from(visitorWrappers).filter(MatchPostOrderVisitor.INSTANCE).toList();
+  public VisitorsCrawler(Collection<ComponentVisitor> visitors, boolean computeDuration) {
+    List<VisitorWrapper> visitorWrappers = visitors.stream().map(ToVisitorWrapper.INSTANCE).collect(Collectors.toList());
+    this.preOrderVisitorWrappers = visitorWrappers.stream().filter(MathPreOrderVisitor.INSTANCE).collect(Collectors.toList());
+    this.postOrderVisitorWrappers = visitorWrappers.stream().filter(MatchPostOrderVisitor.INSTANCE).collect(Collectors.toList());
     this.computeDuration = computeDuration;
-    this.visitorCumulativeDurations = computeDuration ? from(visitors).toMap(VisitorWrapperToInitialDuration.INSTANCE) : Collections.emptyMap();
+    this.visitorCumulativeDurations = computeDuration ? visitors.stream().collect(Collectors.toMap(v -> v, v -> new VisitorDuration())) : Collections.emptyMap();
   }
 
   public Map<ComponentVisitor, Long> getCumulativeDurations() {
     if (computeDuration) {
-      return ImmutableMap.copyOf(
-        Maps.transformValues(this.visitorCumulativeDurations, VisitorDurationToDuration.INSTANCE)
-      );
+      return visitorCumulativeDurations.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getDuration()));
     }
     return Collections.emptyMap();
   }
@@ -80,8 +77,8 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   private void visitImpl(Component component) {
     MatchVisitorMaxDepth visitorMaxDepth = MatchVisitorMaxDepth.forComponent(component);
-    List<VisitorWrapper> preOrderVisitorWrappersToExecute = from(preOrderVisitorWrappers).filter(visitorMaxDepth).toList();
-    List<VisitorWrapper> postOrderVisitorWrappersToExecute = from(postOrderVisitorWrappers).filter(visitorMaxDepth).toList();
+    List<VisitorWrapper> preOrderVisitorWrappersToExecute = preOrderVisitorWrappers.stream().filter(visitorMaxDepth).collect(Collectors.toList());
+    List<VisitorWrapper> postOrderVisitorWrappersToExecute = postOrderVisitorWrappers.stream().filter(visitorMaxDepth).collect(Collectors.toList());
     if (preOrderVisitorWrappersToExecute.isEmpty() && postOrderVisitorWrappersToExecute.isEmpty()) {
       return;
     }
@@ -183,7 +180,7 @@ public class VisitorsCrawler implements ComponentCrawler {
     }
 
     @Override
-    public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
+    public boolean test(VisitorWrapper visitorWrapper) {
       CrawlerDepthLimit maxDepth = visitorWrapper.getMaxDepth();
       return maxDepth.isSameAs(type) || maxDepth.isDeeperThan(type);
     }
@@ -193,7 +190,7 @@ public class VisitorsCrawler implements ComponentCrawler {
     INSTANCE;
 
     @Override
-    public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
+    public boolean test(VisitorWrapper visitorWrapper) {
       return visitorWrapper.getOrder() == ComponentVisitor.Order.PRE_ORDER;
     }
   }
@@ -202,7 +199,7 @@ public class VisitorsCrawler implements ComponentCrawler {
     INSTANCE;
 
     @Override
-    public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
+    public boolean test(VisitorWrapper visitorWrapper) {
       return visitorWrapper.getOrder() == ComponentVisitor.Order.POST_ORDER;
     }
   }
@@ -216,26 +213,6 @@ public class VisitorsCrawler implements ComponentCrawler {
 
     public long getDuration() {
       return duration;
-    }
-  }
-
-  private enum VisitorWrapperToInitialDuration implements Function<ComponentVisitor, VisitorDuration> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public VisitorDuration apply(@Nonnull ComponentVisitor visitorWrapper) {
-      return new VisitorDuration();
-    }
-  }
-
-  private enum VisitorDurationToDuration implements Function<VisitorDuration, Long> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public Long apply(VisitorDuration input) {
-      return input.getDuration();
     }
   }
 }

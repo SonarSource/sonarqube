@@ -52,14 +52,14 @@ public class PlatformImpl implements Platform {
   private static final PlatformImpl INSTANCE = new PlatformImpl();
 
   private AutoStarter autoStarter = null;
-  private Properties properties;
-  private ServletContext servletContext;
-  private PlatformLevel level1;
-  private PlatformLevel level2;
-  private PlatformLevel levelSafeMode;
-  private PlatformLevel level3;
-  private PlatformLevel level4;
-  private PlatformLevel currentLevel;
+  private Properties properties = null;
+  private ServletContext servletContext = null;
+  private PlatformLevel level1 = null;
+  private PlatformLevel level2 = null;
+  private PlatformLevel levelSafeMode = null;
+  private PlatformLevel level3 = null;
+  private PlatformLevel level4 = null;
+  private PlatformLevel currentLevel = null;
   private boolean dbConnected = false;
   private boolean started = false;
   private final List<Object> level4AddedComponents = new ArrayList<>();

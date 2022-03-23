@@ -37,10 +37,10 @@ public class ScmChangedFilesProvider {
 
   @Bean("ScmChangedFiles")
   public ScmChangedFiles provide(ScmConfiguration scmConfiguration, BranchConfiguration branchConfiguration, DefaultInputProject project) {
-      Path rootBaseDir = project.getBaseDir();
-      Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
-      validatePaths(changedFiles);
-      return new ScmChangedFiles(changedFiles);
+    Path rootBaseDir = project.getBaseDir();
+    Collection<Path> changedFiles = loadChangedFilesIfNeeded(scmConfiguration, branchConfiguration, rootBaseDir);
+    validatePaths(changedFiles);
+    return new ScmChangedFiles(changedFiles);
   }
 
   private static void validatePaths(@javax.annotation.Nullable Collection<Path> paths) {

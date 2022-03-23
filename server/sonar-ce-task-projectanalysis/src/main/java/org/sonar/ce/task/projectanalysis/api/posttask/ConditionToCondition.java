@@ -19,9 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.api.posttask;
 
-import com.google.common.base.Function;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.ConditionStatus;
@@ -42,7 +41,6 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
   }
 
   @Override
-  @Nonnull
   public QualityGate.Condition apply(Condition input) {
     String metricKey = input.getMetric().getKey();
     ConditionStatus conditionStatus = statusPerConditions.get(input);

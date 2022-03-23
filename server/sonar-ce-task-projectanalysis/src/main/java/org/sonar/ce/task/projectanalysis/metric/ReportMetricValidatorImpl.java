@@ -19,31 +19,28 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
+import org.sonar.core.util.stream.MoreCollectors;
 
 public class ReportMetricValidatorImpl implements ReportMetricValidator {
-
   private static final Logger LOG = Loggers.get(ReportMetricValidatorImpl.class);
 
-  private Map<String, org.sonar.api.measures.Metric> metricByKey;
-  private Set<String> alreadyLoggedMetricKeys = new HashSet<>();
+  private final Map<String, Metric> metricByKey;
+  private final Set<String> alreadyLoggedMetricKeys = new HashSet<>();
 
   public ReportMetricValidatorImpl(ScannerMetrics scannerMetrics) {
-    this.metricByKey = FluentIterable.from(scannerMetrics.getMetrics()).uniqueIndex(MetricToKey.INSTANCE);
+    this.metricByKey = scannerMetrics.getMetrics().stream().collect(MoreCollectors.uniqueIndex(Metric::getKey));
   }
 
   @Override
   public boolean validate(String metricKey) {
-    org.sonar.api.measures.Metric metric = metricByKey.get(metricKey);
+    Metric metric = metricByKey.get(metricKey);
     if (metric == null) {
       if (!alreadyLoggedMetricKeys.contains(metricKey)) {
         LOG.debug("The metric '{}' is ignored and should not be send in the batch report", metricKey);
@@ -52,15 +49,5 @@ public class ReportMetricValidatorImpl implements ReportMetricValidator {
       return false;
     }
     return true;
-  }
-
-  private enum MetricToKey implements Function<org.sonar.api.measures.Metric, String> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public String apply(@Nonnull org.sonar.api.measures.Metric input) {
-      return input.key();
-    }
   }
 }

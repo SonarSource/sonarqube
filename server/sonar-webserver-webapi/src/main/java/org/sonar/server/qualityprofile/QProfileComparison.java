@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Function;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import java.util.Collection;
@@ -28,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
@@ -86,7 +84,7 @@ public class QProfileComparison {
   }
 
   private Map<RuleKey, OrgActiveRuleDto> loadActiveRules(DbSession dbSession, QProfileDto profile) {
-    return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfile(dbSession, profile), ActiveRuleToRuleKey.INSTANCE);
+    return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfile(dbSession, profile), ActiveRuleDto::getRuleKey);
   }
 
   public static class QProfileComparisonResult {
@@ -152,15 +150,6 @@ public class QProfileComparison {
 
     public MapDifference<String, String> paramDifference() {
       return paramDifference;
-    }
-  }
-
-  private enum ActiveRuleToRuleKey implements Function<ActiveRuleDto, RuleKey> {
-    INSTANCE;
-
-    @Override
-    public RuleKey apply(@Nonnull ActiveRuleDto input) {
-      return input.getRuleKey();
     }
   }
 

@@ -75,6 +75,7 @@ public class StreamGobbler extends Thread {
         }
       }
     } catch (Exception ignored) {
+      // ignore
     }
   }
 

@@ -19,8 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Function;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
@@ -40,7 +39,7 @@ public class PermissionTemplateDtoToPermissionTemplateResponse {
   private enum Singleton implements Function<PermissionTemplateDto, PermissionTemplate> {
     INSTANCE;
     @Override
-    public PermissionTemplate apply(@Nonnull PermissionTemplateDto permissionTemplate) {
+    public PermissionTemplate apply(PermissionTemplateDto permissionTemplate) {
       PermissionTemplate.Builder permissionTemplateBuilder = PermissionTemplate.newBuilder()
         .setId(permissionTemplate.getUuid())
         .setName(permissionTemplate.getName())

@@ -19,14 +19,12 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
-import org.sonar.server.platform.db.migration.version.DbVersion;
 
 /**
  * Responsible for:

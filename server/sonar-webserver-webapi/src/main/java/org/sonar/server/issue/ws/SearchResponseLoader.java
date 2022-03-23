@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -283,12 +283,6 @@ public class SearchResponseLoader {
             }
           }
         }
-      }
-    }
-
-    void addComponentUuids(@Nullable Collection<String> uuids) {
-      if (uuids != null) {
-        this.componentUuids.addAll(uuids);
       }
     }
 

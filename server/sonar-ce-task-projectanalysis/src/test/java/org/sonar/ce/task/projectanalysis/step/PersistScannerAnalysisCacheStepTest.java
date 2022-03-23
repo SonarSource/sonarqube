@@ -66,4 +66,10 @@ public class PersistScannerAnalysisCacheStepTest {
     client.scannerAnalysisCacheDao().insert(dbTester.getSession(), "branch", new ByteArrayInputStream("test".getBytes(UTF_8)));
     inserts_cache();
   }
+
+  @Test
+  public void do_nothing_if_no_analysis_cache() {
+    step.execute(mock(ComputationStep.Context.class));
+    assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isZero();
+  }
 }

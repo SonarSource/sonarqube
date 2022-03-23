@@ -19,13 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.api.measurecomputer;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -120,10 +119,11 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
   @Override
   public Iterable<Measure> getChildrenMeasures(String metric) {
     validateInputMetric(metric);
-    return FluentIterable.from(internalComponent.getChildren())
-      .transform(new ComponentToMeasure(metricRepository.getByKey(metric)))
-      .transform(ToMeasureAPI.INSTANCE)
-      .filter(Predicates.notNull());
+    return () -> internalComponent.getChildren().stream()
+      .map(new ComponentToMeasure(metricRepository.getByKey(metric)))
+      .map(ToMeasureAPI.INSTANCE)
+      .filter(Objects::nonNull)
+      .iterator();
   }
 
   @Override

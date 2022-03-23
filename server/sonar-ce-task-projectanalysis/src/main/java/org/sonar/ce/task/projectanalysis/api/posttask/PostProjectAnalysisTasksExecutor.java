@@ -212,7 +212,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   private static Collection<QualityGate.Condition> convert(Set<Condition> conditions, Map<Condition, ConditionStatus> statusPerConditions) {
     return conditions.stream()
-      .map(new ConditionToCondition(statusPerConditions)::apply)
+      .map(new ConditionToCondition(statusPerConditions))
       .collect(MoreCollectors.toList(statusPerConditions.size()));
   }
 
