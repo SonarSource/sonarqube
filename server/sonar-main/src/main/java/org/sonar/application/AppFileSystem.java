@@ -32,12 +32,12 @@ import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.config.AppSettings;
+import org.sonar.core.util.FileUtils;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 
 import static java.lang.String.format;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static org.apache.commons.io.FileUtils.forceMkdir;
-import static org.sonar.process.FileUtils2.deleteDirectory;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
@@ -111,22 +111,19 @@ public class AppFileSystem implements FileSystem {
     }
 
     @Override
-    public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-      File file = filePath.toFile();
-      if (file.isDirectory()) {
-        deleteDirectory(file);
-      } else if (filePath.getFileName().equals(SHAREDMEMORY_FILE)) {
+    public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) {
+      if (filePath.getFileName().equals(SHAREDMEMORY_FILE)) {
         return CONTINUE;
       } else if (!symLink || !filePath.equals(path)) {
-        Files.delete(filePath);
+        FileUtils.deleteQuietly(filePath);
       }
       return CONTINUE;
     }
 
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
       if (!dir.equals(path)) {
-        deleteDirectory(dir.toFile());
+        FileUtils.deleteQuietly(dir);
       }
       return CONTINUE;
     }
