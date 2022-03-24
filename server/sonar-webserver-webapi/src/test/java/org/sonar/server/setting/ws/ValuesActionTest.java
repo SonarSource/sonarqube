@@ -622,6 +622,44 @@ public class ValuesActionTest {
   }
 
   @Test
+  public void return_admin_only_settings_in_property_set_when_system_admin() {
+    String anyAdminOnlySettingKey = SettingsWsSupport.ADMIN_ONLY_SETTINGS.iterator().next();
+    logInAsAdmin();
+    definitions.addComponent(PropertyDefinition
+      .builder(anyAdminOnlySettingKey)
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build(anyAdminOnlySettingKey).name("Key admnin only").build(),
+        PropertyFieldDefinition.build(anyAdminOnlySettingKey).name("Value admin only").build()))
+      .build());
+    ImmutableMap<String, String> keyValuePairs = ImmutableMap.of(anyAdminOnlySettingKey, "test_val");
+    propertyDb.insertPropertySet(anyAdminOnlySettingKey, null, keyValuePairs);
+
+    ValuesWsResponse result = executeRequestForGlobalProperties();
+
+    assertFieldValues(result.getSettings(0), keyValuePairs);
+  }
+
+  @Test
+  public void return_admin_only_settings_in_property_not_set_when_simple_user() {
+    String anyAdminOnlySettingKey = SettingsWsSupport.ADMIN_ONLY_SETTINGS.iterator().next();
+    logIn();
+    definitions.addComponent(PropertyDefinition
+      .builder(anyAdminOnlySettingKey)
+      .type(PropertyType.PROPERTY_SET)
+      .fields(asList(
+        PropertyFieldDefinition.build(anyAdminOnlySettingKey).name("Key admnin only").build(),
+        PropertyFieldDefinition.build(anyAdminOnlySettingKey).name("Value admin only").build()))
+      .build());
+    ImmutableMap<String, String> keyValuePairs = ImmutableMap.of(anyAdminOnlySettingKey, "test_val");
+    propertyDb.insertPropertySet(anyAdminOnlySettingKey, null, keyValuePairs);
+
+    ValuesWsResponse result = executeRequestForGlobalProperties();
+
+    assertThat(result.getSettingsList()).isEmpty();
+  }
+
+  @Test
   public void return_global_settings_from_definitions_when_no_component_and_no_keys() {
     logInAsAdmin();
     definitions.addComponents(asList(
