@@ -55,10 +55,8 @@ public class AnalysisCacheLoader {
 
   public Optional<AnalysisCacheMsg> load() {
     String url = URL + "?project=" + project.key();
-    if (branchConfiguration.branchType() == BranchType.BRANCH && branchConfiguration.branchName() != null) {
-      url = url + "&branch=" + branchConfiguration.branchName();
-    } else if (branchConfiguration.isPullRequest()) {
-      url = url + "&pullRequest=" + branchConfiguration.pullRequestKey();
+    if (branchConfiguration.referenceBranchName() != null) {
+      url = url + "&branch=" + branchConfiguration.referenceBranchName();
     }
 
     GetRequest request = new GetRequest(url).setHeader(ACCEPT_ENCODING, "gzip");

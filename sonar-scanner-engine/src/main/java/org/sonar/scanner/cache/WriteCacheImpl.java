@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static java.util.Collections.unmodifiableMap;
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -32,16 +33,21 @@ import static org.sonar.api.utils.Preconditions.checkNotNull;
 
 public class WriteCacheImpl implements ScannerWriteCache {
   private final ReadCache readCache;
+  private final BranchConfiguration branchConfiguration;
   private final Map<String, byte[]> cache = new HashMap<>();
 
-  public WriteCacheImpl(ReadCache readCache) {
+  public WriteCacheImpl(ReadCache readCache, BranchConfiguration branchConfiguration) {
     this.readCache = readCache;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
   public void write(String key, InputStream data) {
     checkNotNull(data);
     checkKey(key);
+    if (branchConfiguration.isPullRequest()) {
+      return;
+    }
     try {
       byte[] arr = data.readAllBytes();
       cache.put(key, arr);
@@ -54,6 +60,9 @@ public class WriteCacheImpl implements ScannerWriteCache {
   public void write(String key, byte[] data) {
     checkNotNull(data);
     checkKey(key);
+    if (branchConfiguration.isPullRequest()) {
+      return;
+    }
     cache.put(key, Arrays.copyOf(data, data.length));
   }
 
@@ -61,7 +70,9 @@ public class WriteCacheImpl implements ScannerWriteCache {
   public void copyFromPrevious(String key) {
     checkArgument(readCache.contains(key), "Previous cache doesn't contain key '%s'", key);
     checkKey(key);
-
+    if (branchConfiguration.isPullRequest()) {
+      return;
+    }
     try {
       cache.put(key, readCache.read(key).readAllBytes());
     } catch (IOException e) {

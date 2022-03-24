@@ -26,19 +26,22 @@ import org.sonar.scanner.cache.ScannerWriteCache;
 import org.sonar.scanner.protocol.internal.ScannerInternal;
 import org.sonar.scanner.protocol.internal.ScannerInternal.AnalysisCacheMsg;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class AnalysisCachePublisher implements ReportPublisherStep {
   private final AnalysisCacheEnabled analysisCacheEnabled;
+  private final BranchConfiguration branchConfiguration;
   private final ScannerWriteCache cache;
 
-  public AnalysisCachePublisher(AnalysisCacheEnabled analysisCacheEnabled, ScannerWriteCache cache) {
+  public AnalysisCachePublisher(AnalysisCacheEnabled analysisCacheEnabled, BranchConfiguration branchConfiguration, ScannerWriteCache cache) {
     this.analysisCacheEnabled = analysisCacheEnabled;
+    this.branchConfiguration = branchConfiguration;
     this.cache = cache;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    if (!analysisCacheEnabled.isEnabled() || cache.getCache().isEmpty()) {
+    if (!analysisCacheEnabled.isEnabled() || branchConfiguration.isPullRequest() || cache.getCache().isEmpty()) {
       return;
     }
     AnalysisCacheMsg.Builder analysisCacheMsg = ScannerInternal.AnalysisCacheMsg.newBuilder();

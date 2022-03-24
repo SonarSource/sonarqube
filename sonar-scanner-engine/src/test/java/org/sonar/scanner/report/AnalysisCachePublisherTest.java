@@ -29,6 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.cache.AnalysisCacheEnabled;
 import org.sonar.scanner.cache.ScannerWriteCache;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,8 @@ public class AnalysisCachePublisherTest {
 
   private final ScannerWriteCache writeCache = mock(ScannerWriteCache.class);
   private final AnalysisCacheEnabled analysisCacheEnabled = mock(AnalysisCacheEnabled.class);
-  private final AnalysisCachePublisher publisher = new AnalysisCachePublisher(analysisCacheEnabled, writeCache);
+  private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private final AnalysisCachePublisher publisher = new AnalysisCachePublisher(analysisCacheEnabled, branchConfiguration, writeCache);
 
   private ScannerReportWriter scannerReportWriter;
 
@@ -56,6 +58,15 @@ public class AnalysisCachePublisherTest {
   @Test
   public void publish_does_nothing_if_cache_not_enabled() {
     when(analysisCacheEnabled.isEnabled()).thenReturn(false);
+    publisher.publish(scannerReportWriter);
+    verifyNoInteractions(writeCache);
+    assertThat(scannerReportWriter.getFileStructure().root()).isEmptyDirectory();
+  }
+
+  @Test
+  public void publish_does_nothing_if_pull_request() {
+    when(analysisCacheEnabled.isEnabled()).thenReturn(true);
+    when(branchConfiguration.isPullRequest()).thenReturn(true);
     publisher.publish(scannerReportWriter);
     verifyNoInteractions(writeCache);
     assertThat(scannerReportWriter.getFileStructure().root()).isEmptyDirectory();

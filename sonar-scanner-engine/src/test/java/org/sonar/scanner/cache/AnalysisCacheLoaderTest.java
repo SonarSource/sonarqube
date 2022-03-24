@@ -74,24 +74,13 @@ public class AnalysisCacheLoaderTest {
 
   @Test
   public void loads_content_for_branch() throws IOException {
-    when(branchConfiguration.branchType()).thenReturn(BranchType.BRANCH);
-    when(branchConfiguration.branchName()).thenReturn("name");
+    when(branchConfiguration.referenceBranchName()).thenReturn("name");
 
     setResponse(MSG);
     AnalysisCacheMsg msg = loader.load().get();
 
     assertThat(msg).isEqualTo(MSG);
     assertRequestPath("api/analysis_cache/get?project=myproject&branch=name");
-  }
-
-  @Test
-  public void loads_content_for_pr() throws IOException {
-    when(branchConfiguration.isPullRequest()).thenReturn(true);
-    when(branchConfiguration.pullRequestKey()).thenReturn("key");
-    setResponse(MSG);
-    AnalysisCacheMsg msg = loader.load().get();
-    assertThat(msg).isEqualTo(MSG);
-    assertRequestPath("api/analysis_cache/get?project=myproject&pullRequest=key");
   }
 
   @Test

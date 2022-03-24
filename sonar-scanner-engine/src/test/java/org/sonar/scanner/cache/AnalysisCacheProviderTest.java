@@ -21,6 +21,7 @@ package org.sonar.scanner.cache;
 
 import org.junit.Test;
 import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,10 +30,11 @@ import static org.mockito.Mockito.when;
 
 public class AnalysisCacheProviderTest {
 
-  AnalysisCacheEnabled analysisCacheEnabled = mock(AnalysisCacheEnabled.class);
-  AnalysisCacheMemoryStorage storage = mock(AnalysisCacheMemoryStorage.class);
-  ReadCache readCache = mock(ReadCache.class);
-  AnalysisCacheProvider cacheProvider = new AnalysisCacheProvider();
+  private final AnalysisCacheEnabled analysisCacheEnabled = mock(AnalysisCacheEnabled.class);
+  private final AnalysisCacheMemoryStorage storage = mock(AnalysisCacheMemoryStorage.class);
+  private final ReadCache readCache = mock(ReadCache.class);
+  private final AnalysisCacheProvider cacheProvider = new AnalysisCacheProvider();
+  private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
 
   @Test
   public void provide_noop_reader_cache_when_disable() {
@@ -44,7 +46,7 @@ public class AnalysisCacheProviderTest {
   @Test
   public void provide_noop_writer_cache_when_disable() {
     when(analysisCacheEnabled.isEnabled()).thenReturn(false);
-    var cache = cacheProvider.provideWriter(analysisCacheEnabled, readCache);
+    var cache = cacheProvider.provideWriter(analysisCacheEnabled, readCache, branchConfiguration);
     assertThat(cache).isInstanceOf(AnalysisCacheProvider.NoOpWriteCache.class);
   }
 
@@ -59,7 +61,7 @@ public class AnalysisCacheProviderTest {
   @Test
   public void provide_real_writer_cache_when_enable() {
     when(analysisCacheEnabled.isEnabled()).thenReturn(true);
-    var cache = cacheProvider.provideWriter(analysisCacheEnabled, readCache);
+    var cache = cacheProvider.provideWriter(analysisCacheEnabled, readCache, branchConfiguration);
     assertThat(cache).isInstanceOf(WriteCacheImpl.class);
   }
 }

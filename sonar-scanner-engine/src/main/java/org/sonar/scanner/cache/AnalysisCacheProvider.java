@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.sensor.cache.ReadCache;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.springframework.context.annotation.Bean;
 
 import static java.util.Collections.emptyMap;
@@ -38,9 +39,9 @@ public class AnalysisCacheProvider {
   }
 
   @Bean("WriteCache")
-  public ScannerWriteCache provideWriter(AnalysisCacheEnabled analysisCacheEnabled, ReadCache readCache) {
+  public ScannerWriteCache provideWriter(AnalysisCacheEnabled analysisCacheEnabled, ReadCache readCache, BranchConfiguration branchConfiguration) {
     if (analysisCacheEnabled.isEnabled()) {
-      return new WriteCacheImpl(readCache);
+      return new WriteCacheImpl(readCache, branchConfiguration);
     }
     return new NoOpWriteCache();
   }

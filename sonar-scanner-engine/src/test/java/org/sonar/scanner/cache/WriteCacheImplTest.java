@@ -22,6 +22,7 @@ package org.sonar.scanner.cache;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.Test;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,7 +32,8 @@ import static org.mockito.Mockito.when;
 
 public class WriteCacheImplTest {
   private final ReadCacheImpl readCache = mock(ReadCacheImpl.class);
-  private final WriteCacheImpl writeCache = new WriteCacheImpl(readCache);
+  private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private final WriteCacheImpl writeCache = new WriteCacheImpl(readCache, branchConfiguration);
 
   @Test
   public void write_bytes_adds_entries() {
@@ -41,6 +43,15 @@ public class WriteCacheImplTest {
     writeCache.write("key2", b2);
 
     assertThat(writeCache.getCache()).containsOnly(entry("key", b1), entry("key2", b2));
+  }
+
+  @Test
+  public void dont_write_if_its_pull_request() {
+    byte[] b1 = new byte[] {1, 2, 3};
+    when(branchConfiguration.isPullRequest()).thenReturn(true);
+    writeCache.write("key1", b1);
+    writeCache.write("key2", new ByteArrayInputStream(b1));
+    assertThat(writeCache.getCache()).isEmpty();
   }
 
   @Test

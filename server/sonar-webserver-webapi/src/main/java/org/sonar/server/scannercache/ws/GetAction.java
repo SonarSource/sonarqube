@@ -78,21 +78,15 @@ public class GetAction implements AnalysisCacheWsAction {
       .setDescription("Branch key. If not provided, main branch will be used.")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
       .setRequired(false);
-
-    action.createParam(PR)
-      .setDescription("Pull request id. Not available in the community edition.")
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setRequired(false);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PROJECT);
     String branchKey = request.param(BRANCH);
-    String prKey = request.param(PR);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, prKey);
+      ComponentDto component = componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, branchKey, null);
       checkPermission(component);
 
       try (DbInputStream dbInputStream = cache.get(component.uuid())) {
