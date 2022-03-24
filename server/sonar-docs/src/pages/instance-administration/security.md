@@ -91,16 +91,24 @@ When installing SonarQube, a default user with Administer System permission is c
 * Password: admin
 
 ## Reinstating Admin Access
-If you changed and then lost the `admin` password, you can reset it using the following query:
-```
-update users set crypted_password='100000$t2h8AtNs1AlCHuLobDjHQTn9XppwTIx88UjqUm4s8RsfTuXQHSd/fpFexAnewwPsO6jGFQUv/24DnO55hY6Xew==', salt='k9x9eN127/3e/hf38iNiKwVfaVk=', hash_method='PBKDF2', reset_password='true', user_local='true' where login='admin';
-```
+
 If you've deleted `admin` and subsequently locked out the other users with global administrative permissions, you'll need to re-grant `admin` to a user with the following query:
 ```
 INSERT INTO user_roles(uuid, user_uuid, role) 
 VALUES ('random-uuid',
 (select uuid from users where login='mylogin'), 
 'admin');
+```
+
+If you changed and then lost the `admin` password, you can reset it using the following query, depending on the database engine:
+
+### PostgreSQL and Microsoft SQL Server
+```
+update users set crypted_password='100000$t2h8AtNs1AlCHuLobDjHQTn9XppwTIx88UjqUm4s8RsfTuXQHSd/fpFexAnewwPsO6jGFQUv/24DnO55hY6Xew==', salt='k9x9eN127/3e/hf38iNiKwVfaVk=', hash_method='PBKDF2', reset_password='true', user_local='true' where login='admin';
+```
+### Oracle
+```
+update users set crypted_password='100000$t2h8AtNs1AlCHuLobDjHQTn9XppwTIx88UjqUm4s8RsfTuXQHSd/fpFexAnewwPsO6jGFQUv/24DnO55hY6Xew==', salt='k9x9eN127/3e/hf38iNiKwVfaVk=', hash_method='PBKDF2', reset_password=1, user_local=1 where login='admin';
 ```
 
 ## Authorization
