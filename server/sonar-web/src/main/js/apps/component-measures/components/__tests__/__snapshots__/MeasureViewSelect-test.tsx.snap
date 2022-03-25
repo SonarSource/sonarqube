@@ -1,11 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly: has no list 1`] = `
-<SelectLegacy
+<Select
+  aria-labelledby="measures-view-selection-label"
   autoBlur={true}
-  clearable={false}
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  isSearchable={false}
   onChange={[Function]}
-  optionRenderer={[Function]}
   options={
     Array [
       Object {
@@ -20,18 +26,21 @@ exports[`should render correctly: has no list 1`] = `
       },
     ]
   }
-  searchable={false}
-  value="list"
-  valueRenderer={[Function]}
 />
 `;
 
 exports[`should render correctly: has no tree 1`] = `
-<SelectLegacy
+<Select
+  aria-labelledby="measures-view-selection-label"
   autoBlur={true}
-  clearable={false}
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  isSearchable={false}
   onChange={[Function]}
-  optionRenderer={[Function]}
   options={
     Array [
       Object {
@@ -41,18 +50,28 @@ exports[`should render correctly: has no tree 1`] = `
       },
     ]
   }
-  searchable={false}
-  value="list"
-  valueRenderer={[Function]}
+  value={
+    Object {
+      "icon": <ListIcon />,
+      "label": "component_measures.tab.list",
+      "value": "list",
+    }
+  }
 />
 `;
 
 exports[`should render correctly: has no treemap 1`] = `
-<SelectLegacy
+<Select
+  aria-labelledby="measures-view-selection-label"
   autoBlur={true}
-  clearable={false}
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  isSearchable={false}
   onChange={[Function]}
-  optionRenderer={[Function]}
   options={
     Array [
       Object {
@@ -72,8 +91,12 @@ exports[`should render correctly: has no treemap 1`] = `
       },
     ]
   }
-  searchable={false}
-  value="list"
-  valueRenderer={[Function]}
+  value={
+    Object {
+      "icon": <ListIcon />,
+      "label": "component_measures.tab.list",
+      "value": "list",
+    }
+  }
 />
 `;

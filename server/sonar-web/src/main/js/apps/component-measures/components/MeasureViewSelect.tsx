@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import { components, OptionProps, SingleValueProps } from 'react-select';
+import Select from '../../../components/controls/Select';
 import ListIcon from '../../../components/icons/ListIcon';
 import TreeIcon from '../../../components/icons/TreeIcon';
 import TreemapIcon from '../../../components/icons/TreemapIcon';
@@ -34,10 +35,16 @@ interface Props {
   view: MeasurePageView;
 }
 
+interface ViewOption {
+  icon: JSX.Element;
+  label: string;
+  value: string;
+}
+
 export default class MeasureViewSelect extends React.PureComponent<Props> {
   getOptions = () => {
     const { metric } = this.props;
-    const options = [];
+    const options: ViewOption[] = [];
     if (hasTree(metric.key)) {
       options.push({
         icon: <TreeIcon />,
@@ -62,31 +69,41 @@ export default class MeasureViewSelect extends React.PureComponent<Props> {
     return options;
   };
 
-  handleChange = (option: { value: string }) => {
+  handleChange = (option: ViewOption) => {
     return this.props.handleViewChange(option.value as MeasurePageView);
   };
 
-  renderOption = (option: { icon: JSX.Element; label: string }) => {
-    return (
-      <>
-        {option.icon}
-        <span className="little-spacer-left">{option.label}</span>
-      </>
-    );
-  };
+  renderOption = (props: OptionProps<ViewOption, false>) => (
+    <components.Option {...props} className="display-flex-center">
+      {props.data.icon}
+      <span className="little-spacer-left">{props.data.label}</span>
+    </components.Option>
+  );
+
+  renderValue = (props: SingleValueProps<ViewOption>) => (
+    <components.SingleValue {...props} className="display-flex-center">
+      {props.data.icon}
+      <span className="little-spacer-left">{props.data.label}</span>
+    </components.SingleValue>
+  );
 
   render() {
+    const { className, view } = this.props;
+    const options = this.getOptions();
+
     return (
-      <SelectLegacy
+      <Select
+        aria-labelledby="measures-view-selection-label"
         autoBlur={true}
-        className={this.props.className}
-        clearable={false}
+        className={className}
         onChange={this.handleChange}
-        optionRenderer={this.renderOption}
-        options={this.getOptions()}
-        searchable={false}
-        value={this.props.view}
-        valueRenderer={this.renderOption}
+        components={{
+          Option: this.renderOption,
+          SingleValue: this.renderValue
+        }}
+        options={options}
+        isSearchable={false}
+        value={options.find(o => o.value === view)}
       />
     );
   }

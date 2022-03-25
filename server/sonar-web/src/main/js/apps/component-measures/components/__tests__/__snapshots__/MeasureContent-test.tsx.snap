@@ -162,7 +162,9 @@ exports[`should render correctly for a project 1`] = `
               className="display-flex-center"
             >
               <React.Fragment>
-                <div>
+                <div
+                  id="measures-view-selection-label"
+                >
                   component_measures.view_as
                 </div>
                 <MeasureViewSelect
@@ -371,7 +373,9 @@ exports[`should render correctly when asc prop is defined 1`] = `
               className="display-flex-center"
             >
               <React.Fragment>
-                <div>
+                <div
+                  id="measures-view-selection-label"
+                >
                   component_measures.view_as
                 </div>
                 <MeasureViewSelect
@@ -580,7 +584,9 @@ exports[`should render correctly when view prop is tree 1`] = `
               className="display-flex-center"
             >
               <React.Fragment>
-                <div>
+                <div
+                  id="measures-view-selection-label"
+                >
                   component_measures.view_as
                 </div>
                 <MeasureViewSelect
@@ -789,7 +795,9 @@ exports[`should test fetchMoreComponents to work correctly 1`] = `
               className="display-flex-center"
             >
               <React.Fragment>
-                <div>
+                <div
+                  id="measures-view-selection-label"
+                >
                   component_measures.view_as
                 </div>
                 <MeasureViewSelect

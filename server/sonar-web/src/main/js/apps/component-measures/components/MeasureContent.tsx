@@ -376,7 +376,9 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
                   <div className="display-flex-center">
                     {!isFileComponent && metric && (
                       <>
-                        <div>{translate('component_measures.view_as')}</div>
+                        <div id="measures-view-selection-label">
+                          {translate('component_measures.view_as')}
+                        </div>
                         <MeasureViewSelect
                           className="measure-view-select spacer-left big-spacer-right"
                           handleViewChange={this.updateView}

@@ -134,18 +134,13 @@
   }
 }
 
-.measure-view-select {
-  width: 102px;
-}
-
-.measure-view-select .Select-menu-outer {
-  width: 100px;
-  border-top-right-radius: 4px;
-}
-
 .measure-content-header {
   display: flex;
   align-items: center;
+}
+
+.measure-content-header .measure-view-select {
+  width: 102px;
 }
 
 .measure-content-header-left {

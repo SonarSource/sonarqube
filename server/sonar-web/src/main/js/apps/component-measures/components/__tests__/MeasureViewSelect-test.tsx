@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import ListIcon from '../../../../components/icons/ListIcon';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { MetricKey } from '../../../../types/metrics';
 import MeasureViewSelect from '../MeasureViewSelect';
@@ -38,7 +39,7 @@ it('should render correctly', () => {
 it('should correctly trigger a selection change', () => {
   const handleViewChange = jest.fn();
   const wrapper = shallowRender({ handleViewChange });
-  wrapper.instance().handleChange({ value: 'list' });
+  wrapper.instance().handleChange({ icon: <ListIcon />, label: 'List View', value: 'list' });
   expect(handleViewChange).toBeCalledWith('list');
 });
 
