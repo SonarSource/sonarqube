@@ -19,18 +19,17 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
+import { OptionTypeBase } from 'react-select';
 import { activateRule, Profile } from '../../../api/quality-profiles';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
 import Select from '../../../components/controls/Select';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
-import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
+import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   activation?: RuleActivation;
@@ -153,26 +152,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const isCustomRule = !!(rule as RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
-    const serverityOption = SEVERITIES.map(severity => ({
-      label: translate('severity', severity),
-      value: severity
-    }));
-
-    function Option(props: OptionProps<OptionTypeBase, false>) {
-      return (
-        <components.Option {...props}>
-          <SeverityHelper severity={props.data.value} />
-        </components.Option>
-      );
-    }
-
-    function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-      return (
-        <components.SingleValue {...props}>
-          <SeverityHelper className="coding-rules-severity-value" severity={props.data.value} />
-        </components.SingleValue>
-      );
-    }
 
     return (
       <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
@@ -203,16 +182,11 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             </div>
             <div className="modal-field">
               <label id="coding-rules-severity-select">{translate('severity')}</label>
-              <Select
-                className="js-severity"
-                isClearable={false}
+              <SeveritySelect
                 isDisabled={submitting}
-                aria-labelledby="coding-rules-severity-select"
+                ariaLabelledby="coding-rules-severity-select"
                 onChange={this.handleSeverityChange}
-                components={{ Option, SingleValue }}
-                options={serverityOption}
-                isSearchable={false}
-                value={serverityOption.find(s => s.value === severity)}
+                severity={severity}
               />
             </div>
             {isCustomRule ? (

@@ -18,22 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { components, OptionProps, OptionTypeBase, SingleValueProps } from 'react-select';
 import { createRule, updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
+import Select from '../../../components/controls/Select';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { RULE_STATUSES, RULE_TYPES, SEVERITIES } from '../../../helpers/constants';
+import { RULE_STATUSES, RULE_TYPES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
-import { Dict, RuleDetails, RuleParameter, RuleType } from '../../../types/types';
+import { Dict, RuleDetails, RuleParameter } from '../../../types/types';
+import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   customRule?: RuleDetails;
@@ -212,71 +213,81 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     </div>
   );
 
-  renderTypeOption = ({ value }: { value: RuleType }) => {
-    return <TypeHelper type={value} />;
+  renderTypeOption = (props: OptionProps<OptionTypeBase, false>) => {
+    return (
+      <components.Option {...props}>
+        <TypeHelper type={props.data.value} />
+      </components.Option>
+    );
   };
 
-  renderTypeField = () => (
-    <div className="modal-field flex-1 spacer-right">
-      <label htmlFor="coding-rules-custom-rule-type">{translate('type')}</label>
-      <SelectLegacy
-        clearable={false}
-        disabled={this.state.submitting}
-        id="coding-rules-custom-rule-type"
-        onChange={this.handleTypeChange}
-        optionRenderer={this.renderTypeOption}
-        options={RULE_TYPES.map(type => ({
-          label: translate('issue.type', type),
-          value: type
-        }))}
-        searchable={false}
-        value={this.state.type}
-        valueRenderer={this.renderTypeOption}
-      />
-    </div>
-  );
+  renderTypeSingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+    return (
+      <components.SingleValue {...props}>
+        <TypeHelper className="display-flex-center" type={props.data.value} />
+      </components.SingleValue>
+    );
+  };
 
-  renderSeverityOption = ({ value }: { value: string }) => <SeverityHelper severity={value} />;
+  renderTypeField = () => {
+    const ruleTypeOption = RULE_TYPES.map(type => ({
+      label: translate('issue.type', type),
+      value: type
+    }));
+    return (
+      <div className="modal-field flex-1 spacer-right">
+        <label id="coding-rules-custom-rule-type">{translate('type')}</label>
+        <Select
+          aria-labelledby="coding-rules-custom-rule-type"
+          isClearable={false}
+          isDisabled={this.state.submitting}
+          isSearchable={false}
+          onChange={this.handleTypeChange}
+          components={{
+            Option: this.renderTypeOption,
+            SingleValue: this.renderTypeSingleValue
+          }}
+          options={ruleTypeOption}
+          value={ruleTypeOption.find(t => t.value === this.state.type)}
+        />
+      </div>
+    );
+  };
 
   renderSeverityField = () => (
     <div className="modal-field flex-1 spacer-right">
-      <label htmlFor="coding-rules-custom-rule-severity">{translate('severity')}</label>
-      <SelectLegacy
-        clearable={false}
-        disabled={this.state.submitting}
-        id="coding-rules-custom-rule-severity"
+      <label id="coding-rules-custom-rule-severity">{translate('severity')}</label>
+      <SeveritySelect
+        ariaLabelledby="coding-rules-custom-rule-severity"
+        isDisabled={this.state.submitting}
         onChange={this.handleSeverityChange}
-        optionRenderer={this.renderSeverityOption}
-        options={SEVERITIES.map(severity => ({
-          label: translate('severity', severity),
-          value: severity
-        }))}
-        searchable={false}
-        value={this.state.severity}
-        valueRenderer={this.renderSeverityOption}
+        severity={this.state.severity}
       />
     </div>
   );
 
-  renderStatusField = () => (
-    <div className="modal-field flex-1">
-      <label htmlFor="coding-rules-custom-rule-status">
-        {translate('coding_rules.filters.status')}
-      </label>
-      <SelectLegacy
-        clearable={false}
-        disabled={this.state.submitting}
-        id="coding-rules-custom-rule-status"
-        onChange={this.handleStatusChange}
-        options={RULE_STATUSES.map(status => ({
-          label: translate('rules.status', status),
-          value: status
-        }))}
-        searchable={false}
-        value={this.state.status}
-      />
-    </div>
-  );
+  renderStatusField = () => {
+    const statusesOptions = RULE_STATUSES.map(status => ({
+      label: translate('rules.status', status),
+      value: status
+    }));
+    return (
+      <div className="modal-field flex-1">
+        <label id="coding-rules-custom-rule-status">
+          {translate('coding_rules.filters.status')}
+        </label>
+        <Select
+          isClearable={false}
+          isDisabled={this.state.submitting}
+          aria-labelledby="coding-rules-custom-rule-status"
+          onChange={this.handleStatusChange}
+          options={statusesOptions}
+          searchable={false}
+          value={statusesOptions.find(s => s.value === this.state.status)}
+        />
+      </div>
+    );
+  };
 
   renderParameterField = (param: RuleParameter) => (
     <div className="modal-field" key={param.key}>

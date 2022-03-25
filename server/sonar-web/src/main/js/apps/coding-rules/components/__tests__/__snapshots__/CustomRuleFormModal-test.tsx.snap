@@ -72,16 +72,22 @@ exports[`should handle re-activation 1`] = `
           className="modal-field flex-1 spacer-right"
         >
           <label
-            htmlFor="coding-rules-custom-rule-type"
+            id="coding-rules-custom-rule-type"
           >
             type
           </label>
-          <SelectLegacy
-            clearable={false}
-            disabled={false}
-            id="coding-rules-custom-rule-type"
+          <Select
+            aria-labelledby="coding-rules-custom-rule-type"
+            components={
+              Object {
+                "Option": [Function],
+                "SingleValue": [Function],
+              }
+            }
+            isClearable={false}
+            isDisabled={false}
+            isSearchable={false}
             onChange={[Function]}
-            optionRenderer={[Function]}
             options={
               Array [
                 Object {
@@ -102,66 +108,41 @@ exports[`should handle re-activation 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="CODE_SMELL"
-            valueRenderer={[Function]}
+            value={
+              Object {
+                "label": "issue.type.CODE_SMELL",
+                "value": "CODE_SMELL",
+              }
+            }
           />
         </div>
         <div
           className="modal-field flex-1 spacer-right"
         >
           <label
-            htmlFor="coding-rules-custom-rule-severity"
+            id="coding-rules-custom-rule-severity"
           >
             severity
           </label>
-          <SelectLegacy
-            clearable={false}
-            disabled={false}
-            id="coding-rules-custom-rule-severity"
+          <SeveritySelect
+            ariaLabelledby="coding-rules-custom-rule-severity"
+            isDisabled={false}
             onChange={[Function]}
-            optionRenderer={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "severity.BLOCKER",
-                  "value": "BLOCKER",
-                },
-                Object {
-                  "label": "severity.CRITICAL",
-                  "value": "CRITICAL",
-                },
-                Object {
-                  "label": "severity.MAJOR",
-                  "value": "MAJOR",
-                },
-                Object {
-                  "label": "severity.MINOR",
-                  "value": "MINOR",
-                },
-                Object {
-                  "label": "severity.INFO",
-                  "value": "INFO",
-                },
-              ]
-            }
-            searchable={false}
-            value="MAJOR"
-            valueRenderer={[Function]}
+            severity="MAJOR"
           />
         </div>
         <div
           className="modal-field flex-1"
         >
           <label
-            htmlFor="coding-rules-custom-rule-status"
+            id="coding-rules-custom-rule-status"
           >
             coding_rules.filters.status
           </label>
-          <SelectLegacy
-            clearable={false}
-            disabled={false}
-            id="coding-rules-custom-rule-status"
+          <Select
+            aria-labelledby="coding-rules-custom-rule-status"
+            isClearable={false}
+            isDisabled={false}
             onChange={[Function]}
             options={
               Array [
@@ -180,7 +161,12 @@ exports[`should handle re-activation 1`] = `
               ]
             }
             searchable={false}
-            value="READY"
+            value={
+              Object {
+                "label": "rules.status.READY",
+                "value": "READY",
+              }
+            }
           />
         </div>
       </div>
@@ -341,16 +327,22 @@ exports[`should render correctly: default 1`] = `
           className="modal-field flex-1 spacer-right"
         >
           <label
-            htmlFor="coding-rules-custom-rule-type"
+            id="coding-rules-custom-rule-type"
           >
             type
           </label>
-          <SelectLegacy
-            clearable={false}
-            disabled={false}
-            id="coding-rules-custom-rule-type"
+          <Select
+            aria-labelledby="coding-rules-custom-rule-type"
+            components={
+              Object {
+                "Option": [Function],
+                "SingleValue": [Function],
+              }
+            }
+            isClearable={false}
+            isDisabled={false}
+            isSearchable={false}
             onChange={[Function]}
-            optionRenderer={[Function]}
             options={
               Array [
                 Object {
@@ -371,66 +363,41 @@ exports[`should render correctly: default 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="CODE_SMELL"
-            valueRenderer={[Function]}
+            value={
+              Object {
+                "label": "issue.type.CODE_SMELL",
+                "value": "CODE_SMELL",
+              }
+            }
           />
         </div>
         <div
           className="modal-field flex-1 spacer-right"
         >
           <label
-            htmlFor="coding-rules-custom-rule-severity"
+            id="coding-rules-custom-rule-severity"
           >
             severity
           </label>
-          <SelectLegacy
-            clearable={false}
-            disabled={false}
-            id="coding-rules-custom-rule-severity"
+          <SeveritySelect
+            ariaLabelledby="coding-rules-custom-rule-severity"
+            isDisabled={false}
             onChange={[Function]}
-            optionRenderer={[Function]}
-            options={
-              Array [
-                Object {
-                  "label": "severity.BLOCKER",
-                  "value": "BLOCKER",
-                },
-                Object {
-                  "label": "severity.CRITICAL",
-                  "value": "CRITICAL",
-                },
-                Object {
-                  "label": "severity.MAJOR",
-                  "value": "MAJOR",
-                },
-                Object {
-                  "label": "severity.MINOR",
-                  "value": "MINOR",
-                },
-                Object {
-                  "label": "severity.INFO",
-                  "value": "INFO",
-                },
-              ]
-            }
-            searchable={false}
-            value="MAJOR"
-            valueRenderer={[Function]}
+            severity="MAJOR"
           />
         </div>
         <div
           className="modal-field flex-1"
         >
           <label
-            htmlFor="coding-rules-custom-rule-status"
+            id="coding-rules-custom-rule-status"
           >
             coding_rules.filters.status
           </label>
-          <SelectLegacy
-            clearable={false}
-            disabled={false}
-            id="coding-rules-custom-rule-status"
+          <Select
+            aria-labelledby="coding-rules-custom-rule-status"
+            isClearable={false}
+            isDisabled={false}
             onChange={[Function]}
             options={
               Array [
@@ -449,7 +416,12 @@ exports[`should render correctly: default 1`] = `
               ]
             }
             searchable={false}
-            value="READY"
+            value={
+              Object {
+                "label": "rules.status.READY",
+                "value": "READY",
+              }
+            }
           />
         </div>
       </div>
