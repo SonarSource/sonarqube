@@ -19,12 +19,17 @@
  */
 package org.sonar.server.rule;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 
+import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.server.rule.CommonRuleKeys.commonRepositoryForLang;
 
 /**
@@ -35,6 +40,9 @@ import static org.sonar.server.rule.CommonRuleKeys.commonRepositoryForLang;
 // It replaces the common-rules that are still embedded within plugins.
 public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
 
+  private static final List<String> LANGUAGES_TO_SKIP = List.of("terraform", "cloudformation", "web", "css", "xml", "yaml", "json", "jsp");
+  private static final String MINUTES_10 = "10min";
+
   private final Languages languages;
 
   public CommonRuleDefinitionsImpl(Languages languages) {
@@ -43,7 +51,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
 
   @Override
   public void define(RulesDefinition.Context context) {
-    for (Language language : languages.all()) {
+    for (Language language : getActiveLanguages(languages.all())) {
       RulesDefinition.NewRepository repo = context.createRepository(commonRepositoryForLang(language.getKey()), language.getKey());
       repo.setName("Common " + language.getName());
       defineBranchCoverageRule(repo);
@@ -54,6 +62,12 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       defineSkippedUnitTestRule(repo);
       repo.done();
     }
+  }
+
+  private static List<Language> getActiveLanguages(Language[] allLanguages) {
+    return Arrays.stream(allLanguages)
+      .filter(Predicate.not(language -> LANGUAGES_TO_SKIP.contains(language.getKey())))
+      .collect(Collectors.toList());
   }
 
   private static void defineBranchCoverageRule(RulesDefinition.NewRepository repo) {
@@ -69,6 +83,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setName("The minimum required branch coverage ratio")
       .setDefaultValue("65")
       .setType(RuleParamType.FLOAT);
+    rule.setStatus(DEPRECATED);
   }
 
   private static void defineLineCoverageRule(RulesDefinition.NewRepository repo) {
@@ -84,6 +99,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setName("The minimum required line coverage ratio")
       .setDefaultValue("65")
       .setType(RuleParamType.FLOAT);
+    rule.setStatus(DEPRECATED);
   }
 
   private static void defineCommentDensityRule(RulesDefinition.NewRepository repo) {
@@ -99,6 +115,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setName("The minimum required comment density")
       .setDefaultValue("25")
       .setType(RuleParamType.FLOAT);
+    rule.setStatus(DEPRECATED);
   }
 
   private static void defineDuplicatedBlocksRule(RulesDefinition.NewRepository repo) {
@@ -106,9 +123,10 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
     rule.setName("Source files should not have any duplicated blocks")
       .addTags("pitfall")
       .setHtmlDescription("An issue is created on a file as soon as there is at least one block of duplicated code on this file")
-      .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("10min", "10min"))
+      .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset(MINUTES_10, MINUTES_10))
       .setGapDescription("number of duplicate blocks")
-      .setSeverity(Severity.MAJOR);
+      .setSeverity(Severity.MAJOR)
+      .setStatus(DEPRECATED);
   }
 
   private static void defineFailedUnitTestRule(RulesDefinition.NewRepository repo) {
@@ -118,9 +136,10 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("bug")
       .setHtmlDescription("Test failures or errors generally indicate that regressions have been introduced. "
         + "Those tests should be handled as soon as possible to reduce the cost to fix the corresponding regressions.")
-      .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
+      .setDebtRemediationFunction(rule.debtRemediationFunctions().linear(MINUTES_10))
       .setGapDescription("number of failed tests")
-      .setSeverity(Severity.MAJOR);
+      .setSeverity(Severity.MAJOR)
+      .setStatus(DEPRECATED);
   }
 
   private static void defineSkippedUnitTestRule(RulesDefinition.NewRepository repo) {
@@ -128,8 +147,9 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
     rule.setName("Skipped unit tests should be either removed or fixed")
       .addTags("pitfall")
       .setHtmlDescription("Skipped unit tests are considered as dead code. Either they should be activated again (and updated) or they should be removed.")
-      .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
+      .setDebtRemediationFunction(rule.debtRemediationFunctions().linear(MINUTES_10))
       .setGapDescription("number of skipped tests")
-      .setSeverity(Severity.MAJOR);
+      .setSeverity(Severity.MAJOR)
+      .setStatus(DEPRECATED);
   }
 }
