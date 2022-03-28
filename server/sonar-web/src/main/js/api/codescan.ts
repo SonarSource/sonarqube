@@ -65,3 +65,8 @@ export function getApiKeyForZoho(data: {
     .catch(throwGlobalError);
 }
 
+export function getProjectAnalysis(organizationId: string, projectKey: string): Promise<object> {
+  return getJSON('/_codescan/integrations/list', {organizationId, projectKey})
+    .catch(throwGlobalError);
+}
+

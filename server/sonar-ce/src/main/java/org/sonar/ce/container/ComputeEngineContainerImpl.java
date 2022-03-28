@@ -52,6 +52,7 @@ import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.cleaning.NoopCeCleaningSchedulerImpl;
+import org.sonar.ce.configuration.WorkerCountProviderImpl;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
@@ -364,6 +365,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ResourceTypes.class,
       DefaultResourceTypes.get(),
       BillingValidationsProxyImpl.class,
+
+      WorkerCountProviderImpl.class,
 
       // quality profile
       ActiveRuleIndexer.class,

@@ -25,6 +25,7 @@ import { SettingsKey } from '../../../types/settings';
 import LifetimeInformationRenderer from './LifetimeInformationRenderer';
 
 interface Props {
+  projectAnalysis: any;
   canAdmin?: boolean;
 }
 
@@ -70,6 +71,7 @@ export class LifetimeInformation extends React.PureComponent<Props, State> {
 
     return (
       <LifetimeInformationRenderer
+        projectAnalysis={this.props.projectAnalysis}
         branchAndPullRequestLifeTimeInDays={branchAndPullRequestLifeTimeInDays}
         canAdmin={canAdmin}
         loading={loading}

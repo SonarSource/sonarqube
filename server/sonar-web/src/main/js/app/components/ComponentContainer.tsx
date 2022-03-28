@@ -24,6 +24,7 @@ import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
+import { getProjectAnalysis } from '../../api/codescan';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import {
   getBranchLikeQuery,
@@ -63,6 +64,7 @@ interface State {
   loading: boolean;
   tasksInProgress?: Task[];
   warnings: TaskWarning[];
+  projectAnalysis: any;
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -70,7 +72,7 @@ const FETCH_STATUS_WAIT_TIME = 3000;
 export class ComponentContainer extends React.PureComponent<Props, State> {
   watchStatusTimer?: number;
   mounted = false;
-  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [] };
+  state: State = { branchLikes: [], isPending: false, loading: true, warnings: [], projectAnalysis: null };
 
   componentDidMount() {
     this.mounted = true;
@@ -119,6 +121,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         const componentWithQualifier = this.addQualifier({ ...nav, ...component });
 
         this.props.fetchOrganization(component.organization);
+
+        this.fetchProjectAnalysis(component);
 
         /*
          * There used to be a redirect from /dashboard to /portfolio which caused issues.
@@ -179,6 +183,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     } else {
       return Promise.resolve({ branchLikes: [], component });
     }
+  };
+
+  fetchProjectAnalysis = (
+    component: T.Component
+  ): void => {
+    getProjectAnalysis(component.organization, component.key).then((response: any) => {
+      this.setState({ projectAnalysis: response['integrations'][0] });
+    });
   };
 
   fetchStatus = (component: T.Component) => {
@@ -340,7 +352,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       return <PageUnavailableDueToIndexation component={component} />;
     }
 
-    const { branchLike, branchLikes, currentTask, isPending, tasksInProgress } = this.state;
+    const { branchLike, branchLikes, currentTask, isPending, tasksInProgress, projectAnalysis } = this.state;
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
@@ -349,6 +361,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           <ComponentNav
             branchLikes={branchLikes}
             component={component}
+            projectAnalysis={projectAnalysis}
             currentBranchLike={branchLike}
             currentTask={currentTask}
             currentTaskOnSameBranch={currentTask && this.isSameBranch(currentTask, branchLike)}
@@ -369,6 +382,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               branchLike,
               branchLikes,
               component,
+              projectAnalysis,
               isInProgress,
               isPending,
               onBranchesChange: this.handleBranchesChange,

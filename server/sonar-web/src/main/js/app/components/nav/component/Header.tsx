@@ -34,6 +34,7 @@ import OrganizationLink from "../../../../components/ui/OrganizationLink";
 export interface HeaderProps {
   branchLikes: BranchLike[];
   component: T.Component;
+  projectAnalysis: any;
   currentBranchLike: BranchLike | undefined;
   currentUser: T.CurrentUser;
   organization: T.Organization;
@@ -72,6 +73,7 @@ export function Header(props: HeaderProps) {
             <BranchLikeNavigation
               branchLikes={branchLikes}
               component={component}
+              projectAnalysis={props.projectAnalysis}
               currentBranchLike={currentBranchLike}
             />
             <CurrentBranchLikeMergeInformation currentBranchLike={currentBranchLike} />
