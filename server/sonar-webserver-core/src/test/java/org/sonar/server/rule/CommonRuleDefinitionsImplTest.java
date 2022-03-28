@@ -62,7 +62,8 @@ public class CommonRuleDefinitionsImplTest {
       createLanguage("xml"),
       createLanguage("yaml"),
       createLanguage("json"),
-      createLanguage("jsp")
+      createLanguage("jsp"),
+      createLanguage("text")
     );
   }
 
