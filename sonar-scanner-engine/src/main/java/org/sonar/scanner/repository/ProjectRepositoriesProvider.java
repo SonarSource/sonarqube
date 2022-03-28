@@ -19,35 +19,31 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.function.Supplier;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.springframework.context.annotation.Bean;
 
-public class ProjectRepositoriesSupplier implements Supplier<ProjectRepositories> {
-  private static final Logger LOG = Loggers.get(ProjectRepositoriesSupplier.class);
+public class ProjectRepositoriesProvider {
+  private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
   private static final String LOG_MSG = "Load project repositories";
   private final ProjectRepositoriesLoader loader;
   private final ScannerProperties scannerProperties;
   private final BranchConfiguration branchConfig;
 
-  private ProjectRepositories project = null;
-
-  public ProjectRepositoriesSupplier(ProjectRepositoriesLoader loader, ScannerProperties scannerProperties, BranchConfiguration branchConfig) {
+  public ProjectRepositoriesProvider(ProjectRepositoriesLoader loader, ScannerProperties scannerProperties, BranchConfiguration branchConfig) {
     this.loader = loader;
     this.scannerProperties = scannerProperties;
     this.branchConfig = branchConfig;
   }
 
-  public ProjectRepositories get() {
-    if (project == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      project = loader.load(scannerProperties.getProjectKey(), branchConfig.referenceBranchName());
-      profiler.stopInfo();
-    }
-
+  @Bean
+  public ProjectRepositories projectRepositories() {
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+    ProjectRepositories project = loader.load(scannerProperties.getProjectKey(), branchConfig.referenceBranchName());
+    profiler.stopInfo();
     return project;
   }
 }

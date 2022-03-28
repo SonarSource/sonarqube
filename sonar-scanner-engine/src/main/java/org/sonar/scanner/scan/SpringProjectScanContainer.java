@@ -95,7 +95,7 @@ import org.sonar.scanner.report.TestExecutionPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
 import org.sonar.scanner.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.scanner.repository.DefaultQualityProfileLoader;
-import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
+import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.ReferenceBranchSupplier;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
@@ -169,7 +169,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       new BranchConfigurationProvider(),
       new ProjectBranchesProvider(),
       new ProjectPullRequestsProvider(),
-      ProjectRepositoriesSupplier.class,
+      ProjectRepositoriesProvider.class,
       new ProjectServerSettingsProvider(),
       AnalysisCacheEnabled.class,
 

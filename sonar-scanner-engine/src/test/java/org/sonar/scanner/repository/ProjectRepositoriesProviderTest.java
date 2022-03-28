@@ -34,17 +34,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ProjectRepositoriesSupplierTest {
-  private ProjectRepositoriesSupplier underTest;
+public class ProjectRepositoriesProviderTest {
+  private ProjectRepositoriesProvider underTest;
   private ProjectRepositories project;
 
-  private ProjectRepositoriesLoader loader = mock(ProjectRepositoriesLoader.class);
-  private ScannerProperties props = mock(ScannerProperties.class);
-  private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
+  private final ProjectRepositoriesLoader loader = mock(ProjectRepositoriesLoader.class);
+  private final ScannerProperties props = mock(ScannerProperties.class);
+  private final BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
 
   @Before
   public void setUp() {
-    underTest = new ProjectRepositoriesSupplier(loader, props, branchConfiguration);
+    underTest = new ProjectRepositoriesProvider(loader, props, branchConfiguration);
     Map<String, FileData> fileMap = emptyMap();
     project = new SingleProjectRepository(fileMap);
     when(props.getProjectKey()).thenReturn("key");
@@ -53,18 +53,18 @@ public class ProjectRepositoriesSupplierTest {
   @Test
   public void testValidation() {
     when(loader.load(eq("key"), any())).thenReturn(project);
-    underTest.get();
+    assertThat(underTest.projectRepositories()).isEqualTo(project);
   }
 
   @Test
   public void testAssociated() {
     when(loader.load(eq("key"), any())).thenReturn(project);
-    ProjectRepositories repo = underTest.get();
+    ProjectRepositories repo = underTest.projectRepositories();
 
     assertThat(repo.exists()).isTrue();
 
     verify(props).getProjectKey();
-    verify(loader).load(eq("key"), eq(null));
+    verify(loader).load("key", null);
     verifyNoMoreInteractions(loader, props);
   }
 }

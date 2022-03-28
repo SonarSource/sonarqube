@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.repository.FileData;
-import org.sonar.scanner.repository.ProjectRepositoriesSupplier;
+import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.scm.ScmChangedFiles;
 
 import static org.sonar.api.batch.fs.InputFile.Status.ADDED;
@@ -33,11 +33,11 @@ import static org.sonar.api.batch.fs.InputFile.Status.SAME;
 
 @Immutable
 public class StatusDetection {
-  private final ProjectRepositoriesSupplier projectSettingsSupplier;
+  private final ProjectRepositories projectRepositories;
   private final ScmChangedFiles scmChangedFiles;
 
-  public StatusDetection(ProjectRepositoriesSupplier projectSettingsSupplier, ScmChangedFiles scmChangedFiles) {
-    this.projectSettingsSupplier = projectSettingsSupplier;
+  public StatusDetection(ProjectRepositories projectRepositories, ScmChangedFiles scmChangedFiles) {
+    this.projectRepositories = projectRepositories;
     this.scmChangedFiles = scmChangedFiles;
   }
 
@@ -49,7 +49,7 @@ public class StatusDetection {
   }
 
   private InputFile.Status checkChangedWithProjectRepositories(String moduleKeyWithBranch, DefaultInputFile inputFile, String hash) {
-    FileData fileDataPerPath = projectSettingsSupplier.get().fileData(moduleKeyWithBranch, inputFile);
+    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile);
     if (fileDataPerPath == null) {
       return ADDED;
     }
