@@ -39,6 +39,7 @@ interface Props {
   branchLikes: BranchLike[];
   canAdminComponent?: boolean;
   component: T.Component;
+  projectAnalysis: any;
   currentBranchLike: BranchLike;
   onClose: () => void;
   router: Pick<Router, 'push'>;
@@ -190,7 +191,11 @@ export class Menu extends React.PureComponent<Props, State> {
             <Link
               onClick={() => onClose()}
               to={{ pathname: '/project/branches', query: { id: component.key } }}>
-              {translate('branch_like_navigation.manage')}
+              {
+                this.props.projectAnalysis['config']['type'] === "metadata_api"
+                  ? translate('branch_like_navigation.manage.sf')
+                  : translate('branch_like_navigation.manage')
+              }
             </Link>
           </div>
         )}

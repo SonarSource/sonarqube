@@ -37,6 +37,7 @@ import RenameBranchModal from './RenameBranchModal';
 interface Props {
   branchLikes: BranchLike[];
   component: T.Component;
+  projectAnalysis: any;
   onBranchesChange: () => void;
 }
 
@@ -76,6 +77,31 @@ const TABS = [
   }
 ];
 
+const TABS_SF = [
+  {
+    key: Tabs.Branch,
+    label: (
+      <>
+        <BranchIcon />
+        <span className="spacer-left">
+          {translate('project_branch_pull_request.tabs.branches')}
+        </span>
+      </>
+    )
+  },
+  {
+    key: Tabs.PullRequest,
+    label: (
+      <>
+        <PullRequestIcon />
+        <span className="spacer-left">
+          {translate('project_branch_pull_request.tabs.pull_requests.sf')}
+        </span>
+      </>
+    )
+  }
+];
+
 export default class BranchLikeTabs extends React.PureComponent<Props, State> {
   state: State = { currentTab: Tabs.Branch };
 
@@ -105,7 +131,10 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
     const title = translate(
       isBranchMode
         ? 'project_branch_pull_request.table.branch'
-        : 'project_branch_pull_request.table.pull_request'
+        : (this.props.projectAnalysis['config']['type'] === "metadata_api"
+            ? 'project_branch_pull_request.table.pull_request.sf'
+            : 'project_branch_pull_request.table.pull_request'
+          )
     );
 
     return (
@@ -114,7 +143,7 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
           className="branch-like-tabs"
           onSelect={this.onTabSelect}
           selected={currentTab}
-          tabs={TABS}
+          tabs={this.props.projectAnalysis['config']['type'] === "metadata_api" ? TABS_SF : TABS}
         />
 
         <BranchLikeTable
