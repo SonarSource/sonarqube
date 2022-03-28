@@ -33,6 +33,11 @@ const ArrowSpan = styled.span`
   width: 0;
 `;
 
+export interface BasicSelectOption {
+  label: string;
+  value: string;
+}
+
 export default class Select<
   Option,
   IsMulti extends boolean = false,
@@ -86,13 +91,13 @@ export function selectStyle<
       textAlign: 'left',
       width: '100%'
     }),
-    control: () => ({
+    control: (_provided, state) => ({
       position: 'relative',
       display: 'flex',
       width: '100%',
       minHeight: `${sizes.controlHeight}`,
       lineHeight: `calc(${sizes.controlHeight} - 2px)`,
-      border: `1px solid ${colors.gray80}`,
+      border: `1px solid ${state.isFocused ? colors.blue : colors.gray80}`,
       borderCollapse: 'separate',
       borderRadius: '2px',
       backgroundColor: '#fff',
@@ -204,6 +209,7 @@ export function selectStyle<
       overflowY: 'auto'
     }),
     placeholder: () => ({
+      position: 'absolute',
       color: '#666'
     }),
     option: (_provided, state) => ({

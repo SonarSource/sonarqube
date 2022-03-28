@@ -150,3 +150,83 @@ Array [
   },
 ]
 `;
+
+exports[`should render select for severity: Option 1`] = `
+<Option
+  data={
+    Object {
+      "label": "label",
+      "value": "value",
+    }
+  }
+>
+  <SeverityHelper
+    className="display-flex-center"
+    severity="value"
+  />
+</Option>
+`;
+
+exports[`should render select for severity: SingleValue 1`] = `
+<SingleValue
+  data={
+    Object {
+      "label": "label",
+      "value": "value",
+    }
+  }
+>
+  <SeverityHelper
+    className="display-flex-center"
+    severity="value"
+  />
+</SingleValue>
+`;
+
+exports[`should render select for type: Option 1`] = `
+<Option
+  data={
+    Object {
+      "label": "label",
+      "value": "value",
+    }
+  }
+>
+  <div
+    className="display-flex-center"
+  >
+    <IssueTypeIcon
+      query="value"
+    />
+    <span
+      className="little-spacer-left"
+    >
+      label
+    </span>
+  </div>
+</Option>
+`;
+
+exports[`should render select for type: SingleValue 1`] = `
+<SingleValue
+  data={
+    Object {
+      "label": "label",
+      "value": "value",
+    }
+  }
+>
+  <div
+    className="display-flex-center"
+  >
+    <IssueTypeIcon
+      query="value"
+    />
+    <span
+      className="little-spacer-left"
+    >
+      label
+    </span>
+  </div>
+</SingleValue>
+`;

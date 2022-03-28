@@ -19,9 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { SelectComponentsProps } from 'react-select/src/Select';
 import { searchIssueTags } from '../../../../api/issues';
 import { SubmitButton } from '../../../../components/controls/buttons';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { change, waitAndUpdate } from '../../../../helpers/testUtils';
 import { Issue } from '../../../../types/types';
@@ -96,6 +97,19 @@ it('should properly handle the search for tags', async () => {
   expect(searchIssueTags).toBeCalled();
 });
 
+it.each([
+  ['type', 'set_type'],
+  ['severity', 'set_severity']
+])('should render select for %s', async (_field, action) => {
+  const wrapper = getWrapper([mockIssue(false, { actions: [action] })]);
+  await waitAndUpdate(wrapper);
+
+  const { Option, SingleValue } = wrapper.find<SelectComponentsProps>(Select).props().components;
+
+  expect(Option({ data: { label: 'label', value: 'value' } })).toMatchSnapshot('Option');
+  expect(SingleValue({ data: { label: 'label', value: 'value' } })).toMatchSnapshot('SingleValue');
+});
+
 it('should disable the submit button unless some change is configured', async () => {
   const wrapper = getWrapper([mockIssue(false, { actions: ['set_severity', 'comment'] })]);
   await waitAndUpdate(wrapper);
@@ -108,7 +122,7 @@ it('should disable the submit button unless some change is configured', async ()
     expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
 
     const { onChange } = wrapper
-      .find(SelectLegacy)
+      .find(Select)
       .at(0)
       .props();
     if (!onChange) {

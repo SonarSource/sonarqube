@@ -20,6 +20,7 @@
 import { pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { components, OptionProps, SingleValueProps } from 'react-select';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import FormattingTips from '../../../components/common/FormattingTips';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
@@ -28,7 +29,7 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Modal from '../../../components/controls/Modal';
 import Radio from '../../../components/controls/Radio';
 import SearchSelect from '../../../components/controls/SearchSelect';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -198,7 +199,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     this.setState({ comment: event.currentTarget.value });
   };
 
-  handleSelectFieldChange = (field: 'severity' | 'type') => (data: { value: string } | null) => {
+  handleSelectFieldChange = (field: 'severity' | 'type') => (data: BasicSelectOption | null) => {
     if (data) {
       this.setState<keyof FormFields>({ [field]: data.value });
     } else {
@@ -347,25 +348,33 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     const types: IssueType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-    const options = types.map(type => ({ label: translate('issue.type', type), value: type }));
+    const options: BasicSelectOption[] = types.map(type => ({
+      label: translate('issue.type', type),
+      value: type
+    }));
 
-    const optionRenderer = (option: { label: string; value: string }) => (
-      <>
+    const typeRenderer = (option: BasicSelectOption) => (
+      <div className="display-flex-center">
         <IssueTypeIcon query={option.value} />
         <span className="little-spacer-left">{option.label}</span>
-      </>
+      </div>
     );
 
     const input = (
-      <SelectLegacy
+      <Select
         className="input-super-large"
-        clearable={true}
+        isClearable={true}
+        isSearchable={false}
+        components={{
+          Option: (props: OptionProps<BasicSelectOption, false>) => (
+            <components.Option {...props}>{typeRenderer(props.data)}</components.Option>
+          ),
+          SingleValue: (props: SingleValueProps<BasicSelectOption>) => (
+            <components.SingleValue {...props}>{typeRenderer(props.data)}</components.SingleValue>
+          )
+        }}
         onChange={this.handleSelectFieldChange('type')}
-        optionRenderer={optionRenderer}
         options={options}
-        searchable={false}
-        value={this.state.type}
-        valueRenderer={optionRenderer}
       />
     );
 
@@ -380,21 +389,30 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     }
 
     const severities = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-    const options = severities.map(severity => ({
+    const options: BasicSelectOption[] = severities.map(severity => ({
       label: translate('severity', severity),
       value: severity
     }));
 
     const input = (
-      <SelectLegacy
+      <Select
         className="input-super-large"
-        clearable={true}
+        isClearable={true}
+        isSearchable={false}
         onChange={this.handleSelectFieldChange('severity')}
-        optionRenderer={(option: { value: string }) => <SeverityHelper severity={option.value} />}
+        components={{
+          Option: (props: OptionProps<BasicSelectOption, false>) => (
+            <components.Option {...props}>
+              {<SeverityHelper className="display-flex-center" severity={props.data.value} />}
+            </components.Option>
+          ),
+          SingleValue: (props: SingleValueProps<BasicSelectOption>) => (
+            <components.SingleValue {...props}>
+              {<SeverityHelper className="display-flex-center" severity={props.data.value} />}
+            </components.SingleValue>
+          )
+        }}
         options={options}
-        searchable={false}
-        value={this.state.severity}
-        valueRenderer={(option: { value: string }) => <SeverityHelper severity={option.value} />}
       />
     );
 
