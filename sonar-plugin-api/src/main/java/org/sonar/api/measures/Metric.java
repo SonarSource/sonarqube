@@ -681,7 +681,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
 
     /**
-     * Sets whether the metric should be hidden in Web UI (e.g. in Time Machine). Default is false.
+     * Sets whether the metric should be hidden in Web UI. Default is false.
      *
      * @param b true if the metric should be hidden.
      * @return the builder

@@ -51,4 +51,10 @@ public class CoreMetricsTest {
     assertThatThrownBy(() -> getMetric("unknown"))
       .isInstanceOf(NoSuchElementException.class);
   }
+
+  @Test
+  public void someMetricsAreMeantToBeHidden() {
+    Metric metric = getMetric("analysis_from_sonarqube_9_4");
+    assertThat(metric.isHidden()).isTrue();
+  }
 }

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.sonar.api.utils.SonarException;
 
+import static org.sonar.api.measures.Metric.ValueType.BOOL;
+
 /**
  * @since 1.10
  */
@@ -1806,6 +1808,25 @@ public final class CoreMetrics {
   public static final Metric LAST_COMMIT_DATE = new Metric.Builder(LAST_COMMIT_DATE_KEY, "Date of Last Commit", Metric.ValueType.MILLISEC)
     .setDomain(CoreMetrics.DOMAIN_SCM)
     // waiting for type "datetime" to be correctly handled
+    .setHidden(true)
+    .create();
+
+  /**
+   * @since 9.4
+   */
+  public static final String ANALYSIS_FROM_SONARQUBE_9_4_KEY = "analysis_from_sonarqube_9_4";
+
+  /**
+   * @since 9.4
+   *
+   * This hidden metric that is only needed to fully fix the issue with identifying new issues when using reference branch
+   * that was haunting us in 9.3 and before. More details in the ticket SONAR-16039
+   */
+  public static final Metric<Integer> ANALYSIS_FROM_SONARQUBE_9_4 = new Metric.Builder(ANALYSIS_FROM_SONARQUBE_9_4_KEY,
+    "Analysis From SonarQube 9.4", BOOL)
+    .setDescription("Indicates whether the analysis has been run after the upgrade to SonarQube 9.4. It affects how the issues " +
+      "will be detected for branches that use reference branch as the strategy for detecting new code.")
+    .setDomain(CoreMetrics.DOMAIN_ISSUES)
     .setHidden(true)
     .create();
 
