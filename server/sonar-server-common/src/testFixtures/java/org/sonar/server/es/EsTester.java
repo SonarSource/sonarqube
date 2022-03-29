@@ -74,11 +74,13 @@ import org.elasticsearch.http.HttpTransportSettings;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.indices.recovery.RecoverySettings;
 import org.elasticsearch.join.ParentJoinPlugin;
 import org.elasticsearch.node.InternalSettingsPreparer;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeValidationException;
+import org.elasticsearch.reindex.ReindexPlugin;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -178,9 +180,15 @@ public class EsTester extends ExternalResource {
         .forEach(EsTester::deleteIndexIfExists);
     }
 
-    BulkIndexer.delete(ES_REST_CLIENT, IndexType.main(ALL_INDICES, "dummy"),
-      EsClient.prepareSearch(ALL_INDICES.getName())
-        .source(new SearchSourceBuilder().query(QueryBuilders.matchAllQuery())));
+    deleteAllDocumentsInIndexes();
+  }
+
+  private void deleteAllDocumentsInIndexes() {
+    try {
+      ES_REST_CLIENT.nativeClient().deleteByQuery(new DeleteByQueryRequest(ALL_INDICES.getName()).setQuery(QueryBuilders.matchAllQuery()).setRefresh(true), RequestOptions.DEFAULT);
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not delete data from _all indices", e);
+    }
   }
 
   private static String[] getIndicesNames() {
@@ -475,6 +483,9 @@ public class EsTester extends ExternalResource {
       .put(NodeEnvironment.MAX_LOCAL_STORAGE_NODES_SETTING.getKey(), Integer.MAX_VALUE)
       .put("logger.level", "INFO")
       .put("action.auto_create_index", false)
+      // allows to drop all indices at once using `_all`
+      // this parameter will default to true in ES 8.X
+      .put("action.destructive_requires_name", false)
       // Default the watermarks to absurdly low to prevent the tests
       // from failing on nodes without enough disk space
       .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b")
@@ -489,6 +500,7 @@ public class EsTester extends ExternalResource {
     Node node = new Node(InternalSettingsPreparer.prepareEnvironment(settings, Collections.emptyMap(), null, null),
       ImmutableList.of(
         CommonAnalysisPlugin.class,
+        ReindexPlugin.class,
         // Netty4Plugin provides http and tcp transport
         Netty4Plugin.class,
         // install ParentJoin plugin required to create field of type "join"

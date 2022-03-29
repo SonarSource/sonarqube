@@ -50,5 +50,6 @@ dependencies {
   testFixturesImplementation 'org.elasticsearch.plugin:transport-netty4-client'
 
   testFixturesImplementation 'org.codelibs.elasticsearch.module:analysis-common'
+  testFixturesImplementation 'org.codelibs.elasticsearch.module:reindex'
   testFixturesImplementation 'org.elasticsearch:mocksocket'
 }

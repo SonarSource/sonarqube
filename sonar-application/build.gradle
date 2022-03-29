@@ -188,7 +188,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath, tasks.downloadL
     exclude '**/modules/mapper-version/**'
     exclude '**/modules/percolator/**'
     exclude '**/modules/rank-eval/**'
-    exclude '**/modules/reindex/**'
     exclude '**/modules/repositories-metering-api/**'
     exclude '**/modules/repository-encrypted/**'
     exclude '**/modules/repository-url/**'
