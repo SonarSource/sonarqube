@@ -4,11 +4,11 @@ exports[`should render correctly the list of series 1`] = `
 <header
   className="page-header"
 >
-  <SelectLegacy
+  <Select
     className="pull-left big-spacer-right input-medium"
-    clearable={true}
+    isClearable={true}
+    isSearchable={false}
     onChange={[Function]}
-    optionComponent={[Function]}
     options={
       Array [
         Object {
@@ -30,8 +30,7 @@ exports[`should render correctly the list of series 1`] = `
       ]
     }
     placeholder="project_activity.filter_events..."
-    searchable={false}
-    value=""
+    value={Array []}
   />
   <ProjectActivityDateInput
     from={2016-10-27T10:21:15.000Z}

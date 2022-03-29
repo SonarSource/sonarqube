@@ -19,12 +19,11 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { APPLICATION_EVENT_TYPES, EVENT_TYPES, Query } from '../utils';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
-import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
 
 interface Props {
   category?: string;
@@ -49,18 +48,17 @@ export default class ProjectActivityPageHeader extends React.PureComponent<Props
     return (
       <header className="page-header">
         {!['VW', 'SVW'].includes(this.props.project.qualifier) && (
-          <SelectLegacy
+          <Select
             className={classNames('pull-left big-spacer-right', {
               'input-medium': !isApp,
               'input-large': isApp
             })}
-            clearable={true}
-            onChange={this.handleCategoryChange}
-            optionComponent={ProjectActivityEventSelectOption}
-            options={options}
             placeholder={translate('project_activity.filter_events') + '...'}
-            searchable={false}
-            value={this.props.category}
+            isClearable={true}
+            isSearchable={false}
+            onChange={this.handleCategoryChange}
+            options={options}
+            value={options.filter(o => o.value === this.props.category)}
           />
         )}
         <ProjectActivityDateInput

@@ -5,11 +5,17 @@ exports[`should render correctly: Analyses 1`] = `
   <div
     className="spacer-bottom"
   >
-    baseline.analysis_from
-    <SelectLegacy
+    <label
+      className="spacer-right"
+      htmlFor="branch-analysis-from-input"
+    >
+      baseline.analysis_from
+    </label>
+    <Select
       autoBlur={true}
       className="input-medium spacer-left"
-      clearable={false}
+      inputId="branch-analysis-from-input"
+      isSearchable={false}
       onChange={[MockFunction]}
       options={
         Array [
@@ -23,8 +29,14 @@ exports[`should render correctly: Analyses 1`] = `
           },
         ]
       }
-      searchable={false}
-      value={30}
+      value={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+        ]
+      }
     />
   </div>
   <div
@@ -301,11 +313,17 @@ exports[`should render correctly: empty 1`] = `
   <div
     className="spacer-bottom"
   >
-    baseline.analysis_from
-    <SelectLegacy
+    <label
+      className="spacer-right"
+      htmlFor="branch-analysis-from-input"
+    >
+      baseline.analysis_from
+    </label>
+    <Select
       autoBlur={true}
       className="input-medium spacer-left"
-      clearable={false}
+      inputId="branch-analysis-from-input"
+      isSearchable={false}
       onChange={[MockFunction]}
       options={
         Array [
@@ -319,8 +337,14 @@ exports[`should render correctly: empty 1`] = `
           },
         ]
       }
-      searchable={false}
-      value={30}
+      value={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+        ]
+      }
     />
   </div>
   <div
@@ -345,11 +369,17 @@ exports[`should render correctly: loading 1`] = `
   <div
     className="spacer-bottom"
   >
-    baseline.analysis_from
-    <SelectLegacy
+    <label
+      className="spacer-right"
+      htmlFor="branch-analysis-from-input"
+    >
+      baseline.analysis_from
+    </label>
+    <Select
       autoBlur={true}
       className="input-medium spacer-left"
-      clearable={false}
+      inputId="branch-analysis-from-input"
+      isSearchable={false}
       onChange={[MockFunction]}
       options={
         Array [
@@ -363,8 +393,14 @@ exports[`should render correctly: loading 1`] = `
           },
         ]
       }
-      searchable={false}
-      value={30}
+      value={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+        ]
+      }
     />
   </div>
   <div

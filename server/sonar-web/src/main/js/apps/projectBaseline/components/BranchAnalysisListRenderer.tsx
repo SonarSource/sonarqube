@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
+import Select from '../../../components/controls/Select';
 import Radio from '../../../components/controls/Radio';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
@@ -95,27 +95,31 @@ export default function BranchAnalysisListRenderer(props: BranchAnalysisListRend
     byVersionByDay.length > 1 ||
     (byVersionByDay.length === 1 && Object.keys(byVersionByDay[0].byDay).length > 0);
 
+  const options = [
+    {
+      label: translate('baseline.branch_analyses.ranges.30days'),
+      value: 30
+    },
+    {
+      label: translate('baseline.branch_analyses.ranges.allTime'),
+      value: 0
+    }
+  ];
+
   return (
     <>
       <div className="spacer-bottom">
-        {translate('baseline.analysis_from')}
-        <SelectLegacy
+        <label htmlFor="branch-analysis-from-input" className="spacer-right">
+          {translate('baseline.analysis_from')}
+        </label>
+        <Select
           autoBlur={true}
+          inputId="branch-analysis-from-input"
           className="input-medium spacer-left"
-          clearable={false}
           onChange={props.handleRangeChange}
-          options={[
-            {
-              label: translate('baseline.branch_analyses.ranges.30days'),
-              value: 30
-            },
-            {
-              label: translate('baseline.branch_analyses.ranges.allTime'),
-              value: 0
-            }
-          ]}
-          searchable={false}
-          value={range}
+          options={options}
+          isSearchable={false}
+          value={options.filter(o => o.value === range)}
         />
       </div>
       <div className="branch-analysis-list-wrapper">
