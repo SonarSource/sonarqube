@@ -115,7 +115,7 @@ exports[`should render correctly: is removed rule 1`] = `
       <span
         className="spacer-right badge badge-error"
       >
-        rules.status.REMOVED
+        issue.resolution.REMOVED.rule_removed
       </span>
     </DocumentationTooltip>
   </div>
