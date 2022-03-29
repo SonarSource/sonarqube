@@ -21,7 +21,7 @@ import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import RadioToggle from '../../../components/controls/RadioToggle';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -43,7 +43,7 @@ export interface FilterBarProps {
   onShowAllHotspots: () => void;
 }
 
-const statusOptions: Array<{ label: string; value: string }> = [
+const statusOptions: Array<{ label: string; value: HotspotStatusFilter }> = [
   { value: HotspotStatusFilter.TO_REVIEW, label: translate('hotspot.filters.status.to_review') },
   {
     value: HotspotStatusFilter.ACKNOWLEDGED,
@@ -111,28 +111,28 @@ export function FilterBar(props: FilterBarProps) {
                   />
                 )}
 
-                <span className="spacer-right">{translate('status')}</span>
-                <SelectLegacy
+                <span className="spacer-right"> {translate('status')} </span>
+                <Select
                   className="input-medium big-spacer-right"
-                  clearable={false}
+                  aria-label={translate('hotspot.filters.status')}
                   onChange={(option: { value: HotspotStatusFilter }) =>
                     props.onChangeFilters({ status: option.value })
                   }
                   options={statusOptions}
-                  searchable={false}
-                  value={filters.status}
+                  isSearchable={false}
+                  value={statusOptions.find(status => status.value === filters.status)}
                 />
 
                 {onBranch && (
-                  <SelectLegacy
+                  <Select
                     className="input-medium big-spacer-right"
-                    clearable={false}
+                    aria-label={translate('hotspot.filters.period')}
                     onChange={(option: { value: boolean }) =>
                       props.onChangeFilters({ sinceLeakPeriod: option.value })
                     }
                     options={periodOptions}
-                    searchable={false}
-                    value={filters.sinceLeakPeriod}
+                    isSearchable={false}
+                    value={periodOptions.find(period => period.value === filters.sinceLeakPeriod)}
                   />
                 )}
               </div>

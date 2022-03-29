@@ -129,19 +129,18 @@ exports[`should render correctly: when there are configuration errors (admin use
       <div
         className="settings-definition-right"
       >
-        <SelectLegacy
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
+        <Select
+          className="abs-width-400 big-spacer-top it__configuration-name-select"
+          components={
             Object {
-              "maxWidth": "210%",
-              "width": "auto",
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
+          inputId="name"
+          isClearable={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -165,10 +164,15 @@ exports[`should render correctly: when there are configuration errors (admin use
               },
             ]
           }
-          searchable={false}
-          value="i1"
-          valueKey="key"
-          valueRenderer={[Function]}
+          value={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+            ]
+          }
         />
       </div>
     </div>
@@ -330,19 +334,18 @@ exports[`should render correctly: when there are configuration errors (admin use
       <div
         className="settings-definition-right"
       >
-        <SelectLegacy
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
+        <Select
+          className="abs-width-400 big-spacer-top it__configuration-name-select"
+          components={
             Object {
-              "maxWidth": "210%",
-              "width": "auto",
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
+          inputId="name"
+          isClearable={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -366,10 +369,7 @@ exports[`should render correctly: when there are configuration errors (admin use
               },
             ]
           }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
+          value={Array []}
         />
       </div>
     </div>
@@ -472,19 +472,18 @@ exports[`should render correctly: when there are configuration errors (non-admin
       <div
         className="settings-definition-right"
       >
-        <SelectLegacy
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
+        <Select
+          className="abs-width-400 big-spacer-top it__configuration-name-select"
+          components={
             Object {
-              "maxWidth": "210%",
-              "width": "auto",
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
+          inputId="name"
+          isClearable={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -508,10 +507,7 @@ exports[`should render correctly: when there are configuration errors (non-admin
               },
             ]
           }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
+          value={Array []}
         />
       </div>
     </div>
@@ -617,19 +613,18 @@ exports[`should render correctly: with a single ALM instance 1`] = `
       <div
         className="settings-definition-right"
       >
-        <SelectLegacy
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
+        <Select
+          className="abs-width-400 big-spacer-top it__configuration-name-select"
+          components={
             Object {
-              "maxWidth": "210%",
-              "width": "auto",
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
+          inputId="name"
+          isClearable={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -639,10 +634,7 @@ exports[`should render correctly: with a single ALM instance 1`] = `
               },
             ]
           }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
+          value={Array []}
         />
       </div>
     </div>
@@ -699,19 +691,18 @@ exports[`should render correctly: with a valid and saved form 1`] = `
       <div
         className="settings-definition-right"
       >
-        <SelectLegacy
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
+        <Select
+          className="abs-width-400 big-spacer-top it__configuration-name-select"
+          components={
             Object {
-              "maxWidth": "210%",
-              "width": "auto",
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
+          inputId="name"
+          isClearable={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -735,10 +726,15 @@ exports[`should render correctly: with a valid and saved form 1`] = `
               },
             ]
           }
-          searchable={false}
-          value="i1"
-          valueKey="key"
-          valueRenderer={[Function]}
+          value={
+            Array [
+              Object {
+                "alm": "github",
+                "key": "i1",
+                "url": "http://github.enterprise.com",
+              },
+            ]
+          }
         />
       </div>
     </div>
@@ -857,19 +853,18 @@ exports[`should render correctly: with an empty form 1`] = `
       <div
         className="settings-definition-right"
       >
-        <SelectLegacy
-          autosize={true}
-          className="abs-width-400 big-spacer-top"
-          clearable={false}
-          id="name"
-          menuContainerStyle={
+        <Select
+          className="abs-width-400 big-spacer-top it__configuration-name-select"
+          components={
             Object {
-              "maxWidth": "210%",
-              "width": "auto",
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
+          inputId="name"
+          isClearable={false}
+          isSearchable={false}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -893,10 +888,7 @@ exports[`should render correctly: with an empty form 1`] = `
               },
             ]
           }
-          searchable={false}
-          value=""
-          valueKey="key"
-          valueRenderer={[Function]}
+          value={Array []}
         />
       </div>
     </div>
@@ -948,32 +940,4 @@ exports[`should render correctly: with no ALM instances (non-admin user) 1`] = `
     settings.pr_decoration.binding.no_bindings
   </Alert>
 </div>
-`;
-
-exports[`should render select options correctly 1`] = `
-<React.Fragment>
-  <span>
-    i1
-     — 
-  </span>
-  <span
-    className="text-muted"
-  >
-    http://github.enterprise.com
-  </span>
-</React.Fragment>
-`;
-
-exports[`should render select options correctly 2`] = `
-<React.Fragment>
-  <span>
-    i2
-     — 
-  </span>
-  <span
-    className="text-muted"
-  >
-    http://github.enterprise.com
-  </span>
-</React.Fragment>
 `;

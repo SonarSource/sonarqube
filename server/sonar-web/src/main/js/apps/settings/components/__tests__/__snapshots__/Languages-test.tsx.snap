@@ -4,14 +4,16 @@ exports[`should render correctly 1`] = `
 <Fragment>
   <h2
     className="settings-sub-category-name"
+    id="languages-category-title"
   >
     property.category.languages
   </h2>
   <div
     data-test="language-select"
   >
-    <SelectLegacy
-      className="input-large"
+    <Select
+      aria-labelledby="languages-category-title"
+      className="input-large select-settings-language"
       onChange={[Function]}
       options={
         Array [
@@ -33,7 +35,13 @@ exports[`should render correctly 1`] = `
         ]
       }
       placeholder="settings.languages.select_a_language_placeholder"
-      value="java"
+      value={
+        Object {
+          "label": "property.category.Java",
+          "originalValue": "Java",
+          "value": "java",
+        }
+      }
     />
   </div>
   <div
@@ -51,14 +59,16 @@ exports[`should render correctly with an unknow language 1`] = `
 <Fragment>
   <h2
     className="settings-sub-category-name"
+    id="languages-category-title"
   >
     property.category.languages
   </h2>
   <div
     data-test="language-select"
   >
-    <SelectLegacy
-      className="input-large"
+    <Select
+      aria-labelledby="languages-category-title"
+      className="input-large select-settings-language"
       onChange={[Function]}
       options={
         Array [

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DefaultSpecializedInputProps } from '../../utils';
 
@@ -30,19 +30,20 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
   };
 
   render() {
-    const options = this.props.options.map(option => ({
+    const { options: opts, name, value } = this.props;
+
+    const options = opts.map(option => ({
       label: option,
       value: option
     }));
 
     return (
-      <SelectLegacy
+      <Select
         className="settings-large-input"
-        clearable={false}
-        name={this.props.name}
+        name={name}
         onChange={this.handleInputChange}
         options={options}
-        value={this.props.value}
+        value={options.find(option => option.value === value)}
       />
     );
   }

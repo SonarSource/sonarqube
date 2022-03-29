@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import RadioToggle from '../../../../components/controls/RadioToggle';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
@@ -60,11 +60,11 @@ it('should trigger onChange for status', () => {
   const wrapper = shallowRender({ onChangeFilters });
 
   const { onChange } = wrapper
-    .find(SelectLegacy)
+    .find(Select)
     .at(0)
     .props();
 
-  onChange!({ value: HotspotStatusFilter.SAFE });
+  onChange({ value: HotspotStatusFilter.SAFE });
   expect(onChangeFilters).toBeCalledWith({ status: HotspotStatusFilter.SAFE });
 });
 
@@ -74,7 +74,7 @@ it('should trigger onChange for self-assigned toggle', () => {
 
   const { onCheck } = wrapper.find(RadioToggle).props();
 
-  onCheck!(AssigneeFilterOption.ALL);
+  onCheck(AssigneeFilterOption.ALL);
   expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });
 });
 
@@ -83,11 +83,11 @@ it('should trigger onChange for leak period', () => {
   const wrapper = shallowRender({ onChangeFilters });
 
   const { onChange } = wrapper
-    .find(SelectLegacy)
+    .find(Select)
     .at(1)
     .props();
 
-  onChange!({ value: true });
+  onChange({ value: true });
   expect(onChangeFilters).toBeCalledWith({ sinceLeakPeriod: true });
 });
 

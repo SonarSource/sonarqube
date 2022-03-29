@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getCategoryName } from '../utils';
@@ -51,14 +51,17 @@ export function Languages(props: LanguagesProps) {
 
   return (
     <>
-      <h2 className="settings-sub-category-name">{translate('property.category.languages')}</h2>
+      <h2 id="languages-category-title" className="settings-sub-category-name">
+        {translate('property.category.languages')}
+      </h2>
       <div data-test="language-select">
-        <SelectLegacy
-          className="input-large"
+        <Select
+          aria-labelledby="languages-category-title"
+          className="input-large select-settings-language"
           onChange={handleOnChange}
           options={availableLanguages}
           placeholder={translate('settings.languages.select_a_language_placeholder')}
-          value={selectedLanguage}
+          value={availableLanguages.find(language => language.value === selectedLanguage)}
         />
       </div>
       {selectedLanguage && (

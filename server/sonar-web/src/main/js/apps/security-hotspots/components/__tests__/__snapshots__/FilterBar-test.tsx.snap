@@ -47,11 +47,14 @@ exports[`should render correctly: anonymous 1`] = `
           <span
             className="spacer-right"
           >
+             
             status
+             
           </span>
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.status"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -73,12 +76,17 @@ exports[`should render correctly: anonymous 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="TO_REVIEW"
+            value={
+              Object {
+                "label": "hotspot.filters.status.to_review",
+                "value": "TO_REVIEW",
+              }
+            }
           />
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.period"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -92,8 +100,12 @@ exports[`should render correctly: anonymous 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value={false}
+            value={
+              Object {
+                "label": "hotspot.filters.period.overall",
+                "value": false,
+              }
+            }
           />
         </div>
         <div
@@ -167,11 +179,14 @@ exports[`should render correctly: logged-in 1`] = `
           <span
             className="spacer-right"
           >
+             
             status
+             
           </span>
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.status"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -193,12 +208,17 @@ exports[`should render correctly: logged-in 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="TO_REVIEW"
+            value={
+              Object {
+                "label": "hotspot.filters.status.to_review",
+                "value": "TO_REVIEW",
+              }
+            }
           />
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.period"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -212,8 +232,12 @@ exports[`should render correctly: logged-in 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value={false}
+            value={
+              Object {
+                "label": "hotspot.filters.period.overall",
+                "value": false,
+              }
+            }
           />
         </div>
         <div
@@ -287,11 +311,14 @@ exports[`should render correctly: non-project 1`] = `
           <span
             className="spacer-right"
           >
+             
             status
+             
           </span>
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.status"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -313,12 +340,17 @@ exports[`should render correctly: non-project 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="TO_REVIEW"
+            value={
+              Object {
+                "label": "hotspot.filters.status.to_review",
+                "value": "TO_REVIEW",
+              }
+            }
           />
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.period"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -332,8 +364,12 @@ exports[`should render correctly: non-project 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value={false}
+            value={
+              Object {
+                "label": "hotspot.filters.period.overall",
+                "value": false,
+              }
+            }
           />
         </div>
       </div>
@@ -366,11 +402,14 @@ exports[`should render correctly: on Pull request 1`] = `
           <span
             className="spacer-right"
           >
+             
             status
+             
           </span>
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.status"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -392,8 +431,12 @@ exports[`should render correctly: on Pull request 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="TO_REVIEW"
+            value={
+              Object {
+                "label": "hotspot.filters.status.to_review",
+                "value": "TO_REVIEW",
+              }
+            }
           />
         </div>
         <div
@@ -448,11 +491,14 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
           <span
             className="spacer-right"
           >
+             
             status
+             
           </span>
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.status"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -474,12 +520,17 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="TO_REVIEW"
+            value={
+              Object {
+                "label": "hotspot.filters.status.to_review",
+                "value": "TO_REVIEW",
+              }
+            }
           />
-          <SelectLegacy
+          <Select
+            aria-label="hotspot.filters.period"
             className="input-medium big-spacer-right"
-            clearable={false}
+            isSearchable={false}
             onChange={[Function]}
             options={
               Array [
@@ -493,8 +544,12 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value={false}
+            value={
+              Object {
+                "label": "hotspot.filters.period.overall",
+                "value": false,
+              }
+            }
           />
         </div>
         <div

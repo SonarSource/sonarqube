@@ -20,8 +20,9 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { components, OptionProps, SingleValueProps } from 'react-select';
 import { Button, SubmitButton } from '../../../../components/controls/buttons';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -56,7 +57,15 @@ export interface PRDecorationBindingRendererProps {
   isSysAdmin: boolean;
 }
 
-function optionRenderer(instance: AlmSettingsInstance) {
+function optionRenderer(props: OptionProps<AlmSettingsInstance, false>) {
+  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
+}
+
+function singleValueRenderer(props: SingleValueProps<AlmSettingsInstance>) {
+  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
+}
+
+function customOptions(instance: AlmSettingsInstance) {
   return instance.url ? (
     <>
       <span>{instance.key} — </span>
@@ -141,22 +150,18 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             </div>
           </div>
           <div className="settings-definition-right">
-            <SelectLegacy
-              autosize={true}
-              className="abs-width-400 big-spacer-top"
-              clearable={false}
-              id="name"
-              menuContainerStyle={{
-                maxWidth: '210%' /* Allow double the width of the select */,
-                width: 'auto'
-              }}
-              onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
-              optionRenderer={optionRenderer}
+            <Select
+              inputId="name"
+              className="abs-width-400 big-spacer-top it__configuration-name-select"
+              isClearable={false}
+              isSearchable={false}
               options={instances}
-              searchable={false}
-              value={formData.key}
-              valueKey="key"
-              valueRenderer={optionRenderer}
+              onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
+              components={{
+                Option: optionRenderer,
+                SingleValue: singleValueRenderer
+              }}
+              value={instances.filter(instance => instance.key === formData.key)}
             />
           </div>
         </div>

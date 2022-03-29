@@ -19,17 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../../components/controls/SelectLegacy';
+import Select from '../../../../../components/controls/Select';
 import { mockSetting } from '../../../../../helpers/mocks/settings';
 import { DefaultSpecializedInputProps } from '../../../utils';
 import InputForSingleSelectList from '../InputForSingleSelectList';
 
 it('should render Select', () => {
   const onChange = jest.fn();
-  const select = shallowRender({ onChange }).find(SelectLegacy);
+  const select = shallowRender({ onChange }).find(Select);
   expect(select.length).toBe(1);
   expect(select.prop('name')).toBe('foo');
-  expect(select.prop('value')).toBe('bar');
+  expect(select.prop('value')).toEqual({ label: 'bar', value: 'bar' });
   expect(select.prop('options')).toEqual([
     { value: 'foo', label: 'foo' },
     { value: 'bar', label: 'bar' },
@@ -40,7 +40,7 @@ it('should render Select', () => {
 
 it('should call onChange', () => {
   const onChange = jest.fn();
-  const select = shallowRender({ onChange }).find(SelectLegacy);
+  const select = shallowRender({ onChange }).find(Select);
   expect(select.length).toBe(1);
   expect(select.prop('onChange')).toBeDefined();
 

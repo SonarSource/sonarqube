@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
@@ -41,9 +41,9 @@ it('should correctly handle a change of the selected language', () => {
   const wrapper = shallowRender({ router });
   expect(wrapper.find(CategoryDefinitionsList).props().category).toBe('java');
 
-  const { onChange } = wrapper.find(SelectLegacy).props();
+  const { onChange } = wrapper.find(Select).props();
 
-  onChange!({ label: '', originalValue: 'CoBoL', value: 'cobol' });
+  onChange({ label: '', originalValue: 'CoBoL', value: 'cobol' });
   expect(push).toHaveBeenCalledWith(expect.objectContaining({ query: { category: 'CoBoL' } }));
 });
 

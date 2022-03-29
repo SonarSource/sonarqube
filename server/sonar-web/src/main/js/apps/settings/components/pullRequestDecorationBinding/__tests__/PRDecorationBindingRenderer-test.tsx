@@ -19,8 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../../components/controls/SelectLegacy';
-import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import {
   AlmKeys,
   AlmSettingsInstance,
@@ -123,18 +121,6 @@ it.each([
     expect(shallowRender({ ...props, instances }).find('.action-section')).toMatchSnapshot(name);
   }
 );
-
-it('should render select options correctly', async () => {
-  const wrapper = shallowRender({ instances });
-
-  await waitAndUpdate(wrapper);
-
-  const { optionRenderer } = wrapper.find(SelectLegacy).props();
-
-  expect(optionRenderer!(instances[0])).toMatchSnapshot();
-
-  expect(optionRenderer!(instances[1])).toMatchSnapshot();
-});
 
 function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
   return shallow(
