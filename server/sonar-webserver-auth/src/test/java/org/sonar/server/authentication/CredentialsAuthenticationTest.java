@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
@@ -58,7 +59,7 @@ public class CredentialsAuthenticationTest {
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private CredentialsExternalAuthentication externalAuthentication = mock(CredentialsExternalAuthentication.class);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
+  private CredentialsLocalAuthentication localAuthentication = Mockito.spy(new CredentialsLocalAuthentication(dbClient, settings.asConfig()));
   private CredentialsAuthentication underTest = new CredentialsAuthentication(dbClient, authenticationEvent, externalAuthentication, localAuthentication);
 
   @Test
@@ -90,7 +91,7 @@ public class CredentialsAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
 
   }
 
@@ -104,7 +105,7 @@ public class CredentialsAuthenticationTest {
     executeAuthenticate(BASIC);
 
     verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -120,7 +121,7 @@ public class CredentialsAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -138,7 +139,7 @@ public class CredentialsAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -156,8 +157,20 @@ public class CredentialsAuthenticationTest {
       .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
       .hasFieldOrPropertyWithValue("login", LOGIN);
 
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
+  }
 
+  @Test
+  public void fail_to_authenticate_unknown_user_after_forcing_hash() {
+    assertThatThrownBy(() -> executeAuthenticate(BASIC))
+      .hasMessage("No active user for login")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verify(localAuthentication).generateHashToAvoidEnumerationAttack();
+
+    verifyNoInteractions(authenticationEvent);
   }
 
   private UserDto executeAuthenticate(AuthenticationEvent.Method method) {

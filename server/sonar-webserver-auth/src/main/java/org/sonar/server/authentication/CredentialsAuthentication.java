@@ -67,10 +67,12 @@ public class CredentialsAuthentication {
     if (externalUser.isPresent()) {
       return externalUser.get();
     }
+    localAuthentication.generateHashToAvoidEnumerationAttack();
     throw AuthenticationException.newBuilder()
       .setSource(Source.local(method))
       .setLogin(credentials.getLogin())
       .setMessage(localUser != null && !localUser.isLocal() ? "User is not local" : "No active user for login")
       .build();
   }
+
 }
