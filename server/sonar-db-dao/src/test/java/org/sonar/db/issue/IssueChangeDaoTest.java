@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -35,6 +36,7 @@ import org.sonar.db.DbTester;
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -108,8 +110,20 @@ public class IssueChangeDaoTest {
     IssueChangeDto issueChange1 = db.issues().insertChange(issue);
     IssueChangeDto issueChange2 = db.issues().insertChange(issue);
 
-    assertThat(underTest.delete(db.getSession(), issueChange1.getKey())).isTrue();
+    assertThat(underTest.deleteByKey(db.getSession(), issueChange1.getKey())).isTrue();
 
+    assertThat(db.countRowsOfTable(db.getSession(), "issue_changes")).isOne();
+  }
+
+  @Test
+  public void deleteByUuids() {
+    IssueDto issue = db.issues().insertIssue();
+    IssueChangeDto issueChange1 = db.issues().insertChange(issue);
+    IssueChangeDto issueChange2 = db.issues().insertChange(issue);
+    IssueChangeDto issueChange3 = db.issues().insertChange(issue);
+
+    underTest.deleteByUuids(db.getSession(), Set.of(issueChange1.getUuid(), issueChange2.getUuid()));
+    assertThat(underTest.selectByIssueKeys(db.getSession(), singleton(issue.getKey()))).extracting(IssueChangeDto::getIssueKey).containsOnly(issue.getKey());
     assertThat(db.countRowsOfTable(db.getSession(), "issue_changes")).isOne();
   }
 
@@ -118,7 +132,7 @@ public class IssueChangeDaoTest {
     IssueDto issue = db.issues().insertIssue();
     db.issues().insertChange(issue);
 
-    assertThat(underTest.delete(db.getSession(), "UNKNOWN")).isFalse();
+    assertThat(underTest.deleteByKey(db.getSession(), "UNKNOWN")).isFalse();
   }
 
   @Test
@@ -181,7 +195,7 @@ public class IssueChangeDaoTest {
       .setIssueKey("other_issue_uuid")
       .setChangeData("new comment")
       .setUpdatedAt(DateUtils.parseDate("2013-06-30").getTime())))
-        .isFalse();
+      .isFalse();
 
     assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList(issue.getKey())))
       .extracting(IssueChangeDto::getKey, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,

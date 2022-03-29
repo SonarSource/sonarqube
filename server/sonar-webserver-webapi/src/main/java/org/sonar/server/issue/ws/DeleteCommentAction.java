@@ -91,7 +91,7 @@ public class DeleteCommentAction implements IssuesWsAction {
   }
 
   private void deleteComment(DbSession dbSession, CommentData commentData) {
-    dbClient.issueChangeDao().delete(dbSession, commentData.getIssueChangeDto().getKey());
+    dbClient.issueChangeDao().deleteByKey(dbSession, commentData.getIssueChangeDto().getKey());
     dbSession.commit();
   }
 

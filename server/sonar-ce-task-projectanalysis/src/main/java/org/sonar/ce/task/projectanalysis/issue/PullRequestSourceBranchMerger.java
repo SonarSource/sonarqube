@@ -32,8 +32,7 @@ public class PullRequestSourceBranchMerger {
   private final IssueLifecycle issueLifecycle;
   private final TrackerSourceBranchInputFactory sourceBranchInputFactory;
 
-  public PullRequestSourceBranchMerger(Tracker<DefaultIssue, DefaultIssue> tracker, IssueLifecycle issueLifecycle,
-    TrackerSourceBranchInputFactory sourceBranchInputFactory) {
+  public PullRequestSourceBranchMerger(Tracker<DefaultIssue, DefaultIssue> tracker, IssueLifecycle issueLifecycle, TrackerSourceBranchInputFactory sourceBranchInputFactory) {
     this.tracker = tracker;
     this.issueLifecycle = issueLifecycle;
     this.sourceBranchInputFactory = sourceBranchInputFactory;

@@ -61,6 +61,7 @@ import org.sonar.ce.task.projectanalysis.issue.DefaultAssignee;
 import org.sonar.ce.task.projectanalysis.issue.EffortAggregator;
 import org.sonar.ce.task.projectanalysis.issue.IntegrateIssuesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.IssueAssigner;
+import org.sonar.ce.task.projectanalysis.issue.IssueChangesToDeleteRepository;
 import org.sonar.ce.task.projectanalysis.issue.IssueCounter;
 import org.sonar.ce.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.ce.task.projectanalysis.issue.IssueLifecycle;
@@ -233,6 +234,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       FileSourceDataComputer.class,
       SourceLineReadersFactory.class,
       QProfileStatusRepositoryImpl.class,
+      IssueChangesToDeleteRepository.class,
 
       // issues
       RuleRepositoryImpl.class,

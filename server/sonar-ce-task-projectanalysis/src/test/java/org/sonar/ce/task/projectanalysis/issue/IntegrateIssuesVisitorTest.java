@@ -131,7 +131,7 @@ public class IntegrateIssuesVisitorTest {
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
   private final ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
-    System2.INSTANCE);
+    System2.INSTANCE, mock(IssueChangesToDeleteRepository.class));
   private IssueTrackingDelegator trackingDelegator;
   private TrackerExecution tracker;
   private PullRequestTrackerExecution prBranchTracker;

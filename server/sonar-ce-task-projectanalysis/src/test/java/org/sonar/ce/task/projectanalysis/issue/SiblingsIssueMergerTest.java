@@ -82,9 +82,9 @@ public class SiblingsIssueMergerTest {
 
   private static final org.sonar.ce.task.projectanalysis.component.Component FILE_1 = builder(
     org.sonar.ce.task.projectanalysis.component.Component.Type.FILE, FILE_1_REF)
-      .setKey(FILE_1_KEY)
-      .setUuid(FILE_1_UUID)
-      .build();
+    .setKey(FILE_1_KEY)
+    .setUuid(FILE_1_UUID)
+    .build();
 
   private final SimpleTracker<DefaultIssue, SiblingIssue> tracker = new SimpleTracker<>();
   private SiblingsIssueMerger copier;
@@ -100,7 +100,8 @@ public class SiblingsIssueMergerTest {
   @Before
   public void setUp() {
     DbClient dbClient = db.getDbClient();
-    ComponentIssuesLoader componentIssuesLoader = new ComponentIssuesLoader(dbClient, null, null, new MapSettings().asConfig(), System2.INSTANCE);
+    ComponentIssuesLoader componentIssuesLoader = new ComponentIssuesLoader(dbClient, null, null, new MapSettings().asConfig(), System2.INSTANCE,
+      mock(IssueChangesToDeleteRepository.class));
     copier = new SiblingsIssueMerger(new SiblingsIssuesLoader(new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, dbClient), dbClient, componentIssuesLoader),
       tracker,
       issueLifecycle);

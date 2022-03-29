@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -29,7 +28,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,15 +40,18 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,6 +61,7 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader.NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP;
 
 @RunWith(DataProviderRunner.class)
 public class ComponentIssuesLoaderTest {
@@ -66,8 +71,9 @@ public class ComponentIssuesLoaderTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private System2 system2 = mock(System2.class);
+  private final DbClient dbClient = db.getDbClient();
+  private final System2 system2 = mock(System2.class);
+  private final IssueChangesToDeleteRepository issueChangesToDeleteRepository = new IssueChangesToDeleteRepository();
 
   @Test
   public void loadClosedIssues_returns_single_DefaultIssue_by_issue_based_on_first_row() {
@@ -210,8 +216,7 @@ public class ComponentIssuesLoaderTest {
     DbClient dbClient = mock(DbClient.class);
     Configuration configuration = newConfiguration("0");
     String componentUuid = randomAlphabetic(15);
-    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
-      null /* not used in loadClosedIssues */, null /* not used in loadClosedIssues */, configuration, system2);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, configuration, system2, issueChangesToDeleteRepository);
 
     assertThat(underTest.loadClosedIssues(componentUuid)).isEmpty();
 
@@ -219,10 +224,24 @@ public class ComponentIssuesLoaderTest {
   }
 
   @Test
+  public void loadLatestDiffChangesForReopeningOfClosedIssues_collects_issue_changes_to_delete() {
+    IssueDto issue = db.issues().insert();
+    for (long i = 0; i < NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP + 5; i++) {
+      db.issues().insertChange(issue, diffIssueChangeModifier(i, "status"));
+    }
+    // should not be deleted
+    db.issues().insertChange(issue, diffIssueChangeModifier(-1, "other"));
+
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, newConfiguration("0"), null, issueChangesToDeleteRepository);
+
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(singleton(new DefaultIssue().setKey(issue.getKey())));
+    assertThat(issueChangesToDeleteRepository.getUuids()).containsOnly("0", "1", "2", "3", "4");
+  }
+
+  @Test
   public void loadLatestDiffChangesForReopeningOfClosedIssues_does_not_query_DB_if_issue_list_is_empty() {
     DbClient dbClient = mock(DbClient.class);
-    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
-      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, newConfiguration("0"), null, issueChangesToDeleteRepository);
 
     underTest.loadLatestDiffChangesForReopeningOfClosedIssues(emptyList());
 
@@ -232,18 +251,14 @@ public class ComponentIssuesLoaderTest {
   @Test
   @UseDataProvider("statusOrResolutionFieldName")
   public void loadLatestDiffChangesForReopeningOfClosedIssues_add_diff_change_with_most_recent_status_or_resolution(String statusOrResolutionFieldName) {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file);
+    IssueDto issue = db.issues().insert();
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val1")).setIssueChangeCreationDate(5));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val2")).setIssueChangeCreationDate(20));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith(statusOrResolutionFieldName, "val3")).setIssueChangeCreationDate(13));
-    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
-      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, newConfiguration("0"), null, issueChangesToDeleteRepository);
     DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
 
-    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(ImmutableList.of(defaultIssue));
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(singleton(defaultIssue));
 
     assertThat(defaultIssue.changes())
       .hasSize(1);
@@ -255,19 +270,15 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadLatestDiffChangesForReopeningOfClosedIssues_add_single_diff_change_when_most_recent_status_and_resolution_is_the_same_diff() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file);
+    IssueDto issue = db.issues().insert();
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2")).setIssueChangeCreationDate(19));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3", "resolution", "valRes3")).setIssueChangeCreationDate(20));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
-    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
-      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, newConfiguration("0"), null, issueChangesToDeleteRepository);
     DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
 
-    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(ImmutableList.of(defaultIssue));
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(singleton(defaultIssue));
 
     assertThat(defaultIssue.changes())
       .hasSize(1);
@@ -283,19 +294,16 @@ public class ComponentIssuesLoaderTest {
 
   @Test
   public void loadLatestDiffChangesForReopeningOfClosedIssues_adds_2_diff_changes_if_most_recent_status_and_resolution_are_not_the_same_diff() {
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file);
+    IssueDto issue = db.issues().insert();
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus1")).setIssueChangeCreationDate(5));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus2", "resolution", "valRes2")).setIssueChangeCreationDate(19));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("status", "valStatus3")).setIssueChangeCreationDate(20));
     db.issues().insertChange(issue, t -> t.setChangeData(randomDiffWith("resolution", "valRes4")).setIssueChangeCreationDate(13));
-    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient,
-      null /* not used in method */, null /* not used in method */, newConfiguration("0"), null /* not used by method */);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null /* not used in method */, null /* not used in method */,
+      newConfiguration("0"), null /* not used by method */, issueChangesToDeleteRepository);
     DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
 
-    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(ImmutableList.of(defaultIssue));
+    underTest.loadLatestDiffChangesForReopeningOfClosedIssues(singleton(defaultIssue));
 
     assertThat(defaultIssue.changes())
       .hasSize(2);
@@ -307,6 +315,52 @@ public class ComponentIssuesLoaderTest {
       .extracting(t -> t.get("resolution"))
       .filteredOn(t -> hasValue(t, "valRes2"))
       .hasSize(1);
+  }
+
+  @Test
+  public void loadChanges_should_filter_out_old_status_changes() {
+    IssueDto issue = db.issues().insert();
+    for (int i = 0; i < NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP + 1; i++) {
+      db.issues().insertChange(issue, diffIssueChangeModifier(i, "status"));
+    }
+    // these are kept
+    db.issues().insertChange(issue, diffIssueChangeModifier(NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP + 1, "other"));
+    db.issues().insertChange(issue, t -> t
+      .setChangeType(IssueChangeDto.TYPE_COMMENT)
+      .setKey("comment1"));
+
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, newConfiguration("0"), null, issueChangesToDeleteRepository);
+    DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
+    underTest.loadChanges(db.getSession(), singleton(defaultIssue));
+
+    assertThat(defaultIssue.changes())
+      .extracting(d -> d.creationDate().getTime())
+      .containsOnly(LongStream.rangeClosed(1, NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP + 1).boxed().toArray(Long[]::new));
+    assertThat(defaultIssue.defaultIssueComments()).extracting(DefaultIssueComment::key).containsOnly("comment1");
+    assertThat(issueChangesToDeleteRepository.getUuids()).containsOnly("0");
+  }
+
+  @Test
+  public void loadChanges_should_filter_out_old_from_branch_changes() {
+    IssueDto issue = db.issues().insert();
+    for (int i = 0; i < NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP + 1; i++) {
+      db.issues().insertChange(issue, diffIssueChangeModifier(i, "from_branch"));
+    }
+
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClient, null, null, newConfiguration("0"), null, issueChangesToDeleteRepository);
+    DefaultIssue defaultIssue = new DefaultIssue().setKey(issue.getKey());
+    underTest.loadChanges(db.getSession(), singleton(defaultIssue));
+    assertThat(defaultIssue.changes())
+      .extracting(d -> d.creationDate().getTime())
+      .containsOnly(LongStream.rangeClosed(1, NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP).boxed().toArray(Long[]::new));
+    assertThat(issueChangesToDeleteRepository.getUuids()).containsOnly("0");
+  }
+
+  private Consumer<IssueChangeDto> diffIssueChangeModifier(long created, String field) {
+    return issueChangeDto -> issueChangeDto
+      .setChangeData(new FieldDiffs().setDiff(field, "A", "B").toEncodedString())
+      .setIssueChangeCreationDate(created)
+      .setUuid(String.valueOf(created));
   }
 
   private static boolean hasValue(@Nullable FieldDiffs.Diff t, String value) {
@@ -371,8 +425,8 @@ public class ComponentIssuesLoaderTest {
   }
 
   private ComponentIssuesLoader newComponentIssuesLoader(Configuration configuration) {
-    return new ComponentIssuesLoader(dbClient,
-      null /* not used in loadClosedIssues */, null /* not used in loadClosedIssues */, configuration, system2);
+    return new ComponentIssuesLoader(dbClient, null /* not used in loadClosedIssues */, null /* not used in loadClosedIssues */,
+      configuration, system2, issueChangesToDeleteRepository);
   }
 
   private static Configuration newEmptySettings() {

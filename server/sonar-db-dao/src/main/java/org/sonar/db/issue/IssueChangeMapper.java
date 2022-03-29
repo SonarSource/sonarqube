@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -29,6 +30,8 @@ public interface IssueChangeMapper {
   void insert(IssueChangeDto dto);
 
   int delete(String key);
+
+  void deleteByUuids(@Param("changeUuids") Collection<String> uuids);
 
   int update(IssueChangeDto change);
 

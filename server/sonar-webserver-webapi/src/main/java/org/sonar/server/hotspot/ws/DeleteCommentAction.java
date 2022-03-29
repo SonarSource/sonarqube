@@ -88,6 +88,6 @@ public class DeleteCommentAction implements HotspotsWsAction {
   }
 
   private void deleteComment(DbSession dbSession, String commentKey) {
-    dbClient.issueChangeDao().delete(dbSession, commentKey);
+    dbClient.issueChangeDao().deleteByKey(dbSession, commentKey);
   }
 }

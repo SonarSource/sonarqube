@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -31,6 +32,7 @@ import org.sonar.db.DbSession;
 import static java.util.Collections.singletonList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class IssueChangeDao implements Dao {
 
@@ -65,11 +67,16 @@ public class IssueChangeDao implements Dao {
     mapper(session).insert(change);
   }
 
-  public boolean delete(DbSession session, String key) {
+  public boolean deleteByKey(DbSession session, String key) {
     IssueChangeMapper mapper = mapper(session);
     int count = mapper.delete(key);
     session.commit();
     return count == 1;
+  }
+
+  public void deleteByUuids(DbSession session, Set<String> uuids) {
+    IssueChangeMapper mapper = mapper(session);
+    executeLargeUpdates(uuids, mapper::deleteByUuids);
   }
 
   public boolean update(DbSession dbSession, IssueChangeDto change) {

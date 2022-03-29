@@ -29,6 +29,13 @@
     delete from issue_changes where kee=#{id}
   </delete>
 
+  <delete id="deleteByUuids" parameterType="map">
+    delete from issue_changes where uuid in
+    <foreach collection="changeUuids" open="(" close=")" item="changeUuid" separator=",">
+      #{changeUuid, jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
   <update id="update" parameterType="map">
     update issue_changes set change_data=#{changeData}, updated_at=#{updatedAt,jdbcType=BIGINT} where kee=#{kee,jdbcType=VARCHAR}
   </update>

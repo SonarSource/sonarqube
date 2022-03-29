@@ -67,7 +67,7 @@ public class ProjectTrackerBaseLazyInputTest {
   private RuleDefinitionDto rule;
   private ComponentDto rootProjectDto;
   private ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
-    System2.INSTANCE);
+    System2.INSTANCE, mock(IssueChangesToDeleteRepository.class));
   private ReportModulesPath reportModulesPath;
 
   @Before
@@ -146,7 +146,7 @@ public class ProjectTrackerBaseLazyInputTest {
   }
 
   @Test
-  public void empty_path_if_module_missing_in_report_and_db_and_for_slash_folder () {
+  public void empty_path_if_module_missing_in_report_and_db_and_for_slash_folder() {
     ComponentDto module = dbTester.components().insertComponent(newModuleDto(rootProjectDto).setPath(null));
     when(reportModulesPath.get()).thenReturn(Collections.emptyMap());
     ComponentDto folder = dbTester.components().insertComponent(newDirectory(module, "/"));
