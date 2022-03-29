@@ -135,7 +135,8 @@ export function selectStyle<
         maxWidth: '100%',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        display: 'flex'
       };
     },
     indicatorsContainer: () => ({
@@ -219,12 +220,8 @@ export function selectStyle<
       textOverflow: 'ellipsis'
     }),
     input: () => ({
-      padding: '0px',
-      margin: '0px',
-      height: '100%',
       display: 'flex',
-      alignItems: 'center',
-      paddingLeft: '1px'
+      alignItems: 'center'
     }),
     loadingIndicator: () => ({
       position: 'absolute',
