@@ -100,7 +100,6 @@ public final class SqTables {
     "snapshots",
     "users",
     "user_dismissed_messages",
-    "user_properties",
     "user_roles",
     "user_tokens",
     "webhooks",

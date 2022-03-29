@@ -171,21 +171,6 @@ public class UsersService extends BaseService {
    *
    * This is part of the internal API.
    * This is a POST request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/set_setting">Further information about this action online (including a response example)</a>
-   * @since 7.6
-   */
-  public void setSetting(SetSettingRequest request) {
-    call(
-      new PostRequest(path("set_setting"))
-        .setParam("key", request.getKey())
-        .setParam("value", request.getValue())
-        .setMediaType(MediaTypes.JSON)).content();
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/skip_onboarding_tutorial">Further information about this action online (including a response example)</a>
    * @since 6.5
    */

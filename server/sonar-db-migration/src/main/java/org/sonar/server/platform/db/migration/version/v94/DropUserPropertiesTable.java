@@ -19,19 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v94;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion94 implements DbVersion {
+public class DropUserPropertiesTable extends DdlChange {
+  private static final String TABLE_NAME = "user_properties";
+
+  public DropUserPropertiesTable(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6301, "Drop unused Issues Column REPORTER", DropReporterIssueColumn.class)
-      .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
-      .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
-      .add(6304, "Create table 'SCANNER_ANALYSIS_CACHE", CreateScannerAnalysisCacheTable.class)
-      .add(6305, "Issue warning for users using SHA1 hash method", SelectUsersWithSha1HashMethod.class)
-      .add(6306, "Drop table 'user_properties'", DropUserPropertiesTable.class)
-    ;
+  public void execute(Context context) throws SQLException {
+    if (tableExists()) {
+      context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
+    }
+  }
+
+  private boolean tableExists() throws SQLException {
+    try (var connection = getDatabase().getDataSource().getConnection()) {
+      return DatabaseUtils.tableExists(TABLE_NAME, connection);
+    }
   }
 }

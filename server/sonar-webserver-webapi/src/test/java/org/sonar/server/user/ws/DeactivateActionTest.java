@@ -222,22 +222,6 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivate_user_deletes_their_user_settings() {
-    createAdminUser();
-    logInAsSystemAdministrator();
-    UserDto user = db.users().insertUser();
-    db.users().insertUserSetting(user);
-    db.users().insertUserSetting(user);
-    UserDto anotherUser = db.users().insertUser();
-    db.users().insertUserSetting(anotherUser);
-
-    deactivate(user.getLogin());
-
-    assertThat(db.getDbClient().userPropertiesDao().selectByUser(dbSession, user)).isEmpty();
-    assertThat(db.getDbClient().userPropertiesDao().selectByUser(dbSession, anotherUser)).hasSize(1);
-  }
-
-  @Test
   public void deactivate_user_deletes_their_qgate_permissions() {
     createAdminUser();
     logInAsSystemAdministrator();

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -42,7 +41,6 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -103,9 +101,8 @@ public class CurrentActionTest {
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getSettingsList,
-        CurrentWsResponse::getUsingSonarLintConnectedMode, CurrentWsResponse::getSonarLintAdSeen)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", Collections.emptyList(), false, false);
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getUsingSonarLintConnectedMode, CurrentWsResponse::getSonarLintAdSeen)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false, false);
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
@@ -146,27 +143,6 @@ public class CurrentActionTest {
 
     CurrentWsResponse response = call();
     assertThat(response.getPermissions().getGlobalList()).containsOnly("profileadmin", "scan");
-  }
-
-  @Test
-  public void return_user_settings() {
-    UserDto user = db.users().insertUser();
-    db.users().insertUserSetting(user, userSetting -> userSetting
-      .setKey("notifications.readDate")
-      .setValue("1234"));
-    db.users().insertUserSetting(user, userSetting -> userSetting
-      .setKey("notifications.optOut")
-      .setValue("true"));
-    db.commit();
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getSettingsList())
-      .extracting(CurrentWsResponse.Setting::getKey, CurrentWsResponse.Setting::getValue)
-      .containsExactlyInAnyOrder(
-        tuple("notifications.optOut", "true"),
-        tuple("notifications.readDate", "1234"));
   }
 
   @Test

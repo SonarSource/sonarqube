@@ -122,17 +122,6 @@ public class UserDbTester {
     return Optional.ofNullable(dbClient.userDao().selectByExternalLoginAndIdentityProvider(db.getSession(), login, identityProvider));
   }
 
-  // USER SETTINGS
-
-  @SafeVarargs
-  public final UserPropertyDto insertUserSetting(UserDto user, Consumer<UserPropertyDto>... populators) {
-    UserPropertyDto dto = UserTesting.newUserSettingDto(user);
-    stream(populators).forEach(p -> p.accept(dto));
-    dbClient.userPropertiesDao().insertOrUpdate(db.getSession(), dto, user.getLogin());
-    db.commit();
-    return dto;
-  }
-
   // GROUPS
 
   public GroupDto insertGroup(String name) {

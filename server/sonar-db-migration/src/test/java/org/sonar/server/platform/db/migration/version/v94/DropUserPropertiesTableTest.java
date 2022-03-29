@@ -19,19 +19,32 @@
  */
 package org.sonar.server.platform.db.migration.version.v94;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class DbVersion94 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(6301, "Drop unused Issues Column REPORTER", DropReporterIssueColumn.class)
-      .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
-      .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
-      .add(6304, "Create table 'SCANNER_ANALYSIS_CACHE", CreateScannerAnalysisCacheTable.class)
-      .add(6305, "Issue warning for users using SHA1 hash method", SelectUsersWithSha1HashMethod.class)
-      .add(6306, "Drop table 'user_properties'", DropUserPropertiesTable.class)
-    ;
+public class DropUserPropertiesTableTest {
+  private static final String TABLE_NAME = "user_properties";
+
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(DropUserPropertiesTableTest.class, "schema.sql");
+
+  private final DropUserPropertiesTable underTest = new DropUserPropertiesTable(db.database());
+
+  @Test
+  public void migration_should_drop_table() throws SQLException {
+    db.assertTableExists(TABLE_NAME);
+    underTest.execute();
+    db.assertTableDoesNotExist(TABLE_NAME);
+  }
+
+  @Test
+  public void migration_should_be_reentrant() throws SQLException {
+    db.assertTableExists(TABLE_NAME);
+    underTest.execute();
+    // re-entrant
+    underTest.execute();
+    db.assertTableDoesNotExist(TABLE_NAME);
   }
 }

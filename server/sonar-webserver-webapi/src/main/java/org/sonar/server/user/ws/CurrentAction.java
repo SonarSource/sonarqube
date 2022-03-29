@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -51,11 +50,11 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
-import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
+import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
@@ -120,7 +119,6 @@ public class CurrentAction implements UsersWsAction {
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setHomepage(buildHomepage(dbSession, user))
       .setShowOnboardingTutorial(!user.isOnboarded())
-      .addAllSettings(loadUserSettings(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .setSonarLintAdSeen(user.isSonarlintAdSeen());
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
@@ -222,16 +220,6 @@ public class CurrentAction implements UsersWsAction {
     return CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(homepageTypes.getDefaultType().name()))
       .build();
-  }
-
-  private List<CurrentWsResponse.Setting> loadUserSettings(DbSession dbSession, UserDto user) {
-    return dbClient.userPropertiesDao().selectByUser(dbSession, user)
-      .stream()
-      .map(dto -> CurrentWsResponse.Setting.newBuilder()
-        .setKey(dto.getKey())
-        .setValue(dto.getValue())
-        .build())
-      .collect(MoreCollectors.toList());
   }
 
   private static boolean noHomepageSet(UserDto user) {

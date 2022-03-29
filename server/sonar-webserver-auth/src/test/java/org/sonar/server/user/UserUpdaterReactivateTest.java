@@ -268,20 +268,6 @@ public class UserUpdaterReactivateTest {
   }
 
   @Test
-  public void does_not_set_notifications_readDate_setting_when_reactivating_user() {
-    createDefaultGroup();
-    UserDto user = db.users().insertDisabledUser();
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName(user.getName())
-      .build(), u -> {
-      });
-
-    assertThat(dbClient.userPropertiesDao().selectByUser(session, user)).isEmpty();
-  }
-
-  @Test
   public void fail_to_reactivate_user_when_login_already_exists() {
     createDefaultGroup();
     UserDto user = db.users().insertUser(u -> u.setActive(false));

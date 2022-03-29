@@ -22,7 +22,6 @@ package org.sonar.db.audit.model;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.user.UserPropertyDto;
 
 public class PropertyNewValue extends NewValue {
   private String propertyKey;
@@ -47,14 +46,6 @@ public class PropertyNewValue extends NewValue {
 
   @Nullable
   private String qualifier;
-
-  public PropertyNewValue(UserPropertyDto userPropertyDto, @Nullable String login) {
-    this.propertyKey = userPropertyDto.getKey();
-    this.userUuid = userPropertyDto.getUserUuid();
-    this.userLogin = login;
-
-    setValue(propertyKey, userPropertyDto.getValue());
-  }
 
   public PropertyNewValue(PropertyDto propertyDto, @Nullable String userLogin, @Nullable String componentKey, @Nullable String componentName, @Nullable String qualifier) {
     this.propertyKey = propertyDto.getKey();

@@ -69,7 +69,6 @@ import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
-import org.sonarqube.ws.client.userproperties.UserPropertiesService;
 import org.sonarqube.ws.client.users.UsersService;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
 import org.sonarqube.ws.client.views.ViewsService;
@@ -133,7 +132,6 @@ class DefaultWsClient implements WsClient {
   private final TimemachineService timemachineService;
   private final UpdatecenterService updatecenterService;
   private final UserGroupsService userGroupsService;
-  private final UserPropertiesService userPropertiesService;
   private final UserTokensService userTokensService;
   private final UsersService usersService;
   private final ViewsService viewsService;
@@ -192,7 +190,6 @@ class DefaultWsClient implements WsClient {
     this.timemachineService = new TimemachineService(wsConnector);
     this.updatecenterService = new UpdatecenterService(wsConnector);
     this.userGroupsService = new UserGroupsService(wsConnector);
-    this.userPropertiesService = new UserPropertiesService(wsConnector);
     this.userTokensService = new UserTokensService(wsConnector);
     this.usersService = new UsersService(wsConnector);
     this.viewsService = new ViewsService(wsConnector);
@@ -442,11 +439,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public UserGroupsService userGroups() {
     return userGroupsService;
-  }
-
-  @Override
-  public UserPropertiesService userProperties() {
-    return userPropertiesService;
   }
 
   @Override

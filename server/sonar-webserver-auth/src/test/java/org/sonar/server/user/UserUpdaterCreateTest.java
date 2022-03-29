@@ -294,19 +294,6 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void does_not_set_notifications_readDate_setting_when_creating_user_when_not_on() {
-    createDefaultGroup();
-
-    UserDto user = underTest.createAndCommit(db.getSession(), NewUser.builder()
-      .setLogin("userLogin")
-      .setName("UserName")
-      .build(), u -> {
-      });
-
-    assertThat(dbClient.userPropertiesDao().selectByUser(session, user)).isEmpty();
-  }
-
-  @Test
   public void create_user_and_index_other_user() {
     createDefaultGroup();
     UserDto otherUser = db.users().insertUser();

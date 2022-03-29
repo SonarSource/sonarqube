@@ -69,7 +69,6 @@ import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.timemachine.TimemachineService;
 import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
-import org.sonarqube.ws.client.userproperties.UserPropertiesService;
 import org.sonarqube.ws.client.users.UsersService;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
 import org.sonarqube.ws.client.views.ViewsService;
@@ -188,8 +187,6 @@ public interface WsClient {
   UpdatecenterService updatecenter();
 
   UserGroupsService userGroups();
-
-  UserPropertiesService userProperties();
 
   UserTokensService userTokens();
 

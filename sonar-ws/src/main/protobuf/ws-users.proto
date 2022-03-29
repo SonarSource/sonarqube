@@ -110,7 +110,7 @@ message CurrentWsResponse {
   optional bool showOnboardingTutorial = 11;
   optional string avatar = 12;
   optional Homepage homepage = 13;
-  repeated Setting settings = 15;
+  reserved 15; // settings removed
   optional bool usingSonarLintConnectedMode = 16;
   optional bool sonarLintAdSeen = 17;
 

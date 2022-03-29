@@ -20,7 +20,6 @@
 package org.sonar.db.user;
 
 import javax.annotation.Nullable;
-import org.sonar.core.util.Uuids;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -85,13 +84,5 @@ public class UserTesting {
       .setEmail(null)
       .setCryptedPassword(null)
       .setSalt(null);
-  }
-
-  public static UserPropertyDto newUserSettingDto(UserDto user) {
-    return new UserPropertyDto()
-      .setUuid(Uuids.createFast())
-      .setUserUuid(user.getUuid())
-      .setKey(randomAlphanumeric(20))
-      .setValue(randomAlphanumeric(100));
   }
 }
