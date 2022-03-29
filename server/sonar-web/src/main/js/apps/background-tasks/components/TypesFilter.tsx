@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { ALL_TYPES } from '../constants';
 
@@ -29,7 +29,7 @@ interface Props {
 }
 
 export default class TypesFilter extends React.PureComponent<Props> {
-  handleChange = ({ value }: { value: string }) => {
+  handleChange = ({ value }: BasicSelectOption) => {
     this.props.onChange(value);
   };
 
@@ -42,19 +42,20 @@ export default class TypesFilter extends React.PureComponent<Props> {
       };
     });
 
-    const allOptions = [
+    const allOptions: BasicSelectOption[] = [
       { value: ALL_TYPES, label: translate('background_task.type.ALL') },
       ...options
     ];
 
     return (
-      <SelectLegacy
+      <Select
+        aria-labelledby="background-task-type-filter-label"
         className="input-large"
         clearable={false}
         onChange={this.handleChange}
         options={allOptions}
         searchable={false}
-        value={value}
+        value={allOptions.find(o => o.value === value)}
       />
     );
   }

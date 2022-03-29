@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Select
+  aria-labelledby="background-task-type-filter-label"
+  className="input-large"
+  clearable={false}
+  onChange={[Function]}
+  options={
+    Array [
+      Object {
+        "label": "background_task.type.ALL",
+        "value": "ALL_TYPES",
+      },
+      Object {
+        "label": "background_task.type.t1",
+        "value": "t1",
+      },
+      Object {
+        "label": "background_task.type.t2",
+        "value": "t2",
+      },
+    ]
+  }
+  searchable={false}
+  value={
+    Object {
+      "label": "background_task.type.t2",
+      "value": "t2",
+    }
+  }
+/>
+`;

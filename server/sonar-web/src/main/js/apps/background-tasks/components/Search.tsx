@@ -102,12 +102,16 @@ export default class Search extends React.PureComponent<Props> {
       <section className="big-spacer-top big-spacer-bottom">
         <ul className="bt-search-form">
           <li>
-            <h6 className="bt-search-form-label">{translate('status')}</h6>
+            <h6 id="background-task-status-filter-label" className="bt-search-form-label">
+              {translate('status')}
+            </h6>
             <StatusFilter onChange={this.handleStatusChange} value={status} />
           </li>
           {types.length > 1 && (
             <li>
-              <h6 className="bt-search-form-label">{translate('type')}</h6>
+              <h6 id="background-task-type-filter-label" className="bt-search-form-label">
+                {translate('type')}
+              </h6>
               <TypesFilter onChange={this.handleTypeChange} types={types} value={taskType} />
             </li>
           )}

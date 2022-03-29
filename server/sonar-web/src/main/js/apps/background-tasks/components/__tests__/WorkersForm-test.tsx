@@ -24,7 +24,7 @@ jest.mock('../../../../api/ce', () => ({
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import { submit } from '../../../../helpers/testUtils';
 import WorkersForm from '../WorkersForm';
 
@@ -32,7 +32,7 @@ it('changes select', () => {
   const wrapper = shallow(<WorkersForm onClose={jest.fn()} workerCount={1} />);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find(SelectLegacy).prop<Function>('onChange')({ value: 7 });
+  wrapper.find(Select).prop<Function>('onChange')({ value: 7 });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
@@ -41,7 +41,7 @@ it('returns new worker count', async () => {
   const onClose = jest.fn();
   const wrapper = shallow(<WorkersForm onClose={onClose} workerCount={1} />);
   (wrapper.instance() as WorkersForm).mounted = true;
-  wrapper.find(SelectLegacy).prop<Function>('onChange')({ value: 7 });
+  wrapper.find(Select).prop<Function>('onChange')({ value: 7 });
 
   wrapper.update();
   submit(wrapper.find('form'));

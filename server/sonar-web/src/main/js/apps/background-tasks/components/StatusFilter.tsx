@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { TaskStatuses } from '../../../types/tasks';
 import { STATUSES } from '../constants';
@@ -29,12 +29,12 @@ interface Props {
 }
 
 export default class StatusFilter extends React.PureComponent<Props> {
-  handleChange = ({ value }: { value: string }) => {
+  handleChange = ({ value }: BasicSelectOption) => {
     this.props.onChange(value);
   };
 
   render() {
-    const options = [
+    const options: BasicSelectOption[] = [
       { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
       {
         value: STATUSES.ALL_EXCEPT_PENDING,
@@ -48,13 +48,13 @@ export default class StatusFilter extends React.PureComponent<Props> {
     ];
 
     return (
-      <SelectLegacy
+      <Select
+        aria-labelledby="background-task-status-filter-label"
         className="input-medium"
-        clearable={false}
         onChange={this.handleChange}
         options={options}
         searchable={false}
-        value={this.props.value}
+        value={options.find(o => o.value === this.props.value)}
       />
     );
   }

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Select
+  aria-labelledby="background-task-status-filter-label"
+  className="input-medium"
+  onChange={[Function]}
+  options={
+    Array [
+      Object {
+        "label": "background_task.status.ALL",
+        "value": "__ALL__",
+      },
+      Object {
+        "label": "background_task.status.ALL_EXCEPT_PENDING",
+        "value": "__ALL_EXCEPT_PENDING__",
+      },
+      Object {
+        "label": "background_task.status.PENDING",
+        "value": "PENDING",
+      },
+      Object {
+        "label": "background_task.status.IN_PROGRESS",
+        "value": "IN_PROGRESS",
+      },
+      Object {
+        "label": "background_task.status.SUCCESS",
+        "value": "SUCCESS",
+      },
+      Object {
+        "label": "background_task.status.FAILED",
+        "value": "FAILED",
+      },
+      Object {
+        "label": "background_task.status.CANCELED",
+        "value": "CANCELED",
+      },
+    ]
+  }
+  searchable={false}
+/>
+`;

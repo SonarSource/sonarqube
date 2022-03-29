@@ -21,7 +21,7 @@ import * as React from 'react';
 import { setWorkerCount } from '../../../api/ce';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 
@@ -92,17 +92,19 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
         contentLabel={translate('background_tasks.change_number_of_workers')}
         onRequestClose={this.handleClose}>
         <header className="modal-head">
-          <h2>{translate('background_tasks.change_number_of_workers')}</h2>
+          <h2 id="background-task-workers-label">
+            {translate('background_tasks.change_number_of_workers')}
+          </h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
-            <SelectLegacy
+            <Select
+              aria-labelledby="background-task-workers-label"
               className="input-tiny spacer-top"
-              clearable={false}
+              isSearchable={false}
               onChange={this.handleWorkerCountChange}
               options={options}
-              searchable={false}
-              value={this.state.newWorkerCount}
+              value={options.find(o => o.value === this.state.newWorkerCount)}
             />
             <Alert className="big-spacer-top" variant="info">
               {translate('background_tasks.change_number_of_workers.hint')}
