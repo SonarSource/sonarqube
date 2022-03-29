@@ -3,7 +3,7 @@ title: Prerequisites and Overview
 url: /requirements/requirements/
 ---
 ## Prerequisite
-You must be able to install Java (Oracle JRE 11 or OpenJDK 11) on the machine where you plan to run SonarQube.
+You must be able to install Java (Oracle JRE or OpenJDK) on the machine where you plan to run SonarQube.
 
 ## Hardware Requirements
 1. A small-scale (individual or small team) instance of the SonarQube server requires at least 2GB of RAM to run efficiently and 1GB of free RAM for the OS. If you are installing an instance for a large teams or Enterprise, please consider the additional recommendations below.
@@ -20,17 +20,19 @@ For additional requirements and recommendations relating to database and Elastic
 
 ## Supported Platforms
 ### Java
-The SonarQube scanners and the SonarQube server require Java version 11. Versions beyond Java 11 are not officially supported. 
+The SonarQube server require Java version 11 and the SonarQube scanners require Java version 11 or 17. 
 
 SonarQube is able to analyze any kind of Java source files regardless of the version of Java they comply to. 
 
 We recommend using the Critical Patch Update (CPU) releases.
 
 | Java           | Server                    | Scanners                  |
-| -------------- | ------------------------- | ------------------------- |
-| Oracle JRE     | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
+| -------------- |---------------------------|---------------------------|
+| Oracle JRE     | ![](/images/cross.svg) 17 | ![](/images/check.svg) 17 |
+|                | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
 |                | ![](/images/cross.svg) 8  | ![](/images/cross.svg) 8  |
-| OpenJDK        | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
+| OpenJDK        | ![](/images/cross.svg) 17 | ![](/images/check.svg) 17 |
+|                | ![](/images/check.svg) 11 | ![](/images/check.svg) 11 |
 |                | ![](/images/cross.svg) 8  | ![](/images/cross.svg) 8  |
 
 | Database                                                    |                                                                                                                                                                                                                                                                   |
