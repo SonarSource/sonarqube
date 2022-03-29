@@ -27,7 +27,6 @@ import java.util.EnumMap;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.api.config.Configuration;
@@ -40,7 +39,6 @@ import org.sonar.server.authentication.event.AuthenticationException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Validates the password of a "local" user (password is stored in
@@ -51,7 +49,6 @@ public class CredentialsLocalAuthentication {
   public static final String ERROR_NULL_PASSWORD_IN_DB = "null password in DB";
   public static final String ERROR_NULL_SALT = "null salt";
   public static final String ERROR_WRONG_PASSWORD = "wrong password";
-  public static final String ERROR_PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
   public static final String ERROR_UNKNOWN_HASH_METHOD = "Unknown hash method [%s]";
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
   private static final String PBKDF2_ITERATIONS_PROP = "sonar.internal.pbkdf2.iterations";
@@ -62,13 +59,12 @@ public class CredentialsLocalAuthentication {
   private final EnumMap<HashMethod, HashFunction> hashFunctions = new EnumMap<>(HashMethod.class);
 
   public enum HashMethod {
-    SHA1, BCRYPT, PBKDF2
+    BCRYPT, PBKDF2
   }
 
   public CredentialsLocalAuthentication(DbClient dbClient, Configuration configuration) {
     this.dbClient = dbClient;
     hashFunctions.put(HashMethod.BCRYPT, new BcryptFunction());
-    hashFunctions.put(HashMethod.SHA1, new Sha1Function());
     hashFunctions.put(HashMethod.PBKDF2, new PBKDF2Function(configuration.getInt(PBKDF2_ITERATIONS_PROP).orElse(null)));
   }
 
@@ -84,7 +80,19 @@ public class CredentialsLocalAuthentication {
    * If the password must be updated because an old algorithm is used, the UserDto is updated but the session
    * is not committed
    */
-  public void authenticate(DbSession session, UserDto user, @Nullable String password, Method method) {
+  public void authenticate(DbSession session, UserDto user, String password, Method method) {
+    HashMethod hashMethod = getHashMethod(user, method);
+    HashFunction hashFunction = hashFunctions.get(hashMethod);
+    AuthenticationResult result = authenticate(user, password, method, hashFunction);
+
+    // Upgrade the password if it's an old hashMethod
+    if (hashMethod != DEFAULT || result.needsUpdate) {
+      hashFunctions.get(DEFAULT).storeHashPassword(user, password);
+      dbClient.userDao().update(session, user);
+    }
+  }
+
+  private HashMethod getHashMethod(UserDto user, Method method) {
     if (user.getHashMethod() == null) {
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(method))
@@ -92,10 +100,8 @@ public class CredentialsLocalAuthentication {
         .setMessage(ERROR_NULL_HASH_METHOD)
         .build();
     }
-
-    HashMethod hashMethod;
     try {
-      hashMethod = HashMethod.valueOf(user.getHashMethod());
+      return HashMethod.valueOf(user.getHashMethod());
     } catch (IllegalArgumentException ex) {
       generateHashToAvoidEnumerationAttack();
       throw AuthenticationException.newBuilder()
@@ -104,9 +110,9 @@ public class CredentialsLocalAuthentication {
         .setMessage(format(ERROR_UNKNOWN_HASH_METHOD, user.getHashMethod()))
         .build();
     }
+  }
 
-    HashFunction hashFunction = hashFunctions.get(hashMethod);
-
+  private static AuthenticationResult authenticate(UserDto user, String password, Method method, HashFunction hashFunction) {
     AuthenticationResult result = hashFunction.checkCredentials(user, password);
     if (!result.isSuccessful()) {
       throw AuthenticationException.newBuilder()
@@ -115,12 +121,7 @@ public class CredentialsLocalAuthentication {
         .setMessage(result.getFailureMessage())
         .build();
     }
-
-    // Upgrade the password if it's an old hashMethod
-    if (hashMethod != DEFAULT || result.needsUpdate) {
-      hashFunctions.get(DEFAULT).storeHashPassword(user, password);
-      dbClient.userDao().update(session, user);
-    }
+    return result;
   }
 
   /**
@@ -167,41 +168,6 @@ public class CredentialsLocalAuthentication {
 
     default String encryptPassword(String salt, String password) {
       throw new IllegalStateException("This method is not supported for this hash function");
-    }
-  }
-
-  /**
-   * Implementation of deprecated SHA1 hash function
-   */
-  private static final class Sha1Function implements HashFunction {
-    @Override
-    public AuthenticationResult checkCredentials(UserDto user, String password) {
-      if (user.getCryptedPassword() == null) {
-        return new AuthenticationResult(false, ERROR_NULL_PASSWORD_IN_DB);
-      }
-      if (user.getSalt() == null) {
-        return new AuthenticationResult(false, ERROR_NULL_SALT);
-      }
-      if (!user.getCryptedPassword().equals(hash(user.getSalt(), password))) {
-        return new AuthenticationResult(false, ERROR_WRONG_PASSWORD);
-      }
-      return new AuthenticationResult(true, "");
-    }
-
-    @Override
-    public void storeHashPassword(UserDto user, String password) {
-      requireNonNull(password, ERROR_PASSWORD_CANNOT_BE_NULL);
-      byte[] saltRandom = new byte[20];
-      SECURE_RANDOM.nextBytes(saltRandom);
-      String salt = DigestUtils.sha1Hex(saltRandom);
-
-      user.setHashMethod(HashMethod.SHA1.name())
-        .setCryptedPassword(hash(salt, password))
-        .setSalt(salt);
-    }
-
-    private static String hash(String salt, String password) {
-      return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
     }
   }
 
@@ -298,7 +264,6 @@ public class CredentialsLocalAuthentication {
 
     @Override
     public void storeHashPassword(UserDto user, String password) {
-      requireNonNull(password, ERROR_PASSWORD_CANNOT_BE_NULL);
       user.setHashMethod(HashMethod.BCRYPT.name())
         .setCryptedPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)))
         .setSalt(null);

@@ -35,7 +35,7 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
  * delegated to an external system, e.g. LDAP.
  */
 public class CredentialsAuthentication {
-
+  static final String ERROR_PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
   private final DbClient dbClient;
   private final AuthenticationEvent authenticationEvent;
   private final CredentialsExternalAuthentication externalAuthentication;
@@ -58,7 +58,8 @@ public class CredentialsAuthentication {
   private UserDto authenticate(DbSession dbSession, Credentials credentials, HttpServletRequest request, Method method) {
     UserDto localUser = dbClient.userDao().selectActiveUserByLogin(dbSession, credentials.getLogin());
     if (localUser != null && localUser.isLocal()) {
-      localAuthentication.authenticate(dbSession, localUser, credentials.getPassword().orElse(null), method);
+      String password = getNonNullPassword(credentials);
+      localAuthentication.authenticate(dbSession, localUser, password, method);
       dbSession.commit();
       authenticationEvent.loginSuccess(request, localUser.getLogin(), Source.local(method));
       return localUser;
@@ -73,6 +74,10 @@ public class CredentialsAuthentication {
       .setLogin(credentials.getLogin())
       .setMessage(localUser != null && !localUser.isLocal() ? "User is not local" : "No active user for login")
       .build();
+  }
+
+  private static String getNonNullPassword(Credentials credentials) {
+    return credentials.getPassword().orElseThrow(() -> new IllegalArgumentException(ERROR_PASSWORD_CANNOT_BE_NULL));
   }
 
 }

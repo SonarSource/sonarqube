@@ -30,6 +30,7 @@ public class DbVersion94 implements DbVersion {
       .add(6302, "Drop unused Issues Column ACTION_PLAN_KEY", DropActionPlanKeyIssueColumn.class)
       .add(6303, "Drop unused Issues Column ISSUE_ATTRIBUTES", DropIssuesAttributesIssueColumn.class)
       .add(6304, "Create table 'SCANNER_ANALYSIS_CACHE", CreateScannerAnalysisCacheTable.class)
+      .add(6305, "Issue warning for users using SHA1 hash method", SelectUsersWithSha1HashMethod.class)
     ;
   }
 }
