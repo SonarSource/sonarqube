@@ -49,3 +49,7 @@ notifications:
   slack:
     secure: PCekbN71ZmuOt82JUFmlhzxlx3wrXucSIpvxxWdZn9lfsPYQAtXCoOESaHjIVIpggsC5HSAic3HiedsWbuDk/XojmPrDCrfjgYG2wiuSuQlAa60WvzTPqXdRmUXyMQgItaAQbRfZP7kN9No/v8TZDfg5kT3i9ewy0bsfExpjAuo=
   on_start: always
+
+after_failure:
+  - source ./.travis/setup_environment.sh
+  - notify_burgr "build" "build" "$TRAVIS_JOB_WEB_URL" "$(cat /tmp/build_start_time)" "$(date --utc +%FT%TZ)" "failed" || true
