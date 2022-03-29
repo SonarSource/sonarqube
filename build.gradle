@@ -312,6 +312,7 @@ subprojects {
       dependency 'org.elasticsearch.plugin:transport-netty4-client:7.16.0'
       dependency 'org.elasticsearch:mocksocket:1.0'
       dependency 'org.codelibs.elasticsearch.module:analysis-common:7.16.0'
+      dependency 'org.codelibs.elasticsearch.module:reindex:7.16.0'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r'
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.1'
       dependency 'org.hamcrest:hamcrest-all:1.3'
