@@ -106,8 +106,8 @@ public class LoadPeriodsStep implements ComputationStep {
           return;
         }
       } else if (specificSetting.isPresent()) {
-        ceTaskMessages.add(new Message("A scanner parameter is defining a new code reference branch "
-          + "but one is already defined specifically for the branch in the New Code Period settings", system2.now()));
+        ceTaskMessages.add(new Message("A scanner parameter is defining a new code reference branch but one is already defined in the New Code Period settings."
+          + " Please check your configuration to make sure it is expected.", system2.now()));
       }
 
       Period period = resolver.resolve(dbSession, branchUuid, newCodePeriod, projectVersion);
