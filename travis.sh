@@ -8,7 +8,7 @@ set -euo pipefail
 #
 configureTravis() {
   mkdir -p ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v61 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v62 | tar zx --strip-components 1 -C ~/.local
   # shellcheck disable=SC1090
   source ~/.local/bin/install
 }
@@ -37,24 +37,7 @@ cancel_branch_build_with_pr || if [[ $? -eq 1 ]]; then exit 0; fi
 INITIAL_VERSION=$(grep version gradle.properties | awk -F= '{print $2}')
 export INITIAL_VERSION
 
-# use generic environments to remove coupling with Travis ; see setup_promote_environment
-export GITHUB_REPO=${TRAVIS_REPO_SLUG}
-export BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
-export PIPELINE_ID=${BUILD_NUMBER}
-if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-  export GIT_SHA1=${TRAVIS_COMMIT} # $CIRRUS_CHANGE_IN_REPO
-  export GIT_BRANCH=$TRAVIS_BRANCH
-  export STAGE_TYPE="branch"
-  export STAGE_ID=${GIT_BRANCH}
-else
-  export GIT_SHA1=${TRAVIS_PULL_REQUEST_SHA}
-  export GIT_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH
-  export PULL_REQUEST_BASE_BRANCH=$TRAVIS_BRANCH
-  export PULL_REQUEST_NUMBER=$TRAVIS_PULL_REQUEST
-  export STAGE_TYPE="pr_number"
-  export STAGE_ID=${PULL_REQUEST_NUMBER}
-fi
-echo "======= SHA1 is ${GIT_SHA1} on branch '${GIT_BRANCH}'. Burgr stage '${STAGE_TYPE} with stage ID '${STAGE_ID} ======="
+source ./.travis/setup_environment.sh
 
 # Analyse SonarQube on NEXT
 export SONAR_HOST_URL=https://next.sonarqube.com/sonarqube
@@ -67,13 +50,11 @@ export SONAR_HOST_URL=https://next.sonarqube.com/sonarqube
 git fetch --unshallow || true
 
 BUILD_START_DATETIME=$(date --utc +%FT%TZ)
+echo "$BUILD_START_DATETIME" > /tmp/build_start_time
 ./gradlew build --no-daemon --console plain
-BUILD_END_DATETIME=$(date --utc +%FT%TZ)
 
 # exclude external pull requests
 if [[ -n "${NEXT_TOKEN-}" ]]; then
-  notify_burgr "build" "build" "$TRAVIS_JOB_WEB_URL" "$BUILD_START_DATETIME" "$BUILD_END_DATETIME"
-
   sonar_params=(-Dsonar.projectKey=sonarqube
     -Dsonar.host.url="$SONAR_HOST_URL"
     -Dsonar.login="$NEXT_TOKEN"
@@ -108,4 +89,7 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
   # Wait for 5mins, hopefully the report will be processed.
   sleep 5m
   ./.travis/run_iris.sh
+
+  BUILD_END_DATETIME=$(date --utc +%FT%TZ)
+  notify_burgr "build" "build" "$TRAVIS_JOB_WEB_URL" "$BUILD_START_DATETIME" "$BUILD_END_DATETIME" || true
 fi
