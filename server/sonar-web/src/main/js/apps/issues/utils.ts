@@ -123,7 +123,7 @@ export function serializeQuery(query: Query): RawQuery {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
-    author: serializeStringArray(query.author),
+    author: query.author,
     createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),

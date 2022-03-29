@@ -21,6 +21,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import { SecurityStandard } from '../../../types/security';
 import {
   scrollToIssue,
+  serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet
@@ -32,6 +33,68 @@ jest.mock('../../../helpers/scrolling', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+});
+
+describe('serialize/deserialize', () => {
+  it('should serlialize correctly', () => {
+    expect(
+      serializeQuery({
+        assigned: true,
+        assignees: ['a', 'b'],
+        author: ['a', 'b'],
+        createdAfter: new Date(1000000),
+        createdAt: 'a',
+        createdBefore: new Date(1000000),
+        createdInLast: 'a',
+        cwe: ['18', '19'],
+        directories: ['a', 'b'],
+        files: ['a', 'b'],
+        issues: ['a', 'b'],
+        languages: ['a', 'b'],
+        owaspTop10: ['a', 'b'],
+        'owaspTop10-2021': ['a', 'b'],
+        projects: ['a', 'b'],
+        resolutions: ['a', 'b'],
+        resolved: true,
+        rules: ['a', 'b'],
+        sort: 'rules',
+        sansTop25: ['a', 'b'],
+        scopes: ['a', 'b'],
+        severities: ['a', 'b'],
+        sinceLeakPeriod: true,
+        sonarsourceSecurity: ['a', 'b'],
+        statuses: ['a', 'b'],
+        tags: ['a', 'b'],
+        types: ['a', 'b']
+      })
+    ).toStrictEqual({
+      assignees: 'a,b',
+      author: ['a', 'b'],
+      createdAt: 'a',
+      createdBefore: '1970-01-01',
+      createdAfter: '1970-01-01',
+      createdInLast: 'a',
+      cwe: '18,19',
+      directories: 'a,b',
+      files: 'a,b',
+      issues: 'a,b',
+      languages: 'a,b',
+      owaspTop10: 'a,b',
+      'owaspTop10-2021': 'a,b',
+      projects: 'a,b',
+      resolutions: 'a,b',
+      rules: 'a,b',
+      s: 'rules',
+      sansTop25: 'a,b',
+      scopes: 'a,b',
+      severities: 'a,b',
+      sinceLeakPeriod: 'true',
+      sonarsourceSecurity: 'a,b',
+      statuses: 'a,b',
+      tags: 'a,b',
+      types: 'a,b'
+    });
+  });
 });
 
 describe('scrollToIssue', () => {

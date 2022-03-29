@@ -173,6 +173,7 @@ it('should handle my issue change properly', () => {
     pathname: '/issues',
     query: {
       id: 'foo',
+      author: [],
       myIssues: 'true'
     }
   });
