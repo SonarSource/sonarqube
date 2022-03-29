@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.log.CeTaskMessagesImpl;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisFromSonarQube94Visitor;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.ce.task.projectanalysis.api.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
@@ -270,6 +271,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssueOnReferenceBranchVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
+      AnalysisFromSonarQube94Visitor.class,
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
       IntegrateIssuesVisitor.class,
       CloseIssuesOnRemovedComponentsVisitor.class,

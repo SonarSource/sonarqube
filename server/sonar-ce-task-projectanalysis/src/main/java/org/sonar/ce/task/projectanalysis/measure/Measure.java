@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -348,7 +349,21 @@ public interface Measure {
     @Override
     public double getVariation() {
       throw new IllegalStateException("Measure does not have variation");
+    }
 
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (o == null || getClass() != o.getClass())
+        return false;
+      ValueMeasureImpl that = (ValueMeasureImpl) o;
+      return valueType == that.valueType && Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(valueType, value);
     }
 
     @Override

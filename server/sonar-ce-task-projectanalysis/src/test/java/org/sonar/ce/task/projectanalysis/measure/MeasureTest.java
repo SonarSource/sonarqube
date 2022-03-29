@@ -305,4 +305,22 @@ public class MeasureTest {
       .hasMessage("NaN is not allowed as a Measure value");
   }
 
+  @Test
+  public void valueMeasureImplEquals_instanceNotEqualToNull() {
+    Measure.ValueMeasureImpl valueMeasureImpl = (Measure.ValueMeasureImpl) new Measure.NewMeasureBuilder().create(0, null);
+
+    boolean equal = valueMeasureImpl.equals(null);
+
+    assertThat(equal).isFalse();
+  }
+
+  @Test
+  public void valueMeasureImplEquals_sameInstance_returnTrue() {
+    Measure.ValueMeasureImpl valueMeasureImpl = (Measure.ValueMeasureImpl) new Measure.NewMeasureBuilder().create(0, null);
+
+    boolean equal = valueMeasureImpl.equals(valueMeasureImpl);
+
+    assertThat(equal).isTrue();
+  }
+
 }
