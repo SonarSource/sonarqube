@@ -8,7 +8,7 @@ Project Move allows you to export a project from one SonarQube instance and impo
 ## When to use Project Move
 Project Move can help you with the following situations:
 
-* You want to create a central SonarQube instance at enterprise level and you want to keep the history created on instances used previously at the team level.
+* You want to create a central SonarQube instance at the enterprise level and you want to keep the history created on instances used previously at the team level.
 * You want to consolidate your editions and move projects from a Community Edition instance to an [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) instance or [above](https://redirect.sonarsource.com/editions/editions.html).
 * Your company is acquiring another company that already has a central SonarQube instance.
 * You are at a large company with several SonarQube instances and an application is transferred from one team to another.
@@ -24,7 +24,7 @@ The _target_ instance must:
 [[info]]
 |The target instance can have additional plugins and languages that aren't in the source instance, but not the other way around. If your source instance has plugins that aren't in your target instance, either remove them and reanalyze your project or add them to your target instance.
 
-Both instances must have:
+Both _source_ and _target_ instances must have:
 
 * The exact same SonarQube version
 * The same custom metrics
@@ -34,23 +34,24 @@ Both instances must have:
 _Your source instance can be Community Edition or above, but cannot have plugins or languages that are not in the target instance._
 
 On the source instance:
-* reanalyze the project one last time to make sure it is populated with data corresponding to your current SonarQube installation
-* navigate to the project and at the project level, choose **Project Settings > Import / Export**
-* click on the **Export** button to generate a zip file containing the settings and history of your Project (but not the source code). Note that if you need to change the Project's key, you must to do it before performing the export.
+1. Review the branches of the project by navigating to **Project Settings > Branches & Pull Requests** and enable the **Keep when inactive** button for each branch you want to keep. Note that Pull Requests are not saved when exporting a project.
+2. Reanalyze the project one last time for each branch that has enabled **Keep when inactive** option to make sure it is populated with data corresponding to your current SonarQube installation.
+3. Navigate to the project and at the project level, choose **Project Settings > Import / Export**.
+4. Click on the **Export** button to generate a zip file containing the settings and history of your Project (but not the source code). Note that if you need to change the Project's key, you must do it before performing the export.
 
-A zip file containing all project data is generated in _$SONAR_SOURCE_HOME/data/governance/project_dumps/export/_ named _<project_key>.zip_
+A zip file containing all project data is generated in `$SONAR_SOURCE_HOME/data/governance/project_dumps/export` named `<project_key>.zip`.
 
 ## How to import
 _Your target instance must be [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) or [above](https://redirect.sonarsource.com/editions/editions.html)._
 
 On the target instance:
 
-* With a user having the "Administer System" and "Create Projects" permissions, go to [**Administration > Projects > Management**](/#sonarqube-admin#/admin/projects_management/) and [provision the project](/project-administration/project-existence/) using the same key the project had in the source instance.
-* Configure the Project's permissions, and the Quality Profiles and Quality Gate associated to the Project
-* Put the generated zip file into the directory `$SONAR\_TARGET\_HOME/data/governance/project_dumps/import`. You need to create the `governance/project_dumps/import` folders the first time. 
-* Go to the Project's Home Page and choose **Project Settings > Import / Export**
-* Click on the Import button to start importing your data
-* Source code is not included in the zip file. Once the import is finished, trigger an analysis to import source files into the new instance.
+1. With a user having the "Administer System" and "Create Projects" permissions, go to [**Administration > Projects > Management**](/#sonarqube-admin#/admin/projects_management/) and [provision the project](/project-administration/project-existence/) using the same key the project had in the source instance.
+2. Configure the Project's permissions and the Quality Profiles and Quality Gate associated with the Project.
+3. Put the generated zip file into the directory `$SONAR_TARGET_HOME/data/governance/project_dumps/import`. You need to create the `governance/project_dumps/import` folders the first time. 
+4. Go to the Project's Home Page and choose **Project Settings > Import / Export**.
+5. Click on the **Import** button to start importing your data.
+6. Source code is not included in the zip file. Once the import is finished, trigger an analysis to import source files into the new instance.
 
 Notes:
 
