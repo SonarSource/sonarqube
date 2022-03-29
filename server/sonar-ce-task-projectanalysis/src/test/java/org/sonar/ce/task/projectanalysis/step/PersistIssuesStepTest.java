@@ -36,6 +36,8 @@ import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
+import org.sonar.ce.task.projectanalysis.period.Period;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -50,6 +52,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -80,6 +83,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public PeriodHolderRule periodHolder = new PeriodHolderRule();
 
   private System2 system2 = mock(System2.class);
   private DbSession session = db.getSession();
@@ -97,11 +102,13 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Before
   public void setup() throws Exception {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "10", 1000L));
+
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient), protoIssueCache,
-      new IssueStorage(), UuidFactoryImpl.INSTANCE);
+    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient), periodHolder,
+      protoIssueCache, new IssueStorage(), UuidFactoryImpl.INSTANCE);
   }
 
   @After
@@ -173,6 +180,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void insert_copied_issue_with_minimal_info() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
@@ -191,7 +200,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setSeverity(BLOCKER)
         .setStatus(STATUS_OPEN)
         .setNew(false)
-        .setIsOnReferencedBranch(true)
         .setCopied(true)
         .setType(RuleType.BUG)
         .setCreationDate(new Date(NOW))
@@ -219,6 +227,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void insert_merged_issue() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
@@ -237,7 +246,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setSeverity(BLOCKER)
         .setStatus(STATUS_OPEN)
         .setNew(true)
-        .setIsOnReferencedBranch(true)
         .setIsOnChangedLine(true)
         .setCopied(true)
         .setType(RuleType.BUG)
@@ -313,6 +321,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void insert_new_issue() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
@@ -332,7 +341,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setStatus(STATUS_OPEN)
       .setCreationDate(new Date(NOW))
       .setNew(true)
-      .setIsOnReferencedBranch(true)
       .setIsOnChangedLine(true)
       .setType(RuleType.BUG)).close();
 
@@ -385,6 +393,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void handle_no_longer_new_issue() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     db.rules().insert(rule);
     ComponentDto project = db.components().insertPrivateProject();
@@ -403,7 +412,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setSeverity(BLOCKER)
       .setStatus(STATUS_OPEN)
       .setNew(true)
-      .setIsOnReferencedBranch(true)
       .setIsOnChangedLine(true)
       .setIsNewCodeReferenceIssue(true)
       .setIsNoLongerNewCodeReferenceIssue(false)
@@ -421,7 +429,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.isNewCodeReferenceIssue()).isTrue();
 
     protoIssueCache.newAppender().append(defaultIssue.setNew(false)
-        .setIsOnReferencedBranch(true)
         .setIsOnChangedLine(false)
         .setIsNewCodeReferenceIssue(false)
         .setIsNoLongerNewCodeReferenceIssue(true))
@@ -435,6 +442,109 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
     assertThat(result.isNewCodeReferenceIssue()).isFalse();
+  }
+
+  @Test
+  public void handle_existing_new_code_issue_migration() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    db.rules().insert(rule);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    when(system2.now()).thenReturn(NOW);
+    String issueKey = "ISSUE-6";
+
+    DefaultIssue defaultIssue = new DefaultIssue()
+      .setKey(issueKey)
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
+      .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
+      .setNew(true)
+      .setCopied(false)
+      .setType(RuleType.BUG)
+      .setCreationDate(new Date(NOW))
+      .setSelectedAt(NOW);
+
+    IssueDto issueDto = IssueDto.toDtoForComputationInsert(defaultIssue, rule.getUuid(), NOW);
+    dbClient.issueDao().insert(session, issueDto);
+    session.commit();
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.isNewCodeReferenceIssue()).isFalse();
+
+    protoIssueCache.newAppender().append(defaultIssue.setNew(false)
+        .setIsOnChangedLine(true)
+        .setIsNewCodeReferenceIssue(false)
+        .setIsNoLongerNewCodeReferenceIssue(false))
+      .close();
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
+
+    result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
+  }
+
+  @Test
+  public void handle_existing_without_need_for_new_code_issue_migration() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    db.rules().insert(rule);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    when(system2.now()).thenReturn(NOW);
+    String issueKey = "ISSUE-7";
+
+    DefaultIssue defaultIssue = new DefaultIssue()
+      .setKey(issueKey)
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
+      .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
+      .setNew(true)
+      .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(true)
+      .setIsNoLongerNewCodeReferenceIssue(false)
+      .setCopied(false)
+      .setType(RuleType.BUG)
+      .setCreationDate(new Date(NOW))
+      .setSelectedAt(NOW);
+
+    IssueDto issueDto = IssueDto.toDtoForComputationInsert(defaultIssue, rule.getUuid(), NOW);
+    dbClient.issueDao().insert(session, issueDto);
+    dbClient.issueDao().insertAsNewCodeOnReferenceBranch(session, newCodeReferenceIssue(issueDto));
+    session.commit();
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
+
+    protoIssueCache.newAppender().append(defaultIssue.setNew(false)
+        .setIsOnChangedLine(false)
+        .setIsNewCodeReferenceIssue(true)
+        .setIsOnChangedLine(true)
+        .setIsNoLongerNewCodeReferenceIssue(false))
+      .close();
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "0"), entry("updates", "0"), entry("merged", "0"));
+
+    result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
   }
 
   @Test
@@ -497,6 +607,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
           .setSelectedAt(NOW)
           .setNew(false)
           .setChanged(true)
+          .setIsOnChangedLine(false)
+          .setIsNewCodeReferenceIssue(false)
           .setCurrentChange(new FieldDiffs()
             .setIssueKey("ISSUE")
             .setUserUuid("john_uuid")

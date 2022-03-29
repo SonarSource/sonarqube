@@ -51,8 +51,6 @@ public class IssuesOnReferenceBranchVisitorTest {
     when(newIssueClassifier.isOnBranchUsingReferenceBranch()).thenReturn(false);
 
     underTest.onIssue(component, issue);
-    verify(issue).setIsOnReferencedBranch(false);
-    verify(issue).isOnReferencedBranch();
     verifyNoMoreInteractions(issue);
   }
 
@@ -61,12 +59,9 @@ public class IssuesOnReferenceBranchVisitorTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
     when(newIssueClassifier.isOnBranchUsingReferenceBranch()).thenReturn(true);
     when(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(component, issue)).thenReturn(true);
-    when(issue.isOnReferencedBranch()).thenReturn(true);
     when(issue.isNewCodeReferenceIssue()).thenReturn(false);
 
     underTest.onIssue(component, issue);
-    verify(issue).setIsOnReferencedBranch(true);
-    verify(issue).isOnReferencedBranch();
     verify(issue).setIsOnChangedLine(true);
     verify(issue).isNewCodeReferenceIssue();
     verifyNoMoreInteractions(issue);
@@ -77,13 +72,10 @@ public class IssuesOnReferenceBranchVisitorTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
     when(newIssueClassifier.isOnBranchUsingReferenceBranch()).thenReturn(true);
     when(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(component, issue)).thenReturn(true);
-    when(issue.isOnReferencedBranch()).thenReturn(true);
     when(issue.isNewCodeReferenceIssue()).thenReturn(true);
     when(issue.isOnChangedLine()).thenReturn(true);
 
     underTest.onIssue(component, issue);
-    verify(issue).setIsOnReferencedBranch(true);
-    verify(issue).isOnReferencedBranch();
     verify(issue).setIsOnChangedLine(true);
     verify(issue).isNewCodeReferenceIssue();
     verify(issue).isOnChangedLine();
@@ -95,13 +87,10 @@ public class IssuesOnReferenceBranchVisitorTest {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
     when(newIssueClassifier.isOnBranchUsingReferenceBranch()).thenReturn(true);
     when(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(component, issue)).thenReturn(false);
-    when(issue.isOnReferencedBranch()).thenReturn(true);
     when(issue.isNewCodeReferenceIssue()).thenReturn(true);
     when(issue.isOnChangedLine()).thenReturn(false);
 
     underTest.onIssue(component, issue);
-    verify(issue).setIsOnReferencedBranch(true);
-    verify(issue).isOnReferencedBranch();
     verify(issue).setIsOnChangedLine(false);
     verify(issue).isNewCodeReferenceIssue();
     verify(issue).setIsNoLongerNewCodeReferenceIssue(true);

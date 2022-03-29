@@ -66,4 +66,11 @@ public final class NewCodeReferenceIssueDto implements Serializable {
       .setIssueKey(issue.getKey())
       .setCreatedAt(now);
   }
+
+  public static NewCodeReferenceIssueDto fromIssueKey(String issueKey, long now, UuidFactory uuidFactory) {
+    return new NewCodeReferenceIssueDto()
+      .setUuid(uuidFactory.create())
+      .setIssueKey(issueKey)
+      .setCreatedAt(now);
+  }
 }

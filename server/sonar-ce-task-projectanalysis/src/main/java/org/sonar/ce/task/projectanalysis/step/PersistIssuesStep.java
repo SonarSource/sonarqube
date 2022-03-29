@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
@@ -37,6 +38,7 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.issue.IssueStorage;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
@@ -52,16 +54,19 @@ public class PersistIssuesStep implements ComputationStep {
   private final System2 system2;
   private final UpdateConflictResolver conflictResolver;
   private final RuleRepository ruleRepository;
+  private final PeriodHolder periodHolder;
   private final ProtoIssueCache protoIssueCache;
   private final IssueStorage issueStorage;
   private final UuidFactory uuidFactory;
 
   public PersistIssuesStep(DbClient dbClient, System2 system2, UpdateConflictResolver conflictResolver,
-    RuleRepository ruleRepository, ProtoIssueCache protoIssueCache, IssueStorage issueStorage, UuidFactory uuidFactory) {
+    RuleRepository ruleRepository, PeriodHolder periodHolder, ProtoIssueCache protoIssueCache, IssueStorage issueStorage,
+    UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.conflictResolver = conflictResolver;
     this.ruleRepository = ruleRepository;
+    this.periodHolder = periodHolder;
     this.protoIssueCache = protoIssueCache;
     this.issueStorage = issueStorage;
     this.uuidFactory = uuidFactory;
@@ -76,6 +81,7 @@ public class PersistIssuesStep implements ComputationStep {
       List<DefaultIssue> addedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> updatedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> noLongerNewIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
+      List<DefaultIssue> newCodeIssuesToMigrate = new ArrayList<>(ISSUE_BATCHING_SIZE);
 
       IssueMapper mapper = dbSession.getMapper(IssueMapper.class);
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
@@ -93,17 +99,24 @@ public class PersistIssuesStep implements ComputationStep {
             persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
             updatedIssues.clear();
           }
-        } else if (issue.isNoLongerNewCodeReferenceIssue()) {
+        } else if (isOnBranchUsingReferenceBranch() && issue.isNoLongerNewCodeReferenceIssue()) {
           noLongerNewIssues.add(issue);
           if (noLongerNewIssues.size() >= ISSUE_BATCHING_SIZE) {
             persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
             noLongerNewIssues.clear();
+          }
+        } else if (isOnBranchUsingReferenceBranch() && issue.isToBeMigratedAsNewCodeReferenceIssue()) {
+          newCodeIssuesToMigrate.add(issue);
+          if (newCodeIssuesToMigrate.size() >= ISSUE_BATCHING_SIZE) {
+            persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, mapper);
+            newCodeIssuesToMigrate.clear();
           }
         }
       }
       persistNewIssues(statistics, addedIssues, mapper, changeMapper);
       persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
       persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
+      persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, mapper);
       flushSession(dbSession);
     } finally {
       statistics.dumpTo(context);
@@ -120,7 +133,7 @@ public class PersistIssuesStep implements ComputationStep {
       String ruleUuid = ruleRepository.getByKey(i.ruleKey()).getUuid();
       IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleUuid, now);
       mapper.insert(dto);
-      if (i.isOnReferencedBranch() && i.isOnChangedLine()) {
+      if (isOnBranchUsingReferenceBranch() && i.isOnChangedLine()) {
         mapper.insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
       }
       statistics.inserts++;
@@ -169,9 +182,28 @@ public class PersistIssuesStep implements ComputationStep {
 
   }
 
+  private void persistNewCodeIssuesToMigrate(IssueStatistics statistics, List<DefaultIssue> newCodeIssuesToMigrate, IssueMapper mapper) {
+    if (newCodeIssuesToMigrate.isEmpty()) {
+      return;
+    }
+
+    long now = system2.now();
+    newCodeIssuesToMigrate.forEach(i -> {
+      mapper.insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueKey(i.key(), now, uuidFactory));
+      statistics.updates++;
+    });
+  }
+
   private static void flushSession(DbSession dbSession) {
     dbSession.flushStatements();
     dbSession.commit();
+  }
+
+  private boolean isOnBranchUsingReferenceBranch() {
+    if (periodHolder.hasPeriod()) {
+      return periodHolder.getPeriod().getMode().equals(NewCodePeriodType.REFERENCE_BRANCH.name());
+    }
+    return false;
   }
 
   @Override

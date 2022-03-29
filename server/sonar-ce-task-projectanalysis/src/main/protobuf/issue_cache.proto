@@ -77,7 +77,8 @@ message Issue {
 
   optional bool isOnReferencedBranch = 40;
   optional bool isOnChangedLine = 41;
-  optional bool isNoLongerNewCodeReferenceIssue = 42;
+  optional bool isNewCodeReferenceIssue = 42;
+  optional bool isNoLongerNewCodeReferenceIssue = 43;
 }
 
 message Comment {

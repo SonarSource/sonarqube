@@ -19,7 +19,6 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.collect.ImmutableMap;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +28,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -56,7 +54,6 @@ public class DefaultIssueTest {
       .setAuthorLogin("steph")
       .setChecksum("c7b5db46591806455cf082bb348631e8")
       .setNew(true)
-      .setIsOnReferencedBranch(true)
       .setIsOnChangedLine(true)
       .setIsNewCodeReferenceIssue(true)
       .setIsNoLongerNewCodeReferenceIssue(true)
@@ -87,10 +84,10 @@ public class DefaultIssueTest {
     assertThat(issue.authorLogin()).isEqualTo("steph");
     assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
     assertThat(issue.isNew()).isTrue();
-    assertThat(issue.isOnReferencedBranch()).isTrue();
     assertThat(issue.isOnChangedLine()).isTrue();
     assertThat(issue.isNewCodeReferenceIssue()).isTrue();
     assertThat(issue.isNoLongerNewCodeReferenceIssue()).isTrue();
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
     assertThat(issue.isCopied()).isTrue();
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.isOnDisabledRule()).isTrue();
@@ -206,6 +203,58 @@ public class DefaultIssueTest {
     issue.addChange(null);
 
     assertThat(issue.changes()).isEmpty();
+  }
+
+  @Test
+  public void test_isToBeMigratedAsNewCodeReferenceIssue_is_correctly_calculated() {
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(false)
+      .setIsNoLongerNewCodeReferenceIssue(false);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isTrue();
+
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(false)
+      .setIsNewCodeReferenceIssue(false)
+      .setIsNoLongerNewCodeReferenceIssue(false);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
+
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(true)
+      .setIsNoLongerNewCodeReferenceIssue(false);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
+
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(false)
+      .setIsNewCodeReferenceIssue(false)
+      .setIsNoLongerNewCodeReferenceIssue(true);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
+
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(true)
+      .setIsNoLongerNewCodeReferenceIssue(true);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
+
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(false)
+      .setIsNewCodeReferenceIssue(true)
+      .setIsNoLongerNewCodeReferenceIssue(true);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
+
+    issue.setKey("ABCD")
+      .setIsOnChangedLine(true)
+      .setIsNewCodeReferenceIssue(false)
+      .setIsNoLongerNewCodeReferenceIssue(true);
+
+    assertThat(issue.isToBeMigratedAsNewCodeReferenceIssue()).isFalse();
   }
 
   @Test

@@ -36,9 +36,7 @@ public class IssueOnReferenceBranchVisitor extends IssueVisitor {
       return;
     }
 
-    issue.setIsOnReferencedBranch(newIssueClassifier.isOnBranchUsingReferenceBranch());
-
-    if (issue.isOnReferencedBranch()) {
+    if (newIssueClassifier.isOnBranchUsingReferenceBranch()) {
       issue.setIsOnChangedLine(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(component, issue));
 
       if (issue.isNewCodeReferenceIssue() && !issue.isOnChangedLine()) {

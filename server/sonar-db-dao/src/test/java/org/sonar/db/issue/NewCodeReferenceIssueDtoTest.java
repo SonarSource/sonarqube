@@ -45,4 +45,16 @@ public class NewCodeReferenceIssueDtoTest {
     assertThat(dto.getIssueKey()).isEqualTo(KEY);
     assertThat(dto.getCreatedAt()).isNotNull();
   }
+
+  @Test
+  public void create_from_issue_key() {
+    when(UUID_FACTORY.create()).thenReturn(UUID);
+    long now = System.currentTimeMillis();
+
+    NewCodeReferenceIssueDto dto = NewCodeReferenceIssueDto.fromIssueKey(KEY, now, UUID_FACTORY);
+
+    assertThat(dto.getUuid()).isEqualTo(UUID);
+    assertThat(dto.getIssueKey()).isEqualTo(KEY);
+    assertThat(dto.getCreatedAt()).isNotNull();
+  }
 }

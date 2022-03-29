@@ -127,7 +127,8 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private void process(Component component, DefaultIssue issue, CacheAppender<DefaultIssue> cacheAppender) {
     issueLifecycle.doAutomaticTransition(issue);
     issueVisitors.onIssue(component, issue);
-    if (issue.isNew() || issue.isChanged() || issue.isCopied() || issue.isNoLongerNewCodeReferenceIssue()) {
+    if (issue.isNew() || issue.isChanged() || issue.isCopied() ||
+      issue.isNoLongerNewCodeReferenceIssue() || issue.isToBeMigratedAsNewCodeReferenceIssue()) {
       cacheAppender.append(issue);
     }
   }
