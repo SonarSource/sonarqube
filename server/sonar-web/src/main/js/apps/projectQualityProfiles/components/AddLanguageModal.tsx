@@ -19,17 +19,15 @@
  */
 import { difference } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
 import { Profile } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
-import { getQualityProfileUrl } from '../../../helpers/urls';
 import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
+import LanguageProfileSelectOption, { ProfileOption } from './LanguageProfileSelectOption';
 
 export interface AddLanguageModalProps {
   languages: Languages;
@@ -49,17 +47,18 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
 
   const header = translate('project_quality_profile.add_language_modal.title');
 
-  const languageOptions = difference(
+  const languageOptions: BasicSelectOption[] = difference(
     Object.keys(profilesByLanguage),
     unavailableLanguages
   ).map(l => ({ value: l, label: languages[l].name }));
 
-  const profileOptions =
+  const profileOptions: ProfileOption[] =
     language !== undefined
       ? profilesByLanguage[language].map(p => ({
           value: p.key,
           label: p.name,
-          disabled: p.activeRuleCount === 0
+          language,
+          isDisabled: p.activeRuleCount === 0
         }))
       : [];
 
@@ -86,14 +85,14 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                     {translate('project_quality_profile.add_language_modal.choose_language')}
                   </label>
                 </div>
-                <SelectLegacy
+                <Select
                   className="abs-width-300"
-                  clearable={false}
-                  disabled={submitting}
+                  isDisabled={submitting}
                   id="language"
-                  onChange={({ value }: { value: string }) => setSelected({ language: value })}
+                  onChange={({ value }: BasicSelectOption) => {
+                    setSelected({ language: value, key: undefined });
+                  }}
                   options={languageOptions}
-                  value={language}
                 />
               </div>
 
@@ -103,38 +102,16 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                     {translate('project_quality_profile.add_language_modal.choose_profile')}
                   </label>
                 </div>
-                <SelectLegacy
+                <Select
                   className="abs-width-300"
-                  clearable={false}
-                  disabled={submitting || !language}
+                  isDisabled={submitting || !language}
                   id="profiles"
-                  onChange={({ value }: { value: string }) => setSelected({ language, key: value })}
+                  onChange={({ value }: ProfileOption) => setSelected({ language, key: value })}
                   options={profileOptions}
-                  optionRenderer={option => (
-                    <DisableableSelectOption
-                      option={option}
-                      disabledReason={translate(
-                        'project_quality_profile.add_language_modal.no_active_rules'
-                      )}
-                      disableTooltipOverlay={() => (
-                        <>
-                          <p>
-                            {translate(
-                              'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules'
-                            )}
-                          </p>
-                          {option.label && language && (
-                            <Link to={getQualityProfileUrl(option.label, language)}>
-                              {translate(
-                                'project_quality_profile.add_language_modal.go_to_profile'
-                              )}
-                            </Link>
-                          )}
-                        </>
-                      )}
-                    />
-                  )}
-                  value={key}
+                  components={{
+                    Option: LanguageProfileSelectOption
+                  }}
+                  value={profileOptions.find(o => o.value === key) ?? null}
                 />
               </div>
             </div>

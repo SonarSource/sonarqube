@@ -108,32 +108,35 @@ exports[`should render correctly: always use system default 1`] = `
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
-                className="abs-width-300"
-                clearable={false}
-                disabled={true}
+              <Select
+                className="abs-width-300 it__project-quality-gate-select"
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isClearable={true}
+                isDisabled={true}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
                     },
                   ]
                 }
-                value="-1"
               />
             </div>
           </div>
@@ -259,32 +262,42 @@ exports[`should render correctly: default 1`] = `
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
-                className="abs-width-300"
-                clearable={false}
-                disabled={false}
+              <Select
+                className="abs-width-300 it__project-quality-gate-select"
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isClearable={false}
+                isDisabled={false}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
                     },
                   ]
                 }
-                value="1"
+                value={
+                  Object {
+                    "isDisabled": false,
+                    "label": "qualitygate",
+                    "value": "1",
+                  }
+                }
               />
             </div>
           </div>
@@ -416,32 +429,42 @@ exports[`should render correctly: show new code warning 1`] = `
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
-                className="abs-width-300"
-                clearable={false}
-                disabled={false}
+              <Select
+                className="abs-width-300 it__project-quality-gate-select"
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isClearable={false}
+                isDisabled={false}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
                     },
                   ]
                 }
-                value="3"
+                value={
+                  Object {
+                    "isDisabled": false,
+                    "label": "qualitygate",
+                    "value": "3",
+                  }
+                }
               />
             </div>
           </div>
@@ -597,32 +620,35 @@ exports[`should render correctly: show warning 1`] = `
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
-                className="abs-width-300"
-                clearable={false}
-                disabled={false}
+              <Select
+                className="abs-width-300 it__project-quality-gate-select"
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isClearable={false}
+                isDisabled={false}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
                     },
                   ]
                 }
-                value="5"
               />
             </div>
           </div>
@@ -754,32 +780,35 @@ exports[`should render correctly: show warning if not using default 1`] = `
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
-                className="abs-width-300"
-                clearable={false}
-                disabled={true}
+              <Select
+                className="abs-width-300 it__project-quality-gate-select"
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isClearable={true}
+                isDisabled={true}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
                     },
                   ]
                 }
-                value="-1"
               />
             </div>
           </div>
@@ -911,32 +940,42 @@ exports[`should render correctly: submitting 1`] = `
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
-                className="abs-width-300"
-                clearable={false}
-                disabled={true}
+              <Select
+                className="abs-width-300 it__project-quality-gate-select"
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isClearable={false}
+                isDisabled={true}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "1",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "2",
                     },
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "qualitygate",
                       "value": "3",
                     },
                   ]
                 }
-                value="1"
+                value={
+                  Object {
+                    "isDisabled": false,
+                    "label": "qualitygate",
+                    "value": "1",
+                  }
+                }
               />
             </div>
           </div>
@@ -958,15 +997,26 @@ exports[`should render correctly: submitting 1`] = `
 `;
 
 exports[`should render select options correctly: default 1`] = `
-<DisableableSelectOption
-  className="abs-width-100"
-  disableTooltipOverlay={[Function]}
-  disabledReason="project_quality_gate.no_condition.reason"
-  option={
+<Option
+  data={
     Object {
       "label": "Gate 1",
       "value": "1",
     }
   }
-/>
+>
+  <div>
+    <DisableableSelectOption
+      className="abs-width-100"
+      disableTooltipOverlay={[Function]}
+      disabledReason="project_quality_gate.no_condition.reason"
+      option={
+        Object {
+          "label": "Gate 1",
+          "value": "1",
+        }
+      }
+    />
+  </div>
+</Option>
 `;

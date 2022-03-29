@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Option
+  data={
+    Object {
+      "isDisabled": false,
+      "label": "Profile 1",
+      "language": "Java",
+      "value": "profile-1",
+    }
+  }
+>
+  <div>
+    <DisableableSelectOption
+      disableTooltipOverlay={[Function]}
+      disabledReason="project_quality_profile.add_language_modal.no_active_rules"
+      option={
+        Object {
+          "isDisabled": false,
+          "label": "Profile 1",
+          "language": "Java",
+          "value": "profile-1",
+        }
+      }
+    />
+  </div>
+</Option>
+`;
+
+exports[`tooltip should render correctly: default 1`] = `
+<React.Fragment>
+  <p>
+    project_quality_profile.add_language_modal.profile_unavailable_no_active_rules
+  </p>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/profiles/show",
+        "query": Object {
+          "language": "Java",
+          "name": "Profile 1",
+        },
+      }
+    }
+  >
+    project_quality_profile.add_language_modal.go_to_profile
+  </Link>
+</React.Fragment>
+`;
+
+exports[`tooltip should render correctly: no link 1`] = `
+<React.Fragment>
+  <p>
+    project_quality_profile.add_language_modal.profile_unavailable_no_active_rules
+  </p>
+</React.Fragment>
+`;

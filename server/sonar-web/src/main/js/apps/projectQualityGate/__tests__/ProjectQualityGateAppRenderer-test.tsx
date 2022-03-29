@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import Radio from '../../../components/controls/Radio';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { mockQualityGate } from '../../../helpers/mocks/quality-gates';
 import { mockCondition } from '../../../helpers/testMocks';
 import { submit } from '../../../helpers/testUtils';
@@ -57,11 +57,11 @@ it('should render correctly', () => {
 it('should render select options correctly', () => {
   return new Promise<void>(resolve => {
     const wrapper = shallowRender();
-    const render = wrapper.find(SelectLegacy).props().optionRenderer;
+    const render = wrapper.find(Select).props().components.Option;
 
     expect(render).toBeDefined();
 
-    expect(render!({ value: '1', label: 'Gate 1' })).toMatchSnapshot('default');
+    expect(render({ data: { value: '1', label: 'Gate 1' } })).toMatchSnapshot('default');
     resolve();
   });
 });
@@ -87,7 +87,7 @@ it('should correctly handle changes', () => {
     .onCheck('1');
   expect(onSelect).toHaveBeenLastCalledWith('1');
 
-  wrapper.find(SelectLegacy).props().onChange!({ value: '2' });
+  wrapper.find(Select).props().onChange!({ value: '2' });
   expect(onSelect).toHaveBeenLastCalledWith('2');
 });
 

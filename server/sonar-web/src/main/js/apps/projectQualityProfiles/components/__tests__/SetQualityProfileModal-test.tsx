@@ -20,7 +20,7 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import Radio from '../../../../components/controls/Radio';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
@@ -30,19 +30,6 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ usesDefault: true })).toMatchSnapshot('inherits system default');
   expect(shallowRender({ component: mockComponent() })).toMatchSnapshot('needs reanalysis');
-});
-
-it('should render select options correctly', () => {
-  return new Promise<void>((resolve, reject) => {
-    const wrapper = shallowRender();
-    const render = wrapper.find(SelectLegacy).props().optionRenderer;
-    if (!render) {
-      reject();
-      return;
-    }
-    expect(render({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
-    resolve();
-  });
 });
 
 it('should correctly handle changes', () => {
@@ -66,7 +53,7 @@ it('should correctly handle changes', () => {
   expect(onSubmit).toHaveBeenLastCalledWith('foo', 'foo');
 
   const change = diveIntoSimpleModal(wrapper)
-    .find(SelectLegacy)
+    .find(Select)
     .props().onChange;
 
   expect(change).toBeDefined();

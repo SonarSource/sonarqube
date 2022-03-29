@@ -21,13 +21,14 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { components, OptionProps } from 'react-select';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import DisableableSelectOption from '../../components/common/DisableableSelectOption';
 import { SubmitButton } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import Radio from '../../components/controls/Radio';
-import SelectLegacy from '../../components/controls/SelectLegacy';
+import Select, { BasicSelectOption } from '../../components/controls/Select';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
@@ -47,6 +48,37 @@ export interface ProjectQualityGateAppRendererProps {
 
 function hasConditionOnNewCode(qualityGate: QualityGate): boolean {
   return !!qualityGate.conditions?.some(condition => isDiffMetric(condition.metric));
+}
+
+interface QualityGateOption extends BasicSelectOption {
+  isDisabled: boolean;
+}
+
+function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
+  return (
+    <components.Option {...props}>
+      <div>
+        <DisableableSelectOption
+          className="abs-width-100"
+          option={props.data}
+          disabledReason={translate('project_quality_gate.no_condition.reason')}
+          disableTooltipOverlay={() => (
+            <FormattedMessage
+              id="project_quality_gate.no_condition"
+              defaultMessage={translate('project_quality_gate.no_condition')}
+              values={{
+                link: (
+                  <Link to={{ pathname: `/quality_gates/show/${props.data.value}` }}>
+                    {translate('project_quality_gate.no_condition.link')}
+                  </Link>
+                )
+              }}
+            />
+          )}
+        />
+      </div>
+    </components.Option>
+  );
 }
 
 export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateAppRendererProps) {
@@ -74,8 +106,8 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
 
   const selectedQualityGate = allQualityGates.find(qg => qg.id === selectedQualityGateId);
 
-  const options = allQualityGates.map(g => ({
-    disabled: g.conditions === undefined || g.conditions.length === 0,
+  const options: QualityGateOption[] = allQualityGates.map(g => ({
+    isDisabled: g.conditions === undefined || g.conditions.length === 0,
     label: g.name,
     value: g.id
   }));
@@ -140,40 +172,29 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
               className="display-flex-start"
               checked={!usesDefault}
               disabled={submitting}
-              onCheck={value => props.onSelect(value)}
+              onCheck={value => {
+                if (usesDefault) {
+                  props.onSelect(value);
+                }
+              }}
               value={!usesDefault ? selectedQualityGateId : currentQualityGate.id}>
               <div className="spacer-left">
                 <div className="little-spacer-bottom">
                   {translate('project_quality_gate.always_use_specific')}
                 </div>
                 <div className="display-flex-center">
-                  <SelectLegacy
-                    className="abs-width-300"
-                    clearable={false}
-                    disabled={submitting || usesDefault}
-                    onChange={({ value }: { value: string }) => props.onSelect(value)}
+                  <Select
+                    className="abs-width-300 it__project-quality-gate-select"
+                    components={{
+                      Option: renderQualitygateOption
+                    }}
+                    isClearable={usesDefault}
+                    isDisabled={submitting || usesDefault}
+                    onChange={({ value }: QualityGateOption) => {
+                      props.onSelect(value);
+                    }}
                     options={options}
-                    optionRenderer={option => (
-                      <DisableableSelectOption
-                        className="abs-width-100"
-                        option={option}
-                        disabledReason={translate('project_quality_gate.no_condition.reason')}
-                        disableTooltipOverlay={() => (
-                          <FormattedMessage
-                            id="project_quality_gate.no_condition"
-                            defaultMessage={translate('project_quality_gate.no_condition')}
-                            values={{
-                              link: (
-                                <Link to={{ pathname: `/quality_gates/show/${option.value}` }}>
-                                  {translate('project_quality_gate.no_condition.link')}
-                                </Link>
-                              )
-                            }}
-                          />
-                        )}
-                      />
-                    )}
-                    value={selectedQualityGateId}
+                    value={options.find(o => o.value === selectedQualityGateId)}
                   />
                 </div>
               </div>

@@ -28,11 +28,10 @@ Array [
             project_quality_profile.add_language_modal.choose_language
           </label>
         </div>
-        <SelectLegacy
+        <Select
           className="abs-width-300"
-          clearable={false}
-          disabled={false}
           id="language"
+          isDisabled={false}
           onChange={[Function]}
           options={
             Array [
@@ -61,14 +60,18 @@ Array [
             project_quality_profile.add_language_modal.choose_profile
           </label>
         </div>
-        <SelectLegacy
+        <Select
           className="abs-width-300"
-          clearable={false}
-          disabled={true}
+          components={
+            Object {
+              "Option": [Function],
+            }
+          }
           id="profiles"
+          isDisabled={true}
           onChange={[Function]}
-          optionRenderer={[Function]}
           options={Array []}
+          value={null}
         />
       </div>
     </div>
@@ -89,17 +92,4 @@ Array [
     </div>
   </form>,
 ]
-`;
-
-exports[`should render select options correctly: default 1`] = `
-<DisableableSelectOption
-  disableTooltipOverlay={[Function]}
-  disabledReason="project_quality_profile.add_language_modal.no_active_rules"
-  option={
-    Object {
-      "label": "Profile 1",
-      "value": "bar",
-    }
-  }
-/>
 `;

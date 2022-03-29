@@ -23,14 +23,14 @@ import Tooltip from '../../components/controls/Tooltip';
 export interface DisableableSelectOptionProps {
   className?: string;
   disabledReason?: string;
-  option: { label?: string; value?: string | number | boolean; disabled?: boolean };
+  option: { label?: string; value?: string | number | boolean; isDisabled?: boolean };
   disableTooltipOverlay: () => React.ReactNode;
 }
 
 export default function DisableableSelectOption(props: DisableableSelectOptionProps) {
   const { option, disableTooltipOverlay, disabledReason, className = '' } = props;
   const label = option.label || option.value;
-  return option.disabled ? (
+  return option.isDisabled ? (
     <Tooltip overlay={disableTooltipOverlay()} placement="left">
       <span className={className}>
         {label}

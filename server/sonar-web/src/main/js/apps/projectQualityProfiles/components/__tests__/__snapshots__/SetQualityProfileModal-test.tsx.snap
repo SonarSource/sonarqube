@@ -68,27 +68,39 @@ Array [
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
+              <Select
                 className="abs-width-300"
-                clearable={false}
-                disabled={false}
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isDisabled={false}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "name",
+                      "language": "js",
                       "value": "foo",
                     },
                     Object {
-                      "disabled": true,
+                      "isDisabled": true,
                       "label": "name",
+                      "language": "js",
                       "value": "bar",
                     },
                   ]
                 }
-                value="foo"
+                value={
+                  Object {
+                    "isDisabled": false,
+                    "label": "name",
+                    "language": "js",
+                    "value": "foo",
+                  }
+                }
               />
             </div>
           </div>
@@ -182,27 +194,39 @@ Array [
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
+              <Select
                 className="abs-width-300"
-                clearable={false}
-                disabled={true}
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isDisabled={true}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "name",
+                      "language": "js",
                       "value": "foo",
                     },
                     Object {
-                      "disabled": true,
+                      "isDisabled": true,
                       "label": "name",
+                      "language": "js",
                       "value": "bar",
                     },
                   ]
                 }
-                value="foo"
+                value={
+                  Object {
+                    "isDisabled": false,
+                    "label": "name",
+                    "language": "js",
+                    "value": "foo",
+                  }
+                }
               />
             </div>
           </div>
@@ -296,27 +320,39 @@ Array [
             <div
               className="display-flex-center"
             >
-              <SelectLegacy
+              <Select
                 className="abs-width-300"
-                clearable={false}
-                disabled={false}
+                components={
+                  Object {
+                    "Option": [Function],
+                  }
+                }
+                isDisabled={false}
                 onChange={[Function]}
-                optionRenderer={[Function]}
                 options={
                   Array [
                     Object {
-                      "disabled": false,
+                      "isDisabled": false,
                       "label": "name",
+                      "language": "js",
                       "value": "foo",
                     },
                     Object {
-                      "disabled": true,
+                      "isDisabled": true,
                       "label": "name",
+                      "language": "js",
                       "value": "bar",
                     },
                   ]
                 }
-                value="foo"
+                value={
+                  Object {
+                    "isDisabled": false,
+                    "label": "name",
+                    "language": "js",
+                    "value": "foo",
+                  }
+                }
               />
             </div>
           </div>
@@ -345,17 +381,4 @@ Array [
     </div>
   </form>,
 ]
-`;
-
-exports[`should render select options correctly: default 1`] = `
-<DisableableSelectOption
-  disableTooltipOverlay={[Function]}
-  disabledReason="project_quality_profile.add_language_modal.no_active_rules"
-  option={
-    Object {
-      "label": "Profile 1",
-      "value": "bar",
-    }
-  }
-/>
 `;

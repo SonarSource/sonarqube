@@ -100,7 +100,7 @@ export function selectStyle<
       border: `1px solid ${state.isFocused ? colors.blue : colors.gray80}`,
       borderCollapse: 'separate',
       borderRadius: '2px',
-      backgroundColor: '#fff',
+      backgroundColor: state.isDisabled ? colors.disableGrayBg : '#fff',
       boxSizing: 'border-box',
       color: `${colors.baseFontColor}`,
       cursor: 'default',
@@ -144,9 +144,9 @@ export function selectStyle<
         display: 'flex'
       };
     },
-    indicatorsContainer: () => ({
+    indicatorsContainer: (_provided, state) => ({
       position: 'relative',
-      cursor: 'pointer',
+      cursor: state.isDisabled ? 'default' : 'pointer',
       textAlign: 'end',
       verticalAlign: 'middle',
       width: '20px',
@@ -217,10 +217,10 @@ export function selectStyle<
       lineHeight: '20px',
       padding: '0 8px',
       boxSizing: 'border-box',
-      color: `${colors.baseFontColor}`,
-      backgroundColor: state.isFocused ? `${colors.barBackgroundColor}` : 'white',
+      color: state.isDisabled ? colors.disableGrayText : colors.baseFontColor,
+      backgroundColor: state.isFocused ? colors.barBackgroundColor : colors.white,
       fontSize: `${sizes.smallFontSize}`,
-      cursor: 'pointer',
+      cursor: state.isDisabled ? 'default' : 'pointer',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis'

@@ -18,19 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import { Profile } from '../../../api/quality-profiles';
-import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Radio from '../../../components/controls/Radio';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getQualityProfileUrl } from '../../../helpers/urls';
 import { Component } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import { USE_SYSTEM_DEFAULT } from '../constants';
+import LanguageProfileSelectOption, { ProfileOption } from './LanguageProfileSelectOption';
 
 export interface SetQualityProfileModalProps {
   availableProfiles: Profile[];
@@ -58,10 +56,11 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
     'project_quality_profile.change_lang_X_profile',
     currentProfile.languageName
   );
-  const profileOptions = availableProfiles.map(p => ({
+  const profileOptions: ProfileOption[] = availableProfiles.map(p => ({
     value: p.key,
     label: p.name,
-    disabled: p.activeRuleCount === 0
+    language: currentProfile.language,
+    isDisabled: p.activeRuleCount === 0
   }));
   const hasSelectedSysDefault = selected === USE_SYSTEM_DEFAULT;
   const hasChanged = usesDefault ? !hasSelectedSysDefault : selected !== currentProfile.key;
@@ -120,41 +119,19 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                       {translate('project_quality_profile.always_use_specific')}
                     </div>
                     <div className="display-flex-center">
-                      <SelectLegacy
+                      <Select
                         className="abs-width-300"
-                        clearable={false}
-                        disabled={submitting || hasSelectedSysDefault}
-                        onChange={({ value }: { value: string }) => setSelected(value)}
+                        isDisabled={submitting || hasSelectedSysDefault}
+                        onChange={({ value }: ProfileOption) => setSelected(value)}
                         options={profileOptions}
-                        optionRenderer={option => (
-                          <DisableableSelectOption
-                            option={option}
-                            disabledReason={translate(
-                              'project_quality_profile.add_language_modal.no_active_rules'
-                            )}
-                            disableTooltipOverlay={() => (
-                              <>
-                                <p>
-                                  {translate(
-                                    'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules'
-                                  )}
-                                </p>
-                                {option.label && (
-                                  <Link
-                                    to={getQualityProfileUrl(
-                                      option.label,
-                                      currentProfile.language
-                                    )}>
-                                    {translate(
-                                      'project_quality_profile.add_language_modal.go_to_profile'
-                                    )}
-                                  </Link>
-                                )}
-                              </>
-                            )}
-                          />
+                        components={{
+                          Option: LanguageProfileSelectOption
+                        }}
+                        value={profileOptions.find(
+                          option =>
+                            option.value ===
+                            (!hasSelectedSysDefault ? selected : currentProfile.key)
                         )}
-                        value={!hasSelectedSysDefault ? selected : currentProfile.key}
                       />
                     </div>
                   </div>

@@ -19,34 +19,13 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
+import Select from '../../../../components/controls/Select';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import { AddLanguageModal, AddLanguageModalProps } from '../AddLanguageModal';
 
 it('should render correctly', () => {
   expect(diveIntoSimpleModal(shallowRender())).toMatchSnapshot('default');
-});
-
-it('should render select options correctly', () => {
-  return new Promise<void>((resolve, reject) => {
-    const wrapper = shallowRender();
-
-    const langOnChange = getLanguageSelect(wrapper).props().onChange;
-    if (!langOnChange) {
-      reject();
-      return;
-    }
-    langOnChange({ value: 'js' });
-
-    const render = getProfileSelect(wrapper).props().optionRenderer;
-    if (!render) {
-      reject();
-      return;
-    }
-    expect(render({ value: 'bar', label: 'Profile 1' })).toMatchSnapshot('default');
-    resolve();
-  });
 });
 
 it('should correctly handle changes', () => {
@@ -72,7 +51,7 @@ it('should correctly handle changes', () => {
   profileSelect = getProfileSelect(wrapper);
   expect(profileSelect.props().options).toHaveLength(2);
   expect(profileSelect.props().options).toEqual(
-    expect.arrayContaining([expect.objectContaining({ disabled: true })])
+    expect.arrayContaining([expect.objectContaining({ isDisabled: true })])
   );
 
   // Choose 1 profile.
@@ -95,13 +74,13 @@ function diveIntoSimpleModal(wrapper: ShallowWrapper) {
 
 function getLanguageSelect(wrapper: ShallowWrapper) {
   return diveIntoSimpleModal(wrapper)
-    .find(SelectLegacy)
+    .find(Select)
     .at(0);
 }
 
 function getProfileSelect(wrapper: ShallowWrapper) {
   return diveIntoSimpleModal(wrapper)
-    .find(SelectLegacy)
+    .find(Select)
     .at(1);
 }
 

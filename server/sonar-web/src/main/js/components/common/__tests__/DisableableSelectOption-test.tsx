@@ -24,12 +24,12 @@ import DisableableSelectOption, { DisableableSelectOptionProps } from '../Disabl
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ option: { value: 'baz' } })).toMatchSnapshot('no label');
-  expect(shallowRender({ option: { label: 'Bar', value: 'bar', disabled: true } })).toMatchSnapshot(
-    'disabled'
-  );
+  expect(
+    shallowRender({ option: { label: 'Bar', value: 'bar', isDisabled: true } })
+  ).toMatchSnapshot('disabled');
   expect(
     shallowRender({
-      option: { label: 'Bar', value: 'bar', disabled: true },
+      option: { label: 'Bar', value: 'bar', isDisabled: true },
       disabledReason: 'bar baz'
     })
   ).toMatchSnapshot('disabled, with explanation');
