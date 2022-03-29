@@ -478,7 +478,7 @@ exports[`should render correctly with duplication information 1`] = `
   />
   <Memo(LineDuplicationBlock)
     blocksLoaded={true}
-    duplicated={false}
+    duplicated={true}
     index={0}
     key="0"
     line={

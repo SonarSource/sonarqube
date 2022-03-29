@@ -131,6 +131,7 @@ export default class Line extends React.PureComponent<Props> {
     });
 
     const bottomPadding = verticalBuffer ? verticalBuffer * LINE_HEIGHT : undefined;
+    const blocksLoaded = duplicationsCount > 0;
 
     // default is true
     const displayOptions = displayLineNumberOptions !== false;
@@ -153,8 +154,8 @@ export default class Line extends React.PureComponent<Props> {
 
         {displayDuplications && (
           <LineDuplicationBlock
-            blocksLoaded={duplicationsCount > 0}
-            duplicated={Boolean(line.duplicated)}
+            blocksLoaded={blocksLoaded}
+            duplicated={!blocksLoaded ? Boolean(line.duplicated) : duplications.includes(0)}
             index={0}
             key={0}
             line={this.props.line}
@@ -163,17 +164,19 @@ export default class Line extends React.PureComponent<Props> {
           />
         )}
 
-        {duplicationsCount > 1 &&
-          times(duplicationsCount - 1, index => (
-            <LineDuplicationBlock
-              blocksLoaded={true}
-              duplicated={duplications.includes(index + 1)}
-              index={index + 1}
-              key={index + 1}
-              line={this.props.line}
-              renderDuplicationPopup={this.props.renderDuplicationPopup}
-            />
-          ))}
+        {blocksLoaded &&
+          times(duplicationsCount - 1, index => {
+            return (
+              <LineDuplicationBlock
+                blocksLoaded={blocksLoaded}
+                duplicated={duplications.includes(index + 1)}
+                index={index + 1}
+                key={index + 1}
+                line={this.props.line}
+                renderDuplicationPopup={this.props.renderDuplicationPopup}
+              />
+            );
+          })}
 
         {displayCoverage && (
           <LineCoverage

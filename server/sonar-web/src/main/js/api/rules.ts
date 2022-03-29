@@ -39,7 +39,7 @@ export function takeFacet(response: SearchRulesResponse, property: string) {
 export function getRuleRepositories(parameters: {
   q: string;
 }): Promise<Array<{ key: string; language: string; name: string }>> {
-  return getJSON('api/rules/repositories', parameters).then(
+  return getJSON('/api/rules/repositories', parameters).then(
     ({ repositories }) => repositories,
     throwGlobalError
   );
