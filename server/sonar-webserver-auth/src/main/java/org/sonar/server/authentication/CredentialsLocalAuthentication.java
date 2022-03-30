@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
@@ -46,21 +47,22 @@ import static java.util.Objects.requireNonNull;
  * database).
  */
 public class CredentialsLocalAuthentication {
-  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-  private static final HashMethod DEFAULT = HashMethod.PBKDF2;
-  private static final String PBKDF2_ITERATIONS_PROP = "sonar.internal.pbkdf2.iterations";
   public static final String ERROR_NULL_HASH_METHOD = "null hash method";
   public static final String ERROR_NULL_PASSWORD_IN_DB = "null password in DB";
   public static final String ERROR_NULL_SALT = "null salt";
   public static final String ERROR_WRONG_PASSWORD = "wrong password";
   public static final String ERROR_PASSWORD_CANNOT_BE_NULL = "Password cannot be null";
   public static final String ERROR_UNKNOWN_HASH_METHOD = "Unknown hash method [%s]";
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+  private static final String PBKDF2_ITERATIONS_PROP = "sonar.internal.pbkdf2.iterations";
+  private static final HashMethod DEFAULT = HashMethod.PBKDF2;
+  private static final int DUMMY_PASSWORD_AND_SALT_SIZE = 100;
 
   private final DbClient dbClient;
   private final EnumMap<HashMethod, HashFunction> hashFunctions = new EnumMap<>(HashMethod.class);
 
   public enum HashMethod {
-    SHA1, BCRYPT, PBKDF2;
+    SHA1, BCRYPT, PBKDF2
   }
 
   public CredentialsLocalAuthentication(DbClient dbClient, Configuration configuration) {
@@ -68,7 +70,12 @@ public class CredentialsLocalAuthentication {
     hashFunctions.put(HashMethod.BCRYPT, new BcryptFunction());
     hashFunctions.put(HashMethod.SHA1, new Sha1Function());
     hashFunctions.put(HashMethod.PBKDF2, new PBKDF2Function(configuration.getInt(PBKDF2_ITERATIONS_PROP).orElse(null)));
+  }
 
+  void generateHashToAvoidEnumerationAttack(){
+    String randomSalt = RandomStringUtils.randomAlphabetic(DUMMY_PASSWORD_AND_SALT_SIZE);
+    String randomPassword = RandomStringUtils.randomAlphabetic(DUMMY_PASSWORD_AND_SALT_SIZE);
+    hashFunctions.get(HashMethod.PBKDF2).encryptPassword(randomSalt, randomPassword);
   }
 
   /**
@@ -90,6 +97,7 @@ public class CredentialsLocalAuthentication {
     try {
       hashMethod = HashMethod.valueOf(user.getHashMethod());
     } catch (IllegalArgumentException ex) {
+      generateHashToAvoidEnumerationAttack();
       throw AuthenticationException.newBuilder()
         .setSource(Source.local(method))
         .setLogin(user.getLogin())
@@ -156,6 +164,10 @@ public class CredentialsLocalAuthentication {
     AuthenticationResult checkCredentials(UserDto user, String password);
 
     void storeHashPassword(UserDto user, String password);
+
+    default String encryptPassword(String salt, String password) {
+      throw new IllegalStateException("This method is not supported for this hash function");
+    }
   }
 
   /**
@@ -193,15 +205,16 @@ public class CredentialsLocalAuthentication {
     }
   }
 
-  private static final class PBKDF2Function implements HashFunction {
+  static final class PBKDF2Function implements HashFunction {
+    private static final char ITERATIONS_HASH_SEPARATOR = '$';
     private static final int DEFAULT_ITERATIONS = 100_000;
     private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
     private static final int KEY_LEN = 512;
-    public static final String ERROR_INVALID_HASH_STORED = "invalid hash stored";
-    private final int gen_iterations;
+    private static final String ERROR_INVALID_HASH_STORED = "invalid hash stored";
+    private final int generationIterations;
 
-    public PBKDF2Function(@Nullable Integer gen_iterations) {
-      this.gen_iterations = gen_iterations != null ? gen_iterations : DEFAULT_ITERATIONS;
+    public PBKDF2Function(@Nullable Integer generationIterations) {
+      this.generationIterations = generationIterations != null ? generationIterations : DEFAULT_ITERATIONS;
     }
 
     @Override
@@ -213,7 +226,7 @@ public class CredentialsLocalAuthentication {
         return new AuthenticationResult(false, ERROR_NULL_SALT);
       }
 
-      int pos = user.getCryptedPassword().indexOf('$');
+      int pos = user.getCryptedPassword().indexOf(ITERATIONS_HASH_SEPARATOR);
       if (pos < 1) {
         return new AuthenticationResult(false, ERROR_INVALID_HASH_STORED);
       }
@@ -229,7 +242,7 @@ public class CredentialsLocalAuthentication {
       if (!hash.equals(hash(salt, password, iterations))) {
         return new AuthenticationResult(false, ERROR_WRONG_PASSWORD);
       }
-      boolean needsUpdate = iterations != gen_iterations;
+      boolean needsUpdate = iterations != generationIterations;
       return new AuthenticationResult(true, "", needsUpdate);
     }
 
@@ -237,14 +250,24 @@ public class CredentialsLocalAuthentication {
     public void storeHashPassword(UserDto user, String password) {
       byte[] salt = new byte[20];
       SECURE_RANDOM.nextBytes(salt);
-      String hashStr = hash(salt, password, gen_iterations);
+      String hashStr = hash(salt, password, generationIterations);
       String saltStr = Base64.getEncoder().encodeToString(salt);
       user.setHashMethod(HashMethod.PBKDF2.name())
-        .setCryptedPassword(gen_iterations + "$" + hashStr)
+        .setCryptedPassword(composeEncryptedPassword(hashStr))
         .setSalt(saltStr);
     }
 
-    private String hash(byte[] salt, String password, int iterations) {
+    @Override
+    public String encryptPassword(String saltStr, String password) {
+      byte[] salt = Base64.getDecoder().decode(saltStr);
+      return composeEncryptedPassword(hash(salt, password, generationIterations));
+    }
+
+    private String composeEncryptedPassword(String hashStr) {
+      return format("%d%c%s", generationIterations, ITERATIONS_HASH_SEPARATOR, hashStr);
+    }
+
+    private static String hash(byte[] salt, String password, int iterations) {
       try {
         SecretKeyFactory skf = SecretKeyFactory.getInstance(ALGORITHM);
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LEN);

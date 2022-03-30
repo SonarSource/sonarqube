@@ -23,7 +23,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -31,18 +31,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
-import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class CredentialsAuthenticationTest {
 
@@ -52,8 +52,6 @@ public class CredentialsAuthenticationTest {
   private static final String ENCRYPTED_PASSWORD = "540e4fc4be4e047db995bc76d18374a5b5db08cc";
 
   @Rule
-  public ExpectedException expectedException = none();
-  @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
@@ -61,7 +59,7 @@ public class CredentialsAuthenticationTest {
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private CredentialsExternalAuthentication externalAuthentication = mock(CredentialsExternalAuthentication.class);
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(dbClient, settings.asConfig());
+  private CredentialsLocalAuthentication localAuthentication = Mockito.spy(new CredentialsLocalAuthentication(dbClient, settings.asConfig()));
   private CredentialsAuthentication underTest = new CredentialsAuthentication(dbClient, authenticationEvent, externalAuthentication, localAuthentication);
 
   @Test
@@ -87,13 +85,14 @@ public class CredentialsAuthenticationTest {
       .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("wrong password");
-    try {
-      executeAuthenticate(BASIC);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> executeAuthenticate(BASIC))
+      .hasMessage("wrong password")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyNoInteractions(authenticationEvent);
+
   }
 
   @Test
@@ -106,7 +105,7 @@ public class CredentialsAuthenticationTest {
     executeAuthenticate(BASIC);
 
     verify(externalAuthentication).authenticate(new Credentials(LOGIN, PASSWORD), request, BASIC);
-    verifyZeroInteractions(authenticationEvent);
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -116,13 +115,13 @@ public class CredentialsAuthenticationTest {
       .setLogin(LOGIN)
       .setLocal(false));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("User is not local");
-    try {
-      executeAuthenticate(BASIC_TOKEN);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> executeAuthenticate(BASIC_TOKEN))
+      .hasMessage("User is not local")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -134,13 +133,13 @@ public class CredentialsAuthenticationTest {
       .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("null password in DB");
-    try {
-      executeAuthenticate(BASIC);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> executeAuthenticate(BASIC))
+      .hasMessage("null password in DB")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyNoInteractions(authenticationEvent);
   }
 
   @Test
@@ -152,13 +151,26 @@ public class CredentialsAuthenticationTest {
       .setHashMethod(CredentialsLocalAuthentication.HashMethod.SHA1.name())
       .setLocal(true));
 
-    expectedException.expect(authenticationException().from(Source.local(BASIC_TOKEN)).withLogin(LOGIN).andNoPublicMessage());
-    expectedException.expectMessage("null salt");
-    try {
-      executeAuthenticate(BASIC_TOKEN);
-    } finally {
-      verifyZeroInteractions(authenticationEvent);
-    }
+    assertThatThrownBy(() -> executeAuthenticate(BASIC_TOKEN))
+      .hasMessage("null salt")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC_TOKEN))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verifyNoInteractions(authenticationEvent);
+  }
+
+  @Test
+  public void fail_to_authenticate_unknown_user_after_forcing_hash() {
+    assertThatThrownBy(() -> executeAuthenticate(BASIC))
+      .hasMessage("No active user for login")
+      .isInstanceOf(AuthenticationException.class)
+      .hasFieldOrPropertyWithValue("source", Source.local(BASIC))
+      .hasFieldOrPropertyWithValue("login", LOGIN);
+
+    verify(localAuthentication).generateHashToAvoidEnumerationAttack();
+
+    verifyNoInteractions(authenticationEvent);
   }
 
   private UserDto executeAuthenticate(AuthenticationEvent.Method method) {
