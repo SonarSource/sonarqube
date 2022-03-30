@@ -25,7 +25,7 @@ import javax.mail.internet.InternetAddress;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-class EmailValidator {
+public class EmailValidator {
 
   private EmailValidator() {
     // Hide constructor
