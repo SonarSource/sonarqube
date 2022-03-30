@@ -75,8 +75,10 @@
 }
 
 .date-input-calender-month {
+  display: flex;
+  justify-content: center;
 }
 
-.date-input-calender-month-select {
+.date-input-calender-month .date-input-calender-month-select {
   width: 70px;
 }

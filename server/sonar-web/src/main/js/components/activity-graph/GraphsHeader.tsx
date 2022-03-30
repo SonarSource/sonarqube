@@ -22,7 +22,7 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { GraphType } from '../../types/project-activity';
 import { Metric } from '../../types/types';
-import SelectLegacy from '../controls/SelectLegacy';
+import Select from '../controls/Select';
 import AddGraphMetric from './AddGraphMetric';
 import './styles.css';
 import { getGraphTypes, isCustomGraph } from './utils';
@@ -65,13 +65,12 @@ export default class GraphsHeader extends React.PureComponent<Props> {
 
     return (
       <div className={classNames(className, 'position-relative')}>
-        <SelectLegacy
+        <Select
           className="pull-left input-medium"
-          clearable={false}
+          isSearchable={false}
           onChange={this.handleGraphChange}
           options={selectOptions}
-          searchable={false}
-          value={graph}
+          value={selectOptions.find(option => option.value === graph)}
         />
         {isCustomGraph(graph) &&
           addCustomMetric !== undefined &&

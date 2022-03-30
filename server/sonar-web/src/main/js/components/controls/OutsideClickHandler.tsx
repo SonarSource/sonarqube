@@ -52,7 +52,11 @@ export default class OutsideClickHandler extends React.Component<Props> {
     if (this.mounted) {
       // eslint-disable-next-line react/no-find-dom-node
       const node = findDOMNode(this);
-      if (!node || !node.contains(event.target as Node)) {
+      if (
+        node &&
+        !node.contains(event.target as Node) &&
+        window.document.contains(event.target as Node)
+      ) {
         this.props.onClickOutside();
       }
     }

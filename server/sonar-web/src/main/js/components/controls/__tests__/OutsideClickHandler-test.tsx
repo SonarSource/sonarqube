@@ -56,6 +56,7 @@ it('should call event handler on click on window', () => {
   window.addEventListener = jest.fn((event, callback) => {
     map[event] = callback as EventListener;
   });
+  jest.spyOn(window.document, 'contains').mockReturnValue(true);
 
   mount(
     <div id="outside-element">

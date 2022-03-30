@@ -9,19 +9,12 @@ exports[`should display measure badge params 1`] = `
     overview.badges.metric
     :
   </label>
-  <SelectLegacy
-    className="input-medium"
-    clearable={false}
-    menuStyle={
-      Object {
-        "maxHeight": 100,
-      }
-    }
+  <Select
+    className="input-medium it__badge-metric"
+    isSearchable={false}
     name="badge-metric"
     onChange={[Function]}
     options={Array []}
-    searchable={false}
-    value="alert_status"
   />
   <label
     className="spacer-right spacer-top"
@@ -30,9 +23,15 @@ exports[`should display measure badge params 1`] = `
     format
     :
   </label>
-  <SelectLegacy
+  <Select
     className="input-medium"
-    clearable={false}
+    defaultValue={
+      Object {
+        "label": "overview.badges.options.formats.md",
+        "value": "md",
+      }
+    }
+    isSearchable={false}
     name="badge-format"
     onChange={[Function]}
     options={
@@ -47,8 +46,6 @@ exports[`should display measure badge params 1`] = `
         },
       ]
     }
-    searchable={false}
-    value="md"
   />
 </div>
 `;
@@ -62,9 +59,15 @@ exports[`should display quality gate badge params 1`] = `
     format
     :
   </label>
-  <SelectLegacy
+  <Select
     className="input-medium"
-    clearable={false}
+    defaultValue={
+      Object {
+        "label": "overview.badges.options.formats.md",
+        "value": "md",
+      }
+    }
+    isSearchable={false}
     name="badge-format"
     onChange={[Function]}
     options={
@@ -79,8 +82,6 @@ exports[`should display quality gate badge params 1`] = `
         },
       ]
     }
-    searchable={false}
-    value="md"
   />
 </div>
 `;

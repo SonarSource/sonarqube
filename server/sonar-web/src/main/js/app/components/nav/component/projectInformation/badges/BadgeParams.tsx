@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { fetchWebApi } from '../../../../../../api/web-api';
-import SelectLegacy from '../../../../../../components/controls/SelectLegacy';
+import Select from '../../../../../../components/controls/Select';
 import { getLocalizedMetricName, translate } from '../../../../../../helpers/l10n';
 import { Dict, Metric } from '../../../../../../types/types';
 import withMetricsContext from '../../../../metrics/withMetricsContext';
@@ -78,7 +78,7 @@ export class BadgeParams extends React.PureComponent<Props> {
   getFormatOptions = () => {
     return ['md', 'url'].map(format => ({
       label: translate('overview.badges.options.formats', format),
-      value: format
+      value: format as BadgeFormats
     }));
   };
 
@@ -102,20 +102,19 @@ export class BadgeParams extends React.PureComponent<Props> {
 
   renderBadgeType = (type: BadgeType, options: BadgeOptions) => {
     if (type === BadgeType.measure) {
+      const metricOptions = this.getMetricOptions();
       return (
         <>
           <label className="spacer-right" htmlFor="badge-metric">
             {translate('overview.badges.metric')}:
           </label>
-          <SelectLegacy
-            className="input-medium"
-            clearable={false}
-            menuStyle={{ maxHeight: 100 }}
+          <Select
+            className="input-medium it__badge-metric"
             name="badge-metric"
+            isSearchable={false}
             onChange={this.handleMetricChange}
-            options={this.getMetricOptions()}
-            searchable={false}
-            value={options.metric}
+            options={metricOptions}
+            value={metricOptions.find(o => o.value === options.metric)}
           />
         </>
       );
@@ -125,6 +124,7 @@ export class BadgeParams extends React.PureComponent<Props> {
 
   render() {
     const { className, options, type } = this.props;
+    const formatOptions = this.getFormatOptions();
     return (
       <div className={className}>
         {this.renderBadgeType(type, options)}
@@ -136,14 +136,14 @@ export class BadgeParams extends React.PureComponent<Props> {
           htmlFor="badge-format">
           {translate('format')}:
         </label>
-        <SelectLegacy
+        <Select
           className="input-medium"
-          clearable={false}
           name="badge-format"
+          isSearchable={false}
           onChange={this.handleFormatChange}
-          options={this.getFormatOptions()}
-          searchable={false}
-          value={this.props.options.format || 'md'}
+          options={formatOptions}
+          value={formatOptions.find(o => o.value === options.format)}
+          defaultValue={formatOptions.find(o => o.value === 'md')}
         />
       </div>
     );

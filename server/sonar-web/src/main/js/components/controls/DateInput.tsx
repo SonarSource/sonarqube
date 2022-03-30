@@ -31,7 +31,7 @@ import ChevronRightIcon from '../../components/icons/ChevronRightIcon';
 import { getShortMonthName, getShortWeekDayName, getWeekDayName } from '../../helpers/l10n';
 import { lazyLoadComponent } from '../lazyLoadComponent';
 import './DayPicker.css';
-import SelectLegacy from './SelectLegacy';
+import Select from './Select';
 import './styles.css';
 
 const DayPicker = lazyLoadComponent(() => import('react-day-picker'), 'DayPicker');
@@ -118,8 +118,17 @@ export default class DateInput extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { highlightFrom, highlightTo, minDate, value } = this.props;
-    const { lastHovered } = this.state;
+    const {
+      highlightFrom,
+      highlightTo,
+      minDate,
+      value,
+      name,
+      className,
+      inputClassName,
+      placeholder
+    } = this.props;
+    const { lastHovered, currentMonth, open } = this.state;
 
     const after = this.props.maxDate || new Date();
 
@@ -142,50 +151,53 @@ export default class DateInput extends React.PureComponent<Props, State> {
     const weekdaysLong = range(7).map(getWeekDayName) as Week;
     const weekdaysShort = range(7).map(getShortWeekDayName) as Week;
 
+    const monthOptions = months.map(month => ({
+      label: getShortMonthName(month),
+      value: month
+    }));
+    const yearOptions = years.map(year => ({ label: String(year), value: year }));
+
     return (
       <OutsideClickHandler onClickOutside={this.closeCalendar}>
-        <span className={classNames('date-input-control', this.props.className)}>
+        <span className={classNames('date-input-control', className)}>
           <InputWrapper
-            className={classNames('date-input-control-input', this.props.inputClassName, {
-              'is-filled': this.props.value !== undefined
+            className={classNames('date-input-control-input', inputClassName, {
+              'is-filled': value !== undefined
             })}
             innerRef={(node: HTMLInputElement | null) => (this.input = node)}
-            name={this.props.name}
+            name={name}
             onFocus={this.openCalendar}
-            placeholder={this.props.placeholder}
+            placeholder={placeholder}
             readOnly={true}
             type="text"
             value={value}
           />
           <CalendarIcon className="date-input-control-icon" fill="" />
-          {this.props.value !== undefined && (
+          {value !== undefined && (
             <ClearButton
               className="button-tiny date-input-control-reset"
               iconProps={{ size: 12 }}
               onClick={this.handleResetClick}
             />
           )}
-          {this.state.open && (
+          {open && (
             <div className="date-input-calendar">
               <nav className="date-input-calendar-nav">
                 <ButtonIcon className="button-small" onClick={this.handlePreviousMonthClick}>
                   <ChevronLeftIcon />
                 </ButtonIcon>
                 <div className="date-input-calender-month">
-                  <SelectLegacy
+                  <Select
                     className="date-input-calender-month-select"
                     onChange={this.handleCurrentMonthChange}
-                    options={months.map(month => ({
-                      label: getShortMonthName(month),
-                      value: month
-                    }))}
-                    value={this.state.currentMonth.getMonth()}
+                    options={monthOptions}
+                    value={monthOptions.find(month => month.value === currentMonth.getMonth())}
                   />
-                  <SelectLegacy
+                  <Select
                     className="date-input-calender-month-select spacer-left"
                     onChange={this.handleCurrentYearChange}
-                    options={years.map(year => ({ label: String(year), value: year }))}
-                    value={this.state.currentMonth.getFullYear()}
+                    options={yearOptions}
+                    value={yearOptions.find(year => year.value === currentMonth.getFullYear())}
                   />
                 </div>
                 <ButtonIcon className="button-small" onClick={this.handleNextMonthClick}>
@@ -197,7 +209,7 @@ export default class DateInput extends React.PureComponent<Props, State> {
                 disabledDays={{ after, before: minDate }}
                 firstDayOfWeek={1}
                 modifiers={modifiers}
-                month={this.state.currentMonth}
+                month={currentMonth}
                 navbarElement={<NullComponent />}
                 onDayClick={this.handleDayClick}
                 onDayMouseEnter={this.handleDayMouseEnter}
