@@ -54,6 +54,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -408,6 +409,38 @@ public class ChangesOnMyIssuesEmailTemplateTest {
       .hasParagraph()// skip title based on status
       .hasList("Rule " + ruleName + " - See the single issue")
       .withLink("See the single issue", host + "/project/issues?id=" + project.getKey() + "&issues=" + changedIssue.getKey() + "&open=" + changedIssue.getKey())
+      .hasParagraph().hasParagraph() // skip footer
+      .noMoreBlock();
+  }
+
+  @Test
+  public void user_input_content_should_be_html_escape() {
+    Project project = new Project.Builder("uuid").setProjectName("</projectName>").setKey("project_key").build();
+    String ruleName = "</RandomRule>";
+    String host = randomAlphabetic(15);
+    Rule rule = newRule(ruleName, randomRuleTypeHotspotExcluded());
+    List<ChangedIssue> changedIssues = IntStream.range(0, 2 + new Random().nextInt(5))
+      .mapToObj(i -> newChangedIssue("issue_" + i, randomValidStatus(), project, rule))
+      .collect(toList());
+    UserChange userChange = newUserChange();
+    when(emailSettings.getServerBaseURL()).thenReturn(host);
+
+    EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(userChange, ImmutableSet.copyOf(changedIssues)));
+
+    assertThat(emailMessage.getMessage())
+      .doesNotContain(project.getProjectName())
+      .contains(escapeHtml(project.getProjectName()))
+      .doesNotContain(ruleName)
+      .contains(escapeHtml(ruleName));
+
+    String expectedHref = host + "/project/issues?id=" + project.getKey()
+      + "&issues=" + changedIssues.stream().map(ChangedIssue::getKey).collect(joining("%2C"));
+    String expectedLinkText = "See all " + changedIssues.size() + " issues";
+    HtmlFragmentAssert.assertThat(emailMessage.getMessage())
+      .hasParagraph().hasParagraph() // skip header
+      .hasParagraph(project.getProjectName())
+      .hasList("Rule " + ruleName + " - " + expectedLinkText)
+      .withLink(expectedLinkText, expectedHref)
       .hasParagraph().hasParagraph() // skip footer
       .noMoreBlock();
   }

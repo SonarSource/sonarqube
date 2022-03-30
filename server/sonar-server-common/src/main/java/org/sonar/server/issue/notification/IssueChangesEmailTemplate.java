@@ -46,6 +46,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.function.Function.identity;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.server.issue.notification.RuleGroup.ISSUES;
 import static org.sonar.server.issue.notification.RuleGroup.SECURITY_HOTSPOTS;
@@ -85,11 +86,11 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
    */
   protected static void toString(StringBuilder sb, Project project) {
     Optional<String> branchName = project.getBranchName();
+    String value = project.getProjectName();
     if (branchName.isPresent()) {
-      sb.append(project.getProjectName()).append(", ").append(branchName.get());
-    } else {
-      sb.append(project.getProjectName());
+      value += ", " + branchName.get();
     }
+    sb.append(escapeHtml(value));
   }
 
   static String toUrlParams(Project project) {
@@ -155,7 +156,8 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
       Rule rule = rules.next();
       Collection<ChangedIssue> issues = issuesByRule.get(rule);
 
-      sb.append("<li>").append("Rule ").append(" <em>").append(rule.getName()).append("</em> - ");
+      String ruleName = escapeHtml(rule.getName());
+      sb.append("<li>").append("Rule ").append(" <em>").append(ruleName).append("</em> - ");
       appendIssueLinks(sb, issuePageHref, issues, rule.getRuleType());
       sb.append("</li>");
     }
