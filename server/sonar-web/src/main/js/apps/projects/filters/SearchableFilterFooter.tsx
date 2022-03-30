@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import { components, InputProps, OptionProps } from 'react-select';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { Dict, RawQuery } from '../../../types/types';
 
@@ -39,19 +40,32 @@ export default class SearchableFilterFooter extends React.PureComponent<Props> {
     this.props.onQueryChange({ [this.props.property]: urlOptions });
   };
 
+  optionRenderer = (props: OptionProps<{ value: string }, false>) => (
+    <components.Option
+      {...props}
+      className={'Select-option ' + (props.isFocused ? 'is-focused' : '')}
+    />
+  );
+
+  inputRenderer = (props: InputProps) => (
+    <components.Input {...props} className="it__searchable-footer-select-input" />
+  );
+
   render() {
     return (
       <div className="search-navigator-facet-footer projects-facet-footer">
-        <SelectLegacy
+        <Select
           className="input-super-large"
-          clearable={false}
           isLoading={this.props.isLoading}
           onChange={this.handleOptionChange}
           onInputChange={this.props.onInputChange}
           onOpen={this.props.onOpen}
+          components={{
+            Option: this.optionRenderer,
+            Input: this.inputRenderer
+          }}
           options={this.props.options}
           placeholder={translate('search_verb')}
-          searchable={true}
         />
       </div>
     );

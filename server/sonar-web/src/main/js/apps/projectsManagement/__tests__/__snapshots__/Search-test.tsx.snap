@@ -50,13 +50,18 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <SelectLegacy
-            className="input-medium"
-            clearable={false}
+          <Select
+            className="input-medium Select"
+            components={
+              Object {
+                "Option": [Function],
+                "SingleValue": [Function],
+              }
+            }
             disabled={false}
+            isSearchable={false}
             name="projects-qualifier"
             onChange={[Function]}
-            optionRenderer={[Function]}
             options={
               Array [
                 Object {
@@ -74,8 +79,12 @@ exports[`render qualifiers filter 1`] = `
               ]
             }
             searchable={false}
-            value="TRK"
-            valueRenderer={[Function]}
+            value={
+              Object {
+                "label": "qualifiers.TRK",
+                "value": "TRK",
+              }
+            }
           />
         </td>
         <td
@@ -91,10 +100,15 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <SelectLegacy
-            className="input-small"
-            clearable={false}
-            disabled={false}
+          <Select
+            className="input-small Select"
+            components={
+              Object {
+                "Option": [Function],
+              }
+            }
+            isDisabled={false}
+            isSearchable={false}
             name="projects-visibility"
             onChange={[Function]}
             options={
@@ -113,8 +127,12 @@ exports[`render qualifiers filter 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="all"
+            value={
+              Object {
+                "label": "visibility.both",
+                "value": "all",
+              }
+            }
           />
         </td>
         <td
@@ -205,10 +223,15 @@ exports[`renders 1`] = `
         <td
           className="thin nowrap text-middle"
         >
-          <SelectLegacy
-            className="input-small"
-            clearable={false}
-            disabled={false}
+          <Select
+            className="input-small Select"
+            components={
+              Object {
+                "Option": [Function],
+              }
+            }
+            isDisabled={false}
+            isSearchable={false}
             name="projects-visibility"
             onChange={[Function]}
             options={
@@ -227,8 +250,12 @@ exports[`renders 1`] = `
                 },
               ]
             }
-            searchable={false}
-            value="all"
+            value={
+              Object {
+                "label": "visibility.both",
+                "value": "all",
+              }
+            }
           />
         </td>
         <td
@@ -285,4 +312,43 @@ exports[`renders 1`] = `
     </tbody>
   </table>
 </div>
+`;
+
+exports[`renders optionrenderer and singlevaluerenderer: option renderer 1`] = `
+<Option
+  className="Select-option"
+  data={
+    Object {
+      "value": "val",
+    }
+  }
+>
+  <div
+    className="display-flex-center"
+  >
+    <QualifierIcon
+      className="little-spacer-right"
+      qualifier="val"
+    />
+  </div>
+</Option>
+`;
+
+exports[`renders optionrenderer and singlevaluerenderer: single value renderer 1`] = `
+<SingleValue
+  data={
+    Object {
+      "value": "val",
+    }
+  }
+>
+  <div
+    className="display-flex-center"
+  >
+    <QualifierIcon
+      className="little-spacer-right"
+      qualifier="val"
+    />
+  </div>
+</SingleValue>
 `;

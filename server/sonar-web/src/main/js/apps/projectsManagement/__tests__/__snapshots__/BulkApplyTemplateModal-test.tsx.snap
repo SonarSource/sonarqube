@@ -59,13 +59,22 @@ exports[`bulk applies template to all results 2`] = `
     <div
       className="modal-field"
     >
-      <label>
+      <label
+        htmlFor="bulk-apply-template-input"
+      >
         template
         <MandatoryFieldMarker />
       </label>
-      <SelectLegacy
-        clearable={false}
-        disabled={false}
+      <Select
+        className="Select Select-value"
+        components={
+          Object {
+            "Option": [Function],
+          }
+        }
+        id="bulk-apply-template"
+        inputId="bulk-apply-template-input"
+        isDisabled={false}
         onChange={[Function]}
         options={
           Array [
@@ -79,7 +88,12 @@ exports[`bulk applies template to all results 2`] = `
             },
           ]
         }
-        value="foo"
+        value={
+          Object {
+            "label": "Foo",
+            "value": "foo",
+          }
+        }
       />
     </div>
   </div>
@@ -128,13 +142,22 @@ exports[`bulk applies template to all results 3`] = `
     <div
       className="modal-field"
     >
-      <label>
+      <label
+        htmlFor="bulk-apply-template-input"
+      >
         template
         <MandatoryFieldMarker />
       </label>
-      <SelectLegacy
-        clearable={false}
-        disabled={true}
+      <Select
+        className="Select Select-value"
+        components={
+          Object {
+            "Option": [Function],
+          }
+        }
+        id="bulk-apply-template"
+        inputId="bulk-apply-template-input"
+        isDisabled={true}
         onChange={[Function]}
         options={
           Array [
@@ -148,7 +171,12 @@ exports[`bulk applies template to all results 3`] = `
             },
           ]
         }
-        value="foo"
+        value={
+          Object {
+            "label": "Foo",
+            "value": "foo",
+          }
+        }
       />
     </div>
   </div>
@@ -266,13 +294,22 @@ exports[`bulk applies template to selected results 2`] = `
     <div
       className="modal-field"
     >
-      <label>
+      <label
+        htmlFor="bulk-apply-template-input"
+      >
         template
         <MandatoryFieldMarker />
       </label>
-      <SelectLegacy
-        clearable={false}
-        disabled={false}
+      <Select
+        className="Select Select-value"
+        components={
+          Object {
+            "Option": [Function],
+          }
+        }
+        id="bulk-apply-template"
+        inputId="bulk-apply-template-input"
+        isDisabled={false}
         onChange={[Function]}
         options={
           Array [
@@ -286,7 +323,12 @@ exports[`bulk applies template to selected results 2`] = `
             },
           ]
         }
-        value="foo"
+        value={
+          Object {
+            "label": "Foo",
+            "value": "foo",
+          }
+        }
       />
     </div>
   </div>
@@ -335,13 +377,22 @@ exports[`bulk applies template to selected results 3`] = `
     <div
       className="modal-field"
     >
-      <label>
+      <label
+        htmlFor="bulk-apply-template-input"
+      >
         template
         <MandatoryFieldMarker />
       </label>
-      <SelectLegacy
-        clearable={false}
-        disabled={true}
+      <Select
+        className="Select Select-value"
+        components={
+          Object {
+            "Option": [Function],
+          }
+        }
+        id="bulk-apply-template"
+        inputId="bulk-apply-template-input"
+        isDisabled={true}
         onChange={[Function]}
         options={
           Array [
@@ -355,7 +406,12 @@ exports[`bulk applies template to selected results 3`] = `
             },
           ]
         }
-        value="foo"
+        value={
+          Object {
+            "label": "Foo",
+            "value": "foo",
+          }
+        }
       />
     </div>
   </div>
@@ -412,4 +468,14 @@ exports[`bulk applies template to selected results 4`] = `
     </ResetButtonLink>
   </footer>
 </Modal>
+`;
+
+exports[`renders optionrenderer: option renderer 1`] = `
+<Option
+  data={
+    Object {
+      "val": "val",
+    }
+  }
+/>
 `;

@@ -19,6 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { components, OptionProps, SingleValueProps } from 'react-select';
 import { Project } from '../../api/components';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { Button } from '../../components/controls/buttons';
@@ -26,7 +27,7 @@ import Checkbox from '../../components/controls/Checkbox';
 import DateInput from '../../components/controls/DateInput';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import SearchBox from '../../components/controls/SearchBox';
-import SelectLegacy from '../../components/controls/SelectLegacy';
+import Select from '../../components/controls/Select';
 import QualifierIcon from '../../components/icons/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
@@ -107,6 +108,18 @@ export class Search extends React.PureComponent<Props, State> {
 
   handleVisibilityChange = ({ value }: { value: string }) => this.props.onVisibilityChanged(value);
 
+  optionRenderer = (props: OptionProps<{ value: string }, false>) => (
+    <components.Option {...props} className="Select-option">
+      {this.renderQualifierOption(props.data)}
+    </components.Option>
+  );
+
+  singleValueRenderer = (props: SingleValueProps<{ value: string }>) => (
+    <components.SingleValue {...props}>
+      {this.renderQualifierOption(props.data as { value: string; label: string })}
+    </components.SingleValue>
+  );
+
   renderCheckbox = () => {
     const isAllChecked =
       this.props.projects.length > 0 && this.props.selection.length === this.props.projects.length;
@@ -126,10 +139,10 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   renderQualifierOption = (option: { label: string; value: string }) => (
-    <span>
+    <div className="display-flex-center">
       <QualifierIcon className="little-spacer-right" qualifier={option.value} />
       {option.label}
-    </span>
+    </div>
   );
 
   renderQualifierFilter = () => {
@@ -139,38 +152,45 @@ export class Search extends React.PureComponent<Props, State> {
     }
     return (
       <td className="thin nowrap text-middle">
-        <SelectLegacy
-          className="input-medium"
-          clearable={false}
+        <Select
+          className="input-medium Select"
           disabled={!this.props.ready}
           name="projects-qualifier"
           onChange={this.handleQualifierChange}
-          optionRenderer={this.renderQualifierOption}
+          isSearchable={false}
+          components={{
+            Option: this.optionRenderer,
+            SingleValue: this.singleValueRenderer
+          }}
           options={this.getQualifierOptions()}
           searchable={false}
-          value={this.props.qualifiers}
-          valueRenderer={this.renderQualifierOption}
+          value={options.find(option => option.value === this.props.qualifiers)}
         />
       </td>
     );
   };
 
   renderVisibilityFilter = () => {
+    const options = [
+      { value: 'all', label: translate('visibility.both') },
+      { value: 'public', label: translate('visibility.public') },
+      { value: 'private', label: translate('visibility.private') }
+    ];
     return (
       <td className="thin nowrap text-middle">
-        <SelectLegacy
-          className="input-small"
-          clearable={false}
-          disabled={!this.props.ready}
+        <Select
+          className="input-small Select"
+          isDisabled={!this.props.ready}
           name="projects-visibility"
           onChange={this.handleVisibilityChange}
-          options={[
-            { value: 'all', label: translate('visibility.both') },
-            { value: 'public', label: translate('visibility.public') },
-            { value: 'private', label: translate('visibility.private') }
-          ]}
-          searchable={false}
-          value={this.props.visibility || 'all'}
+          components={{
+            Option: (props: OptionProps<{ value: string }, false>) => (
+              <components.Option {...props} className="Select-option" />
+            )
+          }}
+          options={options}
+          isSearchable={false}
+          value={options.find(option => option.value === (this.props.visibility || 'all'))}
         />
       </td>
     );

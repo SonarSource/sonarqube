@@ -19,6 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { SelectComponentsProps } from 'react-select/src/Select';
+import { mockReactSelectOptionProps } from '../../../helpers/mocks/react-select';
+import Select from '../../../components/controls/Select';
 import { parseDate } from '../../../helpers/dates';
 import { click, waitAndUpdate } from '../../../helpers/testUtils';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
@@ -97,6 +100,25 @@ it('bulk applies template to selected results', async () => {
 
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
+});
+
+it('renders optionrenderer', () => {
+  const wrapper = shallow(render({ qualifier: 'VW', selection: ['proj1', 'proj2'] }));
+  wrapper.setState({
+    loading: false,
+    permissionTemplate: 'foo',
+    permissionTemplates: [
+      { id: 'foo', name: 'Foo' },
+      { id: 'bar', name: 'Bar' }
+    ]
+  });
+  const wrapperSelect = wrapper.find<SelectComponentsProps>(Select);
+
+  const { Option } = wrapperSelect.props().components;
+
+  expect(<Option {...mockReactSelectOptionProps({ val: 'val' })} />).toMatchSnapshot(
+    'option renderer'
+  );
 });
 
 it('closes', () => {

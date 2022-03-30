@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockReactSelectOptionProps } from '../../../helpers/mocks/react-select';
 import { mockAppState } from '../../../helpers/testMocks';
 import { click } from '../../../helpers/testUtils';
 import { Props, Search } from '../Search';
@@ -49,10 +50,24 @@ it('updates qualifier', () => {
     onQualifierChanged,
     appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })
   });
-  wrapper.find('SelectLegacy[name="projects-qualifier"]').prop<Function>('onChange')({
+  wrapper.find('Select[name="projects-qualifier"]').simulate('change', {
     value: 'VW'
   });
   expect(onQualifierChanged).toBeCalledWith('VW');
+});
+
+it('renders optionrenderer and singlevaluerenderer', () => {
+  const wrapper = shallowRender({
+    appState: mockAppState({ qualifiers: ['TRK', 'VW', 'APP'] })
+  });
+  const OptionRendererer = wrapper.instance().optionRenderer;
+  const SingleValueRendererer = wrapper.instance().singleValueRenderer;
+  expect(
+    shallow(<OptionRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
+  ).toMatchSnapshot('option renderer');
+  expect(
+    shallow(<SingleValueRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
+  ).toMatchSnapshot('single value renderer');
 });
 
 it('selects provisioned', () => {
@@ -118,7 +133,7 @@ it('bulk applies permission template', () => {
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {
-  return shallow(
+  return shallow<Search>(
     <Search
       analyzedBefore={undefined}
       onAllDeselected={jest.fn()}

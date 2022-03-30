@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { components, OptionProps } from 'react-select';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
-import SelectLegacy from '../../components/controls/SelectLegacy';
+import Select from '../../components/controls/Select';
 import { Alert } from '../../components/ui/Alert';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
@@ -132,21 +133,34 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     </Alert>
   );
 
-  renderSelect = () => (
-    <div className="modal-field">
-      <label>
-        {translate('template')}
-        <MandatoryFieldMarker />
-      </label>
-      <SelectLegacy
-        clearable={false}
-        disabled={this.state.submitting}
-        onChange={this.handlePermissionTemplateChange}
-        options={this.state.permissionTemplates!.map(t => ({ label: t.name, value: t.id }))}
-        value={this.state.permissionTemplate}
-      />
-    </div>
-  );
+  renderSelect = () => {
+    const options =
+      this.state.permissionTemplates !== undefined
+        ? this.state.permissionTemplates.map(t => ({ label: t.name, value: t.id }))
+        : [];
+    return (
+      <div className="modal-field">
+        <label htmlFor="bulk-apply-template-input">
+          {translate('template')}
+          <MandatoryFieldMarker />
+        </label>
+        <Select
+          id="bulk-apply-template"
+          inputId="bulk-apply-template-input"
+          className="Select Select-value"
+          isDisabled={this.state.submitting}
+          onChange={this.handlePermissionTemplateChange}
+          components={{
+            Option: (props: OptionProps<{ value: string }, false>) => (
+              <components.Option {...props} className="Select-option" />
+            )
+          }}
+          options={options}
+          value={options.find(option => option.value === this.state.permissionTemplate)}
+        />
+      </div>
+    );
+  };
 
   render() {
     const { done, loading, permissionTemplates, submitting } = this.state;

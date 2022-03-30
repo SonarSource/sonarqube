@@ -1,5 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`renders optionrenderer and inputrenderer: input renderer 1`] = `
+<Input
+  className="it__searchable-footer-select-input"
+/>
+`;
+
+exports[`renders optionrenderer and inputrenderer: option renderer 1`] = `
+<Option
+  className="Select-option "
+  data={
+    Object {
+      "value": "val",
+    }
+  }
+/>
+`;
+
 exports[`should render items without the ones in the facet 1`] = `
 Array [
   Object {
