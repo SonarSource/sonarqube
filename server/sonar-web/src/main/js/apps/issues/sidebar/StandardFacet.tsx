@@ -24,6 +24,7 @@ import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import ListStyleFacetFooter from '../../../components/facet/ListStyleFacetFooter';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
@@ -70,6 +71,7 @@ interface Props {
 
 interface State {
   standards: Standards;
+  showFullSonarSourceList: boolean;
 }
 
 type StatsProp =
@@ -80,10 +82,12 @@ type StatsProp =
   | 'sonarsourceSecurityStats';
 type ValuesProp = StandardType;
 
+const INITIAL_FACET_COUNT = 15;
 export default class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
   property = STANDARDS;
   state: State = {
+    showFullSonarSourceList: false,
     standards: {
       owaspTop10: {},
       'owaspTop10-2021': {},
@@ -327,11 +331,75 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   }
 
   renderSonarSourceSecurityList() {
-    return this.renderList(
-      'sonarsourceSecurityStats',
-      SecurityStandard.SONARSOURCE,
-      renderSonarSourceSecurityCategory,
-      this.handleSonarSourceSecurityItemClick
+    const stats = this.props.sonarsourceSecurityStats;
+    const values = this.props.sonarsourceSecurity;
+
+    if (!stats) {
+      return null;
+    }
+
+    const sortedItems = sortBy(
+      Object.keys(stats),
+      key => -stats[key],
+      key => renderSonarSourceSecurityCategory(this.state.standards, key)
+    );
+
+    const limitedList = this.state.showFullSonarSourceList
+      ? sortedItems
+      : sortedItems.slice(0, INITIAL_FACET_COUNT);
+
+    // make sure all selected items are displayed
+    const selectedBelowLimit = this.state.showFullSonarSourceList
+      ? []
+      : sortedItems.slice(INITIAL_FACET_COUNT).filter(item => values.includes(item));
+
+    const allItemShown = limitedList.length + selectedBelowLimit.length === sortedItems.length;
+    return (
+      <>
+        <FacetItemsList>
+          {limitedList.map(item => (
+            <FacetItem
+              active={values.includes(item)}
+              key={item}
+              name={renderSonarSourceSecurityCategory(this.state.standards, item)}
+              onClick={this.handleSonarSourceSecurityItemClick}
+              stat={formatFacetStat(stats[item])}
+              tooltip={renderSonarSourceSecurityCategory(this.state.standards, item)}
+              value={item}
+            />
+          ))}
+        </FacetItemsList>
+        {selectedBelowLimit.length > 0 && (
+          <>
+            {!allItemShown && <div className="note spacer-bottom text-center">⋯</div>}
+            <FacetItemsList>
+              {selectedBelowLimit.map(item => (
+                <FacetItem
+                  active={true}
+                  key={item}
+                  name={renderSonarSourceSecurityCategory(this.state.standards, item)}
+                  onClick={this.handleSonarSourceSecurityItemClick}
+                  stat={formatFacetStat(stats[item])}
+                  tooltip={renderSonarSourceSecurityCategory(this.state.standards, item)}
+                  value={item}
+                />
+              ))}
+            </FacetItemsList>
+          </>
+        )}
+        {!allItemShown && (
+          <ListStyleFacetFooter
+            count={limitedList.length + selectedBelowLimit.length}
+            showLess={
+              this.state.showFullSonarSourceList
+                ? () => this.setState({ showFullSonarSourceList: false })
+                : undefined
+            }
+            showMore={() => this.setState({ showFullSonarSourceList: true })}
+            total={sortedItems.length}
+          />
+        )}
+      </>
     );
   }
 

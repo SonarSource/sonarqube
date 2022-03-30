@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import ListStyleFacetFooter from '../../../../components/facet/ListStyleFacetFooter';
 import { getStandards } from '../../../../helpers/security-standard';
 import { click } from '../../../../helpers/testUtils';
 import { Query } from '../../utils';
@@ -28,6 +29,14 @@ jest.mock('../../../../helpers/security-standard', () => ({
   ...jest.requireActual('../../../../helpers/security-standard'),
   getStandards: jest.fn().mockResolvedValue({
     owaspTop10: {
+      a1: {
+        title: 'Injection'
+      },
+      a2: {
+        title: 'Broken Authentication'
+      }
+    },
+    'owaspTop10-2021': {
       a1: {
         title: 'Injection'
       },
@@ -104,6 +113,46 @@ it('should render sub-facets', () => {
     })
   ).toMatchSnapshot();
   expect(getStandards).toBeCalled();
+});
+
+it('should show sonarsource facet more button', () => {
+  const wrapper = shallowRender({
+    open: true,
+    sonarsourceSecurity: ['traceability', 'permission', 'others'],
+    sonarsourceSecurityOpen: true,
+    sonarsourceSecurityStats: {
+      'buffer-overflow': 3,
+      'sql-injection': 3,
+      rce: 3,
+      'object-injection': 3,
+      'command-injection': 3,
+      'path-traversal-injection': 3,
+      'ldap-injection': 3,
+      'xpath-injection': 3,
+      'expression-lang-injection': 3,
+      'log-injection': 3,
+      xxe: 3,
+      xss: 3,
+      dos: 3,
+      ssrf: 3,
+      csrf: 3,
+      'http-response-splitting': 3,
+      'open-redirect': 3,
+      'weak-cryptography': 3,
+      auth: 3,
+      'insecure-conf': 3,
+      'file-manipulation': 3,
+      'encrypt-data': 3,
+      traceability: 3,
+      permission: 3,
+      others: 3
+    }
+  });
+
+  expect(wrapper.find(ListStyleFacetFooter).exists()).toBe(true);
+
+  wrapper.setState({ showFullSonarSourceList: true });
+  expect(wrapper.find(ListStyleFacetFooter).exists()).toBe(false);
 });
 
 it('should render empty sub-facet', () => {
