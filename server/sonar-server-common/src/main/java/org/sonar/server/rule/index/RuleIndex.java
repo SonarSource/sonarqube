@@ -63,6 +63,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.server.es.textsearch.JavaTokenizer;
+import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Boolean.FALSE;
@@ -506,7 +507,7 @@ public class RuleIndex {
       Collection<String> categories = query.getSonarsourceSecurity();
       aggregations.put(FACET_SONARSOURCE_SECURITY,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SONARSOURCE_SECURITY, FACET_SONARSOURCE_SECURITY,
-          FACET_DEFAULT_SIZE, filterSecurityCategories(),
+          SecurityStandards.SQCategory.values().length, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }
   }

@@ -21,10 +21,15 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -40,6 +45,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.security.SecurityStandards;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Arrays.asList;
@@ -503,6 +509,25 @@ public class RuleIndexTest {
     RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
     SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
     assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
+  }
+
+  @Test
+  public void search_by_security_sonarsource_return_complete_list_of_facets() {
+
+    List<RuleDefinitionDto> rules = new ArrayList<>();
+
+    //Creation of one rule for each standard security category defined (except other)
+    for (Map.Entry<SecurityStandards.SQCategory, Set<String>> sqCategorySetEntry : SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()) {
+      rules.add(createRule(setSecurityStandards(of("cwe:" + sqCategorySetEntry.getValue().iterator().next())), r -> r.setType(SECURITY_HOTSPOT)));
+    }
+    index();
+
+    RuleQuery query = new RuleQuery();
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+
+    assertThat(results.getFacets().get("sonarsourceSecurity"))
+      .as("It should have as many facets returned as there are rules defined, and it is not truncated")
+      .hasSize(rules.size());
   }
 
   @Test
