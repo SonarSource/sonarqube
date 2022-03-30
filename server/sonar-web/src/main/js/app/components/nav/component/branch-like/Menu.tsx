@@ -180,6 +180,7 @@ export class Menu extends React.PureComponent<Props, State> {
           <MenuItemList
             branchLikeTree={branchLikesToDisplayTree}
             component={component}
+            projectAnalysis={this.props.projectAnalysis}
             hasResults={hasResults}
             onSelect={this.handleOnSelect}
             selectedBranchLike={selectedBranchLike}

@@ -29,6 +29,7 @@ import MenuItem from './MenuItem';
 export interface MenuItemListProps {
   branchLikeTree: BranchLikeTree;
   component: T.Component;
+  projectAnalysis: any;
   hasResults: boolean;
   onSelect: (branchLike: BranchLike) => void;
   selectedBranchLike: BranchLike | undefined;
@@ -87,7 +88,11 @@ export function MenuItemList(props: MenuItemListProps) {
       {/* PARENTLESS PR (for display during search) */}
       {branchLikeTree.parentlessPullRequests.length > 0 && (
         <>
-          <li className="item header">{translate('branch_like_navigation.pull_requests')}</li>
+          <li className="item header">{
+            props.projectAnalysis['config']['type'] === "metadata_api"
+                ? translate('branch_like_navigation.pull_requests.sf')
+                : translate('branch_like_navigation.pull_requests')
+          }</li>
           {branchLikeTree.parentlessPullRequests.map(pr => renderItem(pr))}
         </>
       )}
