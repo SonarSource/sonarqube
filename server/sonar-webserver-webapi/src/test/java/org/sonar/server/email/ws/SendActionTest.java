@@ -41,13 +41,12 @@ import static org.mockito.Mockito.verify;
 
 public class SendActionTest {
 
-
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public final UserSessionRule userSession = UserSessionRule.standalone();
 
-  private EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
+  private final EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
 
-  private WsActionTester ws = new WsActionTester(new SendAction(userSession, emailNotificationChannel));
+  private final WsActionTester ws = new WsActionTester(new SendAction(userSession, emailNotificationChannel));
 
   @Test
   public void send_test_email() throws Exception {
@@ -91,7 +90,8 @@ public class SendActionTest {
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
 
-    assertThatThrownBy(() -> ws.newRequest().execute())
+    var request = ws.newRequest();
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
@@ -109,8 +109,7 @@ public class SendActionTest {
       executeRequest("john@doo.com", "Test Message from SonarQube", "This is a test message from SonarQube at http://localhost:9000");
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors()).containsExactly(
-        "root cause", "parent cause", "child cause", "last message");
+      assertThat(e.errors()).containsExactly("Configuration invalid: please double check SMTP host, port, login and password.");
     }
   }
 

@@ -19,10 +19,6 @@
  */
 package org.sonar.server.email.ws;
 
-import com.google.common.base.Throwables;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.mail.EmailException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,7 +28,6 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 
 public class SendAction implements EmailsWsAction {
-
   private static final String PARAM_TO = "to";
   private static final String PARAM_SUBJECT = "subject";
   private static final String PARAM_MESSAGE = "message";
@@ -75,18 +70,9 @@ public class SendAction implements EmailsWsAction {
     try {
       emailNotificationChannel.sendTestEmail(request.mandatoryParam(PARAM_TO), request.param(PARAM_SUBJECT), request.mandatoryParam(PARAM_MESSAGE));
     } catch (EmailException emailException) {
-      throw createBadRequestException(emailException);
+      throw BadRequestException.create("Configuration invalid: please double check SMTP host, port, login and password.");
     }
     response.noContent();
-  }
-
-  private static BadRequestException createBadRequestException(EmailException emailException) {
-    List<String> messages = Throwables.getCausalChain(emailException)
-      .stream()
-      .map(Throwable::getMessage)
-      .collect(Collectors.toList());
-    Collections.reverse(messages);
-    return BadRequestException.create(messages);
   }
 
 }
