@@ -3,6 +3,12 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 9.4 Upgrade notes
+**Password of old inactive account needs reset**  
+The support for SHA1 hashed password has been removed. This algorithm was replaced by a stronger hashing algorithm since version 7.2. As a result, local accounts that did not log in since 7.2 will be forced to have their password reset by a SonarQube administrator. Accounts using external authentication such as SAML, LDAP, GitHub authentication, etc., are not impacted. Information about the possibly impacted accounts will appear in the logs during the upgrade. ([SONAR-16204](https://jira.sonarsource.com/browse/SONAR-16204)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=17167)
+
 ## Release 9.3 Upgrade Notes  
 **Portfolio overview now shows ratings on both New Code and Overall Code**  
 The Portfolio overview and project breakdown have been redesigned to provide a high-level view on project health according to your New Code definition as well as Overall Code. New Code ratings are shown for Reliability, Security Vulnerabilities, Security Review, and Maintainability. To see these ratings on New Code, Portfolios need to be recomputed after upgrading to 9.3.
