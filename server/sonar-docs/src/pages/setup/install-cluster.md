@@ -187,7 +187,7 @@ The following is an example of the default SonarQube cluster installation proces
 
 1. On a single application node of the cluster, download and install SonarQube Data Center Edition, following the usual [Installing the Server](/setup/install-server/) documentation.
 2. Add cluster-related parameters to `$SONARQUBE_HOME/conf/sonar.properties`.
-3. This is also a good opportunity to install plugins. Download and place a copy of each plugin JAR in `$SONARQUBE_HOME/extensions/plugins`.  Be sure to check compatibility with your SonarQube version using the [Plugin Version Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix).
+3. This is also a good opportunity to install plugins. Download and place a copy of each plugin JAR in `$SONARQUBE_HOME/extensions/plugins`.  Be sure to check compatibility with your SonarQube version using the [Plugin Version Matrix](https://docs.sonarqube.org/8.9/instance-administration/plugin-version-matrix/).
 4. Zip the directory `$SONARQUBE_HOME`. This archive is a customized SonarQube Data Center Edition package that can be copied to other nodes.
 
 **Test configuration on a single node:**
