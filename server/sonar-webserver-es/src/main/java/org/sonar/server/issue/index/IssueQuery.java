@@ -319,6 +319,7 @@ public class IssueQuery {
     return newCodeOnReferenceByProjectUuids;
   }
 
+
   public static class Builder {
     private Collection<String> issueKeys;
     private Collection<String> severities;

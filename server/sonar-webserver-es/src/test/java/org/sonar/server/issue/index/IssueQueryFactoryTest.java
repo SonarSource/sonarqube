@@ -33,6 +33,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
@@ -47,6 +48,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -190,7 +192,7 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
-  public void leak_period_does_not_rely_on_date_for_reference_branch() {
+  public void leak_period_relies_on_date_for_reference_branch_with_analysis_after_sonarqube_94() {
     long leakPeriodStart = addDays(new Date(), -14).getTime();
 
     ComponentDto project = db.components().insertPublicProject();
@@ -198,6 +200,9 @@ public class IssueQueryFactoryTest {
 
     SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodMode(REFERENCE_BRANCH.name())
       .setPeriodParam("master"));
+
+    MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
+    db.measures().insertLiveMeasure(project, analysisMetric, measure -> measure.setData("true"));
 
     SearchRequest request = new SearchRequest()
       .setComponentUuids(Collections.singletonList(file.uuid()))
@@ -210,15 +215,16 @@ public class IssueQueryFactoryTest {
     assertThat(query.newCodeOnReference()).isTrue();
     assertThat(query.createdAfter()).isNull();
   }
-
   @Test
-  public void new_code_period_does_not_rely_on_date_for_reference_branch() {
-
+  public void new_code_period_does_not_rely_on_date_for_reference_branch_with_analysis_after_sonarqube_94() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodMode(REFERENCE_BRANCH.name())
+    db.components().insertSnapshot(project, s -> s.setPeriodMode(REFERENCE_BRANCH.name())
       .setPeriodParam("master"));
+
+    MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
+    db.measures().insertLiveMeasure(project, analysisMetric, measure -> measure.setData("true"));
 
     SearchRequest request = new SearchRequest()
       .setComponentUuids(Collections.singletonList(file.uuid()))
@@ -377,7 +383,7 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
-  public void application_search_project_issues_on_leak() {
+  public void application_search_project_issues_on_leak_with_and_without_analysis_after_sonarqube_94() {
     Date now = new Date();
     when(clock.millis()).thenReturn(now.getTime());
     ComponentDto project1 = db.components().insertPublicProject();
@@ -386,9 +392,14 @@ public class IssueQueryFactoryTest {
     db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
     ComponentDto project3 = db.components().insertPublicProject();
     ComponentDto project4 = db.components().insertPublicProject();
-    SnapshotDto analysis2 = db.components().insertSnapshot(project4,
+    SnapshotDto analysis3 =db.components().insertSnapshot(project3,
+      s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master")
+        .setPeriodDate(addDays(now, -14).getTime()));
+    db.components().insertSnapshot(project4,
       s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
     ComponentDto application = db.components().insertPublicApplication();
+    MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
+    db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
@@ -399,16 +410,17 @@ public class IssueQueryFactoryTest {
       .setComponentUuids(singletonList(application.uuid()))
       .setSinceLeakPeriod(true));
 
-    assertThat(result.createdAfterByProjectUuids()).hasSize(1);
+    assertThat(result.createdAfterByProjectUuids()).hasSize(2);
     assertThat(result.createdAfterByProjectUuids().entrySet()).extracting(Map.Entry::getKey, e -> e.getValue().date(), e -> e.getValue().inclusive()).containsOnly(
-      tuple(project1.uuid(), new Date(analysis1.getPeriodDate()), false));
+      tuple(project1.uuid(), new Date(analysis1.getPeriodDate()), false),
+      tuple(project3.uuid(), new Date(analysis3.getPeriodDate()), false));
     assertThat(result.newCodeOnReferenceByProjectUuids()).hasSize(1);
     assertThat(result.newCodeOnReferenceByProjectUuids()).containsOnly(project4.uuid());
     assertThat(result.viewUuids()).containsExactlyInAnyOrder(application.uuid());
   }
 
   @Test
-  public void application_search_project_issues_in_new_code() {
+  public void application_search_project_issues_in_new_code_with_and_without_analysis_after_sonarqube_94() {
     Date now = new Date();
     when(clock.millis()).thenReturn(now.getTime());
     ComponentDto project1 = db.components().insertPublicProject();
@@ -420,6 +432,8 @@ public class IssueQueryFactoryTest {
     SnapshotDto analysis2 = db.components().insertSnapshot(project4,
       s -> s.setPeriodMode(REFERENCE_BRANCH.name()).setPeriodParam("master"));
     ComponentDto application = db.components().insertPublicApplication();
+    MetricDto analysisMetric = db.measures().insertMetric(m -> m.setKey(ANALYSIS_FROM_SONARQUBE_9_4_KEY));
+    db.measures().insertLiveMeasure(project4, analysisMetric, measure -> measure.setData("true"));
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));
@@ -718,7 +732,7 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void fail_if_no_component_provided_with_since_leak_period() {
-    assertThatThrownBy(() -> underTest.create(new SearchRequest().setSinceLeakPeriod(true)))
+    assertThatThrownBy(() -> underTest.create(new SearchRequest().setInNewCodePeriod(true)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("One and only one component must be provided when searching in new code period");
   }

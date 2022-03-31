@@ -62,6 +62,8 @@ public class IssueQueryTest {
       .createdBefore(new Date())
       .createdAt(new Date())
       .resolved(true)
+      .newCodeOnReference(true)
+      .newCodeOnReferenceByProjectUuids(List.of("PROJECT"))
       .sort(IssueQuery.SORT_BY_CREATION_DATE)
       .asc(true)
       .build();
@@ -88,6 +90,8 @@ public class IssueQueryTest {
     assertThat(query.createdBefore()).isNotNull();
     assertThat(query.createdAt()).isNotNull();
     assertThat(query.resolved()).isTrue();
+    assertThat(query.newCodeOnReference()).isTrue();
+    assertThat(query.newCodeOnReferenceByProjectUuids()).containsOnly("PROJECT");
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
   }

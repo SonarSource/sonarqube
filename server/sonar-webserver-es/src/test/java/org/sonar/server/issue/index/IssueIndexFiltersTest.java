@@ -518,6 +518,7 @@ public class IssueIndexFiltersTest {
       project1Issue1.key(), project2Issue2.key());
   }
 
+
   @Test
   public void filter_by_new_code_reference_branches() {
     ComponentDto project1 = newPrivateProjectDto();

@@ -669,13 +669,16 @@ public class IssueIndex {
     Collection<String> newCodeOnReferenceByProjectUuids = query.newCodeOnReferenceByProjectUuids();
     BoolQueryBuilder boolQueryBuilder = boolQuery();
 
-    newCodeOnReferenceByProjectUuids.forEach(projectOrProjectBranchUuid -> boolQueryBuilder.should(boolQuery()
-      .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
-      .filter(termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true))));
+    if (!newCodeOnReferenceByProjectUuids.isEmpty()) {
 
-    allFilters.addFilter("__is_new_code_reference_by_project_uuids", new SimpleFieldFilterScope("newCodeReferenceByProjectUuids"), boolQueryBuilder);
+      newCodeOnReferenceByProjectUuids.forEach(projectOrProjectBranchUuid -> boolQueryBuilder.should(boolQuery()
+        .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
+        .filter(termQuery(FIELD_ISSUE_NEW_CODE_REFERENCE, true))));
+
+      allFilters.addFilter("__is_new_code_reference_by_project_uuids",
+        new SimpleFieldFilterScope("newCodeReferenceByProjectUuids"), boolQueryBuilder);
+    }
   }
-
 
   private static void addCreatedAfterByProjectsFilter(AllFilters allFilters, IssueQuery query) {
     Map<String, PeriodStart> createdAfterByProjectUuids = query.createdAfterByProjectUuids();

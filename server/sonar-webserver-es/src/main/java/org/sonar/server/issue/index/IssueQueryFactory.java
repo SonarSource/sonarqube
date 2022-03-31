@@ -64,6 +64,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.issue.Issue.STATUSES;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
@@ -197,14 +198,13 @@ public class IssueQueryFactory {
 
       if (!QUALIFIERS_WITHOUT_LEAK_PERIOD.contains(component.qualifier()) && request.getPullRequest() == null) {
         Optional<SnapshotDto> snapshot = getLastAnalysis(dbSession, component);
-        boolean isLastAnalysisUsingReferenceBranch = isLastAnalysisUsingReferenceBranch(snapshot);
-        if (isLastAnalysisUsingReferenceBranch) {
-          builder.newCodeOnReference(true);
-        } else {
-          // if last analysis has no period date, then no issue should be considered new.
-          Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(snapshot);
-          setCreatedAfterFromDates(builder, createdAfterFromSnapshot, null, false);
+        if (!snapshot.isEmpty() && isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, snapshot.get())) {
+            builder.newCodeOnReference(true);
+            return;
         }
+        // if last analysis has no period date, then no issue should be considered new.
+        Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(snapshot);
+        setCreatedAfterFromDates(builder, createdAfterFromSnapshot, null, false);
       }
     }
   }
@@ -230,9 +230,12 @@ public class IssueQueryFactory {
     return snapshot.map(s -> longToDate(s.getPeriodDate())).orElseGet(() -> new Date(clock.millis()));
   }
 
-  private static boolean isLastAnalysisUsingReferenceBranch(Optional<SnapshotDto> snapshot) {
-    String periodMode = snapshot.map(SnapshotDto::getPeriodMode).orElse("");
-    return periodMode.equals(REFERENCE_BRANCH.name());
+  private static boolean isLastAnalysisUsingReferenceBranch(SnapshotDto snapshot) {
+    return !isNullOrEmpty(snapshot.getPeriodMode()) && snapshot.getPeriodMode().equals(REFERENCE_BRANCH.name());
+  }
+
+  private boolean isLastAnalysisFromSonarQube94Onwards(DbSession dbSession, String componentUuid) {
+    return dbClient.liveMeasureDao().selectMeasure(dbSession, componentUuid, ANALYSIS_FROM_SONARQUBE_9_4_KEY).isPresent();
   }
 
   private Optional<SnapshotDto> getLastAnalysis(DbSession dbSession, ComponentDto component) {
@@ -376,18 +379,22 @@ public class IssueQueryFactory {
 
     Set<String> newCodeReferenceByProjects = snapshots
       .stream()
-      .filter(s -> !isNullOrEmpty(s.getPeriodMode()) && s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
+      .filter(s -> isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, s))
       .map(SnapshotDto::getComponentUuid)
       .collect(toSet());
 
     Map<String, PeriodStart> leakByProjects = snapshots
       .stream()
-      .filter(s -> s.getPeriodDate() != null &&
-        (isNullOrEmpty(s.getPeriodMode()) || !s.getPeriodMode().equals(REFERENCE_BRANCH.name())))
+      .filter(s -> s.getPeriodDate() != null && !isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, s))
       .collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
     builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);
+  }
+
+  private boolean isLastAnalysisFromReAnalyzedReferenceBranch(DbSession dbSession, SnapshotDto snapshot) {
+    return isLastAnalysisUsingReferenceBranch(snapshot) &&
+      isLastAnalysisFromSonarQube94Onwards(dbSession, snapshot.getComponentUuid());
   }
 
   private static void addDirectories(IssueQuery.Builder builder, List<ComponentDto> directories) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;
@@ -31,8 +32,6 @@ import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_
 import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
-
-import javax.inject.Inject;
 
 /**
  * Definition of ES index "issues", including settings and fields.
