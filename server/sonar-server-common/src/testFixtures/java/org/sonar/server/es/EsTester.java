@@ -45,6 +45,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -181,6 +182,11 @@ public class EsTester extends ExternalResource {
     }
 
     deleteAllDocumentsInIndexes();
+    try {
+      ES_REST_CLIENT.nativeClient().indices().flush(new FlushRequest(ALL_INDICES.getName()), RequestOptions.DEFAULT);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private void deleteAllDocumentsInIndexes() {
