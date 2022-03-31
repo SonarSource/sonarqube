@@ -28,14 +28,14 @@ exports[`should render correctly: custom rule 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-quality-profile-select"
+          id="coding-rules-quality-profile-select-label"
         >
           coding_rules.quality_profile
         </label>
         <Select
-          aria-labelledby="coding-rules-quality-profile-select"
-          className="js-profile"
+          aria-labelledby="coding-rules-quality-profile-select-label"
           getOptionLabel={[Function]}
+          id="coding-rules-quality-profile-select"
           isClearable={false}
           isDisabled={false}
           onChange={[Function]}
@@ -114,14 +114,14 @@ exports[`should render correctly: default 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-quality-profile-select"
+          id="coding-rules-quality-profile-select-label"
         >
           coding_rules.quality_profile
         </label>
         <Select
-          aria-labelledby="coding-rules-quality-profile-select"
-          className="js-profile"
+          aria-labelledby="coding-rules-quality-profile-select-label"
           getOptionLabel={[Function]}
+          id="coding-rules-quality-profile-select"
           isClearable={false}
           isDisabled={false}
           onChange={[Function]}
@@ -235,14 +235,14 @@ exports[`should render correctly: submitting 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-quality-profile-select"
+          id="coding-rules-quality-profile-select-label"
         >
           coding_rules.quality_profile
         </label>
         <Select
-          aria-labelledby="coding-rules-quality-profile-select"
-          className="js-profile"
+          aria-labelledby="coding-rules-quality-profile-select-label"
           getOptionLabel={[Function]}
+          id="coding-rules-quality-profile-select"
           isClearable={false}
           isDisabled={true}
           onChange={[Function]}
@@ -354,14 +354,14 @@ exports[`should render correctly: update mode 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-quality-profile-select"
+          id="coding-rules-quality-profile-select-label"
         >
           coding_rules.quality_profile
         </label>
         <Select
-          aria-labelledby="coding-rules-quality-profile-select"
-          className="js-profile"
+          aria-labelledby="coding-rules-quality-profile-select-label"
           getOptionLabel={[Function]}
+          id="coding-rules-quality-profile-select"
           isClearable={false}
           isDisabled={false}
           onChange={[Function]}
@@ -470,14 +470,14 @@ exports[`should render correctly: with deep profiles 1`] = `
         className="modal-field"
       >
         <label
-          id="coding-rules-quality-profile-select"
+          id="coding-rules-quality-profile-select-label"
         >
           coding_rules.quality_profile
         </label>
         <Select
-          aria-labelledby="coding-rules-quality-profile-select"
-          className="js-profile"
+          aria-labelledby="coding-rules-quality-profile-select-label"
           getOptionLabel={[Function]}
+          id="coding-rules-quality-profile-select"
           isClearable={false}
           isDisabled={true}
           onChange={[Function]}

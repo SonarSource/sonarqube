@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
@@ -147,14 +146,8 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         <Select
           id="bulk-apply-template"
           inputId="bulk-apply-template-input"
-          className="Select Select-value"
           isDisabled={this.state.submitting}
           onChange={this.handlePermissionTemplateChange}
-          components={{
-            Option: (props: OptionProps<{ value: string }, false>) => (
-              <components.Option {...props} className="Select-option" />
-            )
-          }}
           options={options}
           value={options.find(option => option.value === this.state.permissionTemplate)}
         />

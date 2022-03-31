@@ -72,14 +72,13 @@ export default function PageHeader(props: Props) {
 
         <div className="display-flex-center">
           <PerspectiveSelect
-            className="projects-topbar-item js-projects-perspective-select"
+            className="projects-topbar-item"
             onChange={props.onPerspectiveChange}
             view={view}
           />
 
           <div className={classNames('projects-topbar-item')}>
             <ProjectsSortingSelect
-              className="js-projects-sorting-select"
               defaultOption={defaultOption}
               onChange={props.onSortChange}
               selectedSort={props.selectedSort}

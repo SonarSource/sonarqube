@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockReactSelectOptionProps } from '../../../../../helpers/mocks/react-select';
 import { waitAndUpdate } from '../../../../../helpers/testUtils';
 import ApplyTemplate from '../ApplyTemplate';
 
@@ -51,14 +50,4 @@ it('render correctly', async () => {
   expect(wrapper).toMatchSnapshot();
   await waitAndUpdate(wrapper);
   expect(wrapper.dive()).toMatchSnapshot();
-});
-
-it('should render option correctly', () => {
-  const wrapper = shallow<ApplyTemplate>(
-    <ApplyTemplate onClose={jest.fn()} project={{ key: 'foo', name: 'Foo' }} />
-  );
-  const OptionRendererer = wrapper.instance().optionRenderer;
-  expect(
-    shallow(<OptionRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
-  ).toMatchSnapshot('option renderer');
 });

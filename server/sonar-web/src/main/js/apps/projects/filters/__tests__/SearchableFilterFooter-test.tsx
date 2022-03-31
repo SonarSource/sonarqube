@@ -20,10 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { SelectComponentsProps } from 'react-select/src/Select';
-import {
-  mockReactSelectInputProps,
-  mockReactSelectOptionProps
-} from '../../../../helpers/mocks/react-select';
 import Select from '../../../../components/controls/Select';
 import SearchableFilterFooter from '../SearchableFilterFooter';
 
@@ -57,23 +53,4 @@ it('should properly handle a change of the facet value', () => {
   );
   wrapper.find(Select).simulate('change', { value: 'js' });
   expect(onQueryChange).toBeCalledWith({ languages: 'java,js' });
-});
-
-it('renders optionrenderer and inputrenderer', () => {
-  const wrapper = shallow<SearchableFilterFooter>(
-    <SearchableFilterFooter
-      onQueryChange={jest.fn()}
-      options={options}
-      property="languages"
-      query={{ languages: ['java'] }}
-    />
-  );
-  const OptionRendererer = wrapper.instance().optionRenderer;
-  const InputRendererer = wrapper.instance().inputRenderer;
-  expect(
-    shallow(<OptionRendererer {...mockReactSelectOptionProps({ value: 'val' })} />)
-  ).toMatchSnapshot('option renderer');
-  expect(shallow(<InputRendererer {...mockReactSelectInputProps()} />)).toMatchSnapshot(
-    'input renderer'
-  );
 });

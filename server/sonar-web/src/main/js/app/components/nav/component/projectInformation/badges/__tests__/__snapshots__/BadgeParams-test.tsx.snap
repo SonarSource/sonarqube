@@ -10,7 +10,7 @@ exports[`should display measure badge params 1`] = `
     :
   </label>
   <Select
-    className="input-medium it__badge-metric"
+    className="input-medium it__metric-badge-select"
     isSearchable={false}
     name="badge-metric"
     onChange={[Function]}

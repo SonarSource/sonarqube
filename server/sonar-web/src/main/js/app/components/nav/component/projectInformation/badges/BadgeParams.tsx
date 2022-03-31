@@ -109,7 +109,7 @@ export class BadgeParams extends React.PureComponent<Props> {
             {translate('overview.badges.metric')}:
           </label>
           <Select
-            className="input-medium it__badge-metric"
+            className="input-medium it__metric-badge-select"
             name="badge-metric"
             isSearchable={false}
             onChange={this.handleMetricChange}

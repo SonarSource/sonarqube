@@ -56,7 +56,6 @@ export function SeveritySelect(props: SeveritySelectProps) {
 
   return (
     <Select
-      className="js-severity"
       aria-labelledby={ariaLabelledby}
       isDisabled={isDisabled}
       onChange={props.onChange}

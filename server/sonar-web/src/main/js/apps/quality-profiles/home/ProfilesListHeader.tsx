@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
 import Select from '../../../components/controls/Select';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
@@ -36,11 +35,6 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
 
     router.replace(!option ? PROFILE_PATH : getProfilesForLanguagePath(option.value));
   };
-
-  optionRenderer = (props: OptionProps<{ value: string }, false>) => (
-    // This class is added for the integration test.
-    <components.Option {...props} className="Select-option" />
-  );
 
   render() {
     const { currentFilter, languages } = this.props;
@@ -65,9 +59,6 @@ export class ProfilesListHeader extends React.PureComponent<Props> {
           inputId="quality-profiles-filter-input"
           isClearable={true}
           onChange={this.handleChange}
-          components={{
-            Option: this.optionRenderer
-          }}
           options={options}
           isSearchable={true}
           value={options.filter(o => o.value === currentFilter)}

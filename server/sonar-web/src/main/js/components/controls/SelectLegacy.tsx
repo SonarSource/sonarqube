@@ -25,7 +25,6 @@ import ReactSelectClass, {
 } from 'react-select-legacy';
 import { lazyLoadComponent } from '../lazyLoadComponent';
 import { ClearButton } from './buttons';
-import './SelectLegacy.css';
 
 const ReactSelectLib = import('react-select-legacy');
 const ReactSelect = lazyLoadComponent(() => ReactSelectLib);

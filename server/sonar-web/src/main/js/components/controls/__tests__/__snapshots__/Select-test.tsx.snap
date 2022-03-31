@@ -13,6 +13,8 @@ exports[`Select should render clearIndicator correctly 1`] = `
 
 exports[`Select should render complex select component: other props 1`] = `
 <StateManager
+  className="react-select"
+  classNamePrefix="react-select"
   components={
     Object {
       "ClearIndicator": [Function],
@@ -50,6 +52,8 @@ exports[`Select should render complex select component: other props 1`] = `
 
 exports[`Select should render correctly: default 1`] = `
 <StateManager
+  className="react-select"
+  classNamePrefix="react-select"
   components={
     Object {
       "ClearIndicator": [Function],
@@ -154,6 +158,8 @@ exports[`should render SearchSelect correctly 1`] = `
   blurInputOnSelect={true}
   cacheOptions={false}
   captureMenuScroll={false}
+  className="react-select"
+  classNamePrefix="react-select"
   closeMenuOnScroll={false}
   closeMenuOnSelect={true}
   components={

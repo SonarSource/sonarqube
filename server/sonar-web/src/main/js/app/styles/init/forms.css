@@ -81,8 +81,7 @@ input[type='search'].is-valid,
 input[type='date'].is-valid,
 input[type='number'].is-valid,
 textarea.is-valid,
-select.is-valid,
-.is-valid > .Select-control {
+select.is-valid {
   border-color: var(--green);
 }
 
@@ -93,8 +92,7 @@ input[type='search'].is-invalid,
 input[type='date'].is-invalid,
 input[type='number'].is-invalid,
 textarea.is-invalid,
-select.is-invalid,
-.is-invalid > .Select-control {
+select.is-invalid {
   border-color: var(--red);
 }
 

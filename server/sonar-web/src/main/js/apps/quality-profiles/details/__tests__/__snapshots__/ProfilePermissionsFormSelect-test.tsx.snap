@@ -2,14 +2,14 @@
 
 exports[`should render control correctly: control renderer 1`] = `
 <Control
-  className="abs-height-100 Select-control"
+  className="abs-height-100"
 />
 `;
 
 exports[`should render correctly 1`] = `
 <SearchSelect
   autoFocus={true}
-  className="Select-big width-100"
+  className="width-100"
   components={
     Object {
       "Control": [Function],
@@ -21,6 +21,7 @@ exports[`should render correctly 1`] = `
   id="change-profile-permission"
   inputId="change-profile-permission-input"
   isClearable={false}
+  large={true}
   loadOptions={[Function]}
   noOptionsMessage={[Function]}
   onChange={[MockFunction]}
@@ -30,7 +31,6 @@ exports[`should render correctly 1`] = `
 
 exports[`should render option correctly: option renderer 1`] = `
 <Option
-  className="Select-option"
   data={
     Object {
       "name": "name",
@@ -38,20 +38,23 @@ exports[`should render option correctly: option renderer 1`] = `
     }
   }
 >
-  <GroupIcon
-    size={16}
-  />
-  <strong
-    className="spacer-left"
+  <span
+    className="display-flex-center"
   >
-    name
-  </strong>
+    <GroupIcon
+      size={16}
+    />
+    <strong
+      className="spacer-left"
+    >
+      name
+    </strong>
+  </span>
 </Option>
 `;
 
 exports[`should render value correctly: value renderer 1`] = `
 <SingleValue
-  className="Select-value-label"
   data={
     Object {
       "name": "name",
@@ -59,13 +62,17 @@ exports[`should render value correctly: value renderer 1`] = `
     }
   }
 >
-  <GroupIcon
-    size={16}
-  />
-  <strong
-    className="spacer-left"
+  <span
+    className="display-flex-center"
   >
-    name
-  </strong>
+    <GroupIcon
+      size={16}
+    />
+    <strong
+      className="spacer-left"
+    >
+      name
+    </strong>
+  </span>
 </SingleValue>
 `;

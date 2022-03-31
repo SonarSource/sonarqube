@@ -45,11 +45,6 @@ exports[`render correctly 2`] = `
         </label>
         <Select
           className="Select"
-          components={
-            Object {
-              "Option": [Function],
-            }
-          }
           id="project-permissions-template"
           inputId="project-permissions-template-input"
           onChange={[Function]}
@@ -85,15 +80,4 @@ exports[`render correctly 2`] = `
     </footer>
   </form>
 </Modal>
-`;
-
-exports[`should render option correctly: option renderer 1`] = `
-<Option
-  className="Select-option"
-  data={
-    Object {
-      "value": "val",
-    }
-  }
-/>
 `;

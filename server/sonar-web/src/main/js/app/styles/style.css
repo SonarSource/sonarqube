@@ -232,15 +232,6 @@ code.rule {
   margin: 10px;
 }
 
-.width100 {
-  width: 100%;
-}
-
-textarea.width100 {
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .property {
   margin-bottom: 10px;
 }

@@ -19,6 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { omit } from 'lodash';
 import * as React from 'react';
 import ReactSelect, {
   GroupTypeBase,
@@ -48,6 +49,10 @@ const ArrowSpan = styled.span`
 export interface BasicSelectOption {
   label: string;
   value: string;
+}
+
+interface StyleExtensionProps {
+  large?: boolean;
 }
 
 export function dropdownIndicator<
@@ -94,12 +99,14 @@ export default class Select<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
-> extends React.Component<Props<Option, IsMulti, Group>> {
+> extends React.Component<Props<Option, IsMulti, Group> & StyleExtensionProps> {
   render() {
     return (
       <ReactSelect
-        {...this.props}
-        styles={selectStyle<Option, IsMulti, Group>()}
+        {...omit(this.props, 'className', 'large')}
+        styles={selectStyle<Option, IsMulti, Group>(this.props)}
+        className={classNames('react-select', this.props.className)}
+        classNamePrefix="react-select"
         components={{
           ...this.props.components,
           DropdownIndicator: dropdownIndicator,
@@ -133,13 +140,15 @@ export function CreatableSelect<
 
 export function SearchSelect<
   Option,
-  isMulti extends boolean,
+  IsMulti extends boolean,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
->(props: Props<Option, isMulti, Group> & AsyncProps<Option, Group>) {
+>(props: Props<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps) {
   return (
     <AsyncReactSelect
-      {...props}
-      styles={selectStyle<Option, isMulti, Group>()}
+      {...omit(props, 'className', 'large')}
+      styles={selectStyle<Option, IsMulti, Group>(props)}
+      className={classNames('react-select', props.className)}
+      classNamePrefix="react-select"
       components={{
         ...props.components,
         DropdownIndicator: dropdownIndicator,
@@ -151,11 +160,9 @@ export function SearchSelect<
   );
 }
 
-export function selectStyle<
-  Option,
-  IsMulti extends boolean,
-  Group extends GroupTypeBase<Option>
->(): StylesConfig<Option, IsMulti, Group> {
+export function selectStyle<Option, IsMulti extends boolean, Group extends GroupTypeBase<Option>>(
+  props?: Props<Option, IsMulti, Group> & AsyncProps<Option, Group> & StyleExtensionProps
+): StylesConfig<Option, IsMulti, Group> {
   return {
     container: () => ({
       position: 'relative',
@@ -178,12 +185,14 @@ export function selectStyle<
       boxSizing: 'border-box',
       color: `${colors.baseFontColor}`,
       cursor: 'default',
-      outline: 'none'
+      outline: 'none',
+      padding: props?.large ? '4px 0px' : '0'
     }),
     singleValue: () => ({
       bottom: 0,
       left: 0,
       lineHeight: '23px',
+      padding: props?.large ? '4px 8px' : '0 8px',
       paddingLeft: '8px',
       paddingRight: '24px',
       position: 'absolute',
@@ -289,7 +298,7 @@ export function selectStyle<
     option: (_provided, state) => ({
       display: 'block',
       lineHeight: '20px',
-      padding: '0 8px',
+      padding: props?.large ? '4px 8px' : '0 8px',
       boxSizing: 'border-box',
       color: state.isDisabled ? colors.disableGrayText : colors.baseFontColor,
       backgroundColor: state.isFocused ? colors.barBackgroundColor : colors.white,

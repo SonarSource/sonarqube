@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
 import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
+import Select from '../../../../components/controls/Select';
 import SimpleModal from '../../../../components/controls/SimpleModal';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -28,7 +28,6 @@ import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionTemplate } from '../../../../types/types';
-import { components, OptionProps } from 'react-select';
 
 interface Props {
   onApply?: () => void;
@@ -55,11 +54,6 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
-
-  optionRenderer = (props: OptionProps<{ value: string }, false>) => (
-    // This class is added for the integration test.
-    <components.Option {...props} className="Select-option" />
-  );
 
   fetchPermissionTemplates = () => {
     getPermissionTemplates().then(
@@ -144,9 +138,6 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
                         className="Select"
                         inputId="project-permissions-template-input"
                         onChange={this.handlePermissionTemplateChange}
-                        components={{
-                          Option: this.optionRenderer
-                        }}
                         options={options}
                         value={options.filter(o => o.value === this.state.permissionTemplate)}
                       />

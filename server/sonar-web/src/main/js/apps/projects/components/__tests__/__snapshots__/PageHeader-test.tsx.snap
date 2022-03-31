@@ -56,7 +56,7 @@ exports[`should render correctly 1`] = `
       className="display-flex-center"
     >
       <PerspectiveSelect
-        className="projects-topbar-item js-projects-perspective-select"
+        className="projects-topbar-item"
         onChange={[MockFunction]}
         view="overall"
       />
@@ -64,7 +64,6 @@ exports[`should render correctly 1`] = `
         className="projects-topbar-item"
       >
         <ProjectsSortingSelect
-          className="js-projects-sorting-select"
           defaultOption="analysis_date"
           onChange={[MockFunction]}
           selectedSort="size"
@@ -132,7 +131,7 @@ exports[`should render correctly while loading 1`] = `
       className="display-flex-center"
     >
       <PerspectiveSelect
-        className="projects-topbar-item js-projects-perspective-select"
+        className="projects-topbar-item"
         onChange={[MockFunction]}
         view="overall"
       />
@@ -140,7 +139,6 @@ exports[`should render correctly while loading 1`] = `
         className="projects-topbar-item"
       >
         <ProjectsSortingSelect
-          className="js-projects-sorting-select"
           defaultOption="analysis_date"
           onChange={[MockFunction]}
           selectedSort="size"
@@ -154,7 +152,6 @@ exports[`should render correctly while loading 1`] = `
 
 exports[`should render switch the default sorting option for anonymous users 1`] = `
 <ProjectsSortingSelect
-  className="js-projects-sorting-select"
   defaultOption="name"
   onChange={[MockFunction]}
   selectedSort="size"
@@ -164,7 +161,6 @@ exports[`should render switch the default sorting option for anonymous users 1`]
 
 exports[`should render switch the default sorting option for anonymous users 2`] = `
 <ProjectsSortingSelect
-  className="js-projects-sorting-select"
   defaultOption="analysis_date"
   onChange={[MockFunction]}
   selectedSort="size"

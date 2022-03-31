@@ -26,7 +26,6 @@ exports[`should render correctly: default 1`] = `
         </label>
         <SearchSelect
           autoFocus={true}
-          className="Select-big"
           components={
             Object {
               "Control": [Function],
@@ -37,6 +36,7 @@ exports[`should render correctly: default 1`] = `
           defaultOptions={true}
           getOptionValue={[Function]}
           isClearable={false}
+          large={true}
           loadOptions={[MockFunction]}
           noOptionsMessage={[Function]}
           onChange={[MockFunction]}
@@ -88,7 +88,6 @@ exports[`should render correctly: with selection and submitting 1`] = `
         </label>
         <SearchSelect
           autoFocus={true}
-          className="Select-big"
           components={
             Object {
               "Control": [Function],
@@ -99,6 +98,7 @@ exports[`should render correctly: with selection and submitting 1`] = `
           defaultOptions={true}
           getOptionValue={[Function]}
           isClearable={false}
+          large={true}
           loadOptions={[MockFunction]}
           noOptionsMessage={[Function]}
           onChange={[MockFunction]}
@@ -128,7 +128,9 @@ exports[`should render correctly: with selection and submitting 1`] = `
 `;
 
 exports[`should render options correctly: group 1`] = `
-<React.Fragment>
+<span
+  className="display-flex-center"
+>
   <GroupIcon
     size={16}
   />
@@ -137,11 +139,13 @@ exports[`should render options correctly: group 1`] = `
   >
     group name
   </strong>
-</React.Fragment>
+</span>
 `;
 
 exports[`should render options correctly: user 1`] = `
-<React.Fragment>
+<span
+  className="display-flex-center"
+>
   <withAppStateContext(Avatar)
     hash="A"
     name="name"
@@ -157,5 +161,5 @@ exports[`should render options correctly: user 1`] = `
   >
     login
   </span>
-</React.Fragment>
+</span>
 `;

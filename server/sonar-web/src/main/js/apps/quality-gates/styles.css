@@ -26,18 +26,6 @@
   padding-top: 20px;
 }
 
-.quality-gate-metric-select .Select-option {
-  padding-left: calc(2 * var(--gridSize));
-}
-
-.quality-gate-metric-select .Select-option.is-disabled {
-  opacity: 1;
-  font-weight: 600;
-  color: var(--baseFontColor);
-  padding-left: var(--gridSize);
-  font-style: normal;
-}
-
 .quality-gate-permissions .permission-list-item:hover {
   background-color: var(--rowHoverHighlight);
 }

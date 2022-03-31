@@ -50,21 +50,15 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
 
   optionRenderer(props: OptionProps<OptionWithValue, false>) {
     const { data } = props;
-    return (
-      <components.Option {...props} className="Select-option">
-        {customOptions(data)}
-      </components.Option>
-    );
+    return <components.Option {...props}>{customOptions(data)}</components.Option>;
   }
 
   singleValueRenderer = (props: SingleValueProps<OptionWithValue>) => (
-    <components.SingleValue {...props} className="Select-value-label">
-      {customOptions(props.data)}
-    </components.SingleValue>
+    <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>
   );
 
   controlRenderer = (props: ControlProps<OptionWithValue, false>) => (
-    <components.Control {...omit(props, ['children'])} className="abs-height-100 Select-control">
+    <components.Control {...omit(props, ['children'])} className="abs-height-100">
       {props.children}
     </components.Control>
   );
@@ -89,7 +83,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
 
     return (
       <SearchSelect
-        className="Select-big width-100"
+        className="width-100"
         autoFocus={true}
         isClearable={false}
         id="change-profile-permission"
@@ -99,6 +93,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
         loadOptions={this.handleSearch}
         placeholder=""
         noOptionsMessage={() => noResultsText}
+        large={true}
         components={{
           Option: this.optionRenderer,
           SingleValue: this.singleValueRenderer,
@@ -119,15 +114,15 @@ function getStringValue(option: Option) {
 
 function customOptions(option: OptionWithValue) {
   return isUser(option) ? (
-    <>
+    <span className="display-flex-center">
       <Avatar hash={option.avatar} name={option.name} size={16} />
       <strong className="spacer-left">{option.name}</strong>
       <span className="note little-spacer-left">{option.login}</span>
-    </>
+    </span>
   ) : (
-    <>
+    <span className="display-flex-center">
       <GroupIcon size={16} />
       <strong className="spacer-left">{option.name}</strong>
-    </>
+    </span>
   );
 }

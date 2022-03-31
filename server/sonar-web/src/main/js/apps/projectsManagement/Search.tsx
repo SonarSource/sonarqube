@@ -109,9 +109,7 @@ export class Search extends React.PureComponent<Props, State> {
   handleVisibilityChange = ({ value }: { value: string }) => this.props.onVisibilityChanged(value);
 
   optionRenderer = (props: OptionProps<{ value: string }, false>) => (
-    <components.Option {...props} className="Select-option">
-      {this.renderQualifierOption(props.data)}
-    </components.Option>
+    <components.Option {...props}>{this.renderQualifierOption(props.data)}</components.Option>
   );
 
   singleValueRenderer = (props: SingleValueProps<{ value: string }>) => (
@@ -153,7 +151,7 @@ export class Search extends React.PureComponent<Props, State> {
     return (
       <td className="thin nowrap text-middle">
         <Select
-          className="input-medium Select"
+          className="input-medium it__project-qualifier-select"
           disabled={!this.props.ready}
           name="projects-qualifier"
           onChange={this.handleQualifierChange}
@@ -179,15 +177,10 @@ export class Search extends React.PureComponent<Props, State> {
     return (
       <td className="thin nowrap text-middle">
         <Select
-          className="input-small Select"
+          className="input-small"
           isDisabled={!this.props.ready}
           name="projects-visibility"
           onChange={this.handleVisibilityChange}
-          components={{
-            Option: (props: OptionProps<{ value: string }, false>) => (
-              <components.Option {...props} className="Select-option" />
-            )
-          }}
           options={options}
           isSearchable={false}
           value={options.find(option => option.value === (this.props.visibility || 'all'))}

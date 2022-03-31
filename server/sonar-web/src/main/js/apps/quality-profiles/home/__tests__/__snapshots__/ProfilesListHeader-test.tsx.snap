@@ -14,11 +14,6 @@ exports[`should render correctly 1`] = `
   <Select
     autoFocus={true}
     className="input-medium"
-    components={
-      Object {
-        "Option": [Function],
-      }
-    }
     id="quality-profiles-filter"
     inputId="quality-profiles-filter-input"
     isClearable={true}
@@ -39,15 +34,4 @@ exports[`should render correctly 1`] = `
     value={Array []}
   />
 </header>
-`;
-
-exports[`should render option correctly: option renderer 1`] = `
-<Option
-  className="Select-option"
-  data={
-    Object {
-      "value": "val",
-    }
-  }
-/>
 `;

@@ -58,7 +58,6 @@ export default function QualityGatePermissionsAddModalRenderer(
           <div className="modal-field">
             <label>{translate('quality_gates.permissions.search')}</label>
             <SearchSelect
-              className="Select-big"
               autoFocus={true}
               isClearable={false}
               placeholder=""
@@ -67,6 +66,7 @@ export default function QualityGatePermissionsAddModalRenderer(
               onChange={props.onSelection}
               loadOptions={props.handleSearch}
               getOptionValue={opt => (isUser(opt) ? opt.login : opt.name)}
+              large={true}
               components={{
                 Option: optionRenderer,
                 SingleValue: singleValueRenderer,
@@ -87,7 +87,7 @@ export default function QualityGatePermissionsAddModalRenderer(
 
 export function customOptions(option: OptionWithValue) {
   return (
-    <>
+    <span className="display-flex-center">
       {isUser(option) ? (
         <Avatar hash={option.avatar} name={option.name} size={16} />
       ) : (
@@ -95,29 +95,21 @@ export function customOptions(option: OptionWithValue) {
       )}
       <strong className="spacer-left">{option.name}</strong>
       {isUser(option) && <span className="note little-spacer-left">{option.login}</span>}
-    </>
+    </span>
   );
 }
 
 function optionRenderer(props: OptionProps<OptionWithValue, false>) {
-  return (
-    <components.Option {...props} className="Select-option">
-      {customOptions(props.data)}
-    </components.Option>
-  );
+  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
 }
 
 function singleValueRenderer(props: SingleValueProps<OptionWithValue>) {
-  return (
-    <components.SingleValue {...props} className="Select-value-label">
-      {customOptions(props.data)}
-    </components.SingleValue>
-  );
+  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
 }
 
 function controlRenderer(props: ControlProps<OptionWithValue, false>) {
   return (
-    <components.Control {...omit(props, ['children'])} className="abs-height-100 Select-control">
+    <components.Control {...omit(props, ['children'])} className="abs-height-100">
       {props.children}
     </components.Control>
   );

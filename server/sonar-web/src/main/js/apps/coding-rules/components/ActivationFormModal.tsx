@@ -167,12 +167,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             )}
 
             <div className="modal-field">
-              <label id="coding-rules-quality-profile-select">
+              <label id="coding-rules-quality-profile-select-label">
                 {translate('coding_rules.quality_profile')}
               </label>
               <Select
-                className="js-profile"
-                aria-labelledby="coding-rules-quality-profile-select"
+                aria-labelledby="coding-rules-quality-profile-select-label"
+                id="coding-rules-quality-profile-select"
                 isClearable={false}
                 isDisabled={submitting || profilesWithDepth.length === 1}
                 onChange={this.handleProfileChange}

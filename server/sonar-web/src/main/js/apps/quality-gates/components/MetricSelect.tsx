@@ -33,12 +33,12 @@ interface Props {
 }
 
 interface Option {
-  disabled?: boolean;
+  isDisabled?: boolean;
   label: string;
   value: string;
 }
 
-export class MetricSelectComponent extends React.PureComponent<Props> {
+export class MetricSelect extends React.PureComponent<Props> {
   handleChange = (option: Option | null) => {
     if (option) {
       const { metricsArray: metrics } = this.props;
@@ -69,7 +69,7 @@ export class MetricSelectComponent extends React.PureComponent<Props> {
         optionsWithDomains.push({
           value: '<domain>',
           label: getLocalizedMetricDomain(option.domain),
-          disabled: true
+          isDisabled: true
         });
       }
       optionsWithDomains.push(option);
@@ -88,4 +88,4 @@ export class MetricSelectComponent extends React.PureComponent<Props> {
   }
 }
 
-export default withMetricsContext(MetricSelectComponent);
+export default withMetricsContext(MetricSelect);
