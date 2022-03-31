@@ -33,7 +33,7 @@ import org.sonar.api.utils.log.Loggers;
 public abstract class ServerPushClient {
 
   private static final Logger LOG = Loggers.get(ServerPushClient.class);
-  private static final int DEFAULT_HEARTBEAT_PERIOD = 60;
+  private static final int DEFAULT_HEARTBEAT_PERIOD = 20;
 
   protected final AsyncContext asyncContext;
 
