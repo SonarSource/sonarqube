@@ -33,7 +33,7 @@ only_nightly_depending_on_build_template: &ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPL
   depends_on: build
   # Comment the following line and commit with message "DO NOT MERGE" in order to run
   # this task on your branch
-#  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
 
 only_upon_sql_changes_or_nightly_depending_on_build_template: &ONLY_UPON_SQL_CHANGE_OR_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   depends_on: build
