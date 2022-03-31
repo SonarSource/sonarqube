@@ -48,6 +48,7 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
   public void should_prefer_key_matching_over_name_matching() {
+    es.recreateIndexes();
     ComponentDto project1 = indexProject("quality", "SonarQube");
     ComponentDto project2 = indexProject("sonarqube", "Quality Product");
 

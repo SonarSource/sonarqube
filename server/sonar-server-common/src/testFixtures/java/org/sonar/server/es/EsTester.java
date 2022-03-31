@@ -45,6 +45,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -170,6 +171,12 @@ public class EsTester extends ExternalResource {
     return new EsTester(true);
   }
 
+  public void recreateIndexes() {
+    deleteIndexIfExists(ALL_INDICES.getName());
+    CORE_INDICES_CREATED.set(false);
+    create();
+  }
+
   @Override
   protected void after() {
     if (isCustom) {
@@ -185,7 +192,9 @@ public class EsTester extends ExternalResource {
 
   private void deleteAllDocumentsInIndexes() {
     try {
-      ES_REST_CLIENT.nativeClient().deleteByQuery(new DeleteByQueryRequest(ALL_INDICES.getName()).setQuery(QueryBuilders.matchAllQuery()).setRefresh(true), RequestOptions.DEFAULT);
+      ES_REST_CLIENT.nativeClient()
+        .deleteByQuery(new DeleteByQueryRequest(ALL_INDICES.getName()).setQuery(QueryBuilders.matchAllQuery()).setRefresh(true).setWaitForActiveShards(1), RequestOptions.DEFAULT);
+      ES_REST_CLIENT.forcemerge(new ForceMergeRequest());
     } catch (IOException e) {
       throw new IllegalStateException("Could not delete data from _all indices", e);
     }
