@@ -246,7 +246,7 @@ export default class LineCode extends React.PureComponent<Props, State> {
             selectedIssue={selectedIssue}
           />
         )}
-        {selectedIssue && !showIssues && (
+        {selectedIssue && !showIssues && issueLocations.length > 0 && (
           <LineIssuesList
             branchLike={this.props.branchLike}
             issuePopup={this.props.issuePopup}

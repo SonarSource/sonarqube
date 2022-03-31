@@ -22,6 +22,7 @@ import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockIssue, mockSourceLine } from '../../../../helpers/testMocks';
 import LineCode from '../LineCode';
+import LineIssuesList from '../LineIssuesList';
 
 it('render code', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -35,6 +36,12 @@ it('render code', () => {
       ]
     })
   ).toMatchSnapshot('with secondary location');
+});
+
+it('should not render issue list when no issue location', () => {
+  const wrapper = shallowRender({ issueLocations: [], showIssues: false });
+
+  expect(wrapper.find(LineIssuesList).length).toBe(0);
 });
 
 function shallowRender(props: Partial<LineCode['props']> = {}) {
