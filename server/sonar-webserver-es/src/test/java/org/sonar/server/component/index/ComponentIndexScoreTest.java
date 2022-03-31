@@ -26,6 +26,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.fail;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -48,6 +49,7 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
   public void should_prefer_key_matching_over_name_matching() {
+    es.recreateIndexes();
     ComponentDto project1 = indexProject("quality", "SonarQube");
     ComponentDto project2 = indexProject("sonarqube", "Quality Product");
 

@@ -261,7 +261,7 @@ public class EsClient implements Closeable {
    *
    * @return native ES client object
    */
-  RestHighLevelClient nativeClient() {
+  public RestHighLevelClient nativeClient() {
     return restHighLevelClient;
   }
 

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.sonar.api.utils.System2;
@@ -90,9 +91,16 @@ public abstract class ComponentIndexTest {
   }
 
   protected ListAssert<String> assertSearch(SuggestionQuery query) {
-    return (ListAssert<String>) assertThat(index.searchSuggestions(query, features.get()).getQualifiers())
-      .flatExtracting(ComponentHitsPerQualifier::getHits)
-      .extracting(ComponentHit::getUuid);
+    Stream<ComponentHitsPerQualifier> qualifiers = index.searchSuggestions(query, features.get()).getQualifiers();
+    return (ListAssert<String>) assertThat(qualifiers)
+        .map(qualifier -> {
+          for (ComponentHit hit : qualifier.getHits()) {
+            System.err.println(hit.getUuid());
+          }
+          return qualifier;
+        })
+        .flatExtracting(ComponentHitsPerQualifier::getHits)
+        .extracting(ComponentHit::getUuid);
   }
 
   protected void assertSearchResults(String query, ComponentDto... expectedComponents) {

@@ -20,6 +20,7 @@
 package org.sonar.server.component.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +28,11 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.explain.ExplainRequest;
+import org.elasticsearch.action.explain.ExplainResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -129,8 +133,31 @@ public class ComponentIndex {
     SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
       .source(source);
     SearchResponse response = client.search(request);
+    System.err.println("--------");
+    System.err.println("ES response");
+    System.err.println(response.toString());
+    System.err.println("ES explain");
+    explainQuery(source, "UUID_quality", "auth_UUID_quality");
+    explainQuery(source, "UUID_sonarqube", "auth_UUID_sonarqube");
+    System.err.println("--------");
 
     return aggregationsToQualifiers(response);
+  }
+
+  private void explainQuery(SearchSourceBuilder source, String uuid_quality, String auth_uuid_quality) {
+    try {
+      ExplainResponse explain = client.nativeClient().explain(
+          new ExplainRequest(TYPE_COMPONENT.getMainType().getIndex().getName(), TYPE_COMPONENT.getMainType().getType(),
+              uuid_quality)
+              .routing(auth_uuid_quality)
+              .query(source.query()), RequestOptions.DEFAULT);
+
+      if (explain.getExplanation() != null) {
+        System.err.println(explain.getExplanation().toString());
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private static HighlightBuilder.Field createHighlighterField() {
