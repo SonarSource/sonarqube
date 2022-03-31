@@ -35,7 +35,7 @@ beforeAll(() => {
 
 afterEach(() => handler.reset());
 
-jest.setTimeout(10_000);
+jest.setTimeout(30_000);
 
 it('should open the default quality gates', async () => {
   renderQualityGateApp();
