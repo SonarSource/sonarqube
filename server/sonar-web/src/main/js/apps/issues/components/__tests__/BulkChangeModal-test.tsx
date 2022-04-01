@@ -19,10 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Props as ReactSelectProps } from 'react-select';
 import { SelectComponentsProps } from 'react-select/src/Select';
 import { searchIssueTags } from '../../../../api/issues';
 import { SubmitButton } from '../../../../components/controls/buttons';
-import Select from '../../../../components/controls/Select';
+import Select, { CreatableSelect, SearchSelect } from '../../../../components/controls/Select';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { change, waitAndUpdate } from '../../../../helpers/testUtils';
 import { Issue } from '../../../../types/types';
@@ -30,30 +31,6 @@ import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({
   searchIssueTags: jest.fn().mockResolvedValue([undefined, []])
-}));
-
-jest.mock('../../utils', () => ({
-  searchAssignees: jest.fn().mockResolvedValue({
-    results: [
-      {
-        active: true,
-        avatar: '##toto',
-        login: 'toto@toto',
-        name: 'toto'
-      },
-      {
-        active: false,
-        avatar: '##toto',
-        login: 'login@login',
-        name: 'toto'
-      },
-      {
-        active: true,
-        avatar: '##toto',
-        login: 'login@login'
-      }
-    ]
-  })
 }));
 
 it('should display error message when no issues available', async () => {
@@ -80,20 +57,11 @@ it('should display warning when too many issues are passed', async () => {
   expect(wrapper.find('Alert')).toMatchSnapshot();
 });
 
-it('should properly handle the search for assignee', async () => {
-  const issues: Issue[] = [];
-  for (let i = MAX_PAGE_SIZE + 1; i > 0; i--) {
-    issues.push(mockIssue());
-  }
-
-  const wrapper = getWrapper(issues);
-  const result = await wrapper.instance().handleAssigneeSearch('toto');
-  expect(result).toMatchSnapshot();
-});
-
 it('should properly handle the search for tags', async () => {
   const wrapper = getWrapper([]);
-  await wrapper.instance().handleTagsSearch('query');
+  await new Promise(resolve => {
+    wrapper.instance().handleTagsSearch('query', resolve);
+  });
   expect(searchIssueTags).toBeCalled();
 });
 
@@ -110,27 +78,30 @@ it.each([
   expect(SingleValue({ data: { label: 'label', value: 'value' } })).toMatchSnapshot('SingleValue');
 });
 
+it('should render tags correctly', async () => {
+  const wrapper = getWrapper([mockIssue(false, { actions: ['set_tags'] })]);
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.find(CreatableSelect).exists()).toBe(true);
+  expect(wrapper.find(SearchSelect).exists()).toBe(true);
+});
+
 it('should disable the submit button unless some change is configured', async () => {
   const wrapper = getWrapper([mockIssue(false, { actions: ['set_severity', 'comment'] })]);
   await waitAndUpdate(wrapper);
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(resolve => {
     expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
 
     // Setting a comment is not sufficient; some other change must occur.
     change(wrapper.find('#comment'), 'Some comment');
     expect(wrapper.find(SubmitButton).props().disabled).toBe(true);
 
-    const { onChange } = wrapper
-      .find(Select)
+    wrapper
+      .find<ReactSelectProps>(Select)
       .at(0)
-      .props();
-    if (!onChange) {
-      reject();
-      return;
-    }
+      .simulate('change', { value: 'foo' });
 
-    onChange({ value: 'foo' });
     expect(wrapper.find(SubmitButton).props().disabled).toBe(false);
     resolve();
   });

@@ -131,26 +131,6 @@ exports[`should display warning when too many issues are passed 2`] = `
 </Alert>
 `;
 
-exports[`should properly handle the search for assignee 1`] = `
-Array [
-  Object {
-    "avatar": "##toto",
-    "label": "toto",
-    "value": "toto@toto",
-  },
-  Object {
-    "avatar": "##toto",
-    "label": "user.x_deleted.toto",
-    "value": "login@login",
-  },
-  Object {
-    "avatar": "##toto",
-    "label": "user.x_deleted.login@login",
-    "value": "login@login",
-  },
-]
-`;
-
 exports[`should render select for severity: Option 1`] = `
 <Option
   data={

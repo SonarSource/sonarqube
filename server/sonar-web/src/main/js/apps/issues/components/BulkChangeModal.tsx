@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { pickBy, sortBy } from 'lodash';
+import { debounce, pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { components, OptionProps, SingleValueProps } from 'react-select';
@@ -28,27 +28,24 @@ import Checkbox from '../../../components/controls/Checkbox';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Modal from '../../../components/controls/Modal';
 import Radio from '../../../components/controls/Radio';
-import SearchSelect from '../../../components/controls/SearchSelect';
-import Select, { BasicSelectOption } from '../../../components/controls/Select';
+import Select, {
+  BasicSelectOption,
+  CreatableSelect,
+  SearchSelect
+} from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { Alert } from '../../../components/ui/Alert';
-import Avatar from '../../../components/ui/Avatar';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Component, Dict, Issue, IssueType, Paging } from '../../../types/types';
-import { CurrentUser, isLoggedIn, isUserActive } from '../../../types/users';
-import { searchAssignees } from '../utils';
+import { CurrentUser } from '../../../types/users';
+import AssigneeSelect, { AssigneeOption } from './AssigneeSelect';
 
-interface AssigneeOption {
-  avatar?: string;
-  email?: string;
-  label: string;
-  value: string;
-}
+const DEBOUNCE_DELAY = 250;
 
-interface TagOption {
+interface TagOption extends BasicSelectOption {
   label: string;
   value: string;
 }
@@ -82,12 +79,6 @@ interface State extends FormFields {
   submitting: boolean;
 }
 
-type AssigneeSelectType = new () => SearchSelect<AssigneeOption>;
-const AssigneeSelect = SearchSelect as AssigneeSelectType;
-
-type TagSelectType = new () => SearchSelect<TagOption>;
-const TagSelect = SearchSelect as TagSelectType;
-
 export const MAX_PAGE_SIZE = 500;
 
 export default class BulkChangeModal extends React.PureComponent<Props, State> {
@@ -96,6 +87,8 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { initialTags: [], issues: [], loading: true, submitting: false };
+
+    this.handleTagsSearch = debounce(this.handleTagsSearch, DEBOUNCE_DELAY);
   }
 
   componentDidMount() {
@@ -128,58 +121,18 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     return this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: MAX_PAGE_SIZE });
   };
 
-  getDefaultAssignee = () => {
-    const { currentUser } = this.props;
-    const { issues } = this.state;
-    const options = [];
-
-    if (isLoggedIn(currentUser)) {
-      const canBeAssignedToMe =
-        issues.filter(issue => issue.assignee !== currentUser.login).length > 0;
-      if (canBeAssignedToMe) {
-        options.push({
-          avatar: currentUser.avatar,
-          label: currentUser.name,
-          value: currentUser.login
-        });
-      }
-    }
-
-    const canBeUnassigned = issues.filter(issue => issue.assignee).length > 0;
-    if (canBeUnassigned) {
-      options.push({ label: translate('unassigned'), value: '' });
-    }
-
-    return options;
-  };
-
-  handleAssigneeSearch = (query: string) => {
-    return searchAssignees(query).then(({ results }) =>
-      results.map(r => {
-        const userInfo = r.name || r.login;
-
-        return {
-          avatar: r.avatar,
-          label: isUserActive(r) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
-          value: r.login
-        };
-      })
-    );
-  };
-
   handleAssigneeSelect = (assignee: AssigneeOption) => {
     this.setState({ assignee });
   };
 
-  handleTagsSearch = (query: string) => {
-    return searchIssueTags({ q: query }).then(tags =>
-      tags.map(tag => ({ label: tag, value: tag }))
-    );
+  handleTagsSearch = (query: string, resolve: (option: TagOption[]) => void) => {
+    searchIssueTags({ q: query })
+      .then(tags => tags.map(tag => ({ label: tag, value: tag })))
+      .then(resolve)
+      .catch(() => resolve([]));
   };
 
-  handleTagsSelect = (field: 'addTags' | 'removeTags') => (
-    options: Array<{ label: string; value: string }>
-  ) => {
+  handleTagsSelect = (field: 'addTags' | 'removeTags') => (options: TagOption[]) => {
     this.setState<keyof FormFields>({ [field]: options });
   };
 
@@ -306,18 +259,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     </div>
   );
 
-  renderAssigneeOption = (option: AssigneeOption) => {
-    return (
-      <span>
-        {option.avatar !== undefined && (
-          <Avatar className="spacer-right" hash={option.avatar} name={option.label} size={16} />
-        )}
-        {option.label}
-      </span>
-    );
-  };
-
   renderAssigneeField = () => {
+    const { currentUser } = this.props;
+    const { issues } = this.state;
     const affected = this.state.issues.filter(hasAction('assign')).length;
 
     if (affected === 0) {
@@ -326,14 +270,9 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const input = (
       <AssigneeSelect
-        className="input-super-large"
-        clearable={true}
-        defaultOptions={this.getDefaultAssignee()}
-        onSearch={this.handleAssigneeSearch}
-        onSelect={this.handleAssigneeSelect}
-        renderOption={this.renderAssigneeOption}
-        resetOnBlur={false}
-        value={this.state.assignee}
+        currentUser={currentUser}
+        issues={issues}
+        onAssigneeSelect={this.handleAssigneeSelect}
       />
     );
 
@@ -419,10 +358,6 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
     return this.renderField('severity', 'issue.set_severity', affected, input);
   };
 
-  renderTagOption = (option: TagOption) => {
-    return <span>{option.label}</span>;
-  };
-
   renderTagsField = (field: 'addTags' | 'removeTags', label: string, allowCreate: boolean) => {
     const { initialTags } = this.state;
     const affected = this.state.issues.filter(hasAction('set_tags')).length;
@@ -431,21 +366,19 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const input = (
-      <TagSelect
-        canCreate={allowCreate}
-        className="input-super-large"
-        clearable={true}
-        defaultOptions={this.state.initialTags}
-        minimumQueryLength={0}
-        multi={true}
-        onMultiSelect={this.handleTagsSelect(field)}
-        onSearch={this.handleTagsSearch}
-        promptTextCreator={promptCreateTag}
-        renderOption={this.renderTagOption}
-        resetOnBlur={false}
-        value={this.state[field]}
-      />
+    const props = {
+      className: 'input-super-large',
+      isClearable: true,
+      defaultOptions: this.state.initialTags,
+      isMulti: true,
+      onChange: this.handleTagsSelect(field),
+      loadOptions: this.handleTagsSearch
+    };
+
+    const input = allowCreate ? (
+      <CreatableSelect {...props} formatCreateLabel={createTagPrompt} />
+    ) : (
+      <SearchSelect {...props} />
     );
 
     return this.renderField(field, label, affected, input);
@@ -580,6 +513,6 @@ function hasAction(action: string) {
   return (issue: Issue) => issue.actions && issue.actions.includes(action);
 }
 
-function promptCreateTag(label: string) {
-  return `+ ${label}`;
+function createTagPrompt(label: string) {
+  return translateWithParameters('issue.create_tag_x', label);
 }

@@ -172,8 +172,10 @@ exports[`should render correctly: no repositories 1`] = `
       <label>
         onboarding.create_project.github.choose_organization
       </label>
-      <SearchSelect
-        defaultOptions={
+      <Select
+        className="input-super-large"
+        onChange={[Function]}
+        options={
           Array [
             Object {
               "label": "org1",
@@ -185,9 +187,6 @@ exports[`should render correctly: no repositories 1`] = `
             },
           ]
         }
-        minimumQueryLength={0}
-        onSearch={[Function]}
-        onSelect={[Function]}
         value={
           Object {
             "label": "org2",
@@ -226,8 +225,10 @@ exports[`should render correctly: organizations 1`] = `
       <label>
         onboarding.create_project.github.choose_organization
       </label>
-      <SearchSelect
-        defaultOptions={
+      <Select
+        className="input-super-large"
+        onChange={[Function]}
+        options={
           Array [
             Object {
               "label": "org1",
@@ -239,9 +240,7 @@ exports[`should render correctly: organizations 1`] = `
             },
           ]
         }
-        minimumQueryLength={0}
-        onSearch={[Function]}
-        onSelect={[Function]}
+        value={null}
       />
     </div>
   </DeferredSpinner>
@@ -291,8 +290,10 @@ exports[`should render correctly: repositories 1`] = `
       <label>
         onboarding.create_project.github.choose_organization
       </label>
-      <SearchSelect
-        defaultOptions={
+      <Select
+        className="input-super-large"
+        onChange={[Function]}
+        options={
           Array [
             Object {
               "label": "org1",
@@ -304,9 +305,6 @@ exports[`should render correctly: repositories 1`] = `
             },
           ]
         }
-        minimumQueryLength={0}
-        onSearch={[Function]}
-        onSelect={[Function]}
         value={
           Object {
             "label": "org2",

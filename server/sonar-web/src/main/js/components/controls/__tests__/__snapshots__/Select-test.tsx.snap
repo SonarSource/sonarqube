@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Select should render clearIndicator correctly 1`] = `
+<ClearButton
+  className="button-tiny spacer-left spacer-right text-middle"
+  iconProps={
+    Object {
+      "size": 12,
+    }
+  }
+/>
+`;
+
 exports[`Select should render complex select component: other props 1`] = `
 <StateManager
   components={
@@ -68,5 +79,145 @@ exports[`Select should render correctly: default 1`] = `
       "valueContainer": [Function],
     }
   }
+/>
+`;
+
+exports[`Select should render dropdownIndicator correctly 1`] = `<Styled(span) />`;
+
+exports[`Select should render loadingIndicator correctly 1`] = `
+<i
+  className="deferred-spinner spacer-left spacer-right additional-class"
+/>
+`;
+
+exports[`Select should render multiValueRemove correctly 1`] = `
+<div>
+  ×
+</div>
+`;
+
+exports[`should render CreatableSelect correctly 1`] = `
+<Creatable
+  allowCreateWhileLoading={false}
+  cacheOptions={false}
+  components={
+    Object {
+      "ClearIndicator": [Function],
+      "DropdownIndicator": [Function],
+      "LoadingIndicator": [Function],
+      "MultiValueRemove": [Function],
+    }
+  }
+  createOptionPosition="last"
+  defaultOptions={false}
+  filterOption={null}
+  formatCreateLabel={[Function]}
+  getNewOptionData={[Function]}
+  getOptionLabel={[Function]}
+  getOptionValue={[Function]}
+  inputValue=""
+  isLoading={false}
+  isValidNewOption={[Function]}
+  menuIsOpen={false}
+  onChange={[Function]}
+  onInputChange={[Function]}
+  onMenuClose={[Function]}
+  onMenuOpen={[Function]}
+  options={Array []}
+  styles={
+    Object {
+      "container": [Function],
+      "control": [Function],
+      "indicatorsContainer": [Function],
+      "input": [Function],
+      "loadingIndicator": [Function],
+      "menu": [Function],
+      "menuList": [Function],
+      "multiValue": [Function],
+      "multiValueLabel": [Function],
+      "multiValueRemove": [Function],
+      "noOptionsMessage": [Function],
+      "option": [Function],
+      "placeholder": [Function],
+      "singleValue": [Function],
+      "valueContainer": [Function],
+    }
+  }
+  value={null}
+/>
+`;
+
+exports[`should render SearchSelect correctly 1`] = `
+<Select
+  aria-live="polite"
+  backspaceRemovesValue={true}
+  blurInputOnSelect={true}
+  cacheOptions={false}
+  captureMenuScroll={false}
+  closeMenuOnScroll={false}
+  closeMenuOnSelect={true}
+  components={
+    Object {
+      "ClearIndicator": [Function],
+      "DropdownIndicator": [Function],
+      "LoadingIndicator": [Function],
+      "MultiValueRemove": [Function],
+    }
+  }
+  controlShouldRenderValue={true}
+  defaultOptions={false}
+  escapeClearsValue={false}
+  filterOption={null}
+  formatGroupLabel={[Function]}
+  getOptionLabel={[Function]}
+  getOptionValue={[Function]}
+  inputValue=""
+  isDisabled={false}
+  isLoading={false}
+  isMulti={false}
+  isOptionDisabled={[Function]}
+  isRtl={false}
+  isSearchable={true}
+  loadingMessage={[Function]}
+  maxMenuHeight={300}
+  menuIsOpen={false}
+  menuPlacement="bottom"
+  menuPosition="absolute"
+  menuShouldBlockScroll={false}
+  menuShouldScrollIntoView={true}
+  minMenuHeight={140}
+  noOptionsMessage={[Function]}
+  onChange={[Function]}
+  onInputChange={[Function]}
+  onMenuClose={[Function]}
+  onMenuOpen={[Function]}
+  openMenuOnClick={true}
+  openMenuOnFocus={false}
+  options={Array []}
+  pageSize={5}
+  placeholder="Select..."
+  screenReaderStatus={[Function]}
+  styles={
+    Object {
+      "container": [Function],
+      "control": [Function],
+      "indicatorsContainer": [Function],
+      "input": [Function],
+      "loadingIndicator": [Function],
+      "menu": [Function],
+      "menuList": [Function],
+      "multiValue": [Function],
+      "multiValueLabel": [Function],
+      "multiValueRemove": [Function],
+      "noOptionsMessage": [Function],
+      "option": [Function],
+      "placeholder": [Function],
+      "singleValue": [Function],
+      "valueContainer": [Function],
+    }
+  }
+  tabIndex="0"
+  tabSelectsValue={true}
+  value={null}
 />
 `;

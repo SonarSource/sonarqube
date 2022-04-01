@@ -65,6 +65,7 @@ exports[`should render correctly 1`] = `
           Array [
             Object {
               "isMain": true,
+              "label": "master",
               "value": "master",
             },
           ]

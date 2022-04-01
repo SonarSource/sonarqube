@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<SearchSelect
+  className="input-super-large"
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  defaultOptions={Array []}
+  isClearable={true}
+  loadOptions={[Function]}
+  noOptionsMessage={[Function]}
+  onChange={[MockFunction]}
+/>
+`;
+
+exports[`should render correctly: logged in & assignable issues 1`] = `
+<SearchSelect
+  className="input-super-large"
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  defaultOptions={
+    Array [
+      Object {
+        "avatar": undefined,
+        "label": "Skywalker",
+        "value": "luke",
+      },
+    ]
+  }
+  isClearable={true}
+  loadOptions={[Function]}
+  noOptionsMessage={[Function]}
+  onChange={[MockFunction]}
+/>
+`;
+
+exports[`should render correctly: logged in & no assignable issues 1`] = `
+<SearchSelect
+  className="input-super-large"
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  defaultOptions={Array []}
+  isClearable={true}
+  loadOptions={[Function]}
+  noOptionsMessage={[Function]}
+  onChange={[MockFunction]}
+/>
+`;
+
+exports[`should render correctly: unassignable issues 1`] = `
+<SearchSelect
+  className="input-super-large"
+  components={
+    Object {
+      "Option": [Function],
+      "SingleValue": [Function],
+    }
+  }
+  defaultOptions={
+    Array [
+      Object {
+        "label": "unassigned",
+        "value": "",
+      },
+    ]
+  }
+  isClearable={true}
+  loadOptions={[Function]}
+  noOptionsMessage={[Function]}
+  onChange={[MockFunction]}
+/>
+`;

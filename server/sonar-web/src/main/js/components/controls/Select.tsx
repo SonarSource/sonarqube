@@ -18,8 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import * as React from 'react';
-import ReactSelect, { GroupTypeBase, IndicatorProps, Props, StylesConfig } from 'react-select';
+import ReactSelect, {
+  GroupTypeBase,
+  IndicatorProps,
+  OptionTypeBase,
+  Props,
+  StylesConfig
+} from 'react-select';
+import AsyncReactSelect, { AsyncProps } from 'react-select/async';
+import AsyncCreatableReactSelect, {
+  Props as AsyncCreatableProps
+} from 'react-select/async-creatable';
+import { LoadingIndicatorProps } from 'react-select/src/components/indicators';
 import { MultiValueRemoveProps } from 'react-select/src/components/MultiValue';
 import { colors, others, sizes, zIndexes } from '../../app/theme';
 import { ClearButton } from './buttons';
@@ -38,29 +50,51 @@ export interface BasicSelectOption {
   value: string;
 }
 
+export function dropdownIndicator<
+  Option extends OptionTypeBase,
+  IsMulti extends boolean = false,
+  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+>({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
+  return <ArrowSpan {...innerProps} />;
+}
+
+export function clearIndicator<
+  Option extends OptionTypeBase,
+  IsMulti extends boolean = false,
+  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+>({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
+  return (
+    <ClearButton
+      className="button-tiny spacer-left spacer-right text-middle"
+      iconProps={{ size: 12 }}
+      {...innerProps}
+    />
+  );
+}
+
+export function loadingIndicator<
+  Option extends OptionTypeBase,
+  IsMulti extends boolean,
+  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+>({ innerProps }: LoadingIndicatorProps<Option, IsMulti, Group>) {
+  return (
+    <i className={classNames('deferred-spinner spacer-left spacer-right', innerProps.className)} />
+  );
+}
+
+export function multiValueRemove<
+  Option extends OptionTypeBase,
+  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+>(props: MultiValueRemoveProps<Option, Group>) {
+  return <div {...props.innerProps}>×</div>;
+}
+
+/* Keeping it as a class to simplify a dozen tests */
 export default class Select<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
-> extends React.PureComponent<Props<Option, IsMulti, Group>> {
-  dropdownIndicator({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
-    return <ArrowSpan {...innerProps} />;
-  }
-
-  clearIndicator({ innerProps }: IndicatorProps<Option, IsMulti, Group>) {
-    return (
-      <ClearButton
-        className="button-tiny spacer-left spacer-right text-middle"
-        iconProps={{ size: 12 }}
-        {...innerProps}
-      />
-    );
-  }
-
-  multiValueRemove(props: MultiValueRemoveProps<Option, Group>) {
-    return <div {...props.innerProps}>×</div>;
-  }
-
+> extends React.Component<Props<Option, IsMulti, Group>> {
   render() {
     return (
       <ReactSelect
@@ -68,13 +102,53 @@ export default class Select<
         styles={selectStyle<Option, IsMulti, Group>()}
         components={{
           ...this.props.components,
-          DropdownIndicator: this.dropdownIndicator,
-          ClearIndicator: this.clearIndicator,
-          MultiValueRemove: this.multiValueRemove
+          DropdownIndicator: dropdownIndicator,
+          ClearIndicator: clearIndicator,
+          MultiValueRemove: multiValueRemove
         }}
       />
     );
   }
+}
+
+export function CreatableSelect<
+  Option,
+  isMulti extends boolean,
+  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+>(props: AsyncCreatableProps<Option, isMulti, Group>) {
+  return (
+    <AsyncCreatableReactSelect
+      {...props}
+      styles={selectStyle<Option, isMulti, Group>()}
+      components={{
+        ...props.components,
+        DropdownIndicator: dropdownIndicator,
+        ClearIndicator: clearIndicator,
+        MultiValueRemove: multiValueRemove,
+        LoadingIndicator: loadingIndicator
+      }}
+    />
+  );
+}
+
+export function SearchSelect<
+  Option,
+  isMulti extends boolean,
+  Group extends GroupTypeBase<Option> = GroupTypeBase<Option>
+>(props: Props<Option, isMulti, Group> & AsyncProps<Option, Group>) {
+  return (
+    <AsyncReactSelect
+      {...props}
+      styles={selectStyle<Option, isMulti, Group>()}
+      components={{
+        ...props.components,
+        DropdownIndicator: dropdownIndicator,
+        ClearIndicator: clearIndicator,
+        MultiValueRemove: multiValueRemove,
+        LoadingIndicator: loadingIndicator
+      }}
+    />
+  );
 }
 
 export function selectStyle<

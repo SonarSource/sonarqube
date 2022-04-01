@@ -25,7 +25,7 @@ import { Button } from '../../../components/controls/buttons';
 import ListFooter from '../../../components/controls/ListFooter';
 import Radio from '../../../components/controls/Radio';
 import SearchBox from '../../../components/controls/SearchBox';
-import SearchSelect from '../../../components/controls/SearchSelect';
+import Select, { BasicSelectOption } from '../../../components/controls/Select';
 import CheckIcon from '../../../components/icons/CheckIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { Alert } from '../../../components/ui/Alert';
@@ -61,9 +61,6 @@ export interface GitHubProjectCreateRendererProps {
 function orgToOption({ key, name }: GithubOrganization) {
   return { value: key, label: name };
 }
-
-const handleSearch = (organizations: GithubOrganization[]) => (q: string) =>
-  Promise.resolve(organizations.filter(o => !q || o.name.includes(q)).map(orgToOption));
 
 function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
   const {
@@ -240,12 +237,11 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
           <div className="form-field">
             <label>{translate('onboarding.create_project.github.choose_organization')}</label>
             {organizations.length > 0 ? (
-              <SearchSelect
-                defaultOptions={organizations.map(orgToOption)}
-                onSearch={handleSearch(organizations)}
-                minimumQueryLength={0}
-                onSelect={({ value }) => props.onSelectOrganization(value)}
-                value={selectedOrganization && orgToOption(selectedOrganization)}
+              <Select
+                className="input-super-large"
+                options={organizations.map(orgToOption)}
+                onChange={({ value }: BasicSelectOption) => props.onSelectOrganization(value)}
+                value={selectedOrganization ? orgToOption(selectedOrganization) : null}
               />
             ) : (
               !loadingOrganizations && (

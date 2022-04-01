@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Radio from '../../../../components/controls/Radio';
 import SearchBox from '../../../../components/controls/SearchBox';
-import SearchSelect from '../../../../components/controls/SearchSelect';
+import Select from '../../../../components/controls/Select';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { GithubOrganization } from '../../../../types/alm-integration';
 import GitHubProjectCreateRenderer, {
@@ -85,7 +85,7 @@ describe('callback', () => {
 
   it('should be called when org is selected', () => {
     const value = 'o1';
-    wrapper.find(SearchSelect).simulate('select', { value });
+    wrapper.find(Select).simulate('change', { value });
     expect(onSelectOrganization).toBeCalledWith(value);
   });
 

@@ -44,13 +44,15 @@ exports[`should render correctly: multiple branches 1`] = `
           branchList={
             Array [
               Object {
-                "disabled": true,
+                "isDisabled": true,
                 "isMain": true,
+                "label": "master",
                 "value": "master",
               },
               Object {
-                "disabled": false,
+                "isDisabled": false,
                 "isMain": false,
+                "label": "branch-6.7",
                 "value": "branch-6.7",
               },
             ]
@@ -129,8 +131,9 @@ exports[`should render correctly: only one branch 1`] = `
           branchList={
             Array [
               Object {
-                "disabled": true,
+                "isDisabled": true,
                 "isMain": true,
+                "label": "master",
                 "value": "master",
               },
             ]

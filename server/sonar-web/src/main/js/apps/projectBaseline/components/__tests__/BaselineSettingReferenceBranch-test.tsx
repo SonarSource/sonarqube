@@ -19,11 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { OptionProps, Props as ReactSelectProps } from 'react-select';
 import RadioCard from '../../../../components/controls/RadioCard';
-import SearchSelect from '../../../../components/controls/SearchSelect';
+import Select from '../../../../components/controls/Select';
 import BaselineSettingReferenceBranch, {
   BaselineSettingReferenceBranchProps,
-  BranchOption
+  BranchOption,
+  renderBranchOption
 } from '../BaselineSettingReferenceBranch';
 
 it('should render correctly', () => {
@@ -33,7 +35,7 @@ it('should render correctly', () => {
   );
   expect(
     shallowRender({
-      branchList: [{ value: 'master', isMain: true }],
+      branchList: [{ label: 'master', value: 'master', isMain: true }],
       settingLevel: 'branch',
       configuredBranchName: 'master'
     })
@@ -61,9 +63,9 @@ it('should callback when changing selection', () => {
   const wrapper = shallowRender({ onChangeReferenceBranch });
 
   wrapper
-    .find(SearchSelect)
+    .find(Select)
     .first()
-    .simulate('select', { value: 'branch-6.9' });
+    .simulate('change', { value: 'branch-6.9' });
   expect(onChangeReferenceBranch).toHaveBeenCalledWith('branch-6.9');
 });
 
@@ -73,34 +75,45 @@ it('should handle an invalid branch', () => {
 
   expect(
     wrapper
-      .find(SearchSelect)
+      .find<ReactSelectProps>(Select)
       .first()
       .props().value
-  ).toEqual({ value: unknownBranchName, isMain: false, isInvalid: true });
+  ).toEqual({ label: unknownBranchName, value: unknownBranchName, isMain: false, isInvalid: true });
 });
 
 describe('renderOption', () => {
-  const select = shallowRender()
-    .find(SearchSelect)
-    .first();
-  const renderFunction = select.props().renderOption as (option: BranchOption) => JSX.Element;
+  // fake props injected by the Select itself
+  const props = {} as OptionProps<BranchOption, false>;
 
   it('should render correctly', () => {
-    expect(renderFunction({ value: 'master', isMain: true })).toMatchSnapshot('main');
-    expect(renderFunction({ value: 'branch-7.4', isMain: false })).toMatchSnapshot('branch');
-    expect(renderFunction({ value: 'disabled', isMain: false, disabled: true })).toMatchSnapshot(
-      'disabled'
-    );
     expect(
-      renderFunction({ value: 'branch-nope', isMain: false, isInvalid: true })
+      renderBranchOption({ ...props, data: { label: 'master', value: 'master', isMain: true } })
+    ).toMatchSnapshot('main');
+    expect(
+      renderBranchOption({
+        ...props,
+        data: { label: 'branch-7.4', value: 'branch-7.4', isMain: false }
+      })
+    ).toMatchSnapshot('branch');
+    expect(
+      renderBranchOption({
+        ...props,
+        data: { label: 'disabled', value: 'disabled', isMain: false, isDisabled: true }
+      })
+    ).toMatchSnapshot('disabled');
+    expect(
+      renderBranchOption({
+        ...props,
+        data: { value: 'branch-nope', isMain: false, isInvalid: true }
+      })
     ).toMatchSnapshot("branch doesn't exist");
   });
 });
 
 function shallowRender(props: Partial<BaselineSettingReferenceBranchProps> = {}) {
   const branchOptions = [
-    { value: 'master', isMain: true },
-    { value: 'branch-7.9', isMain: false }
+    { label: 'master', value: 'master', isMain: true },
+    { label: 'branch-7.9', value: 'branch-7.9', isMain: false }
   ];
 
   return shallow(

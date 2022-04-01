@@ -82,9 +82,10 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
   }
 
   branchToOption = (b: Branch) => ({
+    label: b.name,
     value: b.name,
     isMain: b.isMain,
-    disabled: b.name === this.props.branch.name // cannot itself be used as a reference branch
+    isDisabled: b.name === this.props.branch.name // cannot itself be used as a reference branch
   });
 
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {

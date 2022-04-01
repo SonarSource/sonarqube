@@ -49,6 +49,6 @@ export function mockReactSelectIndicatorProps<
   OptionType,
   IsMulti extends boolean,
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
->(): IndicatorProps<OptionType, IsMulti, GroupType> {
+>(_option: OptionType): IndicatorProps<OptionType, IsMulti, GroupType> {
   return {} as IndicatorProps<OptionType, IsMulti, GroupType>;
 }

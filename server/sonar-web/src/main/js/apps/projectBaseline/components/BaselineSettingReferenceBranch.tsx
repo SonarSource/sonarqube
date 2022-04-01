@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { components, OptionProps } from 'react-select';
 import RadioCard from '../../../components/controls/RadioCard';
-import SearchSelect from '../../../components/controls/SearchSelect';
+import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
@@ -40,32 +41,45 @@ export interface BaselineSettingReferenceBranchProps {
 }
 
 export interface BranchOption {
-  disabled?: boolean;
+  isDisabled?: boolean;
   isInvalid?: boolean;
   isMain: boolean;
+  label: string;
   value: string;
 }
 
-function renderBranchOption(option: BranchOption) {
-  return option.isInvalid ? (
-    <Tooltip
-      overlay={translateWithParameters('baseline.reference_branch.does_not_exist', option.value)}>
-      <span>
-        {option.value} <AlertErrorIcon />
-      </span>
-    </Tooltip>
-  ) : (
-    <>
-      <span
-        title={
-          option.disabled ? translate('baseline.reference_branch.cannot_be_itself') : undefined
-        }>
-        {option.value}
-      </span>
-      {option.isMain && (
-        <div className="badge spacer-left">{translate('branches.main_branch')}</div>
+/* Export for testing */
+export function renderBranchOption(props: OptionProps<BranchOption, false>) {
+  const { data: option } = props;
+
+  return (
+    <components.Option {...props}>
+      {option.isInvalid ? (
+        <Tooltip
+          overlay={translateWithParameters(
+            'baseline.reference_branch.does_not_exist',
+            option.value
+          )}>
+          <span>
+            {option.value} <AlertErrorIcon />
+          </span>
+        </Tooltip>
+      ) : (
+        <>
+          <span
+            title={
+              option.isDisabled
+                ? translate('baseline.reference_branch.cannot_be_itself')
+                : undefined
+            }>
+            {option.value}
+          </span>
+          {option.isMain && (
+            <div className="badge spacer-left">{translate('branches.main_branch')}</div>
+          )}
+        </>
       )}
-    </>
+    </components.Option>
   );
 }
 
@@ -73,6 +87,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
   const { branchList, className, disabled, referenceBranch, selected, settingLevel } = props;
 
   const currentBranch = branchList.find(b => b.value === referenceBranch) || {
+    label: referenceBranch,
     value: referenceBranch,
     isMain: false,
     isInvalid: true
@@ -98,15 +113,15 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
                 <strong>{translate('baseline.reference_branch.choose')}</strong>
                 <MandatoryFieldMarker />
               </label>
-              <SearchSelect<BranchOption>
+              <Select<BranchOption>
                 autofocus={false}
                 className="little-spacer-top spacer-bottom"
-                defaultOptions={branchList}
-                minimumQueryLength={1}
-                onSearch={q => Promise.resolve(branchList.filter(b => b.value.includes(q)))}
-                onSelect={option => props.onChangeReferenceBranch(option.value)}
-                renderOption={renderBranchOption}
+                options={branchList}
+                onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}
                 value={currentBranch}
+                components={{
+                  Option: renderBranchOption
+                }}
               />
             </div>
           </>

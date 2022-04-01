@@ -78,7 +78,7 @@ function renderGeneralSetting(generalSetting: NewCodePeriod) {
 }
 
 function branchToOption(b: Branch) {
-  return { value: b.name, isMain: b.isMain };
+  return { label: b.name, value: b.name, isMain: b.isMain };
 }
 
 export default function ProjectBaselineSelector(props: ProjectBaselineSelectorProps) {

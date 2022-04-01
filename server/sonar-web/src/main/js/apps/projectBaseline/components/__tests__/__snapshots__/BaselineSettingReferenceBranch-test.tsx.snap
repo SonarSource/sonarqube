@@ -1,46 +1,87 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renderOption should render correctly: branch 1`] = `
-<React.Fragment>
-  <span>
-    branch-7.4
-  </span>
-</React.Fragment>
+<Option
+  data={
+    Object {
+      "isMain": false,
+      "label": "branch-7.4",
+      "value": "branch-7.4",
+    }
+  }
+>
+  <React.Fragment>
+    <span>
+      branch-7.4
+    </span>
+  </React.Fragment>
+</Option>
 `;
 
 exports[`renderOption should render correctly: branch doesn't exist 1`] = `
-<Tooltip
-  overlay="baseline.reference_branch.does_not_exist.branch-nope"
+<Option
+  data={
+    Object {
+      "isInvalid": true,
+      "isMain": false,
+      "value": "branch-nope",
+    }
+  }
 >
-  <span>
-    branch-nope
-     
-    <AlertErrorIcon />
-  </span>
-</Tooltip>
+  <Tooltip
+    overlay="baseline.reference_branch.does_not_exist.branch-nope"
+  >
+    <span>
+      branch-nope
+       
+      <AlertErrorIcon />
+    </span>
+  </Tooltip>
+</Option>
 `;
 
 exports[`renderOption should render correctly: disabled 1`] = `
-<React.Fragment>
-  <span
-    title="baseline.reference_branch.cannot_be_itself"
-  >
-    disabled
-  </span>
-</React.Fragment>
+<Option
+  data={
+    Object {
+      "isDisabled": true,
+      "isMain": false,
+      "label": "disabled",
+      "value": "disabled",
+    }
+  }
+>
+  <React.Fragment>
+    <span
+      title="baseline.reference_branch.cannot_be_itself"
+    >
+      disabled
+    </span>
+  </React.Fragment>
+</Option>
 `;
 
 exports[`renderOption should render correctly: main 1`] = `
-<React.Fragment>
-  <span>
-    master
-  </span>
-  <div
-    className="badge spacer-left"
-  >
-    branches.main_branch
-  </div>
-</React.Fragment>
+<Option
+  data={
+    Object {
+      "isMain": true,
+      "label": "master",
+      "value": "master",
+    }
+  }
+>
+  <React.Fragment>
+    <span>
+      master
+    </span>
+    <div
+      className="badge spacer-left"
+    >
+      branches.main_branch
+    </div>
+  </React.Fragment>
+</Option>
 `;
 
 exports[`should render correctly: Branch level - no other branches 1`] = `
@@ -67,24 +108,28 @@ exports[`should render correctly: Branch level - no other branches 1`] = `
       </strong>
       <MandatoryFieldMarker />
     </label>
-    <SearchSelect
+    <Select
       autofocus={false}
       className="little-spacer-top spacer-bottom"
-      defaultOptions={
+      components={
+        Object {
+          "Option": [Function],
+        }
+      }
+      onChange={[Function]}
+      options={
         Array [
           Object {
             "isMain": true,
+            "label": "master",
             "value": "master",
           },
         ]
       }
-      minimumQueryLength={1}
-      onSearch={[Function]}
-      onSelect={[Function]}
-      renderOption={[Function]}
       value={
         Object {
           "isMain": true,
+          "label": "master",
           "value": "master",
         }
       }
@@ -117,28 +162,33 @@ exports[`should render correctly: Branch level 1`] = `
       </strong>
       <MandatoryFieldMarker />
     </label>
-    <SearchSelect
+    <Select
       autofocus={false}
       className="little-spacer-top spacer-bottom"
-      defaultOptions={
+      components={
+        Object {
+          "Option": [Function],
+        }
+      }
+      onChange={[Function]}
+      options={
         Array [
           Object {
             "isMain": true,
+            "label": "master",
             "value": "master",
           },
           Object {
             "isMain": false,
+            "label": "branch-7.9",
             "value": "branch-7.9",
           },
         ]
       }
-      minimumQueryLength={1}
-      onSearch={[Function]}
-      onSelect={[Function]}
-      renderOption={[Function]}
       value={
         Object {
           "isMain": true,
+          "label": "master",
           "value": "master",
         }
       }
@@ -176,28 +226,33 @@ exports[`should render correctly: Project level 1`] = `
       </strong>
       <MandatoryFieldMarker />
     </label>
-    <SearchSelect
+    <Select
       autofocus={false}
       className="little-spacer-top spacer-bottom"
-      defaultOptions={
+      components={
+        Object {
+          "Option": [Function],
+        }
+      }
+      onChange={[Function]}
+      options={
         Array [
           Object {
             "isMain": true,
+            "label": "master",
             "value": "master",
           },
           Object {
             "isMain": false,
+            "label": "branch-7.9",
             "value": "branch-7.9",
           },
         ]
       }
-      minimumQueryLength={1}
-      onSearch={[Function]}
-      onSelect={[Function]}
-      renderOption={[Function]}
       value={
         Object {
           "isMain": true,
+          "label": "master",
           "value": "master",
         }
       }
