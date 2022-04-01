@@ -20,18 +20,22 @@
 package org.sonar.scm.git;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.SubmoduleAddCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
@@ -64,13 +68,10 @@ public class GitIgnoreCommandTest {
 
   @Test
   public void test_pattern_on_deep_repo() throws Exception {
-    Path projectDir = temp.newFolder().toPath();
-    Git.init().setDirectory(projectDir.toFile()).call();
-
-    Files.write(projectDir.resolve(".gitignore"), Arrays.asList("**/*.java"), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+    Path projectDir = createGitRepoWithIgnore();
     int child_folders_per_folder = 2;
     int folder_depth = 10;
-    createDeepFolderStructure(projectDir, child_folders_per_folder, 0, folder_depth);
+    createFolderStructure(projectDir, child_folders_per_folder, 0, folder_depth);
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -79,24 +80,48 @@ public class GitIgnoreCommandTest {
 
     assertThat(underTest
       .isIgnored(projectDir.resolve("folder_0_0/folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.java")))
-        .isTrue();
+      .isTrue();
     assertThat(underTest
       .isIgnored(projectDir.resolve("folder_0_0/folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.php")))
-        .isFalse();
+      .isFalse();
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth) + 1; // The .gitignore file is indexed
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 
   @Test
-  public void dont_index_files_outside_basedir() throws Exception {
-    Path repoRoot = temp.newFolder().toPath();
-    Git.init().setDirectory(repoRoot.toFile()).call();
+  public void include_submodules() throws IOException, GitAPIException {
+    Path projectDir = temp.newFolder().toPath();
+    Git git = Git.init().setDirectory(projectDir.toFile()).call();
 
-    Files.write(repoRoot.resolve(".gitignore"), Arrays.asList("**/*.java"), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+    createSubmoduleWithFiles(git, "module1");
+
+    Files.write(projectDir.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
+    createFolderStructure(projectDir, 1, 0, 1);
+
+    logTester.setLevel(LoggerLevel.DEBUG);
+
+    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    underTest.init(projectDir);
+
+    assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.java"))).isTrue();
+    assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.php"))).isFalse();
+
+    // also applies to files in submodule
+    assertThat(underTest.isIgnored(projectDir.resolve("module1/folder_0_0/Foo.java"))).isTrue();
+    assertThat(underTest.isIgnored(projectDir.resolve("module1/folder_0_0/Foo.php"))).isFalse();
+
+    int expectedIncludedFiles = 6;
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+  }
+
+  @Test
+  public void dont_index_files_outside_basedir() throws Exception {
+    Path repoRoot = createGitRepoWithIgnore();
+
     int child_folders_per_folder = 2;
     int folder_depth = 10;
-    createDeepFolderStructure(repoRoot, child_folders_per_folder, 0, folder_depth);
+    createFolderStructure(repoRoot, child_folders_per_folder, 0, folder_depth);
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
@@ -107,16 +132,45 @@ public class GitIgnoreCommandTest {
 
     assertThat(underTest
       .isIgnored(projectBasedir.resolve("folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.php")))
-        .isFalse();
+      .isFalse();
     assertThat(underTest
       .isIgnored(repoRoot.resolve("folder_0_1/folder_1_0/folder_2_0/folder_3_0/folder_4_0/folder_5_0/folder_6_0/folder_7_0/folder_8_0/folder_9_0/Foo.php")))
-        .isTrue();
+      .isTrue();
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth - 1);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
   }
 
-  private void createDeepFolderStructure(Path current, int childCount, int currentDepth, int maxDepth) throws IOException {
+  private Path createGitRepoWithIgnore() throws IOException, GitAPIException {
+    Path repoRoot = temp.newFolder().toPath();
+    try (Git git = Git.init().setDirectory(repoRoot.toFile()).call()) {
+    }
+    Files.write(repoRoot.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
+    return repoRoot;
+  }
+
+  private void createSubmoduleWithFiles(Git git, String path) throws IOException, GitAPIException {
+    // create the other git repository
+    Path subRoot = temp.newFolder().toPath();
+    Files.write(subRoot.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
+    createFolderStructure(subRoot, 1, 0, 1);
+
+    try (Git subGit = Git.init().setDirectory(subRoot.toFile()).call()) {
+      subGit.add().addFilepattern(".").call();
+      subGit.commit().setMessage("first").call();
+    }
+
+    // add the other git repo as a submodule
+    SubmoduleAddCommand addCommand = git.submoduleAdd()
+      .setURI(subRoot.toUri().toString())
+      .setPath(path);
+    try (Repository module = addCommand.call()) {
+
+    }
+    git.submoduleUpdate().call();
+  }
+
+  private void createFolderStructure(Path current, int childCount, int currentDepth, int maxDepth) throws IOException {
     if (currentDepth >= maxDepth) {
       Path javaFile = current.resolve("Foo.java");
       Path phpFile = current.resolve("Foo.php");
@@ -133,7 +187,7 @@ public class GitIgnoreCommandTest {
       if (!Files.exists(newPath)) {
         Files.createDirectory(newPath);
       }
-      createDeepFolderStructure(newPath, childCount, currentDepth + 1, maxDepth);
+      createFolderStructure(newPath, childCount, currentDepth + 1, maxDepth);
     }
   }
 

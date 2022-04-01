@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.submodule.SubmoduleWalk;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.WorkingTreeIterator;
@@ -47,23 +48,40 @@ public class IncludedFilesRepository {
 
   private void indexFiles(Path baseDir) throws IOException {
     try (Repository repo = JGitUtils.buildRepository(baseDir)) {
-      Path workTreeRoot = repo.getWorkTree().toPath();
-      FileTreeIterator workingTreeIt = new FileTreeIterator(repo);
-      try (TreeWalk treeWalk = new TreeWalk(repo)) {
-        treeWalk.setRecursive(true);
-        if (!baseDir.equals(workTreeRoot)) {
-          Path relativeBaseDir = workTreeRoot.relativize(baseDir);
-          treeWalk.setFilter(PathFilterGroup.createFromStrings(relativeBaseDir.toString().replace('\\', '/')));
+      collectFilesIterative(repo, baseDir);
+    }
+  }
+
+  private void collectFiles(Repository repo, Path baseDir) throws IOException {
+    Path workTreeRoot = repo.getWorkTree().toPath();
+    FileTreeIterator workingTreeIt = new FileTreeIterator(repo);
+    try (TreeWalk treeWalk = new TreeWalk(repo)) {
+      treeWalk.setRecursive(true);
+      // with submodules, the baseDir may be the parent of the workTreeRoot. In that case, we don't want to set a filter.
+      if (!workTreeRoot.equals(baseDir) && baseDir.startsWith(workTreeRoot)) {
+        Path relativeBaseDir = workTreeRoot.relativize(baseDir);
+        treeWalk.setFilter(PathFilterGroup.createFromStrings(relativeBaseDir.toString().replace('\\', '/')));
+      }
+      treeWalk.addTree(workingTreeIt);
+      while (treeWalk.next()) {
+
+        WorkingTreeIterator workingTreeIterator = treeWalk
+          .getTree(0, WorkingTreeIterator.class);
+
+        if (!workingTreeIterator.isEntryIgnored()) {
+          includedFiles.add(workTreeRoot.resolve(treeWalk.getPathString()));
         }
-        treeWalk.addTree(workingTreeIt);
-        while (treeWalk.next()) {
+      }
+    }
+  }
 
-          WorkingTreeIterator workingTreeIterator = treeWalk
-            .getTree(0, WorkingTreeIterator.class);
+  private void collectFilesIterative(Repository repo, Path baseDir) throws IOException {
+    collectFiles(repo, baseDir);
 
-          if (!workingTreeIterator.isEntryIgnored()) {
-            includedFiles.add(workTreeRoot.resolve(treeWalk.getPathString()));
-          }
+    try (SubmoduleWalk submoduleWalk = SubmoduleWalk.forIndex(repo)) {
+      while (submoduleWalk.next()) {
+        try (Repository submoduleRepo = submoduleWalk.getRepository()) {
+          collectFilesIterative(submoduleRepo, baseDir);
         }
       }
     }
