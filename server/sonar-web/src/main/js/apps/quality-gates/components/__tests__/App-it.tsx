@@ -19,6 +19,7 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
@@ -146,8 +147,7 @@ it('should be able to add a condition', async () => {
   let dialog = within(screen.getByRole('dialog'));
 
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.new_code' }));
-  await user.click(dialog.getByRole('combobox'));
-  await user.click(dialog.getByRole('option', { name: 'Issues' }));
+  await selectEvent.select(dialog.getByRole('textbox'), ['Issues']);
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
   await user.keyboard('12{Enter}');
 
@@ -161,9 +161,7 @@ it('should be able to add a condition', async () => {
   await user.click(await screen.findByText('quality_gates.add_condition'));
 
   dialog = within(screen.getByRole('dialog'));
-
-  await user.click(dialog.getByLabelText('quality_gates.conditions.fails_when'));
-  await user.click(dialog.getByRole('option', { name: 'Info Issues' }));
+  await selectEvent.select(dialog.getByRole('textbox'), ['Info Issues']);
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.overall_code' }));
   await user.click(dialog.getByLabelText('quality_gates.conditions.operator'));
 
@@ -183,8 +181,7 @@ it('should be able to add a condition', async () => {
 
   dialog = within(screen.getByRole('dialog'));
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.overall_code' }));
-  await user.click(dialog.getByLabelText('quality_gates.conditions.fails_when'));
-  await user.click(dialog.getByRole('option', { name: 'Maintainability Rating' }));
+  await selectEvent.select(dialog.getByRole('textbox'), ['Maintainability Rating']);
   await user.click(dialog.getByLabelText('quality_gates.conditions.value'));
   await user.click(dialog.getByText('B'));
   await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));

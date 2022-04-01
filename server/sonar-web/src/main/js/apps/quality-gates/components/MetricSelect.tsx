@@ -20,7 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import SelectLegacy from '../../../components/controls/SelectLegacy';
+import Select from '../../../components/controls/Select';
 import { getLocalizedMetricDomain, translate } from '../../../helpers/l10n';
 import { Dict, Metric } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
@@ -76,13 +76,13 @@ export class MetricSelectComponent extends React.PureComponent<Props> {
     });
 
     return (
-      <SelectLegacy
+      <Select
         className="text-middle quality-gate-metric-select"
         id="condition-metric"
         onChange={this.handleChange}
         options={optionsWithDomains}
         placeholder={translate('search.search_for_metrics')}
-        value={metric && metric.key}
+        value={optionsWithDomains.find(o => o.value === metric?.key)}
       />
     );
   }

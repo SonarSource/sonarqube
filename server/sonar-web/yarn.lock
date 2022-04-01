@@ -2722,6 +2722,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/dom@npm:>=7":
+  version: 8.12.0
+  resolution: "@testing-library/dom@npm:8.12.0"
+  dependencies:
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.12.5
+    "@types/aria-query": ^4.2.0
+    aria-query: ^5.0.0
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.9
+    lz-string: ^1.4.4
+    pretty-format: ^27.0.2
+  checksum: 2bbf5fa5c1e883571c440ccee76c0568fa5153b43c097456dd7146797256687352bfca9db574e0e78a022ce14722a6acaaba5f680ee16b95e12405501713d34d
+  languageName: node
+  linkType: hard
+
 "@testing-library/jest-dom@npm:5.16.2":
   version: 5.16.2
   resolution: "@testing-library/jest-dom@npm:5.16.2"
@@ -3612,6 +3628,7 @@ __metadata:
     react-redux: 5.1.1
     react-router: 3.2.6
     react-select: 4.3.1
+    react-select-event: 5.4.0
     react-select-legacy: "npm:react-select@1.2.1"
     react-virtualized: 9.22.3
     redux: 4.1.2
@@ -10597,6 +10614,15 @@ __metadata:
   peerDependencies:
     react: ^0.14.0 || ^15.0.0 || ^16.0.0
   checksum: 1604dab702ce2dbf2b9754fc62e0ce78ad9ec359e8414a282e633d162bc7294b46fd85ef54fd2edf179a5ea299775d06c35d334edad0798174fd88e9f871f4ed
+  languageName: node
+  linkType: hard
+
+"react-select-event@npm:5.4.0":
+  version: 5.4.0
+  resolution: "react-select-event@npm:5.4.0"
+  dependencies:
+    "@testing-library/dom": ">=7"
+  checksum: 244b1bdff5374b56a7d8156859a10dfd3191573ac419a8f91a64283cde48517df83c90f2df1891fc74bceb548d21ace9a9cb87e252bf2f83f78e305ea577af53
   languageName: node
   linkType: hard
 

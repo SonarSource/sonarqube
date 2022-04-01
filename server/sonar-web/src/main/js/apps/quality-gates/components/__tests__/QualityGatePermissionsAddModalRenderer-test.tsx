@@ -19,9 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SelectLegacy from '../../../../components/controls/SelectLegacy';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import QualityGatePermissionsAddModalRenderer, {
+  customOptions,
   QualityGatePermissionsAddModalRendererProps
 } from '../QualityGatePermissionsAddModalRenderer';
 
@@ -38,12 +38,10 @@ it('should render correctly', () => {
 });
 
 it('should render options correctly', () => {
-  const wrapper = shallowRender();
-
-  const { optionRenderer = () => null } = wrapper.find(SelectLegacy).props();
-
-  expect(optionRenderer({ avatar: 'A', name: 'name', login: 'login' })).toMatchSnapshot('user');
-  expect(optionRenderer({ name: 'group name' })).toMatchSnapshot('group');
+  expect(
+    customOptions({ avatar: 'A', name: 'name', login: 'login', value: 'login' })
+  ).toMatchSnapshot('user');
+  expect(customOptions({ name: 'group name', value: 'group name' })).toMatchSnapshot('group');
 });
 
 function shallowRender(overrides: Partial<QualityGatePermissionsAddModalRendererProps> = {}) {

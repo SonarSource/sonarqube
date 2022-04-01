@@ -127,6 +127,7 @@
     "postcss-calc": "7.0.2",
     "postcss-custom-properties": "9.1.1",
     "prettier": "1.19.1",
+    "react-select-event": "5.4.0",
     "remark": "11.0.2",
     "remark-react": "7",
     "ts-jest": "27.1.3",

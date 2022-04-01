@@ -24,20 +24,25 @@ exports[`should render correctly: default 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <SelectLegacy
+        <Select
           autoFocus={true}
           className="Select-big"
-          clearable={false}
+          components={
+            Object {
+              "Control": [Function],
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
           filterOptions={[Function]}
+          isClearable={false}
           isLoading={false}
-          noResultsText="no_results"
+          isSearchable={true}
+          noOptionsMessage={[Function]}
           onChange={[MockFunction]}
           onInputChange={[MockFunction]}
-          optionRenderer={[Function]}
           options={Array []}
           placeholder=""
-          searchable={true}
-          valueRenderer={[Function]}
         />
       </div>
     </div>
@@ -83,16 +88,23 @@ exports[`should render correctly: query and results 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <SelectLegacy
+        <Select
           autoFocus={true}
           className="Select-big"
-          clearable={false}
+          components={
+            Object {
+              "Control": [Function],
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
           filterOptions={[Function]}
+          isClearable={false}
           isLoading={false}
-          noResultsText="no_results"
+          isSearchable={true}
+          noOptionsMessage={[Function]}
           onChange={[MockFunction]}
           onInputChange={[MockFunction]}
-          optionRenderer={[Function]}
           options={
             Array [
               Object {
@@ -106,8 +118,6 @@ exports[`should render correctly: query and results 1`] = `
             ]
           }
           placeholder=""
-          searchable={true}
-          valueRenderer={[Function]}
         />
       </div>
     </div>
@@ -153,25 +163,25 @@ exports[`should render correctly: selection 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <SelectLegacy
+        <Select
           autoFocus={true}
           className="Select-big"
-          clearable={false}
-          filterOptions={[Function]}
-          isLoading={false}
-          noResultsText="no_results"
-          onChange={[MockFunction]}
-          onInputChange={[MockFunction]}
-          optionRenderer={[Function]}
-          options={Array []}
-          placeholder=""
-          searchable={true}
-          value={
+          components={
             Object {
-              "login": "userlogin",
+              "Control": [Function],
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
-          valueRenderer={[Function]}
+          filterOptions={[Function]}
+          isClearable={false}
+          isLoading={false}
+          isSearchable={true}
+          noOptionsMessage={[Function]}
+          onChange={[MockFunction]}
+          onInputChange={[MockFunction]}
+          options={Array []}
+          placeholder=""
         />
       </div>
     </div>
@@ -217,20 +227,25 @@ exports[`should render correctly: short query 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <SelectLegacy
+        <Select
           autoFocus={true}
           className="Select-big"
-          clearable={false}
+          components={
+            Object {
+              "Control": [Function],
+              "Option": [Function],
+              "SingleValue": [Function],
+            }
+          }
           filterOptions={[Function]}
+          isClearable={false}
           isLoading={false}
-          noResultsText="no_results"
+          isSearchable={true}
+          noOptionsMessage={[Function]}
           onChange={[MockFunction]}
           onInputChange={[MockFunction]}
-          optionRenderer={[Function]}
           options={Array []}
           placeholder=""
-          searchable={true}
-          valueRenderer={[Function]}
         />
       </div>
     </div>
@@ -276,25 +291,25 @@ exports[`should render correctly: submitting 1`] = `
         <label>
           quality_gates.permissions.search
         </label>
-        <SelectLegacy
+        <Select
           autoFocus={true}
           className="Select-big"
-          clearable={false}
-          filterOptions={[Function]}
-          isLoading={false}
-          noResultsText="no_results"
-          onChange={[MockFunction]}
-          onInputChange={[MockFunction]}
-          optionRenderer={[Function]}
-          options={Array []}
-          placeholder=""
-          searchable={true}
-          value={
+          components={
             Object {
-              "login": "userlogin",
+              "Control": [Function],
+              "Option": [Function],
+              "SingleValue": [Function],
             }
           }
-          valueRenderer={[Function]}
+          filterOptions={[Function]}
+          isClearable={false}
+          isLoading={false}
+          isSearchable={true}
+          noOptionsMessage={[Function]}
+          onChange={[MockFunction]}
+          onInputChange={[MockFunction]}
+          options={Array []}
+          placeholder=""
         />
       </div>
     </div>
