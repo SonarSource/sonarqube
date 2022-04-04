@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2021 SonarSource SA
+ * Copyright (C) 2009-2022 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ export default function Footer() {
           src="https://licensebuttons.net/l/by-nc/3.0/us/88x31.png"
         />
       </a>
-      © 2008-2021, SonarSource S.A, Switzerland. Except where otherwise noted, content in this space
+      © 2008-2022, SonarSource S.A, Switzerland. Except where otherwise noted, content in this space
       is licensed under a{' '}
       <a
         href="https://creativecommons.org/licenses/by-nc/3.0/us/"

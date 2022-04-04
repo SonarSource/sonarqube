@@ -486,6 +486,7 @@ subprojects {
 
   license {
     header = rootProject.file('HEADER')
+    encoding = 'UTF-8'
     strictCheck true
     mapping {
       java = 'SLASHSTAR_STYLE'
